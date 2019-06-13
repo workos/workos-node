@@ -1,0 +1,18 @@
+{
+  "name": "workos-node",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "test": "jest --passWithNoTests",
+    "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
+    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write"
+  },
+  "devDependencies": {
+    "jest": "24.8.0",
+    "prettier": "1.18.2",
+    "supertest": "4.0.2",
+    "ts-jest": "24.0.2",
+    "typescript": "3.5.1"
+  }
+}

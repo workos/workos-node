@@ -1,0 +1,96 @@
+version: v1.0
+name: workos-node pipeline
+
+execution_time_limit:
+  minutes: 15
+
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: Install dependencies
+    task:
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: CI
+          value: "true"
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - npm --version
+      jobs:
+        - name: yarn install and cache
+          commands:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - yarn bootstrap
+            - cache store client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock) node_modules
+
+  - name: Lint
+    task:
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: CI
+          value: "true"
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - npm --version
+      jobs:
+        - name: Run lint
+          commands:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - yarn lint
+
+  - name: Formatting
+    task:
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: CI
+          value: "true"
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - npm --version
+      jobs:
+        - name: Run prettier
+          commands:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - yarn prettier
+
+  - name: Tests
+    task:
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - nvm --version
+        - name: Run tests
+          commands:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - yarn test
+
+  - name: Build
+    task:
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - node --version
+          - npm --version
+      jobs:
+        - name: Run build
+          commands:
+            - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
+            - yarn build
