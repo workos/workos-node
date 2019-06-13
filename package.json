@@ -1,6 +1,6 @@
 {
   "name": "@workos-inc/workos-node",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "dst/workos.js",
   "files": [
     "dist/**/*"
