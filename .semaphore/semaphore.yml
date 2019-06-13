@@ -1,5 +1,5 @@
 version: v1.0
-name: workos-node pipeline
+name: workos-js pipeline
 
 execution_time_limit:
   minutes: 15
