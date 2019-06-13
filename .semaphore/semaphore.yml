@@ -16,7 +16,7 @@ blocks:
         - name: NODE_ENV
           value: test
         - name: CI
-          value: "true"
+          value: 'true'
       prologue:
         commands:
           - checkout
@@ -27,7 +27,7 @@ blocks:
         - name: yarn install and cache
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn bootstrap
+            - yarn
             - cache store client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock) node_modules
 
   - name: Lint
@@ -36,7 +36,7 @@ blocks:
         - name: NODE_ENV
           value: test
         - name: CI
-          value: "true"
+          value: 'true'
       prologue:
         commands:
           - checkout
@@ -55,7 +55,7 @@ blocks:
         - name: NODE_ENV
           value: test
         - name: CI
-          value: "true"
+          value: 'true'
       prologue:
         commands:
           - checkout
@@ -70,12 +70,25 @@ blocks:
 
   - name: Tests
     task:
+      env_vars:
+        - name: NODE_ENV
+          value: test
+        - name: CI
+          value: 'true'
       prologue:
         commands:
           - checkout
           - nvm use
           - node --version
           - nvm --version
+          - sem-service start postgres
+          - sudo apt-get install -y -qq postgresql-client
+          - createdb -U postgres -h 0.0.0.0 $DB_NAME
+          - psql -h 0.0.0.0 -U postgres -c "\l" | grep $DB_NAME
+          - sem-service status postgres
+          - sem-service start redis
+          - sem-service status redis
+      jobs:
         - name: Run tests
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
