@@ -12,6 +12,8 @@ agent:
 blocks:
   - name: Install dependencies
     task:
+      secrets:
+        - name: workos-npm
       env_vars:
         - name: NODE_ENV
           value: test
@@ -32,6 +34,8 @@ blocks:
 
   - name: Lint
     task:
+      secrets:
+        - name: workos-npm
       env_vars:
         - name: NODE_ENV
           value: test
@@ -51,6 +55,8 @@ blocks:
 
   - name: Formatting
     task:
+      secrets:
+        - name: workos-npm
       env_vars:
         - name: NODE_ENV
           value: test
@@ -70,6 +76,8 @@ blocks:
 
   - name: Tests
     task:
+      secrets:
+        - name: workos-npm
       env_vars:
         - name: NODE_ENV
           value: test
@@ -89,6 +97,8 @@ blocks:
 
   - name: Build
     task:
+      secrets:
+        - name: workos-npm
       prologue:
         commands:
           - checkout
