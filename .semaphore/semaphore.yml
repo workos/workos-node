@@ -81,13 +81,6 @@ blocks:
           - nvm use
           - node --version
           - nvm --version
-          - sem-service start postgres
-          - sudo apt-get install -y -qq postgresql-client
-          - createdb -U postgres -h 0.0.0.0 $DB_NAME
-          - psql -h 0.0.0.0 -U postgres -c "\l" | grep $DB_NAME
-          - sem-service status postgres
-          - sem-service start redis
-          - sem-service status redis
       jobs:
         - name: Run tests
           commands:
