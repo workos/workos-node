@@ -16,4 +16,5 @@ blocks:
           commands:
             - checkout --use-cache
             - yarn
+            - yarn bump-version
             - yarn publish --access=public

@@ -1,6 +1,6 @@
 {
   "name": "@workos-inc/js",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "dst/workos.js",
   "files": [
     "dist/**/*"
@@ -12,7 +12,8 @@
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepare": "yarn run build",
-    "prepublishOnly": "yarn test && yarn run lint && yarn auto-upgrade-npm-version",
+    "bump-version": " auto-upgrade-npm-version",
+    "prepublishOnly": "yarn test && yarn run lint",
     "preversion": "yarn run lint"
   },
   "devDependencies": {
