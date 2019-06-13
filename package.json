@@ -1,5 +1,5 @@
 {
-  "name": "@workos-inc/workos-js",
+  "name": "@workos-inc/js",
   "version": "0.0.0",
   "main": "dst/workos.js",
   "files": [
