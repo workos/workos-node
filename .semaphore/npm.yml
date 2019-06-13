@@ -1,0 +1,18 @@
+version: v1.0
+
+name: NPM deployment
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+
+blocks:
+  - name: Publish
+    task:
+      secrets:
+        - name: workos-npm
+      jobs:
+        - name: Publish to NPM
+          commands:
+            - checkout --use-cache
+            - yarn publish --access=public

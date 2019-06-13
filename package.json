@@ -1,12 +1,19 @@
 {
-  "name": "workos-node",
-  "private": true,
+  "name": "@workos-inc/workos-node",
+  "version": "0.0.0",
+  "main": "dst/workos.js",
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest --passWithNoTests",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
-    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write"
+    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
+    "prepare": "yarn run build",
+    "prepublishOnly": "yarn test && yarn run lint",
+    "preversion": "yarn run lint"
   },
   "devDependencies": {
     "jest": "24.8.0",
@@ -15,5 +22,19 @@
     "ts-jest": "24.0.2",
     "tslint": "5.17.0",
     "typescript": "3.5.1"
-  }
+  },
+  "description": "A wrapper for the WorkOS API for all things javascript.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/workos-inc/workos-node.git"
+  },
+  "keywords": [
+    "workos"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/workos-inc/workos-node/issues"
+  },
+  "homepage": "https://github.com/workos-inc/workos-node#readme"
 }
