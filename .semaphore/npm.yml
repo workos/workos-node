@@ -15,4 +15,5 @@ blocks:
         - name: Publish to NPM
           commands:
             - checkout --use-cache
+            - yarn
             - yarn publish --access=public
