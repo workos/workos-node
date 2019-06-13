@@ -1,7 +1,7 @@
 {
   "name": "@workos-inc/js",
   "version": "0.0.1",
-  "main": "dst/workos.js",
+  "main": "dist/workos.js",
   "files": [
     "dist/**/*"
   ],
