@@ -1,6 +1,6 @@
 {
-  "name": "@workos-inc/workos-node",
-  "version": "0.0.1",
+  "name": "@workos-inc/workos-js",
+  "version": "0.0.0",
   "main": "dst/workos.js",
   "files": [
     "dist/**/*"
@@ -26,7 +26,7 @@
   "description": "A wrapper for the WorkOS API for all things javascript.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/workos-inc/workos-node.git"
+    "url": "git+https://github.com/workos-inc/workos-js.git"
   },
   "keywords": [
     "workos"
@@ -34,7 +34,7 @@
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/workos-inc/workos-node/issues"
+    "url": "https://github.com/workos-inc/workos-js/issues"
   },
-  "homepage": "https://github.com/workos-inc/workos-node#readme"
+  "homepage": "https://github.com/workos-inc/workos-js#readme"
 }

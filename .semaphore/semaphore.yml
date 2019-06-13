@@ -111,7 +111,7 @@ blocks:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
             - yarn build
 promotions:
-  - name: Deploy workos-node to npm
+  - name: Deploy workos-js to npm
     pipeline_file: npm.yml
     auto_promote_on:
       - result: passed
