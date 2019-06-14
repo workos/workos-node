@@ -13,7 +13,7 @@ import { version } from '../package.json';
 export class WorkOS {
   private readonly options: WorkOSOptions;
 
-  // tslint:disable:next-line variable-namepp
+  // tslint:disable:next-line variable-name
   public readonly AuditLog: AuditLog;
 
   constructor(options: WorkOSOptions) {
