@@ -51,7 +51,6 @@ blocks:
         - name: Run lint
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn
             - yarn lint
 
   - name: Formatting
@@ -73,7 +72,6 @@ blocks:
         - name: Run prettier
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn
             - yarn prettier
 
   - name: Tests
@@ -95,7 +93,6 @@ blocks:
         - name: Run tests
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn
             - yarn test
 
   - name: Build
@@ -112,7 +109,6 @@ blocks:
         - name: Run build
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn
             - yarn build
 promotions:
   - name: Deploy workos-js to npm
