@@ -2,7 +2,6 @@ import { HttpException } from '../interfaces';
 
 export class NotFoundException implements HttpException {
   readonly status: number = 404;
-  readonly docsUrl: string = 'tbd';
   readonly name: string = 'NotFoundException';
   readonly message: string;
 

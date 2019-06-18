@@ -7,6 +7,7 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
   UnprocessableEntityException,
+  NoApiKeyProvidedException,
 } from './common/exceptions';
 
 const mock = new MockAdapater(axios);
@@ -23,6 +24,42 @@ const event = {
 };
 
 describe('WorkOS', () => {
+  describe('constructor', () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+      jest.resetModules();
+      process.env = { ...OLD_ENV };
+      delete process.env.NODE_ENV;
+    });
+
+    afterEach(() => {
+      process.env = OLD_ENV;
+    });
+
+    describe('when no api key is provided', () => {
+      it('throws a NoApiKeyFoundException', async () => {
+        expect(() => new WorkOS()).toThrowError(NoApiKeyProvidedException);
+      });
+    });
+
+    describe('when api key is provided with environment variable', () => {
+      it('constructs successfuly', async () => {
+        process.env.WORKOS_API_KEY = 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU';
+
+        expect(() => new WorkOS()).not.toThrow();
+      });
+    });
+
+    describe('when api key is provided with constructor', () => {
+      it('constructs successfuly', async () => {
+        expect(
+          () => new WorkOS({ apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU' }),
+        ).not.toThrow();
+      });
+    });
+  });
+
   describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
       it('posts Event successfuly', async () => {
