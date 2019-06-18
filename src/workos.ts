@@ -61,7 +61,7 @@ export default class WorkOS {
           case 404: {
             throw new NotFoundException(path);
           }
-          case 500: {
+          default: {
             throw new InternalServerErrorException();
           }
         }
