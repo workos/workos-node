@@ -1,6 +1,6 @@
-import { WorkOSException } from '../interfaces';
+import { HttpException } from '../interfaces';
 
-export class UnauthorizedException implements WorkOSException {
+export class UnauthorizedException implements HttpException {
   readonly status: number = 401;
   readonly docsUrl: string = 'tbd';
   readonly name: string = 'UnauthorizedException';

@@ -1,6 +1,6 @@
-import { WorkOSException, UnprocessableEntityError } from '../interfaces';
+import { HttpException, UnprocessableEntityError } from '../interfaces';
 
-export class UnprocessableEntityException implements WorkOSException {
+export class UnprocessableEntityException implements HttpException {
   readonly status: number = 422;
   readonly docsUrl: string = 'tbd';
   readonly name: string = 'UnprocessableEntityException';

@@ -1,6 +1,6 @@
-import { WorkOSException } from '../interfaces';
+import { HttpException } from '../interfaces';
 
-export class InternalServerErrorException implements WorkOSException {
+export class InternalServerErrorException implements HttpException {
   readonly status: number = 500;
   readonly docsUrl: string = 'tbd';
   readonly name: string = 'InternalServerErrorException';
