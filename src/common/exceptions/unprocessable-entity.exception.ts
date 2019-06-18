@@ -1,3 +1,5 @@
+import pluralize from 'pluralize';
+
 import { HttpException, UnprocessableEntityError } from '../interfaces';
 
 export class UnprocessableEntityException implements HttpException {
@@ -6,8 +8,9 @@ export class UnprocessableEntityException implements HttpException {
   readonly message: string;
 
   constructor(errors: UnprocessableEntityError[]) {
-    const plural: string = errors.length > 1 ? 's' : '';
-    this.message = `The following requirement${plural} must be met:\n`;
+    const requirement: string = pluralize('requirement', errors.length);
+
+    this.message = `The following ${requirement} must be met:\n`;
 
     for (const error of errors) {
       this.message.concat(`\t${error.code}\n`);
