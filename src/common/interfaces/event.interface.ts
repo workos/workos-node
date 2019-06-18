@@ -1,4 +1,4 @@
-export interface EventOptions {
+export interface Event {
   group: string;
   actor_name: string;
   actor_id: string;

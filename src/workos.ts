@@ -1,28 +1,26 @@
 import axios, { AxiosError } from 'axios';
 
-import { AuditLog } from './audit-log/audit-log';
-import { RestEntity, WorkOSOptions } from './common/interfaces';
 import {
   InternalServerErrorException,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
 } from './common/exceptions';
+import { WorkOSOptions, Event } from './common/interfaces';
 import { version } from '../package.json';
 
-export class WorkOS {
+export default class WorkOS {
   private readonly options: WorkOSOptions;
-
-  // tslint:disable:next-line variable-name
-  public readonly AuditLog: AuditLog;
 
   constructor(options: WorkOSOptions) {
     this.options = options;
-    this.AuditLog = new AuditLog(this);
   }
 
-  async post(entity: RestEntity) {
-    const { path } = entity;
+  async createEvent(event: Event) {
+    await this.post(event, '/events');
+  }
+
+  async post(entity: any, path: string) {
     const { apiKey, apiEndpoint = 'api.workos.com' } = this.options;
 
     try {
