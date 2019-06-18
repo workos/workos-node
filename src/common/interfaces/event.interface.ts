@@ -8,5 +8,7 @@ export interface Event {
   target_id: string;
   action: string;
   action_type: string;
-  metadata?: any;
+  metadata?: {
+    [key: string]: string;
+  };
 }
