@@ -77,7 +77,7 @@ describe('WorkOS', () => {
       it('throws an UnauthorizedException', async () => {
         mock.onPost().reply(401, { message: 'Unauthorized' });
 
-        const workos = new WorkOS({ apiKey: 'invlaid apikey' });
+        const workos = new WorkOS({ apiKey: 'invalid apikey' });
 
         await expect(workos.createEvent(event)).rejects.toStrictEqual(
           new UnauthorizedException(),

@@ -1,3 +1,3 @@
-const API_ENDPOINT: string = 'api.workos.com';
+const API_HOSTNAME: string = 'api.workos.com';
 
-export { API_ENDPOINT };
+export { API_HOSTNAME };

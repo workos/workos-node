@@ -1,4 +1,4 @@
 export interface WorkOSOptions {
   apiKey?: string;
-  apiEndpoint?: string;
+  apiHostname?: string;
 }

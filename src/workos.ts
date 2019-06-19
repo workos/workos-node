@@ -1,7 +1,6 @@
-// tslint:disable:no-default-export
 import axios, { AxiosError } from 'axios';
 
-import { API_ENDPOINT } from './common/constants';
+import { API_HOSTNAME } from './common/constants';
 import {
   InternalServerErrorException,
   NoApiKeyProvidedException,
@@ -12,6 +11,7 @@ import {
 import { WorkOSOptions, Event } from './common/interfaces';
 import { version } from '../package.json';
 
+// tslint:disable-next-line:no-default-export
 export default class WorkOS {
   private readonly options: WorkOSOptions;
 
@@ -35,10 +35,10 @@ export default class WorkOS {
   }
 
   async post(entity: any, path: string) {
-    const { apiKey, apiEndpoint = API_ENDPOINT } = this.options;
+    const { apiKey, apiHostname = API_HOSTNAME } = this.options;
 
     try {
-      await axios.post(`https://${apiEndpoint}${path}`, entity, {
+      await axios.post(`https://${apiHostname}${path}`, entity, {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           'User-Agent': `workos-js/${version}`,
