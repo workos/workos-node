@@ -44,7 +44,7 @@ describe('WorkOS', () => {
     });
 
     describe('when api key is provided with environment variable', () => {
-      it('constructs successfuly', async () => {
+      it('initializes', async () => {
         process.env.WORKOS_API_KEY = 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU';
 
         expect(() => new WorkOS()).not.toThrow();
