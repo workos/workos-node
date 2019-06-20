@@ -54,7 +54,7 @@ describe('WorkOS', () => {
     describe('when api key is provided with constructor', () => {
       it('constructs successfuly', async () => {
         expect(
-          () => new WorkOS({ apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU' }),
+          () => new WorkOS({ key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU' }),
         ).not.toThrow();
       });
     });
@@ -66,7 +66,7 @@ describe('WorkOS', () => {
         mock.onPost().reply(201, { success: true });
 
         const workos = new WorkOS({
-          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         });
 
         await expect(workos.createEvent(event)).resolves.toBeUndefined();
@@ -77,7 +77,7 @@ describe('WorkOS', () => {
       it('throws an UnauthorizedException', async () => {
         mock.onPost().reply(401, { message: 'Unauthorized' });
 
-        const workos = new WorkOS({ apiKey: 'invalid apikey' });
+        const workos = new WorkOS({ key: 'invalid apikey' });
 
         await expect(workos.createEvent(event)).rejects.toStrictEqual(
           new UnauthorizedException(),
@@ -104,7 +104,7 @@ describe('WorkOS', () => {
         });
 
         const workos = new WorkOS({
-          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         });
 
         await expect(workos.createEvent(event)).rejects.toStrictEqual(
@@ -120,7 +120,7 @@ describe('WorkOS', () => {
         mock.onPost().reply(404, { message: 'Not Found' });
 
         const workos = new WorkOS({
-          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         });
 
         await expect(workos.post({}, '/path')).rejects.toStrictEqual(
@@ -134,7 +134,7 @@ describe('WorkOS', () => {
         mock.onPost().reply(500);
 
         const workos = new WorkOS({
-          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         });
 
         await expect(workos.post({}, '/path')).rejects.toStrictEqual(

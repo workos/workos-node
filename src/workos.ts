@@ -17,13 +17,13 @@ export default class WorkOS {
 
   constructor(options: WorkOSOptions = {}) {
     this.options = options;
-    const { apiKey } = this.options;
+    const { key } = this.options;
 
-    if (!apiKey) {
+    if (!key) {
       const envKey = process.env.WORKOS_API_KEY;
 
       if (envKey) {
-        this.options.apiKey = envKey;
+        this.options.key = envKey;
       } else {
         throw new NoApiKeyProvidedException();
       }
@@ -35,12 +35,12 @@ export default class WorkOS {
   }
 
   async post(entity: any, path: string) {
-    const { apiKey, apiHostname = API_HOSTNAME } = this.options;
+    const { key, apiHostname = API_HOSTNAME } = this.options;
 
     try {
       await axios.post(`https://${apiHostname}${path}`, entity, {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${key}`,
           'User-Agent': `workos-js/${version}`,
         },
       });
