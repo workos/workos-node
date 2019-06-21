@@ -5,6 +5,7 @@
     "no-unused-expression": true
   },
   "rules": {
+    "object-literal-key-quotes": false,
     "arrow-parens": false,
     "interface-name": [false],
     "max-line-length": [true, 150],
