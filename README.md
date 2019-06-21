@@ -50,17 +50,17 @@ The resulting event being sent to WorkOS looks like:
 
 ```json
 {
-  group: 'organization_1',
-  action: 'user.login',
-  action_type: 'C',
-  actor_name: 'user@email.com',
-  actor_id: 'user_1',
-  target_name: 'user@email.com',
-  target_id: 'user_1',
-  location: '1.1.1.1',
-  occured_at: '2019-05-01T01:15:55.619355Z',
-  metadata: {}
-};
+  "group": "organization_1",
+  "action": "user.login",
+  "action_type": "C",
+  "actor_name": "user@email.com",
+  "actor_id": "user_1",
+  "target_name": "user@email.com",
+  "target_id": "user_1",
+  "location": "1.1.1.1",
+  "occured_at": "2019-05-01T01:15:55.619355Z",
+  "metadata": {}
+}
 ```
 
 All events are published to WorkOS asyncronously by default and support `await / async` behavior.
