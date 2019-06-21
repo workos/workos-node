@@ -28,7 +28,7 @@ const workos = new WorkOS({ apiKey: 'sk_1234' });
 
 ## Usage
 
-Creating an Audit Log event requires a descriptive action name and annotating the event with its CRUD identifier. The action name must contain an action category and an action name seperated by a period, for example, `user.login`.
+Creating an Audit Log event requires a descriptive action name and annotating the event with its CRUD identifier. The action name must contain an action category and an action name separated by a period, for example, `user.login`.
 
 ```ts
 const event = {
