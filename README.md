@@ -63,7 +63,7 @@ The resulting event being sent to WorkOS looks like:
 }
 ```
 
-All events are published to WorkOS asyncronously by default and support `await / async` behavior.
+All events are published to WorkOS asynchronously by default and support `await / async` behavior.
 
 ## Adding Metadata To Events
 
