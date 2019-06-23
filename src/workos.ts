@@ -66,6 +66,8 @@ export default class WorkOS {
           }
         }
       }
+
+      throw error;
     }
   }
 }
