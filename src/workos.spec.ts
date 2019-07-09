@@ -6,7 +6,6 @@ import {
   NotFoundException,
   InternalServerErrorException,
   UnauthorizedException,
-  UnprocessableEntityException,
   NoApiKeyProvidedException,
 } from './common/exceptions';
 
@@ -94,7 +93,7 @@ describe('WorkOS', () => {
           },
           {
             field: 'occurred_at',
-            code: 'occurred_at must be a ISOString',
+            code: 'occurred_at must be an ISO 8601 date string',
           },
         ];
 
@@ -107,9 +106,7 @@ describe('WorkOS', () => {
           key: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         });
 
-        await expect(workos.createEvent(event)).rejects.toStrictEqual(
-          new UnprocessableEntityException(errors),
-        );
+        await expect(workos.createEvent(event)).rejects.toMatchSnapshot();
       });
     });
   });
