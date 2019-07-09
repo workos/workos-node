@@ -93,7 +93,7 @@ describe('WorkOS', () => {
           },
           {
             field: 'occurred_at',
-            code: 'occurred_at must be a ISOString',
+            code: 'occurred_at must be an ISO 8601 date string',
           },
         ];
 
