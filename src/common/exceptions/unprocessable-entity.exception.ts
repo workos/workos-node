@@ -12,8 +12,8 @@ export class UnprocessableEntityException implements HttpException {
 
     this.message = `The following ${requirement} must be met:\n`;
 
-    for (const error of errors) {
-      this.message.concat(`\t${error.code}\n`);
+    for (const { code } of errors) {
+      this.message = this.message.concat(`\t${code}\n`);
     }
   }
 }
