@@ -25,7 +25,7 @@
     "@types/node": "12.6.1",
     "@types/pluralize": "0.0.29",
     "auto-upgrade-npm-version": "1.0.7",
-    "axios-mock-adapter": "1.16.0",
+    "axios-mock-adapter": "1.17.0",
     "jest": "24.8.0",
     "prettier": "1.18.2",
     "supertest": "4.0.2",
