@@ -21,7 +21,7 @@
     "pluralize": "8.0.0"
   },
   "devDependencies": {
-    "@types/jest": "24.0.15",
+    "@types/jest": "24.0.17",
     "@types/node": "12.6.1",
     "@types/pluralize": "0.0.29",
     "auto-upgrade-npm-version": "1.0.7",
