@@ -43,7 +43,7 @@ const event = {
   occurred_at: new Date(0),
 };
 
-workos.auditlog.create(event);
+workos.auditLog.createEvent(event);
 ```
 
 The resulting event being sent to WorkOS looks like:
@@ -95,7 +95,7 @@ const event = {
   },
 };
 
-workos.auditlog.create(event);
+workos.auditLog.createEvent(event);
 ```
 
 Resulting in the following being sent to WorkOS:

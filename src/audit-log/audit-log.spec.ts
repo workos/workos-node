@@ -17,7 +17,7 @@ const event = {
   action: 'document.updated',
 };
 
-describe('auditlog', () => {
+describe('AuditLog', () => {
   describe('create', () => {
     describe('when the api responds with a 201 CREATED', () => {
       it('posts Event successfuly', async () => {
@@ -25,7 +25,9 @@ describe('auditlog', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(workos.auditlog.create(event)).resolves.toBeUndefined();
+        await expect(
+          workos.auditLog.createEvent(event),
+        ).resolves.toBeUndefined();
       });
     });
 
@@ -35,7 +37,7 @@ describe('auditlog', () => {
 
         const workos = new WorkOS('invalid apikey');
 
-        await expect(workos.auditlog.create(event)).rejects.toStrictEqual(
+        await expect(workos.auditLog.createEvent(event)).rejects.toStrictEqual(
           new UnauthorizedException(),
         );
       });
@@ -61,7 +63,9 @@ describe('auditlog', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(workos.auditlog.create(event)).rejects.toMatchSnapshot();
+        await expect(
+          workos.auditLog.createEvent(event),
+        ).rejects.toMatchSnapshot();
       });
     });
   });

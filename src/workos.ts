@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
-import { Auditlog } from './auditlog/auditlog';
 import { API_HOSTNAME } from './common/constants';
+import { AuditLog } from './audit-log/audit-log';
 import {
   InternalServerErrorException,
   NoApiKeyProvidedException,
@@ -14,7 +14,7 @@ import { WorkOSOptions } from './common/interfaces';
 
 // tslint:disable-next-line:no-default-export
 export default class WorkOS {
-  readonly auditlog: Auditlog = new Auditlog(this);
+  readonly auditLog = new AuditLog(this);
 
   constructor(
     private readonly key?: string,

@@ -1,10 +1,10 @@
 import { Event } from '../common/interfaces';
 import WorkOS from '../workos';
 
-export class Auditlog {
+export class AuditLog {
   constructor(private readonly workos: WorkOS) {}
 
-  async create(event: Event) {
+  async createEvent(event: Event) {
     await this.workos.post(event, '/events');
   }
 }
