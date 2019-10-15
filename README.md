@@ -23,7 +23,7 @@ Or you can set it on your own before your application starts:
 ```ts
 import WorkOS from '@workos-inc/js';
 
-const workos = new WorkOS({ apiKey: 'sk_1234' });
+const workos = new WorkOS('sk_1234');
 ```
 
 ## Usage
