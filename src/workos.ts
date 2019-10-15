@@ -1,6 +1,7 @@
 import axios, { AxiosError } from 'axios';
 
 import { API_HOSTNAME } from './common/constants';
+import { AuditLog } from './audit-log/audit-log';
 import {
   InternalServerErrorException,
   NoApiKeyProvidedException,
@@ -8,39 +9,33 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from './common/exceptions';
-import { WorkOSOptions, Event } from './common/interfaces';
 import { version } from '../package.json';
+import { WorkOSOptions } from './common/interfaces';
 
 // tslint:disable-next-line:no-default-export
 export default class WorkOS {
-  private readonly options: WorkOSOptions;
+  readonly auditLog = new AuditLog(this);
 
-  constructor(options: WorkOSOptions = {}) {
-    this.options = options;
-    const { key } = this.options;
-
+  constructor(
+    private readonly key?: string,
+    private readonly options: WorkOSOptions = {},
+  ) {
     if (!key) {
-      const envKey = process.env.WORKOS_API_KEY;
+      this.key = process.env.WORKOS_API_KEY;
 
-      if (envKey) {
-        this.options.key = envKey;
-      } else {
+      if (!this.key) {
         throw new NoApiKeyProvidedException();
       }
     }
   }
 
-  async createEvent(event: Event) {
-    await this.post(event, '/events');
-  }
-
   async post(entity: any, path: string) {
-    const { key, apiHostname = API_HOSTNAME } = this.options;
+    const { apiHostname = API_HOSTNAME } = this.options;
 
     try {
       await axios.post(`https://${apiHostname}${path}`, entity, {
         headers: {
-          Authorization: `Bearer ${key}`,
+          Authorization: `Bearer ${this.key}`,
           'User-Agent': `workos-js/${version}`,
         },
       });
