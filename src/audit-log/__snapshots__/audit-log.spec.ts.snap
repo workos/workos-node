@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`AuditLog create when the api responds with a 422 throws an UnprocessableEntity 1`] = `
+exports[`AuditLog createEvent when the api responds with a 422 throws an UnprocessableEntity 1`] = `
 UnprocessableEntityException {
   "message": "The following requirements must be met:
 	target_id must be a string

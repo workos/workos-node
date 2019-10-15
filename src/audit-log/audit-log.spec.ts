@@ -18,7 +18,7 @@ const event = {
 };
 
 describe('AuditLog', () => {
-  describe('create', () => {
+  describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
       it('posts Event successfuly', async () => {
         mock.onPost().reply(201, { success: true });
