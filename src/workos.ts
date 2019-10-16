@@ -9,17 +9,16 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from './common/exceptions';
+import { SSO } from './sso/sso';
 import { version } from '../package.json';
 import { WorkOSOptions } from './common/interfaces';
 
 // tslint:disable-next-line:no-default-export
 export default class WorkOS {
   readonly auditLog = new AuditLog(this);
+  readonly sso = new SSO(this);
 
-  constructor(
-    private readonly key?: string,
-    private readonly options: WorkOSOptions = {},
-  ) {
+  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
       this.key = process.env.WORKOS_API_KEY;
 
