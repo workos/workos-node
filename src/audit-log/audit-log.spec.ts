@@ -20,7 +20,7 @@ const event = {
 describe('AuditLog', () => {
   describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
-      it('posts Event successfuly', async () => {
+      it('posts Event successfully', async () => {
         mock.onPost().reply(201, { success: true });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
