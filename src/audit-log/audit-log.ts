@@ -5,6 +5,6 @@ export class AuditLog {
   constructor(private readonly workos: WorkOS) {}
 
   async createEvent(event: Event) {
-    await this.workos.post(event, '/events');
+    await this.workos.post('/events', event);
   }
 }
