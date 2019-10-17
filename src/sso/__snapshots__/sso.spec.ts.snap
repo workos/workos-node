@@ -1,7 +1,29 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`SSO getAuthorizationURL with a custom api hostname generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback"`;
+exports[`SSO getAuthorizationURL with a custom api hostname generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
-exports[`SSO getAuthorizationURL with no custom api hostname generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback"`;
+exports[`SSO getAuthorizationURL with no custom api hostname generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
-exports[`SSO getAuthorizationURL with state generates an authorize url the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&state=custom%20state"`;
+exports[`SSO getAuthorizationURL with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
+
+exports[`SSO getProfile with all information provided sends a request to the WorkOS api for a profile 1`] = `"https://api.workos.com/sso/token?client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&code=authorization_code&grant_type=authorization_code&redirect_uri=https%3A%2F%2Fexmaple.com%2Fsso%2Fworkos%2Fcallback"`;
+
+exports[`SSO getProfile with all information provided sends a request to the WorkOS api for a profile 2`] = `
+Object {
+  "headers": Object {
+    "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
+    "User-Agent": "workos-js/0.0.3",
+  },
+}
+`;
+
+exports[`SSO getProfile with all information provided sends a request to the WorkOS api for a profile 3`] = `
+Object {
+  "connection_type": "OktaSAML",
+  "email": "foo@test.com",
+  "first_name": "foo",
+  "id": "prof_123",
+  "idp_id": "123",
+  "last_name": "bar",
+}
+`;
