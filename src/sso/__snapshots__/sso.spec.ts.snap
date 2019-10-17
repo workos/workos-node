@@ -1,0 +1,7 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`SSO getAuthorizationURL with a custom api hostname generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback"`;
+
+exports[`SSO getAuthorizationURL with no custom api hostname generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback"`;
+
+exports[`SSO getAuthorizationURL with state generates an authorize url the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&state=custom%20state"`;
