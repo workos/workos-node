@@ -1,12 +1,12 @@
 import WorkOS from '../workos';
 
 describe('SSO', () => {
-  describe('getAuthorizeURL', () => {
+  describe('getAuthorizationURL', () => {
     describe('with no custom api hostname', () => {
       it('generates an authorize url with the default api hostname', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const url = workos.sso.authorizeURL({
+        const url = workos.sso.getAuthorizationURL({
           domain: 'lyft.com',
           projectID: 'proj_123',
           redirectURI: 'example.com/sso/workos/callback',
@@ -22,7 +22,7 @@ describe('SSO', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const url = workos.sso.authorizeURL({
+        const url = workos.sso.getAuthorizationURL({
           domain: 'lyft.com',
           projectID: 'proj_123',
           redirectURI: 'example.com/sso/workos/callback',
@@ -36,7 +36,7 @@ describe('SSO', () => {
       it('generates an authorize url the provided state', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const url = workos.sso.authorizeURL({
+        const url = workos.sso.getAuthorizationURL({
           domain: 'lyft.com',
           projectID: 'proj_123',
           redirectURI: 'example.com/sso/workos/callback',

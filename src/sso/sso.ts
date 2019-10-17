@@ -7,7 +7,7 @@ import WorkOS from '../workos';
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
 
-  authorizeURL({
+  getAuthorizationURL({
     domain,
     projectID,
     redirectURI,
