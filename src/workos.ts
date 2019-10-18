@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
+import queryString from 'query-string';
 
 import { API_HOSTNAME } from './common/constants';
 import { AuditLog } from './audit-log/audit-log';
@@ -28,11 +29,17 @@ export default class WorkOS {
     }
   }
 
-  async post(entity: any, path: string) {
+  async post(path: string, entity: any, query?: any): Promise<AxiosResponse> {
     const { apiHostname = API_HOSTNAME } = this.options;
+    let url = `https://${apiHostname}${path}`;
+
+    if (query) {
+      const querystring = queryString.stringify(query);
+      url = url.concat(`?${querystring}`);
+    }
 
     try {
-      await axios.post(`https://${apiHostname}${path}`, entity, {
+      return await axios.post(url, entity, {
         headers: {
           Authorization: `Bearer ${this.key}`,
           'User-Agent': `workos-js/${version}`,
@@ -43,6 +50,7 @@ export default class WorkOS {
 
       if (response) {
         const { status, data } = response;
+
         switch (status) {
           case 401: {
             throw new UnauthorizedException();

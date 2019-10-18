@@ -54,7 +54,7 @@ describe('WorkOS', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(workos.post({}, '/path')).rejects.toStrictEqual(
+        await expect(workos.post('/path', {})).rejects.toStrictEqual(
           new NotFoundException('/path'),
         );
       });
@@ -66,7 +66,7 @@ describe('WorkOS', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(workos.post({}, '/path')).rejects.toStrictEqual(
+        await expect(workos.post('/path', {})).rejects.toStrictEqual(
           new InternalServerErrorException(),
         );
       });
