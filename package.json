@@ -13,7 +13,6 @@
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepare": "yarn run build",
     "bump-version": " auto-upgrade-npm-version",
-    "prepublishOnly": "yarn test && yarn run lint",
     "preversion": "yarn run lint"
   },
   "dependencies": {
