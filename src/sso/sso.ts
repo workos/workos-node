@@ -1,6 +1,5 @@
 import queryString from 'query-string';
 
-import { API_HOSTNAME } from '../common/constants';
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { Profile } from './interfaces/profile.interface';
@@ -15,8 +14,6 @@ export class SSO {
     redirectURI,
     state,
   }: AuthorizationURLOptions): string {
-    const { apiHostname = API_HOSTNAME } = this.workos.options;
-
     const query = queryString.stringify({
       domain,
       client_id: projectID,
@@ -25,7 +22,7 @@ export class SSO {
       state,
     });
 
-    return `https://${apiHostname}/sso/authorize?${query}`;
+    return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
   async getProfile({

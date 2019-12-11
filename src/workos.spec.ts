@@ -24,25 +24,45 @@ describe('WorkOS', () => {
       process.env = OLD_ENV;
     });
 
-    describe('when no api key is provided', () => {
-      it('throws a NoApiKeyFoundException', async () => {
+    describe('when no API key is provided', () => {
+      it('throws a NoApiKeyFoundException error', async () => {
         expect(() => new WorkOS()).toThrowError(NoApiKeyProvidedException);
       });
     });
 
-    describe('when api key is provided with environment variable', () => {
+    describe('when API key is provided with environment variable', () => {
       it('initializes', async () => {
         process.env.WORKOS_API_KEY = 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU';
-
         expect(() => new WorkOS()).not.toThrow();
       });
     });
 
-    describe('when api key is provided with constructor', () => {
-      it('constructs successfuly', async () => {
+    describe('when API key is provided with constructor', () => {
+      it('initializes', async () => {
         expect(
           () => new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU'),
         ).not.toThrow();
+      });
+    });
+
+    describe('with https option', () => {
+      it('sets baseURL', () => {
+        const workos = new WorkOS('foo', { https: false });
+        expect(workos.baseURL).toEqual('http://api.workos.com');
+      });
+    });
+
+    describe('with apiHostname option', () => {
+      it('sets baseURL', () => {
+        const workos = new WorkOS('foo', { apiHostname: 'localhost' });
+        expect(workos.baseURL).toEqual('https://localhost');
+      });
+    });
+
+    describe('with port option', () => {
+      it('sets baseURL', () => {
+        const workos = new WorkOS('foo', { apiHostname: 'localhost', port: 4000 });
+        expect(workos.baseURL).toEqual('https://localhost:4000');
       });
     });
   });

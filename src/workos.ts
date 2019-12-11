@@ -1,7 +1,5 @@
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import queryString from 'query-string';
+import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
 
-import { API_HOSTNAME } from './common/constants';
 import { AuditLog } from './audit-log/audit-log';
 import {
   InternalServerErrorException,
@@ -14,8 +12,12 @@ import { SSO } from './sso/sso';
 import { version } from '../package.json';
 import { WorkOSOptions } from './common/interfaces';
 
-// tslint:disable-next-line:no-default-export
-export default class WorkOS {
+const DEFAULT_HOSTNAME = 'api.workos.com';
+
+export class WorkOS {
+  readonly baseURL: string;
+  private readonly client: AxiosInstance;
+
   readonly auditLog = new AuditLog(this);
   readonly sso = new SSO(this);
 
@@ -27,24 +29,32 @@ export default class WorkOS {
         throw new NoApiKeyProvidedException();
       }
     }
+
+    if (this.options.https === undefined) {
+      this.options.https = true;
+    }
+
+    const protocol: string = this.options.https ? 'https' : 'http';
+    const apiHostname: string = this.options.apiHostname || DEFAULT_HOSTNAME;
+    const port: number | undefined = this.options.port;
+    this.baseURL = `${protocol}://${apiHostname}`;
+
+    if (port) {
+      this.baseURL = this.baseURL + `:${port}`;
+    }
+
+    this.client = axios.create({
+      baseURL: this.baseURL,
+      headers: {
+        Authorization: `Bearer ${this.key}`,
+        'User-Agent': `workos-js/${version}`,
+      },
+    });
   }
 
   async post(path: string, entity: any, query?: any): Promise<AxiosResponse> {
-    const { apiHostname = API_HOSTNAME } = this.options;
-    let url = `https://${apiHostname}${path}`;
-
-    if (query) {
-      const querystring = queryString.stringify(query);
-      url = url.concat(`?${querystring}`);
-    }
-
     try {
-      return await axios.post(url, entity, {
-        headers: {
-          Authorization: `Bearer ${this.key}`,
-          'User-Agent': `workos-js/${version}`,
-        },
-      });
+      return await this.client.post(path, entity, { params: query });
     } catch (error) {
       const { response } = error as AxiosError;
 
@@ -73,3 +83,6 @@ export default class WorkOS {
     }
   }
 }
+
+// tslint:disable-next-line:no-default-export
+export default WorkOS;
