@@ -1,12 +1,10 @@
 import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
+import querystring from 'querystring';
 
 import WorkOS from '../workos';
 
 describe('SSO', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe('SSO', () => {
     describe('getAuthorizationURL', () => {
       describe('with no custom api hostname', () => {
@@ -58,22 +56,17 @@ describe('SSO', () => {
     describe('getProfile', () => {
       describe('with all information provided', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
-          const post = jest
-            .spyOn(axios, 'post')
-            .mockImplementationOnce(async () => {
-              return {
-                data: {
-                  profile: {
-                    id: 'prof_123',
-                    idp_id: '123',
-                    connection_type: 'OktaSAML',
-                    email: 'foo@test.com',
-                    first_name: 'foo',
-                    last_name: 'bar',
-                  },
-                },
-              };
-            });
+          const mock = new MockAdapter(axios);
+          mock.onPost('/sso/token').reply(200, {
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+            },
+          });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
           const profile = await workos.sso.getProfile({
@@ -82,11 +75,14 @@ describe('SSO', () => {
             redirectURI: 'https://exmaple.com/sso/workos/callback',
           });
 
-          expect(post).toBeCalledTimes(1);
-          expect(post.mock.calls[0][0]).toMatchSnapshot();
-          expect(post.mock.calls[0][1]).toEqual(null);
-          expect(post.mock.calls[0][2]).toMatchSnapshot();
+          expect(mock.history.post.length).toBe(1);
 
+          const post = mock.history.post[0];
+          const requestURL = `${post.url}?${querystring.stringify(
+            post.params,
+          )}`;
+          expect(requestURL).toMatchSnapshot();
+          expect(post.headers).toMatchSnapshot();
           expect(profile).toMatchSnapshot();
         });
       });
