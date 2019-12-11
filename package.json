@@ -1,10 +1,24 @@
 {
+  "version": "0.0.4",
   "name": "@workos-inc/js",
-  "version": "0.0.3",
+  "author": "WorkOS",
+  "description": "A wrapper for the WorkOS API for all things javascript.",
+  "homepage": "https://github.com/workos-inc/workos-js#readme",
+  "license": "MIT",
+  "keywords": [
+    "workos"
+  ],
   "main": "dist/src/workos.js",
   "files": [
     "dist/**/*"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/workos-inc/workos-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/workos-inc/workos-js/issues"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "tslint -p tsconfig.json -c tslint.json",
@@ -32,19 +46,5 @@
     "ts-jest": "24.2.0",
     "tslint": "5.20.1",
     "typescript": "3.7.3"
-  },
-  "description": "A wrapper for the WorkOS API for all things javascript.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/workos-inc/workos-js.git"
-  },
-  "keywords": [
-    "workos"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/workos-inc/workos-js/issues"
-  },
-  "homepage": "https://github.com/workos-inc/workos-js#readme"
+  }
 }
