@@ -78,7 +78,9 @@ describe('SSO', () => {
           expect(mock.history.post.length).toBe(1);
 
           const post = mock.history.post[0];
-          const requestURL = `${post.url}?${querystring.stringify(post.params)}`;
+          const requestURL = `${post.url}?${querystring.stringify(
+            post.params,
+          )}`;
           expect(requestURL).toMatchSnapshot();
           expect(post.headers).toMatchSnapshot();
           expect(profile).toMatchSnapshot();

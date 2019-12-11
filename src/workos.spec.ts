@@ -61,7 +61,10 @@ describe('WorkOS', () => {
 
     describe('with port option', () => {
       it('sets baseURL', () => {
-        const workos = new WorkOS('foo', { apiHostname: 'localhost', port: 4000 });
+        const workos = new WorkOS('foo', {
+          apiHostname: 'localhost',
+          port: 4000,
+        });
         expect(workos.baseURL).toEqual('https://localhost:4000');
       });
     });
