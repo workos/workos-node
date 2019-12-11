@@ -52,9 +52,9 @@ export class WorkOS {
     });
   }
 
-  async post(path: string, entity: any, query?: any): Promise<AxiosResponse> {
+  post(path: string, entity: any, query?: any): Promise<AxiosResponse> {
     try {
-      return await this.client.post(path, entity, { params: query });
+      return this.client.post(path, entity, { params: query });
     } catch (error) {
       const { response } = error as AxiosError;
 
