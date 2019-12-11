@@ -27,7 +27,7 @@
     "auto-upgrade-npm-version": "1.0.7",
     "axios-mock-adapter": "1.17.0",
     "jest": "24.9.0",
-    "prettier": "1.18.2",
+    "prettier": "1.19.1",
     "supertest": "4.0.2",
     "ts-jest": "24.2.0",
     "tslint": "5.20.1",
