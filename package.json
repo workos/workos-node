@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/jest": "24.0.23",
-    "@types/node": "12.12.17",
+    "@types/node": "12.12.21",
     "@types/pluralize": "0.0.29",
     "auto-upgrade-npm-version": "1.0.7",
     "axios-mock-adapter": "1.17.0",
