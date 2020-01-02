@@ -119,28 +119,3 @@ Resulting in the following being sent to WorkOS:
 ```
 
 By adding supportive metadata when you create the event you can see what the original tweet body was and what the body was updated to. For something like a tweet that could get updated multiple times over the course of time, you can't always depend on the database representation to tell you what the body has always been. Without logging it right when the change occurs, you'll forever lose all the individual changes along the way. Good Audit Log events attach all supporting information surrounding the event which could be used to inform the reader in the future what exactly happened, how it happened, and when it happened.
-
-# Release Notes
-
-### v0.0.24 - December 27, 2019
-
-- Removed the `redirectURI` parameter from the `sso.getProfile` function. Migrating existing code just requires removing the existing parameter:
-
-  ```ts
-  // v0.0.23
-
-  const profile = await workos.sso.getProfile({
-    code: 'authorization_code',
-    projectID: 'proj_123',
-    redirectURI: 'https://exmaple.com/sso/workos/callback',
-  });
-  ```
-
-  ```ts
-  // v0.0.24
-
-  const profile = await workos.sso.getProfile({
-    code: 'authorization_code',
-    projectID: 'proj_123',
-  });
-  ```
