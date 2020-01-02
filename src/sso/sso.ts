@@ -25,15 +25,10 @@ export class SSO {
     return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
-  async getProfile({
-    code,
-    projectID,
-    redirectURI,
-  }: GetProfileOptions): Promise<Profile> {
+  async getProfile({ code, projectID }: GetProfileOptions): Promise<Profile> {
     const { data } = await this.workos.post('/sso/token', null, {
       client_id: projectID,
       client_secret: this.workos.key,
-      redirect_uri: redirectURI,
       grant_type: 'authorization_code',
       code,
     });
