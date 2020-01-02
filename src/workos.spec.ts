@@ -3,9 +3,9 @@ import MockAdapater from 'axios-mock-adapter';
 
 import WorkOS from './workos';
 import {
-  InternalServerErrorException,
   NoApiKeyProvidedException,
   NotFoundException,
+  GenericServerException,
 } from './common/exceptions';
 
 const mock = new MockAdapater(axios);
@@ -73,24 +73,30 @@ describe('WorkOS', () => {
   describe('post', () => {
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
-        mock.onPost().reply(404, { message: 'Not Found' });
+        mock
+          .onPost()
+          .reply(
+            404,
+            { message: 'Not Found' },
+            { 'X-Request-ID': 'a-request-id' },
+          );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new NotFoundException('/path'),
+          new NotFoundException('/path', 'a-request-id'),
         );
       });
     });
 
     describe('when the api responds with a 500', () => {
-      it('throws an InternalServerErrorException', async () => {
-        mock.onPost().reply(500);
+      it('throws an GenericServerException', async () => {
+        mock.onPost().reply(500, {}, { 'X-Request-ID': 'a-request-id' });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new InternalServerErrorException(),
+          new GenericServerException(500, undefined, 'a-request-id'),
         );
       });
     });
