@@ -72,7 +72,6 @@ describe('SSO', () => {
           const profile = await workos.sso.getProfile({
             code: 'authorization_code',
             projectID: 'proj_123',
-            redirectURI: 'https://exmaple.com/sso/workos/callback',
           });
 
           expect(mock.history.post.length).toBe(1);
