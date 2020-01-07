@@ -7,7 +7,7 @@ export class UnprocessableEntityException implements HttpException {
   readonly name: string = 'UnprocessableEntityException';
   readonly message: string;
 
-  constructor(errors: UnprocessableEntityError[]) {
+  constructor(errors: UnprocessableEntityError[], readonly requestID: string) {
     const requirement: string = pluralize('requirement', errors.length);
 
     this.message = `The following ${requirement} must be met:\n`;

@@ -33,12 +33,18 @@ describe('AuditLog', () => {
 
     describe('when the api responds with a 401', () => {
       it('throws an UnauthorizedException', async () => {
-        mock.onPost().reply(401, { message: 'Unauthorized' });
+        mock
+          .onPost()
+          .reply(
+            401,
+            { message: 'Unauthorized' },
+            { 'X-Request-ID': 'a-request-id' },
+          );
 
         const workos = new WorkOS('invalid apikey');
 
         await expect(workos.auditLog.createEvent(event)).rejects.toStrictEqual(
-          new UnauthorizedException(),
+          new UnauthorizedException('a-request-id'),
         );
       });
     });
@@ -56,10 +62,14 @@ describe('AuditLog', () => {
           },
         ];
 
-        mock.onPost().reply(422, {
-          message: 'Validation failed',
-          errors,
-        });
+        mock.onPost().reply(
+          422,
+          {
+            message: 'Validation failed',
+            errors,
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 

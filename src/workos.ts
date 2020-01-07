@@ -2,11 +2,11 @@ import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
 
 import { AuditLog } from './audit-log/audit-log';
 import {
-  InternalServerErrorException,
   NoApiKeyProvidedException,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
+  GenericServerException,
 } from './common/exceptions';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
@@ -59,22 +59,23 @@ export class WorkOS {
       const { response } = error as AxiosError;
 
       if (response) {
-        const { status, data } = response;
+        const { status, data, headers } = response;
+        const requestID = headers['X-Request-ID'];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException(requestID);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors);
+            throw new UnprocessableEntityException(errors, requestID);
           }
           case 404: {
-            throw new NotFoundException(path);
+            throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new InternalServerErrorException();
+            throw new GenericServerException(status, data.message, requestID);
           }
         }
       }

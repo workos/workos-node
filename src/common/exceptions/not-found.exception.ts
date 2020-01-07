@@ -5,7 +5,7 @@ export class NotFoundException implements HttpException {
   readonly name: string = 'NotFoundException';
   readonly message: string;
 
-  constructor(path: string) {
+  constructor(path: string, readonly requestID: string) {
     this.message = `The requested path '${path}' could not be found.`;
   }
 }
