@@ -10,7 +10,7 @@ import {
 } from './common/exceptions';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
-import { WorkOSOptions } from './common/interfaces';
+import { WorkOSOptions, PostOptions } from './common/interfaces';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -52,9 +52,13 @@ export class WorkOS {
     });
   }
 
-  async post(path: string, entity: any, query?: any): Promise<AxiosResponse> {
+  async post(
+    path: string,
+    entity: any,
+    { query, headers }: PostOptions = {},
+  ): Promise<AxiosResponse> {
     try {
-      return await this.client.post(path, entity, { params: query });
+      return await this.client.post(path, entity, { params: query, headers });
     } catch (error) {
       const { response } = error as AxiosError;
 
