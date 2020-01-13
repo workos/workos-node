@@ -27,10 +27,12 @@ export class SSO {
 
   async getProfile({ code, projectID }: GetProfileOptions): Promise<Profile> {
     const { data } = await this.workos.post('/sso/token', null, {
-      client_id: projectID,
-      client_secret: this.workos.key,
-      grant_type: 'authorization_code',
-      code,
+      query: {
+        client_id: projectID,
+        client_secret: this.workos.key,
+        grant_type: 'authorization_code',
+        code,
+      },
     });
 
     return data.profile as Profile;
