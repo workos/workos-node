@@ -2,7 +2,11 @@
 
 exports[`SSO SSO getAuthorizationURL with a custom api hostname generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
+exports[`SSO SSO getAuthorizationURL with a provider generates an authorize url with the provider 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
 exports[`SSO SSO getAuthorizationURL with no custom api hostname generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
+exports[`SSO SSO getAuthorizationURL with no domain or provider throws an error for incomplete arguments 1`] = `"Incomplete arguments. Need to specify at least one of 'domain' or 'provider'."`;
 
 exports[`SSO SSO getAuthorizationURL with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
 

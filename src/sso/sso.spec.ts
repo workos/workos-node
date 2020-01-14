@@ -21,6 +21,35 @@ describe('SSO', () => {
         });
       });
 
+      describe('with no domain or provider', () => {
+        it('throws an error for incomplete arguments', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const urlFn = () => workos.sso.getAuthorizationURL({
+            projectID: 'proj_123',
+            redirectURI: 'example.com/sso/workos/callback',
+          });
+
+          expect(urlFn).toThrowErrorMatchingSnapshot();
+        });
+      });
+
+      describe('with a provider', () => {
+        it('generates an authorize url with the provider', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+            apiHostname: 'api.workos.dev',
+          });
+
+          const url = workos.sso.getAuthorizationURL({
+            provider: 'Google',
+            projectID: 'proj_123',
+            redirectURI: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchSnapshot();
+        });
+      });
+
       describe('with a custom api hostname', () => {
         it('generates an authorize url with the custom api hostname', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
