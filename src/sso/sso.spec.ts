@@ -25,10 +25,11 @@ describe('SSO', () => {
         it('throws an error for incomplete arguments', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const urlFn = () => workos.sso.getAuthorizationURL({
-            projectID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
-          });
+          const urlFn = () =>
+            workos.sso.getAuthorizationURL({
+              projectID: 'proj_123',
+              redirectURI: 'example.com/sso/workos/callback',
+            });
 
           expect(urlFn).toThrowErrorMatchingSnapshot();
         });
