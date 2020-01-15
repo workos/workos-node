@@ -17,7 +17,7 @@ export class SSO {
   }: AuthorizationURLOptions): string {
     if (!domain && !provider) {
       throw new Error(
-        `Incomplete arguments. Need to specify at least one of 'domain' or 'provider'.`,
+        `Incomplete arguments. Need to specify either a 'domain' or 'provider'.`,
       );
     }
 
