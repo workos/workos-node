@@ -11,11 +11,19 @@ export class SSO {
   getAuthorizationURL({
     domain,
     projectID,
+    provider,
     redirectURI,
     state,
   }: AuthorizationURLOptions): string {
+    if (!domain && !provider) {
+      throw new Error(
+        `Incomplete arguments. Need to specify either a 'domain' or 'provider'.`,
+      );
+    }
+
     const query = queryString.stringify({
       domain,
+      provider,
       client_id: projectID,
       redirect_uri: redirectURI,
       response_type: 'code',
