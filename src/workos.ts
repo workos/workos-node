@@ -57,10 +57,16 @@ export class WorkOS {
     entity: any,
     options: PostOptions = {},
   ): Promise<AxiosResponse> {
+    const requestHeaders: any = {};
+
+    if (options.idempotencyKey) {
+      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+    }
+
     try {
       return await this.client.post(path, entity, {
         params: options.query,
-        headers: options.headers,
+        headers: requestHeaders,
       });
     } catch (error) {
       const { response } = error as AxiosError;
