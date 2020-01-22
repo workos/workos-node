@@ -40,7 +40,7 @@
     "@types/pluralize": "0.0.29",
     "auto-upgrade-npm-version": "1.0.7",
     "axios-mock-adapter": "1.17.0",
-    "jest": "24.9.0",
+    "jest": "25.1.0",
     "prettier": "1.19.1",
     "supertest": "4.0.2",
     "ts-jest": "24.3.0",
