@@ -20,6 +20,24 @@ const event = {
 describe('AuditLog', () => {
   describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
+      describe('with an idempotency key', () => {
+        it('includes an idempotency key with request', async () => {
+          mock.onPost().reply(201, { success: true });
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          await expect(
+            workos.auditLog.createEvent(event, {
+              idempotencyKey: 'the-idempotency-key',
+            }),
+          ).resolves.toBeUndefined();
+
+          expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+            'the-idempotency-key',
+          );
+        });
+      });
+
       it('posts Event successfully', async () => {
         mock.onPost().reply(201, { success: true });
 

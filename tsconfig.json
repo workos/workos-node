@@ -13,7 +13,7 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "typeRoots": ["./node_modules/@types"],
-    "target": "esnext",
+    "target": "es6",
     "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
