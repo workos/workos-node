@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0-canary.0",
+  "version": "0.0.24",
   "name": "@workos-inc/js",
   "author": "WorkOS",
   "description": "A wrapper for the WorkOS API for all things javascript.",
