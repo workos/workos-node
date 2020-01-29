@@ -35,7 +35,7 @@
     "query-string": "6.10.1"
   },
   "devDependencies": {
-    "@types/jest": "25.1.0",
+    "@types/jest": "25.1.1",
     "@types/node": "12.12.26",
     "@types/pluralize": "0.0.29",
     "auto-upgrade-npm-version": "1.0.7",
