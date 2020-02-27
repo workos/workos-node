@@ -3,6 +3,7 @@ import queryString from 'query-string';
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { Profile } from './interfaces/profile.interface';
+import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
 import WorkOS from '../workos';
 
 export class SSO {
@@ -44,5 +45,11 @@ export class SSO {
     });
 
     return data.profile as Profile;
+  }
+
+  async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
+    await this.workos.post('/draft_connections/convert', {
+      id: token,
+    });
   }
 }
