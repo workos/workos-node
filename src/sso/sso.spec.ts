@@ -119,30 +119,34 @@ describe('SSO', () => {
 
     describe('promoteDraftConnection', () => {
       it('send valid token', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onPost('/draft_connections/convert').reply(201);
-
         const token = 'wOrkOStoKeN';
+        const endpoint = '/draft_connections/' + token + '/activate';
+
+        const mock = new MockAdapter(axios);
+        mock.onPost(endpoint).reply(201);
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         await workos.sso.promoteDraftConnection({ token });
 
         expect(mock.history.post.length).toBe(1);
         const post = mock.history.post[0];
-        const res = JSON.parse(post.data);
-        expect(res.id).toEqual(token);
+        const expectedEndpoint = 'https://api.workos.com' + endpoint;
+        expect(post.url).toEqual(expectedEndpoint);
       });
 
       it('send bad token', async () => {
+        const token = 'wOrkOStoKeN';
+        const endpoint = '/draft_connections/' + token + '/activate';
+
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/draft_connections/convert')
+          .onPost(endpoint)
           .reply(
             404,
             { message: 'Bad Request' },
             { 'X-Request-ID': 'a-request-id' },
           );
 
-        const token = 'wOrkOStoKeNfoo';
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         try {
@@ -150,8 +154,8 @@ describe('SSO', () => {
           throw 'should not be called';
         } catch (err) {
           const post = mock.history.post[0];
-          const res = JSON.parse(post.data);
-          expect(res.id).toEqual(token);
+          const expectedEndpoint = 'https://api.workos.com' + endpoint;
+          expect(post.url).toEqual(expectedEndpoint);
           expect(err.status).toEqual(404);
         }
       });

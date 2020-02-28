@@ -48,8 +48,7 @@ export class SSO {
   }
 
   async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
-    await this.workos.post('/draft_connections/convert', {
-      id: token,
-    });
+    const endpoint = '/draft_connections/' + token + '/activate';
+    await this.workos.post(endpoint, null);
   }
 }
