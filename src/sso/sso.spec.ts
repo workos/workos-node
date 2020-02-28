@@ -116,5 +116,49 @@ describe('SSO', () => {
         });
       });
     });
+
+    describe('promoteDraftConnection', () => {
+      it('send valid token', async () => {
+        const id = 'wOrkOStoKeN';
+        const endpoint = `/draft_connections/${id}/activate`;
+
+        const mock = new MockAdapter(axios);
+        mock.onPost(endpoint).reply(201);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        await workos.sso.promoteDraftConnection({ id });
+
+        expect(mock.history.post.length).toBe(1);
+        const post = mock.history.post[0];
+        const expectedEndpoint = 'https://api.workos.com' + endpoint;
+        expect(post.url).toEqual(expectedEndpoint);
+      });
+
+      it('send bad token', async () => {
+        const id = 'wOrkOStoKeN';
+        const endpoint = `/draft_connections/${id}/activate`;
+
+        const mock = new MockAdapter(axios);
+        mock
+          .onPost(endpoint)
+          .reply(
+            404,
+            { message: 'Bad Request' },
+            { 'X-Request-ID': 'a-request-id' },
+          );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        try {
+          await workos.sso.promoteDraftConnection({ id });
+          throw 'should not be called';
+        } catch (err) {
+          const post = mock.history.post[0];
+          const expectedEndpoint = 'https://api.workos.com' + endpoint;
+          expect(post.url).toEqual(expectedEndpoint);
+          expect(err.status).toEqual(404);
+        }
+      });
+    });
   });
 });
