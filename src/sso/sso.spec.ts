@@ -137,7 +137,7 @@ describe('SSO', () => {
         mock
           .onPost('/draft_connections/convert')
           .reply(
-            400,
+            404,
             { message: 'Bad Request' },
             { 'X-Request-ID': 'a-request-id' },
           );
@@ -152,7 +152,7 @@ describe('SSO', () => {
           const post = mock.history.post[0];
           const res = JSON.parse(post.data);
           expect(res.id).toEqual(token);
-          expect(err.status).toEqual(400);
+          expect(err.status).toEqual(404);
         }
       });
     });
