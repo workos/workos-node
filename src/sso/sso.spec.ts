@@ -119,14 +119,14 @@ describe('SSO', () => {
 
     describe('promoteDraftConnection', () => {
       it('send valid token', async () => {
-        const id = 'wOrkOStoKeN';
-        const endpoint = `/draft_connections/${id}/activate`;
+        const token = 'wOrkOStoKeN';
+        const endpoint = `/draft_connections/${token}/activate`;
 
         const mock = new MockAdapter(axios);
         mock.onPost(endpoint).reply(201);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-        await workos.sso.promoteDraftConnection({ id });
+        await workos.sso.promoteDraftConnection({ token });
 
         expect(mock.history.post.length).toBe(1);
         const post = mock.history.post[0];
@@ -135,8 +135,8 @@ describe('SSO', () => {
       });
 
       it('send bad token', async () => {
-        const id = 'wOrkOStoKeN';
-        const endpoint = `/draft_connections/${id}/activate`;
+        const token = 'wOrkOStoKeN';
+        const endpoint = `/draft_connections/${token}/activate`;
 
         const mock = new MockAdapter(axios);
         mock
@@ -150,7 +150,7 @@ describe('SSO', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         try {
-          await workos.sso.promoteDraftConnection({ id });
+          await workos.sso.promoteDraftConnection({ token });
           throw 'should not be called';
         } catch (err) {
           const post = mock.history.post[0];
