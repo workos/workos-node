@@ -1,5 +1,5 @@
 version: v1.0
-name: workos-js pipeline
+name: workos-node pipeline
 
 execution_time_limit:
   minutes: 15
@@ -8,6 +8,12 @@ agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
+
+global_job_config:
+  prologue:
+    commands:
+      - checkout
+      - nvm use
 
 blocks:
   - name: Install dependencies
@@ -19,17 +25,11 @@ blocks:
           value: test
         - name: CI
           value: 'true'
-      prologue:
-        commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
       jobs:
         - name: yarn install and cache
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
-            - yarn
+            - yarn install
             - cache store client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock) node_modules
 
   - name: Lint
@@ -41,12 +41,6 @@ blocks:
           value: test
         - name: CI
           value: 'true'
-      prologue:
-        commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
       jobs:
         - name: Run lint
           commands:
@@ -62,12 +56,6 @@ blocks:
           value: test
         - name: CI
           value: 'true'
-      prologue:
-        commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
       jobs:
         - name: Run prettier
           commands:
@@ -83,12 +71,6 @@ blocks:
           value: test
         - name: CI
           value: 'true'
-      prologue:
-        commands:
-          - checkout
-          - nvm use
-          - node --version
-          - nvm --version
       jobs:
         - name: Run tests
           commands:
@@ -99,17 +81,12 @@ blocks:
     task:
       secrets:
         - name: workos-npm
-      prologue:
-        commands:
-          - checkout
-          - nvm use
-          - node --version
-          - npm --version
       jobs:
         - name: Run build
           commands:
             - cache restore client-node-modules-$SEMAPHORE_GIT_BRANCH-$(checksum yarn.lock),client-node-modules-$SEMAPHORE_GIT_BRANCH,client-node-modules-master
             - yarn build
+
 promotions:
-  - name: Deploy workos-js to npm
+  - name: Publish to NPM
     pipeline_file: npm.yml

@@ -1,4 +1,4 @@
-# workos-js
+# workos-node
 
 A WorkOS client for node applications in your organization to control and monitor the access of information within your organization.
 
@@ -7,7 +7,7 @@ A WorkOS client for node applications in your organization to control and monito
 You can install the WorkOS JS client in your local environment by running:
 
 ```
-yarn add @workos-inc/js
+yarn add @workos-inc/node
 ```
 
 ## Configuration
@@ -21,7 +21,7 @@ WORKOS_API_KEY="sk_1234" ./app
 Or you can set it on your own before your application starts:
 
 ```ts
-import WorkOS from '@workos-inc/js';
+import WorkOS from '@workos-inc/node';
 
 const workos = new WorkOS('sk_1234');
 ```

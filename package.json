@@ -1,23 +1,30 @@
 {
-  "version": "0.1.0-canary.0",
-  "name": "@workos-inc/js",
+  "version": "0.1.1",
+  "name": "@workos-inc/node",
   "author": "WorkOS",
-  "description": "A wrapper for the WorkOS API for all things javascript.",
-  "homepage": "https://github.com/workos-inc/workos-js#readme",
+  "description": "A Node wrapper for the WorkOS API",
+  "homepage": "https://github.com/workos-inc/workos-node",
   "license": "MIT",
   "keywords": [
     "workos"
   ],
+  "engines": {
+    "node": "10.19.0"
+  },
+  "volta": {
+    "node": "10.19.0",
+    "yarn": "1.22.4"
+  },
   "main": "dist/src/workos.js",
   "files": [
     "dist/**/*"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/workos-inc/workos-js.git"
+    "url": "git+https://github.com/workos-inc/workos-node.git"
   },
   "bugs": {
-    "url": "https://github.com/workos-inc/workos-js/issues"
+    "url": "https://github.com/workos-inc/workos-node/issues"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -26,7 +33,6 @@
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepare": "yarn run build",
-    "bump-version": " auto-upgrade-npm-version",
     "preversion": "yarn run lint"
   },
   "dependencies": {
@@ -38,7 +44,6 @@
     "@types/jest": "25.1.4",
     "@types/node": "12.12.29",
     "@types/pluralize": "0.0.29",
-    "auto-upgrade-npm-version": "1.0.7",
     "axios-mock-adapter": "1.17.0",
     "jest": "25.1.0",
     "prettier": "1.19.1",

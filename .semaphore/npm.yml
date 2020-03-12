@@ -14,7 +14,6 @@ blocks:
       jobs:
         - name: Publish to NPM
           commands:
-            - checkout --use-cache
-            - yarn
-            - yarn bump-version
+            - checkout
+            - yarn install
             - yarn publish --access=public
