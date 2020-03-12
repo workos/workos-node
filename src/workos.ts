@@ -47,7 +47,7 @@ export class WorkOS {
       baseURL: this.baseURL,
       headers: {
         Authorization: `Bearer ${this.key}`,
-        'User-Agent': `workos-js/${version}`,
+        'User-Agent': `workos-node/${version}`,
       },
     });
   }
