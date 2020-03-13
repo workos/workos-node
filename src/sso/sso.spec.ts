@@ -130,8 +130,7 @@ describe('SSO', () => {
 
         expect(mock.history.post.length).toBe(1);
         const post = mock.history.post[0];
-        const expectedEndpoint = 'https://api.workos.com' + endpoint;
-        expect(post.url).toEqual(expectedEndpoint);
+        expect(post.url).toEqual(endpoint);
       });
 
       it('send bad token', async () => {
@@ -154,8 +153,7 @@ describe('SSO', () => {
           throw 'should not be called';
         } catch (err) {
           const post = mock.history.post[0];
-          const expectedEndpoint = 'https://api.workos.com' + endpoint;
-          expect(post.url).toEqual(expectedEndpoint);
+          expect(post.url).toEqual(endpoint);
           expect(err.status).toEqual(404);
         }
       });
