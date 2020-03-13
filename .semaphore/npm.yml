@@ -11,9 +11,13 @@ blocks:
     task:
       secrets:
         - name: workos-npm
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - bash ~/workos-node/bin/restore-or-install
       jobs:
         - name: Publish to NPM
           commands:
-            - checkout
-            - yarn install
+            - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             - yarn publish --access=public
