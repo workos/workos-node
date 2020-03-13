@@ -11,7 +11,6 @@ export class SSO {
 
   getAuthorizationURL({
     domain,
-    isDirectorySync,
     projectID,
     provider,
     redirectURI,
@@ -27,7 +26,6 @@ export class SSO {
       domain,
       provider,
       client_id: projectID,
-      is_directory_sync: isDirectorySync,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,

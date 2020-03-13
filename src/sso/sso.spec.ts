@@ -51,23 +51,6 @@ describe('SSO', () => {
         });
       });
 
-      describe('with a directory sync flag', () => {
-        it('generates an authorize url with the directory sync flag set', () => {
-          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
-            apiHostname: 'api.workos.dev',
-          });
-
-          const url = workos.sso.getAuthorizationURL({
-            domain: 'lyft.com',
-            isDirectorySync: true,
-            projectID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
-          });
-
-          expect(url).toMatchSnapshot();
-        });
-      });
-
       describe('with a custom api hostname', () => {
         it('generates an authorize url with the custom api hostname', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
