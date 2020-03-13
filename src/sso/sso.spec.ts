@@ -65,7 +65,7 @@ describe('SSO', () => {
           });
 
           expect(url).toMatchSnapshot();
-        })
+        });
       });
 
       describe('with a custom api hostname', () => {
