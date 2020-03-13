@@ -1,6 +1,6 @@
 version: v1.0
 
-name: NPM deployment
+name: Publish to NPM
 agent:
   machine:
     type: e1-standard-2
@@ -11,9 +11,12 @@ blocks:
     task:
       secrets:
         - name: workos-npm
+      prologue:
+        commands:
+          - checkout
+          - nvm use
+          - yarn install
       jobs:
-        - name: Publish to NPM
+        - name: yarn publish
           commands:
-            - checkout
-            - yarn install
             - yarn publish --access=public
