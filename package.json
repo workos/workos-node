@@ -32,8 +32,7 @@
     "test": "jest",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepare": "yarn run build",
-    "preversion": "yarn run lint"
+    "prepublishOnly": "yarn run build"
   },
   "dependencies": {
     "axios": "0.19.2",
