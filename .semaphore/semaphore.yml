@@ -17,7 +17,7 @@ global_job_config:
     commands:
       - checkout
       - nvm use
-      - bash ~/bin/restore-or-install
+      - bash ~/workos-node/bin/restore-or-install
 
 blocks:
   - name: Install dependencies
