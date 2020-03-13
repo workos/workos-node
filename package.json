@@ -36,7 +36,7 @@
     "preversion": "yarn run lint"
   },
   "dependencies": {
-    "axios": "0.19.0",
+    "axios": "0.19.2",
     "pluralize": "8.0.0",
     "query-string": "6.11.1"
   },
