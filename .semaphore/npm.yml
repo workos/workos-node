@@ -1,6 +1,6 @@
 version: v1.0
 
-name: NPM deployment
+name: Publish to NPM
 agent:
   machine:
     type: e1-standard-2
@@ -17,7 +17,7 @@ blocks:
           - nvm use
           - bash ~/workos-node/bin/restore-or-install
       jobs:
-        - name: Publish to NPM
+        - name: yarn publish
           commands:
             - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             - yarn publish --access=public

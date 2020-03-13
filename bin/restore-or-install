@@ -1,0 +1,14 @@
+#!/bin/bash
+
+KEY="node-modules-$(checksum yarn.lock)"
+cache restore $KEY
+
+if [[ ! `ls -d ./node_modules 2>/dev/null` ]]; then
+   yarn install
+   cache store $KEY ./node_modules
+fi
+
+if [[ ! `ls -d ./node_modules/.bin 2>/dev/null` ]]; then
+   yarn install --check-files
+   cache store $KEY ./node_modules
+fi
