@@ -8,6 +8,7 @@ import {
   UnprocessableEntityException,
   GenericServerException,
 } from './common/exceptions';
+import { Directory } from './directory/directory';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
 import { WorkOSOptions, PostOptions } from './common/interfaces';
@@ -19,6 +20,7 @@ export class WorkOS {
   private readonly client: AxiosInstance;
 
   readonly auditLog = new AuditLog(this);
+  readonly directory = new Directory(this);
   readonly sso = new SSO(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
