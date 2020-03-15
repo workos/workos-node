@@ -28,7 +28,7 @@ const workos = new WorkOS('sk_1234');
 
 ## Usage
 
-Creating an Audit Log event requires a descriptive action name and annotating the event with its CRUD identifier. The action name must contain an action category and an action name separated by a period, for example, `user.login`.
+Creating an Audit Trail event requires a descriptive action name and annotating the event with its CRUD identifier. The action name must contain an action category and an action name separated by a period, for example, `user.login`.
 
 ```ts
 const event = {
@@ -43,7 +43,7 @@ const event = {
   occurred_at: new Date(0),
 };
 
-workos.auditLog.createEvent(event);
+workos.auditTrail.createEvent(event);
 ```
 
 The resulting event being sent to WorkOS looks like:
@@ -67,7 +67,7 @@ All events are published to WorkOS asynchronously by default and support `await 
 
 ## Adding Metadata To Events
 
-Metadata provides additional context for your Audit Log events that would be helpful to you or others in the future when looking at an Audit Log event. Values for your metadata are expected to be primitive types:
+Metadata provides additional context for your Audit Trail events that would be helpful to you or others in the future when looking at an Audit Trail event. Values for your metadata are expected to be primitive types:
 
 - string
 - boolean
@@ -95,7 +95,7 @@ const event = {
   },
 };
 
-workos.auditLog.createEvent(event);
+workos.auditTrail.createEvent(event);
 ```
 
 Resulting in the following being sent to WorkOS:
@@ -118,4 +118,4 @@ Resulting in the following being sent to WorkOS:
 }
 ```
 
-By adding supportive metadata when you create the event you can see what the original tweet body was and what the body was updated to. For something like a tweet that could get updated multiple times over the course of time, you can't always depend on the database representation to tell you what the body has always been. Without logging it right when the change occurs, you'll forever lose all the individual changes along the way. Good Audit Log events attach all supporting information surrounding the event which could be used to inform the reader in the future what exactly happened, how it happened, and when it happened.
+By adding supportive metadata when you create the event you can see what the original tweet body was and what the body was updated to. For something like a tweet that could get updated multiple times over the course of time, you can't always depend on the database representation to tell you what the body has always been. Without logging it right when the change occurs, you'll forever lose all the individual changes along the way. Good Audit Trail events attach all supporting information surrounding the event which could be used to inform the reader in the future what exactly happened, how it happened, and when it happened.
