@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
 
-import { AuditLog } from './audit-log/audit-log';
+import { AuditTrail } from './audit-trail/audit-trail';
 import {
   NoApiKeyProvidedException,
   NotFoundException,
@@ -19,7 +19,7 @@ export class WorkOS {
   readonly baseURL: string;
   private readonly client: AxiosInstance;
 
-  readonly auditLog = new AuditLog(this);
+  readonly auditTrail = new AuditTrail(this);
   readonly directory = new Directory(this);
   readonly sso = new SSO(this);
 

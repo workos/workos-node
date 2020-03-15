@@ -17,7 +17,7 @@ const event = {
   action: 'document.updated',
 };
 
-describe('AuditLog', () => {
+describe('AuditTrail', () => {
   describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
       describe('with an idempotency key', () => {
@@ -27,7 +27,7 @@ describe('AuditLog', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           await expect(
-            workos.auditLog.createEvent(event, {
+            workos.auditTrail.createEvent(event, {
               idempotencyKey: 'the-idempotency-key',
             }),
           ).resolves.toBeUndefined();
@@ -44,7 +44,7 @@ describe('AuditLog', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLog.createEvent(event),
+          workos.auditTrail.createEvent(event),
         ).resolves.toBeUndefined();
       });
     });
@@ -61,9 +61,9 @@ describe('AuditLog', () => {
 
         const workos = new WorkOS('invalid apikey');
 
-        await expect(workos.auditLog.createEvent(event)).rejects.toStrictEqual(
-          new UnauthorizedException('a-request-id'),
-        );
+        await expect(
+          workos.auditTrail.createEvent(event),
+        ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
       });
     });
 
@@ -92,7 +92,7 @@ describe('AuditLog', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLog.createEvent(event),
+          workos.auditTrail.createEvent(event),
         ).rejects.toMatchSnapshot();
       });
     });
