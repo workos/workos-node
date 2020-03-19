@@ -10,13 +10,13 @@ exports[`SSO SSO getAuthorizationURL with no domain or provider throws an error 
 
 exports[`SSO SSO getAuthorizationURL with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
 
-exports[`SSO SSO getProfile with all information provided sends a request to the WorkOS api for a profile 1`] = `"/sso/token?client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+exports[`SSO SSO getProfile with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
 
 exports[`SSO SSO getProfile with all information provided sends a request to the WorkOS api for a profile 2`] = `
 Object {
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
-  "Content-Type": "application/x-www-form-urlencoded",
+  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
   "User-Agent": "workos-node/0.2.1",
 }
 `;
