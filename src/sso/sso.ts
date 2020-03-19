@@ -35,14 +35,12 @@ export class SSO {
   }
 
   async getProfile({ code, projectID }: GetProfileOptions): Promise<Profile> {
-    const { data } = await this.workos.post('/sso/token', null, {
-      query: {
-        client_id: projectID,
-        client_secret: this.workos.key,
-        grant_type: 'authorization_code',
-        code,
-      },
-    });
+    const form = new URLSearchParams();
+    form.set('client_id', projectID);
+    form.set('client_secret', this.workos.key as string);
+    form.set('grant_type', 'authorization_code');
+    form.set('code', code);
+    const { data } = await this.workos.post('/sso/token', form);
 
     return data.profile as Profile;
   }

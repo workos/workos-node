@@ -1,6 +1,5 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import querystring from 'querystring';
 
 import WorkOS from '../workos';
 
@@ -105,13 +104,10 @@ describe('SSO', () => {
           });
 
           expect(mock.history.post.length).toBe(1);
+          const { data, headers } = mock.history.post[0];
 
-          const post = mock.history.post[0];
-          const requestURL = `${post.url}?${querystring.stringify(
-            post.params,
-          )}`;
-          expect(requestURL).toMatchSnapshot();
-          expect(post.headers).toMatchSnapshot();
+          expect(data).toMatchSnapshot();
+          expect(headers).toMatchSnapshot();
           expect(profile).toMatchSnapshot();
         });
       });
