@@ -104,10 +104,7 @@ describe('SSO', () => {
           });
 
           expect(mock.history.post.length).toBe(1);
-
           const { data, headers } = mock.history.post[0];
-
-          console.log(data);
 
           expect(data).toMatchSnapshot();
           expect(headers).toMatchSnapshot();
