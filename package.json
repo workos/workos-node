@@ -43,7 +43,7 @@
     "@types/jest": "25.1.4",
     "@types/node": "12.12.30",
     "@types/pluralize": "0.0.29",
-    "axios-mock-adapter": "1.17.0",
+    "axios-mock-adapter": "1.18.1",
     "jest": "25.1.0",
     "prettier": "1.19.1",
     "supertest": "4.0.2",
