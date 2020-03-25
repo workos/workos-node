@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`SSO getAuthorizationURL generates an authorize url with the directory sync flag set 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&domain=lyft.com&is_directory_sync=true&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
