@@ -9,10 +9,10 @@
     "workos"
   ],
   "engines": {
-    "node": "10.19.0"
+    "node": "10.20.0"
   },
   "volta": {
-    "node": "10.19.0",
+    "node": "10.20.0",
     "yarn": "1.22.4"
   },
   "main": "dist/src/workos.js",
