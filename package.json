@@ -8,9 +8,6 @@
   "keywords": [
     "workos"
   ],
-  "engines": {
-    "node": "10.20.1"
-  },
   "volta": {
     "node": "10.20.1",
     "yarn": "1.22.4"
