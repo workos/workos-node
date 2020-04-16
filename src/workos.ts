@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
 
 import { AuditTrail } from './audit-trail/audit-trail';
+import { DirectorySync } from './directory-sync/directory-sync';
 import {
   NoApiKeyProvidedException,
   NotFoundException,
@@ -19,6 +20,7 @@ export class WorkOS {
   private readonly client: AxiosInstance;
 
   readonly auditTrail = new AuditTrail(this);
+  readonly directorySync = new DirectorySync(this);
   readonly sso = new SSO(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
@@ -67,6 +69,40 @@ export class WorkOS {
       return await this.client.post(path, entity, {
         params: options.query,
         headers: requestHeaders,
+      });
+    } catch (error) {
+      const { response } = error as AxiosError;
+
+      if (response) {
+        const { status, data, headers } = response;
+        const requestID = headers['X-Request-ID'];
+
+        switch (status) {
+          case 401: {
+            throw new UnauthorizedException(requestID);
+          }
+          case 422: {
+            const { errors } = data;
+
+            throw new UnprocessableEntityException(errors, requestID);
+          }
+          case 404: {
+            throw new NotFoundException(path, requestID);
+          }
+          default: {
+            throw new GenericServerException(status, data.message, requestID);
+          }
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  async get(path: string, query?: any): Promise<AxiosResponse> {
+    try {
+      return await this.client.get(path, {
+        params: query,
       });
     } catch (error) {
       const { response } = error as AxiosError;
