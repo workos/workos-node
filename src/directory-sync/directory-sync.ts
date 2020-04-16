@@ -44,4 +44,11 @@ export class DirectorySync {
     );
     return data;
   }
+
+  async getUser(directoryID: string, userID: string): Promise<User> {
+    const { data } = await this.workos.get(
+      `/directories/${directoryID}/users/${userID}`,
+    );
+    return data;
+  }
 }
