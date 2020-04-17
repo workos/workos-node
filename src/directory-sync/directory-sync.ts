@@ -38,7 +38,7 @@ export class DirectorySync {
     return data;
   }
 
-  async listUsersGroups(directoryID: string, userID: string): Promise<Group[]> {
+  async listUserGroups(directoryID: string, userID: string): Promise<Group[]> {
     const { data } = await this.workos.get(
       `/directories/${directoryID}/users/${userID}/groups`,
     );
