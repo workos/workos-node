@@ -27,39 +27,70 @@ describe('DirectorySync', () => {
   });
 
   describe('listGroups', () => {
-    it(`requests a Directory's Groups`, async () => {
-      mock.onGet().reply(200, {});
-      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+    describe('with a Directory', () => {
+      it(`requests a Directory's Groups`, async () => {
+        mock.onGet().reply(200, {});
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      await workos.directorySync.listGroups('dir_edp_123');
+        await workos.directorySync.listGroups({
+          directory: 'directory_123',
+        });
 
-      expect(mock.history.get[0].url).toEqual(
-        '/directories/dir_edp_123/groups',
-      );
+        expect(mock.history.get[0].params).toEqual({
+          directory: 'directory_123',
+        });
+        expect(mock.history.get[0].url).toEqual('/directory_groups');
+      });
+    });
+
+    describe('with a User', () => {
+      it(`requests a Directory's Groups`, async () => {
+        mock.onGet().reply(200, {});
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.directorySync.listGroups({
+          user: 'directory_usr_123',
+        });
+
+        expect(mock.history.get[0].params).toEqual({
+          user: 'directory_usr_123',
+        });
+        expect(mock.history.get[0].url).toEqual('/directory_groups');
+      });
     });
   });
 
   describe('listUsers', () => {
-    it(`requests a Directory's Users`, async () => {
-      mock.onGet().reply(200, {});
-      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+    describe('with a Directory', () => {
+      it(`requests a Directory's Users`, async () => {
+        mock.onGet().reply(200, {});
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      await workos.directorySync.listUsers('dir_edp_123');
+        await workos.directorySync.listUsers({
+          directory: 'directory_123',
+        });
 
-      expect(mock.history.get[0].url).toEqual('/directories/dir_edp_123/users');
+        expect(mock.history.get[0].params).toEqual({
+          directory: 'directory_123',
+        });
+        expect(mock.history.get[0].url).toEqual('/directory_users');
+      });
     });
-  });
 
-  describe('listUserGroups', () => {
-    it(`requests a User's Groups`, async () => {
-      mock.onGet().reply(200, {});
-      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+    describe('with a Group', () => {
+      it(`requests a Directory's Users`, async () => {
+        mock.onGet().reply(200, {});
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      await workos.directorySync.listUserGroups('dir_edp_123', 'dir_usr_123');
+        await workos.directorySync.listUsers({
+          group: 'directory_grp_123',
+        });
 
-      expect(mock.history.get[0].url).toEqual(
-        '/directories/dir_edp_123/users/dir_usr_123/groups',
-      );
+        expect(mock.history.get[0].params).toEqual({
+          group: 'directory_grp_123',
+        });
+        expect(mock.history.get[0].url).toEqual('/directory_users');
+      });
     });
   });
 
