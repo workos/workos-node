@@ -4,7 +4,8 @@ import { List } from '../common/interfaces/list.interface';
 import { Group } from './interfaces/group.interface';
 import { User } from './interfaces/user.interface';
 import { ListDirectoriesOptions } from './interfaces/list-directories-options.interface';
-import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
+import { ListGroupsOptions } from './interfaces/list-groups-options.interface';
+import { ListUsersOptions } from './interfaces/list-users-options.interface';
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
@@ -16,32 +17,13 @@ export class DirectorySync {
     return data;
   }
 
-  async listGroups(
-    directoryID: string,
-    options?: PaginationOptions,
-  ): Promise<List<Group>> {
-    const { data } = await this.workos.get(
-      `/directories/${directoryID}/groups`,
-      options,
-    );
+  async listGroups(options: ListGroupsOptions): Promise<List<Group>> {
+    const { data } = await this.workos.get(`/directory_groups`, options);
     return data;
   }
 
-  async listUsers(
-    directoryID: string,
-    options?: PaginationOptions,
-  ): Promise<List<User>> {
-    const { data } = await this.workos.get(
-      `/directories/${directoryID}/users`,
-      options,
-    );
-    return data;
-  }
-
-  async listUserGroups(directoryID: string, userID: string): Promise<Group[]> {
-    const { data } = await this.workos.get(
-      `/directories/${directoryID}/users/${userID}/groups`,
-    );
+  async listUsers(options: ListUsersOptions): Promise<List<User>> {
+    const { data } = await this.workos.get(`/directory_users`, options);
     return data;
   }
 
