@@ -27,10 +27,13 @@ export class DirectorySync {
     return data;
   }
 
-  async getUser(directoryID: string, userID: string): Promise<User> {
-    const { data } = await this.workos.get(
-      `/directories/${directoryID}/users/${userID}`,
-    );
+  async getUser(userID: string): Promise<User> {
+    const { data } = await this.workos.get(`/directory_users/${userID}`);
+    return data;
+  }
+
+  async getGroup(groupID: string): Promise<Group> {
+    const { data } = await this.workos.get(`/directory_groups/${groupID}`);
     return data;
   }
 }
