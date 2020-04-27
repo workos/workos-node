@@ -99,11 +99,20 @@ describe('DirectorySync', () => {
       mock.onGet().reply(200, {});
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      await workos.directorySync.getUser('dir_edp_123', 'dir_usr_123');
+      await workos.directorySync.getUser('dir_usr_123');
 
-      expect(mock.history.get[0].url).toEqual(
-        '/directories/dir_edp_123/users/dir_usr_123',
-      );
+      expect(mock.history.get[0].url).toEqual('/directory_users/dir_usr_123');
+    });
+  });
+
+  describe('getGroup', () => {
+    it(`requests a Directory Group`, async () => {
+      mock.onGet().reply(200, {});
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.directorySync.getGroup('dir_grp_123');
+
+      expect(mock.history.get[0].url).toEqual('/directory_groups/dir_grp_123');
     });
   });
 });
