@@ -34,12 +34,14 @@
   "dependencies": {
     "axios": "0.19.2",
     "pluralize": "8.0.0",
-    "query-string": "6.12.1"
+    "query-string": "6.12.1",
+    "winston": "3.2.1"
   },
   "devDependencies": {
     "@types/jest": "25.2.1",
     "@types/node": "12.12.37",
     "@types/pluralize": "0.0.29",
+    "@types/winston": "2.4.4",
     "axios-mock-adapter": "1.18.1",
     "jest": "25.5.0",
     "prettier": "2.0.5",
