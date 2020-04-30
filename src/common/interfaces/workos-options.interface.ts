@@ -1,8 +1,8 @@
-import Winston from 'winston';
+import Stream from 'stream';
 
 export interface WorkOSOptions {
   apiHostname?: string;
   https?: boolean;
   port?: number;
-  logger?: Winston.Logger;
+  logger?: Stream.Transform;
 }
