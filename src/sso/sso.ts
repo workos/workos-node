@@ -1,6 +1,8 @@
 import queryString from 'query-string';
 
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import { Connection } from './interfaces/connection.interface';
+import { CreateConnectionOptions } from './interfaces/create-connection-options.interface';
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { Profile } from './interfaces/profile.interface';
 import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
@@ -8,6 +10,13 @@ import WorkOS from '../workos';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
+
+  async createConnection({
+    source,
+  }: CreateConnectionOptions): Promise<Connection> {
+    const { data } = await this.workos.post('/connections', { source });
+    return data;
+  }
 
   getAuthorizationURL({
     domain,
@@ -46,6 +55,10 @@ export class SSO {
   }
 
   async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
+    this.workos.emitWarning(
+      '[Deprecated] sso.promoteDraftConnection({ token }) is deprecated. Use sso.createConnection({ source }) instead.',
+    );
+
     const endpoint = `/draft_connections/${token}/activate`;
     await this.workos.post(endpoint, null);
   }
