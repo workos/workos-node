@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
-import Stream from 'stream';
 import Winston from 'winston';
 
 import { AuditTrail } from './audit-trail/audit-trail';
@@ -19,7 +18,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  readonly logger: Stream.Transform;
+  readonly logger: Winston.Logger;
 
   private readonly client: AxiosInstance;
 
