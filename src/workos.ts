@@ -1,6 +1,4 @@
 import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
-import Stream from 'stream';
-import Winston from 'winston';
 
 import { AuditTrail } from './audit-trail/audit-trail';
 import { DirectorySync } from './directory-sync/directory-sync';
@@ -19,8 +17,6 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  readonly logger: Stream.Transform;
-
   private readonly client: AxiosInstance;
 
   readonly auditTrail = new AuditTrail(this);
@@ -39,10 +35,6 @@ export class WorkOS {
     if (this.options.https === undefined) {
       this.options.https = true;
     }
-
-    this.logger =
-      this.options.logger ||
-      Winston.createLogger({ transports: [new Winston.transports.Console()] });
 
     const protocol: string = this.options.https ? 'https' : 'http';
     const apiHostname: string = this.options.apiHostname || DEFAULT_HOSTNAME;
