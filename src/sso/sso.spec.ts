@@ -154,5 +154,45 @@ describe('SSO', () => {
         }
       });
     });
+
+    describe('createConnection', () => {
+      it('send valid token', async () => {
+        const source = 'wOrkOStoKeN';
+
+        const mock = new MockAdapter(axios);
+        mock.onPost('/connections').reply(201);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        await workos.sso.createConnection({ source });
+
+        expect(mock.history.post.length).toBe(1);
+        const post = mock.history.post[0];
+        expect(post.url).toEqual('/connections');
+      });
+
+      it('send bad token', async () => {
+        const source = 'wOrkOStoKeN';
+
+        const mock = new MockAdapter(axios);
+        mock
+          .onPost('/connections')
+          .reply(
+            404,
+            { message: 'Bad Request' },
+            { 'X-Request-ID': 'a-request-id' },
+          );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        try {
+          await workos.sso.createConnection({ source });
+          throw 'should not be called';
+        } catch (err) {
+          const post = mock.history.post[0];
+          expect(post.url).toEqual('/connections');
+          expect(err.status).toEqual(404);
+        }
+      });
+    });
   });
 });
