@@ -132,6 +132,15 @@ export class WorkOS {
       throw error;
     }
   }
+
+  emitWarning(warning: string) {
+    if (typeof process.emitWarning !== 'function') {
+      //  tslint:disable:no-console
+      return console.warn(`Stripe: ${warning}`);
+    }
+
+    return process.emitWarning(warning, 'WorkOS');
+  }
 }
 
 // tslint:disable-next-line:no-default-export

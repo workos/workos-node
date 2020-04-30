@@ -55,8 +55,7 @@ export class SSO {
   }
 
   async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
-    //  tslint:disable:no-console
-    console.error(
+    this.workos.emitWarning(
       '[Deprecated] sso.promoteDraftConnection({ token }) is deprecated. Use sso.createConnection({ source }) instead.',
     );
 
