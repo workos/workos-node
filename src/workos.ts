@@ -136,7 +136,7 @@ export class WorkOS {
   emitWarning(warning: string) {
     if (typeof process.emitWarning !== 'function') {
       //  tslint:disable:no-console
-      return console.warn(`Stripe: ${warning}`);
+      return console.warn(`WorkOS: ${warning}`);
     }
 
     return process.emitWarning(warning, 'WorkOS');
