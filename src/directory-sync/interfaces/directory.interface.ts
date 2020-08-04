@@ -1,5 +1,5 @@
 export interface Directory {
-  object: 'directory_endpoint';
+  object: 'directory';
   id: string;
   bearer_token?: string;
   domain: string;
