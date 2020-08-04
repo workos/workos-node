@@ -3,6 +3,7 @@ module.exports = {
   resetMocks: true,
   restoreMocks: true,
   verbose: true,
+  testEnvironment: "node",
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   roots: ['<rootDir>/src'],
   transform: {
