@@ -12,7 +12,7 @@ export interface Event {
   location: string;
   latitude: string;
   longitude: string;
-  type: 'c' | 'r' | 'u' | 'd';
+  type: string;
   actor_name: string;
   actor_id: string;
   target_name: string;
