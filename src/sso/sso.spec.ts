@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import WorkOS from '../';
+import { WorkOS } from '../workos';
 
 describe('SSO', () => {
   describe('SSO', () => {

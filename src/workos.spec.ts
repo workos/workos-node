@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapater from 'axios-mock-adapter';
 
-import WorkOS from './';
+import { WorkOS } from './workos';
 import {
   NoApiKeyProvidedException,
   NotFoundException,
