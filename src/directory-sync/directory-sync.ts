@@ -1,4 +1,4 @@
-import WorkOS from '../workos';
+import WorkOS from '../';
 import { Directory } from './interfaces/directory.interface';
 import { List } from '../common/interfaces/list.interface';
 import { Group } from './interfaces/group.interface';

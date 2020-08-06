@@ -142,6 +142,3 @@ export class WorkOS {
     return process.emitWarning(warning, 'WorkOS');
   }
 }
-
-// tslint:disable-next-line:no-default-export
-export default WorkOS;
