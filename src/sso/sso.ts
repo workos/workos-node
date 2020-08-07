@@ -6,7 +6,7 @@ import { CreateConnectionOptions } from './interfaces/create-connection-options.
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { Profile } from './interfaces/profile.interface';
 import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
-import WorkOS from '../workos';
+import { WorkOS } from '../workos';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}

@@ -3,7 +3,7 @@ import MockAdapater from 'axios-mock-adapter';
 
 import { EventOptions } from './interfaces/event-options.interface';
 import { UnauthorizedException } from '../common/exceptions';
-import WorkOS from '../workos';
+import { WorkOS } from '../workos';
 
 const mock = new MockAdapater(axios);
 const event: EventOptions = {

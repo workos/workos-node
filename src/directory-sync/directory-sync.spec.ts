@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapater from 'axios-mock-adapter';
 
-import WorkOS from '../workos';
+import { WorkOS } from '../workos';
 
 const mock = new MockAdapater(axios);
 
