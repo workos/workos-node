@@ -94,6 +94,11 @@ describe('SSO', () => {
               email: 'foo@test.com',
               first_name: 'foo',
               last_name: 'bar',
+              raw_attributes: {
+                email: 'foo@test.com',
+                first_name: 'foo',
+                last_name: 'bar',
+              },
             },
           });
 
