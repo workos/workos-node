@@ -32,7 +32,7 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
-    "axios": "0.19.2",
+    "axios": "0.20.0",
     "pluralize": "8.0.0",
     "query-string": "6.13.1"
   },
@@ -41,8 +41,8 @@
     "@types/node": "12.12.54",
     "@types/pluralize": "0.0.29",
     "axios-mock-adapter": "1.18.2",
-    "jest": "26.4.1",
-    "prettier": "2.0.5",
+    "jest": "26.4.2",
+    "prettier": "2.1.0",
     "supertest": "4.0.2",
     "ts-jest": "26.2.0",
     "tslint": "6.1.3",
