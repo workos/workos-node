@@ -7,4 +7,5 @@ export interface Profile {
   email: string;
   first_name?: string;
   last_name?: string;
+  raw_attributes?: { [key: string]: any };
 }
