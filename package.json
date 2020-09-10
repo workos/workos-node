@@ -27,6 +27,7 @@
     "build": "tsc -p tsconfig.json",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
+    "test:watch": "jest --watch",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "yarn run build"
