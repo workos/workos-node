@@ -2,6 +2,9 @@ import axios from 'axios';
 import MockAdapater from 'axios-mock-adapter';
 
 import { WorkOS } from '../workos';
+
+import createOrganization from './fixtures/create-organization.json';
+import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 
 const mock = new MockAdapater(axios);
@@ -9,6 +12,42 @@ const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Portal', () => {
   afterEach(() => mock.resetHistory());
+
+  describe('createOrganization', () => {
+    describe('with a valid payload', () => {
+      it('creates an organization', async () => {
+        mock.onPost().reply(201, createOrganization);
+
+        const subject = await workos.portal.createOrganization({
+          domains: ['example.com'],
+          name: 'Test Organization',
+        });
+
+        expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+        expect(subject.name).toEqual('Test Organization');
+        expect(subject.domains).toHaveLength(1);
+      });
+    });
+
+    describe('with an invalid payload', () => {
+      it('returns an error', async () => {
+        mock.onPost().reply(409, createOrganizationInvalid, {
+          'X-Request-ID': 'a-request-id',
+        });
+
+        try {
+          await workos.portal.createOrganization({
+            domains: ['example.com'],
+            name: 'Test Organization',
+          });
+        } catch (error) {
+          expect(error.message).toEqual(
+            'An Organization with the domain example.com already exists.',
+          );
+        }
+      });
+    });
+  });
 
   describe('listOrganizations', () => {
     describe('without any options', () => {
