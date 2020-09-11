@@ -1,6 +1,7 @@
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 
+import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 import { ListOrganizationsOptions } from './interfaces/list-organizations-options.interface';
 import { Organization } from './interfaces/organization.interface';
 
@@ -17,6 +18,24 @@ export class Portal {
     const { data } = await this.workos.post('/organizations', {
       domains,
       name,
+    });
+
+    return data;
+  }
+
+  async generateLink({
+    intent,
+    organization,
+    returnUrl,
+  }: {
+    intent: GeneratePortalLinkIntent;
+    organization: string;
+    returnUrl?: string;
+  }): Promise<string> {
+    const { data } = await this.workos.post('/portal/generate_link', {
+      intent,
+      organization,
+      returnUrl,
     });
 
     return data;

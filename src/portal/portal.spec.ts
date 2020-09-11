@@ -5,7 +5,10 @@ import { WorkOS } from '../workos';
 
 import createOrganization from './fixtures/create-organization.json';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
+import generateLink from './fixtures/generate-link.json';
+import generateLinkInvalid from './fixtures/generate-link-invalid.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
+import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 
 const mock = new MockAdapater(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -43,6 +46,43 @@ describe('Portal', () => {
         } catch (error) {
           expect(error.message).toEqual(
             'An Organization with the domain example.com already exists.',
+          );
+        }
+      });
+    });
+  });
+
+  describe('generateLink', () => {
+    describe('with a valid organization', () => {
+      it('returns an Admin Portal link', async () => {
+        mock.onPost().reply(201, generateLink);
+
+        const subject = await workos.portal.generateLink({
+          intent: GeneratePortalLinkIntent.SSO,
+          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+        });
+
+        expect(subject.link).toEqual(
+          'https://id.workos.com/portal/launch?secret=secret',
+        );
+      });
+    });
+
+    describe('with an invalid organization', () => {
+      it('throws an error', async () => {
+        mock.onPost().reply(400, generateLinkInvalid, {
+          'X-Request-ID': 'a-request-id',
+        });
+
+        try {
+          await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.SSO,
+            organization: 'bogus-id',
+            returnUrl: 'https://www.example.com',
+          });
+        } catch (error) {
+          expect(error.message).toEqual(
+            'Could not find an organization with the id, bogus-id.',
           );
         }
       });
