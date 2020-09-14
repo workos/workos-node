@@ -113,11 +113,11 @@ describe('Portal', () => {
         mock.onGet().reply(200, listOrganizationsFixture);
 
         const { data } = await workos.portal.listOrganizations({
-          domain: 'example.com',
+          domains: ['example.com'],
         });
 
         expect(mock.history.get[0].params).toEqual({
-          domain: 'example.com',
+          domains: ['example.com'],
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
