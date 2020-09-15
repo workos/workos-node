@@ -9,6 +9,7 @@ import {
   UnprocessableEntityException,
   GenericServerException,
 } from './common/exceptions';
+import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
@@ -23,6 +24,7 @@ export class WorkOS {
   readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
   readonly portal = new Portal(this);
+  readonly passwordless = new Passwordless(this);
   readonly sso = new SSO(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
