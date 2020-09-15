@@ -35,7 +35,9 @@ describe('Passwordless', () => {
         const sessionId = 'session_123';
         await workos.passwordless.sendSession(sessionId);
 
-        expect(mock.history.post[0].url).toEqual(`/passwordless/sessions/${sessionId}/send`);
+        expect(mock.history.post[0].url).toEqual(
+          `/passwordless/sessions/${sessionId}/send`,
+        );
       });
     });
   });

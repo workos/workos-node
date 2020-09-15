@@ -7,16 +7,17 @@ export class Passwordless {
   constructor(private readonly workos: WorkOS) {}
 
   async createSession(
-    options: CreatePasswordlessSessionOptions
+    options: CreatePasswordlessSessionOptions,
   ): Promise<PasswordlessSession> {
-  const { data } = await this.workos.post('/passwordless/sessions', options);
+    const { data } = await this.workos.post('/passwordless/sessions', options);
     return data;
   }
 
-  async sendSession(
-    sessionId: string
-  ): Promise<SendSessionResponse> {
-    const { data } = await this.workos.post(`/passwordless/sessions/${sessionId}/send`, {});
+  async sendSession(sessionId: string): Promise<SendSessionResponse> {
+    const { data } = await this.workos.post(
+      `/passwordless/sessions/${sessionId}/send`,
+      {},
+    );
     return data;
   }
 }
