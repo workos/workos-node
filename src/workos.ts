@@ -23,8 +23,8 @@ export class WorkOS {
 
   readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
-  readonly portal = new Portal(this);
   readonly passwordless = new Passwordless(this);
+  readonly portal = new Portal(this);
   readonly sso = new SSO(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
