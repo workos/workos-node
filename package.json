@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/jest": "26.0.13",
-    "@types/node": "12.12.58",
+    "@types/node": "12.12.59",
     "@types/pluralize": "0.0.29",
     "axios-mock-adapter": "1.18.2",
     "jest": "26.4.2",
