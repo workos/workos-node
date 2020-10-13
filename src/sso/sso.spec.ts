@@ -90,6 +90,7 @@ describe('SSO', () => {
             profile: {
               id: 'prof_123',
               idp_id: '123',
+              connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
               first_name: 'foo',
