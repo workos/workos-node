@@ -1,10 +1,10 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import createSession from './fixtures/create-session.json';
 import { WorkOS } from '../workos';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 
 describe('Passwordless', () => {
   afterEach(() => mock.resetHistory());
@@ -16,15 +16,20 @@ describe('Passwordless', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         const email = 'passwordless-session-email@workos.com';
+        const redirect_uri = 'https://example.com/passwordless/callback';
         const session = await workos.passwordless.createSession({
           type: 'MagicLink',
           email,
+          redirect_uri,
         });
 
         expect(session.email).toEqual(email);
         expect(session.object).toEqual('passwordless_session');
 
         expect(JSON.parse(mock.history.post[0].data).email).toEqual(email);
+        expect(JSON.parse(mock.history.post[0].data).redirect_uri).toEqual(
+          redirect_uri,
+        );
         expect(mock.history.post[0].url).toEqual('/passwordless/sessions');
       });
     });
