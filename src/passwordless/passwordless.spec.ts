@@ -27,7 +27,7 @@ describe('Passwordless', () => {
         expect(session.object).toEqual('passwordless_session');
 
         expect(JSON.parse(mock.history.post[0].data).email).toEqual(email);
-        expect(JSON.parse(mock.history.post[0].data).redirectURI).toEqual(
+        expect(JSON.parse(mock.history.post[0].data).redirect_uri).toEqual(
           redirectURI,
         );
         expect(mock.history.post[0].url).toEqual('/passwordless/sessions');
