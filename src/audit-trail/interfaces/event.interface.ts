@@ -2,7 +2,6 @@ export interface EventAction {
   object: 'event_action';
   id: string;
   name: string;
-  project_id: string;
 }
 
 export interface Event {
