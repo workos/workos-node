@@ -20,7 +20,7 @@ export class SSO {
 
   getAuthorizationURL({
     domain,
-    projectID,
+    clientID,
     provider,
     redirectURI,
     state,
@@ -34,7 +34,7 @@ export class SSO {
     const query = queryString.stringify({
       domain,
       provider,
-      client_id: projectID,
+      client_id: clientID,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,
@@ -43,9 +43,9 @@ export class SSO {
     return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
-  async getProfile({ code, projectID }: GetProfileOptions): Promise<Profile> {
+  async getProfile({ code, clientID }: GetProfileOptions): Promise<Profile> {
     const form = new URLSearchParams();
-    form.set('client_id', projectID);
+    form.set('client_id', clientID);
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
@@ -62,4 +62,5 @@ export class SSO {
     const endpoint = `/draft_connections/${token}/activate`;
     await this.workos.post(endpoint, null);
   }
+
 }
