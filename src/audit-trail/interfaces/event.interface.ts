@@ -2,7 +2,6 @@ export interface EventAction {
   object: 'event_action';
   id: string;
   name: string;
-  project_id: string;
 }
 
 export interface Event {
@@ -17,6 +16,7 @@ export interface Event {
   actor_id: string;
   target_name: string;
   target_id: string;
+  environment_id: string;
   occurred_at: Date;
   action: EventAction;
   metadata?: {

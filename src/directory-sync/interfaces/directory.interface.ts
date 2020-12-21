@@ -5,7 +5,7 @@ export interface Directory {
   domain: string;
   external_key: string;
   name: string;
-  project_id: string;
+  environment_id: string;
   state: 'unlinked' | 'linked';
   type: string;
 }
