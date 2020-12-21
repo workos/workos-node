@@ -6,6 +6,7 @@ export interface Directory {
   external_key: string;
   name: string;
   project_id: string;
+  environment_id: string;
   state: 'unlinked' | 'linked';
   type: string;
 }

@@ -17,6 +17,7 @@ export interface Event {
   actor_id: string;
   target_name: string;
   target_id: string;
+  environment_id: string;
   occurred_at: Date;
   action: EventAction;
   metadata?: {
