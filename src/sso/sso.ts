@@ -62,5 +62,4 @@ export class SSO {
     const endpoint = `/draft_connections/${token}/activate`;
     await this.workos.post(endpoint, null);
   }
-
 }
