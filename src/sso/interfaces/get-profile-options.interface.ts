@@ -1,4 +1,5 @@
 export interface GetProfileOptions {
   code: string;
-  clientID: string;
+  projectID?: string | undefined;
+  clientID?: string | undefined;
 }

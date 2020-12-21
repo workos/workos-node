@@ -1,12 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`SSO SSO getAuthorizationURL with a custom api hostname and clientID generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
+exports[`SSO SSO getAuthorizationURL with a custom api hostname and projectID generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?domain=lyft.com&project_id=proj_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
 exports[`SSO SSO getAuthorizationURL with a custom api hostname generates an authorize url with the custom api hostname 1`] = `"https://api.workos.dev/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
+exports[`SSO SSO getAuthorizationURL with a provider and clientID generates an authorize url with the provider 1`] = `"https://api.workos.dev/sso/authorize?client_id=client_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
+exports[`SSO SSO getAuthorizationURL with a provider and projectID generates an authorize url with the provider 1`] = `"https://api.workos.dev/sso/authorize?project_id=proj_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
 exports[`SSO SSO getAuthorizationURL with a provider generates an authorize url with the provider 1`] = `"https://api.workos.dev/sso/authorize?client_id=client_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
+exports[`SSO SSO getAuthorizationURL with no custom api hostname and clientID generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
+exports[`SSO SSO getAuthorizationURL with no custom api hostname and projectID generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?domain=lyft.com&project_id=proj_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
 exports[`SSO SSO getAuthorizationURL with no custom api hostname generates an authorize url with the default api hostname 1`] = `"https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 
+exports[`SSO SSO getAuthorizationURL with no domain or provider and clientID throws an error for incomplete arguments 1`] = `"Incomplete arguments. Need to specify either a 'domain' or 'provider'."`;
+
+exports[`SSO SSO getAuthorizationURL with no domain or provider and projectID throws an error for incomplete arguments 1`] = `"Incomplete arguments. Need to specify either a 'domain' or 'provider'."`;
+
 exports[`SSO SSO getAuthorizationURL with no domain or provider throws an error for incomplete arguments 1`] = `"Incomplete arguments. Need to specify either a 'domain' or 'provider'."`;
+
+exports[`SSO SSO getAuthorizationURL with state and clientID generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
 
 exports[`SSO SSO getAuthorizationURL with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=client_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
 
@@ -22,6 +40,64 @@ Object {
 `;
 
 exports[`SSO SSO getProfile with all information provided sends a request to the WorkOS api for a profile 3`] = `
+Object {
+  "connection_id": "conn_123",
+  "connection_type": "OktaSAML",
+  "email": "foo@test.com",
+  "first_name": "foo",
+  "id": "prof_123",
+  "idp_id": "123",
+  "last_name": "bar",
+  "raw_attributes": Object {
+    "email": "foo@test.com",
+    "first_name": "foo",
+    "last_name": "bar",
+  },
+}
+`;
+
+exports[`SSO SSO with state and projectID generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?domain=lyft.com&project_id=proj_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`;
+
+exports[`SSO getProfile and clientID with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=client_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+
+exports[`SSO getProfile and clientID with all information provided sends a request to the WorkOS api for a profile 2`] = `
+Object {
+  "Accept": "application/json, text/plain, */*",
+  "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
+  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+  "User-Agent": "workos-node/0.8.3",
+}
+`;
+
+exports[`SSO getProfile and clientID with all information provided sends a request to the WorkOS api for a profile 3`] = `
+Object {
+  "connection_id": "conn_123",
+  "connection_type": "OktaSAML",
+  "email": "foo@test.com",
+  "first_name": "foo",
+  "id": "prof_123",
+  "idp_id": "123",
+  "last_name": "bar",
+  "raw_attributes": Object {
+    "email": "foo@test.com",
+    "first_name": "foo",
+    "last_name": "bar",
+  },
+}
+`;
+
+exports[`SSO getProfile and projectID with all information provided sends a request to the WorkOS api for a profile 1`] = `"project_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+
+exports[`SSO getProfile and projectID with all information provided sends a request to the WorkOS api for a profile 2`] = `
+Object {
+  "Accept": "application/json, text/plain, */*",
+  "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
+  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+  "User-Agent": "workos-node/0.8.3",
+}
+`;
+
+exports[`SSO getProfile and projectID with all information provided sends a request to the WorkOS api for a profile 3`] = `
 Object {
   "connection_id": "conn_123",
   "connection_type": "OktaSAML",
