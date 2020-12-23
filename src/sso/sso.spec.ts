@@ -12,7 +12,7 @@ describe('SSO', () => {
 
           const url = workos.sso.getAuthorizationURL({
             domain: 'lyft.com',
-            projectID: 'proj_123',
+            clientID: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
           });
 
@@ -26,7 +26,7 @@ describe('SSO', () => {
 
           const urlFn = () =>
             workos.sso.getAuthorizationURL({
-              projectID: 'proj_123',
+              clientID: 'proj_123',
               redirectURI: 'example.com/sso/workos/callback',
             });
 
@@ -42,7 +42,7 @@ describe('SSO', () => {
 
           const url = workos.sso.getAuthorizationURL({
             provider: 'Google',
-            projectID: 'proj_123',
+            clientID: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
           });
 
@@ -58,7 +58,7 @@ describe('SSO', () => {
 
           const url = workos.sso.getAuthorizationURL({
             domain: 'lyft.com',
-            projectID: 'proj_123',
+            clientID: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
           });
 
@@ -72,7 +72,7 @@ describe('SSO', () => {
 
           const url = workos.sso.getAuthorizationURL({
             domain: 'lyft.com',
-            projectID: 'proj_123',
+            clientID: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
@@ -106,7 +106,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
           const profile = await workos.sso.getProfile({
             code: 'authorization_code',
-            projectID: 'proj_123',
+            clientID: 'proj_123',
           });
 
           expect(mock.history.post.length).toBe(1);
