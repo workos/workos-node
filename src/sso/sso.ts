@@ -43,7 +43,7 @@ export class SSO {
     return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
-  async getProfile({ code, clientID }: GetProfileOptions): Promise<Profile> {
+  async getProfile({ code, clientID}: GetProfileOptions): Promise<Profile> {
     const form = new URLSearchParams();
     form.set('client_id', clientID);
     form.set('client_secret', this.workos.key as string);
