@@ -51,11 +51,16 @@ export class SSO {
     projectID,
   }: GetProfileOptions): Promise<Profile> {
     const form = new URLSearchParams();
-    clientID
-      ? form.set('client_id', clientID)
-      : projectID
-      ? form.set('project_id', projectID)
-      : this.workos.emitWarning(`You must enter a client_id or project_id`);
+    if (clientID) {
+      form.set('client_id', clientID);
+    } else if (projectID) {
+      form.set('project_id', projectID);
+      this.workos.emitWarning(
+        `Use of project_id is deprecated; please use client_id in Dashboard2`,
+      );
+    } else {
+      this.workos.emitWarning(`You must enter a client_id or project_id`);
+    }
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
     form.set('code', code);

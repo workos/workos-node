@@ -1,7 +1,7 @@
 export interface AuthorizationURLOptions {
   domain?: string;
-  projectID?: string | undefined;
-  clientID?: string | undefined;
+  projectID?: string;
+  clientID?: string;
   provider?: string;
   redirectURI: string;
   state?: string;
