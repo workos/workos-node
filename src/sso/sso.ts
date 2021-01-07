@@ -19,9 +19,8 @@ export class SSO {
   }
 
   getAuthorizationURL({
-    domain,
     clientID,
-    projectID,
+    domain,
     provider,
     redirectURI,
     state,
@@ -35,7 +34,6 @@ export class SSO {
     const query = queryString.stringify({
       domain,
       provider,
-      project_id: projectID,
       client_id: clientID,
       redirect_uri: redirectURI,
       response_type: 'code',
