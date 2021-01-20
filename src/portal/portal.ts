@@ -35,7 +35,7 @@ export class Portal {
     const { data } = await this.workos.post('/portal/generate_link', {
       intent,
       organization,
-      returnUrl,
+      return_url: returnUrl,
     });
 
     return data;
