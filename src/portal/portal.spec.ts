@@ -60,6 +60,7 @@ describe('Portal', () => {
         const subject = await workos.portal.generateLink({
           intent: GeneratePortalLinkIntent.SSO,
           organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+          returnUrl: 'https://www.example.com',
         });
 
         expect(subject.link).toEqual(
