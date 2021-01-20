@@ -43,6 +43,7 @@ export class SSO {
     return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
+<<<<<<< HEAD
   async getProfile({
     code,
     clientID,
@@ -59,6 +60,11 @@ export class SSO {
     } else {
       this.workos.emitWarning(`You must enter a client_id or project_id`);
     }
+=======
+  async getProfile({ code, clientID }: GetProfileOptions): Promise<Profile> {
+    const form = new URLSearchParams();
+    form.set('client_id', clientID);
+>>>>>>> 930e29a13c0a77c539227ece22c82983401b0808
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
