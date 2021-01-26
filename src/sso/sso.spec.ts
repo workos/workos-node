@@ -18,6 +18,19 @@ describe('SSO', () => {
 
           expect(url).toMatchSnapshot();
         });
+        describe('with projectID instead of clientID', () => {
+          it('generates an authorize url with the default api hostname', () => {
+            const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+            const url = workos.sso.getAuthorizationURL({
+              domain: 'lyft.com',
+              projectID: 'proj_123',
+              redirectURI: 'example.com/sso/workos/callback',
+            });
+
+            expect(url).toMatchSnapshot();
+          });
+        });
       });
 
       describe('with no domain or provider', () => {
