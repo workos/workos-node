@@ -24,6 +24,7 @@ export class SSO {
     clientID,
     domain,
     provider,
+    projectID,
     redirectURI,
     state,
   }: AuthorizationURLOptions): string {
@@ -37,6 +38,7 @@ export class SSO {
       domain,
       provider,
       client_id: clientID,
+      project_id: projectID,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,
@@ -50,9 +52,17 @@ export class SSO {
     return data;
   }
 
-  async getProfile({ code, clientID }: GetProfileOptions): Promise<Profile> {
+  async getProfile({
+    code,
+    clientID,
+    projectID,
+  }: GetProfileOptions): Promise<Profile> {
     const form = new URLSearchParams();
-    form.set('client_id', clientID);
+    if (clientID) {
+      form.set('client_id', clientID);
+    } else if (projectID) {
+      form.set('project_id', projectID);
+    }
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
