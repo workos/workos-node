@@ -259,7 +259,7 @@ describe('SSO', () => {
     });
 
     describe('deleteConnection', () => {
-      it(`sends request to delete a Connection`, async () => {
+      it('sends request to delete a Connection', async () => {
         const mock = new MockAdapter(axios);
         mock.onDelete().reply(200, {});
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
