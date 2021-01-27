@@ -20,6 +20,10 @@ export class SSO {
     return data;
   }
 
+  async deleteConnection(id: string) {
+    await this.workos.delete(`/connections/${id}`);
+  }
+
   getAuthorizationURL({
     clientID,
     domain,
