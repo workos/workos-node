@@ -210,5 +210,17 @@ describe('SSO', () => {
         });
       });
     });
+
+    describe('getConnection', () => {
+      it(`requests a Connection`, async () => {
+        const mock = new MockAdapter(axios);
+        mock.onGet().reply(200, {});
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.sso.getConnection('conn_123');
+
+        expect(mock.history.get[0].url).toEqual('/connections/conn_123');
+      });
+    });
   });
 });
