@@ -4,6 +4,8 @@ import { AuthorizationURLOptions } from './interfaces/authorization-url-options.
 import { Connection } from './interfaces/connection.interface';
 import { CreateConnectionOptions } from './interfaces/create-connection-options.interface';
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
+import { List } from '../common/interfaces/list.interface';
+import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
 import { Profile } from './interfaces/profile.interface';
 import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
 import { WorkOS } from '../workos';
@@ -57,6 +59,13 @@ export class SSO {
     const { data } = await this.workos.post('/sso/token', form);
 
     return data.profile as Profile;
+  }
+
+  async listConnections(
+    options?: ListConnectionsOptions,
+  ): Promise<List<Connection>> {
+    const { data } = await this.workos.get(`/connections`, options);
+    return data;
   }
 
   async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
