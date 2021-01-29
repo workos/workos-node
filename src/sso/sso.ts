@@ -41,8 +41,7 @@ export class SSO {
     const query = queryString.stringify({
       domain,
       provider,
-      client_id: clientID,
-      project_id: projectID,
+      client_id: clientID ?? projectID,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,
@@ -65,7 +64,7 @@ export class SSO {
     if (clientID) {
       form.set('client_id', clientID);
     } else if (projectID) {
-      form.set('project_id', projectID);
+      form.set('client_id', projectID);
     }
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
