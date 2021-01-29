@@ -137,6 +137,40 @@ export class WorkOS {
     }
   }
 
+  async delete(path: string, query?: any): Promise<AxiosResponse> {
+    try {
+      return await this.client.delete(path, {
+        params: query,
+      });
+    } catch (error) {
+      const { response } = error as AxiosError;
+
+      if (response) {
+        const { status, data, headers } = response;
+        const requestID = headers['X-Request-ID'];
+
+        switch (status) {
+          case 401: {
+            throw new UnauthorizedException(requestID);
+          }
+          case 422: {
+            const { errors } = data;
+
+            throw new UnprocessableEntityException(errors, requestID);
+          }
+          case 404: {
+            throw new NotFoundException(path, requestID);
+          }
+          default: {
+            throw new GenericServerException(status, data.message, requestID);
+          }
+        }
+      }
+
+      throw error;
+    }
+  }
+
   emitWarning(warning: string) {
     if (typeof process.emitWarning !== 'function') {
       //  tslint:disable:no-console
