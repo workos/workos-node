@@ -4,4 +4,5 @@ import { ConnectionType } from './connection-type.enum';
 export interface ListConnectionsOptions extends PaginationOptions {
   connection_type?: ConnectionType;
   domain?: string;
+  organization_id?: string;
 }
