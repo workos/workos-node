@@ -9,4 +9,5 @@ export interface User {
   }[];
   username: string;
   last_name: string;
+  state: 'active' | 'suspended';
 }
