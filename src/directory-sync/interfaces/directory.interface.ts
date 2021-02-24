@@ -5,6 +5,6 @@ export interface Directory {
   external_key: string;
   name: string;
   environment_id: string;
-  state: 'unlinked' | 'linked';
+  state: 'unlinked' | 'linked' | 'invalid_credentials';
   type: string;
 }
