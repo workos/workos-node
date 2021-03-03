@@ -54,18 +54,36 @@ describe('Portal', () => {
 
   describe('generateLink', () => {
     describe('with a valid organization', () => {
-      it('returns an Admin Portal link', async () => {
-        mock.onPost().reply(201, generateLink);
+      describe('with the sso intent', () => {
+        it('returns an Admin Portal link', async () => {
+          mock.onPost().reply(201, generateLink);
 
-        const subject = await workos.portal.generateLink({
-          intent: GeneratePortalLinkIntent.SSO,
-          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-          returnUrl: 'https://www.example.com',
+          const subject = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.SSO,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(subject.link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
         });
+      });
 
-        expect(subject.link).toEqual(
-          'https://id.workos.com/portal/launch?secret=secret',
-        );
+      describe('with the dsync intent', () => {
+        it('returns an Admin Portal link', async () => {
+          mock.onPost().reply(201, generateLink);
+
+          const subject = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.DSYNC,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(subject.link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
+        });
       });
     });
 
