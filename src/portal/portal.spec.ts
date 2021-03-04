@@ -75,7 +75,7 @@ describe('Portal', () => {
           mock.onPost().reply(201, generateLink);
 
           const subject = await workos.portal.generateLink({
-            intent: GeneratePortalLinkIntent.DSYNC,
+            intent: GeneratePortalLinkIntent.DSync,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
             returnUrl: 'https://www.example.com',
           });
