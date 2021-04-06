@@ -25,6 +25,7 @@ export class SSO {
   }
 
   getAuthorizationURL({
+    connection,
     clientID,
     domain,
     provider,
@@ -32,13 +33,14 @@ export class SSO {
     redirectURI,
     state,
   }: AuthorizationURLOptions): string {
-    if (!domain && !provider) {
+    if (!domain && !provider && !connection) {
       throw new Error(
-        `Incomplete arguments. Need to specify either a 'domain' or 'provider'.`,
+        `Incomplete arguments. Need to specify either a 'connection', 'domain', or 'provider'.`,
       );
     }
 
     const query = queryString.stringify({
+      connection,
       domain,
       provider,
       client_id: clientID ?? projectID,

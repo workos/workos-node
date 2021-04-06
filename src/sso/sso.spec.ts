@@ -63,6 +63,22 @@ describe('SSO', () => {
         });
       });
 
+      describe('with a connection', () => {
+        it('generates an authorize url with the connection', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+            apiHostname: 'api.workos.dev',
+          });
+
+          const url = workos.sso.getAuthorizationURL({
+            connection: 'connection_123',
+            clientID: 'proj_123',
+            redirectURI: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchSnapshot();
+        });
+      });
+
       describe('with a custom api hostname', () => {
         it('generates an authorize url with the custom api hostname', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {

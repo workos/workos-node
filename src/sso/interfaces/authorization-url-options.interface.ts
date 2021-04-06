@@ -1,9 +1,11 @@
 export interface CommonAuthorizationURLOptions {
+  connection?: string;
   domain?: string;
   provider?: string;
   redirectURI: string;
   state?: string;
 }
+
 export type AuthorizationURLOptions =
   | ({
       clientID: string;
