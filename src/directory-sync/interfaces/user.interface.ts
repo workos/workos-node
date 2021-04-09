@@ -15,5 +15,5 @@ export interface User {
 }
 
 export interface UserWithGroups extends User {
-  groups: Group;
+  groups: Group[];
 }
