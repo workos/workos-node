@@ -12,7 +12,7 @@ export class Portal {
     domains,
     name,
   }: {
-    domains: string[];
+    domains?: string[];
     name: string;
   }): Promise<Organization> {
     const { data } = await this.workos.post('/organizations', {
