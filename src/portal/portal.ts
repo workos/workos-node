@@ -38,7 +38,7 @@ export class Portal {
       return_url: returnUrl,
     });
 
-    return data;
+    return data.link;
   }
 
   async listOrganizations(
