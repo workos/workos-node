@@ -17,6 +17,10 @@ export class DirectorySync {
     return data;
   }
 
+  async deleteDirectory(id: string) {
+    await this.workos.delete(`/directories/${id}`);
+  }
+
   async listGroups(options: ListGroupsOptions): Promise<List<Group>> {
     const { data } = await this.workos.get(`/directory_groups`, options);
     return data;
