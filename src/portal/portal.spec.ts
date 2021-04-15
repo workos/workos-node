@@ -58,13 +58,13 @@ describe('Portal', () => {
         it('returns an Admin Portal link', async () => {
           mock.onPost().reply(201, generateLink);
 
-          const subject = await workos.portal.generateLink({
+          const adminPortalLink = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
             returnUrl: 'https://www.example.com',
           });
 
-          expect(subject.link).toEqual(
+          expect(adminPortalLink).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
         });
@@ -74,13 +74,13 @@ describe('Portal', () => {
         it('returns an Admin Portal link', async () => {
           mock.onPost().reply(201, generateLink);
 
-          const subject = await workos.portal.generateLink({
+          const adminPortalLink = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.DSync,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
             returnUrl: 'https://www.example.com',
           });
 
-          expect(subject.link).toEqual(
+          expect(adminPortalLink).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
         });
