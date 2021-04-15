@@ -31,7 +31,7 @@ export class Portal {
     intent: GeneratePortalLinkIntent;
     organization: string;
     returnUrl?: string;
-  }): Promise<string> {
+  }): Promise<{ link: string }> {
     const { data } = await this.workos.post('/portal/generate_link', {
       intent,
       organization,
