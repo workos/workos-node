@@ -3,6 +3,7 @@ import { Group } from './group.interface';
 export interface User {
   id: string;
   raw_attributes: any;
+  idp_id: string;
   first_name: string;
   emails: {
     type: string;
