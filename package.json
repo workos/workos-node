@@ -38,7 +38,7 @@
     "query-string": "7.0.0"
   },
   "devDependencies": {
-    "@types/jest": "26.0.22",
+    "@types/jest": "26.0.23",
     "@types/node": "12.20.10",
     "@types/pluralize": "0.0.29",
     "axios-mock-adapter": "1.19.0",
