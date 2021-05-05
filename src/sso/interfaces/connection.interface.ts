@@ -13,7 +13,7 @@ export interface Connection {
   /**
    * @deprecated The status parameter has been deprecated. Please use state.
    */
-  status: 'linked' | 'unlinked'
+  status: 'linked' | 'unlinked';
   name: string;
   connection_type: ConnectionType;
   oauth_uid: string;
