@@ -9,7 +9,7 @@ export interface ConnectionDomain {
 export interface Connection {
   object: 'connection';
   id: string;
-  state: 'linked' | 'unlinked';
+  state: 'draft' | 'active' | 'inactive';
   name: string;
   connection_type: ConnectionType;
   oauth_uid: string;
