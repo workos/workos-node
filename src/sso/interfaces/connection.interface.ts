@@ -9,19 +9,13 @@ export interface ConnectionDomain {
 export interface Connection {
   object: 'connection';
   id: string;
+  organization_id: string;
+  name: string;
+  connection_type: ConnectionType;
   state: 'draft' | 'active' | 'inactive';
   /**
    * @deprecated The status parameter has been deprecated. Please use state.
    */
   status: 'linked' | 'unlinked';
-  name: string;
-  connection_type: ConnectionType;
-  oauth_uid: string;
-  oauth_secret: string;
-  oauth_redirect_uri: string;
-  saml_entity_id: string;
-  saml_idp_url: string;
-  saml_relying_party_trust_cert: string;
-  saml_x509_certs: string;
   domains: ConnectionDomain[];
 }
