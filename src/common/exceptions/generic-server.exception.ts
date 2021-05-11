@@ -1,6 +1,4 @@
-import { HttpException } from '../interfaces';
-
-export class GenericServerException implements HttpException {
+export class GenericServerException extends Error {
   readonly name: string = 'GenericServerException';
   readonly message: string = 'The request could not be completed.';
 
@@ -9,6 +7,7 @@ export class GenericServerException implements HttpException {
     message: string | undefined,
     readonly requestID: string,
   ) {
+    super();
     if (message) {
       this.message = message;
     }
