@@ -121,13 +121,11 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const {
-            access_token: accessToken,
-            profile,
-          } = await workos.sso.getProfileAndToken({
-            code: 'authorization_code',
-            clientID: 'proj_123',
-          });
+          const { access_token: accessToken, profile } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientID: 'proj_123',
+            });
 
           expect(mock.history.post.length).toBe(1);
           const { data, headers } = mock.history.post[0];
