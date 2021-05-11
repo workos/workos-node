@@ -111,11 +111,12 @@ describe('SSO', () => {
       });
     });
 
-    describe('getProfile', () => {
+    describe('getProfileAndToken', () => {
       describe('with all information provided', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
           const mock = new MockAdapter(axios);
           mock.onPost('/sso/token').reply(200, {
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
               id: 'prof_123',
               idp_id: '123',
@@ -133,16 +134,18 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const profile = await workos.sso.getProfile({
-            code: 'authorization_code',
-            clientID: 'proj_123',
-          });
+          const { access_token: accessToken, profile } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientID: 'proj_123',
+            });
 
           expect(mock.history.post.length).toBe(1);
           const { data, headers } = mock.history.post[0];
 
           expect(data).toMatchSnapshot();
           expect(headers).toMatchSnapshot();
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
       });
@@ -150,6 +153,7 @@ describe('SSO', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
           const mock = new MockAdapter(axios);
           mock.onPost('/sso/token').reply(200, {
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
               id: 'prof_123',
               idp_id: '123',
@@ -167,16 +171,18 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const profile = await workos.sso.getProfile({
-            code: 'authorization_code',
-            projectID: 'proj_123',
-          });
+          const { access_token: accessToken, profile } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              projectID: 'proj_123',
+            });
 
           expect(mock.history.post.length).toBe(1);
           const { data, headers } = mock.history.post[0];
 
           expect(data).toMatchSnapshot();
           expect(headers).toMatchSnapshot();
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
       });
