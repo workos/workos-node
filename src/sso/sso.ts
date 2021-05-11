@@ -28,7 +28,6 @@ export class SSO {
     clientID,
     domain,
     provider,
-    projectID,
     redirectURI,
     state,
   }: AuthorizationURLOptions): string {
@@ -42,7 +41,7 @@ export class SSO {
       connection,
       domain,
       provider,
-      client_id: clientID ?? projectID,
+      client_id: clientID,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,
@@ -59,17 +58,13 @@ export class SSO {
   async getProfileAndToken({
     code,
     clientID,
-    projectID,
   }: GetProfileAndTokenOptions): Promise<ProfileAndToken> {
-    const form = new URLSearchParams();
-    if (clientID) {
-      form.set('client_id', clientID);
-    } else if (projectID) {
-      form.set('client_id', projectID);
-    }
-    form.set('client_secret', this.workos.key as string);
-    form.set('grant_type', 'authorization_code');
-    form.set('code', code);
+    const form = new URLSearchParams({
+      client_id: clientID,
+      client_secret: this.workos.key as string,
+      grant_type: 'authorization_code',
+      code,
+    });
 
     const { data } = await this.workos.post('/sso/token', form);
     return data;
