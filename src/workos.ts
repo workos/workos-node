@@ -14,6 +14,7 @@ import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
 import { WorkOSOptions, PostOptions, PutOptions } from './common/interfaces';
+import { Organizations } from './organizations/organizations';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -23,6 +24,7 @@ export class WorkOS {
 
   readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
+  readonly organizations = new Organizations(this);
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
