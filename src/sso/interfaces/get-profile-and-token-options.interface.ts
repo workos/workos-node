@@ -1,15 +1,16 @@
-export interface CommonGetProfileOptions {
+export interface CommonGetProfileAndTokenOptions {
   code: string;
 }
-export type GetProfileOptions =
+
+export type GetProfileAndTokenOptions =
   | ({
       clientID: string;
       projectID?: never;
-    } & CommonGetProfileOptions)
+    } & CommonGetProfileAndTokenOptions)
   | ({
       clientID?: never;
       /**
        * @deprecated The projectID parameter has been deprecated. Please use clientID.
        */
       projectID: string;
-    } & CommonGetProfileOptions);
+    } & CommonGetProfileAndTokenOptions);
