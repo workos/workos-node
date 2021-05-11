@@ -4,6 +4,7 @@ import MockAdapater from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 
 import createOrganization from './fixtures/create-organization.json';
+import updateOrganization from './fixtures/update-organization.json';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import generateLink from './fixtures/generate-link.json';
 import generateLinkInvalid from './fixtures/generate-link-invalid.json';
@@ -48,6 +49,24 @@ describe('Portal', () => {
             'An Organization with the domain example.com already exists.',
           );
         }
+      });
+    });
+  });
+
+  describe('updateOrganization', () => {
+    describe('with a valid payload', () => {
+      it('updates an organization', async () => {
+        mock.onPut().reply(201, updateOrganization);
+
+        const subject = await workos.portal.updateOrganization({
+          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          domains: ['example.com'],
+          name: 'Test Organization 2',
+        });
+
+        expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+        expect(subject.name).toEqual('Test Organization 2');
+        expect(subject.domains).toHaveLength(1);
       });
     });
   });
