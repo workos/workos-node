@@ -27,9 +27,11 @@ export class Portal {
   async updateOrganization(
     options: UpdateOrganizationOptions,
   ): Promise<Organization> {
+    const { organization: organizationId, ...payload } = options;
+
     const { data } = await this.workos.put(
-      `/organizations/${options.organization}`,
-      options,
+      `/organizations/${organizationId}`,
+      payload,
     );
 
     return data;
