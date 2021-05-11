@@ -1,20 +1,19 @@
-import axios, { AxiosError, AxiosResponse, AxiosInstance } from 'axios';
-
+import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
+import { version } from '../package.json';
 import { AuditTrail } from './audit-trail/audit-trail';
-import { DirectorySync } from './directory-sync/directory-sync';
 import {
+  GenericServerException,
   NoApiKeyProvidedException,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
-  GenericServerException,
 } from './common/exceptions';
+import { PostOptions, PutOptions, WorkOSOptions } from './common/interfaces';
+import { DirectorySync } from './directory-sync/directory-sync';
+import { Organizations } from './organizations/organizations';
 import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
-import { version } from '../package.json';
-import { WorkOSOptions, PostOptions, PutOptions } from './common/interfaces';
-import { Organizations } from './organizations/organizations';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
