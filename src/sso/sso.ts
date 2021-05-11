@@ -1,14 +1,13 @@
 import queryString from 'query-string';
-
+import { List } from '../common/interfaces/list.interface';
+import { WorkOS } from '../workos';
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
 import { Connection } from './interfaces/connection.interface';
 import { CreateConnectionOptions } from './interfaces/create-connection-options.interface';
-import { GetProfileOptions } from './interfaces/get-profile-options.interface';
-import { List } from '../common/interfaces/list.interface';
+import { GetProfileAndTokenOptions } from './interfaces/get-profile-and-token-options.interface';
 import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
-import { Profile } from './interfaces/profile.interface';
+import { ProfileAndToken } from './interfaces/profile-and-token.interface';
 import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
-import { WorkOS } from '../workos';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
@@ -57,11 +56,11 @@ export class SSO {
     return data;
   }
 
-  async getProfile({
+  async getProfileAndToken({
     code,
     clientID,
     projectID,
-  }: GetProfileOptions): Promise<Profile> {
+  }: GetProfileAndTokenOptions): Promise<ProfileAndToken> {
     const form = new URLSearchParams();
     if (clientID) {
       form.set('client_id', clientID);
@@ -71,9 +70,9 @@ export class SSO {
     form.set('client_secret', this.workos.key as string);
     form.set('grant_type', 'authorization_code');
     form.set('code', code);
-    const { data } = await this.workos.post('/sso/token', form);
 
-    return data.profile as Profile;
+    const { data } = await this.workos.post('/sso/token', form);
+    return data;
   }
 
   async listConnections(
