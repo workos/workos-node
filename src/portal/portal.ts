@@ -3,6 +3,7 @@ import { WorkOS } from '../workos';
 
 import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 import { ListOrganizationsOptions } from './interfaces/list-organizations-options.interface';
+import { UpdateOrganizationOptions } from './interfaces/update-organization-options.interface';
 import { Organization } from './interfaces/organization.interface';
 
 export class Portal {
@@ -19,6 +20,19 @@ export class Portal {
       domains,
       name,
     });
+
+    return data;
+  }
+
+  async updateOrganization(
+    options: UpdateOrganizationOptions,
+  ): Promise<Organization> {
+    const { organization: organizationId, ...payload } = options;
+
+    const { data } = await this.workos.put(
+      `/organizations/${organizationId}`,
+      payload,
+    );
 
     return data;
   }
