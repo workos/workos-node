@@ -13,7 +13,7 @@ import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { version } from '../package.json';
-import { WorkOSOptions, PostOptions } from './common/interfaces';
+import { WorkOSOptions, PostOptions, PutOptions } from './common/interfaces';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -107,6 +107,51 @@ export class WorkOS {
     try {
       return await this.client.get(path, {
         params: query,
+      });
+    } catch (error) {
+      const { response } = error as AxiosError;
+
+      if (response) {
+        const { status, data, headers } = response;
+        const requestID = headers['X-Request-ID'];
+
+        switch (status) {
+          case 401: {
+            throw new UnauthorizedException(requestID);
+          }
+          case 422: {
+            const { errors } = data;
+
+            throw new UnprocessableEntityException(errors, requestID);
+          }
+          case 404: {
+            throw new NotFoundException(path, requestID);
+          }
+          default: {
+            throw new GenericServerException(status, data.message, requestID);
+          }
+        }
+      }
+
+      throw error;
+    }
+  }
+
+  async put(
+    path: string,
+    entity: any,
+    options: PutOptions = {},
+  ): Promise<AxiosResponse> {
+    const requestHeaders: any = {};
+
+    if (options.idempotencyKey) {
+      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+    }
+
+    try {
+      return await this.client.put(path, entity, {
+        params: options.query,
+        headers: requestHeaders,
       });
     } catch (error) {
       const { response } = error as AxiosError;
