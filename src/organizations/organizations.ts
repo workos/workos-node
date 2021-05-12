@@ -32,6 +32,11 @@ export class Organizations {
     return data;
   }
 
+  async getOrganization(id: string): Promise<Organization> {
+    const { data } = await this.workos.get(`/organizations/${id}`);
+    return data;
+  }
+
   async updateOrganization(
     options: UpdateOrganizationOptions,
   ): Promise<Organization> {
