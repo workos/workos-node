@@ -3,21 +3,12 @@ import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
 import { Connection } from './interfaces/connection.interface';
-import { CreateConnectionOptions } from './interfaces/create-connection-options.interface';
 import { GetProfileAndTokenOptions } from './interfaces/get-profile-and-token-options.interface';
 import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
 import { ProfileAndToken } from './interfaces/profile-and-token.interface';
-import { PromoteDraftConnectionOptions } from './interfaces/promote-draft-connection-options.interface';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
-
-  async createConnection({
-    source,
-  }: CreateConnectionOptions): Promise<Connection> {
-    const { data } = await this.workos.post('/connections', { source });
-    return data;
-  }
 
   async deleteConnection(id: string) {
     await this.workos.delete(`/connections/${id}`);
@@ -75,14 +66,5 @@ export class SSO {
   ): Promise<List<Connection>> {
     const { data } = await this.workos.get(`/connections`, options);
     return data;
-  }
-
-  async promoteDraftConnection({ token }: PromoteDraftConnectionOptions) {
-    this.workos.emitWarning(
-      '[Deprecated] sso.promoteDraftConnection({ token }) is deprecated. Use sso.createConnection({ source }) instead.',
-    );
-
-    const endpoint = `/draft_connections/${token}/activate`;
-    await this.workos.post(endpoint, null);
   }
 }
