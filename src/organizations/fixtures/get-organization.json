@@ -1,0 +1,12 @@
+{
+  "name": "Test Organization 3",
+  "object": "organization",
+  "id": "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+  "domains": [
+    {
+      "domain": "example.com",
+      "object": "organization_domain",
+      "id": "org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8"
+    }
+  ]
+}

@@ -1,12 +1,13 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import createOrganization from './fixtures/create-organization.json';
+import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Organizations', () => {
@@ -138,6 +139,25 @@ describe('Organizations', () => {
           );
         }
       });
+    });
+  });
+
+  describe('getOrganization', () => {
+    it(`requests an Organization`, async () => {
+      const mock = new MockAdapter(axios);
+      mock.onGet().reply(200, getOrganization);
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const subject = await workos.organizations.getOrganization(
+        'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
+
+      expect(mock.history.get[0].url).toEqual(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
+      expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+      expect(subject.name).toEqual('Test Organization 3');
+      expect(subject.domains).toHaveLength(1);
     });
   });
 
