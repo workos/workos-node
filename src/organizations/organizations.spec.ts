@@ -146,9 +146,13 @@ describe('Organizations', () => {
       const mock = new MockAdapter(axios);
       mock.onGet().reply(200, {});
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-      await workos.organizations.getOrganization('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+      await workos.organizations.getOrganization(
+        'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
 
-      expect(mock.history.get[0].url).toEqual('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T');
+      expect(mock.history.get[0].url).toEqual(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
     });
   });
 
