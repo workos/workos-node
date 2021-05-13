@@ -16,7 +16,9 @@ export class AuditTrail {
   }
 
   async listEvents(options?: ListEventsOptions): Promise<List<Event>> {
-    const { data } = await this.workos.get('/events', options);
+    const { data } = await this.workos.get('/events', {
+      query: options,
+    });
     return data;
   }
 }
