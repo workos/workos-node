@@ -12,7 +12,9 @@ export class Organizations {
   async listOrganizations(
     options?: ListOrganizationsOptions,
   ): Promise<List<Organization>> {
-    const { data } = await this.workos.get('/organizations', options);
+    const { data } = await this.workos.get('/organizations', {
+      query: options,
+    });
 
     return data;
   }

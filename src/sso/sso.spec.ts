@@ -138,6 +138,37 @@ describe('SSO', () => {
       });
     });
 
+    describe('getProfile', () => {
+      it('calls the `/sso/profile` endpoint with the provided access token', async () => {
+        const mock = new MockAdapter(axios);
+        mock.onGet().reply(200, {
+          id: 'prof_123',
+          idp_id: '123',
+          connection_id: 'conn_123',
+          connection_type: 'OktaSAML',
+          email: 'foo@test.com',
+          first_name: 'foo',
+          last_name: 'bar',
+          raw_attributes: {
+            email: 'foo@test.com',
+            first_name: 'foo',
+            last_name: 'bar',
+          },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const profile = await workos.sso.getProfile({
+          accessToken: 'access_token',
+        });
+
+        expect(mock.history.get.length).toBe(1);
+        const { headers } = mock.history.get[0];
+        expect(headers.Authorization).toBe(`Bearer access_token`);
+
+        expect(profile.id).toBe('prof_123');
+      });
+    });
+
     describe('deleteConnection', () => {
       it('sends request to delete a Connection', async () => {
         const mock = new MockAdapter(axios);
