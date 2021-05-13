@@ -13,7 +13,9 @@ export class DirectorySync {
   async listDirectories(
     options?: ListDirectoriesOptions,
   ): Promise<List<Directory>> {
-    const { data } = await this.workos.get('/directories', options);
+    const { data } = await this.workos.get('/directories', {
+      query: options,
+    });
     return data;
   }
 
@@ -22,12 +24,16 @@ export class DirectorySync {
   }
 
   async listGroups(options: ListGroupsOptions): Promise<List<Group>> {
-    const { data } = await this.workos.get(`/directory_groups`, options);
+    const { data } = await this.workos.get(`/directory_groups`, {
+      query: options,
+    });
     return data;
   }
 
   async listUsers(options: ListUsersOptions): Promise<List<UserWithGroups>> {
-    const { data } = await this.workos.get(`/directory_users`, options);
+    const { data } = await this.workos.get(`/directory_users`, {
+      query: options,
+    });
     return data;
   }
 

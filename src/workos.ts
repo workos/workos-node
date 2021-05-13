@@ -8,7 +8,12 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
 } from './common/exceptions';
-import { PostOptions, PutOptions, WorkOSOptions } from './common/interfaces';
+import {
+  GetOptions,
+  PostOptions,
+  PutOptions,
+  WorkOSOptions,
+} from './common/interfaces';
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Organizations } from './organizations/organizations';
 import { Passwordless } from './passwordless/passwordless';
@@ -104,10 +109,17 @@ export class WorkOS {
     }
   }
 
-  async get(path: string, query?: any): Promise<AxiosResponse> {
+  async get(path: string, options: GetOptions = {}): Promise<AxiosResponse> {
     try {
+      const { accessToken } = options;
+
       return await this.client.get(path, {
-        params: query,
+        params: options.query,
+        headers: accessToken
+          ? {
+              Authorization: `Bearer ${accessToken}`,
+            }
+          : undefined,
       });
     } catch (error) {
       const { response } = error as AxiosError;
