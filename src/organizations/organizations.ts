@@ -34,6 +34,10 @@ export class Organizations {
     return data;
   }
 
+  async deleteOrganization(id: string) {
+    await this.workos.delete(`/organizations/${id}`);
+  }
+
   async getOrganization(id: string): Promise<Organization> {
     const { data } = await this.workos.get(`/organizations/${id}`);
     return data;

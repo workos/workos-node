@@ -161,6 +161,22 @@ describe('Organizations', () => {
     });
   });
 
+  describe('deleteOrganization', () => {
+    it('sends request to delete an Organization', async () => {
+      const mock = new MockAdapter(axios);
+      mock.onDelete().reply(200, {});
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.organizations.deleteOrganization(
+        'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
+
+      expect(mock.history.delete[0].url).toEqual(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
+    });
+  });
+
   describe('updateOrganization', () => {
     describe('with a valid payload', () => {
       it('updates an organization', async () => {
