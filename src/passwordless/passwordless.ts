@@ -8,11 +8,13 @@ export class Passwordless {
 
   async createSession({
     redirectURI,
+    expiresIn,
     ...options
   }: CreatePasswordlessSessionOptions): Promise<PasswordlessSession> {
     const { data } = await this.workos.post('/passwordless/sessions', {
       ...options,
       redirect_uri: redirectURI,
+      expires_in: expiresIn,
     });
     return data;
   }
