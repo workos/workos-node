@@ -86,21 +86,36 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const error = 'error';
+        const err = data[error];
+        const desc = 'error_description';
+        const errDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID);
+            throw new UnauthorizedException(requestID, err, errDescription);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException(
+              errors,
+              requestID,
+              err,
+              errDescription,
+            );
           }
           case 404: {
-            throw new NotFoundException(path, requestID);
+            throw new NotFoundException(path, requestID, err, errDescription);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            throw new GenericServerException(
+              status,
+              data.message,
+              requestID,
+              err,
+              errDescription,
+            );
           }
         }
       }
@@ -127,21 +142,36 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const error = 'error';
+        const err = data[error];
+        const desc = 'error_description';
+        const errDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID);
+            throw new UnauthorizedException(requestID, err, errDescription);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException(
+              errors,
+              requestID,
+              err,
+              errDescription,
+            );
           }
           case 404: {
-            throw new NotFoundException(path, requestID);
+            throw new NotFoundException(path, requestID, err, errDescription);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            throw new GenericServerException(
+              status,
+              data.message,
+              requestID,
+              err,
+              errDescription,
+            );
           }
         }
       }
@@ -172,21 +202,36 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const error = 'error';
+        const err = data[error];
+        const desc = 'error_description';
+        const errDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID);
+            throw new UnauthorizedException(requestID, err, errDescription);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException(
+              errors,
+              requestID,
+              err,
+              errDescription,
+            );
           }
           case 404: {
-            throw new NotFoundException(path, requestID);
+            throw new NotFoundException(path, requestID, err, errDescription);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            throw new GenericServerException(
+              status,
+              data.message,
+              requestID,
+              err,
+              errDescription,
+            );
           }
         }
       }
@@ -206,21 +251,36 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const error = 'error';
+        const err = data[error];
+        const desc = 'error_description';
+        const errDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID);
+            throw new UnauthorizedException(requestID, err, errDescription);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException(
+              errors,
+              requestID,
+              err,
+              errDescription,
+            );
           }
           case 404: {
-            throw new NotFoundException(path, requestID);
+            throw new NotFoundException(path, requestID, err, errDescription);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            throw new GenericServerException(
+              status,
+              data.message,
+              requestID,
+              err,
+              errDescription,
+            );
           }
         }
       }
