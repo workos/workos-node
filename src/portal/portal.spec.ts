@@ -60,7 +60,7 @@ describe('Portal', () => {
           });
         } catch (error) {
           expect(error.message).toEqual(
-            'Could not find an organization with the id, bogus-id.',
+            'Could not find an organization with the id, bogus-id.\nError: error\nError Description: error description',
           );
         }
       });

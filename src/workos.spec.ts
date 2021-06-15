@@ -73,30 +73,51 @@ describe('WorkOS', () => {
   describe('post', () => {
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
-        mock
-          .onPost()
-          .reply(
-            404,
-            { message: 'Not Found' },
-            { 'X-Request-ID': 'a-request-id' },
-          );
+        mock.onPost().reply(
+          404,
+          {
+            message: 'Not Found',
+            error: 'error',
+            error_description: 'error description',
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new NotFoundException('/path', 'a-request-id'),
+          new NotFoundException(
+            '/path',
+            'a-request-id',
+            'error',
+            'error description',
+          ),
         );
       });
     });
 
     describe('when the api responds with a 500', () => {
       it('throws an GenericServerException', async () => {
-        mock.onPost().reply(500, {}, { 'X-Request-ID': 'a-request-id' });
+        mock.onPost().reply(
+          500,
+          {},
+          {
+            'X-Request-ID': 'a-request-id',
+            error: 'error',
+            error_description: 'error description',
+          },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new GenericServerException(500, undefined, 'a-request-id'),
+          new GenericServerException(
+            500,
+            undefined,
+            'a-request-id',
+            'error',
+            'error description',
+          ),
         );
       });
     });
