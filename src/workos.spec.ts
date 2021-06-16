@@ -107,10 +107,10 @@ describe('WorkOS', () => {
         );
       });
     });
-    describe('when the api responds with a 500 and an error/error_description', () => {
+    describe('when the api responds with a 400 and an error/error_description', () => {
       it('throws an OauthException', async () => {
         mock.onPost().reply(
-          500,
+          400,
           { error: 'error', error_description: 'error description' },
           {
             'X-Request-ID': 'a-request-id',
@@ -120,7 +120,7 @@ describe('WorkOS', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new OauthException(500, 'a-request-id', 'error', 'error description'),
+          new OauthException(400, 'a-request-id', 'error', 'error description'),
         );
       });
     });
