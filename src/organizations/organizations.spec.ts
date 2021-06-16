@@ -135,7 +135,7 @@ describe('Organizations', () => {
           });
         } catch (error) {
           expect(error.message).toEqual(
-            'An Organization with the domain example.com already exists.\nError: error\nError Description: error description',
+            'An Organization with the domain example.com already exists.',
           );
         }
       });

@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`AuditTrail createEvent when the api responds with a 422 throws an UnprocessableEntity 1`] = `
-[UnprocessableEntityException: Error: undefined
-Error Description: undefined
-The following requirements must be met:
+[UnprocessableEntityException: The following requirements must be met:
 	target_id must be a string
 	occurred_at must be an ISO 8601 date string
 ]

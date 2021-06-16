@@ -7,16 +7,11 @@ export class UnprocessableEntityException extends Error {
   readonly name: string = 'UnprocessableEntityException';
   readonly message: string;
 
-  constructor(
-    errors: UnprocessableEntityError[],
-    readonly requestID: string,
-    readonly err: string,
-    readonly errDescription: string,
-  ) {
+  constructor(errors: UnprocessableEntityError[], readonly requestID: string) {
     super();
     const requirement: string = pluralize('requirement', errors.length);
 
-    this.message = `Error: ${err}\nError Description: ${errDescription}\nThe following ${requirement} must be met:\n`;
+    this.message = `The following ${requirement} must be met:\n`;
 
     for (const { code } of errors) {
       this.message = this.message.concat(`\t${code}\n`);

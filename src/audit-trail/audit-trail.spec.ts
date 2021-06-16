@@ -56,8 +56,6 @@ describe('AuditTrail', () => {
           401,
           {
             message: 'Unauthorized',
-            error: 'error',
-            error_description: 'error description',
           },
           { 'X-Request-ID': 'a-request-id' },
         );
@@ -66,13 +64,7 @@ describe('AuditTrail', () => {
 
         await expect(
           workos.auditTrail.createEvent(event),
-        ).rejects.toStrictEqual(
-          new UnauthorizedException(
-            'a-request-id',
-            'error',
-            'error description',
-          ),
-        );
+        ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
       });
     });
 

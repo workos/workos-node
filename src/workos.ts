@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
+  OauthException,
 } from './common/exceptions';
 import {
   GetOptions,
@@ -86,36 +87,31 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const error = 'error';
-        const err = data[error];
+        const err = 'error';
+        const error = data[err];
         const desc = 'error_description';
-        const errDescription = data[desc];
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID, err, errDescription);
+            throw new UnauthorizedException(requestID);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              errors,
-              requestID,
-              err,
-              errDescription,
-            );
+            throw new UnprocessableEntityException(errors, requestID);
           }
           case 404: {
-            throw new NotFoundException(path, requestID, err, errDescription);
+            throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(
-              status,
-              data.message,
-              requestID,
-              err,
-              errDescription,
-            );
+            if (error && errorDescription) {
+              throw new OauthException(status, requestID, error, errorDescription);
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -142,36 +138,31 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const error = 'error';
-        const err = data[error];
+        const err = 'error';
+        const error = data[err];
         const desc = 'error_description';
-        const errDescription = data[desc];
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID, err, errDescription);
+            throw new UnauthorizedException(requestID);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              errors,
-              requestID,
-              err,
-              errDescription,
-            );
+            throw new UnprocessableEntityException(errors, requestID);
           }
           case 404: {
-            throw new NotFoundException(path, requestID, err, errDescription);
+            throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(
-              status,
-              data.message,
-              requestID,
-              err,
-              errDescription,
-            );
+            if (error && errorDescription) {
+              throw new OauthException(status, requestID, error, errorDescription);
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -202,36 +193,31 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const error = 'error';
-        const err = data[error];
+        const err = 'error';
+        const error = data[err];
         const desc = 'error_description';
-        const errDescription = data[desc];
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID, err, errDescription);
+            throw new UnauthorizedException(requestID);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              errors,
-              requestID,
-              err,
-              errDescription,
-            );
+            throw new UnprocessableEntityException(errors, requestID);
           }
           case 404: {
-            throw new NotFoundException(path, requestID, err, errDescription);
+            throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(
-              status,
-              data.message,
-              requestID,
-              err,
-              errDescription,
-            );
+            if (error && errorDescription) {
+              throw new OauthException(status, requestID, error, errorDescription);
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -251,36 +237,31 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const error = 'error';
-        const err = data[error];
+        const err = 'error';
+        const error = data[err];
         const desc = 'error_description';
-        const errDescription = data[desc];
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
-            throw new UnauthorizedException(requestID, err, errDescription);
+            throw new UnauthorizedException(requestID);
           }
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              errors,
-              requestID,
-              err,
-              errDescription,
-            );
+            throw new UnprocessableEntityException(errors, requestID);
           }
           case 404: {
-            throw new NotFoundException(path, requestID, err, errDescription);
+            throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(
-              status,
-              data.message,
-              requestID,
-              err,
-              errDescription,
-            );
+            if (error && errorDescription) {
+              throw new OauthException(status, requestID, error, errorDescription);
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
