@@ -6,6 +6,7 @@ import {
   NoApiKeyProvidedException,
   NotFoundException,
   GenericServerException,
+  OauthException,
 } from './common/exceptions';
 
 const mock = new MockAdapater(axios);
@@ -73,13 +74,13 @@ describe('WorkOS', () => {
   describe('post', () => {
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
-        mock
-          .onPost()
-          .reply(
-            404,
-            { message: 'Not Found' },
-            { 'X-Request-ID': 'a-request-id' },
-          );
+        mock.onPost().reply(
+          404,
+          {
+            message: 'Not Found',
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -89,14 +90,37 @@ describe('WorkOS', () => {
       });
     });
 
-    describe('when the api responds with a 500', () => {
+    describe('when the api responds with a 500 and no error/error_description', () => {
       it('throws an GenericServerException', async () => {
-        mock.onPost().reply(500, {}, { 'X-Request-ID': 'a-request-id' });
+        mock.onPost().reply(
+          500,
+          {},
+          {
+            'X-Request-ID': 'a-request-id',
+          },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
           new GenericServerException(500, undefined, 'a-request-id'),
+        );
+      });
+    });
+    describe('when the api responds with a 500 and an error/error_description', () => {
+      it('throws an OauthException', async () => {
+        mock.onPost().reply(
+          500,
+          { error: 'error', error_description: 'error description' },
+          {
+            'X-Request-ID': 'a-request-id',
+          },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post('/path', {})).rejects.toStrictEqual(
+          new OauthException(500, 'a-request-id', 'error', 'error description'),
         );
       });
     });
