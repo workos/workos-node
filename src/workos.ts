@@ -106,7 +106,12 @@ export class WorkOS {
           }
           default: {
             if (error && errorDescription) {
-              throw new OauthException(status, requestID, error, errorDescription);
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
             } else if (error) {
               throw new OauthException(status, data.message, requestID, error);
             } else {
@@ -157,7 +162,12 @@ export class WorkOS {
           }
           default: {
             if (error && errorDescription) {
-              throw new OauthException(status, requestID, error, errorDescription);
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
             } else if (error) {
               throw new OauthException(status, data.message, requestID, error);
             } else {
@@ -212,7 +222,12 @@ export class WorkOS {
           }
           default: {
             if (error && errorDescription) {
-              throw new OauthException(status, requestID, error, errorDescription);
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
             } else if (error) {
               throw new OauthException(status, data.message, requestID, error);
             } else {
@@ -256,7 +271,12 @@ export class WorkOS {
           }
           default: {
             if (error && errorDescription) {
-              throw new OauthException(status, requestID, error, errorDescription);
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
             } else if (error) {
               throw new OauthException(status, data.message, requestID, error);
             } else {
