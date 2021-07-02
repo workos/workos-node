@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
+  OauthException,
 } from './common/exceptions';
 import {
   GetOptions,
@@ -86,6 +87,10 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const err = 'error';
+        const error = data[err];
+        const desc = 'error_description';
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
@@ -100,7 +105,18 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error && errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -127,6 +143,10 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const err = 'error';
+        const error = data[err];
+        const desc = 'error_description';
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
@@ -141,7 +161,18 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error && errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -172,6 +203,10 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const err = 'error';
+        const error = data[err];
+        const desc = 'error_description';
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
@@ -186,7 +221,18 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error && errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -206,6 +252,10 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const err = 'error';
+        const error = data[err];
+        const desc = 'error_description';
+        const errorDescription = data[desc];
 
         switch (status) {
           case 401: {
@@ -220,7 +270,18 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error && errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else if (error) {
+              throw new OauthException(status, data.message, requestID, error);
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
