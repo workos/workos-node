@@ -13,5 +13,8 @@ export class OauthException extends Error {
     } else if (error) {
       this.message = `Error: ${error}`;
     }
+    else {
+      this.message = `An error has occurred.`;
+    }
   }
 }
