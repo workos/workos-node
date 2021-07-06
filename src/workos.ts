@@ -107,7 +107,7 @@ export class WorkOS {
                 status,
                 requestID,
                 error,
-                errorDescription
+                errorDescription,
               );
             } else {
               throw new GenericServerException(status, data.message, requestID);
@@ -158,7 +158,7 @@ export class WorkOS {
                 status,
                 requestID,
                 error,
-                errorDescription
+                errorDescription,
               );
             } else {
               throw new GenericServerException(status, data.message, requestID);
@@ -213,7 +213,7 @@ export class WorkOS {
                 status,
                 requestID,
                 error,
-                errorDescription
+                errorDescription,
               );
             } else {
               throw new GenericServerException(status, data.message, requestID);
@@ -257,7 +257,7 @@ export class WorkOS {
                 status,
                 requestID,
                 error,
-                errorDescription
+                errorDescription,
               );
             } else {
               throw new GenericServerException(status, data.message, requestID);
