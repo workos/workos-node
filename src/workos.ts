@@ -7,6 +7,7 @@ import {
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
+  OauthException,
 } from './common/exceptions';
 import {
   GetOptions,
@@ -86,6 +87,7 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const { error, error_description: errorDescription } = data;
 
         switch (status) {
           case 401: {
@@ -100,7 +102,16 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error || errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -127,6 +138,7 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const { error, error_description: errorDescription } = data;
 
         switch (status) {
           case 401: {
@@ -141,7 +153,16 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error || errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -172,6 +193,7 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const { error, error_description: errorDescription } = data;
 
         switch (status) {
           case 401: {
@@ -186,7 +208,16 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error || errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }
@@ -206,6 +237,7 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
+        const { error, error_description: errorDescription } = data;
 
         switch (status) {
           case 401: {
@@ -220,7 +252,16 @@ export class WorkOS {
             throw new NotFoundException(path, requestID);
           }
           default: {
-            throw new GenericServerException(status, data.message, requestID);
+            if (error || errorDescription) {
+              throw new OauthException(
+                status,
+                requestID,
+                error,
+                errorDescription,
+              );
+            } else {
+              throw new GenericServerException(status, data.message, requestID);
+            }
           }
         }
       }

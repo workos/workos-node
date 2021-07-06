@@ -52,13 +52,13 @@ describe('AuditTrail', () => {
 
     describe('when the api responds with a 401', () => {
       it('throws an UnauthorizedException', async () => {
-        mock
-          .onPost()
-          .reply(
-            401,
-            { message: 'Unauthorized' },
-            { 'X-Request-ID': 'a-request-id' },
-          );
+        mock.onPost().reply(
+          401,
+          {
+            message: 'Unauthorized',
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
 
         const workos = new WorkOS('invalid apikey');
 
