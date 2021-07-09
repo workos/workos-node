@@ -16,7 +16,8 @@
     "quotemark": [true, "single", "jsx-double"],
     "variable-name": [true, "allow-leading-underscore"],
     "semicolon": [true, "always", "ignore-bound-class-methods"],
-    "no-default-export": true
+    "no-default-export": true,
+    "no-shadowed-variable": false
   },
   "rulesDirectory": []
 }
