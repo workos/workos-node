@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { version } from '../package.json';
 import { AuditTrail } from './audit-trail/audit-trail';
 import {
   GenericServerException,
@@ -20,6 +19,8 @@ import { Organizations } from './organizations/organizations';
 import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
+
+const VERSION = '1.1.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -60,7 +61,7 @@ export class WorkOS {
       baseURL: this.baseURL,
       headers: {
         Authorization: `Bearer ${this.key}`,
-        'User-Agent': `workos-node/${version}`,
+        'User-Agent': `workos-node/${VERSION}`,
       },
     });
   }

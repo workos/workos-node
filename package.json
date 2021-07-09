@@ -24,7 +24,7 @@
     "url": "https://github.com/workos-inc/workos-node/issues"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p .",
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
     "test:watch": "jest --watch",
