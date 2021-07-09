@@ -1,24 +1,19 @@
 {
   "compilerOptions": {
-    "allowJs": false,
     "allowSyntheticDefaultImports": true,
     "alwaysStrict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "preserve",
-    "lib": ["dom", "es2017"],
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "typeRoots": ["./node_modules/@types"],
     "target": "es6",
     "module": "commonjs",
     "declaration": true,
-    "outDir": "./dist",
+    "outDir": "lib",
     "strict": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["src/**/*.spec.ts", "dist"]
+  "include": ["src"]
 }
