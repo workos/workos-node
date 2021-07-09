@@ -20,7 +20,7 @@ import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 
-const VERSION = '1.1.0';
+const VERSION = '1.2.0-alpha';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
