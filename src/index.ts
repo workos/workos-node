@@ -7,5 +7,7 @@ export * from './passwordless/interfaces';
 export * from './portal/interfaces';
 export * from './sso/interfaces';
 
+export { WorkOS };
+
 // tslint:disable-next-line:no-default-export
 export default WorkOS;
