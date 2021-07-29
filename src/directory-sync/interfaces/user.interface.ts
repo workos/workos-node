@@ -1,8 +1,13 @@
 import { Group } from './group.interface';
 
-export interface User {
+export type DefaultCustomAttributes = Record<string, unknown>;
+
+export interface User<
+  TCustomAttributes extends object = DefaultCustomAttributes,
+> {
   id: string;
   raw_attributes: any;
+  custom_attributes: TCustomAttributes;
   idp_id: string;
   first_name: string;
   emails: {
@@ -15,6 +20,8 @@ export interface User {
   state: 'active' | 'suspended';
 }
 
-export interface UserWithGroups extends User {
+export interface UserWithGroups<
+  TCustomAttributes extends object = DefaultCustomAttributes,
+> extends User<TCustomAttributes> {
   groups: Group[];
 }
