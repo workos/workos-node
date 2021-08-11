@@ -18,4 +18,6 @@ export interface Connection {
    */
   status: 'linked' | 'unlinked';
   domains: ConnectionDomain[];
+  created_at: string;
+  updated_at: string;
 }
