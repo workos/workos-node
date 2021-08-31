@@ -9,7 +9,7 @@
     "workos"
   ],
   "volta": {
-    "node": "14.17.5",
+    "node": "14.17.6",
     "yarn": "1.22.11"
   },
   "main": "lib/index.js",
