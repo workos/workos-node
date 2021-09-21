@@ -5,6 +5,7 @@
       "object": "organization",
       "id": "org_01EHQMYV6MBK39QC5PZXHY59C3",
       "name": "example.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -17,6 +18,7 @@
       "object": "organization",
       "id": "org_01EHQMVDTC2GRAHFCCRNTSKH46",
       "name": "example2.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -29,6 +31,7 @@
       "object": "organization",
       "id": "org_01EGS4P7QR31EZ4YWD1Z1XA176",
       "name": "foo-corp.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -41,6 +44,7 @@
       "object": "organization",
       "id": "org_01EGPYFYM0Y66AHNYQG9Z63DTN",
       "name": "example3.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -53,6 +57,7 @@
       "object": "organization",
       "id": "org_01EGPJWMT2EQMK7FMPR3TBC861",
       "name": "workos.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -65,6 +70,7 @@
       "object": "organization",
       "id": "org_01EGPJ5YY5P897573GJFGGY7ZF",
       "name": "example4.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
@@ -77,6 +83,7 @@
       "object": "organization",
       "id": "org_01EGP9Z6RY2J6YE0ZV57CGEXV2",
       "name": "example5.com",
+      "allow_profiles_outside_organization": false,
       "domains": [
         {
           "object": "organization_domain",
