@@ -52,17 +52,15 @@ describe('Portal', () => {
           'X-Request-ID': 'a-request-id',
         });
 
-        try {
-          await workos.portal.generateLink({
+        await expect(
+          workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
             organization: 'bogus-id',
             returnUrl: 'https://www.example.com',
-          });
-        } catch (error) {
-          expect(error.message).toEqual(
-            'Could not find an organization with the id, bogus-id.',
-          );
-        }
+          }),
+        ).rejects.toThrowError(
+          'Could not find an organization with the id, bogus-id.',
+        );
       });
     });
   });
