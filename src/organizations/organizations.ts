@@ -1,6 +1,7 @@
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import {
+  CreateOrganizationOptions,
   ListOrganizationsOptions,
   Organization,
   UpdateOrganizationOptions,
@@ -19,17 +20,10 @@ export class Organizations {
     return data;
   }
 
-  async createOrganization({
-    domains,
-    name,
-  }: {
-    domains?: string[];
-    name: string;
-  }): Promise<Organization> {
-    const { data } = await this.workos.post('/organizations', {
-      domains,
-      name,
-    });
+  async createOrganization(
+    payload: CreateOrganizationOptions,
+  ): Promise<Organization> {
+    const { data } = await this.workos.post('/organizations', payload);
 
     return data;
   }
