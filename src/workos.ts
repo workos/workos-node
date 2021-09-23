@@ -19,6 +19,7 @@ import { Organizations } from './organizations/organizations';
 import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
+import { Webhooks } from './webhooks/webhooks';
 
 const VERSION = '1.3.1';
 
@@ -34,6 +35,7 @@ export class WorkOS {
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
+  readonly webhooks = new Webhooks();
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
