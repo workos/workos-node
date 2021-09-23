@@ -3,8 +3,6 @@ import crypto from 'crypto';
 import { SignatureVerificationException } from '../common/exceptions';
 
 export class Webhooks {
-  constructor() {}
-
   constructEvent(
     payload: any,
     sigHeader: string,
@@ -13,7 +11,7 @@ export class Webhooks {
   ): Webhook {
     this.verifyHeader(payload, sigHeader, secret, tolerance);
 
-    let webhookPayload = <Webhook>payload;
+    const webhookPayload = payload as Webhook;
     return webhookPayload;
   }
 
@@ -23,29 +21,38 @@ export class Webhooks {
     secret: string,
     tolerance: number = 180,
   ): boolean {
-    let [timestamp, signatureHash] = this.getTimestampAndSignatureHash(sigHeader);
+    const [timestamp, signatureHash] =
+      this.getTimestampAndSignatureHash(sigHeader);
 
     if (!signatureHash || Object.keys(signatureHash).length === 0) {
-      throw new SignatureVerificationException("No signature hash found with expected scheme v1");
+      throw new SignatureVerificationException(
+        'No signature hash found with expected scheme v1',
+      );
     }
 
-    if (parseInt(timestamp) < (Date.now() - tolerance)) {
-      throw new SignatureVerificationException("Timestamp outside the tolerance zone");
+    if (parseInt(timestamp, 10) < Date.now() - tolerance) {
+      throw new SignatureVerificationException(
+        'Timestamp outside the tolerance zone',
+      );
     }
 
-    let expectedSig = this.computeSignature(timestamp, payload, secret);
+    const expectedSig = this.computeSignature(timestamp, payload, secret);
     if (this.secureCompare(expectedSig, signatureHash) === false) {
-      throw new SignatureVerificationException("Signature hash does not match the expected signature hash for payload")
+      throw new SignatureVerificationException(
+        'Signature hash does not match the expected signature hash for payload',
+      );
     }
 
     return true;
   }
 
   getTimestampAndSignatureHash(sigHeader: string): string[] {
-    const signature = sigHeader
+    const signature = sigHeader;
     const [t, v1] = signature.split(',');
-    if (typeof t === 'undefined' || typeof v1 === 'undefined'){
-      throw new SignatureVerificationException("Signature or timestamp missing");
+    if (typeof t === 'undefined' || typeof v1 === 'undefined') {
+      throw new SignatureVerificationException(
+        'Signature or timestamp missing',
+      );
     }
     const { 1: timestamp } = t.split('=');
     const { 1: signatureHash } = v1.split('=');
@@ -57,17 +64,17 @@ export class Webhooks {
     const signedPayload = `${timestamp}.${payload}`;
 
     const expectedSignature = crypto
-        .createHmac('sha256', secret)
-        .update(signedPayload)
-        .digest()
-        .toString('hex');
+      .createHmac('sha256', secret)
+      .update(signedPayload)
+      .digest()
+      .toString('hex');
 
     return expectedSignature;
   }
 
   secureCompare(stringA: string, stringB: string): boolean {
-    let strA = Buffer.from(stringA);
-    let strB = Buffer.from(stringB);
+    const strA = Buffer.from(stringA);
+    const strB = Buffer.from(stringB);
 
     if (strA.length !== strB.length) {
       return false;
@@ -81,6 +88,7 @@ export class Webhooks {
     let result = 0;
 
     for (let i = 0; i < len; ++i) {
+      // tslint:disable-next-line:no-bitwise
       result |= strA[i] ^ strB[i];
     }
     return result === 0;
