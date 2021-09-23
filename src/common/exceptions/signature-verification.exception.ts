@@ -4,7 +4,7 @@ export class SignatureVerificationException extends Error {
     `Signature verification failed.`;
 
   constructor(
-    message: string | undefined,
+    message: string,
   ) {
     super();
     if (message) {
