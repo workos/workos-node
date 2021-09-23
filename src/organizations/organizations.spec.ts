@@ -128,16 +128,14 @@ describe('Organizations', () => {
           'X-Request-ID': 'a-request-id',
         });
 
-        try {
-          await workos.organizations.createOrganization({
+        await expect(
+          workos.organizations.createOrganization({
             domains: ['example.com'],
             name: 'Test Organization',
-          });
-        } catch (error) {
-          expect(error.message).toEqual(
-            'An Organization with the domain example.com already exists.',
-          );
-        }
+          }),
+        ).rejects.toThrowError(
+          'An Organization with the domain example.com already exists.',
+        );
       });
     });
   });
@@ -157,6 +155,7 @@ describe('Organizations', () => {
       );
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
+      expect(subject.allow_profiles_outside_organization).toEqual(false);
       expect(subject.domains).toHaveLength(1);
     });
   });
