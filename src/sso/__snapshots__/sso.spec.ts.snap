@@ -19,7 +19,7 @@ Object {
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/1.3.1",
+  "User-Agent": "workos-node/1.4.0",
 }
 `;
 
@@ -32,6 +32,7 @@ Object {
   "id": "prof_123",
   "idp_id": "123",
   "last_name": "bar",
+  "organization_id": "org_123",
   "raw_attributes": Object {
     "email": "foo@test.com",
     "first_name": "foo",

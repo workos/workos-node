@@ -107,6 +107,7 @@ describe('SSO', () => {
             profile: {
               id: 'prof_123',
               idp_id: '123',
+              organization_id: 'org_123',
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
@@ -144,6 +145,7 @@ describe('SSO', () => {
         mock.onGet().reply(200, {
           id: 'prof_123',
           idp_id: '123',
+          organization_id: 'org_123',
           connection_id: 'conn_123',
           connection_type: 'OktaSAML',
           email: 'foo@test.com',
