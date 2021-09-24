@@ -3,24 +3,35 @@ import crypto from 'crypto';
 import { SignatureVerificationException } from '../common/exceptions';
 
 export class Webhooks {
-  constructEvent(
-    payload: any,
-    sigHeader: string,
-    secret: string,
-    tolerance: number = 180,
-  ): Webhook {
-    this.verifyHeader(payload, sigHeader, secret, tolerance);
+  constructEvent({
+    payload,
+    sigHeader,
+    secret,
+    tolerance = 180,
+  }: {
+    payload: any;
+    sigHeader: string;
+    secret: string;
+    tolerance?: number;
+  }): Webhook {
+    const options = { payload, sigHeader, secret, tolerance };
+    this.verifyHeader(options);
 
     const webhookPayload = payload as Webhook;
     return webhookPayload;
   }
 
-  verifyHeader(
-    payload: any,
-    sigHeader: string,
-    secret: string,
-    tolerance: number = 180,
-  ): boolean {
+  private verifyHeader({
+    payload,
+    sigHeader,
+    secret,
+    tolerance = 180,
+  }: {
+    payload: any;
+    sigHeader: string;
+    secret: string;
+    tolerance?: number;
+  }): boolean {
     const [timestamp, signatureHash] =
       this.getTimestampAndSignatureHash(sigHeader);
 
@@ -46,7 +57,7 @@ export class Webhooks {
     return true;
   }
 
-  getTimestampAndSignatureHash(sigHeader: string): string[] {
+  private getTimestampAndSignatureHash(sigHeader: string): string[] {
     const signature = sigHeader;
     const [t, v1] = signature.split(',');
     if (typeof t === 'undefined' || typeof v1 === 'undefined') {
@@ -60,7 +71,11 @@ export class Webhooks {
     return [timestamp, signatureHash];
   }
 
-  computeSignature(timestamp: any, payload: any, secret: string): string {
+  private computeSignature(
+    timestamp: any,
+    payload: any,
+    secret: string,
+  ): string {
     const signedPayload = `${timestamp}.${payload}`;
 
     const expectedSignature = crypto
@@ -72,7 +87,7 @@ export class Webhooks {
     return expectedSignature;
   }
 
-  secureCompare(stringA: string, stringB: string): boolean {
+  private secureCompare(stringA: string, stringB: string): boolean {
     const strA = Buffer.from(stringA);
     const strB = Buffer.from(stringB);
 
