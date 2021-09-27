@@ -9,7 +9,7 @@ export class Webhooks {
     secret,
     tolerance = 180,
   }: {
-    payload: any;
+    payload: unknown;
     sigHeader: string;
     secret: string;
     tolerance?: number;

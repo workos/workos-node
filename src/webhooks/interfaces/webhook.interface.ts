@@ -1,5 +1,5 @@
 export interface Webhook {
   id: string;
   event: string;
-  data: object;
+  data: Record<string, any>;
 }
