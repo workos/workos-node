@@ -1,5 +1,6 @@
 export enum ConnectionType {
   ADFSSAML = 'ADFSSAML',
+  Auth0SAML = 'Auth0SAML',
   AzureSAML = 'AzureSAML',
   GenericOIDC = 'GenericOIDC',
   GenericSAML = 'GenericSAML',
