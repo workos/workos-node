@@ -1,6 +1,7 @@
 import { WorkOS } from './workos';
 
 export * from './audit-trail/interfaces';
+export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './directory-sync/interfaces';
 export * from './passwordless/interfaces';
