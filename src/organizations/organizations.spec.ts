@@ -18,7 +18,7 @@ describe('Organizations', () => {
       it('returns organizations and metadata', async () => {
         mock.onGet().reply(200, listOrganizationsFixture);
 
-        const { data, listMetadata } =
+        const { data, list_metadata: listMetadata } =
           await workos.organizations.listOrganizations();
 
         expect(mock.history.get[0].params).toBeUndefined();
