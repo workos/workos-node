@@ -1,68 +1,63 @@
+import { Group, User } from '../../directory-sync/interfaces';
 import { Connection } from '../../sso/interfaces';
-import { Directory, Group, User } from '../../directory-sync/interfaces';
+import { WebhookDirectory as Directory } from './webhook-directory.interface';
 
-interface ConnectionActivatedWebhook {
+interface WebhookBase {
   id: string;
+}
+
+export interface ConnectionActivatedWebhook extends WebhookBase {
   event: 'connection.activated';
   data: Connection;
 }
 
-interface ConnectionDeactivatedWebhook {
-  id: string;
+export interface ConnectionDeactivatedWebhook extends WebhookBase {
   event: 'connection.deactivated';
   data: Connection;
 }
 
-interface ConnectionDeletedWebhook {
-  id: string;
+export interface ConnectionDeletedWebhook extends WebhookBase {
   event: 'connection.deleted';
   data: Connection;
 }
 
-interface DsyncActivatedWebhook {
-  id: string;
+export interface DsyncActivatedWebhook extends WebhookBase {
   event: 'dsync.activated';
   data: Directory;
 }
 
-interface DsyncDeactivatedWebhook {
-  id: string;
+export interface DsyncDeactivatedWebhook extends WebhookBase {
   event: 'dsync.deactivated';
   data: Directory;
 }
 
-interface DsyncDeletedWebhook {
-  id: string;
+export interface DsyncDeletedWebhook extends WebhookBase {
   event: 'dsync.deleted';
   data: Directory;
 }
 
-interface DsyncGroupCreatedWebhook {
-  id: string;
+export interface DsyncGroupCreatedWebhook extends WebhookBase {
   event: 'dsync.group.created';
   data: Group & {
     directory_id: string;
   };
 }
 
-interface DsyncGroupDeletedWebhook {
-  id: string;
+export interface DsyncGroupDeletedWebhook extends WebhookBase {
   event: 'dsync.group.deleted';
   data: Group & {
     directory_id: string;
   };
 }
 
-interface DsyncGroupUpdatedWebhook {
-  id: string;
+export interface DsyncGroupUpdatedWebhook extends WebhookBase {
   event: 'dsync.group.updated';
   data: Group & {
     directory_id: string;
   };
 }
 
-interface DsyncGroupUserAddedWebhook {
-  id: string;
+export interface DsyncGroupUserAddedWebhook extends WebhookBase {
   event: 'dsync.group.user_added';
   data: {
     directory_id: string;
@@ -71,8 +66,7 @@ interface DsyncGroupUserAddedWebhook {
   };
 }
 
-interface DsyncGroupUserRemovedWebhook {
-  id: string;
+export interface DsyncGroupUserRemovedWebhook extends WebhookBase {
   event: 'dsync.group.user_removed';
   data: {
     directory_id: string;
@@ -81,20 +75,17 @@ interface DsyncGroupUserRemovedWebhook {
   };
 }
 
-interface DsyncUserCreatedWebhook {
-  id: string;
+export interface DsyncUserCreatedWebhook extends WebhookBase {
   event: 'dsync.user.created';
   data: User;
 }
 
-interface DsyncUserDeletedWebhook {
-  id: string;
+export interface DsyncUserDeletedWebhook extends WebhookBase {
   event: 'dsync.user.deleted';
   data: User;
 }
 
-interface DsyncUserUpdatedWebhook {
-  id: string;
+export interface DsyncUserUpdatedWebhook extends WebhookBase {
   event: 'dsync.user.updated';
   data: User;
 }
