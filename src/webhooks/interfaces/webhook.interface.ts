@@ -93,7 +93,7 @@ interface DsyncUserDeletedWebhook {
   data: User;
 }
 
-interface DsyncUserDeletedWebhook {
+interface DsyncUserUpdatedWebhook {
   id: string;
   event: 'dsync.user.updated';
   data: User;
@@ -107,10 +107,10 @@ export type Webhook =
   | DsyncDeactivatedWebhook
   | DsyncDeletedWebhook
   | DsyncGroupCreatedWebhook
-  | DsyncGroupDeletedWebhook
   | DsyncGroupUpdatedWebhook
+  | DsyncGroupDeletedWebhook
   | DsyncGroupUserAddedWebhook
   | DsyncGroupUserRemovedWebhook
+  | DsyncUserCreatedWebhook
   | DsyncUserUpdatedWebhook
-  | DsyncUserDeletedWebhook
   | DsyncUserDeletedWebhook;
