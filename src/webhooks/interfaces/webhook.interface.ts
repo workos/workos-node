@@ -1,89 +1,103 @@
-import { Connection } from "../../sso/interfaces";
-import { Directory, Group, User } from "../../directory-sync/interfaces";
+import { Connection } from '../../sso/interfaces';
+import { Directory, Group, User } from '../../directory-sync/interfaces';
 
-type ConnectionActivatedWebhook = {
-  event: "connection.activated";
+interface ConnectionActivatedWebhook {
+  id: string;
+  event: 'connection.activated';
   data: Connection;
-};
+}
 
-type ConnectionDeactivatedWebhook = {
-  event: "connection.deactivated";
+interface ConnectionDeactivatedWebhook {
+  id: string;
+  event: 'connection.deactivated';
   data: Connection;
-};
+}
 
-type ConnectionDeletedWebhook = {
-  event: "connection.deleted";
+interface ConnectionDeletedWebhook {
+  id: string;
+  event: 'connection.deleted';
   data: Connection;
-};
+}
 
-type DsyncActivatedWebhook = {
-  event: "dsync.activated";
+interface DsyncActivatedWebhook {
+  id: string;
+  event: 'dsync.activated';
   data: Directory;
-};
+}
 
-type DsyncDeactivatedWebhook = {
-  event: "dsync.activated";
+interface DsyncDeactivatedWebhook {
+  id: string;
+  event: 'dsync.deactivated';
   data: Directory;
-};
+}
 
-type DsyncDeletedWebhook = {
-  event: "dsync.deleted";
+interface DsyncDeletedWebhook {
+  id: string;
+  event: 'dsync.deleted';
   data: Directory;
-};
+}
 
-type DsyncGroupCreatedWebhook = {
-  event: "dsync.group.created";
+interface DsyncGroupCreatedWebhook {
+  id: string;
+  event: 'dsync.group.created';
   data: Group & {
     directory_id: string;
   };
-};
+}
 
-type DsyncGroupDeletedWebhook = {
-  event: "dsync.group.deleted";
+interface DsyncGroupDeletedWebhook {
+  id: string;
+  event: 'dsync.group.deleted';
   data: Group & {
     directory_id: string;
   };
-};
+}
 
-type DsyncGroupUpdatedWebhook = {
-  event: "dsync.group.updated";
+interface DsyncGroupUpdatedWebhook {
+  id: string;
+  event: 'dsync.group.updated';
   data: Group & {
     directory_id: string;
   };
-};
+}
 
-type DsyncGroupUpdatedWebhook = {
-  event: "dsync.group.user_added";
+interface DsyncGroupUserAddedWebhook {
+  id: string;
+  event: 'dsync.group.user_added';
   data: {
     directory_id: string;
     user: User;
     group: Group;
   };
-};
+}
 
-type DsyncGroupUserRemovedWebhook = {
-  event: "dsync.group.user_removed";
+interface DsyncGroupUserRemovedWebhook {
+  id: string;
+  event: 'dsync.group.user_removed';
   data: {
     directory_id: string;
     user: User;
     group: Group;
   };
-};
+}
 
-type DsyncUserUpdatedWebhook = {
-  event: "dsync.user.created";
+interface DsyncUserUpdatedWebhook {
+  id: string;
+  event: 'dsync.user.created';
   data: User;
-};
+}
 
-type DsyncUserDeletedWebhook = {
-  event: "dsync.user.deleted";
+interface DsyncUserDeletedWebhook {
+  id: string;
+  event: 'dsync.user.deleted';
   data: User;
-};
+}
 
-type DsyncUserDeletedWebhook = {
-  event: "dsync.user.updated";
+interface DsyncUserDeletedWebhook {
+  id: string;
+  event: 'dsync.user.updated';
   data: User;
-};
+}
 
 export type Webhook =
   | ConnectionActivatedWebhook
@@ -95,7 +109,7 @@ export type Webhook =
   | DsyncGroupCreatedWebhook
   | DsyncGroupDeletedWebhook
   | DsyncGroupUpdatedWebhook
-  | DsyncGroupUpdatedWebhook
+  | DsyncGroupUserAddedWebhook
   | DsyncGroupUserRemovedWebhook
   | DsyncUserUpdatedWebhook
   | DsyncUserDeletedWebhook
