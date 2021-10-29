@@ -81,7 +81,7 @@ interface DsyncGroupUserRemovedWebhook {
   };
 }
 
-interface DsyncUserUpdatedWebhook {
+interface DsyncUserCreatedWebhook {
   id: string;
   event: 'dsync.user.created';
   data: User;
