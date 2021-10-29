@@ -21,7 +21,7 @@ import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 
-const VERSION = '1.6.0';
+const VERSION = '2.0.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
