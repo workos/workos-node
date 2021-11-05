@@ -17,7 +17,7 @@ export interface User<
   }[];
   username: string;
   last_name: string;
-  state: 'active' | 'suspended';
+  state: 'active' | 'inactive' | 'suspended';
 }
 
 export interface UserWithGroups<
