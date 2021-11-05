@@ -22,6 +22,11 @@ export class DirectorySync {
     return data;
   }
 
+  async getDirectory(id: string): Promise<Directory> {
+    const { data } = await this.workos.get(`/directories/${id}`);
+    return data;
+  }
+
   async deleteDirectory(id: string) {
     await this.workos.delete(`/directories/${id}`);
   }
