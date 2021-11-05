@@ -149,7 +149,7 @@ describe('AuditTrail', () => {
               },
             },
           ],
-          listMetadata: { before: null, after: null },
+          list_metadata: { before: null, after: null },
         });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -184,7 +184,7 @@ describe('AuditTrail', () => {
               },
             },
           ],
-          listMetadata: { before: null, after: null },
+          list_metadata: { before: null, after: null },
         });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
