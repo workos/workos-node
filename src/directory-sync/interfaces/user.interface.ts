@@ -2,7 +2,9 @@ import { Group } from './group.interface';
 
 export type DefaultCustomAttributes = Record<string, unknown>;
 
-export interface User<TCustomAttributes extends object = DefaultCustomAttributes> {
+export interface User<
+  TCustomAttributes extends object = DefaultCustomAttributes,
+> {
   id: string;
   raw_attributes: any;
   custom_attributes: TCustomAttributes;
