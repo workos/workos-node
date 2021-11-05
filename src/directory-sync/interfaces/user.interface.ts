@@ -15,7 +15,7 @@ export interface User<TCustomAttributes extends object = DefaultCustomAttributes
   }[];
   username: string;
   last_name: string;
-  state: 'active' | 'suspended' | 'inactive';
+  state: 'active' | 'inactive' | 'suspended';
 }
 
 export interface UserWithGroups<
