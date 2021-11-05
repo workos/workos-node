@@ -26,6 +26,17 @@ describe('DirectorySync', () => {
     });
   });
 
+  describe('getDirectory', () => {
+    it(`requests a Directory`, async () => {
+      mock.onGet().reply(200, {});
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.directorySync.getDirectory('directory_123');
+
+      expect(mock.history.get[0].url).toEqual('/directories/directory_123');
+    });
+  });
+
   describe('deleteDirectory', () => {
     it('sends a request to delete the directory', async () => {
       mock.onDelete().reply(202, {});
