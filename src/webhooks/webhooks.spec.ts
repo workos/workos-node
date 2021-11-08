@@ -14,7 +14,7 @@ describe('Webhooks', () => {
   beforeEach(() => {
     payload = mockWebhook;
     secret = 'secret';
-    timestamp = Date.now() * 1000;
+    timestamp = Date.now();
     unhashedString = `${timestamp}.${payload}`;
     signatureHash = crypto
       .createHmac('sha256', secret)
@@ -88,7 +88,6 @@ describe('Webhooks', () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
         const options = { payload, sigHeader, secret };
         const webhook = workos.webhooks.constructEvent(options);
-
         expect(webhook.data).toEqual(expectation);
         expect(webhook.event).toEqual('dsync.user.created');
         expect(webhook.id).toEqual('wh_123');
@@ -98,9 +97,10 @@ describe('Webhooks', () => {
     describe('with the correct payload, sig_header, secret, and tolerance', () => {
       it('returns a webhook event', () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+        payload = JSON.parse(payload);
         const options = { payload, sigHeader, secret, tolerance: 200 };
         const webhook = workos.webhooks.constructEvent(options);
-
+        console.log(webhook);
         expect(webhook.data).toEqual(expectation);
         expect(webhook.event).toEqual('dsync.user.created');
         expect(webhook.id).toEqual('wh_123');
