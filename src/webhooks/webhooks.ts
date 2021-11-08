@@ -53,7 +53,6 @@ export class Webhooks {
         'Signature hash does not match the expected signature hash for payload',
       );
     }
-
     return true;
   }
 
@@ -76,8 +75,8 @@ export class Webhooks {
     payload: any,
     secret: string,
   ): string {
+    payload = JSON.stringify(payload);
     const signedPayload = `${timestamp}.${payload}`;
-
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(signedPayload)

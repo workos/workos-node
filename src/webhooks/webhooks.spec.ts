@@ -15,7 +15,7 @@ describe('Webhooks', () => {
     payload = mockWebhook;
     secret = 'secret';
     timestamp = Date.now() * 1000;
-    unhashedString = `${timestamp}.${payload}`;
+    unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
     signatureHash = crypto
       .createHmac('sha256', secret)
       .update(unhashedString)
