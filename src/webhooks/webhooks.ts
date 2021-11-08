@@ -47,7 +47,8 @@ export class Webhooks {
       );
     }
 
-    const expectedSig = this.computeSignature(timestamp, payload, secret);
+    const stringPayload = JSON.stringify(payload);
+    const expectedSig = this.computeSignature(timestamp, stringPayload, secret);
     if (this.secureCompare(expectedSig, signatureHash) === false) {
       throw new SignatureVerificationException(
         'Signature hash does not match the expected signature hash for payload',
