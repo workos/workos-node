@@ -47,8 +47,11 @@ export class Webhooks {
       );
     }
 
-    const stringPayload = JSON.stringify(payload);
-    const expectedSig = this.computeSignature(timestamp, stringPayload, secret);
+    payload = JSON.stringify(payload);
+    console.log("sigHeader", sigHeader);
+    const expectedSig = this.computeSignature(timestamp, payload, secret);
+    console.log("expectedSig", expectedSig, "signatureHash", signatureHash);
+    console.log(this.secureCompare(expectedSig, signatureHash))
     if (this.secureCompare(expectedSig, signatureHash) === false) {
       throw new SignatureVerificationException(
         'Signature hash does not match the expected signature hash for payload',
@@ -77,8 +80,10 @@ export class Webhooks {
     payload: any,
     secret: string,
   ): string {
+    console.log("expected signature", "timestamp", typeof timestamp, timestamp, "payload", typeof payload, payload)
     const signedPayload = `${timestamp}.${payload}`;
-
+    console.log("signedPayload", typeof signedPayload, signedPayload);
+    console.log(secret);
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(signedPayload)
@@ -91,7 +96,7 @@ export class Webhooks {
   private secureCompare(stringA: string, stringB: string): boolean {
     const strA = Buffer.from(stringA);
     const strB = Buffer.from(stringB);
-
+    console.log(stringA, stringB);
     if (strA.length !== strB.length) {
       return false;
     }
