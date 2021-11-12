@@ -38,23 +38,17 @@ export interface DsyncDeletedWebhook extends WebhookBase {
 
 export interface DsyncGroupCreatedWebhook extends WebhookBase {
   event: 'dsync.group.created';
-  data: Group & {
-    directory_id: string;
-  };
+  data: Group;
 }
 
 export interface DsyncGroupDeletedWebhook extends WebhookBase {
   event: 'dsync.group.deleted';
-  data: Group & {
-    directory_id: string;
-  };
+  data: Group;
 }
 
 export interface DsyncGroupUpdatedWebhook extends WebhookBase {
   event: 'dsync.group.updated';
-  data: Group & {
-    directory_id: string;
-  };
+  data: Group;
 }
 
 export interface DsyncGroupUserAddedWebhook extends WebhookBase {
@@ -77,17 +71,17 @@ export interface DsyncGroupUserRemovedWebhook extends WebhookBase {
 
 export interface DsyncUserCreatedWebhook extends WebhookBase {
   event: 'dsync.user.created';
-  data: User & { directory_id: string };
+  data: User;
 }
 
 export interface DsyncUserDeletedWebhook extends WebhookBase {
   event: 'dsync.user.deleted';
-  data: User & { directory_id: string };
+  data: User;
 }
 
 export interface DsyncUserUpdatedWebhook extends WebhookBase {
   event: 'dsync.user.updated';
-  data: User & { directory_id: string };
+  data: User;
 }
 
 export type Webhook =

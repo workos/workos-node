@@ -6,6 +6,7 @@ export interface User<
   TCustomAttributes extends object = DefaultCustomAttributes,
 > {
   id: string;
+  directory_id: string;
   raw_attributes: any;
   custom_attributes: TCustomAttributes;
   idp_id: string;
