@@ -112,6 +112,42 @@ describe('SSO', () => {
           expect(url).toMatchSnapshot();
         });
       });
+
+      describe('with domain_hint', () => {
+        it('generates an authorize url with the provided domain hint', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationURL({
+            domainHint: 'lyft.com',
+            connection: 'connection_123',
+            clientID: 'proj_123',
+            redirectURI: 'example.com/sso/workos/callback',
+            state: 'custom state',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&connection=connection_123&domain_hint=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`,
+          );
+        });
+      });
+
+      describe('with login_hint', () => {
+        it('generates an authorize url with the provided login hint', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationURL({
+            loginHint: 'foo@workos.com',
+            connection: 'connection_123',
+            clientID: 'proj_123',
+            redirectURI: 'example.com/sso/workos/callback',
+            state: 'custom state',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&connection=connection_123&login_hint=foo%40workos.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom%20state"`,
+          );
+        });
+      });
     });
 
     describe('getProfileAndToken', () => {
