@@ -113,7 +113,7 @@ describe('SSO', () => {
         });
       });
 
-      describe('with domain_hint', () => {
+      describe('with domainHint', () => {
         it('generates an authorize url with the provided domain hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
