@@ -131,7 +131,7 @@ describe('SSO', () => {
         });
       });
 
-      describe('with login_hint', () => {
+      describe('with loginHint', () => {
         it('generates an authorize url with the provided login hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
