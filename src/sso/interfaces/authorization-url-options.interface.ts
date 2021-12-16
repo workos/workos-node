@@ -7,6 +7,8 @@ export interface AuthorizationURLOptions {
    * @deprecated Please use `organization` instead.
    */
   domain?: string;
+  domainHint?: string;
+  loginHint?: string;
   provider?: string;
   redirectURI: string;
   state?: string;
