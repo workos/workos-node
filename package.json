@@ -9,7 +9,7 @@
     "workos"
   ],
   "volta": {
-    "node": "14.19.0",
+    "node": "16.14.0",
     "yarn": "1.22.17"
   },
   "main": "lib/index.js",
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "@types/jest": "27.4.1",
-    "@types/node": "14.18.12",
+    "@types/node": "16.11.25",
     "@types/pluralize": "0.0.29",
     "axios-mock-adapter": "1.20.0",
     "jest": "27.5.1",
