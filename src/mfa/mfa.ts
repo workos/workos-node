@@ -32,6 +32,4 @@ export class MFA {
         const { data } = await this.workos.post('/auth/factors/verify', options);
         return data;
     }
-
-
 }
