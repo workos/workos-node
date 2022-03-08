@@ -2,6 +2,6 @@ import { PaginationOptions } from '../../common/interfaces/pagination-options.in
 
 export interface ListDirectoriesOptions extends PaginationOptions {
   domain?: string;
-  organization?: string;
+  organization_id?: string;
   search?: string;
 }
