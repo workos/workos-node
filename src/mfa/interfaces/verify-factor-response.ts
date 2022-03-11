@@ -1,4 +1,4 @@
-import { Challenge } from "./challenge.interface";
+import { Challenge } from './challenge.interface';
 
 export interface VerifyResponse {
     challenge: Challenge;

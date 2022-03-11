@@ -1,5 +1,5 @@
 export interface Challenge{
-    object: "authentication_challenge";
+    object: 'authentication_challenge';
     id: string;
     created_at: string;
     updated_at: string;

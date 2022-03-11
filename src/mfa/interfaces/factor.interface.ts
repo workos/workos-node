@@ -1,5 +1,5 @@
-import { Sms } from "./sms.interface";
-import { Totp } from "./totp.interface";
+import { Sms } from './sms.interface';
+import { Totp } from './totp.interface';
 
 export interface Factor {
     object: 'authentication_factor';
