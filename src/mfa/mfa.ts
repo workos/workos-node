@@ -6,7 +6,7 @@ import { Factor } from './interfaces/factor.interface';
 import { VerifyFactorOptions } from './interfaces/verify-factor-options';
 import { VerifyResponse } from './interfaces/verify-factor-response';
 
-export class MFA {
+export class Mfa {
   constructor(private readonly workos: WorkOS) {}
 
   async deleteFactor(id: string) {
