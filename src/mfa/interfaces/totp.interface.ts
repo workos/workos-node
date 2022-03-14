@@ -1,4 +1,4 @@
 export interface Totp {
-    qr_code: string;
-    secret: string;
+  qr_code: string;
+  secret: string;
 }
