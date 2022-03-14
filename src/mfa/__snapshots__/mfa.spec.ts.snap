@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MFA challengeFactor with no sms template enrolls a factor 1`] = `Promise {}`;
+
+exports[`MFA challengeFactor with totp challenge a factor with sms template 1`] = `Promise {}`;
+
+exports[`MFA enrollFactor with generic enrolls a factor with generic type 1`] = `Promise {}`;
+
+exports[`MFA enrollFactor with sms enrolls a factor with sms type 1`] = `Promise {}`;
+
+exports[`MFA enrollFactor with totp enrolls a factor with totp type 1`] = `Promise {}`;
+
+exports[`MFA getFactor throws an error for incomplete arguments 1`] = `Promise {}`;
+
+exports[`MFA verifyFactor verifies a factor 1`] = `Promise {}`;
