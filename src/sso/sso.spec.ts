@@ -191,7 +191,7 @@ describe('SSO', () => {
               ];
             }
 
-            return [500];
+            return [404];
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
