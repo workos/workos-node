@@ -154,23 +154,44 @@ describe('SSO', () => {
       describe('with all information provided', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
           const mock = new MockAdapter(axios);
-          mock.onPost('/sso/token').reply(200, {
-            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
-            profile: {
-              id: 'prof_123',
-              idp_id: '123',
-              organization_id: 'org_123',
-              connection_id: 'conn_123',
-              connection_type: 'OktaSAML',
-              email: 'foo@test.com',
-              first_name: 'foo',
-              last_name: 'bar',
-              raw_attributes: {
-                email: 'foo@test.com',
-                first_name: 'foo',
-                last_name: 'bar',
-              },
-            },
+
+          const expectedBody = new URLSearchParams({
+            client_id: 'proj_123',
+            client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+            code: 'authorization_code',
+            grant_type: 'authorization_code',
+          });
+          expectedBody.sort();
+
+          mock.onPost('/sso/token').replyOnce((config) => {
+            const actualBody = new URLSearchParams(config.data);
+            actualBody.sort();
+
+            if (actualBody.toString() === expectedBody.toString()) {
+              return [
+                200,
+                {
+                  access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+                  profile: {
+                    id: 'prof_123',
+                    idp_id: '123',
+                    organization_id: 'org_123',
+                    connection_id: 'conn_123',
+                    connection_type: 'OktaSAML',
+                    email: 'foo@test.com',
+                    first_name: 'foo',
+                    last_name: 'bar',
+                    raw_attributes: {
+                      email: 'foo@test.com',
+                      first_name: 'foo',
+                      last_name: 'bar',
+                    },
+                  },
+                },
+              ];
+            }
+
+            return [500];
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -194,21 +215,26 @@ describe('SSO', () => {
     describe('getProfile', () => {
       it('calls the `/sso/profile` endpoint with the provided access token', async () => {
         const mock = new MockAdapter(axios);
-        mock.onGet().reply(200, {
-          id: 'prof_123',
-          idp_id: '123',
-          organization_id: 'org_123',
-          connection_id: 'conn_123',
-          connection_type: 'OktaSAML',
-          email: 'foo@test.com',
-          first_name: 'foo',
-          last_name: 'bar',
-          raw_attributes: {
+
+        mock
+          .onGet('/sso/profile', {
+            accessToken: 'access_token',
+          })
+          .replyOnce(200, {
+            id: 'prof_123',
+            idp_id: '123',
+            organization_id: 'org_123',
+            connection_id: 'conn_123',
+            connection_type: 'OktaSAML',
             email: 'foo@test.com',
             first_name: 'foo',
             last_name: 'bar',
-          },
-        });
+            raw_attributes: {
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+            },
+          });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         const profile = await workos.sso.getProfile({
@@ -226,7 +252,8 @@ describe('SSO', () => {
     describe('deleteConnection', () => {
       it('sends request to delete a Connection', async () => {
         const mock = new MockAdapter(axios);
-        mock.onDelete().reply(200, {});
+        mock.onDelete('/connections/conn_123').replyOnce(200, {});
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await workos.sso.deleteConnection('conn_123');
@@ -238,7 +265,8 @@ describe('SSO', () => {
     describe('getConnection', () => {
       it(`requests a Connection`, async () => {
         const mock = new MockAdapter(axios);
-        mock.onGet().reply(200, {});
+        mock.onGet('/connections/conn_123').reply(200, {});
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await workos.sso.getConnection('conn_123');
@@ -250,7 +278,8 @@ describe('SSO', () => {
     describe('listConnections', () => {
       it(`requests a list of Connections`, async () => {
         const mock = new MockAdapter(axios);
-        mock.onGet().reply(200, {});
+        mock.onGet('/connections').reply(200, {});
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await workos.sso.listConnections();
