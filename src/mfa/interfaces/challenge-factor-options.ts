@@ -1,8 +1,8 @@
 export type ChallengeFactorOptions =
   | {
-      authentication_factor_id: string;
+      authenticationFactorId: string;
     }
   | {
-      authentication_factor_id: string;
-      sms_template: string;
+      authenticationFactorId: string;
+      smsTemplate: string;
     };

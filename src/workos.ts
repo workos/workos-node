@@ -22,7 +22,7 @@ import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 
-const VERSION = '2.4.0';
+const VERSION = '2.5.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
