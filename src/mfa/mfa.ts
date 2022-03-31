@@ -19,17 +19,43 @@ export class Mfa {
   }
 
   async enrollFactor(options: EnrollFactorOptions): Promise<Factor> {
-    const { data } = await this.workos.post('/auth/factors/enroll', options);
+    const { data } = await this.workos.post('/auth/factors/enroll', {
+      type: options.type,
+      ...(() => {
+        switch (options.type) {
+          case 'sms':
+            return {
+              phone_number: options.phoneNumber,
+            };
+          case 'totp':
+            return {
+              totp_issuer: options.issuer,
+              totp_user: options.user,
+            };
+          default:
+            return {};
+        }
+      })(),
+    });
+
     return data;
   }
 
   async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {
-    const { data } = await this.workos.post('/auth/factors/challenge', options);
+    const { data } = await this.workos.post('/auth/factors/challenge', {
+      authentication_factor_id: options.authenticationFactorId,
+      sms_template: 'smsTemplate' in options ? options.smsTemplate : undefined,
+    });
+
     return data;
   }
 
   async verifyFactor(options: VerifyFactorOptions): Promise<VerifyResponse> {
-    const { data } = await this.workos.post('/auth/factors/verify', options);
+    const { data } = await this.workos.post('/auth/factors/verify', {
+      authentication_challenge_id: options.authenticationChallengeId,
+      code: options.code,
+    });
+
     return data;
   }
 }
