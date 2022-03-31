@@ -16,7 +16,7 @@ describe('Organizations', () => {
   describe('listOrganizations', () => {
     describe('without any options', () => {
       it('returns organizations and metadata', async () => {
-        mock.onGet().reply(200, listOrganizationsFixture);
+        mock.onGet('/organizations').replyOnce(200, listOrganizationsFixture);
 
         const { data, list_metadata: listMetadata } =
           await workos.organizations.listOrganizations();
@@ -35,7 +35,11 @@ describe('Organizations', () => {
 
     describe('with the domain option', () => {
       it('forms the proper request to the API', async () => {
-        mock.onGet().reply(200, listOrganizationsFixture);
+        mock
+          .onGet('/organizations', {
+            domains: ['example.com'],
+          })
+          .replyOnce(200, listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           domains: ['example.com'],
@@ -53,7 +57,11 @@ describe('Organizations', () => {
 
     describe('with the before option', () => {
       it('forms the proper request to the API', async () => {
-        mock.onGet().reply(200, listOrganizationsFixture);
+        mock
+          .onGet('/organizations', {
+            before: 'before-id',
+          })
+          .replyOnce(200, listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           before: 'before-id',
@@ -71,7 +79,11 @@ describe('Organizations', () => {
 
     describe('with the after option', () => {
       it('forms the proper request to the API', async () => {
-        mock.onGet().reply(200, listOrganizationsFixture);
+        mock
+          .onGet('/organizations', {
+            after: 'after-id',
+          })
+          .replyOnce(200, listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           after: 'after-id',
@@ -89,7 +101,11 @@ describe('Organizations', () => {
 
     describe('with the limit option', () => {
       it('forms the proper request to the API', async () => {
-        mock.onGet().reply(200, listOrganizationsFixture);
+        mock
+          .onGet('/organizations', {
+            limit: 10,
+          })
+          .replyOnce(200, listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           limit: 10,
@@ -109,7 +125,12 @@ describe('Organizations', () => {
   describe('createOrganization', () => {
     describe('with a valid payload', () => {
       it('creates an organization', async () => {
-        mock.onPost().reply(201, createOrganization);
+        mock
+          .onPost('/organizations', {
+            domains: ['example.com'],
+            name: 'Test Organization',
+          })
+          .replyOnce(201, createOrganization);
 
         const subject = await workos.organizations.createOrganization({
           domains: ['example.com'],
@@ -124,9 +145,14 @@ describe('Organizations', () => {
 
     describe('with an invalid payload', () => {
       it('returns an error', async () => {
-        mock.onPost().reply(409, createOrganizationInvalid, {
-          'X-Request-ID': 'a-request-id',
-        });
+        mock
+          .onPost('/organizations', {
+            domains: ['example.com'],
+            name: 'Test Organization',
+          })
+          .replyOnce(409, createOrganizationInvalid, {
+            'X-Request-ID': 'a-request-id',
+          });
 
         await expect(
           workos.organizations.createOrganization({
@@ -143,7 +169,9 @@ describe('Organizations', () => {
   describe('getOrganization', () => {
     it(`requests an Organization`, async () => {
       const mock = new MockAdapter(axios);
-      mock.onGet().reply(200, getOrganization);
+      mock
+        .onGet('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T')
+        .replyOnce(200, getOrganization);
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       const subject = await workos.organizations.getOrganization(
@@ -163,7 +191,9 @@ describe('Organizations', () => {
   describe('deleteOrganization', () => {
     it('sends request to delete an Organization', async () => {
       const mock = new MockAdapter(axios);
-      mock.onDelete().reply(200, {});
+      mock
+        .onDelete('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T')
+        .replyOnce(200, {});
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       await workos.organizations.deleteOrganization(
@@ -179,7 +209,12 @@ describe('Organizations', () => {
   describe('updateOrganization', () => {
     describe('with a valid payload', () => {
       it('updates an organization', async () => {
-        mock.onPut().reply(201, updateOrganization);
+        mock
+          .onPut('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T', {
+            domains: ['example.com'],
+            name: 'Test Organization 2',
+          })
+          .replyOnce(201, updateOrganization);
 
         const subject = await workos.organizations.updateOrganization({
           organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
