@@ -573,10 +573,10 @@
     jest-matcher-utils "^27.0.0"
     pretty-format "^27.0.0"
 
-"@types/node@*", "@types/node@14.18.16":
-  version "14.18.16"
-  resolved "https://registry.npmjs.org/@types/node/-/node-14.18.16.tgz"
-  integrity sha512-X3bUMdK/VmvrWdoTkz+VCn6nwKwrKCFTHtqwBIaQJNx4RUIBBUFXM00bqPz/DsDd+Icjmzm6/tyYZzeGVqb6/Q==
+"@types/node@*", "@types/node@14.18.17":
+  version "14.18.17"
+  resolved "https://registry.npmjs.org/@types/node/-/node-14.18.17.tgz"
+  integrity sha512-oajWz4kOajqpKJMPgnCvBajPq8QAvl2xIWoFjlAJPKGu6n7pjov5SxGE45a+0RxHDoo4ycOMoZw1SCOWtDERbw==
 
 "@types/pluralize@0.0.29":
   version "0.0.29"
