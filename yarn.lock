@@ -2379,10 +2379,10 @@ saxes@^5.0.1:
   dependencies:
     xmlchars "^2.2.0"
 
-semver@7.x, semver@^7.3.2:
-  version "7.3.5"
-  resolved "https://registry.npmjs.org/semver/-/semver-7.3.5.tgz"
-  integrity sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
+semver@7.x, semver@^7.3.7:
+  version "7.3.7"
+  resolved "https://registry.npmjs.org/semver/-/semver-7.3.7.tgz"
+  integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
   dependencies:
     lru-cache "^6.0.0"
 
@@ -2396,10 +2396,10 @@ semver@^6.0.0, semver@^6.3.0:
   resolved "https://registry.npmjs.org/semver/-/semver-6.3.0.tgz"
   integrity sha512-b39TBaTSfV6yBrapU89p5fKekE2m/NwnDocOVruQFS1/veMgdzuPcnOM34M6CwxW8jH/lxEa5rBoDeUwu5HHTw==
 
-semver@^7.3.7:
-  version "7.3.7"
-  resolved "https://registry.npmjs.org/semver/-/semver-7.3.7.tgz"
-  integrity sha512-QlYTucUYOews+WeEujDoEGziz4K6c47V/Bd+LjSSYcA94p+DmINdf7ncaUinThfvZyu13lN9OY1XDxt8C0Tw0g==
+semver@^7.3.2:
+  version "7.3.5"
+  resolved "https://registry.npmjs.org/semver/-/semver-7.3.5.tgz"
+  integrity sha512-PoeGJYh8HK4BTO/a9Tf6ZG3veo/A7ZVsYrSA6J8ny9nb3B1VrpkuN+z9OE5wfE5p6H4LchYZsegiQgbJD94ZFQ==
   dependencies:
     lru-cache "^6.0.0"
 
@@ -2644,10 +2644,10 @@ tr46@^2.1.0:
   dependencies:
     punycode "^2.1.1"
 
-ts-jest@27.1.4:
-  version "27.1.4"
-  resolved "https://registry.npmjs.org/ts-jest/-/ts-jest-27.1.4.tgz"
-  integrity sha512-qjkZlVPWVctAezwsOD1OPzbZ+k7zA5z3oxII4dGdZo5ggX/PL7kvwTM0pXTr10fAtbiVpJaL3bWd502zAhpgSQ==
+ts-jest@27.1.5:
+  version "27.1.5"
+  resolved "https://registry.npmjs.org/ts-jest/-/ts-jest-27.1.5.tgz"
+  integrity sha512-Xv6jBQPoBEvBq/5i2TeSG9tt/nqkbpcurrEG1b+2yfBrcJelOZF9Ml6dmyMh7bcW9JyFbRYpR5rxROSlBLTZHA==
   dependencies:
     bs-logger "0.x"
     fast-json-stable-stringify "2.x"
