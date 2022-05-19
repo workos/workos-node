@@ -1,5 +1,6 @@
-import { Group, User } from '../../directory-sync/interfaces';
 import { Connection } from '../../sso/interfaces';
+import { WebhookDirectoryGroup as Group } from './webhook-directory-group.interface';
+import { WebhookDirectoryUser as User } from './webhook-directory-user.interface';
 import { WebhookDirectory as Directory } from './webhook-directory.interface';
 
 interface WebhookBase {
@@ -33,7 +34,7 @@ export interface DsyncDeactivatedWebhook extends WebhookBase {
 
 export interface DsyncDeletedWebhook extends WebhookBase {
   event: 'dsync.deleted';
-  data: Directory;
+  data: Omit<Directory, 'domains' | 'external_key'>;
 }
 
 export interface DsyncGroupCreatedWebhook extends WebhookBase {
@@ -48,7 +49,7 @@ export interface DsyncGroupDeletedWebhook extends WebhookBase {
 
 export interface DsyncGroupUpdatedWebhook extends WebhookBase {
   event: 'dsync.group.updated';
-  data: Group;
+  data: Group & Record<'previous_attributes', any>;
 }
 
 export interface DsyncGroupUserAddedWebhook extends WebhookBase {
@@ -56,7 +57,7 @@ export interface DsyncGroupUserAddedWebhook extends WebhookBase {
   data: {
     directory_id: string;
     user: User;
-    group: Group;
+    group: Pick<Group, 'id' | 'name'>;
   };
 }
 
@@ -65,7 +66,7 @@ export interface DsyncGroupUserRemovedWebhook extends WebhookBase {
   data: {
     directory_id: string;
     user: User;
-    group: Group;
+    group: Pick<Group, 'id' | 'name'>;
   };
 }
 
@@ -81,7 +82,7 @@ export interface DsyncUserDeletedWebhook extends WebhookBase {
 
 export interface DsyncUserUpdatedWebhook extends WebhookBase {
   event: 'dsync.user.updated';
-  data: User;
+  data: User & Record<'previous_attributes', any>;
 }
 
 export type Webhook =
