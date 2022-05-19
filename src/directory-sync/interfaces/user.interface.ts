@@ -4,10 +4,11 @@ export type DefaultCustomAttributes = Record<string, unknown>;
 
 export interface User<
   TCustomAttributes extends object = DefaultCustomAttributes,
+  TRawAttributes = any,
 > {
   id: string;
   directory_id: string;
-  raw_attributes: any;
+  raw_attributes: TRawAttributes;
   custom_attributes: TCustomAttributes;
   idp_id: string;
   first_name: string;
