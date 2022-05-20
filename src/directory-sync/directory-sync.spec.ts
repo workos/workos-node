@@ -16,7 +16,6 @@ describe('DirectorySync', () => {
     id: 'directory_123',
     created_at: '2020-05-06 04:21:48.649164',
     domain: 'foo-corp.com',
-    environment_id: 'environment_01EPZWK497BAJ96SW5Q99RWH3C',
     external_key: '9asBRBVHz2ASEkgg',
     name: 'Foo',
     object: 'directory',

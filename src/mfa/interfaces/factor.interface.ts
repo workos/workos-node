@@ -7,7 +7,6 @@ export interface Factor {
   created_at: string;
   updated_at: string;
   type: string;
-  environment_id: string;
   sms: Sms;
   totp: Totp;
 }

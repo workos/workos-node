@@ -35,7 +35,6 @@ describe('MFA', () => {
           created_at: '2022-03-15T20:39:19.892Z',
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'generic_otp',
-          environment_id: 'environment_1234',
         });
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -48,7 +47,6 @@ describe('MFA', () => {
         expect(enrollResponse).toMatchInlineSnapshot(`
           Object {
             "created_at": "2022-03-15T20:39:19.892Z",
-            "environment_id": "environment_1234",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
             "type": "generic_otp",
@@ -66,7 +64,6 @@ describe('MFA', () => {
           created_at: '2022-03-15T20:39:19.892Z',
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'totp',
-          environment_id: 'environment_1234',
           totp: {
             qr_code: 'qr-code-test',
             secret: 'secret-test',
@@ -85,7 +82,6 @@ describe('MFA', () => {
         expect(enrollResponse).toMatchInlineSnapshot(`
           Object {
             "created_at": "2022-03-15T20:39:19.892Z",
-            "environment_id": "environment_1234",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
             "totp": Object {
@@ -107,7 +103,6 @@ describe('MFA', () => {
           created_at: '2022-03-15T20:39:19.892Z',
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'sms',
-          environment_id: 'environment_1234',
           sms: {
             phone_number: '+15555555555',
           },
@@ -124,7 +119,6 @@ describe('MFA', () => {
         expect(enrollResponse).toMatchInlineSnapshot(`
           Object {
             "created_at": "2022-03-15T20:39:19.892Z",
-            "environment_id": "environment_1234",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
             "sms": Object {
