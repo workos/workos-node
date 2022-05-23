@@ -1,5 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
+import { UnprocessableEntityException } from '../common/exceptions';
 
 import { WorkOS } from '../workos';
 
@@ -14,6 +15,7 @@ describe('MFA', () => {
       expect(factor).toMatchInlineSnapshot(`Object {}`);
     });
   });
+
   describe('deleteFactor', () => {
     it('sends request to delete a Factor', async () => {
       const mock = new MockAdapter(axios);
@@ -25,6 +27,7 @@ describe('MFA', () => {
       expect(mock.history.delete[0].url).toEqual('/auth/factors/conn_123');
     });
   });
+
   describe('enrollFactor', () => {
     describe('with generic', () => {
       it('enrolls a factor with generic type', async () => {
@@ -55,6 +58,7 @@ describe('MFA', () => {
         `);
       });
     });
+
     describe('with totp', () => {
       it('enrolls a factor with totp type', async () => {
         const mock = new MockAdapter(axios);
@@ -94,6 +98,7 @@ describe('MFA', () => {
         `);
       });
     });
+
     describe('with sms', () => {
       it('enrolls a factor with sms type', async () => {
         const mock = new MockAdapter(axios);
@@ -128,6 +133,34 @@ describe('MFA', () => {
             "updated_at": "2022-03-15T20:39:19.892Z",
           }
         `);
+      });
+
+      describe('when phone number is invalid', () => {
+        it('throws an exception', async () => {
+          const mock = new MockAdapter(axios);
+
+          mock.onPost('/auth/factors/enroll').reply(
+            422,
+            {
+              message: `Phone number is invalid: 'foo'`,
+              code: 'invalid_phone_number',
+            },
+            {
+              'X-Request-ID': 'req_123',
+            },
+          );
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+            apiHostname: 'api.workos.dev',
+          });
+
+          await expect(
+            workos.mfa.enrollFactor({
+              type: 'sms',
+              phoneNumber: 'foo',
+            }),
+          ).rejects.toThrow(UnprocessableEntityException);
+        });
       });
     });
   });
@@ -234,6 +267,7 @@ describe('MFA', () => {
             },
             valid: true,
           });
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
@@ -242,6 +276,7 @@ describe('MFA', () => {
           authenticationChallengeId: 'auth_challenge_1234',
           code: '12345',
         });
+
         expect(verifyResponse).toMatchInlineSnapshot(`
           Object {
             "challenge": Object {
@@ -256,6 +291,104 @@ describe('MFA', () => {
             "valid": true,
           }
         `);
+      });
+    });
+
+    describe('when the challenge has been previously verified', () => {
+      it('throws an exception', async () => {
+        const mock = new MockAdapter(axios);
+        mock
+          .onPost('/auth/factors/verify', {
+            authentication_challenge_id: 'auth_challenge_1234',
+            code: '12345',
+          })
+          .reply(
+            422,
+            {
+              message: `The authentication challenge '12345' has already been verified.`,
+              code: 'authentication_challenge_previously_verified',
+            },
+            {
+              'X-Request-ID': 'req_123',
+            },
+          );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          apiHostname: 'api.workos.dev',
+        });
+
+        await expect(
+          workos.mfa.verifyFactor({
+            authenticationChallengeId: 'auth_challenge_1234',
+            code: '12345',
+          }),
+        ).rejects.toThrow(UnprocessableEntityException);
+      });
+    });
+
+    describe('when the challenge has expired', () => {
+      it('throws an exception', async () => {
+        const mock = new MockAdapter(axios);
+        mock
+          .onPost('/auth/factors/verify', {
+            authentication_challenge_id: 'auth_challenge_1234',
+            code: '12345',
+          })
+          .reply(
+            422,
+            {
+              message: `The authentication challenge '12345' has expired.`,
+              code: 'authentication_challenge_expired',
+            },
+            {
+              'X-Request-ID': 'req_123',
+            },
+          );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          apiHostname: 'api.workos.dev',
+        });
+
+        await expect(
+          workos.mfa.verifyFactor({
+            authenticationChallengeId: 'auth_challenge_1234',
+            code: '12345',
+          }),
+        ).rejects.toThrow(UnprocessableEntityException);
+      });
+
+      it('exception has code', async () => {
+        const mock = new MockAdapter(axios);
+        mock
+          .onPost('/auth/factors/verify', {
+            authentication_challenge_id: 'auth_challenge_1234',
+            code: '12345',
+          })
+          .reply(
+            422,
+            {
+              message: `The authentication challenge '12345' has expired.`,
+              code: 'authentication_challenge_expired',
+            },
+            {
+              'X-Request-ID': 'req_123',
+            },
+          );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          apiHostname: 'api.workos.dev',
+        });
+
+        try {
+          await workos.mfa.verifyFactor({
+            authenticationChallengeId: 'auth_challenge_1234',
+            code: '12345',
+          });
+        } catch (error) {
+          expect(error).toMatchObject({
+            code: 'authentication_challenge_expired',
+          });
+        }
       });
     });
   });
