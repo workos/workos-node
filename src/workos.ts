@@ -106,10 +106,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              { code, errors, message },
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
               requestID,
-            );
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -165,10 +167,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              { code, errors, message },
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
               requestID,
-            );
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -228,10 +232,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              { code, errors, message },
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
               requestID,
-            );
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -280,10 +286,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(
-              { code, errors, message },
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
               requestID,
-            );
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);

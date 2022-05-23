@@ -7,20 +7,22 @@ export class UnprocessableEntityException extends Error {
   readonly name: string = 'UnprocessableEntityException';
   readonly message: string = 'Unprocessable entity';
   readonly code?: string;
+  readonly requestID: string;
 
-  constructor(
-    {
-      code,
-      errors,
-      message,
-    }: {
-      code?: string;
-      errors?: UnprocessableEntityError[];
-      message?: string;
-    },
-    readonly requestID: string,
-  ) {
+  constructor({
+    code,
+    errors,
+    message,
+    requestID,
+  }: {
+    code?: string;
+    errors?: UnprocessableEntityError[];
+    message?: string;
+    requestID: string;
+  }) {
     super();
+
+    this.requestID = requestID;
 
     if (message) {
       this.message = message;
