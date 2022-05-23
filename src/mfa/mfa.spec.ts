@@ -142,7 +142,7 @@ describe('MFA', () => {
           mock.onPost('/auth/factors/enroll').reply(
             422,
             {
-              message: "Phone number is invalid: 'foo'",
+              message: `Phone number is invalid: 'foo'`,
               code: 'invalid_phone_number',
             },
             {
@@ -305,8 +305,7 @@ describe('MFA', () => {
           .reply(
             422,
             {
-              message:
-                "The authentication challenge '12345' has already been verified.",
+              message: `The authentication challenge '12345' has already been verified.`,
               code: 'authentication_challenge_previously_verified',
             },
             {
@@ -338,7 +337,7 @@ describe('MFA', () => {
           .reply(
             422,
             {
-              message: "The authentication challenge '12345' has expired.",
+              message: `The authentication challenge '12345' has expired.`,
               code: 'authentication_challenge_expired',
             },
             {
@@ -368,7 +367,7 @@ describe('MFA', () => {
           .reply(
             422,
             {
-              message: "The authentication challenge '12345' has expired.",
+              message: `The authentication challenge '12345' has expired.`,
               code: 'authentication_challenge_expired',
             },
             {
