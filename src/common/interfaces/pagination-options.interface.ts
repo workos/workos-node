@@ -2,5 +2,5 @@ export interface PaginationOptions {
   limit?: number;
   before?: string;
   after?: string;
-  order?: string;
+  order?: 'asc' | 'desc';
 }

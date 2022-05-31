@@ -4,6 +4,5 @@ export interface List<T> {
   list_metadata: {
     before?: string;
     after?: string;
-    order?: string;
   };
 }
