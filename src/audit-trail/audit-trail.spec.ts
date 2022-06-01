@@ -18,12 +18,19 @@ const event: EventOptions = {
   action: 'document.updated',
 };
 
+const serializeEventOptions = (options: EventOptions) => ({
+  ...options,
+  occurred_at: options.occurred_at.toISOString(),
+});
+
 describe('AuditTrail', () => {
   describe('createEvent', () => {
     describe('when the api responds with a 201 CREATED', () => {
       describe('with an idempotency key', () => {
         it('includes an idempotency key with request', async () => {
-          mock.onPost().reply(201, { success: true });
+          mock
+            .onPost('/events', serializeEventOptions(event))
+            .replyOnce(201, { success: true });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -40,7 +47,9 @@ describe('AuditTrail', () => {
       });
 
       it('posts Event successfully', async () => {
-        mock.onPost().reply(201, { success: true });
+        mock
+          .onPost('/events', serializeEventOptions(event))
+          .replyOnce(201, { success: true });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -52,7 +61,7 @@ describe('AuditTrail', () => {
 
     describe('when the api responds with a 401', () => {
       it('throws an UnauthorizedException', async () => {
-        mock.onPost().reply(
+        mock.onPost('/events', serializeEventOptions(event)).replyOnce(
           401,
           {
             message: 'Unauthorized',
@@ -81,7 +90,7 @@ describe('AuditTrail', () => {
           },
         ];
 
-        mock.onPost().reply(
+        mock.onPost('/events', serializeEventOptions(event)).replyOnce(
           422,
           {
             message: 'Validation failed',
@@ -102,7 +111,7 @@ describe('AuditTrail', () => {
   describe('listEvents', () => {
     describe('With no filters', () => {
       it('Returns all events', async () => {
-        mock.onGet().reply(200, {
+        mock.onGet('/events').replyOnce(200, {
           data: [
             {
               object: 'event',
@@ -161,31 +170,35 @@ describe('AuditTrail', () => {
 
     describe('With a filter', () => {
       it('Returns events that match the filter', async () => {
-        mock.onGet().reply(200, {
-          data: [
-            {
-              object: 'event',
-              id: 'evt_0',
-              group: 'foo-corp.com',
-              latitude: null,
-              longitude: null,
-              location: '::1',
-              type: 'r',
-              actor_name: 'demo@foo-corp.com',
-              actor_id: 'user_0',
-              target_name: 'http_request',
-              target_id: '',
-              metadata: {},
-              occurred_at: new Date(),
-              action: {
-                object: 'event_action',
-                id: 'evt_action_0',
-                name: 'user.searched_directories',
+        mock
+          .onGet('/events', {
+            action: ['user.searched_directories'],
+          })
+          .replyOnce(200, {
+            data: [
+              {
+                object: 'event',
+                id: 'evt_0',
+                group: 'foo-corp.com',
+                latitude: null,
+                longitude: null,
+                location: '::1',
+                type: 'r',
+                actor_name: 'demo@foo-corp.com',
+                actor_id: 'user_0',
+                target_name: 'http_request',
+                target_id: '',
+                metadata: {},
+                occurred_at: new Date(),
+                action: {
+                  object: 'event_action',
+                  id: 'evt_action_0',
+                  name: 'user.searched_directories',
+                },
               },
-            },
-          ],
-          list_metadata: { before: null, after: null },
-        });
+            ],
+            list_metadata: { before: null, after: null },
+          });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         const events = await workos.auditTrail.listEvents({

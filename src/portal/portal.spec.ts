@@ -15,7 +15,13 @@ describe('Portal', () => {
     describe('with a valid organization', () => {
       describe('with the sso intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock.onPost().reply(201, generateLink);
+          mock
+            .onPost('/portal/generate_link', {
+              intent: GeneratePortalLinkIntent.SSO,
+              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+              return_url: 'https://www.example.com',
+            })
+            .replyOnce(201, generateLink);
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
@@ -31,7 +37,13 @@ describe('Portal', () => {
 
       describe('with the dsync intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock.onPost().reply(201, generateLink);
+          mock
+            .onPost('/portal/generate_link', {
+              intent: GeneratePortalLinkIntent.DSync,
+              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+              return_url: 'https://www.example.com',
+            })
+            .reply(201, generateLink);
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.DSync,
@@ -48,9 +60,15 @@ describe('Portal', () => {
 
     describe('with an invalid organization', () => {
       it('throws an error', async () => {
-        mock.onPost().reply(400, generateLinkInvalid, {
-          'X-Request-ID': 'a-request-id',
-        });
+        mock
+          .onPost('/portal/generate_link', {
+            intent: GeneratePortalLinkIntent.SSO,
+            organization: 'bogus-id',
+            return_url: 'https://www.example.com',
+          })
+          .reply(400, generateLinkInvalid, {
+            'X-Request-ID': 'a-request-id',
+          });
 
         await expect(
           workos.portal.generateLink({

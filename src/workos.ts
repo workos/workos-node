@@ -20,8 +20,9 @@ import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
+import { Mfa } from './mfa/mfa';
 
-const VERSION = '2.4.0';
+const VERSION = '2.6.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -36,6 +37,7 @@ export class WorkOS {
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
   readonly webhooks = new Webhooks();
+  readonly mfa = new Mfa(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -90,7 +92,12 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const { error, error_description: errorDescription } = data;
+        const {
+          code,
+          error_description: errorDescription,
+          error,
+          message,
+        } = data;
 
         switch (status) {
           case 401: {
@@ -99,7 +106,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
+              requestID,
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -141,7 +153,12 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const { error, error_description: errorDescription } = data;
+        const {
+          code,
+          error_description: errorDescription,
+          error,
+          message,
+        } = data;
 
         switch (status) {
           case 401: {
@@ -150,7 +167,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
+              requestID,
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -196,7 +218,12 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const { error, error_description: errorDescription } = data;
+        const {
+          code,
+          error_description: errorDescription,
+          error,
+          message,
+        } = data;
 
         switch (status) {
           case 401: {
@@ -205,7 +232,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
+              requestID,
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
@@ -240,7 +272,12 @@ export class WorkOS {
       if (response) {
         const { status, data, headers } = response;
         const requestID = headers['X-Request-ID'];
-        const { error, error_description: errorDescription } = data;
+        const {
+          code,
+          error_description: errorDescription,
+          error,
+          message,
+        } = data;
 
         switch (status) {
           case 401: {
@@ -249,7 +286,12 @@ export class WorkOS {
           case 422: {
             const { errors } = data;
 
-            throw new UnprocessableEntityException(errors, requestID);
+            throw new UnprocessableEntityException({
+              code,
+              errors,
+              message,
+              requestID,
+            });
           }
           case 404: {
             throw new NotFoundException(path, requestID);
