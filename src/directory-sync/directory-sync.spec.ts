@@ -27,8 +27,11 @@ describe('DirectorySync', () => {
 
   const groupResponse: Group = {
     id: 'dir_grp_123',
+    idp_id: '123',
     directory_id: 'dir_123',
     name: 'Foo Group',
+    created_at: `2021-10-27 15:21:50.640958`,
+    updated_at: '2021-10-27 15:21:50.640959',
     raw_attributes: {
       foo: 'bar',
     },
