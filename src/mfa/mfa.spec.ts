@@ -169,19 +169,15 @@ describe('MFA', () => {
     describe('with no sms template', () => {
       it('challenge a factor with no sms template', async () => {
         const mock = new MockAdapter(axios);
-        mock
-          .onPost('/auth/factors/challenge', {
-            authentication_factor_id: 'auth_factor_1234',
-          })
-          .reply(200, {
-            object: 'authentication_challenge',
-            id: 'auth_challenge_1234',
-            created_at: '2022-03-15T20:39:19.892Z',
-            updated_at: '2022-03-15T20:39:19.892Z',
-            expires_at: '2022-03-15T21:39:19.892Z',
-            code: '12345',
-            authentication_factor_id: 'auth_factor_1234',
-          });
+        mock.onPost('/auth/factors/auth_factor_1234/challenge').reply(200, {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          created_at: '2022-03-15T20:39:19.892Z',
+          updated_at: '2022-03-15T20:39:19.892Z',
+          expires_at: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authentication_factor_id: 'auth_factor_1234',
+        });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -209,8 +205,7 @@ describe('MFA', () => {
       it('challenge a factor with sms template', async () => {
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/auth/factors/challenge', {
-            authentication_factor_id: 'auth_factor_1234',
+          .onPost('/auth/factors/auth_factor_1234/challenge', {
             sms_template: 'This is your code: 12345',
           })
           .reply(200, {
@@ -246,13 +241,12 @@ describe('MFA', () => {
     });
   });
 
-  describe('verifyFactor', () => {
+  describe('verifyChallenge', () => {
     describe('verify with successful response', () => {
       it('verifies a successful factor', async () => {
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/auth/factors/verify', {
-            authentication_challenge_id: 'auth_challenge_1234',
+          .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
           })
           .reply(200, {
@@ -272,7 +266,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const verifyResponse = await workos.mfa.verifyFactor({
+        const verifyResponse = await workos.mfa.verifyChallenge({
           authenticationChallengeId: 'auth_challenge_1234',
           code: '12345',
         });
@@ -298,8 +292,7 @@ describe('MFA', () => {
       it('throws an exception', async () => {
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/auth/factors/verify', {
-            authentication_challenge_id: 'auth_challenge_1234',
+          .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
           })
           .reply(
@@ -318,7 +311,7 @@ describe('MFA', () => {
         });
 
         await expect(
-          workos.mfa.verifyFactor({
+          workos.mfa.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           }),
@@ -330,8 +323,7 @@ describe('MFA', () => {
       it('throws an exception', async () => {
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/auth/factors/verify', {
-            authentication_challenge_id: 'auth_challenge_1234',
+          .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
           })
           .reply(
@@ -350,7 +342,7 @@ describe('MFA', () => {
         });
 
         await expect(
-          workos.mfa.verifyFactor({
+          workos.mfa.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           }),
@@ -360,8 +352,7 @@ describe('MFA', () => {
       it('exception has code', async () => {
         const mock = new MockAdapter(axios);
         mock
-          .onPost('/auth/factors/verify', {
-            authentication_challenge_id: 'auth_challenge_1234',
+          .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
           })
           .reply(
@@ -380,7 +371,7 @@ describe('MFA', () => {
         });
 
         try {
-          await workos.mfa.verifyFactor({
+          await workos.mfa.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           });
