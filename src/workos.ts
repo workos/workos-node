@@ -21,6 +21,8 @@ import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
+import { AuditLogs } from './audit-logs/audit-logs';
+import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 const VERSION = '2.7.0';
 
@@ -38,6 +40,16 @@ export class WorkOS {
   readonly sso = new SSO(this);
   readonly webhooks = new Webhooks();
   readonly mfa = new Mfa(this);
+
+  /**
+   * Note: experimental modules are safe to use in production environments,
+   * but may experience small interface changes when made a top level resource.
+   */
+  readonly experimental: {
+    readonly auditLogs: AuditLogs;
+  } = {
+    auditLogs: new AuditLogs(this),
+  };
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -96,6 +108,7 @@ export class WorkOS {
           code,
           error_description: errorDescription,
           error,
+          errors,
           message,
         } = data;
 
@@ -124,6 +137,13 @@ export class WorkOS {
                 error,
                 errorDescription,
               );
+            } else if (code && errors) {
+              throw new BadRequestException({
+                code,
+                errors,
+                message,
+                requestID,
+              });
             } else {
               throw new GenericServerException(status, data.message, requestID);
             }
