@@ -1,3 +1,5 @@
+import { PostOptions } from '../../common/interfaces';
+
 export interface AuditLogActor {
   id: string;
   name?: string;
@@ -12,7 +14,7 @@ export interface AuditLogTarget {
   metadata?: Record<string, string | number | boolean>;
 }
 
-export interface AuditLogEventOptions {
+export interface CreateAuditLogEventOptions {
   action: string;
   version?: number;
   occurred_at: Date;
@@ -24,3 +26,8 @@ export interface AuditLogEventOptions {
   };
   metadata?: Record<string, string | number | boolean>;
 }
+
+export type CreateAuditLogEventRequestOptions = Pick<
+  PostOptions,
+  'idempotencyKey'
+>;

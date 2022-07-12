@@ -1,1 +1,4 @@
-export { AuditLogEventOptions } from './audit-log-event-options.interface';
+export {
+  CreateAuditLogEventOptions,
+  CreateAuditLogEventRequestOptions,
+} from './create-audit-log-event-options.interface';

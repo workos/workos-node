@@ -4,10 +4,10 @@ import MockAdapater from 'axios-mock-adapter';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
 import { WorkOS } from '../workos';
-import { AuditLogEventOptions } from './interfaces';
+import { CreateAuditLogEventOptions } from './interfaces';
 
 const mock = new MockAdapater(axios);
-const event: AuditLogEventOptions = {
+const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
   occurred_at: new Date(),
   actor: {
@@ -30,13 +30,36 @@ const event: AuditLogEventOptions = {
   },
 };
 
-const serializeEventOptions = (options: AuditLogEventOptions) => ({
+const serializeEventOptions = (options: CreateAuditLogEventOptions) => ({
   ...options,
   occurred_at: options.occurred_at.toISOString(),
 });
 
 describe('AuditLogs', () => {
   describe('createEvent', () => {
+    describe('with an idempotency key', () => {
+      it('includes an idempotency key with request', async () => {
+        mock
+          .onPost('/audit_logs/events', {
+            event: serializeEventOptions(event),
+            organization_id: 'org_123',
+          })
+          .replyOnce(201, { success: true });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent({ organization: 'org_123' }, event, {
+            idempotencyKey: 'the-idempotency-key',
+          }),
+        ).resolves.toBeUndefined();
+
+        expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+          'the-idempotency-key',
+        );
+      });
+    });
+
     describe('when the api responds with a 200', () => {
       it('returns void', async () => {
         mock
@@ -49,7 +72,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLogs.createEvent('org_123', event),
+          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
         ).resolves.toBeUndefined();
       });
     });
@@ -72,7 +95,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('invalid apikey');
 
         await expect(
-          workos.auditLogs.createEvent('org_123', event),
+          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
         ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
       });
     });
@@ -105,7 +128,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLogs.createEvent('org_123', event),
+          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
         ).rejects.toThrow(BadRequestException);
       });
     });
