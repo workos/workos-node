@@ -21,6 +21,8 @@ import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
+import { AuditLogs } from './audit-logs/audit-logs';
+import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 const VERSION = '2.7.0';
 
@@ -30,6 +32,7 @@ export class WorkOS {
   readonly baseURL: string;
   private readonly client: AxiosInstance;
 
+  readonly auditLogs = new AuditLogs(this);
   readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
@@ -96,6 +99,7 @@ export class WorkOS {
           code,
           error_description: errorDescription,
           error,
+          errors,
           message,
         } = data;
 
@@ -124,6 +128,15 @@ export class WorkOS {
                 error,
                 errorDescription,
               );
+            } else if (code && errors) {
+              // Note: ideally this should be mapped directly with a `400` status code.
+              // However, this would break existing logic for the `OauthException` exception.
+              throw new BadRequestException({
+                code,
+                errors,
+                message,
+                requestID,
+              });
             } else {
               throw new GenericServerException(status, data.message, requestID);
             }
