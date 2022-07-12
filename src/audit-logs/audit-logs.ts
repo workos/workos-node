@@ -8,7 +8,7 @@ export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
 
   async createEvent(
-    { organization }: { organization: string },
+    organization: string,
     event: CreateAuditLogEventOptions,
     options: CreateAuditLogEventRequestOptions = {},
   ): Promise<void> {

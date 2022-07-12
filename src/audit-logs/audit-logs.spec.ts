@@ -49,7 +49,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLogs.createEvent({ organization: 'org_123' }, event, {
+          workos.auditLogs.createEvent('org_123', event, {
             idempotencyKey: 'the-idempotency-key',
           }),
         ).resolves.toBeUndefined();
@@ -72,7 +72,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
+          workos.auditLogs.createEvent('org_123', event),
         ).resolves.toBeUndefined();
       });
     });
@@ -95,7 +95,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('invalid apikey');
 
         await expect(
-          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
+          workos.auditLogs.createEvent('org_123', event),
         ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
       });
     });
@@ -128,7 +128,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(
-          workos.auditLogs.createEvent({ organization: 'org_123' }, event),
+          workos.auditLogs.createEvent('org_123', event),
         ).rejects.toThrow(BadRequestException);
       });
     });
