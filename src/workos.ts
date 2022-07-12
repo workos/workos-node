@@ -129,6 +129,8 @@ export class WorkOS {
                 errorDescription,
               );
             } else if (code && errors) {
+              // Note: ideally this should be mapped directly with a `400` status code.
+              // However, this would break existing logic for the `OauthException` exception.
               throw new BadRequestException({
                 code,
                 errors,
