@@ -74,10 +74,11 @@ describe('WorkOS', () => {
   describe('post', () => {
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
+        const message = 'Not Found';
         mock.onPost().reply(
           404,
           {
-            message: 'Not Found',
+            message,
           },
           { 'X-Request-ID': 'a-request-id' },
         );
@@ -85,7 +86,11 @@ describe('WorkOS', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new NotFoundException('/path', 'a-request-id'),
+          new NotFoundException({
+            message,
+            path: '/path',
+            requestID: 'a-request-id',
+          }),
         );
       });
     });
