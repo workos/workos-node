@@ -93,6 +93,47 @@ describe('WorkOS', () => {
           }),
         );
       });
+
+      it('preserves the error code, status, and message from the underlying response', async () => {
+        const message = 'The thing you are looking for is not here.';
+        const code = 'thing-not-found';
+        mock.onPost().reply(
+          404,
+          {
+            code,
+            message,
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          code,
+          message,
+          status: 404,
+        });
+      });
+
+      it('includes the path in the message if there is no message in the response', async () => {
+        const code = 'thing-not-found';
+        const path = '/path/to/thing/that-aint-there';
+        mock.onPost().reply(
+          404,
+          {
+            code,
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post(path, {})).rejects.toMatchObject({
+          code,
+          message: `The requested path '${path}' could not be found.`,
+          status: 404,
+        });
+      });
     });
 
     describe('when the api responds with a 500 and no error/error_description', () => {
