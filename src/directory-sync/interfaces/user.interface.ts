@@ -8,6 +8,7 @@ export interface User<
 > {
   id: string;
   directory_id: string;
+  organization_id: string | null;
   raw_attributes: TRawAttributes;
   custom_attributes: TCustomAttributes;
   idp_id: string;
