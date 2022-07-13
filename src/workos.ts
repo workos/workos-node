@@ -90,59 +90,7 @@ export class WorkOS {
         headers: requestHeaders,
       });
     } catch (error) {
-      const { response } = error as AxiosError;
-
-      if (response) {
-        const { status, data, headers } = response;
-        const requestID = headers['X-Request-ID'];
-        const {
-          code,
-          error_description: errorDescription,
-          error,
-          errors,
-          message,
-        } = data;
-
-        switch (status) {
-          case 401: {
-            throw new UnauthorizedException(requestID);
-          }
-          case 422: {
-            const { errors } = data;
-
-            throw new UnprocessableEntityException({
-              code,
-              errors,
-              message,
-              requestID,
-            });
-          }
-          case 404: {
-            throw new NotFoundException(path, requestID);
-          }
-          default: {
-            if (error || errorDescription) {
-              throw new OauthException(
-                status,
-                requestID,
-                error,
-                errorDescription,
-              );
-            } else if (code && errors) {
-              // Note: ideally this should be mapped directly with a `400` status code.
-              // However, this would break existing logic for the `OauthException` exception.
-              throw new BadRequestException({
-                code,
-                errors,
-                message,
-                requestID,
-              });
-            } else {
-              throw new GenericServerException(status, data.message, requestID);
-            }
-          }
-        }
-      }
+      this.handleAxiosError({ path, error });
 
       throw error;
     }
@@ -161,49 +109,7 @@ export class WorkOS {
           : undefined,
       });
     } catch (error) {
-      const { response } = error as AxiosError;
-
-      if (response) {
-        const { status, data, headers } = response;
-        const requestID = headers['X-Request-ID'];
-        const {
-          code,
-          error_description: errorDescription,
-          error,
-          message,
-        } = data;
-
-        switch (status) {
-          case 401: {
-            throw new UnauthorizedException(requestID);
-          }
-          case 422: {
-            const { errors } = data;
-
-            throw new UnprocessableEntityException({
-              code,
-              errors,
-              message,
-              requestID,
-            });
-          }
-          case 404: {
-            throw new NotFoundException(path, requestID);
-          }
-          default: {
-            if (error || errorDescription) {
-              throw new OauthException(
-                status,
-                requestID,
-                error,
-                errorDescription,
-              );
-            } else {
-              throw new GenericServerException(status, data.message, requestID);
-            }
-          }
-        }
-      }
+      this.handleAxiosError({ path, error });
 
       throw error;
     }
@@ -226,49 +132,7 @@ export class WorkOS {
         headers: requestHeaders,
       });
     } catch (error) {
-      const { response } = error as AxiosError;
-
-      if (response) {
-        const { status, data, headers } = response;
-        const requestID = headers['X-Request-ID'];
-        const {
-          code,
-          error_description: errorDescription,
-          error,
-          message,
-        } = data;
-
-        switch (status) {
-          case 401: {
-            throw new UnauthorizedException(requestID);
-          }
-          case 422: {
-            const { errors } = data;
-
-            throw new UnprocessableEntityException({
-              code,
-              errors,
-              message,
-              requestID,
-            });
-          }
-          case 404: {
-            throw new NotFoundException(path, requestID);
-          }
-          default: {
-            if (error || errorDescription) {
-              throw new OauthException(
-                status,
-                requestID,
-                error,
-                errorDescription,
-              );
-            } else {
-              throw new GenericServerException(status, data.message, requestID);
-            }
-          }
-        }
-      }
+      this.handleAxiosError({ path, error });
 
       throw error;
     }
@@ -280,49 +144,7 @@ export class WorkOS {
         params: query,
       });
     } catch (error) {
-      const { response } = error as AxiosError;
-
-      if (response) {
-        const { status, data, headers } = response;
-        const requestID = headers['X-Request-ID'];
-        const {
-          code,
-          error_description: errorDescription,
-          error,
-          message,
-        } = data;
-
-        switch (status) {
-          case 401: {
-            throw new UnauthorizedException(requestID);
-          }
-          case 422: {
-            const { errors } = data;
-
-            throw new UnprocessableEntityException({
-              code,
-              errors,
-              message,
-              requestID,
-            });
-          }
-          case 404: {
-            throw new NotFoundException(path, requestID);
-          }
-          default: {
-            if (error || errorDescription) {
-              throw new OauthException(
-                status,
-                requestID,
-                error,
-                errorDescription,
-              );
-            } else {
-              throw new GenericServerException(status, data.message, requestID);
-            }
-          }
-        }
-      }
+      this.handleAxiosError({ path, error });
 
       throw error;
     }
@@ -335,5 +157,66 @@ export class WorkOS {
     }
 
     return process.emitWarning(warning, 'WorkOS');
+  }
+
+  private handleAxiosError({ path, error }: { path: string; error: unknown }) {
+    const { response } = error as AxiosError;
+
+    if (response) {
+      const { status, data, headers } = response;
+      const requestID = headers['X-Request-ID'];
+      const {
+        code,
+        error_description: errorDescription,
+        error,
+        errors,
+        message,
+      } = data;
+
+      switch (status) {
+        case 401: {
+          throw new UnauthorizedException(requestID);
+        }
+        case 422: {
+          const { errors } = data;
+
+          throw new UnprocessableEntityException({
+            code,
+            errors,
+            message,
+            requestID,
+          });
+        }
+        case 404: {
+          throw new NotFoundException({
+            code,
+            message,
+            path,
+            requestID,
+          });
+        }
+        default: {
+          if (error || errorDescription) {
+            throw new OauthException(
+              status,
+              requestID,
+              error,
+              errorDescription,
+            );
+          } else if (code && errors) {
+            // Note: ideally this should be mapped directly with a `400` status code.
+            // However, this would break existing logic for the `OauthException` exception.
+            throw new BadRequestException({
+              code,
+              errors,
+              message,
+              requestID,
+            });
+          } else {
+            throw new GenericServerException(status, data.message, requestID);
+          }
+        }
+      }
+    }
   }
 }
