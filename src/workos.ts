@@ -144,7 +144,7 @@ export class WorkOS {
         params: query,
       });
     } catch (error) {
-      this.handleAxiosError({path, error});
+      this.handleAxiosError({ path, error });
 
       throw error;
     }
@@ -159,7 +159,7 @@ export class WorkOS {
     return process.emitWarning(warning, 'WorkOS');
   }
 
-  private handleAxiosError({path, error}: {path: string, error: unknown}) {
+  private handleAxiosError({ path, error }: { path: string; error: unknown }) {
     const { response } = error as AxiosError;
 
     if (response) {
