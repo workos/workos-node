@@ -21,7 +21,7 @@ Object {
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/2.8.1",
+  "User-Agent": "workos-node/2.9.0",
 }
 `;
 
