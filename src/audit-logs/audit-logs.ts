@@ -3,6 +3,8 @@ import {
   CreateAuditLogEventOptions,
   CreateAuditLogEventRequestOptions,
 } from './interfaces';
+import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
+import { AuditLogExport } from './interfaces/audit-log-export.interface';
 
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
@@ -20,5 +22,19 @@ export class AuditLogs {
       },
       options,
     );
+  }
+
+  async createExport(options: AuditLogExportOptions): Promise<AuditLogExport> {
+    const { data } = await this.workos.post('/audit_logs/exports', options);
+
+    return data;
+  }
+
+  async getExport(auditLogExportId: string): Promise<AuditLogExport> {
+    const { data } = await this.workos.get(
+      `/audit_logs/exports/${auditLogExportId}`,
+    );
+
+    return data;
   }
 }
