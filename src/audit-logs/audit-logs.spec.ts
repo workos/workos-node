@@ -5,6 +5,8 @@ import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
 import { WorkOS } from '../workos';
 import { CreateAuditLogEventOptions } from './interfaces';
+import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
+import { AuditLogExport } from './interfaces/audit-log-export.interface';
 
 const mock = new MockAdapater(axios);
 const event: CreateAuditLogEventOptions = {
@@ -130,6 +132,112 @@ describe('AuditLogs', () => {
         await expect(
           workos.auditLogs.createEvent('org_123', event),
         ).rejects.toThrow(BadRequestException);
+      });
+    });
+  });
+
+  describe('createExport', () => {
+    const serializeExportOptions = (options: AuditLogExportOptions) => ({
+      ...options,
+      range_start: options.range_start.toISOString(),
+      range_end: options.range_end.toISOString(),
+    });
+
+    describe('when the api responds with a 201', () => {
+      it('returns `audit_log_export`', async () => {
+        const options: AuditLogExportOptions = {
+          organization_id: 'org_123',
+          range_start: new Date(),
+          range_end: new Date(),
+        };
+
+        const auditLogExport: AuditLogExport = {
+          object: 'audit_log_export',
+          id: 'audit_log_export_1234',
+          state: 'Pending',
+          url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        mock
+          .onPost('/audit_logs/exports', serializeExportOptions(options))
+          .replyOnce(201, auditLogExport);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.auditLogs.createExport(options)).resolves.toEqual(
+          auditLogExport,
+        );
+      });
+    });
+
+    describe('when the api responds with a 401', () => {
+      it('throws an UnauthorizedException', async () => {
+        const options: AuditLogExportOptions = {
+          organization_id: 'org_123',
+          range_start: new Date(),
+          range_end: new Date(),
+        };
+
+        mock
+          .onPost('/audit_logs/exports', serializeExportOptions(options))
+          .replyOnce(
+            401,
+            {
+              message: 'Unauthorized',
+            },
+            { 'X-Request-ID': 'a-request-id' },
+          );
+
+        const workos = new WorkOS('invalid apikey');
+
+        await expect(
+          workos.auditLogs.createExport(options),
+        ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
+      });
+    });
+  });
+
+  describe('getExport', () => {
+    describe('when the api responds with a 201', () => {
+      it('returns `audit_log_export`', async () => {
+        const auditLogExport: AuditLogExport = {
+          object: 'audit_log_export',
+          id: 'audit_log_export_1234',
+          state: 'Pending',
+          url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        mock
+          .onGet(`/audit_logs/exports/${auditLogExport.id}`)
+          .replyOnce(200, auditLogExport);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.getExport(auditLogExport.id),
+        ).resolves.toEqual(auditLogExport);
+      });
+    });
+
+    describe('when the api responds with a 401', () => {
+      it('throws an UnauthorizedException', async () => {
+        mock.onGet('/audit_logs/exports/audit_log_export_1234').replyOnce(
+          401,
+          {
+            message: 'Unauthorized',
+          },
+          { 'X-Request-ID': 'a-request-id' },
+        );
+
+        const workos = new WorkOS('invalid apikey');
+
+        await expect(
+          workos.auditLogs.getExport('audit_log_export_1234'),
+        ).rejects.toStrictEqual(new UnauthorizedException('a-request-id'));
       });
     });
   });
