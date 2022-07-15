@@ -154,7 +154,7 @@ describe('AuditLogs', () => {
         const auditLogExport: AuditLogExport = {
           object: 'audit_log_export',
           id: 'audit_log_export_1234',
-          state: 'Pending',
+          state: 'pending',
           url: undefined,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
@@ -205,7 +205,7 @@ describe('AuditLogs', () => {
         const auditLogExport: AuditLogExport = {
           object: 'audit_log_export',
           id: 'audit_log_export_1234',
-          state: 'Pending',
+          state: 'pending',
           url: undefined,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
