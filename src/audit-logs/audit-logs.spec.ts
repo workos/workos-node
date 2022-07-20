@@ -137,10 +137,14 @@ describe('AuditLogs', () => {
   });
 
   describe('createExport', () => {
-    const serializeExportOptions = (options: AuditLogExportOptions) => ({
-      organization_id: options.organization_id,
-      range_start: options.range_start.toISOString(),
-      range_end: options.range_end.toISOString(),
+    const serializeExportOptions = ({
+      range_end,
+      range_start,
+      ...options
+    }: AuditLogExportOptions) => ({
+      range_start: range_start.toISOString(),
+      range_end: range_end.toISOString(),
+      ...options,
     });
 
     describe('when the api responds with a 201', () => {
@@ -149,6 +153,38 @@ describe('AuditLogs', () => {
           organization_id: 'org_123',
           range_start: new Date(),
           range_end: new Date(),
+        };
+
+        const auditLogExport: AuditLogExport = {
+          object: 'audit_log_export',
+          id: 'audit_log_export_1234',
+          state: 'pending',
+          url: undefined,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        mock
+          .onPost('/audit_logs/exports', serializeExportOptions(options))
+          .replyOnce(201, auditLogExport);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.auditLogs.createExport(options)).resolves.toEqual(
+          auditLogExport,
+        );
+      });
+    });
+
+    describe('when additional filters are defined', () => {
+      it('returns `audit_log_export`', async () => {
+        const options: AuditLogExportOptions = {
+          actions: ['foo', 'bar'],
+          actors: ['Jon', 'Smith'],
+          organization_id: 'org_123',
+          range_end: new Date(),
+          range_start: new Date(),
+          targets: ['user', 'team'],
         };
 
         const auditLogExport: AuditLogExport = {
