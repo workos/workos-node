@@ -33,6 +33,32 @@ import WorkOS from '@workos-inc/node';
 const workos = new WorkOS('sk_1234');
 ```
 
+## Axios customization
+
+Some users may need to customize the underlying Axios instance. For instance, you may need to pass an `https.Agent` with a root CA to allow older Node versions to call the API, or you may be running on a non-Node runtime and need to pass in a custom `adapter`.
+
+You can pass in one of three Axios options in the `WorkOSOptions` object:
+
+- `adapter`
+- `httpsAgent`
+- `proxy`
+
+Example of using a custom root CA for legacy Node support:
+
+```ts
+import { Agent } from 'https';
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+import WorkOS from '@workos-inc/node';
+
+const rootCA = readFileSync(join(__dirname, './isrg-root-x2.pem'));
+
+const agent = new Agent({ ca: rootCA });
+
+const workos = new WorkOS('sk_1234', { axios: { httpsAgent: agent } });
+```
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.
