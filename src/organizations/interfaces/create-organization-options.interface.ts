@@ -9,4 +9,4 @@ export interface CreateOrganizationOptions {
 export interface CreateOrganizationRequestOptions extends Pick<
   PostOptions,
   'idempotencyKey'
->;
+> {};
