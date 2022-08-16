@@ -2,6 +2,7 @@ import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import {
   CreateOrganizationOptions,
+  CreateOrganizationRequestOptions,
   ListOrganizationsOptions,
   Organization,
   UpdateOrganizationOptions,
@@ -22,8 +23,13 @@ export class Organizations {
 
   async createOrganization(
     payload: CreateOrganizationOptions,
+    requestOptions: CreateOrganizationRequestOptions = {},
   ): Promise<Organization> {
-    const { data } = await this.workos.post('/organizations', payload);
+    const { data } = await this.workos.post(
+      '/organizations',
+      payload,
+      requestOptions,
+    );
 
     return data;
   }
