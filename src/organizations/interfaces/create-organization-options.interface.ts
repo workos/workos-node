@@ -6,7 +6,5 @@ export interface CreateOrganizationOptions {
   domains?: string[];
 }
 
-export interface CreateOrganizationRequestOptions extends Pick<
-  PostOptions,
-  'idempotencyKey'
-> {};
+export interface CreateOrganizationRequestOptions
+  extends Pick<PostOptions, 'idempotencyKey'> {}
