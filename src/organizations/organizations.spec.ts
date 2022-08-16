@@ -123,6 +123,31 @@ describe('Organizations', () => {
   });
 
   describe('createOrganization', () => {
+    describe('with an idempotency key', () => {
+      it('includes an idempotency key with request', async () => {
+        mock
+          .onPost('/organizations', {
+            domains: ['example.com'],
+            name: 'Test Organization',
+          })
+          .replyOnce(201, createOrganization);
+
+        await workos.organizations.createOrganization(
+          {
+            domains: ['example.com'],
+            name: 'Test Organization',
+          },
+          {
+            idempotencyKey: 'the-idempotency-key',
+          },
+        );
+
+        expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+          'the-idempotency-key',
+        );
+      });
+    });
+
     describe('with a valid payload', () => {
       it('creates an organization', async () => {
         mock
