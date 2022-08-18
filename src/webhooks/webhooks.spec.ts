@@ -34,13 +34,13 @@ describe('Webhooks', () => {
       idp_id: '00u1e8mutl6wlH3lL4x7',
       object: 'directory_user',
       username: 'blair@foo-corp.com',
-      last_name: 'Lunceford',
+      last_name: 'Lunchford',
       first_name: 'Blair',
       directory_id: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
       raw_attributes: {
         name: {
           givenName: 'Blair',
-          familyName: 'Lunceford',
+          familyName: 'Lunchford',
           middleName: 'Elizabeth',
           honorificPrefix: 'Ms.',
         },
@@ -62,18 +62,18 @@ describe('Webhooks', () => {
         userName: 'blair@foo-corp.com',
         addresses: [
           {
-            region: 'CO',
+            region: 'CA',
             primary: true,
-            locality: 'Steamboat Springs',
-            postalCode: '80487',
+            locality: 'San Francisco',
+            postalCode: '94016',
           },
         ],
         externalId: '00u1e8mutl6wlH3lL4x7',
-        displayName: 'Blair Lunceford',
+        displayName: 'Blair Lunchford',
         'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User': {
           manager: {
             value: '2',
-            displayName: 'Kathleen Chung',
+            displayName: 'Kate Chapman',
           },
           division: 'Engineering',
           department: 'Customer Success',
@@ -173,6 +173,40 @@ describe('Webhooks', () => {
           SignatureVerificationException,
         );
       });
+    });
+  });
+
+  describe('verifyHeader', () => {
+    it('returns true when the signature is valid', () => {
+      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+      const options = { payload, sigHeader, secret };
+
+      expect(() => workos.webhooks.verifyHeader(options)).toBeTruthy();
+    });
+  });
+
+  describe('getTimestampAndSignatureHash', () => {
+    it('returns the timestamp and signature when the signature is valid', () => {
+      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+      const timestampAndSignature =
+        workos.webhooks.getTimestampAndSignatureHash(sigHeader);
+
+      expect(timestampAndSignature).toEqual([
+        timestamp.toString(),
+        signatureHash,
+      ]);
+    });
+  });
+
+  describe('computeSignature', () => {
+    it('returns the computed signature', () => {
+      const signature = workos.webhooks.computeSignature(
+        timestamp,
+        payload,
+        secret,
+      );
+
+      expect(signature).toEqual(signatureHash);
     });
   });
 });
