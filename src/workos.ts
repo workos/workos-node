@@ -65,8 +65,10 @@ export class WorkOS {
     }
 
     this.client = axios.create({
+      ...options.axios,
       baseURL: this.baseURL,
       headers: {
+        ...options.axios?.headers,
         Authorization: `Bearer ${this.key}`,
         'User-Agent': `workos-node/${VERSION}`,
       },
