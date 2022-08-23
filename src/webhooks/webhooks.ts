@@ -21,7 +21,7 @@ export class Webhooks {
     return webhookPayload;
   }
 
-  private verifyHeader({
+  verifyHeader({
     payload,
     sigHeader,
     secret,
@@ -56,7 +56,7 @@ export class Webhooks {
     return true;
   }
 
-  private getTimestampAndSignatureHash(sigHeader: string): string[] {
+  getTimestampAndSignatureHash(sigHeader: string): string[] {
     const signature = sigHeader;
     const [t, v1] = signature.split(',');
     if (typeof t === 'undefined' || typeof v1 === 'undefined') {
@@ -70,11 +70,7 @@ export class Webhooks {
     return [timestamp, signatureHash];
   }
 
-  private computeSignature(
-    timestamp: any,
-    payload: any,
-    secret: string,
-  ): string {
+  computeSignature(timestamp: any, payload: any, secret: string): string {
     payload = JSON.stringify(payload);
     const signedPayload = `${timestamp}.${payload}`;
     const expectedSignature = crypto
@@ -86,7 +82,7 @@ export class Webhooks {
     return expectedSignature;
   }
 
-  private secureCompare(stringA: string, stringB: string): boolean {
+  secureCompare(stringA: string, stringB: string): boolean {
     const strA = Buffer.from(stringA);
     const strB = Buffer.from(stringB);
 
