@@ -69,6 +69,26 @@ describe('WorkOS', () => {
         expect(workos.baseURL).toEqual('https://localhost:4000');
       });
     });
+
+    describe('when the `axios` option is provided', () => {
+      it('applies the configuration to the Axios client', async () => {
+        mock.onPost().reply(200, 'OK', { 'X-Request-ID': 'a-request-id' });
+
+        const workos = new WorkOS('sk_test', {
+          axios: {
+            headers: {
+              'X-My-Custom-Header': 'Hey there!',
+            },
+          },
+        });
+
+        await workos.post('/somewhere', {});
+
+        expect(mock.history.post[0].headers).toMatchObject({
+          'X-My-Custom-Header': 'Hey there!',
+        });
+      });
+    });
   });
 
   describe('post', () => {
