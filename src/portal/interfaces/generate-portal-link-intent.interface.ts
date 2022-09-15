@@ -1,4 +1,5 @@
 export enum GeneratePortalLinkIntent {
-  SSO = 'sso',
+  AuditLogs = 'audit_logs',
   DSync = 'dsync',
+  SSO = 'sso',
 }
