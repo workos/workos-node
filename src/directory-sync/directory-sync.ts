@@ -58,4 +58,9 @@ export class DirectorySync {
     const { data } = await this.workos.get(`/directory_groups/${group}`);
     return data;
   }
+
+  getPrimaryEmail(user: UserWithGroups): string | undefined {
+    const primaryEmail = (user.emails || []).find((email) => email.primary);
+    return primaryEmail && primaryEmail.value;
+  }
 }
