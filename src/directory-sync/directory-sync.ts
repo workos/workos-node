@@ -59,8 +59,8 @@ export class DirectorySync {
     return data;
   }
 
-  getPrimaryEmail(user: UserWithGroups ): string | undefined {
-    const primaryEmail = (user.emails || []).find(email => email.primary);
+  getPrimaryEmail(user: UserWithGroups): string | undefined {
+    const primaryEmail = (user.emails || []).find((email) => email.primary);
     return primaryEmail && primaryEmail.value;
   }
 }
