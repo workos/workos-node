@@ -289,14 +289,4 @@ describe('DirectorySync', () => {
       expect(user).toEqual(userWithGroupResponse);
     });
   });
-
-  describe('getPrimaryEmail', () => {
-    it(`returns primary email value`, () => {
-      const primaryEmail = workos.directorySync.getPrimaryEmail(
-        userWithGroupResponse,
-      );
-
-      expect(primaryEmail).toEqual('jonsnow@workos.com');
-    });
-  });
 });
