@@ -1,6 +1,6 @@
-import { UserWithGroups } from '../interfaces/user.interface';
+import { User } from '../interfaces/user.interface';
 
-export function getPrimaryEmail(user: UserWithGroups): string | undefined {
+export function getPrimaryEmail(user: User): string | undefined {
   const primaryEmail = (user.emails || []).find((email) => email.primary);
-  return primaryEmail && primaryEmail.value;
+  return primaryEmail?.value;
 }
