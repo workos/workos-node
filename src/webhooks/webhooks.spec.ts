@@ -36,6 +36,7 @@ describe('Webhooks', () => {
       username: 'blair@foo-corp.com',
       last_name: 'Lunchford',
       first_name: 'Blair',
+      job_title: 'Software Engineer',
       directory_id: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
       raw_attributes: {
         name: {
@@ -44,7 +45,7 @@ describe('Webhooks', () => {
           middleName: 'Elizabeth',
           honorificPrefix: 'Ms.',
         },
-        title: 'Developer Success Engineer',
+        title: 'Software Engineer',
         active: true,
         emails: [
           {

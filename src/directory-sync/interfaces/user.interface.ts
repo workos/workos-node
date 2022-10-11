@@ -20,6 +20,7 @@ export interface User<
   }[];
   username: string;
   last_name: string;
+  job_title: string;
   state: 'active' | 'inactive' | 'suspended';
 }
 
