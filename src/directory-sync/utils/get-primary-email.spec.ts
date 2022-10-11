@@ -22,6 +22,7 @@ describe('getPrimaryEmail', () => {
     raw_attributes: {},
     state: 'active',
     username: 'jonsnow',
+    job_title: 'Knight of the Watch',
   };
 
   it(`returns primary email value`, () => {

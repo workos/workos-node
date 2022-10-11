@@ -56,6 +56,7 @@ describe('DirectorySync', () => {
     groups: [groupResponse],
     idp_id: 'idp_foo',
     last_name: 'Snow',
+    job_title: 'Knight of the Watch',
     raw_attributes: {},
     state: 'active',
     username: 'jonsnow',
@@ -202,6 +203,7 @@ describe('DirectorySync', () => {
                   emails: [],
                   first_name: 'Virginia',
                   last_name: 'Stoltenberg',
+                  job_title: 'Software Engineer',
                   state: 'active',
                   raw_attributes: {},
                   custom_attributes: {
@@ -226,6 +228,7 @@ describe('DirectorySync', () => {
                   emails: [],
                   first_name: 'Eli',
                   last_name: 'Leffler',
+                  job_title: 'Software Engineer',
                   state: 'active',
                   raw_attributes: {},
                   custom_attributes: {
