@@ -595,10 +595,10 @@
     jest-matcher-utils "^27.0.0"
     pretty-format "^27.0.0"
 
-"@types/node@*", "@types/node@14.18.32":
-  version "14.18.32"
-  resolved "https://registry.npmjs.org/@types/node/-/node-14.18.32.tgz"
-  integrity sha512-Y6S38pFr04yb13qqHf8uk1nHE3lXgQ30WZbv1mLliV9pt0NjvqdWttLcrOYLnXbOafknVYRHZGoMSpR9UwfYow==
+"@types/node@*", "@types/node@16.11.68":
+  version "16.11.68"
+  resolved "https://registry.npmjs.org/@types/node/-/node-16.11.68.tgz"
+  integrity sha512-JkRpuVz3xCNCWaeQ5EHLR/6woMbHZz/jZ7Kmc63AkU+1HxnoUugzSWMck7dsR4DvNYX8jp9wTi9K7WvnxOIQZQ==
 
 "@types/pluralize@0.0.29":
   version "0.0.29"
