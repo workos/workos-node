@@ -69,8 +69,8 @@ describe('MFA', () => {
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'totp',
           totp: {
-            issuer: 'WorkOS'
-            user: 'some-user'
+            issuer: 'WorkOS',
+            user: 'some-user',
             qr_code: 'qr-code-test',
             secret: 'secret-test',
             uri: 'uri-test'
