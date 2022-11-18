@@ -70,10 +70,10 @@ describe('MFA', () => {
           type: 'totp',
           totp: {
             issuer: 'WorkOS',
-            user: 'some_user',
             qr_code: 'qr-code-test',
             secret: 'secret-test',
             uri: 'uri-test',
+            user: 'some_user',
           },
         });
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
@@ -85,6 +85,7 @@ describe('MFA', () => {
           issuer: 'WorkOS',
           user: 'some_user',
         });
+        console.log(enrollResponse);
 
         expect(enrollResponse).toMatchInlineSnapshot(`
           Object {
@@ -93,10 +94,10 @@ describe('MFA', () => {
             "object": "authentication_factor",
             "totp": Object {
               "issuer": "WorkOS",
-              "user": "some_user",
               "qr_code": "qr-code-test",
               "secret": "secret-test",
               "uri": "uri-test",
+              "user": "some_user",
             },
             "type": "totp",
             "updated_at": "2022-03-15T20:39:19.892Z",
