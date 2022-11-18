@@ -69,8 +69,11 @@ describe('MFA', () => {
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'totp',
           totp: {
+            issuer: 'WorkOS',
+            user: 'some_user',
             qr_code: 'qr-code-test',
             secret: 'secret-test',
+            uri: 'uri-test',
           },
         });
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
@@ -89,8 +92,11 @@ describe('MFA', () => {
             "id": "auth_factor_1234",
             "object": "authentication_factor",
             "totp": Object {
+              "issuer": "WorkOS",
+              "user": "some_user",
               "qr_code": "qr-code-test",
               "secret": "secret-test",
+              "uri": "uri-test",
             },
             "type": "totp",
             "updated_at": "2022-03-15T20:39:19.892Z",
