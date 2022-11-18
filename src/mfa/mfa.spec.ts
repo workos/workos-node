@@ -85,7 +85,6 @@ describe('MFA', () => {
           issuer: 'WorkOS',
           user: 'some_user',
         });
-        console.log(enrollResponse);
 
         expect(enrollResponse).toMatchInlineSnapshot(`
           Object {
