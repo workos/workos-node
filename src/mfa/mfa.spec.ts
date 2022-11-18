@@ -73,7 +73,7 @@ describe('MFA', () => {
             user: 'some-user',
             qr_code: 'qr-code-test',
             secret: 'secret-test',
-            uri: 'uri-test'
+            uri: 'uri-test',
           },
         });
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
