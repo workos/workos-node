@@ -70,7 +70,7 @@ describe('MFA', () => {
           type: 'totp',
           totp: {
             issuer: 'WorkOS',
-            user: 'some-user',
+            user: 'some_user',
             qr_code: 'qr-code-test',
             secret: 'secret-test',
             uri: 'uri-test',
@@ -93,7 +93,7 @@ describe('MFA', () => {
             "object": "authentication_factor",
             "totp": Object {
               "issuer": "WorkOS",
-              "user": "some-user",
+              "user": "some_user",
               "qr_code": "qr-code-test",
               "secret": "secret-test",
               "uri": "uri-test",
