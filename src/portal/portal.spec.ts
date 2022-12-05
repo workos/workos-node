@@ -78,6 +78,28 @@ describe('Portal', () => {
           );
         });
       });
+
+      describe('with the `log_streams` intent', () => {
+        it('returns an Admin Portal link', async () => {
+          mock
+            .onPost('/portal/generate_link', {
+              intent: GeneratePortalLinkIntent.LogStreams,
+              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+              return_url: 'https://www.example.com',
+            })
+            .reply(201, generateLink);
+
+          const { link } = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.LogStreams,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
+        });
+      });
     });
 
     describe('with an invalid organization', () => {
