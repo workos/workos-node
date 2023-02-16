@@ -181,10 +181,12 @@ describe('SSO', () => {
                     email: 'foo@test.com',
                     first_name: 'foo',
                     last_name: 'bar',
+                    groups: ['Admins', 'Developers'],
                     raw_attributes: {
                       email: 'foo@test.com',
                       first_name: 'foo',
                       last_name: 'bar',
+                      groups: ['Admins', 'Developers'],
                     },
                   },
                 },
@@ -229,10 +231,12 @@ describe('SSO', () => {
             email: 'foo@test.com',
             first_name: 'foo',
             last_name: 'bar',
+            groups: ['Admins', 'Developers'],
             raw_attributes: {
               email: 'foo@test.com',
               first_name: 'foo',
               last_name: 'bar',
+              groups: ['Admins', 'Developers'],
             },
           });
 

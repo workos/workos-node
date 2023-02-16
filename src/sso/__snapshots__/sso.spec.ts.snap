@@ -31,6 +31,10 @@ Object {
   "connection_type": "OktaSAML",
   "email": "foo@test.com",
   "first_name": "foo",
+  "groups": Array [
+    "Admins",
+    "Developers",
+  ],
   "id": "prof_123",
   "idp_id": "123",
   "last_name": "bar",
@@ -38,6 +42,10 @@ Object {
   "raw_attributes": Object {
     "email": "foo@test.com",
     "first_name": "foo",
+    "groups": Array [
+      "Admins",
+      "Developers",
+    ],
     "last_name": "bar",
   },
 }
