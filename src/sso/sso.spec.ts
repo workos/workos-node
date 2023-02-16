@@ -212,6 +212,66 @@ describe('SSO', () => {
           expect(profile).toMatchSnapshot();
         });
       });
+
+      describe('without a groups attribute', () => {
+        it('sends a request to the WorkOS api for a profile', async () => {
+          const mock = new MockAdapter(axios);
+
+          const expectedBody = new URLSearchParams({
+            client_id: 'proj_123',
+            client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+            code: 'authorization_code',
+            grant_type: 'authorization_code',
+          });
+          expectedBody.sort();
+
+          mock.onPost('/sso/token').replyOnce((config) => {
+            const actualBody = new URLSearchParams(config.data);
+            actualBody.sort();
+
+            if (actualBody.toString() === expectedBody.toString()) {
+              return [
+                200,
+                {
+                  access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+                  profile: {
+                    id: 'prof_123',
+                    idp_id: '123',
+                    organization_id: 'org_123',
+                    connection_id: 'conn_123',
+                    connection_type: 'OktaSAML',
+                    email: 'foo@test.com',
+                    first_name: 'foo',
+                    last_name: 'bar',
+                    raw_attributes: {
+                      email: 'foo@test.com',
+                      first_name: 'foo',
+                      last_name: 'bar',
+                    },
+                  },
+                },
+              ];
+            }
+
+            return [404];
+          });
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+          const { access_token: accessToken, profile } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientID: 'proj_123',
+            });
+
+          expect(mock.history.post.length).toBe(1);
+          const { data, headers } = mock.history.post[0];
+
+          expect(data).toMatchSnapshot();
+          expect(headers).toMatchSnapshot();
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
+          expect(profile).toMatchSnapshot();
+        });
+      });
     });
 
     describe('getProfile', () => {

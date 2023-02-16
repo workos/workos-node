@@ -50,3 +50,32 @@ Object {
   },
 }
 `;
+
+exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+
+exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 2`] = `
+Object {
+  "Accept": "application/json, text/plain, */*",
+  "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
+  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+  "User-Agent": "workos-node/2.16.0",
+}
+`;
+
+exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 3`] = `
+Object {
+  "connection_id": "conn_123",
+  "connection_type": "OktaSAML",
+  "email": "foo@test.com",
+  "first_name": "foo",
+  "id": "prof_123",
+  "idp_id": "123",
+  "last_name": "bar",
+  "organization_id": "org_123",
+  "raw_attributes": Object {
+    "email": "foo@test.com",
+    "first_name": "foo",
+    "last_name": "bar",
+  },
+}
+`;
