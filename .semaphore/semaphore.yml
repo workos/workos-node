@@ -16,6 +16,7 @@ global_job_config:
   prologue:
     commands:
       - checkout
+      - nvm install
       - nvm use
       - bash ~/workos-node/bin/restore-or-install
 
