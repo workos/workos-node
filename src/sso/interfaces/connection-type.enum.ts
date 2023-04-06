@@ -15,6 +15,7 @@ export enum ConnectionType {
   JumpCloudSAML = 'JumpCloudSAML',
   KeycloakSAML = 'KeycloakSAML',
   LastPassSAML = 'LastPassSAML',
+  LoginGovOidc = 'LoginGovOidc',
   MagicLink = 'MagicLink',
   MicrosoftOAuth = 'MicrosoftOAuth',
   MiniOrangeSAML = 'MiniOrangeSAML',
