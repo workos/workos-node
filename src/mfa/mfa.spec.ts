@@ -12,7 +12,7 @@ describe('MFA', () => {
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
       const factor = await workos.mfa.getFactor('test_123');
 
-      expect(factor).toMatchInlineSnapshot(`Object {}`);
+      expect(factor).toMatchInlineSnapshot(`{}`);
     });
   });
 
@@ -48,7 +48,7 @@ describe('MFA', () => {
         });
 
         expect(enrollResponse).toMatchInlineSnapshot(`
-          Object {
+          {
             "created_at": "2022-03-15T20:39:19.892Z",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
@@ -87,11 +87,11 @@ describe('MFA', () => {
         });
 
         expect(enrollResponse).toMatchInlineSnapshot(`
-          Object {
+          {
             "created_at": "2022-03-15T20:39:19.892Z",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
-            "totp": Object {
+            "totp": {
               "issuer": "WorkOS",
               "qr_code": "qr-code-test",
               "secret": "secret-test",
@@ -128,11 +128,11 @@ describe('MFA', () => {
         });
 
         expect(enrollResponse).toMatchInlineSnapshot(`
-          Object {
+          {
             "created_at": "2022-03-15T20:39:19.892Z",
             "id": "auth_factor_1234",
             "object": "authentication_factor",
-            "sms": Object {
+            "sms": {
               "phone_number": "+15555555555",
             },
             "type": "sms",
@@ -194,7 +194,7 @@ describe('MFA', () => {
         });
 
         expect(challengeResponse).toMatchInlineSnapshot(`
-          Object {
+          {
             "authentication_factor_id": "auth_factor_1234",
             "code": "12345",
             "created_at": "2022-03-15T20:39:19.892Z",
@@ -233,7 +233,7 @@ describe('MFA', () => {
         });
 
         expect(challengeResponse).toMatchInlineSnapshot(`
-          Object {
+          {
             "authentication_factor_id": "auth_factor_1234",
             "code": "12345",
             "created_at": "2022-03-15T20:39:19.892Z",
@@ -278,8 +278,8 @@ describe('MFA', () => {
         });
 
         expect(verifyResponse).toMatchInlineSnapshot(`
-          Object {
-            "challenge": Object {
+          {
+            "challenge": {
               "authentication_factor_id": "auth_factor_1234",
               "code": "12345",
               "created_at": "2022-03-15T20:39:19.892Z",
