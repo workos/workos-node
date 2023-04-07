@@ -307,7 +307,7 @@ describe('SSO', () => {
 
         expect(mock.history.get.length).toBe(1);
         const { headers } = mock.history.get[0];
-        expect(headers.Authorization).toBe(`Bearer access_token`);
+        expect(headers?.Authorization).toBe(`Bearer access_token`);
 
         expect(profile.id).toBe('prof_123');
       });
