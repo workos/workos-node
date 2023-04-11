@@ -56,7 +56,7 @@ describe('AuditLogs', () => {
           }),
         ).resolves.toBeUndefined();
 
-        expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+        expect(mock.history.post[0].headers?.['Idempotency-Key']).toEqual(
           'the-idempotency-key',
         );
       });
