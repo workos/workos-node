@@ -5,6 +5,7 @@ import { WebhookDirectory as Directory } from './webhook-directory.interface';
 
 interface WebhookBase {
   id: string;
+  created_at: string;
 }
 
 export interface ConnectionActivatedWebhook extends WebhookBase {
