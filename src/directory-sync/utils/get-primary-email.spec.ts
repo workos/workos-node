@@ -23,6 +23,8 @@ describe('getPrimaryEmail', () => {
     state: 'active',
     username: 'jonsnow',
     job_title: 'Knight of the Watch',
+    created_at: `2021-10-27 15:21:50.640958`,
+    updated_at: '2021-10-27 15:21:50.640959',
   };
 
   it(`returns primary email value`, () => {
