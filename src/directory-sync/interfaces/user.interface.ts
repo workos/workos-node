@@ -22,6 +22,8 @@ export interface User<
   last_name: string;
   job_title: string | null;
   state: 'active' | 'inactive' | 'suspended';
+  created_at: string;
+  updated_at: string;
 }
 
 export interface UserWithGroups<
