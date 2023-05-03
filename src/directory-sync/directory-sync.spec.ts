@@ -60,6 +60,8 @@ describe('DirectorySync', () => {
     raw_attributes: {},
     state: 'active',
     username: 'jonsnow',
+    created_at: '2021-10-27 15:21:50.640959',
+    updated_at: '2021-10-27 15:21:50.640959',
   };
 
   describe('listDirectories', () => {
@@ -205,6 +207,8 @@ describe('DirectorySync', () => {
                   last_name: 'Stoltenberg',
                   job_title: 'Software Engineer',
                   state: 'active',
+                  created_at: '2021-10-27 15:21:50.640959',
+                  updated_at: '2021-10-27 15:21:50.640959',
                   raw_attributes: {},
                   custom_attributes: {
                     managerId: '99f1817b-149c-4438-b80f-a272c3406109',
@@ -230,6 +234,8 @@ describe('DirectorySync', () => {
                   last_name: 'Leffler',
                   job_title: 'Software Engineer',
                   state: 'active',
+                  created_at: '2021-10-27 15:21:50.640959',
+                  updated_at: '2021-10-27 15:21:50.640959',
                   raw_attributes: {},
                   custom_attributes: {
                     managerId: '263c7472-4d3f-4ab4-8162-e768af103065',
