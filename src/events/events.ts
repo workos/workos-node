@@ -7,7 +7,7 @@ export class Events{
   constructor(private readonly workos: WorkOS) {}
 
   async getEvents(
-    options: GetEventOptions 
+    options: GetEventOptions
   ): Promise<List<Event>>{
     const { data } = await this.workos.get(`/events`, {
       query: options,

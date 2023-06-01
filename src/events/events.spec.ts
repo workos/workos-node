@@ -18,7 +18,7 @@ describe('Event', () => {
     created_at: '2020-05-06 04:21:48.649164',
     event: 'dsync.user.created',
     data: {
-      "id": "event_01234ABCD"
+      'id': 'event_01234ABCD'
     }
   };
 
