@@ -1,7 +1,7 @@
-import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
-
-export interface GetEventOptions extends PaginationOptions {
+export interface GetEventOptions {
   events?: string[];
   rangeStart?: string;
   rangeEnd?: string;
+  limit?: number;
+  after?: string;
 }
