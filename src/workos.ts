@@ -16,6 +16,7 @@ import {
   WorkOSResponseError,
 } from './common/interfaces';
 import { DirectorySync } from './directory-sync/directory-sync';
+import { Events } from './events/events';
 import { Organizations } from './organizations/organizations';
 import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
@@ -42,6 +43,7 @@ export class WorkOS {
   readonly sso = new SSO(this);
   readonly webhooks = new Webhooks();
   readonly mfa = new Mfa(this);
+  readonly events = new Events(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
