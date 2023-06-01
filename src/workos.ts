@@ -113,7 +113,6 @@ export class WorkOS {
           : undefined,
       });
     } catch (error) {
-      console.log(path, error);
       this.handleAxiosError({ path, error });
 
       throw error;
