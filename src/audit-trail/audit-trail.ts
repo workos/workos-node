@@ -15,7 +15,9 @@ export class AuditTrail {
     await this.workos.post('/events', event, { idempotencyKey });
   }
 
-  async listEvents(options?: ListEventsOptions): Promise<List<AuditTrailEvent>> {
+  async listEvents(
+    options?: ListEventsOptions,
+  ): Promise<List<AuditTrailEvent>> {
     const { data } = await this.workos.get('/events', {
       query: options,
     });

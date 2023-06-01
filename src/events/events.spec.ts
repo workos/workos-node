@@ -18,27 +18,23 @@ describe('Event', () => {
     created_at: '2020-05-06 04:21:48.649164',
     event: 'dsync.user.created',
     data: {
-      'id': 'event_01234ABCD'
-    }
+      id: 'event_01234ABCD',
+    },
   };
 
-
-
   describe('getEvents', () => {
-    const eventsListResponse : List<Event> = {
+    const eventsListResponse: List<Event> = {
       object: 'list',
       data: [eventResponse],
       list_metadata: {},
     };
 
-      it(`requests Events`, async () => {
-        mock
-          .onGet('/events', {})
-          .replyOnce(200, eventsListResponse);
+    it(`requests Events`, async () => {
+      mock.onGet('/events', {}).replyOnce(200, eventsListResponse);
 
-        const list = await workos.events.getEvents({});
+      const list = await workos.events.getEvents({});
 
-        expect(list).toEqual(eventsListResponse);
+      expect(list).toEqual(eventsListResponse);
     });
   });
 });
