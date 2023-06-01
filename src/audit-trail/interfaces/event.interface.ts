@@ -1,10 +1,10 @@
-export interface EventAction {
+export interface AuditTrailEventAction {
   object: 'event_action';
   id: string;
   name: string;
 }
 
-export interface Event {
+export interface AuditTrailEvent {
   object: 'event';
   id: string;
   group: string;
@@ -17,7 +17,7 @@ export interface Event {
   target_name: string;
   target_id: string;
   occurred_at: Date;
-  action: EventAction;
+  action: AuditTrailEventAction;
   metadata?: {
     [key: string]: string;
   };
