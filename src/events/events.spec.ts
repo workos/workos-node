@@ -41,5 +41,4 @@ describe('Event', () => {
         expect(list).toEqual(eventsListResponse);
     });
   });
-
 });
