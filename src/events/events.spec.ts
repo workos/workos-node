@@ -22,7 +22,7 @@ describe('Event', () => {
     },
   };
 
-  describe('getEvents', () => {
+  describe('listEvents', () => {
     const eventsListResponse: List<Event> = {
       object: 'list',
       data: [eventResponse],
@@ -32,7 +32,17 @@ describe('Event', () => {
     it(`requests Events`, async () => {
       mock.onGet('/events', {}).replyOnce(200, eventsListResponse);
 
-      const list = await workos.events.getEvents({});
+      const list = await workos.events.listEvents({});
+
+      expect(list).toEqual(eventsListResponse);
+    });
+
+    it(`requests Events with a valid event name`, async () => {
+      mock.onGet('/events').replyOnce(200, eventsListResponse);
+
+      const list = await workos.events.listEvents({
+        events: ['connection.activated'],
+      });
 
       expect(list).toEqual(eventsListResponse);
     });
