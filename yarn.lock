@@ -638,10 +638,10 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-14.18.42.tgz"
   integrity sha512-xefu+RBie4xWlK8hwAzGh3npDz/4VhF6icY/shU+zv/1fNn+ZVG7T7CRwe9LId9sAYRPxI+59QBPuKL3WpyGRg==
 
-"@types/node@14.18.52":
-  version "14.18.52"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.52.tgz#214674cbff9f86fad4bf0c25f31ab9b9fa31110f"
-  integrity sha512-DGhiXKOHSFVVm+PJD+9Y0ObxXLeG6qwc0HoOn+ooQKeNNu+T2mEJCM5UBDUREKAggl9MHYjb5E71PAmx6MbzIg==
+"@types/node@18.16.19":
+  version "18.16.19"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.16.19.tgz#cb03fca8910fdeb7595b755126a8a78144714eea"
+  integrity sha512-IXl7o+R9iti9eBW4Wg2hx1xQDig183jj7YLn8F7udNceyfkbn1ZxmzZXuak20gR40D7pIkIY1kYGx5VIGbaHKA==
 
 "@types/pluralize@0.0.29":
   version "0.0.29"
