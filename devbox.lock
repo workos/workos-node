@@ -1,6 +1,11 @@
 {
   "lockfile_version": "1",
   "packages": {
+    "nodePackages.eslint@8.41.0": {
+      "last_modified": "2023-05-25T03:54:59Z",
+      "resolved": "github:NixOS/nixpkgs/8d4d822bc0efa9de6eddc79cb0d82897a9baa750#nodePackages.eslint",
+      "version": "8.41.0"
+    },
     "nodejs@18.16.0": {
       "last_modified": "2023-05-25T03:54:59Z",
       "resolved": "github:NixOS/nixpkgs/8d4d822bc0efa9de6eddc79cb0d82897a9baa750#nodejs_18",
