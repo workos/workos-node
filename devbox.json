@@ -1,0 +1,16 @@
+{
+  "packages": [
+    "yarn@1.22.19",
+    "nodejs@18.16.0"
+  ],
+  "shell": {
+    "scripts": {
+      "test": [
+        "yarn run test"
+      ],
+      "lint": [
+        "yarn run lint"
+      ]
+    }
+  }
+}
