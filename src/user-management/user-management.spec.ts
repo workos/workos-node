@@ -68,4 +68,20 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('createUnmanagedUser', () => {
+    it('sends a Create Unmanaged User request', async () => {
+      mock.onPost('/users').reply(200, userFixture);
+      const user = await workos.userManagement.createUnmanagedUser({
+        email: 'test01@example.com',
+        password: 'extra-secure',
+        first_name: 'Test 01',
+        last_name: 'User',
+        email_verified: true,
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users');
+      expect(user).toMatchObject(userFixture);
+    });
+  });
 });
