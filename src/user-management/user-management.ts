@@ -1,5 +1,9 @@
 import { WorkOS } from '../workos';
-import { ListUsersOptions, User } from './interfaces';
+import {
+  CreateUnmanagedUserOptions,
+  ListUsersOptions,
+  User,
+} from './interfaces';
 import { List } from '../common/interfaces/list.interface';
 
 export class UserManagement {
@@ -14,6 +18,15 @@ export class UserManagement {
     const { data } = await this.workos.get('/users', {
       query: options,
     });
+    return data;
+  }
+
+  // TODO: figure out if i need to do something to make the idempotency key work?
+  async createUnmanagedUser(
+    payload: CreateUnmanagedUserOptions,
+  ): Promise<User> {
+    const { data } = await this.workos.post('/users', payload);
+
     return data;
   }
 }
