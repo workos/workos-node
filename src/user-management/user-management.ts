@@ -1,5 +1,7 @@
 import { WorkOS } from '../workos';
 import {
+  AuthenticateUnmanagedUserOptions,
+  AuthenticationResponse,
   CreateUnmanagedUserOptions,
   ListUsersOptions,
   User,
@@ -26,6 +28,13 @@ export class UserManagement {
   ): Promise<User> {
     const { data } = await this.workos.post('/users', payload);
 
+    return data;
+  }
+
+  async authenticateUnmanagedUser(
+    payload: AuthenticateUnmanagedUserOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post('/users/authentications', payload);
     return data;
   }
 }
