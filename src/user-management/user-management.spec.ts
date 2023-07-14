@@ -260,4 +260,27 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('addUserToOrganization', () => {
+    it('sends a addUserToOrganization request', async () => {
+      const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      mock.onPost(`/users/${userId}/organizations`).reply(200, {
+        user: userFixture,
+      });
+      const resp = await workos.userManagement.addUserToOrganization({
+        id: userId,
+        organization_id: 'org_coolorg',
+      });
+
+      expect(mock.history.post[0].url).toEqual(
+        `/users/${userId}/organizations`,
+      );
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
 });
