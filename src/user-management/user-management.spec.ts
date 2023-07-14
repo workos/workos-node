@@ -171,4 +171,30 @@ describe('UserManagement', () => {
       expect(revoked).toEqual(true);
     });
   });
+
+  describe('createEmailVerificationChallenge', () => {
+    it('sends a createEmailVerificationChallenge request', async () => {
+      const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      mock.onPost(`/users/${userId}/email_verification_challenge`).reply(200, {
+        token: 'email-verification-challenge',
+        user: userFixture,
+      });
+      const resp = await workos.userManagement.createEmailVerificationChallenge(
+        {
+          id: userId,
+          verification_url: 'https://example.com/verify-email',
+        },
+      );
+
+      expect(mock.history.post[0].url).toEqual(
+        `/users/${userId}/email_verification_challenge`,
+      );
+      expect(resp).toMatchObject({
+        token: 'email-verification-challenge',
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
 });
