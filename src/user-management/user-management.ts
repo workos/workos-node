@@ -1,5 +1,6 @@
 import { WorkOS } from '../workos';
 import {
+  AddUserToOrganizationOptions,
   AuthenticateManagedUserOptions,
   AuthenticateUnmanagedUserOptions,
   AuthenticationResponse,
@@ -104,6 +105,16 @@ export class UserManagement {
     payload: CompletePasswordResetOptions,
   ): Promise<User> {
     const { data } = await this.workos.post('/users/password_reset', payload);
+    return data;
+  }
+
+  async addUserToOrganization({
+    id,
+    organization_id,
+  }: AddUserToOrganizationOptions): Promise<User> {
+    const { data } = await this.workos.post(`/users/${id}/organizations`, {
+      organization_id,
+    });
     return data;
   }
 }
