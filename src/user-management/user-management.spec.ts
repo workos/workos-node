@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import userFixture from './fixtures/user.json';
 import listUsersFixture from './fixtures/list-users.json';
+import sessionFixture from './fixtures/session.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -82,6 +83,30 @@ describe('UserManagement', () => {
 
       expect(mock.history.post[0].url).toEqual('/users');
       expect(user).toMatchObject(userFixture);
+    });
+  });
+
+  describe('authenticateUnmanagedUser', () => {
+    it('sends an Authenticate Unmanaged User request', async () => {
+      mock.onPost('/users/authentications').reply(200, {
+        user: userFixture,
+        session: sessionFixture,
+      });
+      const resp = await workos.userManagement.authenticateUnmanagedUser({
+        email: 'test01@example.com',
+        password: 'extra-secure',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/authentications');
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        session: {
+          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+          token: 'really-long-token',
+        },
+      });
     });
   });
 });
