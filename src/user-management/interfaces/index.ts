@@ -3,6 +3,7 @@ export * from './authenticate-unmanaged-user-options.interface';
 export * from './authentication-response.interface';
 export * from './challenge-response.interface';
 export * from './create-email-verification-challenge-options.interface';
+export * from './create-password-reset-challenge-options.interface';
 export * from './create-unmanaged-user-options.interface';
 export * from './list-users-options.interface';
 export * from './revoke-session-options.interface';
