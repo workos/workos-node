@@ -134,4 +134,28 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('revokeSession', () => {
+    it('can revoke with the session_id', async () => {
+      mock.onPost('/users/sessions/revocations').reply(200, true);
+
+      const revoked = await workos.userManagement.revokeSession({
+        session_id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
+      expect(revoked).toEqual(true);
+    });
+
+    it('can revoke with the session_token', async () => {
+      mock.onPost('/users/sessions/revocations').reply(200, true);
+
+      const revoked = await workos.userManagement.revokeSession({
+        session_token: 'really-long-token',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
+      expect(revoked).toEqual(true);
+    });
+  });
 });
