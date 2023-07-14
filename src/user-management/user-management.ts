@@ -3,6 +3,8 @@ import {
   AuthenticateManagedUserOptions,
   AuthenticateUnmanagedUserOptions,
   AuthenticationResponse,
+  ChallengeResponse,
+  CreateEmailVerificationChallengeOptions,
   CreateUnmanagedUserOptions,
   ListUsersOptions,
   RevokeSessionOptions,
@@ -66,6 +68,15 @@ export class UserManagement {
 
   async revokeAllSessionsForUser(userId: string): Promise<boolean> {
     const { data } = await this.workos.delete(`/users/${userId}/sessions`);
+    return data;
+  }
+
+  async createEmailVerificationChallenge(
+    payload: CreateEmailVerificationChallengeOptions,
+  ): Promise<ChallengeResponse> {
+    const { data } = await this.workos.post(`/users/${payload.id}/email_verification_challenge`, {
+      verification_url: payload.verification_url,
+    });
     return data;
   }
 }
