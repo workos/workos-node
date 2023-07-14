@@ -109,4 +109,29 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('verifySession', () => {
+    it('sends a request to verify the session', async () => {
+      mock.onPost('/users/sessions/verify').reply(200, {
+        user: userFixture,
+        session: sessionFixture,
+      });
+
+      const resp = await workos.userManagement.verifySession({
+        client_id: 'proj_something',
+        token: 'really-long-token',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/verify');
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        session: {
+          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+          token: 'really-long-token',
+        },
+      });
+    });
+  });
 });
