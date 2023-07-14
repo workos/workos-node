@@ -80,4 +80,11 @@ export class UserManagement {
     });
     return data;
   }
+
+  async completeEmailVerification(token: string): Promise<User> {
+    const { data } = await this.workos.post('/users/email_verification', {
+      token,
+    });
+    return data;
+  }
 }

@@ -173,7 +173,7 @@ describe('UserManagement', () => {
   });
 
   describe('createEmailVerificationChallenge', () => {
-    it('sends a createEmailVerificationChallenge request', async () => {
+    it('sends a Create Email Verification Challenge request', async () => {
       const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
       mock.onPost(`/users/${userId}/email_verification_challenge`).reply(200, {
         token: 'email-verification-challenge',
@@ -194,6 +194,25 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    describe('completeEmailVerification', () => {
+      it('sends a Complete Email Verification request', async () => {
+        mock
+          .onPost(`/users/email_verification`)
+          .reply(200, { user: userFixture });
+        const resp = await workos.userManagement.completeEmailVerification(
+          'email-verification-token',
+        );
+
+        expect(mock.history.post[0].url).toEqual(`/users/email_verification`);
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
       });
     });
   });
