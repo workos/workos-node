@@ -10,6 +10,7 @@ import {
   CreatePasswordResetChallengeOptions,
   CreateUnmanagedUserOptions,
   ListUsersOptions,
+  RemoveUserFromOrganizationOptions,
   RevokeSessionOptions,
   User,
   VerifySessionOptions,
@@ -117,6 +118,16 @@ export class UserManagement {
     const { data } = await this.workos.post(`/users/${id}/organizations`, {
       organization_id,
     });
+    return data;
+  }
+
+  async removeUserFromOrganization({
+    id,
+    organization_id,
+  }: RemoveUserFromOrganizationOptions): Promise<User> {
+    const { data } = await this.workos.delete(
+      `/users/${id}/organizations/${organization_id}`,
+    );
     return data;
   }
 }
