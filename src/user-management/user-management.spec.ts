@@ -216,4 +216,28 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('createPasswordResetChallenge', () => {
+    it('sends a Create Password Reset Challenge request', async () => {
+      mock.onPost(`/users/password_reset_challenge`).reply(200, {
+        token: 'password-reset-token',
+        user: userFixture,
+      });
+      const resp = await workos.userManagement.createPasswordResetChallenge({
+        email: 'test01@example.com',
+        password_reset_url: 'https://example.com/forgot-password',
+      });
+
+      expect(mock.history.post[0].url).toEqual(
+        `/users/password_reset_challenge`,
+      );
+
+      expect(resp).toMatchObject({
+        token: 'password-reset-token',
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
 });
