@@ -240,4 +240,24 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('completePasswordReset', () => {
+    it('sends a completePasswordReset request', async () => {
+      mock.onPost(`/users/password_reset`).reply(200, {
+        user: userFixture,
+      });
+      const resp = await workos.userManagement.completePasswordReset({
+        token: '',
+        new_password: 'correct horse battery staple',
+      });
+
+      expect(mock.history.post[0].url).toEqual(`/users/password_reset`);
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
 });
