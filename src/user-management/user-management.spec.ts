@@ -158,4 +158,17 @@ describe('UserManagement', () => {
       expect(revoked).toEqual(true);
     });
   });
+
+  describe('revokeAllSessionsForUser', () => {
+    it('sends a revokeAllSessionsForUser request', async () => {
+      const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      mock.onDelete(`/users/${userId}/sessions`).reply(200, true);
+      const revoked = await workos.userManagement.revokeAllSessionsForUser(
+        userId,
+      );
+
+      expect(mock.history.delete[0].url).toEqual(`/users/${userId}/sessions`);
+      expect(revoked).toEqual(true);
+    });
+  });
 });
