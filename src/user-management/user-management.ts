@@ -6,6 +6,8 @@ import {
   CreateUnmanagedUserOptions,
   ListUsersOptions,
   User,
+  VerifySessionOptions,
+  VerifySessionResponse,
 } from './interfaces';
 import { List } from '../common/interfaces/list.interface';
 
@@ -44,6 +46,13 @@ export class UserManagement {
     payload: AuthenticateManagedUserOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post('/users/sessions/token', payload);
+    return data;
+  }
+
+  async verifySession(
+    payload: VerifySessionOptions,
+  ): Promise<VerifySessionResponse> {
+    const { data } = await this.workos.post('/users/sessions/verify', payload);
     return data;
   }
 }
