@@ -63,4 +63,9 @@ export class UserManagement {
     );
     return data;
   }
+
+  async revokeAllSessionsForUser(userId: string): Promise<boolean> {
+    const { data } = await this.workos.delete(`/users/${userId}/sessions`);
+    return data;
+  }
 }
