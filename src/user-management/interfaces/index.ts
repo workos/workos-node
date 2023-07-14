@@ -1,3 +1,4 @@
+export * from './add-user-to-organization-options.interface';
 export * from './authenticate-managed-user-options.interface';
 export * from './authenticate-unmanaged-user-options.interface';
 export * from './authentication-response.interface';
