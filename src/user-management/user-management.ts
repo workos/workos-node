@@ -4,6 +4,7 @@ import {
   AuthenticateUnmanagedUserOptions,
   AuthenticationResponse,
   ChallengeResponse,
+  CompletePasswordResetOptions,
   CreateEmailVerificationChallengeOptions,
   CreatePasswordResetChallengeOptions,
   CreateUnmanagedUserOptions,
@@ -98,6 +99,13 @@ export class UserManagement {
       '/users/password_reset_challenge',
       payload,
     );
+    return data;
+  }
+
+  async completePasswordReset(
+    payload: CompletePasswordResetOptions,
+  ): Promise<User> {
+    const { data } = await this.workos.post('/users/password_reset', payload);
     return data;
   }
 }
