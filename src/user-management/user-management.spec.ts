@@ -194,5 +194,24 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('completeEmailVerification', () => {
+      it('sends a Complete Email Verification request', async () => {
+        mock
+          .onPost(`/users/email_verification`)
+          .reply(200, { user: userFixture });
+        const resp = await workos.userManagement.completeEmailVerification(
+          'email-verification-token',
+        );
+
+        expect(mock.history.post[0].url).toEqual(`/users/email_verification`);
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
+      });
+    });
   });
 });
