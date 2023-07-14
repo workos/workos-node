@@ -280,4 +280,27 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('removeUserFromOrganization', () => {
+    it('sends a removeUserFromOrganization request', async () => {
+      const orgId = 'org_coolorg';
+      mock.onDelete(`/users/${userId}/organizations/${orgId}`).reply(200, {
+        user: userFixture,
+      });
+      const resp = await workos.userManagement.removeUserFromOrganization({
+        id: userId,
+        organization_id: orgId,
+      });
+
+      expect(mock.history.delete[0].url).toEqual(
+        `/users/${userId}/organizations/${orgId}`,
+      );
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
 });
