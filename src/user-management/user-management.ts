@@ -5,6 +5,7 @@ import {
   AuthenticationResponse,
   CreateUnmanagedUserOptions,
   ListUsersOptions,
+  RevokeSessionOptions,
   User,
   VerifySessionOptions,
   VerifySessionResponse,
@@ -52,6 +53,14 @@ export class UserManagement {
     payload: VerifySessionOptions,
   ): Promise<VerifySessionResponse> {
     const { data } = await this.workos.post('/users/sessions/verify', payload);
+    return data;
+  }
+
+  async revokeSession(payload: RevokeSessionOptions): Promise<boolean> {
+    const { data } = await this.workos.post(
+      '/users/sessions/revocations',
+      payload,
+    );
     return data;
   }
 }
