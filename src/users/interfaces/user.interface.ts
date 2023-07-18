@@ -1,16 +1,23 @@
-// TODO
-// - should User be defined as `ManagedUser | UnmanagedUser` ?
+export type User = ManagedUser | UnmanangedUser;
 
-export interface User {
+interface ManagedUser extends BaseUser {
+  user_type: 'managed';
+  identities: [Identity];
+  sso_profile_id: string;
+}
+
+interface UnmanangedUser extends BaseUser {
+  user_type: 'unmanaged';
+  identities: Identity[];
+}
+
+interface BaseUser {
   object: 'user';
   id: string;
-  user_type: 'managed' | 'unmanaged';
   email: string;
   first_name?: string;
   last_name?: string;
   email_verified_at?: string;
-  sso_profile_id?: string;
-  identities: Identity[];
   created_at: string;
   updated_at: string;
 }
