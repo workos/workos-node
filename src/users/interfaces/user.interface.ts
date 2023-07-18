@@ -9,6 +9,8 @@ interface ManagedUser extends BaseUser {
 interface UnmanangedUser extends BaseUser {
   user_type: 'unmanaged';
   identities: Identity[];
+  email_verified_at?: string;
+  google_oauth_profile_id?: string;
 }
 
 interface BaseUser {
@@ -17,7 +19,6 @@ interface BaseUser {
   email: string;
   first_name?: string;
   last_name?: string;
-  email_verified_at?: string;
   created_at: string;
   updated_at: string;
 }
