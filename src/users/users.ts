@@ -4,10 +4,11 @@ import {
   AuthenticateManagedUserOptions,
   AuthenticateUnmanagedUserOptions,
   AuthenticationResponse,
-  ChallengeResponse,
   CompletePasswordResetOptions,
   CreateEmailVerificationChallengeOptions,
+  CreateEmailVerificationChallengeResponse,
   CreatePasswordResetChallengeOptions,
+  CreatePasswordResetChallengeResponse,
   CreateUnmanagedUserOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
@@ -77,7 +78,7 @@ export class Users {
 
   async createEmailVerificationChallenge(
     payload: CreateEmailVerificationChallengeOptions,
-  ): Promise<ChallengeResponse> {
+  ): Promise<CreateEmailVerificationChallengeResponse> {
     const { data } = await this.workos.post(
       `/users/${payload.id}/email_verification_challenge`,
       {
@@ -96,7 +97,7 @@ export class Users {
 
   async createPasswordResetChallenge(
     payload: CreatePasswordResetChallengeOptions,
-  ): Promise<ChallengeResponse> {
+  ): Promise<CreatePasswordResetChallengeResponse> {
     const { data } = await this.workos.post(
       '/users/password_reset_challenge',
       payload,
