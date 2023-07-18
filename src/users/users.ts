@@ -18,7 +18,7 @@ import {
 } from './interfaces';
 import { List } from '../common/interfaces/list.interface';
 
-export class UserManagement {
+export class Users {
   constructor(private readonly workos: WorkOS) {}
 
   async getUser(userId: string): Promise<User> {
