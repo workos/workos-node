@@ -176,7 +176,7 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.createEmailVerificationChallenge({
-        id: userId,
+        user_id: userId,
         verification_url: 'https://example.com/verify-email',
       });
 
@@ -261,7 +261,7 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.addUserToOrganization({
-        id: userId,
+        user_id: userId,
         organization_id: 'org_coolorg',
       });
 
@@ -284,7 +284,7 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.removeUserFromOrganization({
-        id: userId,
+        user_id: userId,
         organization_id: orgId,
       });
 

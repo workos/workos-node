@@ -1,7 +1,7 @@
 import { User } from './user.interface';
 
 export interface CreateEmailVerificationChallengeOptions {
-  id: string;
+  user_id: string;
   verification_url: string;
 }
 
