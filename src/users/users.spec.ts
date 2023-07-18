@@ -15,7 +15,7 @@ describe('UserManagement', () => {
   describe('getUser', () => {
     it('sends a Get User request', async () => {
       mock.onGet(`/users/${userId}`).reply(200, userFixture);
-      const user = await workos.userManagement.getUser(userId);
+      const user = await workos.users.getUser(userId);
       expect(mock.history.get[0].url).toEqual(`/users/${userId}`);
       expect(user).toMatchObject({
         object: 'user',
@@ -33,7 +33,7 @@ describe('UserManagement', () => {
   describe('listUsers', () => {
     it('lists users', async () => {
       mock.onGet('/users').reply(200, listUsersFixture);
-      const userList = await workos.userManagement.listUsers();
+      const userList = await workos.users.listUsers();
       expect(mock.history.get[0].url).toEqual('/users');
       expect(userList).toMatchObject({
         object: 'list',
@@ -52,7 +52,7 @@ describe('UserManagement', () => {
 
     it('sends the correct params when filtering', async () => {
       mock.onGet('/users').reply(200, listUsersFixture);
-      await workos.userManagement.listUsers({
+      await workos.users.listUsers({
         email: 'foo@example.com',
         organization: 'org_someorg',
         type: 'managed',
@@ -73,7 +73,7 @@ describe('UserManagement', () => {
   describe('createUnmanagedUser', () => {
     it('sends a Create Unmanaged User request', async () => {
       mock.onPost('/users').reply(200, userFixture);
-      const user = await workos.userManagement.createUnmanagedUser({
+      const user = await workos.users.createUnmanagedUser({
         email: 'test01@example.com',
         password: 'extra-secure',
         first_name: 'Test 01',
@@ -92,7 +92,7 @@ describe('UserManagement', () => {
         user: userFixture,
         session: sessionFixture,
       });
-      const resp = await workos.userManagement.authenticateUnmanagedUser({
+      const resp = await workos.users.authenticateUnmanagedUser({
         email: 'test01@example.com',
         password: 'extra-secure',
       });
@@ -117,7 +117,7 @@ describe('UserManagement', () => {
         session: sessionFixture,
       });
 
-      const resp = await workos.userManagement.verifySession({
+      const resp = await workos.users.verifySession({
         client_id: 'proj_something',
         token: 'really-long-token',
       });
@@ -139,7 +139,7 @@ describe('UserManagement', () => {
     it('can revoke with the session_id', async () => {
       mock.onPost('/users/sessions/revocations').reply(200, true);
 
-      const revoked = await workos.userManagement.revokeSession({
+      const revoked = await workos.users.revokeSession({
         session_id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
       });
 
@@ -150,7 +150,7 @@ describe('UserManagement', () => {
     it('can revoke with the session_token', async () => {
       mock.onPost('/users/sessions/revocations').reply(200, true);
 
-      const revoked = await workos.userManagement.revokeSession({
+      const revoked = await workos.users.revokeSession({
         session_token: 'really-long-token',
       });
 
@@ -162,9 +162,7 @@ describe('UserManagement', () => {
   describe('revokeAllSessionsForUser', () => {
     it('sends a revokeAllSessionsForUser request', async () => {
       mock.onDelete(`/users/${userId}/sessions`).reply(200, true);
-      const revoked = await workos.userManagement.revokeAllSessionsForUser(
-        userId,
-      );
+      const revoked = await workos.users.revokeAllSessionsForUser(userId);
 
       expect(mock.history.delete[0].url).toEqual(`/users/${userId}/sessions`);
       expect(revoked).toEqual(true);
@@ -177,12 +175,10 @@ describe('UserManagement', () => {
         token: 'email-verification-challenge',
         user: userFixture,
       });
-      const resp = await workos.userManagement.createEmailVerificationChallenge(
-        {
-          id: userId,
-          verification_url: 'https://example.com/verify-email',
-        },
-      );
+      const resp = await workos.users.createEmailVerificationChallenge({
+        id: userId,
+        verification_url: 'https://example.com/verify-email',
+      });
 
       expect(mock.history.post[0].url).toEqual(
         `/users/${userId}/email_verification_challenge`,
@@ -200,7 +196,7 @@ describe('UserManagement', () => {
         mock
           .onPost(`/users/email_verification`)
           .reply(200, { user: userFixture });
-        const resp = await workos.userManagement.completeEmailVerification(
+        const resp = await workos.users.completeEmailVerification(
           'email-verification-token',
         );
 
@@ -221,7 +217,7 @@ describe('UserManagement', () => {
         token: 'password-reset-token',
         user: userFixture,
       });
-      const resp = await workos.userManagement.createPasswordResetChallenge({
+      const resp = await workos.users.createPasswordResetChallenge({
         email: 'test01@example.com',
         password_reset_url: 'https://example.com/forgot-password',
       });
@@ -244,7 +240,7 @@ describe('UserManagement', () => {
       mock.onPost(`/users/password_reset`).reply(200, {
         user: userFixture,
       });
-      const resp = await workos.userManagement.completePasswordReset({
+      const resp = await workos.users.completePasswordReset({
         token: '',
         new_password: 'correct horse battery staple',
       });
@@ -264,7 +260,7 @@ describe('UserManagement', () => {
       mock.onPost(`/users/${userId}/organizations`).reply(200, {
         user: userFixture,
       });
-      const resp = await workos.userManagement.addUserToOrganization({
+      const resp = await workos.users.addUserToOrganization({
         id: userId,
         organization_id: 'org_coolorg',
       });
@@ -287,7 +283,7 @@ describe('UserManagement', () => {
       mock.onDelete(`/users/${userId}/organizations/${orgId}`).reply(200, {
         user: userFixture,
       });
-      const resp = await workos.userManagement.removeUserFromOrganization({
+      const resp = await workos.users.removeUserFromOrganization({
         id: userId,
         organization_id: orgId,
       });

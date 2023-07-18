@@ -24,7 +24,7 @@ import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
-import { UserManagement } from './user-management/user-management';
+import { Users } from './users/users';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 const VERSION = '2.17.0';
@@ -45,7 +45,7 @@ export class WorkOS {
   readonly webhooks = new Webhooks();
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
-  readonly userManagement = new UserManagement(this);
+  readonly users = new Users(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
