@@ -23,7 +23,7 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         first_name: 'Test 01',
         last_name: 'User',
-        identities: [],
+        organization_memberships: [],
         user_type: 'unmanaged',
         email_verified_at: '2023-07-17T20:07:20.055Z',
       });
