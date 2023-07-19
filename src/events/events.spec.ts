@@ -1,7 +1,5 @@
 import axios from 'axios';
-
 import MockAdapater from 'axios-mock-adapter';
-
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import { Event } from './interfaces/event.interface';
