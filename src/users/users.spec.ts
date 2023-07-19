@@ -86,13 +86,13 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('authenticateUnmanagedUser', () => {
-    it('sends an Authenticate Unmanaged User request', async () => {
+  describe('authenticateUserWithPassword', () => {
+    it('sends an password authentication request', async () => {
       mock.onPost('/users/authentications').reply(200, {
         user: userFixture,
         session: sessionFixture,
       });
-      const resp = await workos.users.authenticateUnmanagedUser({
+      const resp = await workos.users.authenticateUserWithPassword({
         email: 'test01@example.com',
         password: 'extra-secure',
       });
