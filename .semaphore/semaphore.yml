@@ -42,5 +42,5 @@ blocks:
           commands:
             - yarn build
 promotions:
-  - name: Publish to NPM
+  - name: Publish @next to NPM
     pipeline_file: npm.yml
