@@ -52,7 +52,11 @@ export class Users {
   async authenticateUserWithToken(
     payload: AuthenticateUserWithTokenOptions,
   ): Promise<AuthenticationResponse> {
-    const { data } = await this.workos.post('/users/sessions/token', payload);
+    const { data } = await this.workos.post('/users/sessions/token', {
+      ...payload,
+      client_secret: this.workos.key,
+      grant_type: 'authorization_code',
+    });
     return data;
   }
 
