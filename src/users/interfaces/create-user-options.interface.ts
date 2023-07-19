@@ -1,4 +1,4 @@
-export interface CreateUnmanagedUserOptions {
+export interface CreateUserOptions {
   email: string;
   password: string;
   first_name?: string;
