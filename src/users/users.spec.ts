@@ -112,19 +112,21 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithToken', () => {
     it('sends a token authentication request', async () => {
-      mock.onPost('/users/sessions/token').reply(200, {
-        user: userFixture,
-        session: sessionFixture,
-      });
+      mock
+        .onPost('/users/sessions/token')
+        .reply(200, { user: userFixture, session: sessionFixture });
       const resp = await workos.users.authenticateUserWithToken({
         client_id: 'proj_whatever',
-        client_secret: "this shouldn't be needed",
         code: 'or this',
         expires_in: 15,
-        grant_type: 'authorization_code',
       });
 
       expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'authorization_code',
+      });
+
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
