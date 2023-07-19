@@ -9,7 +9,7 @@ import {
   CreateEmailVerificationChallengeResponse,
   CreatePasswordResetChallengeOptions,
   CreatePasswordResetChallengeResponse,
-  CreateUnmanagedUserOptions,
+  CreateUserOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
   RevokeSessionOptions,
@@ -34,8 +34,8 @@ export class Users {
     return data;
   }
 
-  async createUnmanagedUser(
-    payload: CreateUnmanagedUserOptions,
+  async createUser(
+    payload: CreateUserOptions,
   ): Promise<User> {
     const { data } = await this.workos.post('/users', payload);
 
