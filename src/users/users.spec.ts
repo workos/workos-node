@@ -110,6 +110,33 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateUserWithToken', () => {
+    it('sends a token authentication request', async () => {
+      mock.onPost('/users/sessions/token').reply(200, {
+        user: userFixture,
+        session: sessionFixture,
+      });
+      const resp = await workos.users.authenticateUserWithToken({
+        client_id: 'proj_whatever',
+        client_secret: "this shouldn't be needed",
+        code: 'or this',
+        expires_in: 15,
+        grant_type: 'authorization_code',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        session: {
+          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+          token: 'really-long-token',
+        },
+      });
+    });
+  });
+
   describe('verifySession', () => {
     it('sends a request to verify the session', async () => {
       mock.onPost('/users/sessions/verify').reply(200, {
