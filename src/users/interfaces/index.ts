@@ -1,6 +1,6 @@
 export * from './add-user-to-organization-options.interface';
 export * from './authenticate-managed-user-options.interface';
-export * from './authenticate-unmanaged-user-options.interface';
+export * from './authenticate-user-with-password-options.interface';
 export * from './authentication-response.interface';
 export * from './complete-password-reset-options.interface';
 export * from './create-email-verification-challenge-options.interface';
