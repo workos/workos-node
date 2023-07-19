@@ -23,9 +23,10 @@ import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
+import { Users } from './users/users';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-const VERSION = '2.20.0';
+const VERSION = '3.0.0-user-management.2';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -43,6 +44,7 @@ export class WorkOS {
   readonly webhooks = new Webhooks();
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
+  readonly users = new Users(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
