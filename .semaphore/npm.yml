@@ -1,11 +1,9 @@
 version: v1.0
-
 name: Publish to NPM
 agent:
   machine:
     type: e1-standard-2
     os_image: ubuntu1804
-
 blocks:
   - name: Publish
     task:
@@ -20,5 +18,5 @@ blocks:
       jobs:
         - name: yarn publish
           commands:
-            - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-            - yarn publish --access=public
+            - 'echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc'
+            - yarn publish --access=public --tag=next
