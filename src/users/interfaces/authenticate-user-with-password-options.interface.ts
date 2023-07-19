@@ -1,4 +1,4 @@
-export interface AuthenticateUnmanagedUserOptions {
+export interface AuthenticateUserWithPasswordOptions {
   email: string;
   password: string;
   ip_address?: string;

@@ -2,7 +2,7 @@ import { WorkOS } from '../workos';
 import {
   AddUserToOrganizationOptions,
   AuthenticateManagedUserOptions,
-  AuthenticateUnmanagedUserOptions,
+  AuthenticateUserWithPasswordOptions,
   AuthenticationResponse,
   CompletePasswordResetOptions,
   CreateEmailVerificationChallengeOptions,
@@ -40,8 +40,8 @@ export class Users {
     return data;
   }
 
-  async authenticateUnmanagedUser(
-    payload: AuthenticateUnmanagedUserOptions,
+  async authenticateUserWithPassword(
+    payload: AuthenticateUserWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post('/users/authentications', payload);
     return data;
