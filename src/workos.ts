@@ -26,7 +26,7 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-const VERSION = '2.17.0';
+const VERSION = '2.20.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
