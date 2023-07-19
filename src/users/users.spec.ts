@@ -70,10 +70,10 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('createUnmanagedUser', () => {
-    it('sends a Create Unmanaged User request', async () => {
+  describe('createUser', () => {
+    it('sends a Create User request', async () => {
       mock.onPost('/users').reply(200, userFixture);
-      const user = await workos.users.createUnmanagedUser({
+      const user = await workos.users.createUser({
         email: 'test01@example.com',
         password: 'extra-secure',
         first_name: 'Test 01',
