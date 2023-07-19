@@ -1,8 +1,8 @@
 import { WorkOS } from '../workos';
 import {
   AddUserToOrganizationOptions,
-  AuthenticateManagedUserOptions,
   AuthenticateUserWithPasswordOptions,
+  AuthenticateUserWithTokenOptions,
   AuthenticationResponse,
   CompletePasswordResetOptions,
   CreateEmailVerificationChallengeOptions,
@@ -49,8 +49,8 @@ export class Users {
     return data;
   }
 
-  async authenticateManagedUser(
-    payload: AuthenticateManagedUserOptions,
+  async authenticateUserWithToken(
+    payload: AuthenticateUserWithTokenOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post('/users/sessions/token', payload);
     return data;
