@@ -280,7 +280,7 @@ describe('SSO', () => {
 
         mock
           .onGet('/sso/profile', {
-            accessToken: 'access_token',
+            access_token: 'access_token',
           })
           .replyOnce(200, {
             id: 'prof_123',
@@ -302,7 +302,7 @@ describe('SSO', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         const profile = await workos.sso.getProfile({
-          accessToken: 'access_token',
+          access_token: 'access_token',
         });
 
         expect(mock.history.get.length).toBe(1);

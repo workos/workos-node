@@ -89,9 +89,9 @@ export class SSO {
     return data;
   }
 
-  async getProfile({ accessToken }: GetProfileOptions): Promise<Profile> {
+  async getProfile({ access_token }: GetProfileOptions): Promise<Profile> {
     const { data } = await this.workos.get('/sso/profile', {
-      accessToken,
+      access_token,
     });
 
     return data;
