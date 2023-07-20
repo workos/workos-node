@@ -7,19 +7,19 @@ export class Portal {
   async generateLink({
     intent,
     organization,
-    returnUrl,
-    successUrl,
+    return_url,
+    success_url,
   }: {
     intent: GeneratePortalLinkIntent;
     organization: string;
-    returnUrl?: string;
-    successUrl?: string;
+    return_url?: string;
+    success_url?: string;
   }): Promise<{ link: string }> {
     const { data } = await this.workos.post('/portal/generate_link', {
       intent,
       organization,
-      return_url: returnUrl,
-      success_url: successUrl,
+      return_url,
+      success_url,
     });
 
     return data;
