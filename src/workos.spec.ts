@@ -1,5 +1,5 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { WorkOS } from './workos';
 import {
@@ -9,7 +9,7 @@ import {
   OauthException,
 } from './common/exceptions';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 
 describe('WorkOS', () => {
   describe('constructor', () => {
