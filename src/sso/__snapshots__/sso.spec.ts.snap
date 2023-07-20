@@ -17,21 +17,21 @@ exports[`SSO SSO getAuthorizationURL with state generates an authorize url with 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 2`] = `
-{
+Object {
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/2.20.0",
+  "User-Agent": "workos-node/3.0.0",
 }
 `;
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 3`] = `
-{
+Object {
   "connection_id": "conn_123",
   "connection_type": "OktaSAML",
   "email": "foo@test.com",
   "first_name": "foo",
-  "groups": [
+  "groups": Array [
     "Admins",
     "Developers",
   ],
@@ -39,10 +39,10 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "idp_id": "123",
   "last_name": "bar",
   "organization_id": "org_123",
-  "raw_attributes": {
+  "raw_attributes": Object {
     "email": "foo@test.com",
     "first_name": "foo",
-    "groups": [
+    "groups": Array [
       "Admins",
       "Developers",
     ],
@@ -54,16 +54,16 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
 
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 2`] = `
-{
+Object {
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/2.20.0",
+  "User-Agent": "workos-node/3.0.0",
 }
 `;
 
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 3`] = `
-{
+Object {
   "connection_id": "conn_123",
   "connection_type": "OktaSAML",
   "email": "foo@test.com",
@@ -72,7 +72,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "idp_id": "123",
   "last_name": "bar",
   "organization_id": "org_123",
-  "raw_attributes": {
+  "raw_attributes": Object {
     "email": "foo@test.com",
     "first_name": "foo",
     "last_name": "bar",
