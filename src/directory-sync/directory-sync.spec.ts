@@ -1,11 +1,11 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import { Directory, Group, UserWithGroups } from './interfaces';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 
 describe('DirectorySync', () => {
   afterEach(() => mock.resetHistory());
