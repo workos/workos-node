@@ -1,6 +1,6 @@
 export interface AuthenticateUserWithTokenOptions {
-  client_id: string;
+  clientId: string;
   code: string;
-  start_session?: boolean;
-  expires_in?: number;
+  startSession?: boolean;
+  expiresIn?: number;
 }

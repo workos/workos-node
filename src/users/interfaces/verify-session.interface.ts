@@ -3,7 +3,7 @@ import { Session } from './session.interface';
 
 export interface VerifySessionOptions {
   token: string;
-  client_id: string;
+  clientId: string;
 }
 
 export interface VerifySessionResponse {

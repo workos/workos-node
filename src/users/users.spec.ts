@@ -76,9 +76,9 @@ describe('UserManagement', () => {
       const user = await workos.users.createUser({
         email: 'test01@example.com',
         password: 'extra-secure',
-        first_name: 'Test 01',
-        last_name: 'User',
-        email_verified: true,
+        firstName: 'Test 01',
+        lastName: 'User',
+        emailVerified: true,
       });
 
       expect(mock.history.post[0].url).toEqual('/users');
@@ -116,9 +116,9 @@ describe('UserManagement', () => {
         .onPost('/users/sessions/token')
         .reply(200, { user: userFixture, session: sessionFixture });
       const resp = await workos.users.authenticateUserWithToken({
-        client_id: 'proj_whatever',
+        clientId: 'proj_whatever',
         code: 'or this',
-        expires_in: 15,
+        expiresIn: 15,
       });
 
       expect(mock.history.post[0].url).toEqual('/users/sessions/token');
@@ -147,7 +147,7 @@ describe('UserManagement', () => {
       });
 
       const resp = await workos.users.verifySession({
-        client_id: 'proj_something',
+        clientId: 'proj_something',
         token: 'really-long-token',
       });
 
@@ -169,7 +169,7 @@ describe('UserManagement', () => {
       mock.onPost('/users/sessions/revocations').reply(200, true);
 
       const revoked = await workos.users.revokeSession({
-        session_id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+        sessionId: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
       });
 
       expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
@@ -180,7 +180,7 @@ describe('UserManagement', () => {
       mock.onPost('/users/sessions/revocations').reply(200, true);
 
       const revoked = await workos.users.revokeSession({
-        session_token: 'really-long-token',
+        sessionToken: 'really-long-token',
       });
 
       expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
@@ -205,8 +205,8 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.createEmailVerificationChallenge({
-        user_id: userId,
-        verification_url: 'https://example.com/verify-email',
+        userId: userId,
+        verificationUrl: 'https://example.com/verify-email',
       });
 
       expect(mock.history.post[0].url).toEqual(
@@ -248,7 +248,7 @@ describe('UserManagement', () => {
       });
       const resp = await workos.users.createPasswordResetChallenge({
         email: 'test01@example.com',
-        password_reset_url: 'https://example.com/forgot-password',
+        passwordResetUrl: 'https://example.com/forgot-password',
       });
 
       expect(mock.history.post[0].url).toEqual(
@@ -271,7 +271,7 @@ describe('UserManagement', () => {
       });
       const resp = await workos.users.completePasswordReset({
         token: '',
-        new_password: 'correct horse battery staple',
+        newPassword: 'correct horse battery staple',
       });
 
       expect(mock.history.post[0].url).toEqual(`/users/password_reset`);
@@ -290,8 +290,8 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.addUserToOrganization({
-        user_id: userId,
-        organization_id: 'org_coolorg',
+        userId: userId,
+        organizationId: 'org_coolorg',
       });
 
       expect(mock.history.post[0].url).toEqual(
@@ -313,8 +313,8 @@ describe('UserManagement', () => {
         user: userFixture,
       });
       const resp = await workos.users.removeUserFromOrganization({
-        user_id: userId,
-        organization_id: orgId,
+        userId: userId,
+        organizationId: orgId,
       });
 
       expect(mock.history.delete[0].url).toEqual(
