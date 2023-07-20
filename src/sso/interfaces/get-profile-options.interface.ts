@@ -1,3 +1,3 @@
 export interface GetProfileOptions {
-  accessToken: string;
+  access_token: string;
 }

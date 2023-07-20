@@ -5,15 +5,15 @@ import { WorkOS } from '../workos';
 
 describe('SSO', () => {
   describe('SSO', () => {
-    describe('getAuthorizationURL', () => {
+    describe('getAuthorizationUrl', () => {
       describe('with no custom api hostname', () => {
         it('generates an authorize url with the default api hostname', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -25,9 +25,9 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const urlFn = () =>
-            workos.sso.getAuthorizationURL({
-              clientID: 'proj_123',
-              redirectURI: 'example.com/sso/workos/callback',
+            workos.sso.getAuthorizationUrl({
+              client_id: 'proj_123',
+              redirect_uri: 'example.com/sso/workos/callback',
             });
 
           expect(urlFn).toThrowErrorMatchingSnapshot();
@@ -40,10 +40,10 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             provider: 'Google',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -56,10 +56,10 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             connection: 'connection_123',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -72,10 +72,10 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             organization: 'organization_123',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -88,10 +88,10 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -102,10 +102,10 @@ describe('SSO', () => {
         it('generates an authorize url with the provided state', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
@@ -117,11 +117,11 @@ describe('SSO', () => {
         it('generates an authorize url with the provided domain hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
-            domainHint: 'lyft.com',
+          const url = workos.sso.getAuthorizationUrl({
+            domain_hint: 'lyft.com',
             connection: 'connection_123',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
@@ -135,11 +135,11 @@ describe('SSO', () => {
         it('generates an authorize url with the provided login hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
-            loginHint: 'foo@workos.com',
+          const url = workos.sso.getAuthorizationUrl({
+            login_hint: 'foo@workos.com',
             connection: 'connection_123',
-            clientID: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            client_id: 'proj_123',
+            redirect_uri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
@@ -200,7 +200,7 @@ describe('SSO', () => {
           const { access_token: accessToken, profile } =
             await workos.sso.getProfileAndToken({
               code: 'authorization_code',
-              clientID: 'proj_123',
+              client_id: 'proj_123',
             });
 
           expect(mock.history.post.length).toBe(1);
@@ -260,7 +260,7 @@ describe('SSO', () => {
           const { access_token: accessToken, profile } =
             await workos.sso.getProfileAndToken({
               code: 'authorization_code',
-              clientID: 'proj_123',
+              client_id: 'proj_123',
             });
 
           expect(mock.history.post.length).toBe(1);
@@ -280,7 +280,7 @@ describe('SSO', () => {
 
         mock
           .onGet('/sso/profile', {
-            accessToken: 'access_token',
+            access_token: 'access_token',
           })
           .replyOnce(200, {
             id: 'prof_123',
@@ -302,7 +302,7 @@ describe('SSO', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         const profile = await workos.sso.getProfile({
-          accessToken: 'access_token',
+          access_token: 'access_token',
         });
 
         expect(mock.history.get.length).toBe(1);

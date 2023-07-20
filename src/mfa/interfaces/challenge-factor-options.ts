@@ -1,8 +1,4 @@
-export type ChallengeFactorOptions =
-  | {
-      authenticationFactorId: string;
-    }
-  | {
-      authenticationFactorId: string;
-      smsTemplate: string;
-    };
+export interface ChallengeFactorOptions {
+  authentication_factor_id: string;
+  sms_template?: string;
+}

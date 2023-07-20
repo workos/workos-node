@@ -1,4 +1,4 @@
 export interface GetOptions {
   query?: Record<string, any>;
-  accessToken?: string;
+  access_token?: string;
 }

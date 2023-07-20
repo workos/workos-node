@@ -28,7 +28,7 @@ describe('Passwordless', () => {
         const session = await workos.passwordless.createSession({
           type: 'MagicLink',
           email,
-          redirectURI,
+          redirect_uri: redirectURI,
         });
 
         expect(session.email).toEqual(email);

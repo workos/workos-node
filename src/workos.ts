@@ -103,13 +103,13 @@ export class WorkOS {
 
   async get(path: string, options: GetOptions = {}): Promise<AxiosResponse> {
     try {
-      const { accessToken } = options;
+      const { access_token } = options;
 
       return await this.client.get(path, {
         params: options.query,
-        headers: accessToken
+        headers: access_token
           ? {
-              Authorization: `Bearer ${accessToken}`,
+              Authorization: `Bearer ${access_token}`,
             }
           : undefined,
       });

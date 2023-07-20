@@ -2,7 +2,7 @@ import { Group } from './group.interface';
 
 export type DefaultCustomAttributes = Record<string, unknown>;
 
-export interface User<
+export interface DirectoryUser<
   TCustomAttributes extends object = DefaultCustomAttributes,
   TRawAttributes = any,
 > {
@@ -24,8 +24,8 @@ export interface User<
   state: 'active' | 'inactive' | 'suspended';
 }
 
-export interface UserWithGroups<
+export interface DirectoryUserWithGroups<
   TCustomAttributes extends object = DefaultCustomAttributes,
-> extends User<TCustomAttributes> {
+> extends DirectoryUser<TCustomAttributes> {
   groups: Group[];
 }

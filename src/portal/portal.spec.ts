@@ -26,7 +26,7 @@ describe('Portal', () => {
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-            returnUrl: 'https://www.example.com',
+            return_url: 'https://www.example.com',
           });
 
           expect(link).toEqual(
@@ -48,7 +48,7 @@ describe('Portal', () => {
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.DSync,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-            returnUrl: 'https://www.example.com',
+            return_url: 'https://www.example.com',
           });
 
           expect(link).toEqual(
@@ -70,7 +70,7 @@ describe('Portal', () => {
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.AuditLogs,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-            returnUrl: 'https://www.example.com',
+            return_url: 'https://www.example.com',
           });
 
           expect(link).toEqual(
@@ -92,7 +92,7 @@ describe('Portal', () => {
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.LogStreams,
             organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-            returnUrl: 'https://www.example.com',
+            return_url: 'https://www.example.com',
           });
 
           expect(link).toEqual(
@@ -118,7 +118,7 @@ describe('Portal', () => {
           workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
             organization: 'bogus-id',
-            returnUrl: 'https://www.example.com',
+            return_url: 'https://www.example.com',
           }),
         ).rejects.toThrowError(
           'Could not find an organization with the id, bogus-id.',

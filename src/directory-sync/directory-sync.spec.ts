@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
-import { Directory, Group, UserWithGroups } from './interfaces';
+import { Directory, DirectoryUserWithGroups, Group } from './interfaces';
 
 const mock = new MockAdapter(axios);
 
@@ -38,7 +38,7 @@ describe('DirectorySync', () => {
     },
   };
 
-  const userWithGroupResponse: UserWithGroups = {
+  const userWithGroupResponse: DirectoryUserWithGroups = {
     id: 'user_123',
     custom_attributes: {
       custom: true,
@@ -161,7 +161,7 @@ describe('DirectorySync', () => {
   });
 
   describe('listUsers', () => {
-    const userWithGroupListResponse: List<UserWithGroups> = {
+    const userWithGroupListResponse: List<DirectoryUserWithGroups> = {
       object: 'list',
       data: [userWithGroupResponse],
       list_metadata: {},

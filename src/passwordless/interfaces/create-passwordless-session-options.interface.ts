@@ -1,8 +1,8 @@
 export interface CreatePasswordlessSessionOptions {
   type: 'MagicLink';
   email: string;
-  redirectURI?: string;
+  redirect_uri?: string;
   state?: string;
   connection?: string;
-  expiresIn?: number;
+  expires_in?: number;
 }
