@@ -190,7 +190,7 @@ describe('MFA', () => {
         });
 
         const challengeResponse = await workos.mfa.challengeFactor({
-          authenticationFactorId: 'auth_factor_1234',
+          authentication_factor_id: 'auth_factor_1234',
         });
 
         expect(challengeResponse).toMatchInlineSnapshot(`
@@ -228,8 +228,8 @@ describe('MFA', () => {
         });
 
         const challengeResponse = await workos.mfa.challengeFactor({
-          authenticationFactorId: 'auth_factor_1234',
-          smsTemplate: 'This is your code: 12345',
+          authentication_factor_id: 'auth_factor_1234',
+          sms_template: 'This is your code: 12345',
         });
 
         expect(challengeResponse).toMatchInlineSnapshot(`

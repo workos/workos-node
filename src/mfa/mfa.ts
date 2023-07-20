@@ -42,13 +42,13 @@ export class Mfa {
     return data;
   }
 
-  async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {
+  async challengeFactor({
+    authentication_factor_id,
+    sms_template,
+  }: ChallengeFactorOptions): Promise<Challenge> {
     const { data } = await this.workos.post(
-      `/auth/factors/${options.authenticationFactorId}/challenge`,
-      {
-        sms_template:
-          'smsTemplate' in options ? options.smsTemplate : undefined,
-      },
+      `/auth/factors/${authentication_factor_id}/challenge`,
+      { sms_template },
     );
 
     return data;
