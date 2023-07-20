@@ -1,12 +1,12 @@
 import axios from 'axios';
 
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import { Event } from './interfaces/event.interface';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 
 describe('Event', () => {
   afterEach(() => mock.resetHistory());
