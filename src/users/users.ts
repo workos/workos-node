@@ -79,13 +79,13 @@ export class Users {
   }
 
   async createEmailVerificationChallenge({
-    user_id,
-    verification_url,
+    userId,
+    verificationUrl,
   }: CreateEmailVerificationChallengeOptions): Promise<CreateEmailVerificationChallengeResponse> {
     const { data } = await this.workos.post(
-      `/users/${user_id}/email_verification_challenge`,
+      `/users/${userId}/email_verification_challenge`,
       {
-        verification_url,
+        verification_url: verificationUrl,
       },
     );
     return data;
@@ -116,21 +116,21 @@ export class Users {
   }
 
   async addUserToOrganization({
-    user_id,
-    organization_id,
+    userId,
+    organizationId,
   }: AddUserToOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.post(`/users/${user_id}/organizations`, {
-      organization_id,
+    const { data } = await this.workos.post(`/users/${userId}/organizations`, {
+      organizationId,
     });
     return data;
   }
 
   async removeUserFromOrganization({
-    user_id,
-    organization_id,
+    userId,
+    organizationId,
   }: RemoveUserFromOrganizationOptions): Promise<User> {
     const { data } = await this.workos.delete(
-      `/users/${user_id}/organizations/${organization_id}`,
+      `/users/${userId}/organizations/${organizationId}`,
     );
     return data;
   }

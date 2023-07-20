@@ -1,8 +1,8 @@
 export interface AuthenticateUserWithPasswordOptions {
   email: string;
   password: string;
-  ip_address?: string;
-  user_agent?: string;
-  start_session?: boolean;
-  expires_in?: number;
+  ipAddress?: string;
+  userAgent?: string;
+  startSession?: boolean;
+  expiresIn?: number;
 }
