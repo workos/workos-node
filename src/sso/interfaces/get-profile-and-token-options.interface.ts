@@ -1,4 +1,4 @@
 export interface GetProfileAndTokenOptions {
-  clientID: string;
+  client_id: string;
   code: string;
 }

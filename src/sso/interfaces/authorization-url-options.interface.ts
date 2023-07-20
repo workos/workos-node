@@ -1,5 +1,5 @@
 export interface AuthorizationURLOptions {
-  clientID: string;
+  client_id: string;
   connection?: string;
   organization?: string;
 
@@ -7,9 +7,9 @@ export interface AuthorizationURLOptions {
    * @deprecated Please use `organization` instead.
    */
   domain?: string;
-  domainHint?: string;
-  loginHint?: string;
+  domain_hint?: string;
+  login_hint?: string;
   provider?: string;
-  redirectURI: string;
+  redirect_uri: string;
   state?: string;
 }
