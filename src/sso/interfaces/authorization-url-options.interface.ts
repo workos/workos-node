@@ -1,4 +1,4 @@
-export interface AuthorizationURLOptions {
+export interface AuthorizationUrlOptions {
   client_id: string;
   connection?: string;
   organization?: string;

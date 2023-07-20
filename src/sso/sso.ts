@@ -1,6 +1,6 @@
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
-import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import { AuthorizationUrlOptions } from './interfaces/authorization-url-options.interface';
 import { Connection } from './interfaces/connection.interface';
 import { GetProfileAndTokenOptions } from './interfaces/get-profile-and-token-options.interface';
 import { GetProfileOptions } from './interfaces/get-profile-options.interface';
@@ -30,7 +30,7 @@ export class SSO {
     await this.workos.delete(`/connections/${id}`);
   }
 
-  getAuthorizationURL({
+  getAuthorizationUrl({
     connection,
     client_id,
     domain,
@@ -40,7 +40,7 @@ export class SSO {
     provider,
     redirect_uri,
     state,
-  }: AuthorizationURLOptions): string {
+  }: AuthorizationUrlOptions): string {
     if (!domain && !provider && !connection && !organization) {
       throw new Error(
         `Incomplete arguments. Need to specify either a 'connection', 'organization', 'domain', or 'provider'.`,
@@ -49,7 +49,7 @@ export class SSO {
 
     if (domain) {
       this.workos.emitWarning(
-        'The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.',
+        'The `domain` parameter for `getAuthorizationUrl` is deprecated. Please use `organization` instead.',
       );
     }
 
