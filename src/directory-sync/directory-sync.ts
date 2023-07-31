@@ -1,7 +1,7 @@
 import { WorkOS } from '../workos';
 import { Directory } from './interfaces/directory.interface';
 import { List } from '../common/interfaces/list.interface';
-import { Group } from './interfaces/group.interface';
+import { DirectoryGroup } from './interfaces/directory-group.interface';
 import {
   DefaultCustomAttributes,
   DirectoryUserWithGroups,
@@ -31,7 +31,7 @@ export class DirectorySync {
     await this.workos.delete(`/directories/${id}`);
   }
 
-  async listGroups(options: ListGroupsOptions): Promise<List<Group>> {
+  async listGroups(options: ListGroupsOptions): Promise<List<DirectoryGroup>> {
     const { data } = await this.workos.get(`/directory_groups`, {
       query: options,
     });
@@ -54,7 +54,7 @@ export class DirectorySync {
     return data;
   }
 
-  async getGroup(group: string): Promise<Group> {
+  async getGroup(group: string): Promise<DirectoryGroup> {
     const { data } = await this.workos.get(`/directory_groups/${group}`);
     return data;
   }
