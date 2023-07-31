@@ -1,4 +1,4 @@
-import { Group } from './group.interface';
+import { DirectoryGroup } from './directory-group.interface';
 
 export type DefaultCustomAttributes = Record<string, unknown>;
 
@@ -27,5 +27,5 @@ export interface DirectoryUser<
 export interface DirectoryUserWithGroups<
   TCustomAttributes extends object = DefaultCustomAttributes,
 > extends DirectoryUser<TCustomAttributes> {
-  groups: Group[];
+  groups: DirectoryGroup[];
 }

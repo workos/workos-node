@@ -1,4 +1,4 @@
-export interface Group {
+export interface DirectoryGroup {
   id: string;
   idp_id: string;
   directory_id: string;
