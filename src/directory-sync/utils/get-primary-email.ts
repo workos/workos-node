@@ -1,6 +1,6 @@
-import { User } from '../interfaces/user.interface';
+import { DirectoryUser } from '../interfaces/directory-user.interface';
 
-export function getPrimaryEmail(user: User): string | undefined {
+export function getPrimaryEmail(user: DirectoryUser): string | undefined {
   const primaryEmail = user.emails?.find((email) => email.primary);
   return primaryEmail?.value;
 }
