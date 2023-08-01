@@ -22,7 +22,7 @@ describe('DirectorySync', () => {
     organization_id: 'org_01EXSR7M9QTKCC5D531SMCWMYG',
     state: 'linked',
     type: 'okta scim v1.1',
-    updated_at: '2021-10-27 15:21:50.640958',
+    updated_at: '2021-12-13 12:15:45.531847',
   };
 
   const groupResponse: Group = {
@@ -31,8 +31,8 @@ describe('DirectorySync', () => {
     directory_id: 'dir_123',
     organization_id: 'org_123',
     name: 'Foo Group',
-    created_at: `2021-10-27 15:21:50.640958`,
-    updated_at: '2021-10-27 15:21:50.640959',
+    created_at: '2021-10-27 15:21:50.640958',
+    updated_at: '2021-12-13 12:15:45.531847',
     raw_attributes: {
       foo: 'bar',
     },
@@ -61,7 +61,7 @@ describe('DirectorySync', () => {
     state: 'active',
     username: 'jonsnow',
     created_at: '2021-10-27 15:21:50.640959',
-    updated_at: '2021-10-27 15:21:50.640959',
+    updated_at: '2021-12-13 12:15:45.531847',
   };
 
   describe('listDirectories', () => {
@@ -208,7 +208,7 @@ describe('DirectorySync', () => {
                   job_title: 'Software Engineer',
                   state: 'active',
                   created_at: '2021-10-27 15:21:50.640959',
-                  updated_at: '2021-10-27 15:21:50.640959',
+                  updated_at: '2021-12-13 12:15:45.531847',
                   raw_attributes: {},
                   custom_attributes: {
                     managerId: '99f1817b-149c-4438-b80f-a272c3406109',
@@ -235,7 +235,7 @@ describe('DirectorySync', () => {
                   job_title: 'Software Engineer',
                   state: 'active',
                   created_at: '2021-10-27 15:21:50.640959',
-                  updated_at: '2021-10-27 15:21:50.640959',
+                  updated_at: '2021-12-13 12:15:45.531847',
                   raw_attributes: {},
                   custom_attributes: {
                     managerId: '263c7472-4d3f-4ab4-8162-e768af103065',
