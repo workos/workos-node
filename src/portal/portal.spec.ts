@@ -1,11 +1,11 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import generateLinkInvalid from './fixtures/generate-link-invalid.json';
 import generateLink from './fixtures/generate-link.json';
 import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Portal', () => {

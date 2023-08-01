@@ -1,8 +1,8 @@
 import { getPrimaryEmail } from './get-primary-email';
-import { User } from '../interfaces';
+import { DirectoryUser } from '../interfaces';
 
 describe('getPrimaryEmail', () => {
-  const user: User = {
+  const user: DirectoryUser = {
     id: 'user_123',
     custom_attributes: {
       custom: true,

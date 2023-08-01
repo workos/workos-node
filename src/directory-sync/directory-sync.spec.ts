@@ -1,11 +1,15 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
-import { Directory, Group, UserWithGroups } from './interfaces';
+import {
+  Directory,
+  DirectoryGroup,
+  DirectoryUserWithGroups,
+} from './interfaces';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 
 describe('DirectorySync', () => {
   afterEach(() => mock.resetHistory());
@@ -25,7 +29,7 @@ describe('DirectorySync', () => {
     updated_at: '2021-12-13 12:15:45.531847',
   };
 
-  const groupResponse: Group = {
+  const groupResponse: DirectoryGroup = {
     id: 'dir_grp_123',
     idp_id: '123',
     directory_id: 'dir_123',
@@ -38,7 +42,7 @@ describe('DirectorySync', () => {
     },
   };
 
-  const userWithGroupResponse: UserWithGroups = {
+  const userWithGroupResponse: DirectoryUserWithGroups = {
     id: 'user_123',
     custom_attributes: {
       custom: true,
@@ -123,7 +127,7 @@ describe('DirectorySync', () => {
   });
 
   describe('listGroups', () => {
-    const groupListResponse: List<Group> = {
+    const groupListResponse: List<DirectoryGroup> = {
       object: 'list',
       data: [groupResponse],
       list_metadata: {},
@@ -163,7 +167,7 @@ describe('DirectorySync', () => {
   });
 
   describe('listUsers', () => {
-    const userWithGroupListResponse: List<UserWithGroups> = {
+    const userWithGroupListResponse: List<DirectoryUserWithGroups> = {
       object: 'list',
       data: [userWithGroupResponse],
       list_metadata: {},
