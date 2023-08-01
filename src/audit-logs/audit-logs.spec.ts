@@ -1,5 +1,5 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
@@ -8,7 +8,7 @@ import { CreateAuditLogEventOptions } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
 import { AuditLogExport } from './interfaces/audit-log-export.interface';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
   occurred_at: new Date(),
@@ -56,7 +56,7 @@ describe('AuditLogs', () => {
           }),
         ).resolves.toBeUndefined();
 
-        expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+        expect(mock.history.post[0].headers?.['Idempotency-Key']).toEqual(
           'the-idempotency-key',
         );
       });

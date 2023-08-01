@@ -1,11 +1,11 @@
 import axios from 'axios';
-import MockAdapater from 'axios-mock-adapter';
+import MockAdapter from 'axios-mock-adapter';
 
 import { EventOptions } from './interfaces/event-options.interface';
 import { UnauthorizedException } from '../common/exceptions';
 import { WorkOS } from '../workos';
 
-const mock = new MockAdapater(axios);
+const mock = new MockAdapter(axios);
 const event: EventOptions = {
   group: 'WorkOS',
   actor_name: 'WorkOS@example.com',
@@ -40,7 +40,7 @@ describe('AuditTrail', () => {
             }),
           ).resolves.toBeUndefined();
 
-          expect(mock.history.post[0].headers['Idempotency-Key']).toEqual(
+          expect(mock.history.post[0].headers?.['Idempotency-Key']).toEqual(
             'the-idempotency-key',
           );
         });

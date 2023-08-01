@@ -13,6 +13,7 @@ import {
   PostOptions,
   PutOptions,
   WorkOSOptions,
+  WorkOSResponseError,
 } from './common/interfaces';
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Events } from './events/events';
@@ -166,7 +167,7 @@ export class WorkOS {
   }
 
   private handleAxiosError({ path, error }: { path: string; error: unknown }) {
-    const { response } = error as AxiosError;
+    const { response } = error as AxiosError<WorkOSResponseError>;
 
     if (response) {
       const { status, data, headers } = response;

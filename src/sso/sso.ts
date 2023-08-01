@@ -1,4 +1,3 @@
-import queryString from 'query-string';
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
@@ -8,6 +7,21 @@ import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
 import { ProfileAndToken } from './interfaces/profile-and-token.interface';
 import { Profile } from './interfaces/profile.interface';
+
+const toQueryString = (options: Record<string, string | undefined>): string => {
+  const searchParams = new URLSearchParams();
+  const keys = Object.keys(options).sort();
+
+  for (const key of keys) {
+    const value = options[key];
+
+    if (value) {
+      searchParams.append(key, value);
+    }
+  }
+
+  return searchParams.toString();
+};
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
@@ -39,7 +53,7 @@ export class SSO {
       );
     }
 
-    const query = queryString.stringify({
+    const query = toQueryString({
       connection,
       organization,
       domain,

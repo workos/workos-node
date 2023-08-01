@@ -1,11 +1,11 @@
 import { WorkOS } from '../workos';
 import { Directory } from './interfaces/directory.interface';
 import { List } from '../common/interfaces/list.interface';
-import { Group } from './interfaces/group.interface';
+import { DirectoryGroup } from './interfaces/directory-group.interface';
 import {
   DefaultCustomAttributes,
-  UserWithGroups,
-} from './interfaces/user.interface';
+  DirectoryUserWithGroups,
+} from './interfaces/directory-user.interface';
 import { ListDirectoriesOptions } from './interfaces/list-directories-options.interface';
 import { ListGroupsOptions } from './interfaces/list-groups-options.interface';
 import { ListUsersOptions } from './interfaces/list-users-options.interface';
@@ -31,7 +31,7 @@ export class DirectorySync {
     await this.workos.delete(`/directories/${id}`);
   }
 
-  async listGroups(options: ListGroupsOptions): Promise<List<Group>> {
+  async listGroups(options: ListGroupsOptions): Promise<List<DirectoryGroup>> {
     const { data } = await this.workos.get(`/directory_groups`, {
       query: options,
     });
@@ -40,7 +40,7 @@ export class DirectorySync {
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListUsersOptions,
-  ): Promise<List<UserWithGroups<TCustomAttributes>>> {
+  ): Promise<List<DirectoryUserWithGroups<TCustomAttributes>>> {
     const { data } = await this.workos.get(`/directory_users`, {
       query: options,
     });
@@ -49,12 +49,12 @@ export class DirectorySync {
 
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
     user: string,
-  ): Promise<UserWithGroups<TCustomAttributes>> {
+  ): Promise<DirectoryUserWithGroups<TCustomAttributes>> {
     const { data } = await this.workos.get(`/directory_users/${user}`);
     return data;
   }
 
-  async getGroup(group: string): Promise<Group> {
+  async getGroup(group: string): Promise<DirectoryGroup> {
     const { data } = await this.workos.get(`/directory_groups/${group}`);
     return data;
   }

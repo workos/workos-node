@@ -12,7 +12,7 @@ export interface Connection {
   organization_id?: string;
   name: string;
   connection_type: ConnectionType;
-  state: 'draft' | 'active' | 'inactive';
+  state: 'draft' | 'active' | 'inactive' | 'validating';
   /**
    * @deprecated The status parameter has been deprecated. Please use state.
    */
