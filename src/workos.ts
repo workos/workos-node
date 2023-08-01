@@ -13,6 +13,7 @@ import {
   PostOptions,
   PutOptions,
   WorkOSOptions,
+  WorkOSResponseError,
 } from './common/interfaces';
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Events } from './events/events';
@@ -26,7 +27,7 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { Users } from './users/users';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-const VERSION = '3.0.0-user-management.2';
+const VERSION = '3.0.0-user-management.3';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -166,7 +167,7 @@ export class WorkOS {
   }
 
   private handleAxiosError({ path, error }: { path: string; error: unknown }) {
-    const { response } = error as AxiosError;
+    const { response } = error as AxiosError<WorkOSResponseError>;
 
     if (response) {
       const { status, data, headers } = response;
