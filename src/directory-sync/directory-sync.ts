@@ -8,7 +8,7 @@ import {
 } from './interfaces/directory-user.interface';
 import { ListDirectoriesOptions } from './interfaces/list-directories-options.interface';
 import { ListGroupsOptions } from './interfaces/list-groups-options.interface';
-import { ListUsersOptions } from './interfaces/list-users-options.interface';
+import { ListDirectoryUsersOptions } from './interfaces/list-directory-users-options.interface';
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
@@ -39,7 +39,7 @@ export class DirectorySync {
   }
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
-    options: ListUsersOptions,
+    options: ListDirectoryUsersOptions,
   ): Promise<List<DirectoryUserWithGroups<TCustomAttributes>>> {
     const { data } = await this.workos.get(`/directory_users`, {
       query: options,
