@@ -4,7 +4,15 @@ import {
   CreateAuditLogEventRequestOptions,
 } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
-import { AuditLogExport } from './interfaces/audit-log-export.interface';
+import {
+  AuditLogExport,
+  AuditLogExportResponse,
+} from './interfaces/audit-log-export.interface';
+import {
+  deserializeAuditLogExport,
+  serializeAuditLogExportOptions,
+  serializeCreateAuditLogEventOptions,
+} from './serializers';
 
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
@@ -17,7 +25,7 @@ export class AuditLogs {
     await this.workos.post(
       '/audit_logs/events',
       {
-        event,
+        event: serializeCreateAuditLogEventOptions(event),
         organization_id: organization,
       },
       options,
@@ -25,16 +33,19 @@ export class AuditLogs {
   }
 
   async createExport(options: AuditLogExportOptions): Promise<AuditLogExport> {
-    const { data } = await this.workos.post('/audit_logs/exports', options);
+    const { data } = await this.workos.post<AuditLogExportResponse>(
+      '/audit_logs/exports',
+      serializeAuditLogExportOptions(options),
+    );
 
-    return data;
+    return deserializeAuditLogExport(data);
   }
 
   async getExport(auditLogExportId: string): Promise<AuditLogExport> {
-    const { data } = await this.workos.get(
+    const { data } = await this.workos.get<AuditLogExportResponse>(
       `/audit_logs/exports/${auditLogExportId}`,
     );
 
-    return data;
+    return deserializeAuditLogExport(data);
   }
 }
