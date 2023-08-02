@@ -17,7 +17,20 @@ export interface AuditLogTarget {
 export interface CreateAuditLogEventOptions {
   action: string;
   version?: number;
-  occurred_at: Date;
+  occurredAt: Date;
+  actor: AuditLogActor;
+  targets: AuditLogTarget[];
+  context: {
+    location: string;
+    userAgent?: string;
+  };
+  metadata?: Record<string, string | number | boolean>;
+}
+
+export interface SerializedCreateAuditLogEventOptions {
+  action: string;
+  version?: number;
+  occurred_at: string;
   actor: AuditLogActor;
   targets: AuditLogTarget[];
   context: {

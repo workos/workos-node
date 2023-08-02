@@ -78,11 +78,11 @@ export class WorkOS {
     });
   }
 
-  async post(
+  async post<T = any, D = any>(
     path: string,
     entity: any,
     options: PostOptions = {},
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<T, D>> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -101,7 +101,10 @@ export class WorkOS {
     }
   }
 
-  async get(path: string, options: GetOptions = {}): Promise<AxiosResponse> {
+  async get<T = any, D = any>(
+    path: string,
+    options: GetOptions = {},
+  ): Promise<AxiosResponse<T, D>> {
     try {
       const { accessToken } = options;
 
