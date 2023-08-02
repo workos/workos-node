@@ -12,6 +12,7 @@ export * from './passwordless/interfaces';
 export * from './portal/interfaces';
 export * from './sso/interfaces';
 export * from './webhooks/interfaces';
+export * from './users/interfaces';
 
 export { WorkOS };
 
