@@ -5,6 +5,7 @@ import {
 } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
 import { AuditLogExport } from './interfaces/audit-log-export.interface';
+import { serializeCreateAuditLogEventOptions } from './serializers';
 
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
@@ -14,10 +15,11 @@ export class AuditLogs {
     event: CreateAuditLogEventOptions,
     options: CreateAuditLogEventRequestOptions = {},
   ): Promise<void> {
+    console.log('in code', serializeCreateAuditLogEventOptions(event));
     await this.workos.post(
       '/audit_logs/events',
       {
-        event,
+        event: serializeCreateAuditLogEventOptions(event),
         organization_id: organization,
       },
       options,

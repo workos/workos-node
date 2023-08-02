@@ -7,11 +7,12 @@ import { WorkOS } from '../workos';
 import { CreateAuditLogEventOptions } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
 import { AuditLogExport } from './interfaces/audit-log-export.interface';
+import { serializeCreateAuditLogEventOptions } from './serializers';
 
 const mock = new MockAdapter(axios);
 const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
-  occurred_at: new Date(),
+  occurredAt: new Date(),
   actor: {
     id: 'user_1',
     name: 'Jon Smith',
@@ -25,25 +26,21 @@ const event: CreateAuditLogEventOptions = {
   ],
   context: {
     location: ' 192.0.0.8',
-    user_agent: 'Firefox',
+    userAgent: 'Firefox',
   },
   metadata: {
     successful: true,
   },
 };
 
-const serializeEventOptions = (options: CreateAuditLogEventOptions) => ({
-  ...options,
-  occurred_at: options.occurred_at.toISOString(),
-});
-
 describe('AuditLogs', () => {
   describe('createEvent', () => {
     describe('with an idempotency key', () => {
-      it('includes an idempotency key with request', async () => {
+      it.only('includes an idempotency key with request', async () => {
+        console.log('in test', serializeCreateAuditLogEventOptions(event));
         mock
           .onPost('/audit_logs/events', {
-            event: serializeEventOptions(event),
+            event: serializeCreateAuditLogEventOptions(event),
             organization_id: 'org_123',
           })
           .replyOnce(201, { success: true });
@@ -67,7 +64,7 @@ describe('AuditLogs', () => {
         mock
           .onPost('/audit_logs/events', {
             organization_id: 'org_123',
-            event: serializeEventOptions(event),
+            event: serializeCreateAuditLogEventOptions(event),
           })
           .replyOnce(201, { success: true });
 
@@ -84,7 +81,7 @@ describe('AuditLogs', () => {
         mock
           .onPost('/audit_logs/events', {
             organization_id: 'org_123',
-            event: serializeEventOptions(event),
+            event: serializeCreateAuditLogEventOptions(event),
           })
           .replyOnce(
             401,
@@ -114,7 +111,7 @@ describe('AuditLogs', () => {
         mock
           .onPost('/audit_logs/events', {
             organization_id: 'org_123',
-            event: serializeEventOptions(event),
+            event: serializeCreateAuditLogEventOptions(event),
           })
           .replyOnce(
             400,

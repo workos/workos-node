@@ -78,11 +78,11 @@ export class WorkOS {
     });
   }
 
-  async post(
+  async post<T = any, D = any>(
     path: string,
     entity: any,
     options: PostOptions = {},
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<T, D>> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -169,6 +169,7 @@ export class WorkOS {
 
     if (response) {
       const { status, data, headers } = response;
+      console.log({ response });
       const requestID = headers['X-Request-ID'];
       const {
         code,
