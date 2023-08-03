@@ -93,5 +93,5 @@
       ]
     }
   ],
-  "list_metadata": { "before": "before-id", "after": null }
+  "list_metadata": { "before": null, "after": "after-id" }
 }

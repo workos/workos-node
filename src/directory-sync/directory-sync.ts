@@ -1,6 +1,7 @@
 import { WorkOS } from '../workos';
 import { Directory } from './interfaces/directory.interface';
 import { List } from '../common/interfaces/list.interface';
+import { withDefaultOrder } from '../common/utils/default-order';
 import { DirectoryGroup } from './interfaces/directory-group.interface';
 import {
   DefaultCustomAttributes,
@@ -17,7 +18,7 @@ export class DirectorySync {
     options?: ListDirectoriesOptions,
   ): Promise<List<Directory>> {
     const { data } = await this.workos.get('/directories', {
-      query: options,
+      query: withDefaultOrder(options),
     });
     return data;
   }
@@ -33,7 +34,7 @@ export class DirectorySync {
 
   async listGroups(options: ListGroupsOptions): Promise<List<DirectoryGroup>> {
     const { data } = await this.workos.get(`/directory_groups`, {
-      query: options,
+      query: withDefaultOrder(options),
     });
     return data;
   }
@@ -42,7 +43,7 @@ export class DirectorySync {
     options: ListDirectoryUsersOptions,
   ): Promise<List<DirectoryUserWithGroups<TCustomAttributes>>> {
     const { data } = await this.workos.get(`/directory_users`, {
-      query: options,
+      query: withDefaultOrder(options),
     });
     return data;
   }
