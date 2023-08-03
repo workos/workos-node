@@ -6,7 +6,10 @@ import { WorkOS } from '../workos';
 import {
   Directory,
   DirectoryGroup,
+  DirectoryGroupResponse,
+  DirectoryResponse,
   DirectoryUserWithGroups,
+  DirectoryUserWithGroupsResponse,
 } from './interfaces';
 
 const mock = new MockAdapter(axios);
@@ -16,7 +19,20 @@ describe('DirectorySync', () => {
 
   const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-  const directoryResponse: Directory = {
+  const directory: Directory = {
+    id: 'directory_123',
+    createdAt: '2020-05-06 04:21:48.649164',
+    domain: 'foo-corp.com',
+    externalKey: '9asBRBVHz2ASEkgg',
+    name: 'Foo',
+    object: 'directory',
+    organizationId: 'org_01EXSR7M9QTKCC5D531SMCWMYG',
+    state: 'linked',
+    type: 'okta scim v1.1',
+    updatedAt: '2021-12-13 12:15:45.531847',
+  };
+
+  const directoryResponse: DirectoryResponse = {
     id: 'directory_123',
     created_at: '2020-05-06 04:21:48.649164',
     domain: 'foo-corp.com',
@@ -29,7 +45,20 @@ describe('DirectorySync', () => {
     updated_at: '2021-12-13 12:15:45.531847',
   };
 
-  const groupResponse: DirectoryGroup = {
+  const group: DirectoryGroup = {
+    id: 'dir_grp_123',
+    idpId: '123',
+    directoryId: 'dir_123',
+    organizationId: 'org_123',
+    name: 'Foo Group',
+    createdAt: '2021-10-27 15:21:50.640958',
+    updatedAt: '2021-12-13 12:15:45.531847',
+    rawAttributes: {
+      foo: 'bar',
+    },
+  };
+
+  const groupResponse: DirectoryGroupResponse = {
     id: 'dir_grp_123',
     idp_id: '123',
     directory_id: 'dir_123',
@@ -42,7 +71,33 @@ describe('DirectorySync', () => {
     },
   };
 
-  const userWithGroupResponse: DirectoryUserWithGroups = {
+  const userWithGroup: DirectoryUserWithGroups = {
+    id: 'user_123',
+    customAttributes: {
+      custom: true,
+    },
+    directoryId: 'dir_123',
+    organizationId: 'org_123',
+    emails: [
+      {
+        primary: true,
+        type: 'type',
+        value: 'jonsnow@workos.com',
+      },
+    ],
+    firstName: 'Jon',
+    groups: [group],
+    idpId: 'idp_foo',
+    lastName: 'Snow',
+    jobTitle: 'Knight of the Watch',
+    rawAttributes: {},
+    state: 'active',
+    username: 'jonsnow',
+    createdAt: '2021-10-27 15:21:50.640959',
+    updatedAt: '2021-12-13 12:15:45.531847',
+  };
+
+  const userWithGroupResponse: DirectoryUserWithGroupsResponse = {
     id: 'user_123',
     custom_attributes: {
       custom: true,
@@ -71,7 +126,7 @@ describe('DirectorySync', () => {
   describe('listDirectories', () => {
     describe('with options', () => {
       it('requests Directories with query parameters', async () => {
-        const directoryListResponse: List<Directory> = {
+        const directoryListResponse: List<DirectoryResponse> = {
           object: 'list',
           data: [directoryResponse],
           list_metadata: {},
@@ -83,11 +138,15 @@ describe('DirectorySync', () => {
           })
           .replyOnce(200, directoryListResponse);
 
-        const directories = await workos.directorySync.listDirectories({
+        const subject = await workos.directorySync.listDirectories({
           domain: 'google.com',
         });
 
-        expect(directories).toEqual(directoryListResponse);
+        expect(subject).toEqual({
+          object: 'list',
+          data: [directory],
+          listMetadata: {},
+        });
       });
     });
   });
@@ -98,11 +157,9 @@ describe('DirectorySync', () => {
         .onGet('/directories/directory_123')
         .replyOnce(200, directoryResponse);
 
-      const directory = await workos.directorySync.getDirectory(
-        'directory_123',
-      );
+      const subject = await workos.directorySync.getDirectory('directory_123');
 
-      expect(directory).toEqual(directoryResponse);
+      expect(subject).toEqual(directory);
     });
   });
 
@@ -120,14 +177,14 @@ describe('DirectorySync', () => {
     it(`requests a Directory Group`, async () => {
       mock.onGet('/directory_groups/dir_grp_123').replyOnce(200, groupResponse);
 
-      const group = await workos.directorySync.getGroup('dir_grp_123');
+      const subject = await workos.directorySync.getGroup('dir_grp_123');
 
-      expect(group).toEqual(groupResponse);
+      expect(subject).toEqual(group);
     });
   });
 
   describe('listGroups', () => {
-    const groupListResponse: List<DirectoryGroup> = {
+    const groupListResponse: List<DirectoryGroupResponse> = {
       object: 'list',
       data: [groupResponse],
       list_metadata: {},
@@ -141,11 +198,15 @@ describe('DirectorySync', () => {
           })
           .replyOnce(200, groupListResponse);
 
-        const list = await workos.directorySync.listGroups({
+        const subject = await workos.directorySync.listGroups({
           directory: 'directory_123',
         });
 
-        expect(list).toEqual(groupListResponse);
+        expect(subject).toEqual({
+          object: 'list',
+          data: [group],
+          listMetadata: {},
+        });
       });
     });
 
@@ -157,17 +218,21 @@ describe('DirectorySync', () => {
           })
           .replyOnce(200, groupListResponse);
 
-        const list = await workos.directorySync.listGroups({
+        const subject = await workos.directorySync.listGroups({
           user: 'directory_usr_123',
         });
 
-        expect(list).toEqual(groupListResponse);
+        expect(subject).toEqual({
+          object: 'list',
+          data: [group],
+          listMetadata: {},
+        });
       });
     });
   });
 
   describe('listUsers', () => {
-    const userWithGroupListResponse: List<DirectoryUserWithGroups> = {
+    const userWithGroupListResponse: List<DirectoryUserWithGroupsResponse> = {
       object: 'list',
       data: [userWithGroupResponse],
       list_metadata: {},
@@ -181,11 +246,15 @@ describe('DirectorySync', () => {
           })
           .replyOnce(200, userWithGroupListResponse);
 
-        const list = await workos.directorySync.listUsers({
+        const subject = await workos.directorySync.listUsers({
           directory: 'directory_123',
         });
 
-        expect(list).toEqual(userWithGroupListResponse);
+        expect(subject).toEqual({
+          object: 'list',
+          data: [userWithGroup],
+          listMetadata: {},
+        });
       });
 
       describe('with custom attributes', () => {
@@ -263,7 +332,7 @@ describe('DirectorySync', () => {
             });
 
           const managerIds = users.data.map(
-            (user) => user.custom_attributes.managerId,
+            (user) => user.customAttributes.managerId,
           );
 
           expect(managerIds).toEqual([
@@ -282,11 +351,15 @@ describe('DirectorySync', () => {
           })
           .replyOnce(200, userWithGroupListResponse);
 
-        const list = await workos.directorySync.listUsers({
+        const subject = await workos.directorySync.listUsers({
           group: 'directory_grp_123',
         });
 
-        expect(list).toEqual(userWithGroupListResponse);
+        expect(subject).toEqual({
+          object: 'list',
+          data: [userWithGroup],
+          listMetadata: {},
+        });
       });
     });
   });
@@ -297,9 +370,9 @@ describe('DirectorySync', () => {
         .onGet('/directory_users/dir_usr_123')
         .replyOnce(200, userWithGroupResponse);
 
-      const user = await workos.directorySync.getUser('dir_usr_123');
+      const subject = await workos.directorySync.getUser('dir_usr_123');
 
-      expect(user).toEqual(userWithGroupResponse);
+      expect(subject).toEqual(userWithGroup);
     });
   });
 });
