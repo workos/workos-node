@@ -48,7 +48,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           domains: ['example.com'],
-          order: "desc",
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -71,7 +71,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           before: 'before-id',
-          order: "desc",
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -94,7 +94,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           after: 'after-id',
-          order: "desc",
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -117,7 +117,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           limit: 10,
-          order: "desc",
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
