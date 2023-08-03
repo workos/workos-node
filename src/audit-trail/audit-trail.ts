@@ -4,6 +4,7 @@ import { EventOptions } from './interfaces/event-options.interface';
 import { List } from '../common/interfaces/list.interface';
 import { ListEventsOptions } from './interfaces/list-events-options.interface';
 import { WorkOS } from '../workos';
+import { withDefaultOrder } from '../common/utils/default-order';
 
 export class AuditTrail {
   constructor(private readonly workos: WorkOS) {}
@@ -19,7 +20,7 @@ export class AuditTrail {
     options?: ListEventsOptions,
   ): Promise<List<AuditTrailEvent>> {
     const { data } = await this.workos.get('/events', {
-      query: options,
+      query: withDefaultOrder(options),
     });
     return data;
   }
