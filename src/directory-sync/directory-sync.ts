@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { withDefaultOrder } from '../common/utils/default-order';
 import {
   DefaultCustomAttributes,
   Directory,
@@ -28,7 +29,7 @@ export class DirectorySync {
     const { data } = await this.workos.get<List<DirectoryResponse>>(
       '/directories',
       {
-        query: options,
+        query: withDefaultOrder(options),
       },
     );
 
@@ -53,7 +54,7 @@ export class DirectorySync {
     const { data } = await this.workos.get<List<DirectoryGroupResponse>>(
       `/directory_groups`,
       {
-        query: options,
+        query: withDefaultOrder(options),
       },
     );
 
@@ -66,7 +67,8 @@ export class DirectorySync {
     const { data } = await this.workos.get<
       List<DirectoryUserWithGroupsResponse<TCustomAttributes>>
     >(`/directory_users`, {
-      query: options,
+      query: withDefaultOrder(options),
+
     });
 
     return deserializeList(data, deserializeDirectoryUserWithGroups);

@@ -1,5 +1,6 @@
 import { List } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
+import { withDefaultOrder } from '../common/utils/default-order';
 import {
   CreateOrganizationOptions,
   CreateOrganizationRequestOptions,
@@ -15,7 +16,7 @@ export class Organizations {
     options?: ListOrganizationsOptions,
   ): Promise<List<Organization>> {
     const { data } = await this.workos.get('/organizations', {
-      query: options,
+      query: withDefaultOrder(options),
     });
 
     return data;
