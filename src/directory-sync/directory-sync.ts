@@ -68,7 +68,6 @@ export class DirectorySync {
       List<DirectoryUserWithGroupsResponse<TCustomAttributes>>
     >(`/directory_users`, {
       query: withDefaultOrder(options),
-
     });
 
     return deserializeList(data, deserializeDirectoryUserWithGroups);
