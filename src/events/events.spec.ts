@@ -1,8 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { List } from '../common/interfaces/list.interface';
+import { List } from '../common/interfaces';
 import { WorkOS } from '../workos';
-import { Event } from './interfaces/event.interface';
+import { Event, EventResponse } from './interfaces';
 
 const mock = new MockAdapter(axios);
 
@@ -11,7 +11,16 @@ describe('Event', () => {
 
   const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-  const eventResponse: Event = {
+  const event: Event = {
+    id: 'event_01234ABCD',
+    createdAt: '2020-05-06 04:21:48.649164',
+    event: 'dsync.user.created',
+    data: {
+      id: 'event_01234ABCD',
+    },
+  };
+
+  const eventResponse: EventResponse = {
     id: 'event_01234ABCD',
     created_at: '2020-05-06 04:21:48.649164',
     event: 'dsync.user.created',
@@ -21,7 +30,7 @@ describe('Event', () => {
   };
 
   describe('listEvents', () => {
-    const eventsListResponse: List<Event> = {
+    const eventsListResponse: List<EventResponse> = {
       object: 'list',
       data: [eventResponse],
       list_metadata: {},
@@ -30,9 +39,13 @@ describe('Event', () => {
     it(`requests Events`, async () => {
       mock.onGet('/events', {}).replyOnce(200, eventsListResponse);
 
-      const list = await workos.events.listEvents({});
+      const subject = await workos.events.listEvents({});
 
-      expect(list).toEqual(eventsListResponse);
+      expect(subject).toEqual({
+        object: 'list',
+        data: [event],
+        listMetadata: {},
+      });
     });
 
     it(`requests Events with a valid event name`, async () => {
@@ -42,7 +55,11 @@ describe('Event', () => {
         events: ['connection.activated'],
       });
 
-      expect(list).toEqual(eventsListResponse);
+      expect(list).toEqual({
+        object: 'list',
+        data: [event],
+        listMetadata: {},
+      });
     });
   });
 });

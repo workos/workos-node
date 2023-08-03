@@ -1,6 +1,6 @@
 interface EventBase {
   id: string;
-  created_at: string;
+  createdAt: string;
 }
 
 export interface ConnectionActivatedEvent extends EventBase {
@@ -88,6 +88,8 @@ export type Event =
   | DsyncUserCreatedEvent
   | DsyncUserUpdatedEvent
   | DsyncUserDeletedEvent;
+
+export type EventResponse = Omit<Event, 'createdAt'> & { created_at: string };
 
 export type EventNames =
   | 'connection.activated'
