@@ -12,6 +12,5 @@ export const serializeAuthenticateUserWithTokenOptions = (
   client_id: options.clientId,
   client_secret: options.clientSecret,
   code: options.code,
-  start_session: options.startSession,
   expires_in: options.expiresIn,
 });
