@@ -11,6 +11,7 @@ interface UnmanagedUser extends BaseUser {
   organization_memberships: OrganizationMembership[];
   email_verified_at: string | null;
   google_oauth_profile_id: string | null;
+  microsoft_oauth_profile_id: string | null;
 }
 
 interface BaseUser {
