@@ -125,11 +125,11 @@ export class WorkOS {
     }
   }
 
-  async put(
+  async put<T = any, D = any>(
     path: string,
     entity: any,
     options: PutOptions = {},
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<T, D>> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
