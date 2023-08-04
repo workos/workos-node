@@ -2,8 +2,8 @@ import { EventNames } from './event.interface';
 
 export interface ListEventOptions {
   events?: EventNames[];
-  range_start?: string;
-  range_end?: string;
+  rangeStart?: string;
+  rangeEnd?: string;
   limit?: number;
   after?: string;
 }
