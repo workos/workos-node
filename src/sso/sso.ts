@@ -7,6 +7,7 @@ import { GetProfileOptions } from './interfaces/get-profile-options.interface';
 import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
 import { ProfileAndToken } from './interfaces/profile-and-token.interface';
 import { Profile } from './interfaces/profile.interface';
+import { withDefaultOrder } from '../common/utils/default-order';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -101,7 +102,7 @@ export class SSO {
     options?: ListConnectionsOptions,
   ): Promise<List<Connection>> {
     const { data } = await this.workos.get(`/connections`, {
-      query: options,
+      query: withDefaultOrder(options),
     });
     return data;
   }
