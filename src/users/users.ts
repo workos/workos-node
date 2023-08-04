@@ -83,8 +83,11 @@ export class Users {
       any,
       SerializedAuthenticateUserWithPasswordOptions
     >(
-      '/users/authentications',
-      serializeAuthenticateUserWithPasswordOptions(payload),
+      '/users/sessions/token',
+      serializeAuthenticateUserWithPasswordOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
     );
 
     return deserializeAuthenticationResponse(data);
@@ -102,7 +105,6 @@ export class Users {
       serializeAuthenticateUserWithTokenOptions({
         ...payload,
         clientSecret: this.workos.key,
-        grantType: 'authorization_code',
       }),
     );
 

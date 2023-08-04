@@ -98,16 +98,17 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithPassword', () => {
     it('sends an password authentication request', async () => {
-      mock.onPost('/users/authentications').reply(200, {
+      mock.onPost('/users/sessions/token').reply(200, {
         user: userFixture,
         session: sessionFixture,
       });
       const resp = await workos.users.authenticateUserWithPassword({
+        clientId: 'proj_whatever',
         email: 'test01@example.com',
         password: 'extra-secure',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/authentications');
+      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
