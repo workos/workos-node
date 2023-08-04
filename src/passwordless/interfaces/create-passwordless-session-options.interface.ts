@@ -6,3 +6,12 @@ export interface CreatePasswordlessSessionOptions {
   connection?: string;
   expiresIn?: number;
 }
+
+export interface SerializedCreatePasswordlessSessionOptions {
+  type: 'MagicLink';
+  email: string;
+  redirect_uri?: string;
+  state?: string;
+  connection?: string;
+  expires_in?: number;
+}
