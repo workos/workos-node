@@ -80,9 +80,9 @@ export class WorkOS {
     });
   }
 
-  async post<T = any, D = any>(
+  async post<T = any, D = any, P = any>(
     path: string,
-    entity: any,
+    entity: P,
     options: PostOptions = {},
   ): Promise<AxiosResponse<T, D>> {
     const requestHeaders: any = {};
@@ -92,7 +92,7 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.post(path, entity, {
+      return await this.client.post<any, AxiosResponse<T, D>, P>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
@@ -125,11 +125,11 @@ export class WorkOS {
     }
   }
 
-  async put(
+  async put<T = any, D = any>(
     path: string,
     entity: any,
     options: PutOptions = {},
-  ): Promise<AxiosResponse> {
+  ): Promise<AxiosResponse<T, D>> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -148,7 +148,10 @@ export class WorkOS {
     }
   }
 
-  async delete(path: string, query?: any): Promise<AxiosResponse> {
+  async delete<T = any, D = any>(
+    path: string,
+    query?: any,
+  ): Promise<AxiosResponse<T, D>> {
     try {
       return await this.client.delete(path, {
         params: query,

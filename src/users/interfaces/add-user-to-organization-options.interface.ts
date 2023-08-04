@@ -1,4 +1,8 @@
 export interface AddUserToOrganizationOptions {
-  user_id: string;
+  userId: string;
+  organizationId: string;
+}
+
+export interface SerializedAddUserToOrganizationOptions {
   organization_id: string;
 }

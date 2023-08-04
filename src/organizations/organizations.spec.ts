@@ -18,7 +18,7 @@ describe('Organizations', () => {
       it('returns organizations and metadata', async () => {
         mock.onGet('/organizations').replyOnce(200, listOrganizationsFixture);
 
-        const { data, list_metadata: listMetadata } =
+        const { data, listMetadata } =
           await workos.organizations.listOrganizations();
 
         expect(mock.history.get[0].params).toBeUndefined();
@@ -208,7 +208,7 @@ describe('Organizations', () => {
       );
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
-      expect(subject.allow_profiles_outside_organization).toEqual(false);
+      expect(subject.allowProfilesOutsideOrganization).toEqual(false);
       expect(subject.domains).toHaveLength(1);
     });
   });

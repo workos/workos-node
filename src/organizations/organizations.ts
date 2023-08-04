@@ -1,37 +1,47 @@
-import { List } from '../common/interfaces/list.interface';
+import { DeserializedList, List } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
 import {
   CreateOrganizationOptions,
   CreateOrganizationRequestOptions,
   ListOrganizationsOptions,
   Organization,
+  OrganizationResponse,
   UpdateOrganizationOptions,
 } from './interfaces';
+import {
+  deserializeOrganization,
+  serializeCreateOrganizationOptions,
+  serializeUpdateOrganizationOptions,
+} from './serializers';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
 
   async listOrganizations(
     options?: ListOrganizationsOptions,
-  ): Promise<List<Organization>> {
-    const { data } = await this.workos.get('/organizations', {
-      query: options,
-    });
+  ): Promise<DeserializedList<Organization>> {
+    const { data } = await this.workos.get<List<OrganizationResponse>>(
+      '/organizations',
+      {
+        query: options,
+      },
+    );
 
-    return data;
+    return deserializeList(data, deserializeOrganization);
   }
 
   async createOrganization(
     payload: CreateOrganizationOptions,
     requestOptions: CreateOrganizationRequestOptions = {},
   ): Promise<Organization> {
-    const { data } = await this.workos.post(
+    const { data } = await this.workos.post<OrganizationResponse>(
       '/organizations',
-      payload,
+      serializeCreateOrganizationOptions(payload),
       requestOptions,
     );
 
-    return data;
+    return deserializeOrganization(data);
   }
 
   async deleteOrganization(id: string) {
@@ -39,8 +49,11 @@ export class Organizations {
   }
 
   async getOrganization(id: string): Promise<Organization> {
-    const { data } = await this.workos.get(`/organizations/${id}`);
-    return data;
+    const { data } = await this.workos.get<OrganizationResponse>(
+      `/organizations/${id}`,
+    );
+
+    return deserializeOrganization(data);
   }
 
   async updateOrganization(
@@ -48,11 +61,11 @@ export class Organizations {
   ): Promise<Organization> {
     const { organization: organizationId, ...payload } = options;
 
-    const { data } = await this.workos.put(
+    const { data } = await this.workos.put<OrganizationResponse>(
       `/organizations/${organizationId}`,
-      payload,
+      serializeUpdateOrganizationOptions(payload),
     );
 
-    return data;
+    return deserializeOrganization(data);
   }
 }
