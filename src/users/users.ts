@@ -4,134 +4,215 @@ import {
   AuthenticateUserWithPasswordOptions,
   AuthenticateUserWithTokenOptions,
   AuthenticationResponse,
+  AuthenticationResponseResponse,
   CompletePasswordResetOptions,
   CreateEmailVerificationChallengeOptions,
   CreateEmailVerificationChallengeResponse,
+  CreateEmailVerificationChallengeResponseResponse,
   CreatePasswordResetChallengeOptions,
   CreatePasswordResetChallengeResponse,
+  CreatePasswordResetChallengeResponseResponse,
   CreateUserOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
   RevokeSessionOptions,
+  SerializedAddUserToOrganizationOptions,
+  SerializedAuthenticateUserWithPasswordOptions,
+  SerializedAuthenticateUserWithTokenOptions,
+  SerializedCompletePasswordResetOptions,
+  SerializedCreateEmailVerificationChallengeOptions,
+  SerializedCreatePasswordResetChallengeOptions,
+  SerializedCreateUserOptions,
+  SerializedRevokeSessionOptions,
+  SerializedVerifySessionOptions,
   User,
+  UserResponse,
   VerifySessionOptions,
   VerifySessionResponse,
+  VerifySessionResponseResponse,
 } from './interfaces';
-import { List } from '../common/interfaces/list.interface';
+import { DeserializedList, List } from '../common/interfaces';
+import {
+  deserializeAuthenticationResponse,
+  deserializeCreateEmailVerificationChallengeResponse,
+  deserializeCreatePasswordResetChallengeResponse,
+  deserializeUser,
+  deserializeVerifySessionResponse,
+  serializeAuthenticateUserWithPasswordOptions,
+  serializeAuthenticateUserWithTokenOptions,
+  serializeCompletePasswordResetOptions,
+  serializeCreatePasswordResetChallengeOptions,
+  serializeCreateUserOptions,
+  serializeRevokeSessionOptions,
+  serializeVerifySessionOptions,
+} from './serializers';
+import { deserializeList } from '../common/serializers';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
 
   async getUser(userId: string): Promise<User> {
-    const { data } = await this.workos.get(`/users/${userId}`);
-    return data;
+    const { data } = await this.workos.get<UserResponse>(`/users/${userId}`);
+
+    return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<List<User>> {
-    const { data } = await this.workos.get('/users', {
+  async listUsers(options?: ListUsersOptions): Promise<DeserializedList<User>> {
+    const { data } = await this.workos.get<List<UserResponse>>('/users', {
       query: options,
     });
-    return data;
+
+    return deserializeList(data, deserializeUser);
   }
 
   async createUser(payload: CreateUserOptions): Promise<User> {
-    const { data } = await this.workos.post('/users', payload);
+    const { data } = await this.workos.post<
+      UserResponse,
+      any,
+      SerializedCreateUserOptions
+    >('/users', serializeCreateUserOptions(payload));
 
-    return data;
+    return deserializeUser(data);
   }
 
   async authenticateUserWithPassword(
     payload: AuthenticateUserWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
-    const { data } = await this.workos.post('/users/authentications', payload);
-    return data;
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateUserWithPasswordOptions
+    >(
+      '/users/authentications',
+      serializeAuthenticateUserWithPasswordOptions(payload),
+    );
+
+    return deserializeAuthenticationResponse(data);
   }
 
   async authenticateUserWithToken(
     payload: AuthenticateUserWithTokenOptions,
   ): Promise<AuthenticationResponse> {
-    const { data } = await this.workos.post('/users/sessions/token', {
-      ...payload,
-      client_secret: this.workos.key,
-      grant_type: 'authorization_code',
-    });
-    return data;
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateUserWithTokenOptions
+    >(
+      '/users/sessions/token',
+      serializeAuthenticateUserWithTokenOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+        grantType: 'authorization_code',
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
   }
 
   async verifySession(
     payload: VerifySessionOptions,
   ): Promise<VerifySessionResponse> {
-    const { data } = await this.workos.post('/users/sessions/verify', payload);
-    return data;
+    const { data } = await this.workos.post<
+      VerifySessionResponseResponse,
+      any,
+      SerializedVerifySessionOptions
+    >('/users/sessions/verify', serializeVerifySessionOptions(payload));
+
+    return deserializeVerifySessionResponse(data);
   }
 
   async revokeSession(payload: RevokeSessionOptions): Promise<boolean> {
-    const { data } = await this.workos.post(
-      '/users/sessions/revocations',
-      payload,
-    );
+    const { data } = await this.workos.post<
+      boolean,
+      any,
+      SerializedRevokeSessionOptions
+    >('/users/sessions/revocations', serializeRevokeSessionOptions(payload));
+
     return data;
   }
 
   async revokeAllSessionsForUser(userId: string): Promise<boolean> {
     const { data } = await this.workos.delete(`/users/${userId}/sessions`);
+
     return data;
   }
 
   async createEmailVerificationChallenge({
-    user_id,
-    verification_url,
+    userId,
+    verificationUrl,
   }: CreateEmailVerificationChallengeOptions): Promise<CreateEmailVerificationChallengeResponse> {
-    const { data } = await this.workos.post(
-      `/users/${user_id}/email_verification_challenge`,
-      {
-        verification_url,
-      },
-    );
-    return data;
+    const { data } = await this.workos.post<
+      CreateEmailVerificationChallengeResponseResponse,
+      any,
+      SerializedCreateEmailVerificationChallengeOptions
+    >(`/users/${userId}/email_verification_challenge`, {
+      verification_url: verificationUrl,
+    });
+
+    return deserializeCreateEmailVerificationChallengeResponse(data);
   }
 
   async completeEmailVerification(token: string): Promise<User> {
-    const { data } = await this.workos.post('/users/email_verification', {
-      token,
-    });
-    return data;
+    const { data } = await this.workos.post<UserResponse>(
+      '/users/email_verification',
+      {
+        token,
+      },
+    );
+
+    return deserializeUser(data);
   }
 
   async createPasswordResetChallenge(
     payload: CreatePasswordResetChallengeOptions,
   ): Promise<CreatePasswordResetChallengeResponse> {
-    const { data } = await this.workos.post(
+    const { data } = await this.workos.post<
+      CreatePasswordResetChallengeResponseResponse,
+      any,
+      SerializedCreatePasswordResetChallengeOptions
+    >(
       '/users/password_reset_challenge',
-      payload,
+      serializeCreatePasswordResetChallengeOptions(payload),
     );
-    return data;
+
+    return deserializeCreatePasswordResetChallengeResponse(data);
   }
 
   async completePasswordReset(
     payload: CompletePasswordResetOptions,
   ): Promise<User> {
-    const { data } = await this.workos.post('/users/password_reset', payload);
-    return data;
+    const { data } = await this.workos.post<
+      UserResponse,
+      any,
+      SerializedCompletePasswordResetOptions
+    >('/users/password_reset', serializeCompletePasswordResetOptions(payload));
+
+    return deserializeUser(data);
   }
 
   async addUserToOrganization({
-    user_id,
-    organization_id,
+    userId,
+    organizationId,
   }: AddUserToOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.post(`/users/${user_id}/organizations`, {
-      organization_id,
+    const { data } = await this.workos.post<
+      UserResponse,
+      any,
+      SerializedAddUserToOrganizationOptions
+    >(`/users/${userId}/organizations`, {
+      organization_id: organizationId,
     });
-    return data;
+
+    return deserializeUser(data);
   }
 
   async removeUserFromOrganization({
-    user_id,
-    organization_id,
+    userId,
+    organizationId,
   }: RemoveUserFromOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.delete(
-      `/users/${user_id}/organizations/${organization_id}`,
+    const { data } = await this.workos.delete<UserResponse>(
+      `/users/${userId}/organizations/${organizationId}`,
     );
-    return data;
+
+    return deserializeUser(data);
   }
 }
