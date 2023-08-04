@@ -8,10 +8,10 @@ export const serializeAuthenticateUserWithTokenOptions = (
   options: AuthenticateUserWithTokenOptions &
     AuthenticateUserWithTokenCredentials,
 ): SerializedAuthenticateUserWithTokenOptions => ({
+  grant_type: 'authorization_code',
   client_id: options.clientId,
   client_secret: options.clientSecret,
   code: options.code,
-  grant_type: options.grantType,
   start_session: options.startSession,
   expires_in: options.expiresIn,
 });
