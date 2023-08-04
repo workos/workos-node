@@ -3,22 +3,61 @@ import MockAdapter from 'axios-mock-adapter';
 import { UnprocessableEntityException } from '../common/exceptions';
 
 import { WorkOS } from '../workos';
+import {
+  Challenge,
+  ChallengeResponse,
+  Factor,
+  FactorResponse,
+  VerifyResponse,
+  VerifyResponseResponse,
+} from './interfaces';
+
+const mock = new MockAdapter(axios);
 
 describe('MFA', () => {
   describe('getFactor', () => {
-    it('throws an error for incomplete arguments', async () => {
-      const mock = new MockAdapter(axios);
-      mock.onGet().reply(200, {});
-      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-      const factor = await workos.mfa.getFactor('test_123');
+    it('returns the requested factor', async () => {
+      const factor: Factor = {
+        object: 'authentication_factor',
+        id: 'auth_factor_1234',
+        createdAt: '2022-03-15T20:39:19.892Z',
+        updatedAt: '2022-03-15T20:39:19.892Z',
+        type: 'totp',
+        totp: {
+          issuer: 'WorkOS',
+          qrCode: 'qr-code-test',
+          secret: 'secret-test',
+          uri: 'uri-test',
+          user: 'some_user',
+        },
+      };
 
-      expect(factor).toMatchInlineSnapshot(`{}`);
+      const factorResponse: FactorResponse = {
+        object: 'authentication_factor',
+        id: 'auth_factor_1234',
+        created_at: '2022-03-15T20:39:19.892Z',
+        updated_at: '2022-03-15T20:39:19.892Z',
+        type: 'totp',
+        totp: {
+          issuer: 'WorkOS',
+          qr_code: 'qr-code-test',
+          secret: 'secret-test',
+          uri: 'uri-test',
+          user: 'some_user',
+        },
+      };
+
+      mock.onGet().reply(200, factorResponse);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      const subject = await workos.mfa.getFactor('test_123');
+
+      expect(subject).toEqual(factor);
     });
   });
 
   describe('deleteFactor', () => {
     it('sends request to delete a Factor', async () => {
-      const mock = new MockAdapter(axios);
       mock.onDelete().reply(200, {});
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -31,38 +70,54 @@ describe('MFA', () => {
   describe('enrollFactor', () => {
     describe('with generic', () => {
       it('enrolls a factor with generic type', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onPost('/auth/factors/enroll').reply(200, {
+        const factor: Factor = {
+          object: 'authentication_factor',
+          id: 'auth_factor_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          type: 'generic_otp',
+        };
+
+        const factorResponse: FactorResponse = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
           created_at: '2022-03-15T20:39:19.892Z',
           updated_at: '2022-03-15T20:39:19.892Z',
           type: 'generic_otp',
-        });
+        };
+
+        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const enrollResponse = await workos.mfa.enrollFactor({
+        const subject = await workos.mfa.enrollFactor({
           type: 'generic_otp',
         });
 
-        expect(enrollResponse).toMatchInlineSnapshot(`
-          {
-            "created_at": "2022-03-15T20:39:19.892Z",
-            "id": "auth_factor_1234",
-            "object": "authentication_factor",
-            "type": "generic_otp",
-            "updated_at": "2022-03-15T20:39:19.892Z",
-          }
-        `);
+        expect(subject).toEqual(factor);
       });
     });
 
     describe('with totp', () => {
       it('enrolls a factor with totp type', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onPost('/auth/factors/enroll').reply(200, {
+        const factor: Factor = {
+          object: 'authentication_factor',
+          id: 'auth_factor_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          type: 'totp',
+          totp: {
+            issuer: 'WorkOS',
+            qrCode: 'qr-code-test',
+            secret: 'secret-test',
+            uri: 'uri-test',
+            user: 'some_user',
+          },
+        };
+
+        const factorResponse: FactorResponse = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
           created_at: '2022-03-15T20:39:19.892Z',
@@ -75,40 +130,37 @@ describe('MFA', () => {
             uri: 'uri-test',
             user: 'some_user',
           },
-        });
+        };
+
+        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const enrollResponse = await workos.mfa.enrollFactor({
+        const subject = await workos.mfa.enrollFactor({
           type: 'totp',
           issuer: 'WorkOS',
           user: 'some_user',
         });
 
-        expect(enrollResponse).toMatchInlineSnapshot(`
-          {
-            "created_at": "2022-03-15T20:39:19.892Z",
-            "id": "auth_factor_1234",
-            "object": "authentication_factor",
-            "totp": {
-              "issuer": "WorkOS",
-              "qr_code": "qr-code-test",
-              "secret": "secret-test",
-              "uri": "uri-test",
-              "user": "some_user",
-            },
-            "type": "totp",
-            "updated_at": "2022-03-15T20:39:19.892Z",
-          }
-        `);
+        expect(subject).toEqual(factor);
       });
     });
 
     describe('with sms', () => {
       it('enrolls a factor with sms type', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onPost('/auth/factors/enroll').reply(200, {
+        const factor: Factor = {
+          object: 'authentication_factor',
+          id: 'auth_factor_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          type: 'sms',
+          sms: {
+            phoneNumber: '+15555555555',
+          },
+        };
+
+        const factorResponse: FactorResponse = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
           created_at: '2022-03-15T20:39:19.892Z',
@@ -117,34 +169,24 @@ describe('MFA', () => {
           sms: {
             phone_number: '+15555555555',
           },
-        });
+        };
+
+        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const enrollResponse = await workos.mfa.enrollFactor({
+        const subject = await workos.mfa.enrollFactor({
           type: 'sms',
           phoneNumber: '+1555555555',
         });
 
-        expect(enrollResponse).toMatchInlineSnapshot(`
-          {
-            "created_at": "2022-03-15T20:39:19.892Z",
-            "id": "auth_factor_1234",
-            "object": "authentication_factor",
-            "sms": {
-              "phone_number": "+15555555555",
-            },
-            "type": "sms",
-            "updated_at": "2022-03-15T20:39:19.892Z",
-          }
-        `);
+        expect(subject).toEqual(factor);
       });
 
       describe('when phone number is invalid', () => {
         it('throws an exception', async () => {
-          const mock = new MockAdapter(axios);
-
           mock.onPost('/auth/factors/enroll').reply(
             422,
             {
@@ -174,8 +216,17 @@ describe('MFA', () => {
   describe('challengeFactor', () => {
     describe('with no sms template', () => {
       it('challenge a factor with no sms template', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onPost('/auth/factors/auth_factor_1234/challenge').reply(200, {
+        const challenge: Challenge = {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          expiresAt: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authenticationFactorId: 'auth_factor_1234',
+        };
+
+        const challengeResponse: ChallengeResponse = {
           object: 'authentication_challenge',
           id: 'auth_challenge_1234',
           created_at: '2022-03-15T20:39:19.892Z',
@@ -183,66 +234,62 @@ describe('MFA', () => {
           expires_at: '2022-03-15T21:39:19.892Z',
           code: '12345',
           authentication_factor_id: 'auth_factor_1234',
-        });
+        };
+
+        mock
+          .onPost('/auth/factors/auth_factor_1234/challenge')
+          .reply(200, challengeResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const challengeResponse = await workos.mfa.challengeFactor({
+        const subject = await workos.mfa.challengeFactor({
           authenticationFactorId: 'auth_factor_1234',
         });
 
-        expect(challengeResponse).toMatchInlineSnapshot(`
-          {
-            "authentication_factor_id": "auth_factor_1234",
-            "code": "12345",
-            "created_at": "2022-03-15T20:39:19.892Z",
-            "expires_at": "2022-03-15T21:39:19.892Z",
-            "id": "auth_challenge_1234",
-            "object": "authentication_challenge",
-            "updated_at": "2022-03-15T20:39:19.892Z",
-          }
-        `);
+        expect(subject).toEqual(challenge);
       });
     });
 
     describe('with sms template', () => {
       it('challenge a factor with sms template', async () => {
-        const mock = new MockAdapter(axios);
+        const challenge: Challenge = {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          expiresAt: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authenticationFactorId: 'auth_factor_1234',
+        };
+
+        const challengeResponse: ChallengeResponse = {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          created_at: '2022-03-15T20:39:19.892Z',
+          updated_at: '2022-03-15T20:39:19.892Z',
+          expires_at: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authentication_factor_id: 'auth_factor_1234',
+        };
+
         mock
           .onPost('/auth/factors/auth_factor_1234/challenge', {
             sms_template: 'This is your code: 12345',
           })
-          .reply(200, {
-            object: 'authentication_challenge',
-            id: 'auth_challenge_1234',
-            created_at: '2022-03-15T20:39:19.892Z',
-            updated_at: '2022-03-15T20:39:19.892Z',
-            expires_at: '2022-03-15T21:39:19.892Z',
-            code: '12345',
-            authentication_factor_id: 'auth_factor_1234',
-          });
+          .reply(200, challengeResponse);
+
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const challengeResponse = await workos.mfa.challengeFactor({
+        const subject = await workos.mfa.challengeFactor({
           authenticationFactorId: 'auth_factor_1234',
           smsTemplate: 'This is your code: 12345',
         });
 
-        expect(challengeResponse).toMatchInlineSnapshot(`
-          {
-            "authentication_factor_id": "auth_factor_1234",
-            "code": "12345",
-            "created_at": "2022-03-15T20:39:19.892Z",
-            "expires_at": "2022-03-15T21:39:19.892Z",
-            "id": "auth_challenge_1234",
-            "object": "authentication_challenge",
-            "updated_at": "2022-03-15T20:39:19.892Z",
-          }
-        `);
+        expect(subject).toEqual(challenge);
       });
     });
   });
@@ -250,53 +297,53 @@ describe('MFA', () => {
   describe('verifyChallenge', () => {
     describe('verify with successful response', () => {
       it('verifies a successful factor', async () => {
-        const mock = new MockAdapter(axios);
+        const verifyResponse: VerifyResponse = {
+          challenge: {
+            object: 'authentication_challenge',
+            id: 'auth_challenge_1234',
+            createdAt: '2022-03-15T20:39:19.892Z',
+            updatedAt: '2022-03-15T20:39:19.892Z',
+            expiresAt: '2022-03-15T21:39:19.892Z',
+            code: '12345',
+            authenticationFactorId: 'auth_factor_1234',
+          },
+          valid: true,
+        };
+
+        const verifyResponseResponse: VerifyResponseResponse = {
+          challenge: {
+            object: 'authentication_challenge',
+            id: 'auth_challenge_1234',
+            created_at: '2022-03-15T20:39:19.892Z',
+            updated_at: '2022-03-15T20:39:19.892Z',
+            expires_at: '2022-03-15T21:39:19.892Z',
+            code: '12345',
+            authentication_factor_id: 'auth_factor_1234',
+          },
+          valid: true,
+        };
+
         mock
           .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
           })
-          .reply(200, {
-            challenge: {
-              object: 'authentication_challenge',
-              id: 'auth_challenge_1234',
-              created_at: '2022-03-15T20:39:19.892Z',
-              updated_at: '2022-03-15T20:39:19.892Z',
-              expires_at: '2022-03-15T21:39:19.892Z',
-              code: '12345',
-              authentication_factor_id: 'auth_factor_1234',
-            },
-            valid: true,
-          });
+          .reply(200, verifyResponseResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
 
-        const verifyResponse = await workos.mfa.verifyChallenge({
+        const subject = await workos.mfa.verifyChallenge({
           authenticationChallengeId: 'auth_challenge_1234',
           code: '12345',
         });
 
-        expect(verifyResponse).toMatchInlineSnapshot(`
-          {
-            "challenge": {
-              "authentication_factor_id": "auth_factor_1234",
-              "code": "12345",
-              "created_at": "2022-03-15T20:39:19.892Z",
-              "expires_at": "2022-03-15T21:39:19.892Z",
-              "id": "auth_challenge_1234",
-              "object": "authentication_challenge",
-              "updated_at": "2022-03-15T20:39:19.892Z",
-            },
-            "valid": true,
-          }
-        `);
+        expect(subject).toEqual(verifyResponse);
       });
     });
 
     describe('when the challenge has been previously verified', () => {
       it('throws an exception', async () => {
-        const mock = new MockAdapter(axios);
         mock
           .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
@@ -327,7 +374,6 @@ describe('MFA', () => {
 
     describe('when the challenge has expired', () => {
       it('throws an exception', async () => {
-        const mock = new MockAdapter(axios);
         mock
           .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
@@ -356,7 +402,6 @@ describe('MFA', () => {
       });
 
       it('exception has code', async () => {
-        const mock = new MockAdapter(axios);
         mock
           .onPost('/auth/challenges/auth_challenge_1234/verify', {
             code: '12345',
