@@ -21,4 +21,4 @@ blocks:
         - name: yarn publish
           commands:
             - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-            - yarn publish --access=public
+            - yarn publish --access=public --tag=next
