@@ -4,6 +4,16 @@ export interface Organization {
   object: 'organization';
   id: string;
   name: string;
+  allowProfilesOutsideOrganization: boolean;
+  domains: OrganizationDomain[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrganizationResponse {
+  object: 'organization';
+  id: string;
+  name: string;
   allow_profiles_outside_organization: boolean;
   domains: OrganizationDomain[];
   created_at: string;
