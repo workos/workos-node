@@ -93,7 +93,7 @@ describe('UserManagement', () => {
         session: sessionFixture,
       });
       const resp = await workos.users.authenticateUserWithPassword({
-        client_id: 'proj_whatever',
+        clientId: 'proj_whatever',
         email: 'test01@example.com',
         password: 'extra-secure',
       });
