@@ -1,4 +1,4 @@
-export type User = ManagedUser | UnmanangedUser;
+export type User = ManagedUser | UnmanagedUser;
 
 interface ManagedUser extends BaseUser {
   user_type: 'managed';
@@ -6,7 +6,7 @@ interface ManagedUser extends BaseUser {
   sso_profile_id: string | null;
 }
 
-interface UnmanangedUser extends BaseUser {
+interface UnmanagedUser extends BaseUser {
   user_type: 'unmanaged';
   organization_memberships: OrganizationMembership[];
   email_verified_at: string | null;
