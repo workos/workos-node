@@ -1,4 +1,5 @@
 export interface AuthenticateUserWithPasswordOptions {
+  client_id: string;
   email: string;
   password: string;
   ip_address?: string;
