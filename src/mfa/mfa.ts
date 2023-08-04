@@ -1,11 +1,21 @@
 import { WorkOS } from '../workos';
-import { ChallengeFactorOptions } from './interfaces/challenge-factor-options';
-import { Challenge } from './interfaces/challenge.interface';
-import { EnrollFactorOptions } from './interfaces/enroll-factor-options';
-import { Factor } from './interfaces/factor.interface';
-import { VerifyFactorOptions } from './interfaces/verify-factor-options';
-import { VerifyResponse } from './interfaces/verify-challenge-response';
-import { VerifyChallengeOptions } from './interfaces/verify-challenge-options';
+import {
+  ChallengeFactorOptions,
+  Challenge,
+  EnrollFactorOptions,
+  Factor,
+  VerifyChallengeOptions,
+  VerifyFactorOptions,
+  VerifyResponse,
+  FactorResponse,
+  ChallengeResponse,
+  VerifyResponseResponse,
+} from './interfaces';
+import {
+  deserializeChallenge,
+  deserializeFactor,
+  deserializeVerifyResponse,
+} from './serializers';
 
 export class Mfa {
   constructor(private readonly workos: WorkOS) {}
@@ -14,36 +24,42 @@ export class Mfa {
     await this.workos.delete(`/auth/factors/${id}`);
   }
 
-  async getFactor(id: string) {
-    const { data } = await this.workos.get(`/auth/factors/${id}`);
-    return data;
+  async getFactor(id: string): Promise<Factor> {
+    const { data } = await this.workos.get<FactorResponse>(
+      `/auth/factors/${id}`,
+    );
+
+    return deserializeFactor(data);
   }
 
   async enrollFactor(options: EnrollFactorOptions): Promise<Factor> {
-    const { data } = await this.workos.post('/auth/factors/enroll', {
-      type: options.type,
-      ...(() => {
-        switch (options.type) {
-          case 'sms':
-            return {
-              phone_number: options.phoneNumber,
-            };
-          case 'totp':
-            return {
-              totp_issuer: options.issuer,
-              totp_user: options.user,
-            };
-          default:
-            return {};
-        }
-      })(),
-    });
+    const { data } = await this.workos.post<FactorResponse>(
+      '/auth/factors/enroll',
+      {
+        type: options.type,
+        ...(() => {
+          switch (options.type) {
+            case 'sms':
+              return {
+                phone_number: options.phoneNumber,
+              };
+            case 'totp':
+              return {
+                totp_issuer: options.issuer,
+                totp_user: options.user,
+              };
+            default:
+              return {};
+          }
+        })(),
+      },
+    );
 
-    return data;
+    return deserializeFactor(data);
   }
 
   async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {
-    const { data } = await this.workos.post(
+    const { data } = await this.workos.post<ChallengeResponse>(
       `/auth/factors/${options.authenticationFactorId}/challenge`,
       {
         sms_template:
@@ -51,7 +67,7 @@ export class Mfa {
       },
     );
 
-    return data;
+    return deserializeChallenge(data);
   }
 
   /**
@@ -64,13 +80,13 @@ export class Mfa {
   async verifyChallenge(
     options: VerifyChallengeOptions,
   ): Promise<VerifyResponse> {
-    const { data } = await this.workos.post(
+    const { data } = await this.workos.post<VerifyResponseResponse>(
       `/auth/challenges/${options.authenticationChallengeId}/verify`,
       {
         code: options.code,
       },
     );
 
-    return data;
+    return deserializeVerifyResponse(data);
   }
 }
