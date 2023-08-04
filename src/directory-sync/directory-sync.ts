@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { Autopaginatable } from '../common/utils/pagination'; 
 import {
   DefaultCustomAttributes,
   Directory,
@@ -21,10 +22,9 @@ import {
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
-
   async listDirectories(
     options?: ListDirectoriesOptions,
-  ): Promise<DeserializedList<Directory>> {
+  ): Promise<Autopaginatable<Directory>> {
     const { data } = await this.workos.get<List<DirectoryResponse>>(
       '/directories',
       {
@@ -32,7 +32,13 @@ export class DirectorySync {
       },
     );
 
-    return deserializeList(data, deserializeDirectory);
+    const params = {
+      order: options?.order ?? 'desc', 
+      limit: options?.limit,
+    };
+  
+    data.params = params;
+    return new Autopaginatable(deserializeList(data, deserializeDirectory), params => this.listDirectories(params));
   }
 
   async getDirectory(id: string): Promise<Directory> {
@@ -89,4 +95,5 @@ export class DirectorySync {
 
     return deserializeDirectoryGroup(data);
   }
+
 }
