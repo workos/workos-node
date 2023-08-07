@@ -9,6 +9,26 @@ export interface ConnectionDomain {
 export interface Connection {
   object: 'connection';
   id: string;
+  organizationId?: string;
+  name: string;
+  /**
+   * @deprecated The connectionType parameter has been deprecated. Please use type.
+   */
+  connectionType: ConnectionType;
+  state: 'draft' | 'active' | 'inactive' | 'validating';
+  /**
+   * @deprecated The status parameter has been deprecated. Please use state.
+   */
+  status: 'linked' | 'unlinked';
+  domains: ConnectionDomain[];
+  type: ConnectionType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConnectionResponse {
+  object: 'connection';
+  id: string;
   organization_id?: string;
   name: string;
   connection_type: ConnectionType;

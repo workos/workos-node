@@ -1,12 +1,23 @@
-import { List } from '../common/interfaces/list.interface';
+import { DeserializedList, List } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
-import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
-import { Connection } from './interfaces/connection.interface';
-import { GetProfileAndTokenOptions } from './interfaces/get-profile-and-token-options.interface';
-import { GetProfileOptions } from './interfaces/get-profile-options.interface';
-import { ListConnectionsOptions } from './interfaces/list-connections-options.interface';
-import { ProfileAndToken } from './interfaces/profile-and-token.interface';
-import { Profile } from './interfaces/profile.interface';
+import {
+  AuthorizationURLOptions,
+  Connection,
+  ConnectionResponse,
+  GetProfileAndTokenOptions,
+  GetProfileOptions,
+  ListConnectionsOptions,
+  Profile,
+  ProfileAndToken,
+  ProfileAndTokenResponse,
+  ProfileResponse,
+} from './interfaces';
+import {
+  deserializeConnection,
+  deserializeProfile,
+  deserializeProfileAndToken,
+} from './serializers';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -70,8 +81,11 @@ export class SSO {
   }
 
   async getConnection(id: string): Promise<Connection> {
-    const { data } = await this.workos.get(`/connections/${id}`);
-    return data;
+    const { data } = await this.workos.get<ConnectionResponse>(
+      `/connections/${id}`,
+    );
+
+    return deserializeConnection(data);
   }
 
   async getProfileAndToken({
@@ -85,24 +99,32 @@ export class SSO {
       code,
     });
 
-    const { data } = await this.workos.post('/sso/token', form);
-    return data;
+    const { data } = await this.workos.post<ProfileAndTokenResponse>(
+      '/sso/token',
+      form,
+    );
+
+    return deserializeProfileAndToken(data);
   }
 
   async getProfile({ accessToken }: GetProfileOptions): Promise<Profile> {
-    const { data } = await this.workos.get('/sso/profile', {
+    const { data } = await this.workos.get<ProfileResponse>('/sso/profile', {
       accessToken,
     });
 
-    return data;
+    return deserializeProfile(data);
   }
 
   async listConnections(
     options?: ListConnectionsOptions,
-  ): Promise<List<Connection>> {
-    const { data } = await this.workos.get(`/connections`, {
-      query: options,
-    });
-    return data;
+  ): Promise<DeserializedList<Connection>> {
+    const { data } = await this.workos.get<List<ConnectionResponse>>(
+      `/connections`,
+      {
+        query: options,
+      },
+    );
+
+    return deserializeList(data, deserializeConnection);
   }
 }
