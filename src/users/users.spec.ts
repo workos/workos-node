@@ -331,12 +331,10 @@ describe('UserManagement', () => {
 
   describe('updateUserPassword', () => {
     it('sends a updateUserPassword request', async () => {
-      mock
-        .onPut(`/users/${userId}/password`)
-        .reply(200, userFixture);
+      mock.onPut(`/users/${userId}/password`).reply(200, userFixture);
       const resp = await workos.users.updateUserPassword({
         userId,
-        password: 'secure'
+        password: 'secure',
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}/password`);
