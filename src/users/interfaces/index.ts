@@ -11,3 +11,4 @@ export * from './remove-user-from-organization-options.interface';
 export * from './revoke-session-options.interface';
 export * from './user.interface';
 export * from './verify-session.interface';
+export * from './update-user-password-options.interface';
