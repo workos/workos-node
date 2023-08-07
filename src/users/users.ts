@@ -24,7 +24,9 @@ import {
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedRevokeSessionOptions,
+  SerializedUpdateUserPasswordOptions,
   SerializedVerifySessionOptions,
+  UpdateUserPasswordOptions,
   User,
   UserResponse,
   VerifySessionOptions,
@@ -44,6 +46,7 @@ import {
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
+  serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
 } from './serializers';
 import { deserializeList } from '../common/serializers';
@@ -213,6 +216,18 @@ export class Users {
   }: RemoveUserFromOrganizationOptions): Promise<User> {
     const { data } = await this.workos.delete<UserResponse>(
       `/users/${userId}/organizations/${organizationId}`,
+    );
+
+    return deserializeUser(data);
+  }
+
+  async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
+    const { data } = await this.workos.put<
+      UserResponse,
+      SerializedUpdateUserPasswordOptions
+    >(
+      `/users/${payload.userId}/password`,
+      serializeUpdateUserPasswordOptions(payload),
     );
 
     return deserializeUser(data);
