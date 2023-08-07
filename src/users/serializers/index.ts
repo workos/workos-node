@@ -7,5 +7,6 @@ export * from './create-password-reset-challenge.serializer';
 export * from './create-user-options.serializer';
 export * from './revoke-session-options.serializer';
 export * from './session.serializer';
+export * from './update-user-password.serializer';
 export * from './user.serializer';
 export * from './verify-session.serializer';
