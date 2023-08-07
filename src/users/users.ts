@@ -222,10 +222,7 @@ export class Users {
   }
 
   async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
-    const { data } = await this.workos.put<
-      UserResponse,
-      SerializedUpdateUserPasswordOptions
-    >(
+    const { data } = await this.workos.put<UserResponse>(
       `/users/${payload.userId}/password`,
       serializeUpdateUserPasswordOptions(payload),
     );
