@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { Autopaginatable } from '../common/utils/pagination';
 import {
   DefaultCustomAttributes,
   Directory,
@@ -11,7 +12,7 @@ import {
   ListDirectoryUsersOptions,
   ListGroupsOptions,
 } from './interfaces';
-import { DeserializedList, List } from '../common/interfaces';
+import { List } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import {
   deserializeDirectory,
@@ -21,10 +22,9 @@ import {
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
-
   async listDirectories(
     options?: ListDirectoriesOptions,
-  ): Promise<DeserializedList<Directory>> {
+  ): Promise<Autopaginatable<Directory>> {
     const { data } = await this.workos.get<List<DirectoryResponse>>(
       '/directories',
       {
@@ -32,7 +32,16 @@ export class DirectorySync {
       },
     );
 
-    return deserializeList(data, deserializeDirectory);
+    const params = {
+      order: options?.order ?? 'desc',
+      limit: options?.limit,
+    };
+
+    data.params = params;
+    return new Autopaginatable(
+      deserializeList(data, deserializeDirectory),
+      (params) => this.listDirectories(params),
+    );
   }
 
   async getDirectory(id: string): Promise<Directory> {
@@ -49,7 +58,7 @@ export class DirectorySync {
 
   async listGroups(
     options: ListGroupsOptions,
-  ): Promise<DeserializedList<DirectoryGroup>> {
+  ): Promise<Autopaginatable<DirectoryGroup>> {
     const { data } = await this.workos.get<List<DirectoryGroupResponse>>(
       `/directory_groups`,
       {
@@ -57,19 +66,37 @@ export class DirectorySync {
       },
     );
 
-    return deserializeList(data, deserializeDirectoryGroup);
+    const params = {
+      order: options?.order ?? 'desc',
+      limit: options?.limit,
+    };
+
+    data.params = params;
+    return new Autopaginatable(
+      deserializeList(data, deserializeDirectoryGroup),
+      (params) => this.listGroups(params),
+    );
   }
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
-  ): Promise<DeserializedList<DirectoryUserWithGroups<TCustomAttributes>>> {
+  ): Promise<Autopaginatable<DirectoryUserWithGroups<TCustomAttributes>>> {
     const { data } = await this.workos.get<
       List<DirectoryUserWithGroupsResponse<TCustomAttributes>>
     >(`/directory_users`, {
       query: options,
     });
 
-    return deserializeList(data, deserializeDirectoryUserWithGroups);
+    const params = {
+      order: options?.order ?? 'desc',
+      limit: options?.limit,
+    };
+
+    data.params = params;
+    return new Autopaginatable(
+      deserializeList(data, deserializeDirectoryUserWithGroups),
+      (params) => this.listUsers(params),
+    );
   }
 
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
