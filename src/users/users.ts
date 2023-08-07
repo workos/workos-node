@@ -46,6 +46,7 @@ import {
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
+  serializeUpdateUserOptions,
   serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
 } from './serializers';
