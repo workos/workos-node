@@ -46,6 +46,7 @@ import {
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
+  serializeUpdateUserPassword,
   serializeVerifySessionOptions,
 } from './serializers';
 import { deserializeList } from '../common/serializers';
@@ -220,16 +221,14 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async updateUserPassword({
-    userId,
-    password,
-  }: UpdateUserPasswordOptions): Promise<User> {
+  async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
     const { data } = await this.workos.put<
       UserResponse,
       SerializedUpdateUserPasswordOptions
-    >(`/users/${userId}/password`, {
-      password,
-    });
+    >(
+      `/users/${payload.userId}/password`,
+      serializeUpdateUserPassword(payload),
+    );
 
     return deserializeUser(data);
   }
