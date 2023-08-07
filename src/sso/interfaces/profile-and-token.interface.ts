@@ -1,6 +1,11 @@
-import { Profile } from './profile.interface';
+import { Profile, ProfileResponse } from './profile.interface';
 
 export interface ProfileAndToken {
-  access_token: string;
+  accessToken: string;
   profile: Profile;
+}
+
+export interface ProfileAndTokenResponse {
+  access_token: string;
+  profile: ProfileResponse;
 }

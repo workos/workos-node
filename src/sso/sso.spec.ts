@@ -2,8 +2,22 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import { WorkOS } from '../workos';
+import { ConnectionResponse, ConnectionType } from './interfaces';
 
 describe('SSO', () => {
+  const connectionResponse: ConnectionResponse = {
+    object: 'connection',
+    id: 'conn_123',
+    organization_id: 'org_123',
+    name: 'Connection',
+    connection_type: ConnectionType.OktaSAML,
+    state: 'active',
+    status: 'linked',
+    domains: [],
+    created_at: '2023-07-17T20:07:20.055Z',
+    updated_at: '2023-07-17T20:07:20.055Z',
+  };
+
   describe('SSO', () => {
     describe('getAuthorizationURL', () => {
       describe('with no custom api hostname', () => {
@@ -197,11 +211,10 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const { access_token: accessToken, profile } =
-            await workos.sso.getProfileAndToken({
-              code: 'authorization_code',
-              clientID: 'proj_123',
-            });
+          const { accessToken, profile } = await workos.sso.getProfileAndToken({
+            code: 'authorization_code',
+            clientID: 'proj_123',
+          });
 
           expect(mock.history.post.length).toBe(1);
           const { data, headers } = mock.history.post[0];
@@ -257,11 +270,10 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const { access_token: accessToken, profile } =
-            await workos.sso.getProfileAndToken({
-              code: 'authorization_code',
-              clientID: 'proj_123',
-            });
+          const { accessToken, profile } = await workos.sso.getProfileAndToken({
+            code: 'authorization_code',
+            clientID: 'proj_123',
+          });
 
           expect(mock.history.post.length).toBe(1);
           const { data, headers } = mock.history.post[0];
@@ -329,26 +341,33 @@ describe('SSO', () => {
     describe('getConnection', () => {
       it(`requests a Connection`, async () => {
         const mock = new MockAdapter(axios);
-        mock.onGet('/connections/conn_123').replyOnce(200, {});
+        mock.onGet('/connections/conn_123').replyOnce(200, connectionResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await workos.sso.getConnection('conn_123');
+        const subject = await workos.sso.getConnection('conn_123');
 
         expect(mock.history.get[0].url).toEqual('/connections/conn_123');
+
+        expect(subject.connectionType).toEqual('OktaSAML');
       });
     });
 
     describe('listConnections', () => {
       it(`requests a list of Connections`, async () => {
         const mock = new MockAdapter(axios);
-        mock.onGet('/connections').replyOnce(200, {});
+        mock.onGet('/connections').replyOnce(200, {
+          data: [connectionResponse],
+          list_metadata: {},
+        });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await workos.sso.listConnections();
+        const subject = await workos.sso.listConnections();
 
         expect(mock.history.get[0].url).toEqual('/connections');
+
+        expect(subject.data).toHaveLength(1);
       });
     });
   });
