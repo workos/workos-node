@@ -27,19 +27,19 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 3`] = `
 {
-  "connection_id": "conn_123",
-  "connection_type": "OktaSAML",
+  "connectionId": "conn_123",
+  "connectionType": "OktaSAML",
   "email": "foo@test.com",
-  "first_name": "foo",
+  "firstName": "foo",
   "groups": [
     "Admins",
     "Developers",
   ],
   "id": "prof_123",
-  "idp_id": "123",
-  "last_name": "bar",
-  "organization_id": "org_123",
-  "raw_attributes": {
+  "idpId": "123",
+  "lastName": "bar",
+  "organizationId": "org_123",
+  "rawAttributes": {
     "email": "foo@test.com",
     "first_name": "foo",
     "groups": [
@@ -64,15 +64,16 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
 
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 3`] = `
 {
-  "connection_id": "conn_123",
-  "connection_type": "OktaSAML",
+  "connectionId": "conn_123",
+  "connectionType": "OktaSAML",
   "email": "foo@test.com",
-  "first_name": "foo",
+  "firstName": "foo",
+  "groups": undefined,
   "id": "prof_123",
-  "idp_id": "123",
-  "last_name": "bar",
-  "organization_id": "org_123",
-  "raw_attributes": {
+  "idpId": "123",
+  "lastName": "bar",
+  "organizationId": "org_123",
+  "rawAttributes": {
     "email": "foo@test.com",
     "first_name": "foo",
     "last_name": "bar",
