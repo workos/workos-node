@@ -7,5 +7,4 @@ export const deserializeList = <TSerialized, TDeserialized>(
   object: 'list',
   data: list.data.map(deserializer),
   listMetadata: list.list_metadata,
-  params: list.params,
 });

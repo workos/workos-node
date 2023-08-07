@@ -5,10 +5,6 @@ export interface List<T> {
     before?: string;
     after?: string;
   };
-  params?: {
-    limit?: number;
-    order?: 'asc' | 'desc';
-  };
 }
 
 export interface DeserializedList<T> {
@@ -17,9 +13,5 @@ export interface DeserializedList<T> {
   listMetadata: {
     before?: string;
     after?: string;
-  };
-  params?: {
-    limit?: number;
-    order?: 'asc' | 'desc';
   };
 }

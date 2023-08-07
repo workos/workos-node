@@ -1,43 +1,45 @@
 import { DeserializedList, PaginationOptions } from '../interfaces';
 
 export class AutoPaginatable<T> {
+  private readonly options: PaginationOptions;
+
   constructor(
-    private _list: DeserializedList<T>,
-    private apiCall: (params: PaginationOptions) => Promise<Autopaginatable<T>>,
-  ) {}
+    private list: DeserializedList<T>,
+    private apiCall: (params: PaginationOptions) => Promise<AutoPaginatable<T>>,
+    options?: PaginationOptions
+  ){
+    this.options = {
+      ...options
+    };
+  }
 
   get data() {
-    return this._list.data;
+    return this.list.data;
   }
 
   get listMetadata() {
-    return this._list.listMetadata;
-  }
-
-  get listParams() {
-    return this._list.params;
+    return this.list.listMetadata;
   }
 
   async *generatePages(): AsyncGenerator<T[]> {
     let after = this.listMetadata.after;
-    let order = this.listParams?.order;
 
     while (after) {
-      const newlist = await this.apiCall({ order, after });
+      const newlist = await this.apiCall({ ...this.options, after });
       yield newlist.data;
       after = newlist.listMetadata.after;
     }
   }
 
   async autoPagination(): Promise<T[]> {
-    if (!this.listParams?.limit) {
-      const results: T[] = [];
-      for await (const page of this.generatePages()) {
-        results.push(...page);
-      }
-      return results;
+    if (!this.options.limit) {
+        const results: T[] = [];
+        for await (const page of this.generatePages()) {
+            results.push(...page);
+        }
+        return results;
     } else {
-      return this.data;
+        return this.data;
     }
   }
 }
