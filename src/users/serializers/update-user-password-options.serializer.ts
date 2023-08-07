@@ -3,7 +3,7 @@ import {
   UpdateUserPasswordOptions,
 } from '../interfaces';
 
-export const serializeUpdateUserPassword = (
+export const serializeUpdateUserPasswordOptions = (
   options: UpdateUserPasswordOptions,
 ): SerializedUpdateUserPasswordOptions => ({
   password: options.password,

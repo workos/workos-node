@@ -46,7 +46,7 @@ import {
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
-  serializeUpdateUserPassword,
+  serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
 } from './serializers';
 import { deserializeList } from '../common/serializers';
@@ -227,7 +227,7 @@ export class Users {
       SerializedUpdateUserPasswordOptions
     >(
       `/users/${payload.userId}/password`,
-      serializeUpdateUserPassword(payload),
+      serializeUpdateUserPasswordOptions(payload),
     );
 
     return deserializeUser(data);
