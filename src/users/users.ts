@@ -24,7 +24,6 @@ import {
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedRevokeSessionOptions,
-  SerializedUpdateUserPasswordOptions,
   SerializedVerifySessionOptions,
   UpdateUserPasswordOptions,
   User,
