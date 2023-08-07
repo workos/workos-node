@@ -8,7 +8,7 @@ export interface List<T> {
   params?: {
     limit?: number;
     order?: 'asc' | 'desc';
-  }
+  };
 }
 
 export interface DeserializedList<T> {
@@ -21,5 +21,5 @@ export interface DeserializedList<T> {
   params?: {
     limit?: number;
     order?: 'asc' | 'desc';
-  }
+  };
 }

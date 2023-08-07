@@ -1,9 +1,11 @@
-import { DeserializedList, PaginationOptions} from '../interfaces';
-// Autopaginatable class definition
-export class Autopaginatable<T> {
-  constructor(private _list: DeserializedList<T>, private apiCall: (params: PaginationOptions) => Promise<Autopaginatable<T>>) {}
+import { DeserializedList, PaginationOptions } from '../interfaces';
 
-  
+export class AutoPaginatable<T> {
+  constructor(
+    private _list: DeserializedList<T>,
+    private apiCall: (params: PaginationOptions) => Promise<Autopaginatable<T>>,
+  ) {}
+
   get data() {
     return this._list.data;
   }
