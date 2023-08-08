@@ -1,11 +1,5 @@
 import { UnexpectedUserTypeException } from '../exceptions';
-import {
-  BaseUser,
-  OrganizationMembership,
-  OrganizationMembershipResponse,
-  User,
-  UserResponse,
-} from '../interfaces';
+import { BaseUser, User, UserResponse } from '../interfaces';
 
 export const deserializeUser = (user: UserResponse): User => {
   const baseUser: BaseUser = {
@@ -23,18 +17,12 @@ export const deserializeUser = (user: UserResponse): User => {
       return {
         ...baseUser,
         userType: user.user_type,
-        organizationMemberships: [
-          deserializeOrganizationMembership(user.organization_memberships[0]),
-        ],
         ssoProfileId: user.sso_profile_id,
       };
     case 'unmanaged':
       return {
         ...baseUser,
         userType: user.user_type,
-        organizationMemberships: user.organization_memberships.map(
-          deserializeOrganizationMembership,
-        ),
         emailVerifiedAt: user.email_verified_at,
         googleOauthProfileId: user.google_oauth_profile_id,
         microsoftOauthProfileId: user.microsoft_oauth_profile_id,
@@ -43,11 +31,3 @@ export const deserializeUser = (user: UserResponse): User => {
       throw new UnexpectedUserTypeException(user);
   }
 };
-
-const deserializeOrganizationMembership = (
-  organizationMembership: OrganizationMembershipResponse,
-): OrganizationMembership => ({
-  organization: organizationMembership.organization,
-  createdAt: organizationMembership.created_at,
-  updatedAt: organizationMembership.updated_at,
-});
