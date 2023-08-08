@@ -1,4 +1,4 @@
-import { DeserializedList, List } from '../common/interfaces';
+import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
 import {
@@ -20,8 +20,8 @@ export class Organizations {
 
   async listOrganizations(
     options?: ListOrganizationsOptions,
-  ): Promise<DeserializedList<Organization>> {
-    const { data } = await this.workos.get<List<OrganizationResponse>>(
+  ): Promise<List<Organization>> {
+    const { data } = await this.workos.get<ListResponse<OrganizationResponse>>(
       '/organizations',
       {
         query: options,

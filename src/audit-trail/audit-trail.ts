@@ -1,7 +1,7 @@
 import { CreateEventOptions } from './interfaces/create-event-options.interface';
 import { AuditTrailEvent } from './interfaces/event.interface';
 import { EventOptions } from './interfaces/event-options.interface';
-import { List } from '../common/interfaces/list.interface';
+import { ListResponse } from '../common/interfaces';
 import { ListEventsOptions } from './interfaces/list-events-options.interface';
 import { WorkOS } from '../workos';
 
@@ -17,7 +17,7 @@ export class AuditTrail {
 
   async listEvents(
     options?: ListEventsOptions,
-  ): Promise<List<AuditTrailEvent>> {
+  ): Promise<ListResponse<AuditTrailEvent>> {
     const { data } = await this.workos.get('/events', {
       query: options,
     });
