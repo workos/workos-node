@@ -31,14 +31,16 @@ describe('Webhooks', () => {
           primary: true,
         },
       ],
-      idp_id: '00u1e8mutl6wlH3lL4x7',
+      idpId: '00u1e8mutl6wlH3lL4x7',
       object: 'directory_user',
       username: 'blair@foo-corp.com',
-      last_name: 'Lunchford',
-      first_name: 'Blair',
-      job_title: 'Software Engineer',
-      directory_id: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
-      raw_attributes: {
+      lastName: 'Lunchford',
+      firstName: 'Blair',
+      jobTitle: 'Software Engineer',
+      directoryId: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
+      createdAt: '2021-06-25T19:07:33.155Z',
+      updatedAt: '2021-06-25T19:07:33.155Z',
+      rawAttributes: {
         name: {
           givenName: 'Blair',
           familyName: 'Lunchford',
