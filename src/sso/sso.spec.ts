@@ -12,7 +12,6 @@ describe('SSO', () => {
     name: 'Connection',
     connection_type: ConnectionType.OktaSAML,
     state: 'active',
-    status: 'linked',
     domains: [],
     created_at: '2023-07-17T20:07:20.055Z',
     updated_at: '2023-07-17T20:07:20.055Z',
