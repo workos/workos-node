@@ -1,6 +1,6 @@
 import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
 
-export interface ListGroupsOptions extends PaginationOptions {
+export interface ListDirectoryGroupsOptions extends PaginationOptions {
   directory?: string;
   user?: string;
 }
