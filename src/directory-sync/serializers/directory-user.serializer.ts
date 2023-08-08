@@ -14,6 +14,7 @@ export const deserializeDirectoryUser = <
     | DirectoryUserResponse<TCustomAttributes>
     | DirectoryUserWithGroupsResponse<TCustomAttributes>,
 ): DirectoryUser<TCustomAttributes> => ({
+  object: directoryUser.object,
   id: directoryUser.id,
   directoryId: directoryUser.directory_id,
   organizationId: directoryUser.organization_id,
