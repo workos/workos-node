@@ -8,5 +8,6 @@ export * from './create-user-options.serializer';
 export * from './revoke-session-options.serializer';
 export * from './session.serializer';
 export * from './update-user-password-options.serializer';
+export * from './update-user-options.serializer';
 export * from './user.serializer';
 export * from './verify-session.serializer';

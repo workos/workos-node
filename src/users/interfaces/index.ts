@@ -12,3 +12,4 @@ export * from './revoke-session-options.interface';
 export * from './user.interface';
 export * from './verify-session.interface';
 export * from './update-user-password-options.interface';
+export * from './update-user-options.interface';
