@@ -328,4 +328,35 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('updateUser', () => {
+    it('sends a updateUser request', async () => {
+      mock.onPut(`/users/${userId}`).reply(200, userFixture);
+      const resp = await workos.users.updateUser({
+        userId,
+        firstName: 'Dane',
+        lastName: 'Williams',
+      });
+
+      expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+      expect(resp).toMatchObject({
+        email: 'test01@example.com',
+      });
+    });
+  });
+
+  describe('updateUserPassword', () => {
+    it('sends a updateUserPassword request', async () => {
+      mock.onPut(`/users/${userId}/password`).reply(200, userFixture);
+      const resp = await workos.users.updateUserPassword({
+        userId,
+        password: 'secure',
+      });
+
+      expect(mock.history.put[0].url).toEqual(`/users/${userId}/password`);
+      expect(resp).toMatchObject({
+        email: 'test01@example.com',
+      });
+    });
+  });
 });
