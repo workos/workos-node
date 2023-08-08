@@ -1,3 +1,4 @@
+export * from './at-least-one-property-of.interface';
 export * from './get-options.interface';
 export * from './list.interface';
 export * from './post-options.interface';
