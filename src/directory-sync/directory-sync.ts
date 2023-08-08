@@ -8,8 +8,8 @@ import {
   DirectoryUserWithGroups,
   DirectoryUserWithGroupsResponse,
   ListDirectoriesOptions,
+  ListDirectoryGroupsOptions,
   ListDirectoryUsersOptions,
-  ListGroupsOptions,
 } from './interfaces';
 import { DeserializedList, List } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
@@ -48,7 +48,7 @@ export class DirectorySync {
   }
 
   async listGroups(
-    options: ListGroupsOptions,
+    options: ListDirectoryGroupsOptions,
   ): Promise<DeserializedList<DirectoryGroup>> {
     const { data } = await this.workos.get<List<DirectoryGroupResponse>>(
       `/directory_groups`,
