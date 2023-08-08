@@ -8,8 +8,8 @@ import {
   DirectoryUserWithGroups,
   DirectoryUserWithGroupsResponse,
   ListDirectoriesOptions,
+  ListDirectoryGroupsOptions,
   ListDirectoryUsersOptions,
-  ListGroupsOptions,
 } from './interfaces';
 import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
@@ -47,7 +47,9 @@ export class DirectorySync {
     await this.workos.delete(`/directories/${id}`);
   }
 
-  async listGroups(options: ListGroupsOptions): Promise<List<DirectoryGroup>> {
+  async listGroups(
+    options: ListDirectoryGroupsOptions,
+  ): Promise<List<DirectoryGroup>> {
     const { data } = await this.workos.get<
       ListResponse<DirectoryGroupResponse>
     >(`/directory_groups`, {
