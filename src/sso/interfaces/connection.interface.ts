@@ -16,10 +16,6 @@ export interface Connection {
    */
   connectionType: ConnectionType;
   state: 'draft' | 'active' | 'inactive' | 'validating';
-  /**
-   * @deprecated The status parameter has been deprecated. Please use state.
-   */
-  status: 'linked' | 'unlinked';
   domains: ConnectionDomain[];
   type: ConnectionType;
   createdAt: string;
@@ -33,10 +29,6 @@ export interface ConnectionResponse {
   name: string;
   connection_type: ConnectionType;
   state: 'draft' | 'active' | 'inactive' | 'validating';
-  /**
-   * @deprecated The status parameter has been deprecated. Please use state.
-   */
-  status: 'linked' | 'unlinked';
   domains: ConnectionDomain[];
   created_at: string;
   updated_at: string;
