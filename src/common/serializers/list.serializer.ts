@@ -1,9 +1,9 @@
-import { DeserializedList, List } from '../interfaces';
+import { List, ListResponse } from '../interfaces';
 
 export const deserializeList = <TSerialized, TDeserialized>(
-  list: List<TSerialized>,
+  list: ListResponse<TSerialized>,
   deserializer: (serialized: TSerialized) => TDeserialized,
-): DeserializedList<TDeserialized> => ({
+): List<TDeserialized> => ({
   object: 'list',
   data: list.data.map(deserializer),
   listMetadata: list.list_metadata,

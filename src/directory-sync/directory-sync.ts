@@ -8,10 +8,10 @@ import {
   DirectoryUserWithGroups,
   DirectoryUserWithGroupsResponse,
   ListDirectoriesOptions,
+  ListDirectoryGroupsOptions,
   ListDirectoryUsersOptions,
-  ListGroupsOptions,
 } from './interfaces';
-import { DeserializedList, List } from '../common/interfaces';
+import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import {
   deserializeDirectory,
@@ -24,8 +24,8 @@ export class DirectorySync {
 
   async listDirectories(
     options?: ListDirectoriesOptions,
-  ): Promise<DeserializedList<Directory>> {
-    const { data } = await this.workos.get<List<DirectoryResponse>>(
+  ): Promise<List<Directory>> {
+    const { data } = await this.workos.get<ListResponse<DirectoryResponse>>(
       '/directories',
       {
         query: options,
@@ -48,23 +48,22 @@ export class DirectorySync {
   }
 
   async listGroups(
-    options: ListGroupsOptions,
-  ): Promise<DeserializedList<DirectoryGroup>> {
-    const { data } = await this.workos.get<List<DirectoryGroupResponse>>(
-      `/directory_groups`,
-      {
-        query: options,
-      },
-    );
+    options: ListDirectoryGroupsOptions,
+  ): Promise<List<DirectoryGroup>> {
+    const { data } = await this.workos.get<
+      ListResponse<DirectoryGroupResponse>
+    >(`/directory_groups`, {
+      query: options,
+    });
 
     return deserializeList(data, deserializeDirectoryGroup);
   }
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
-  ): Promise<DeserializedList<DirectoryUserWithGroups<TCustomAttributes>>> {
+  ): Promise<List<DirectoryUserWithGroups<TCustomAttributes>>> {
     const { data } = await this.workos.get<
-      List<DirectoryUserWithGroupsResponse<TCustomAttributes>>
+      ListResponse<DirectoryUserWithGroupsResponse<TCustomAttributes>>
     >(`/directory_users`, {
       query: options,
     });

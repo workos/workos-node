@@ -1,7 +1,7 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
-import { List } from '../common/interfaces/list.interface';
+import { ListResponse } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import {
   Directory,
@@ -128,7 +128,7 @@ describe('DirectorySync', () => {
   describe('listDirectories', () => {
     describe('with options', () => {
       it('requests Directories with query parameters', async () => {
-        const directoryListResponse: List<DirectoryResponse> = {
+        const directoryListResponse: ListResponse<DirectoryResponse> = {
           object: 'list',
           data: [directoryResponse],
           list_metadata: {},
@@ -186,7 +186,7 @@ describe('DirectorySync', () => {
   });
 
   describe('listGroups', () => {
-    const groupListResponse: List<DirectoryGroupResponse> = {
+    const groupListResponse: ListResponse<DirectoryGroupResponse> = {
       object: 'list',
       data: [groupResponse],
       list_metadata: {},
@@ -234,11 +234,12 @@ describe('DirectorySync', () => {
   });
 
   describe('listUsers', () => {
-    const userWithGroupListResponse: List<DirectoryUserWithGroupsResponse> = {
-      object: 'list',
-      data: [userWithGroupResponse],
-      list_metadata: {},
-    };
+    const userWithGroupListResponse: ListResponse<DirectoryUserWithGroupsResponse> =
+      {
+        object: 'list',
+        data: [userWithGroupResponse],
+        list_metadata: {},
+      };
 
     describe('with a Directory', () => {
       it(`requests a Directory's Users`, async () => {
