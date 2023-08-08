@@ -1,4 +1,4 @@
-import { EventNames } from './event.interface';
+import { EventNames } from '../../common/interfaces';
 
 export interface ListEventOptions {
   events?: EventNames[];
