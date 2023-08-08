@@ -1,4 +1,4 @@
-export interface List<T> {
+export interface ListResponse<T> {
   readonly object: 'list';
   data: T[];
   list_metadata: {
@@ -7,7 +7,7 @@ export interface List<T> {
   };
 }
 
-export interface DeserializedList<T> {
+export interface List<T> {
   readonly object: 'list';
   data: T[];
   listMetadata: {

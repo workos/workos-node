@@ -1,6 +1,6 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { List } from '../common/interfaces';
+import { ListResponse } from '../common/interfaces';
 import { WorkOS } from '../workos';
 import { Event, EventResponse } from './interfaces';
 
@@ -30,7 +30,7 @@ describe('Event', () => {
   };
 
   describe('listEvents', () => {
-    const eventsListResponse: List<EventResponse> = {
+    const eventsListResponse: ListResponse<EventResponse> = {
       object: 'list',
       data: [eventResponse],
       list_metadata: {},
