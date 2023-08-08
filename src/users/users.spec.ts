@@ -339,8 +339,30 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+      expect(JSON.parse(mock.history.put[0].data)).toEqual({
+        first_name: 'Dane',
+        last_name: 'Williams',
+      });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
+      });
+    });
+
+    describe('when only one property is provided', () => {
+      it('sends a updateUser request', async () => {
+        mock.onPut(`/users/${userId}`).reply(200, userFixture);
+        const resp = await workos.users.updateUser({
+          userId,
+          firstName: 'Dane',
+        });
+
+        expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+        expect(JSON.parse(mock.history.put[0].data)).toEqual({
+          first_name: 'Dane',
+        });
+        expect(resp).toMatchObject({
+          email: 'test01@example.com',
+        });
       });
     });
   });
