@@ -72,6 +72,7 @@ describe('DirectorySync', () => {
   };
 
   const userWithGroup: DirectoryUserWithGroups = {
+    object: 'directory_user',
     id: 'user_123',
     customAttributes: {
       custom: true,
@@ -98,6 +99,7 @@ describe('DirectorySync', () => {
   };
 
   const userWithGroupResponse: DirectoryUserWithGroupsResponse = {
+    object: 'directory_user',
     id: 'user_123',
     custom_attributes: {
       custom: true,

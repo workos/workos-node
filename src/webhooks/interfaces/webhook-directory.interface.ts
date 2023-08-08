@@ -35,6 +35,19 @@ interface WebhookDirectoryDomain {
 export interface WebhookDirectory {
   object: 'directory';
   id: string;
+  externalKey: string;
+  type: WebhookDirectoryType;
+  state: WebhookDirectoryState;
+  name: string;
+  organizationId?: string;
+  domains: WebhookDirectoryDomain[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WebhookDirectoryResponse {
+  object: 'directory';
+  id: string;
   external_key: string;
   type: WebhookDirectoryType;
   state: WebhookDirectoryState;

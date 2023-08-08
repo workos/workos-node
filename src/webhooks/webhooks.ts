@@ -1,6 +1,7 @@
-import { Webhook } from './interfaces/webhook.interface';
+import { Webhook, WebhookResponse } from './interfaces';
 import crypto from 'crypto';
 import { SignatureVerificationException } from '../common/exceptions';
+import { deserializeEvent } from '../common/serializers';
 
 export class Webhooks {
   constructEvent({
@@ -17,8 +18,9 @@ export class Webhooks {
     const options = { payload, sigHeader, secret, tolerance };
     this.verifyHeader(options);
 
-    const webhookPayload = payload as Webhook;
-    return webhookPayload;
+    const webhookPayload = payload as WebhookResponse;
+
+    return deserializeEvent(webhookPayload);
   }
 
   verifyHeader({
