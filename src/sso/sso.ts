@@ -1,4 +1,4 @@
-import { DeserializedList, List } from '../common/interfaces';
+import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
 import {
@@ -117,8 +117,8 @@ export class SSO {
 
   async listConnections(
     options?: ListConnectionsOptions,
-  ): Promise<DeserializedList<Connection>> {
-    const { data } = await this.workos.get<List<ConnectionResponse>>(
+  ): Promise<List<Connection>> {
+    const { data } = await this.workos.get<ListResponse<ConnectionResponse>>(
       `/connections`,
       {
         query: options,

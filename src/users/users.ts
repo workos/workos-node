@@ -33,7 +33,7 @@ import {
   VerifySessionResponse,
   VerifySessionResponseResponse,
 } from './interfaces';
-import { DeserializedList, List } from '../common/interfaces';
+import { List, ListResponse } from '../common/interfaces';
 import {
   deserializeAuthenticationResponse,
   deserializeCreateEmailVerificationChallengeResponse,
@@ -61,10 +61,13 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<DeserializedList<User>> {
-    const { data } = await this.workos.get<List<UserResponse>>('/users', {
-      query: options,
-    });
+  async listUsers(options?: ListUsersOptions): Promise<List<User>> {
+    const { data } = await this.workos.get<ListResponse<UserResponse>>(
+      '/users',
+      {
+        query: options,
+      },
+    );
 
     return deserializeList(data, deserializeUser);
   }
