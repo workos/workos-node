@@ -1,9 +1,8 @@
 export type DirectoryType =
-  | 'okta scim v1.1'
-  | 'okta scim v2.0'
   | 'azure scim v2.0'
   | 'bamboohr'
   | 'breathe hr'
+  | 'cezanne hr'
   | 'cyberark scim v2.0'
   | 'fourth hr'
   | 'gsuite directory'
@@ -12,10 +11,16 @@ export type DirectoryType =
   | 'gusto'
   | 'hibob'
   | 'jump cloud scim v2.0'
+  | 'okta scim v1.1'
+  | 'okta scim v2.0'
   | 'onelogin scim v2.0'
   | 'people hr'
+  | 'personio'
   | 'pingfederate scim v2.0'
   | 'rippling'
+  | 'rippling scim v2.0'
+  | 'sftp'
+  | 'sftp workday'
   | 's3'
   | 'workday';
 
@@ -27,7 +32,7 @@ export interface Directory {
   name: string;
   organizationId?: string;
   state: 'unlinked' | 'linked' | 'invalid_credentials';
-  type: string;
+  type: DirectoryType;
   createdAt: string;
   updatedAt: string;
 }
@@ -40,7 +45,7 @@ export interface DirectoryResponse {
   name: string;
   organization_id?: string;
   state: 'unlinked' | 'linked' | 'invalid_credentials';
-  type: string;
+  type: DirectoryType;
   created_at: string;
   updated_at: string;
 }
