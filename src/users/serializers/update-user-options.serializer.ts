@@ -3,7 +3,7 @@ import { SerializedUpdateUserOptions, UpdateUserOptions } from '../interfaces';
 export const serializeUpdateUserOptions = (
   options: UpdateUserOptions,
 ): SerializedUpdateUserOptions => {
-  if (Object.keys(options).length === 0) {
+  if (!Object.keys(options).length) {
     throw new Error('At least one property must be provided');
   }
 
