@@ -272,6 +272,28 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('sendMagicAuthCode', () => {
+    it('sends a Send Magic Auth Code request', async () => {
+      mock
+        .onPost('/users/magic_auth/send', {
+          email_address: 'bob.loblaw@example.com',
+        })
+        .reply(200, {
+          id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
+        });
+
+      const response = await workos.users.sendMagicAuthCode({
+        emailAddress: 'bob.loblaw@example.com',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/magic_auth/send');
+
+      expect(response).toMatchObject({
+        id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
+      });
+    });
+  });
+
   describe('createPasswordResetChallenge', () => {
     it('sends a Create Password Reset Challenge request', async () => {
       mock.onPost(`/users/password_reset_challenge`).reply(200, {
@@ -363,8 +385,30 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+      expect(JSON.parse(mock.history.put[0].data)).toEqual({
+        first_name: 'Dane',
+        last_name: 'Williams',
+      });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
+      });
+    });
+
+    describe('when only one property is provided', () => {
+      it('sends a updateUser request', async () => {
+        mock.onPut(`/users/${userId}`).reply(200, userFixture);
+        const resp = await workos.users.updateUser({
+          userId,
+          firstName: 'Dane',
+        });
+
+        expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+        expect(JSON.parse(mock.history.put[0].data)).toEqual({
+          first_name: 'Dane',
+        });
+        expect(resp).toMatchObject({
+          email: 'test01@example.com',
+        });
       });
     });
   });

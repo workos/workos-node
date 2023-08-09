@@ -1,8 +1,8 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { ListResponse } from '../common/interfaces';
+import { Event, EventResponse, ListResponse } from '../common/interfaces';
 import { WorkOS } from '../workos';
-import { Event, EventResponse } from './interfaces';
+import { ConnectionType } from '../sso/interfaces';
 
 const mock = new MockAdapter(axios);
 
@@ -14,18 +14,35 @@ describe('Event', () => {
   const event: Event = {
     id: 'event_01234ABCD',
     createdAt: '2020-05-06 04:21:48.649164',
-    event: 'dsync.user.created',
+    event: 'connection.activated',
     data: {
-      id: 'event_01234ABCD',
+      object: 'connection',
+      id: 'conn_01234ABCD',
+      organizationId: 'org_1234',
+      name: 'Connection',
+      type: ConnectionType.OktaSAML,
+      connectionType: ConnectionType.OktaSAML,
+      state: 'active',
+      domains: [],
+      createdAt: '2020-05-06 04:21:48.649164',
+      updatedAt: '2020-05-06 04:21:48.649164',
     },
   };
 
   const eventResponse: EventResponse = {
     id: 'event_01234ABCD',
     created_at: '2020-05-06 04:21:48.649164',
-    event: 'dsync.user.created',
+    event: 'connection.activated',
     data: {
-      id: 'event_01234ABCD',
+      object: 'connection',
+      id: 'conn_01234ABCD',
+      organization_id: 'org_1234',
+      name: 'Connection',
+      connection_type: ConnectionType.OktaSAML,
+      state: 'active',
+      domains: [],
+      created_at: '2020-05-06 04:21:48.649164',
+      updated_at: '2020-05-06 04:21:48.649164',
     },
   };
 

@@ -15,8 +15,10 @@ import {
   CreatePasswordResetChallengeResponseResponse,
   CreateUserOptions,
   ListUsersOptions,
+  MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   RevokeSessionOptions,
+  SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
@@ -26,6 +28,7 @@ import {
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedRevokeSessionOptions,
+  SerializedSendMagicAuthCodeOptions,
   SerializedVerifySessionOptions,
   UpdateUserOptions,
   UpdateUserPasswordOptions,
@@ -49,6 +52,7 @@ import {
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
+  serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
   serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
@@ -180,6 +184,18 @@ export class Users {
     });
 
     return deserializeCreateEmailVerificationChallengeResponse(data);
+  }
+
+  async sendMagicAuthCode(
+    options: SendMagicAuthCodeOptions,
+  ): Promise<MagicAuthChallenge> {
+    const { data } = await this.workos.post<
+      MagicAuthChallenge,
+      any,
+      SerializedSendMagicAuthCodeOptions
+    >('/users/magic_auth/send', serializeSendMagicAuthCodeOptions(options));
+
+    return data;
   }
 
   async completeEmailVerification(token: string): Promise<User> {
