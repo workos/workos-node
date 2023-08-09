@@ -1,4 +1,5 @@
 export * from './add-user-to-organization-options.interface';
+export * from './authenticate-user-with-magic-auth-options.interface';
 export * from './authenticate-user-with-password-options.interface';
 export * from './authenticate-user-with-token-options.interface';
 export * from './authentication-response.interface';

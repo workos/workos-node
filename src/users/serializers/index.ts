@@ -1,3 +1,4 @@
+export * from './authenticate-user-with-magic-auth-options.serializer';
 export * from './authenticate-user-with-password-options.serializer';
 export * from './authenticate-user-with-token-options.serializer';
 export * from './authentication-response.serializer';
