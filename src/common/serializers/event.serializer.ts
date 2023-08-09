@@ -1,20 +1,16 @@
-import { deserializeDirectoryUser } from '../../directory-sync/serializers';
+import {
+  deserializeDeletedEventDirectory,
+  deserializeDirectoryUser,
+  deserializeEventDirectory,
+  deserializeEventDirectoryGroup,
+  deserializeUpdatedEventDirectoryGroup,
+  deserializeUpdatedEventDirectoryUser,
+} from '../../directory-sync/serializers';
 import { deserializeConnection } from '../../sso/serializers';
-import {
-  Webhook,
-  WebhookBase,
-  WebhookResponse,
-} from '../../webhooks/interfaces';
-import {
-  deserializeDeletedWebhookDirectory,
-  deserializeUpdatedWebhookDirectoryGroup,
-  deserializeUpdatedWebhookDirectoryUser,
-  deserializeWebhookDirectory,
-  deserializeWebhookDirectoryGroup,
-} from '../../webhooks/serializers';
+import { Event, EventBase, EventResponse } from '../interfaces';
 
-export const deserializeEvent = (event: WebhookResponse): Webhook => {
-  const eventBase: WebhookBase = {
+export const deserializeEvent = (event: EventResponse): Event => {
+  const eventBase: EventBase = {
     id: event.id,
     createdAt: event.created_at,
   };
@@ -33,26 +29,26 @@ export const deserializeEvent = (event: WebhookResponse): Webhook => {
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeWebhookDirectory(event.data),
+        data: deserializeEventDirectory(event.data),
       };
     case 'dsync.deleted':
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeDeletedWebhookDirectory(event.data),
+        data: deserializeDeletedEventDirectory(event.data),
       };
     case 'dsync.group.created':
     case 'dsync.group.deleted':
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeWebhookDirectoryGroup(event.data),
+        data: deserializeEventDirectoryGroup(event.data),
       };
     case 'dsync.group.updated':
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeUpdatedWebhookDirectoryGroup(event.data),
+        data: deserializeUpdatedEventDirectoryGroup(event.data),
       };
     case 'dsync.group.user_added':
     case 'dsync.group.user_removed':
@@ -76,7 +72,7 @@ export const deserializeEvent = (event: WebhookResponse): Webhook => {
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeUpdatedWebhookDirectoryUser(event.data),
+        data: deserializeUpdatedEventDirectoryUser(event.data),
       };
   }
 };
