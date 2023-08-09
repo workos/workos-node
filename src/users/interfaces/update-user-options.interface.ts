@@ -12,10 +12,7 @@ interface UpdateUserOptionsProperties {
 export type UpdateUserOptions = BaseUpdateUserOptions &
   AtLeastOnePropertyOf<UpdateUserOptionsProperties>;
 
-export interface SerializedUpdateUserOptionsProperties {
-  first_name: string;
-  last_name: string;
+export interface SerializedUpdateUserOptions {
+  first_name?: string;
+  last_name?: string;
 }
-
-export type SerializedUpdateUserOptions =
-  AtLeastOnePropertyOf<SerializedUpdateUserOptionsProperties>;
