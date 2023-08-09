@@ -1,13 +1,13 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import fs from 'fs/promises';
-import { WorkOS } from './workos';
 import {
+  GenericServerException,
   NoApiKeyProvidedException,
   NotFoundException,
-  GenericServerException,
   OauthException,
 } from './common/exceptions';
+import { WorkOS } from './workos';
 
 const mock = new MockAdapter(axios);
 
