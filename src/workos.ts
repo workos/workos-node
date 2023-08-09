@@ -80,6 +80,10 @@ export class WorkOS {
     });
   }
 
+  get version() {
+    return VERSION;
+  }
+
   async post<T = any, D = any, P = any>(
     path: string,
     entity: P,
