@@ -96,6 +96,32 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateUserWithMagicAuth', () => {
+    it('sends a magic auth authentication request', async () => {
+      mock.onPost('/users/sessions/token').reply(200, {
+        user: userFixture,
+        session: sessionFixture,
+      });
+
+      const resp = await workos.users.authenticateUserWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        magicAuthChallengeId: 'auth_challenge_123',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        session: {
+          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+          token: 'really-long-token',
+        },
+      });
+    });
+  });
+
   describe('authenticateUserWithPassword', () => {
     it('sends an password authentication request', async () => {
       mock.onPost('/users/sessions/token').reply(200, {
