@@ -95,6 +95,8 @@ describe('WorkOS', () => {
     it('matches the version in `package.json`', async () => {
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
+      // Read `package.json` using file I/O instead of `require` so we don't run
+      // into issues with the `require` cache.
       const packageJson = JSON.parse(await fs.readFile('package.json', 'utf8'));
 
       expect(workos.version).toBe(packageJson.version);
