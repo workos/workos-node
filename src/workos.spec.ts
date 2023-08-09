@@ -1,13 +1,13 @@
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-
-import { WorkOS } from './workos';
+import fs from 'fs/promises';
 import {
+  GenericServerException,
   NoApiKeyProvidedException,
   NotFoundException,
-  GenericServerException,
   OauthException,
 } from './common/exceptions';
+import { WorkOS } from './workos';
 
 const mock = new MockAdapter(axios);
 
@@ -88,6 +88,16 @@ describe('WorkOS', () => {
           'X-My-Custom-Header': 'Hey there!',
         });
       });
+    });
+  });
+
+  describe('version', () => {
+    it('matches the version in `package.json`', async () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const packageJson = JSON.parse(await fs.readFile('package.json', 'utf8'));
+
+      expect(workos.version).toBe(packageJson.version);
     });
   });
 
