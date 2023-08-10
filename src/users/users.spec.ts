@@ -226,7 +226,9 @@ describe('UserManagement', () => {
   describe('revokeAllSessionsForUser', () => {
     it('sends a revokeAllSessionsForUser request', async () => {
       mock.onDelete(`/users/${userId}/sessions`).reply(200, true);
-      const revoked = await workos.users.revokeAllSessionsForUser(userId);
+      const revoked = await workos.users.revokeAllSessionsForUser({
+        userId: userId,
+      });
 
       expect(mock.history.delete[0].url).toEqual(`/users/${userId}/sessions`);
       expect(revoked).toEqual(true);
