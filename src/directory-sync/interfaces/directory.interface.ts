@@ -24,6 +24,20 @@ export type DirectoryType =
   | 's3'
   | 'workday';
 
+export type DirectoryState =
+  | 'active'
+  | 'deleting'
+  | 'inactive'
+  | 'invalid_credentials'
+  | 'validating';
+
+export type DirectoryStateResponse =
+  | 'deleting'
+  | 'invalid_credentials'
+  | 'linked'
+  | 'unlinked'
+  | 'validating';
+
 export interface Directory {
   object: 'directory';
   id: string;
@@ -31,7 +45,7 @@ export interface Directory {
   externalKey: string;
   name: string;
   organizationId?: string;
-  state: 'unlinked' | 'linked' | 'invalid_credentials';
+  state: DirectoryState;
   type: DirectoryType;
   createdAt: string;
   updatedAt: string;
@@ -44,19 +58,11 @@ export interface DirectoryResponse {
   external_key: string;
   name: string;
   organization_id?: string;
-  state: 'unlinked' | 'linked' | 'invalid_credentials';
+  state: DirectoryStateResponse;
   type: DirectoryType;
   created_at: string;
   updated_at: string;
 }
-
-export type EventDirectoryState =
-  | 'active'
-  | 'validating'
-  | 'invalid_credentials'
-  | 'inactive'
-  | 'deleting';
-
 interface EventDirectoryDomain {
   object: 'organization_domain';
   id: string;
@@ -68,7 +74,7 @@ export interface EventDirectory {
   id: string;
   externalKey: string;
   type: DirectoryType;
-  state: EventDirectoryState;
+  state: DirectoryState;
   name: string;
   organizationId?: string;
   domains: EventDirectoryDomain[];
@@ -81,7 +87,7 @@ export interface EventDirectoryResponse {
   id: string;
   external_key: string;
   type: DirectoryType;
-  state: EventDirectoryState;
+  state: DirectoryState;
   name: string;
   organization_id?: string;
   domains: EventDirectoryDomain[];
