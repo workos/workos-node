@@ -17,6 +17,7 @@ import {
   ListUsersOptions,
   MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
+  RevokeAllSessionsForUserOptions,
   RevokeSessionOptions,
   SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
@@ -165,7 +166,9 @@ export class Users {
     return data;
   }
 
-  async revokeAllSessionsForUser(userId: string): Promise<boolean> {
+  async revokeAllSessionsForUser({
+    userId,
+  }: RevokeAllSessionsForUserOptions): Promise<boolean> {
     const { data } = await this.workos.delete(`/users/${userId}/sessions`);
 
     return data;
