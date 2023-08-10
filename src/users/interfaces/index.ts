@@ -10,6 +10,7 @@ export * from './create-user-options.interface';
 export * from './list-users-options.interface';
 export * from './magic-auth-challenge.interface';
 export * from './remove-user-from-organization-options.interface';
+export * from './revoke-all-sessions-for-user-options.interface';
 export * from './revoke-session-options.interface';
 export * from './send-magic-auth-code-options.interface';
 export * from './session.interface';
