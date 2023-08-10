@@ -167,9 +167,9 @@ export class Users {
   }
 
   async revokeAllSessionsForUser({
-    id,
+    userId,
   }: RevokeAllSessionsForUserOptions): Promise<boolean> {
-    const { data } = await this.workos.delete(`/users/${id}/sessions`);
+    const { data } = await this.workos.delete(`/users/${userId}/sessions`);
 
     return data;
   }

@@ -1,3 +1,3 @@
 export interface RevokeAllSessionsForUserOptions {
-  id: string;
+  userId: string;
 }
