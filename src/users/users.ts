@@ -1,6 +1,7 @@
 import { WorkOS } from '../workos';
 import {
   AddUserToOrganizationOptions,
+  AuthenticateUserWithMagicAuthOptions,
   AuthenticateUserWithPasswordOptions,
   AuthenticateUserWithTokenOptions,
   AuthenticationResponse,
@@ -14,9 +15,12 @@ import {
   CreatePasswordResetChallengeResponseResponse,
   CreateUserOptions,
   ListUsersOptions,
+  MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   RevokeSessionOptions,
+  SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
+  SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
   SerializedAuthenticateUserWithTokenOptions,
   SerializedCompletePasswordResetOptions,
@@ -24,6 +28,7 @@ import {
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedRevokeSessionOptions,
+  SerializedSendMagicAuthCodeOptions,
   SerializedVerifySessionOptions,
   UpdateUserOptions,
   UpdateUserPasswordOptions,
@@ -40,12 +45,14 @@ import {
   deserializeCreatePasswordResetChallengeResponse,
   deserializeUser,
   deserializeVerifySessionResponse,
+  serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
   serializeAuthenticateUserWithTokenOptions,
   serializeCompletePasswordResetOptions,
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeRevokeSessionOptions,
+  serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
   serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
@@ -80,6 +87,24 @@ export class Users {
     >('/users', serializeCreateUserOptions(payload));
 
     return deserializeUser(data);
+  }
+
+  async authenticateUserWithMagicAuth(
+    payload: AuthenticateUserWithMagicAuthOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateUserWithMagicAuthOptions
+    >(
+      '/users/sessions/token',
+      serializeAuthenticateUserWithMagicAuthOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
   }
 
   async authenticateUserWithPassword(
@@ -159,6 +184,18 @@ export class Users {
     });
 
     return deserializeCreateEmailVerificationChallengeResponse(data);
+  }
+
+  async sendMagicAuthCode(
+    options: SendMagicAuthCodeOptions,
+  ): Promise<MagicAuthChallenge> {
+    const { data } = await this.workos.post<
+      MagicAuthChallenge,
+      any,
+      SerializedSendMagicAuthCodeOptions
+    >('/users/magic_auth/send', serializeSendMagicAuthCodeOptions(options));
+
+    return data;
   }
 
   async completeEmailVerification(token: string): Promise<User> {

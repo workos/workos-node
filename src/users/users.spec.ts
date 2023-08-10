@@ -94,6 +94,32 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateUserWithMagicAuth', () => {
+    it('sends a magic auth authentication request', async () => {
+      mock.onPost('/users/sessions/token').reply(200, {
+        user: userFixture,
+        session: sessionFixture,
+      });
+
+      const resp = await workos.users.authenticateUserWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        magicAuthChallengeId: 'auth_challenge_123',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        session: {
+          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
+          token: 'really-long-token',
+        },
+      });
+    });
+  });
+
   describe('authenticateUserWithPassword', () => {
     it('sends an password authentication request', async () => {
       mock.onPost('/users/sessions/token').reply(200, {
@@ -242,6 +268,28 @@ describe('UserManagement', () => {
         expect(resp).toMatchObject({
           email: 'test01@example.com',
         });
+      });
+    });
+  });
+
+  describe('sendMagicAuthCode', () => {
+    it('sends a Send Magic Auth Code request', async () => {
+      mock
+        .onPost('/users/magic_auth/send', {
+          email_address: 'bob.loblaw@example.com',
+        })
+        .reply(200, {
+          id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
+        });
+
+      const response = await workos.users.sendMagicAuthCode({
+        emailAddress: 'bob.loblaw@example.com',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/magic_auth/send');
+
+      expect(response).toMatchObject({
+        id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
       });
     });
   });
