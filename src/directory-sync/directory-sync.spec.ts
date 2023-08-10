@@ -27,7 +27,7 @@ describe('DirectorySync', () => {
     name: 'Foo',
     object: 'directory',
     organizationId: 'org_01EXSR7M9QTKCC5D531SMCWMYG',
-    state: 'linked',
+    state: 'active',
     type: 'okta scim v1.1',
     updatedAt: '2021-12-13 12:15:45.531847',
   };

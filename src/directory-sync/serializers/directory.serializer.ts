@@ -1,6 +1,8 @@
 import {
   Directory,
   DirectoryResponse,
+  DirectoryState,
+  DirectoryStateResponse,
   EventDirectory,
   EventDirectoryResponse,
 } from '../interfaces';
@@ -14,11 +16,25 @@ export const deserializeDirectory = (
   externalKey: directory.external_key,
   name: directory.name,
   organizationId: directory.organization_id,
-  state: directory.state,
+  state: deserializeDirectoryState(directory.state),
   type: directory.type,
   createdAt: directory.created_at,
   updatedAt: directory.updated_at,
 });
+
+export const deserializeDirectoryState = (
+  state: DirectoryStateResponse,
+): DirectoryState => {
+  if (state === 'linked') {
+    return 'active';
+  }
+
+  if (state === 'unlinked') {
+    return 'inactive';
+  }
+
+  return state;
+};
 
 export const deserializeEventDirectory = (
   directory: EventDirectoryResponse,
