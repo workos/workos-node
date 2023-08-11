@@ -1,6 +1,6 @@
 export interface CreateUserOptions {
   email: string;
-  password: string;
+  password?: string;
   firstName?: string;
   lastName?: string;
   emailVerified?: boolean;
@@ -8,7 +8,7 @@ export interface CreateUserOptions {
 
 export interface SerializedCreateUserOptions {
   email: string;
-  password: string;
+  password?: string;
   first_name?: string;
   last_name?: string;
   email_verified?: boolean;
