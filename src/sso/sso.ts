@@ -1,5 +1,4 @@
-import { List, ListResponse } from '../common/interfaces';
-import { deserializeList } from '../common/serializers';
+import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
   AuthorizationURLOptions,
@@ -18,6 +17,7 @@ import {
   deserializeProfile,
   deserializeProfileAndToken,
 } from './serializers';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -37,6 +37,26 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
 
+  async listConnections(
+    options?: ListConnectionsOptions,
+  ): Promise<AutoPaginatable<Connection>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<ConnectionResponse, Connection>(
+        this.workos,
+        '/connections',
+        deserializeConnection,
+        options,
+      ),
+      (params) =>
+        fetchAndDeserialize<ConnectionResponse, Connection>(
+          this.workos,
+          '/connections',
+          deserializeConnection,
+          params,
+        ),
+      options,
+    );
+  }
   async deleteConnection(id: string) {
     await this.workos.delete(`/connections/${id}`);
   }
@@ -113,18 +133,5 @@ export class SSO {
     });
 
     return deserializeProfile(data);
-  }
-
-  async listConnections(
-    options?: ListConnectionsOptions,
-  ): Promise<List<Connection>> {
-    const { data } = await this.workos.get<ListResponse<ConnectionResponse>>(
-      `/connections`,
-      {
-        query: options,
-      },
-    );
-
-    return deserializeList(data, deserializeConnection);
   }
 }

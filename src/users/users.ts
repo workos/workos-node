@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { AutoPaginatable } from '../common/utils/pagination';
 import {
   AddUserToOrganizationOptions,
   AuthenticateUserWithMagicAuthOptions,
@@ -39,7 +40,6 @@ import {
   VerifySessionResponse,
   VerifySessionResponseResponse,
 } from './interfaces';
-import { List, ListResponse } from '../common/interfaces';
 import {
   deserializeAuthenticationResponse,
   deserializeCreateEmailVerificationChallengeResponse,
@@ -58,7 +58,7 @@ import {
   serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
 } from './serializers';
-import { deserializeList } from '../common/serializers';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
@@ -69,15 +69,23 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<List<User>> {
-    const { data } = await this.workos.get<ListResponse<UserResponse>>(
-      '/users',
-      {
-        query: options,
-      },
+  async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<UserResponse, User>(
+        this.workos,
+        '/users',
+        deserializeUser,
+        options,
+      ),
+      (params) =>
+        fetchAndDeserialize<UserResponse, User>(
+          this.workos,
+          '/users',
+          deserializeUser,
+          params,
+        ),
+      options,
     );
-
-    return deserializeList(data, deserializeUser);
   }
 
   async createUser(payload: CreateUserOptions): Promise<User> {
