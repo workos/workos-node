@@ -1,5 +1,6 @@
 import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
+import { withDefaultOrder } from '../common/utils/default-order';
 import { WorkOS } from '../workos';
 import {
   AuthorizationURLOptions,
@@ -121,7 +122,7 @@ export class SSO {
     const { data } = await this.workos.get<ListResponse<ConnectionResponse>>(
       `/connections`,
       {
-        query: options,
+        query: withDefaultOrder(options),
       },
     );
 
