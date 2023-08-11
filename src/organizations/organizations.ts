@@ -1,6 +1,7 @@
 import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
+import { withDefaultOrder } from '../common/utils/default-order';
 import {
   CreateOrganizationOptions,
   CreateOrganizationRequestOptions,
@@ -24,7 +25,7 @@ export class Organizations {
     const { data } = await this.workos.get<ListResponse<OrganizationResponse>>(
       '/organizations',
       {
-        query: options,
+        query: withDefaultOrder(options),
       },
     );
 
