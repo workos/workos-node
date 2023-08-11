@@ -22,7 +22,7 @@ export class AutoPaginatable<T> {
     return this.list.listMetadata;
   }
 
-  async *generatePages(params: PaginationOptions): AsyncGenerator<T[]> {
+  private async *generatePages(params: PaginationOptions): AsyncGenerator<T[]> {
     const result = await this.apiCall({
       ...this.options,
       after: params.after,
