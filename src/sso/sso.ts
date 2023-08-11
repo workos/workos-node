@@ -1,4 +1,6 @@
-import { List, ListResponse } from '../common/interfaces';
+
+import { AutoPaginatable } from '../common/utils/pagination';
+import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
 import {
@@ -37,6 +39,45 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
 
+  private setDefaultOptions(options?: PaginationOptions): PaginationOptions {
+    return {
+      ...options,
+      order: options?.order || 'desc',
+    };
+  }
+
+  private async fetchAndDeserialize<T, U>(
+    endpoint: string,
+    deserializeFn: (data: T) => U,
+    options: PaginationOptions,
+  ): Promise<List<U>> {
+    const { data } = await this.workos.get<ListResponse<T>>(endpoint, {
+      query: options,
+    });
+
+    return deserializeList(data, deserializeFn);
+  }
+
+  async listConnections(
+    options?: ListConnectionsOptions,
+  ): Promise<AutoPaginatable<Connection>> {
+    const defaultOptions = this.setDefaultOptions(options);
+
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<ConnectionResponse, Connection>(
+        '/connections',
+        deserializeConnection,
+        defaultOptions,
+      ),
+      (params) =>
+        this.fetchAndDeserialize<ConnectionResponse, Connection>(
+          '/connections',
+          deserializeConnection,
+          params,
+        ),
+      defaultOptions,
+    );
+  }
   async deleteConnection(id: string) {
     await this.workos.delete(`/connections/${id}`);
   }
@@ -115,16 +156,4 @@ export class SSO {
     return deserializeProfile(data);
   }
 
-  async listConnections(
-    options?: ListConnectionsOptions,
-  ): Promise<List<Connection>> {
-    const { data } = await this.workos.get<ListResponse<ConnectionResponse>>(
-      `/connections`,
-      {
-        query: options,
-      },
-    );
-
-    return deserializeList(data, deserializeConnection);
-  }
 }
