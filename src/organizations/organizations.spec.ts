@@ -21,7 +21,9 @@ describe('Organizations', () => {
         const { data, listMetadata } =
           await workos.organizations.listOrganizations();
 
-        expect(mock.history.get[0].params).toBeUndefined();
+        expect(mock.history.get[0].params).toEqual({
+          order: 'desc',
+        });
         expect(mock.history.get[0].url).toEqual('/organizations');
 
         expect(data).toHaveLength(7);
@@ -47,6 +49,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           domains: ['example.com'],
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -69,6 +72,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           before: 'before-id',
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -91,6 +95,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           after: 'after-id',
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
@@ -113,6 +118,7 @@ describe('Organizations', () => {
 
         expect(mock.history.get[0].params).toEqual({
           limit: 10,
+          order: 'desc',
         });
 
         expect(mock.history.get[0].url).toEqual('/organizations');
