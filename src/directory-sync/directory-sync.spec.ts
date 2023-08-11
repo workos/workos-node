@@ -144,7 +144,7 @@ describe('DirectorySync', () => {
           domain: 'google.com',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
           list: {
             object: 'list',
@@ -153,7 +153,6 @@ describe('DirectorySync', () => {
           },
           apiCall: expect.any(Function),
           options: {
-            order: 'desc',
             domain: 'google.com',
           },
         });
@@ -212,7 +211,7 @@ describe('DirectorySync', () => {
           directory: 'directory_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
           list: {
             object: 'list',
@@ -221,8 +220,7 @@ describe('DirectorySync', () => {
           },
           apiCall: expect.any(Function),
           options: {
-            order: 'desc',
-            directory: "directory_123",
+            directory: 'directory_123',
           },
         });
       });
@@ -249,8 +247,7 @@ describe('DirectorySync', () => {
           },
           apiCall: expect.any(Function),
           options: {
-            order: 'desc',
-            user: "directory_usr_123",
+            user: 'directory_usr_123',
           },
         });
       });
@@ -277,7 +274,7 @@ describe('DirectorySync', () => {
           directory: 'directory_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
           list: {
             object: 'list',
@@ -286,7 +283,6 @@ describe('DirectorySync', () => {
           },
           apiCall: expect.any(Function),
           options: {
-            order: 'desc',
             directory: 'directory_123',
           },
         });
@@ -390,7 +386,7 @@ describe('DirectorySync', () => {
           group: 'directory_grp_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
           list: {
             object: 'list',
@@ -399,8 +395,7 @@ describe('DirectorySync', () => {
           },
           apiCall: expect.any(Function),
           options: {
-            order: 'desc',
-            group: "directory_grp_123",
+            group: 'directory_grp_123',
           },
         });
       });

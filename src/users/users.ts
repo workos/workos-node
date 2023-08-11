@@ -40,7 +40,6 @@ import {
   VerifySessionResponse,
   VerifySessionResponseResponse,
 } from './interfaces';
-import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import {
   deserializeAuthenticationResponse,
   deserializeCreateEmailVerificationChallengeResponse,
@@ -59,29 +58,10 @@ import {
   serializeUpdateUserPasswordOptions,
   serializeVerifySessionOptions,
 } from './serializers';
-import { deserializeList } from '../common/serializers';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
-
-  private setDefaultOptions(options?: PaginationOptions): PaginationOptions {
-    return {
-      ...options,
-      order: options?.order || 'desc',
-    };
-  }
-
-  private async fetchAndDeserialize<T, U>(
-    endpoint: string,
-    deserializeFn: (data: T) => U,
-    options: PaginationOptions,
-  ): Promise<List<U>> {
-    const { data } = await this.workos.get<ListResponse<T>>(endpoint, {
-      query: options,
-    });
-
-    return deserializeList(data, deserializeFn);
-  }
 
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(`/users/${userId}`);
@@ -90,21 +70,21 @@ export class Users {
   }
 
   async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
-    const defaultOptions = this.setDefaultOptions(options);
-  
     return new AutoPaginatable(
-      await this.fetchAndDeserialize<UserResponse, User>(
+      await fetchAndDeserialize<UserResponse, User>(
+        this.workos,
         '/users',
         deserializeUser,
-        defaultOptions,
+        options,
       ),
       (params) =>
-        this.fetchAndDeserialize<UserResponse, User>(
+        fetchAndDeserialize<UserResponse, User>(
+          this.workos,
           '/users',
           deserializeUser,
           params,
         ),
-      defaultOptions,
+      options,
     );
   }
 

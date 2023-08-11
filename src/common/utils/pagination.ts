@@ -1,31 +1,8 @@
-import { WorkOS } from '../../workos';
-import { List, ListResponse, PaginationOptions } from '../interfaces';
-import { deserializeList } from '../serializers';
-
-export function SetDefaultOptions(options?: PaginationOptions): PaginationOptions {
-  return {
-    ...options,
-    order: options?.order || 'desc',
-  };
-}
-
-export async function FetchAndDeserialize<T, U>(
-  workos: WorkOS,
-  endpoint: string,
-  deserializeFn: (data: T) => U,
-  options: PaginationOptions,
-): Promise<List<U>> {
-  const { data } = await workos.get<ListResponse<T>>(endpoint, {
-    query: options,
-  });
-
-  return deserializeList(data, deserializeFn);
-}
-
+import { List, PaginationOptions } from '../interfaces';
 
 export class AutoPaginatable<T> {
   readonly object: 'list' = 'list';
-  private readonly options: PaginationOptions;
+  readonly options: PaginationOptions;
 
   constructor(
     private list: List<T>,
@@ -64,7 +41,7 @@ export class AutoPaginatable<T> {
         after: this.options.after,
       });
 
-      let results: T[] = [];
+      const results: T[] = [];
 
       for await (const page of generatePages) {
         results.push(...page);
