@@ -144,10 +144,17 @@ describe('DirectorySync', () => {
           domain: 'google.com',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
-          data: [directory],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [directory],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            domain: 'google.com',
+          },
         });
       });
     });
@@ -204,10 +211,17 @@ describe('DirectorySync', () => {
           directory: 'directory_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
-          data: [group],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [group],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            directory: 'directory_123',
+          },
         });
       });
     });
@@ -226,8 +240,15 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [group],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [group],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            user: 'directory_usr_123',
+          },
         });
       });
     });
@@ -253,10 +274,17 @@ describe('DirectorySync', () => {
           directory: 'directory_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
-          data: [userWithGroup],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [userWithGroup],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            directory: 'directory_123',
+          },
         });
       });
 
@@ -358,10 +386,17 @@ describe('DirectorySync', () => {
           group: 'directory_grp_123',
         });
 
-        expect(subject).toEqual({
+        expect(subject).toMatchObject({
           object: 'list',
-          data: [userWithGroup],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [userWithGroup],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            group: 'directory_grp_123',
+          },
         });
       });
     });

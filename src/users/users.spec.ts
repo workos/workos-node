@@ -65,6 +65,7 @@ describe('UserManagement', () => {
         type: 'managed',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
+        order: 'desc',
       });
     });
   });
