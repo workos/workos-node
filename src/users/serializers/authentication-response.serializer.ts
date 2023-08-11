@@ -8,8 +8,6 @@ import { deserializeUser } from './user.serializer';
 export const deserializeAuthenticationResponse = (
   authenticationResponse: AuthenticationResponseResponse,
 ): AuthenticationResponse => ({
-  session: authenticationResponse.session
-    ? deserializeSession(authenticationResponse.session)
-    : undefined,
+  session: deserializeSession(authenticationResponse.session),
   user: deserializeUser(authenticationResponse.user),
 });
