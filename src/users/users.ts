@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { AutoPaginatable } from '../common/utils/pagination';
 import {
   AddUserToOrganizationOptions,
   AuthenticateUserWithMagicAuthOptions,
@@ -39,7 +40,7 @@ import {
   VerifySessionResponse,
   VerifySessionResponseResponse,
 } from './interfaces';
-import { List, ListResponse } from '../common/interfaces';
+import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import {
   deserializeAuthenticationResponse,
   deserializeCreateEmailVerificationChallengeResponse,
@@ -63,21 +64,48 @@ import { deserializeList } from '../common/serializers';
 export class Users {
   constructor(private readonly workos: WorkOS) {}
 
+  private setDefaultOptions(options?: PaginationOptions): PaginationOptions {
+    return {
+      ...options,
+      order: options?.order || 'desc',
+    };
+  }
+
+  private async fetchAndDeserialize<T, U>(
+    endpoint: string,
+    deserializeFn: (data: T) => U,
+    options: PaginationOptions,
+  ): Promise<List<U>> {
+    const { data } = await this.workos.get<ListResponse<T>>(endpoint, {
+      query: options,
+    });
+
+    return deserializeList(data, deserializeFn);
+  }
+
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(`/users/${userId}`);
 
     return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<List<User>> {
-    const { data } = await this.workos.get<ListResponse<UserResponse>>(
-      '/users',
-      {
-        query: options,
-      },
+  async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
+    const defaultOptions = this.setDefaultOptions(options);
+  
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<UserResponse, User>(
+        '/users',
+        deserializeUser,
+        defaultOptions,
+      ),
+      (params) =>
+        this.fetchAndDeserialize<UserResponse, User>(
+          '/users',
+          deserializeUser,
+          params,
+        ),
+      defaultOptions,
     );
-
-    return deserializeList(data, deserializeUser);
   }
 
   async createUser(payload: CreateUserOptions): Promise<User> {

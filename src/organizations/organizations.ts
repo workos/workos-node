@@ -1,4 +1,6 @@
-import { List, ListResponse } from '../common/interfaces';
+
+import { AutoPaginatable } from '../common/utils/pagination';
+import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { WorkOS } from '../workos';
 import {
@@ -17,18 +19,44 @@ import {
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
+  private setDefaultOptions(options?: PaginationOptions): PaginationOptions {
+    return {
+      ...options,
+      order: options?.order || 'desc',
+    };
+  }
+
+  private async fetchAndDeserialize<T, U>(
+    endpoint: string,
+    deserializeFn: (data: T) => U,
+    options: PaginationOptions,
+  ): Promise<List<U>> {
+    const { data } = await this.workos.get<ListResponse<T>>(endpoint, {
+      query: options,
+    });
+
+    return deserializeList(data, deserializeFn);
+  }
 
   async listOrganizations(
     options?: ListOrganizationsOptions,
-  ): Promise<List<Organization>> {
-    const { data } = await this.workos.get<ListResponse<OrganizationResponse>>(
-      '/organizations',
-      {
-        query: options,
-      },
-    );
+  ): Promise<AutoPaginatable<Organization>> {
+    const defaultOptions = this.setDefaultOptions(options);
 
-    return deserializeList(data, deserializeOrganization);
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<OrganizationResponse, Organization>(
+        '/organizations',
+        deserializeOrganization,
+        defaultOptions,
+      ),
+      (params) =>
+        this.fetchAndDeserialize<OrganizationResponse, Organization>(
+          '/organizations',
+          deserializeOrganization,
+          params,
+        ),
+      defaultOptions,
+    );
   }
 
   async createOrganization(
