@@ -146,8 +146,16 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [directory],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [directory],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            order: 'desc',
+            domain: 'google.com',
+          },
         });
       });
     });
@@ -206,8 +214,16 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [group],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [group],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            order: 'desc',
+            directory: "directory_123",
+          },
         });
       });
     });
@@ -226,8 +242,16 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [group],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [group],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            order: 'desc',
+            user: "directory_usr_123",
+          },
         });
       });
     });
@@ -255,8 +279,16 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [userWithGroup],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [userWithGroup],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            order: 'desc',
+            directory: 'directory_123',
+          },
         });
       });
 
@@ -360,8 +392,16 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual({
           object: 'list',
-          data: [userWithGroup],
-          listMetadata: {},
+          list: {
+            object: 'list',
+            data: [userWithGroup],
+            listMetadata: {},
+          },
+          apiCall: expect.any(Function),
+          options: {
+            order: 'desc',
+            group: "directory_grp_123",
+          },
         });
       });
     });

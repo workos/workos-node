@@ -1,4 +1,5 @@
 import { WorkOS } from '../workos';
+import { AutoPaginatable } from '../common/utils/pagination';
 import {
   DefaultCustomAttributes,
   Directory,
@@ -11,28 +12,55 @@ import {
   ListDirectoryGroupsOptions,
   ListDirectoryUsersOptions,
 } from './interfaces';
-import { List, ListResponse } from '../common/interfaces';
-import { deserializeList } from '../common/serializers';
+import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import {
   deserializeDirectory,
   deserializeDirectoryGroup,
   deserializeDirectoryUserWithGroups,
 } from './serializers';
+import { deserializeList } from '../common/serializers';
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
 
+  private setDefaultOptions(options?: PaginationOptions): PaginationOptions {
+    return {
+      ...options,
+      order: options?.order || 'desc',
+    };
+  }
+
+  private async fetchAndDeserialize<T, U>(
+    endpoint: string,
+    deserializeFn: (data: T) => U,
+    options: PaginationOptions,
+  ): Promise<List<U>> {
+    const { data } = await this.workos.get<ListResponse<T>>(endpoint, {
+      query: options,
+    });
+
+    return deserializeList(data, deserializeFn);
+  }
+
   async listDirectories(
     options?: ListDirectoriesOptions,
-  ): Promise<List<Directory>> {
-    const { data } = await this.workos.get<ListResponse<DirectoryResponse>>(
-      '/directories',
-      {
-        query: options,
-      },
-    );
+  ): Promise<AutoPaginatable<Directory>> {
+    const defaultOptions = this.setDefaultOptions(options);
 
-    return deserializeList(data, deserializeDirectory);
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<DirectoryResponse, Directory>(
+        '/directories',
+        deserializeDirectory,
+        defaultOptions,
+      ),
+      (params) =>
+        this.fetchAndDeserialize<DirectoryResponse, Directory>(
+          '/directories',
+          deserializeDirectory,
+          params,
+        ),
+      defaultOptions,
+    );
   }
 
   async getDirectory(id: string): Promise<Directory> {
@@ -50,25 +78,41 @@ export class DirectorySync {
   async listGroups(
     options: ListDirectoryGroupsOptions,
   ): Promise<List<DirectoryGroup>> {
-    const { data } = await this.workos.get<
-      ListResponse<DirectoryGroupResponse>
-    >(`/directory_groups`, {
-      query: options,
-    });
+    const defaultOptions = this.setDefaultOptions(options);
 
-    return deserializeList(data, deserializeDirectoryGroup);
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<DirectoryGroupResponse, DirectoryGroup>(
+        '/directory_groups',
+        deserializeDirectoryGroup,
+        defaultOptions,
+      ),
+      (params) =>
+        this.fetchAndDeserialize<DirectoryGroupResponse, DirectoryGroup>(
+          '/directory_groups',
+          deserializeDirectoryGroup,
+          params,
+        ),
+      defaultOptions,
+    );
   }
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
   ): Promise<List<DirectoryUserWithGroups<TCustomAttributes>>> {
-    const { data } = await this.workos.get<
-      ListResponse<DirectoryUserWithGroupsResponse<TCustomAttributes>>
-    >(`/directory_users`, {
-      query: options,
-    });
+    const defaultOptions = this.setDefaultOptions(options);
 
-    return deserializeList(data, deserializeDirectoryUserWithGroups);
+    return new AutoPaginatable(
+      await this.fetchAndDeserialize<
+        DirectoryUserWithGroupsResponse<TCustomAttributes>,
+        DirectoryUserWithGroups<TCustomAttributes>
+      >('/directory_users', deserializeDirectoryUserWithGroups, defaultOptions),
+      (params) =>
+        this.fetchAndDeserialize<
+          DirectoryUserWithGroupsResponse<TCustomAttributes>,
+          DirectoryUserWithGroups<TCustomAttributes>
+        >('/directory_users', deserializeDirectoryUserWithGroups, params),
+      defaultOptions,
+    );
   }
 
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
