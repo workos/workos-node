@@ -4,6 +4,7 @@ export * from './audit-logs/interfaces';
 export * from './audit-trail/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
+export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
