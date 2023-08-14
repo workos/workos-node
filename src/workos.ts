@@ -230,7 +230,12 @@ export class WorkOS {
               requestID,
             });
           } else {
-            throw new GenericServerException(status, data.message, requestID);
+            throw new GenericServerException(
+              status,
+              data.message,
+              data,
+              requestID,
+            );
           }
         }
       }
