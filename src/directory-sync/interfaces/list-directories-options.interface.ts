@@ -5,3 +5,9 @@ export interface ListDirectoriesOptions extends PaginationOptions {
   organizationId?: string;
   search?: string;
 }
+
+export interface SerializedListDirectoriesOptions extends PaginationOptions {
+  domain?: string;
+  organization_id?: string;
+  search?: string;
+}

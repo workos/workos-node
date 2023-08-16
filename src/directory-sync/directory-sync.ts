@@ -17,6 +17,7 @@ import {
   deserializeDirectory,
   deserializeDirectoryGroup,
   deserializeDirectoryUserWithGroups,
+  serializeListDirectoriesOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
@@ -31,7 +32,7 @@ export class DirectorySync {
         this.workos,
         '/directories',
         deserializeDirectory,
-        options,
+        options ? serializeListDirectoriesOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<DirectoryResponse, Directory>(
