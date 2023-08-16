@@ -4,7 +4,7 @@ import {
   AddUserToOrganizationOptions,
   AuthenticateUserWithMagicAuthOptions,
   AuthenticateUserWithPasswordOptions,
-  AuthenticateUserWithTokenOptions,
+  AuthenticateUserWithCodeOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
   CompletePasswordResetOptions,
@@ -24,7 +24,7 @@ import {
   SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
-  SerializedAuthenticateUserWithTokenOptions,
+  SerializedAuthenticateUserWithCodeOptions,
   SerializedCompletePasswordResetOptions,
   SerializedCreateEmailVerificationChallengeOptions,
   SerializedCreatePasswordResetChallengeOptions,
@@ -48,7 +48,7 @@ import {
   deserializeVerifySessionResponse,
   serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
-  serializeAuthenticateUserWithTokenOptions,
+  serializeAuthenticateUserWithCodeOptions,
   serializeCompletePasswordResetOptions,
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
@@ -134,16 +134,16 @@ export class Users {
     return deserializeAuthenticationResponse(data);
   }
 
-  async authenticateUserWithToken(
-    payload: AuthenticateUserWithTokenOptions,
+  async authenticateUserWithCode(
+    payload: AuthenticateUserWithCodeOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       any,
-      SerializedAuthenticateUserWithTokenOptions
+      SerializedAuthenticateUserWithCodeOptions
     >(
       '/users/sessions/token',
-      serializeAuthenticateUserWithTokenOptions({
+      serializeAuthenticateUserWithCodeOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
