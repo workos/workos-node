@@ -362,7 +362,9 @@ describe('SSO', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const subject = await workos.sso.listConnections();
+        const subject = await workos.sso.listConnections({
+          organizationId: 'org_1234',
+        });
 
         expect(mock.history.get[0].url).toEqual('/connections');
 
