@@ -16,6 +16,7 @@ import {
   deserializeConnection,
   deserializeProfile,
   deserializeProfileAndToken,
+  serializeListConnectionsOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
@@ -45,7 +46,7 @@ export class SSO {
         this.workos,
         '/connections',
         deserializeConnection,
-        options,
+        options ? serializeListConnectionsOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<ConnectionResponse, Connection>(

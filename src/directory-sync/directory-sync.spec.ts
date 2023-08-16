@@ -137,11 +137,13 @@ describe('DirectorySync', () => {
         mock
           .onGet('/directories', {
             domain: 'google.com',
+            organization_id: 'org_1234',
           })
           .replyOnce(200, directoryListResponse);
 
         const subject = await workos.directorySync.listDirectories({
           domain: 'google.com',
+          organizationId: 'org_1234',
         });
 
         expect(subject).toMatchObject({
