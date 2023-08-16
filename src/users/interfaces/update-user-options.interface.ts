@@ -1,16 +1,8 @@
-import { AtLeastOnePropertyOf } from '../../common/interfaces';
-
-interface BaseUpdateUserOptions {
+export interface UpdateUserOptions {
   userId: string;
+  firstName?: string;
+  lastName?: string;
 }
-
-interface UpdateUserOptionsProperties {
-  firstName: string;
-  lastName: string;
-}
-
-export type UpdateUserOptions = BaseUpdateUserOptions &
-  AtLeastOnePropertyOf<UpdateUserOptionsProperties>;
 
 export interface SerializedUpdateUserOptions {
   first_name?: string;
