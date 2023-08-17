@@ -39,6 +39,7 @@ import {
   VerifySessionOptions,
   VerifySessionResponse,
   VerifySessionResponseResponse,
+  EnrollUserInMfaFactorOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -59,6 +60,14 @@ import {
   serializeVerifySessionOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import {
+  Challenge,
+  ChallengeResponse,
+  Factor,
+  FactorResponse,
+} from '../mfa/interfaces';
+import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import { serializeEnrollUserInMfaFactorOptions } from './serializers/enroll-user-in-mfa-factor-options.serializer';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
@@ -289,5 +298,25 @@ export class Users {
     );
 
     return deserializeUser(data);
+  }
+
+  async enrollUserInMfaFactor(payload: EnrollUserInMfaFactorOptions): Promise<{
+    authenticationFactor: Factor;
+    authenticationChallenge: Challenge;
+  }> {
+    const { data } = await this.workos.post<{
+      authentication_factor: FactorResponse;
+      authentication_challenge: ChallengeResponse;
+    }>(
+      `/users/${payload.userId}/auth/factors`,
+      serializeEnrollUserInMfaFactorOptions(payload),
+    );
+
+    return {
+      authenticationFactor: deserializeFactor(data.authentication_factor),
+      authenticationChallenge: deserializeChallenge(
+        data.authentication_challenge,
+      ),
+    };
   }
 }
