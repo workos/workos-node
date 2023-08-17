@@ -428,4 +428,68 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('enrollUserInMfaFactor', () => {
+    it('sends an enrollUserInMfaFactor request', async () => {
+      mock.onPost(`/users/${userId}/auth/factors`).reply(200, {
+        authentication_factor: {
+          object: 'authentication_factor',
+          id: 'auth_factor_1234',
+          created_at: '2022-03-15T20:39:19.892Z',
+          updated_at: '2022-03-15T20:39:19.892Z',
+          type: 'totp',
+          totp: {
+            issuer: 'WorkOS',
+            qr_code: 'qr-code-test',
+            secret: 'secret-test',
+            uri: 'uri-test',
+            user: 'some_user',
+          },
+        },
+        authentication_challenge: {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          created_at: '2022-03-15T20:39:19.892Z',
+          updated_at: '2022-03-15T20:39:19.892Z',
+          expires_at: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authentication_factor_id: 'auth_factor_1234',
+        },
+      });
+
+      const resp = await workos.users.enrollUserInMfaFactor({
+        userId,
+        type: 'totp',
+        totpIssuer: 'WorkOS',
+        totpUser: 'some_user',
+      });
+
+      expect(mock.history.post[0].url).toEqual(`/users/${userId}/auth/factors`);
+      expect(resp).toMatchObject({
+        authenticationFactor: {
+          object: 'authentication_factor',
+          id: 'auth_factor_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          type: 'totp',
+          totp: {
+            issuer: 'WorkOS',
+            qrCode: 'qr-code-test',
+            secret: 'secret-test',
+            uri: 'uri-test',
+            user: 'some_user',
+          },
+        },
+        authenticationChallenge: {
+          object: 'authentication_challenge',
+          id: 'auth_challenge_1234',
+          createdAt: '2022-03-15T20:39:19.892Z',
+          updatedAt: '2022-03-15T20:39:19.892Z',
+          expiresAt: '2022-03-15T21:39:19.892Z',
+          code: '12345',
+          authenticationFactorId: 'auth_factor_1234',
+        },
+      });
+    });
+  });
 });
