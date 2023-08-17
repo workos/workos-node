@@ -146,12 +146,12 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('authenticateUserWithToken', () => {
+  describe('authenticateUserWithCode', () => {
     it('sends a token authentication request', async () => {
       mock
         .onPost('/users/sessions/token')
         .reply(200, { user: userFixture, session: sessionFixture });
-      const resp = await workos.users.authenticateUserWithToken({
+      const resp = await workos.users.authenticateUserWithCode({
         clientId: 'proj_whatever',
         code: 'or this',
         expiresIn: 15,
