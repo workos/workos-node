@@ -383,12 +383,14 @@ describe('UserManagement', () => {
         userId,
         firstName: 'Dane',
         lastName: 'Williams',
+        emailVerifiedAt: '2023-07-17T20:07:20.055Z',
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
       expect(JSON.parse(mock.history.put[0].data)).toEqual({
         first_name: 'Dane',
         last_name: 'Williams',
+        email_verified_at: '2023-07-17T20:07:20.055Z',
       });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
