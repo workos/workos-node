@@ -1,7 +1,4 @@
-import {
-  DirectoryGroup,
-  DirectoryGroupResponse,
-} from '../interfaces';
+import { DirectoryGroup, DirectoryGroupResponse } from '../interfaces';
 
 export const deserializeDirectoryGroup = (
   directoryGroup: DirectoryGroupResponse,
@@ -17,8 +14,7 @@ export const deserializeDirectoryGroup = (
 });
 
 export const deserializeUpdatedEventDirectoryGroup = (
-  directoryGroup: DirectoryGroupResponse &
-    Record<'previous_attributes', any>,
+  directoryGroup: DirectoryGroupResponse & Record<'previous_attributes', any>,
 ): DirectoryGroup & Record<'previousAttributes', any> => ({
   id: directoryGroup.id,
   idpId: directoryGroup.idp_id,
