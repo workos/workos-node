@@ -1,8 +1,8 @@
 import {
   DirectoryUser,
   DirectoryUserResponse,
+  DirectoryGroup,
   EventDirectory,
-  EventDirectoryGroup,
   EventDirectoryGroupResponse,
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
@@ -80,7 +80,7 @@ export interface DsyncDeletedEventResponse extends EventResponseBase {
 
 export interface DsyncGroupCreatedEvent extends EventBase {
   event: 'dsync.group.created';
-  data: EventDirectoryGroup;
+  data: DirectoryGroup;
 }
 
 export interface DsyncGroupCreatedEventResponse extends EventResponseBase {
@@ -90,7 +90,7 @@ export interface DsyncGroupCreatedEventResponse extends EventResponseBase {
 
 export interface DsyncGroupDeletedEvent extends EventBase {
   event: 'dsync.group.deleted';
-  data: EventDirectoryGroup;
+  data: DirectoryGroup;
 }
 
 export interface DsyncGroupDeletedEventResponse extends EventResponseBase {
@@ -100,7 +100,7 @@ export interface DsyncGroupDeletedEventResponse extends EventResponseBase {
 
 export interface DsyncGroupUpdatedEvent extends EventBase {
   event: 'dsync.group.updated';
-  data: EventDirectoryGroup & Record<'previousAttributes', any>;
+  data: DirectoryGroup & Record<'previousAttributes', any>;
 }
 
 export interface DsyncGroupUpdatedEventResponse extends EventResponseBase {
@@ -113,7 +113,7 @@ export interface DsyncGroupUserAddedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: EventDirectoryGroup;
+    group: DirectoryGroup;
   };
 }
 
@@ -131,7 +131,7 @@ export interface DsyncGroupUserRemovedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: EventDirectoryGroup;
+    group: DirectoryGroup;
   };
 }
 

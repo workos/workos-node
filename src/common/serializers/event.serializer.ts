@@ -2,7 +2,7 @@ import {
   deserializeDeletedEventDirectory,
   deserializeDirectoryUser,
   deserializeEventDirectory,
-  deserializeEventDirectoryGroup,
+  deserializeDirectoryGroup,
   deserializeUpdatedEventDirectoryGroup,
   deserializeUpdatedEventDirectoryUser,
 } from '../../directory-sync/serializers';
@@ -42,7 +42,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeEventDirectoryGroup(event.data),
+        data: deserializeDirectoryGroup(event.data),
       };
     case 'dsync.group.updated':
       return {
@@ -58,7 +58,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: {
           directoryId: event.data.directory_id,
           user: deserializeDirectoryUser(event.data.user),
-          group: deserializeEventDirectoryGroup(event.data.group),
+          group: deserializeDirectoryGroup(event.data.group),
         },
       };
     case 'dsync.user.created':
