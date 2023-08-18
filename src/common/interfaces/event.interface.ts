@@ -1,9 +1,9 @@
 import {
   DirectoryUser,
   DirectoryUserResponse,
+  DirectoryGroup,
+  DirectoryGroupResponse,
   EventDirectory,
-  EventDirectoryGroup,
-  EventDirectoryGroupResponse,
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
@@ -80,32 +80,32 @@ export interface DsyncDeletedEventResponse extends EventResponseBase {
 
 export interface DsyncGroupCreatedEvent extends EventBase {
   event: 'dsync.group.created';
-  data: EventDirectoryGroup;
+  data: DirectoryGroup;
 }
 
 export interface DsyncGroupCreatedEventResponse extends EventResponseBase {
   event: 'dsync.group.created';
-  data: EventDirectoryGroupResponse;
+  data: DirectoryGroupResponse;
 }
 
 export interface DsyncGroupDeletedEvent extends EventBase {
   event: 'dsync.group.deleted';
-  data: EventDirectoryGroup;
+  data: DirectoryGroup;
 }
 
 export interface DsyncGroupDeletedEventResponse extends EventResponseBase {
   event: 'dsync.group.deleted';
-  data: EventDirectoryGroupResponse;
+  data: DirectoryGroupResponse;
 }
 
 export interface DsyncGroupUpdatedEvent extends EventBase {
   event: 'dsync.group.updated';
-  data: EventDirectoryGroup & Record<'previousAttributes', any>;
+  data: DirectoryGroup & Record<'previousAttributes', any>;
 }
 
 export interface DsyncGroupUpdatedEventResponse extends EventResponseBase {
   event: 'dsync.group.updated';
-  data: EventDirectoryGroupResponse & Record<'previous_attributes', any>;
+  data: DirectoryGroupResponse & Record<'previous_attributes', any>;
 }
 
 export interface DsyncGroupUserAddedEvent extends EventBase {
@@ -113,7 +113,7 @@ export interface DsyncGroupUserAddedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: Pick<EventDirectoryGroup, 'id' | 'name'>;
+    group: DirectoryGroup;
   };
 }
 
@@ -122,7 +122,7 @@ export interface DsyncGroupUserAddedEventResponse extends EventResponseBase {
   data: {
     directory_id: string;
     user: DirectoryUserResponse;
-    group: Pick<EventDirectoryGroupResponse, 'id' | 'name'>;
+    group: DirectoryGroupResponse;
   };
 }
 
@@ -131,7 +131,7 @@ export interface DsyncGroupUserRemovedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: Pick<EventDirectoryGroup, 'id' | 'name'>;
+    group: DirectoryGroup;
   };
 }
 
@@ -140,7 +140,7 @@ export interface DsyncGroupUserRemovedEventResponse extends EventResponseBase {
   data: {
     directory_id: string;
     user: DirectoryUserResponse;
-    group: Pick<EventDirectoryGroupResponse, 'id' | 'name'>;
+    group: DirectoryGroupResponse;
   };
 }
 
