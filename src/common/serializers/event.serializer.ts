@@ -58,7 +58,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: {
           directoryId: event.data.directory_id,
           user: deserializeDirectoryUser(event.data.user),
-          group: event.data.group,
+          group: deserializeEventDirectoryGroup(event.data.group),
         },
       };
     case 'dsync.user.created':
