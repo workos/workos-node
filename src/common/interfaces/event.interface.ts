@@ -113,7 +113,7 @@ export interface DsyncGroupUserAddedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: Pick<EventDirectoryGroup, 'id' | 'name'>;
+    group: EventDirectoryGroupResponse;
   };
 }
 
@@ -122,7 +122,7 @@ export interface DsyncGroupUserAddedEventResponse extends EventResponseBase {
   data: {
     directory_id: string;
     user: DirectoryUserResponse;
-    group: Pick<EventDirectoryGroupResponse, 'id' | 'name'>;
+    group: EventDirectoryGroupResponse;
   };
 }
 
@@ -131,7 +131,7 @@ export interface DsyncGroupUserRemovedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: Pick<EventDirectoryGroup, 'id' | 'name'>;
+    group: EventDirectoryGroupResponse;
   };
 }
 
@@ -140,7 +140,7 @@ export interface DsyncGroupUserRemovedEventResponse extends EventResponseBase {
   data: {
     directory_id: string;
     user: DirectoryUserResponse;
-    group: Pick<EventDirectoryGroupResponse, 'id' | 'name'>;
+    group: EventDirectoryGroupResponse;
   };
 }
 
