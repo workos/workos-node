@@ -113,7 +113,7 @@ export interface DsyncGroupUserAddedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: EventDirectoryGroupResponse;
+    group: EventDirectoryGroup;
   };
 }
 
@@ -131,7 +131,7 @@ export interface DsyncGroupUserRemovedEvent extends EventBase {
   data: {
     directoryId: string;
     user: DirectoryUser;
-    group: EventDirectoryGroupResponse;
+    group: EventDirectoryGroup;
   };
 }
 
