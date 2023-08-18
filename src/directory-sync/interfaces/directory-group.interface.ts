@@ -20,17 +20,6 @@ export interface DirectoryGroupResponse {
   raw_attributes: any;
 }
 
-export interface EventDirectoryGroup<TRawAttributes = any> {
-  id: string;
-  idpId: string;
-  directoryId: string;
-  organizationId: string | null;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-  rawAttributes: TRawAttributes;
-}
-
 export interface EventDirectoryGroupResponse<TRawAttributes = any> {
   id: string;
   idp_id: string;

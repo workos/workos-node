@@ -1,7 +1,6 @@
 import {
   DirectoryGroup,
   DirectoryGroupResponse,
-  EventDirectoryGroup,
   EventDirectoryGroupResponse,
 } from '../interfaces';
 
@@ -20,7 +19,7 @@ export const deserializeDirectoryGroup = (
 
 export const deserializeEventDirectoryGroup = (
   directoryGroup: EventDirectoryGroupResponse,
-): EventDirectoryGroup => ({
+): DirectoryGroup => ({
   id: directoryGroup.id,
   idpId: directoryGroup.idp_id,
   directoryId: directoryGroup.directory_id,
@@ -34,7 +33,7 @@ export const deserializeEventDirectoryGroup = (
 export const deserializeUpdatedEventDirectoryGroup = (
   directoryGroup: EventDirectoryGroupResponse &
     Record<'previous_attributes', any>,
-): EventDirectoryGroup & Record<'previousAttributes', any> => ({
+): DirectoryGroup & Record<'previousAttributes', any> => ({
   id: directoryGroup.id,
   idpId: directoryGroup.idp_id,
   directoryId: directoryGroup.directory_id,
