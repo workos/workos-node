@@ -1,43 +1,19 @@
-export type User = ManagedUser | UnmanagedUser;
-export type UserResponse = ManagedUserResponse | UnmanagedUserResponse;
-
-interface ManagedUser extends BaseUser {
-  userType: 'managed';
-  ssoProfileId: string | null;
-}
-
-interface ManagedUserResponse extends BaseUserResponse {
-  user_type: 'managed';
-  sso_profile_id: string | null;
-}
-interface UnmanagedUser extends BaseUser {
-  userType: 'unmanaged';
-  emailVerifiedAt: string | null;
-  googleOauthProfileId: string | null;
-  microsoftOauthProfileId: string | null;
-}
-
-interface UnmanagedUserResponse extends BaseUserResponse {
-  user_type: 'unmanaged';
-  email_verified_at: string | null;
-  google_oauth_profile_id: string | null;
-  microsoft_oauth_profile_id: string | null;
-}
-
-export interface BaseUser {
+export interface User {
   object: 'user';
   id: string;
   email: string;
+  emailVerifiedAt: string | null;
   firstName: string | null;
   lastName: string | null;
   createdAt: string;
   updatedAt: string;
 }
 
-interface BaseUserResponse {
+export interface UserResponse {
   object: 'user';
   id: string;
   email: string;
+  email_verified_at: string | null;
   first_name: string | null;
   last_name: string | null;
   created_at: string;

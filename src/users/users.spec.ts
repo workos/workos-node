@@ -23,7 +23,6 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         firstName: 'Test 01',
         lastName: 'User',
-        userType: 'unmanaged',
         emailVerifiedAt: '2023-07-17T20:07:20.055Z',
       });
     });
@@ -87,7 +86,6 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         firstName: 'Test 01',
         lastName: 'User',
-        userType: 'unmanaged',
         emailVerifiedAt: '2023-07-17T20:07:20.055Z',
         createdAt: '2023-07-18T02:07:19.911Z',
         updatedAt: '2023-07-18T02:07:19.911Z',
