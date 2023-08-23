@@ -2,7 +2,7 @@ export interface User {
   object: 'user';
   id: string;
   email: string;
-  emailVerifiedAt: string | null;
+  emailVerified: boolean;
   firstName: string | null;
   lastName: string | null;
   createdAt: string;
@@ -13,7 +13,7 @@ export interface UserResponse {
   object: 'user';
   id: string;
   email: string;
-  email_verified_at: string | null;
+  email_verified: boolean;
   first_name: string | null;
   last_name: string | null;
   created_at: string;
