@@ -18,8 +18,6 @@ import {
   ListUsersOptions,
   MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
-  RevokeAllSessionsForUserOptions,
-  RevokeSessionOptions,
   SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
@@ -29,16 +27,11 @@ import {
   SerializedCreateEmailVerificationChallengeOptions,
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
-  SerializedRevokeSessionOptions,
   SerializedSendMagicAuthCodeOptions,
-  SerializedVerifySessionOptions,
   UpdateUserOptions,
   UpdateUserPasswordOptions,
   User,
   UserResponse,
-  VerifySessionOptions,
-  VerifySessionResponse,
-  VerifySessionResponseResponse,
   EnrollUserInMfaFactorOptions,
 } from './interfaces';
 import {
@@ -46,18 +39,15 @@ import {
   deserializeCreateEmailVerificationChallengeResponse,
   deserializeCreatePasswordResetChallengeResponse,
   deserializeUser,
-  deserializeVerifySessionResponse,
   serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
   serializeAuthenticateUserWithCodeOptions,
   serializeCompletePasswordResetOptions,
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
-  serializeRevokeSessionOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
   serializeUpdateUserPasswordOptions,
-  serializeVerifySessionOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import {
@@ -159,36 +149,6 @@ export class Users {
     );
 
     return deserializeAuthenticationResponse(data);
-  }
-
-  async verifySession(
-    payload: VerifySessionOptions,
-  ): Promise<VerifySessionResponse> {
-    const { data } = await this.workos.post<
-      VerifySessionResponseResponse,
-      any,
-      SerializedVerifySessionOptions
-    >('/users/sessions/verify', serializeVerifySessionOptions(payload));
-
-    return deserializeVerifySessionResponse(data);
-  }
-
-  async revokeSession(payload: RevokeSessionOptions): Promise<boolean> {
-    const { data } = await this.workos.post<
-      boolean,
-      any,
-      SerializedRevokeSessionOptions
-    >('/users/sessions/revocations', serializeRevokeSessionOptions(payload));
-
-    return data;
-  }
-
-  async revokeAllSessionsForUser({
-    userId,
-  }: RevokeAllSessionsForUserOptions): Promise<boolean> {
-    const { data } = await this.workos.delete(`/users/${userId}/sessions`);
-
-    return data;
   }
 
   async createEmailVerificationChallenge({
