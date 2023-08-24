@@ -23,8 +23,7 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         firstName: 'Test 01',
         lastName: 'User',
-        userType: 'unmanaged',
-        emailVerifiedAt: '2023-07-17T20:07:20.055Z',
+        emailVerified: true,
       });
     });
   });
@@ -54,7 +53,6 @@ describe('UserManagement', () => {
       await workos.users.listUsers({
         email: 'foo@example.com',
         organization: 'org_someorg',
-        type: 'managed',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
       });
@@ -62,7 +60,6 @@ describe('UserManagement', () => {
       expect(mock.history.get[0].params).toEqual({
         email: 'foo@example.com',
         organization: 'org_someorg',
-        type: 'managed',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
         order: 'desc',
@@ -87,8 +84,7 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         firstName: 'Test 01',
         lastName: 'User',
-        userType: 'unmanaged',
-        emailVerifiedAt: '2023-07-17T20:07:20.055Z',
+        emailVerified: true,
         createdAt: '2023-07-18T02:07:19.911Z',
         updatedAt: '2023-07-18T02:07:19.911Z',
       });
