@@ -497,7 +497,7 @@ describe('UserManagement', () => {
 
   describe('deleteUser', () => {
     it('sends a deleteUser request', async () => {
-      mock.onDelete(`/users/${userId}`).reply(202);
+      mock.onDelete(`/users/${userId}`).reply(200);
 
       const resp = await workos.users.deleteUser({
         userId,
