@@ -33,6 +33,8 @@ import {
   User,
   UserResponse,
   EnrollUserInMfaFactorOptions,
+  VerifyEmailOptions,
+  SerializedVerifyEmailOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -178,13 +180,14 @@ export class Users {
     return data;
   }
 
-  async completeEmailVerification(token: string): Promise<User> {
-    const { data } = await this.workos.post<UserResponse>(
-      '/users/email_verification',
-      {
-        token,
-      },
-    );
+  async verifyEmail({ code, userId }: VerifyEmailOptions): Promise<User> {
+    const { data } = await this.workos.post<
+      UserResponse,
+      any,
+      SerializedVerifyEmailOptions
+    >(`/users/${userId}/verify_email`, {
+      code,
+    });
 
     return deserializeUser(data);
   }
