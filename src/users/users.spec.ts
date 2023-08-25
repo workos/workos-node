@@ -171,25 +171,22 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('createEmailVerificationChallenge', () => {
+  describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
-      mock.onPost(`/users/${userId}/email_verification_challenge`).reply(200, {
-        token: 'email-verification-challenge',
-        user: userFixture,
-      });
-      const resp = await workos.users.createEmailVerificationChallenge({
+      mock
+        .onPost(`/users/${userId}/send_verification_email`)
+        .reply(200, userFixture);
+
+      const resp = await workos.users.sendVerificationEmail({
         userId,
-        verificationUrl: 'https://example.com/verify-email',
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/users/${userId}/email_verification_challenge`,
+        `/users/${userId}/send_verification_email`,
       );
+
       expect(resp).toMatchObject({
-        token: 'email-verification-challenge',
-        user: {
-          email: 'test01@example.com',
-        },
+        email: 'test01@example.com',
       });
     });
 
