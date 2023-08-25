@@ -193,17 +193,19 @@ describe('UserManagement', () => {
       });
     });
 
-    describe('verifyEmail', () => {
+    describe('verifyEmailCode', () => {
       it('sends a Complete Email Verification request', async () => {
-        mock.onPost(`/users/user_123/verify_email`).reply(200, userFixture);
+        mock
+          .onPost(`/users/user_123/verify_email_code`)
+          .reply(200, userFixture);
 
-        const resp = await workos.users.verifyEmail({
+        const resp = await workos.users.verifyEmailCode({
           userId: 'user_123',
           code: '123456',
         });
 
         expect(mock.history.post[0].url).toEqual(
-          `/users/user_123/verify_email`,
+          `/users/user_123/verify_email_code`,
         );
 
         expect(resp).toMatchObject({
