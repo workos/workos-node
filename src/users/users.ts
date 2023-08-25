@@ -15,7 +15,6 @@ import {
   DeleteUserOptions,
   EnrollUserInMfaFactorOptions,
   ListUsersOptions,
-  MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
   SendVerificationEmailOptions,
@@ -163,14 +162,14 @@ export class Users {
 
   async sendMagicAuthCode(
     options: SendMagicAuthCodeOptions,
-  ): Promise<MagicAuthChallenge> {
+  ): Promise<{ user: User }> {
     const { data } = await this.workos.post<
-      MagicAuthChallenge,
+      { user: UserResponse },
       any,
       SerializedSendMagicAuthCodeOptions
     >('/users/magic_auth/send', serializeSendMagicAuthCodeOptions(options));
 
-    return data;
+    return { user: deserializeUser(data.user) };
   }
 
   async verifyEmailCode({
