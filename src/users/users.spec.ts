@@ -171,65 +171,6 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('verifySession', () => {
-    it('sends a request to verify the session', async () => {
-      mock.onPost('/users/sessions/verify').reply(200, {
-        user: userFixture,
-        session: sessionFixture,
-      });
-
-      const resp = await workos.users.verifySession({
-        clientId: 'proj_something',
-        token: 'really-long-token',
-      });
-
-      expect(mock.history.post[0].url).toEqual('/users/sessions/verify');
-      expect(resp).toMatchObject({
-        user: {
-          email: 'test01@example.com',
-        },
-        session: {
-          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
-          token: 'really-long-token',
-        },
-      });
-    });
-  });
-
-  describe('revokeSession', () => {
-    it('can revoke with the session_id', async () => {
-      mock.onPost('/users/sessions/revocations').reply(200, true);
-
-      const revoked = await workos.users.revokeSession({
-        sessionId: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
-      });
-
-      expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
-      expect(revoked).toEqual(true);
-    });
-
-    it('can revoke with the session_token', async () => {
-      mock.onPost('/users/sessions/revocations').reply(200, true);
-
-      const revoked = await workos.users.revokeSession({
-        sessionToken: 'really-long-token',
-      });
-
-      expect(mock.history.post[0].url).toEqual('/users/sessions/revocations');
-      expect(revoked).toEqual(true);
-    });
-  });
-
-  describe('revokeAllSessionsForUser', () => {
-    it('sends a revokeAllSessionsForUser request', async () => {
-      mock.onDelete(`/users/${userId}/sessions`).reply(200, true);
-      const revoked = await workos.users.revokeAllSessionsForUser({ userId });
-
-      expect(mock.history.delete[0].url).toEqual(`/users/${userId}/sessions`);
-      expect(revoked).toEqual(true);
-    });
-  });
-
   describe('createEmailVerificationChallenge', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock.onPost(`/users/${userId}/email_verification_challenge`).reply(200, {
@@ -379,14 +320,14 @@ describe('UserManagement', () => {
         userId,
         firstName: 'Dane',
         lastName: 'Williams',
-        emailVerifiedAt: '2023-07-17T20:07:20.055Z',
+        emailVerified: true,
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
       expect(JSON.parse(mock.history.put[0].data)).toEqual({
         first_name: 'Dane',
         last_name: 'Williams',
-        email_verified_at: '2023-07-17T20:07:20.055Z',
+        email_verified: true,
       });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
