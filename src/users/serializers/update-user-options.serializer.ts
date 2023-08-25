@@ -5,5 +5,5 @@ export const serializeUpdateUserOptions = (
 ): SerializedUpdateUserOptions => ({
   first_name: options.firstName,
   last_name: options.lastName,
-  email_verified_at: options.emailVerifiedAt,
+  email_verified: options.emailVerified,
 });
