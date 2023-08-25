@@ -195,15 +195,15 @@ describe('UserManagement', () => {
 
     describe('verifyEmail', () => {
       it('sends a Complete Email Verification request', async () => {
-        mock.onPost(`/users/user-123/verify_email`).reply(200, userFixture);
+        mock.onPost(`/users/user_123/verify_email`).reply(200, userFixture);
 
         const resp = await workos.users.verifyEmail({
-          userId: 'user-123',
+          userId: 'user_123',
           code: '123456',
         });
 
         expect(mock.history.post[0].url).toEqual(
-          `/users/user-123/verify_email`,
+          `/users/user_123/verify_email`,
         );
 
         expect(resp).toMatchObject({
