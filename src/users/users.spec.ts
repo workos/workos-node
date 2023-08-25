@@ -323,14 +323,14 @@ describe('UserManagement', () => {
         userId,
         firstName: 'Dane',
         lastName: 'Williams',
-        emailVerifiedAt: '2023-07-17T20:07:20.055Z',
+        emailVerified: true,
       });
 
       expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
       expect(JSON.parse(mock.history.put[0].data)).toEqual({
         first_name: 'Dane',
         last_name: 'Williams',
-        email_verified_at: '2023-07-17T20:07:20.055Z',
+        email_verified: true,
       });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
@@ -432,6 +432,19 @@ describe('UserManagement', () => {
           authenticationFactorId: 'auth_factor_1234',
         },
       });
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('sends a deleteUser request', async () => {
+      mock.onDelete(`/users/${userId}`).reply(200);
+
+      const resp = await workos.users.deleteUser({
+        userId,
+      });
+
+      expect(mock.history.delete[0].url).toEqual(`/users/${userId}`);
+      expect(resp).toBeUndefined();
     });
   });
 });

@@ -2,9 +2,9 @@ import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import {
   AddUserToOrganizationOptions,
+  AuthenticateUserWithCodeOptions,
   AuthenticateUserWithMagicAuthOptions,
   AuthenticateUserWithPasswordOptions,
-  AuthenticateUserWithCodeOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
   CompletePasswordResetOptions,
@@ -15,26 +15,27 @@ import {
   CreatePasswordResetChallengeResponse,
   CreatePasswordResetChallengeResponseResponse,
   CreateUserOptions,
+  DeleteUserOptions,
+  EnrollUserInMfaFactorOptions,
   ListUsersOptions,
   MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
+  SerializedAuthenticateUserWithCodeOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
-  SerializedAuthenticateUserWithCodeOptions,
   SerializedCompletePasswordResetOptions,
   SerializedCreateEmailVerificationChallengeOptions,
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
+  SerializedVerifyEmailOptions,
   UpdateUserOptions,
   UpdateUserPasswordOptions,
   User,
   UserResponse,
-  EnrollUserInMfaFactorOptions,
   VerifyEmailOptions,
-  SerializedVerifyEmailOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -281,5 +282,9 @@ export class Users {
         data.authentication_challenge,
       ),
     };
+  }
+
+  async deleteUser(payload: DeleteUserOptions) {
+    await this.workos.delete(`/users/${payload.userId}`);
   }
 }
