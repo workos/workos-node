@@ -164,12 +164,12 @@ export class Users {
     options: SendMagicAuthCodeOptions,
   ): Promise<{ user: User }> {
     const { data } = await this.workos.post<
-      { user: User },
+      { user: UserResponse },
       any,
       SerializedSendMagicAuthCodeOptions
     >('/users/magic_auth/send', serializeSendMagicAuthCodeOptions(options));
 
-    return data;
+    return { user: deserializeUser(data.user) };
   }
 
   async verifyEmailCode({

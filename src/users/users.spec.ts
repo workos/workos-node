@@ -222,11 +222,11 @@ describe('UserManagement', () => {
           user: {
             object: 'user',
             email: 'test01@example.com',
-            firstName: 'Test 01',
-            lastName: 'User',
-            emailVerified: true,
-            createdAt: '2023-07-18T02:07:19.911Z',
-            updatedAt: '2023-07-18T02:07:19.911Z',
+            first_name: 'Test 01',
+            last_name: 'User',
+            email_verified: true,
+            created_at: '2023-07-18T02:07:19.911Z',
+            updated_at: '2023-07-18T02:07:19.911Z',
           },
         });
 
