@@ -2,9 +2,9 @@ import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import {
   AddUserToOrganizationOptions,
+  AuthenticateUserWithCodeOptions,
   AuthenticateUserWithMagicAuthOptions,
   AuthenticateUserWithPasswordOptions,
-  AuthenticateUserWithCodeOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
   CompletePasswordResetOptions,
@@ -15,25 +15,27 @@ import {
   CreatePasswordResetChallengeResponse,
   CreatePasswordResetChallengeResponseResponse,
   CreateUserOptions,
+  DeleteUserOptions,
+  EnrollUserInMfaFactorOptions,
   ListUsersOptions,
   MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
   SerializedAddUserToOrganizationOptions,
+  SerializedAuthenticateUserWithCodeOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
-  SerializedAuthenticateUserWithCodeOptions,
   SerializedCompletePasswordResetOptions,
   SerializedCreateEmailVerificationChallengeOptions,
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
+  SerializedVerifyEmailOptions,
   UpdateUserOptions,
   UpdateUserPasswordOptions,
   User,
   UserResponse,
-  EnrollUserInMfaFactorOptions,
-  DeleteUserOptions,
+  VerifyEmailOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -179,13 +181,14 @@ export class Users {
     return data;
   }
 
-  async completeEmailVerification(token: string): Promise<User> {
-    const { data } = await this.workos.post<UserResponse>(
-      '/users/email_verification',
-      {
-        token,
-      },
-    );
+  async verifyEmail({ code, userId }: VerifyEmailOptions): Promise<User> {
+    const { data } = await this.workos.post<
+      UserResponse,
+      any,
+      SerializedVerifyEmailOptions
+    >(`/users/${userId}/verify_email`, {
+      code,
+    });
 
     return deserializeUser(data);
   }
