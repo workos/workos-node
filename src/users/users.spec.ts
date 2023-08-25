@@ -175,7 +175,7 @@ describe('UserManagement', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock
         .onPost(`/users/${userId}/send_verification_email`)
-        .reply(200, userFixture);
+        .reply(200, { user: userFixture });
 
       const resp = await workos.users.sendVerificationEmail({
         userId,
@@ -186,7 +186,16 @@ describe('UserManagement', () => {
       );
 
       expect(resp).toMatchObject({
-        email: 'test01@example.com',
+        user: {
+          createdAt: '2023-07-18T02:07:19.911Z',
+          email: 'test01@example.com',
+          emailVerified: true,
+          firstName: 'Test 01',
+          id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          lastName: 'User',
+          object: 'user',
+          updatedAt: '2023-07-18T02:07:19.911Z',
+        },
       });
     });
 

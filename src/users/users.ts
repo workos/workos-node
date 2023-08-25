@@ -152,13 +152,13 @@ export class Users {
 
   async sendVerificationEmail({
     userId,
-  }: SendVerificationEmailOptions): Promise<User> {
-    const { data } = await this.workos.post<UserResponse>(
+  }: SendVerificationEmailOptions): Promise<{ user: User }> {
+    const { data } = await this.workos.post<{ user: UserResponse }>(
       `/users/${userId}/send_verification_email`,
       {},
     );
 
-    return deserializeUser(data);
+    return { user: deserializeUser(data.user) };
   }
 
   async sendMagicAuthCode(
