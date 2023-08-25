@@ -219,7 +219,15 @@ describe('UserManagement', () => {
           email_address: 'bob.loblaw@example.com',
         })
         .reply(200, {
-          id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
+          user: {
+            object: 'user',
+            email: 'test01@example.com',
+            first_name: 'Test 01',
+            last_name: 'User',
+            email_verified: true,
+            created_at: '2023-07-18T02:07:19.911Z',
+            updated_at: '2023-07-18T02:07:19.911Z',
+          },
         });
 
       const response = await workos.users.sendMagicAuthCode({
@@ -229,7 +237,15 @@ describe('UserManagement', () => {
       expect(mock.history.post[0].url).toEqual('/users/magic_auth/send');
 
       expect(response).toMatchObject({
-        id: 'auth_challenge_01E4ZCR3C56J083X43JQXF3JK5',
+        user: {
+          object: 'user',
+          email: 'test01@example.com',
+          firstName: 'Test 01',
+          lastName: 'User',
+          emailVerified: true,
+          createdAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: '2023-07-18T02:07:19.911Z',
+        },
       });
     });
   });
