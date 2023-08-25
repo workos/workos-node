@@ -33,6 +33,7 @@ import {
   User,
   UserResponse,
   EnrollUserInMfaFactorOptions,
+  DeleteUserOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -278,5 +279,9 @@ export class Users {
         data.authentication_challenge,
       ),
     };
+  }
+
+  async deleteUser(payload: DeleteUserOptions) {
+    await this.workos.delete(`/users/${payload.userId}`);
   }
 }
