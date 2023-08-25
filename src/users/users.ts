@@ -8,9 +8,6 @@ import {
   AuthenticationResponse,
   AuthenticationResponseResponse,
   CompletePasswordResetOptions,
-  CreateEmailVerificationChallengeOptions,
-  CreateEmailVerificationChallengeResponse,
-  CreateEmailVerificationChallengeResponseResponse,
   CreatePasswordResetChallengeOptions,
   CreatePasswordResetChallengeResponse,
   CreatePasswordResetChallengeResponseResponse,
@@ -21,12 +18,12 @@ import {
   MagicAuthChallenge,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
+  SendVerificationEmailOptions,
   SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateUserWithCodeOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
   SerializedCompletePasswordResetOptions,
-  SerializedCreateEmailVerificationChallengeOptions,
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
@@ -39,7 +36,6 @@ import {
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
-  deserializeCreateEmailVerificationChallengeResponse,
   deserializeCreatePasswordResetChallengeResponse,
   deserializeUser,
   serializeAuthenticateUserWithMagicAuthOptions,
@@ -154,19 +150,15 @@ export class Users {
     return deserializeAuthenticationResponse(data);
   }
 
-  async createEmailVerificationChallenge({
+  async sendVerificationEmail({
     userId,
-    verificationUrl,
-  }: CreateEmailVerificationChallengeOptions): Promise<CreateEmailVerificationChallengeResponse> {
-    const { data } = await this.workos.post<
-      CreateEmailVerificationChallengeResponseResponse,
-      any,
-      SerializedCreateEmailVerificationChallengeOptions
-    >(`/users/${userId}/email_verification_challenge`, {
-      verification_url: verificationUrl,
-    });
+  }: SendVerificationEmailOptions): Promise<User> {
+    const { data } = await this.workos.post<UserResponse>(
+      `/users/${userId}/send_verification_email`,
+      {},
+    );
 
-    return deserializeCreateEmailVerificationChallengeResponse(data);
+    return deserializeUser(data);
   }
 
   async sendMagicAuthCode(

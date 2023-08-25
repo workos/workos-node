@@ -3,7 +3,6 @@ export * from './authenticate-user-with-magic-auth-options.serializer';
 export * from './authenticate-user-with-password-options.serializer';
 export * from './authentication-response.serializer';
 export * from './complete-password-reset-options.serializer';
-export * from './create-email-verification-challenge.serializer';
 export * from './create-password-reset-challenge.serializer';
 export * from './create-user-options.serializer';
 export * from './send-magic-auth-code-options.serializer';
