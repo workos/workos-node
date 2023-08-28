@@ -219,6 +219,7 @@ export class WorkOS {
               requestID,
               error,
               errorDescription,
+              data,
             );
           } else if (code && errors) {
             // Note: ideally this should be mapped directly with a `400` status code.

@@ -198,7 +198,13 @@ describe('WorkOS', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
-          new OauthException(400, 'a-request-id', 'error', 'error description'),
+          new OauthException(
+            400,
+            'a-request-id',
+            'error',
+            'error description',
+            { error: 'error', error_description: 'error description' },
+          ),
         );
       });
     });
