@@ -3,7 +3,6 @@ import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import userFixture from './fixtures/user.json';
 import listUsersFixture from './fixtures/list-users.json';
-import sessionFixture from './fixtures/session.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -93,9 +92,8 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithMagicAuth', () => {
     it('sends a magic auth authentication request', async () => {
-      mock.onPost('/users/sessions/token').reply(200, {
+      mock.onPost('/users/authenticate').reply(200, {
         user: userFixture,
-        session: sessionFixture,
       });
 
       const resp = await workos.users.authenticateUserWithMagicAuth({
@@ -104,14 +102,10 @@ describe('UserManagement', () => {
         magicAuthChallengeId: 'auth_challenge_123',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(mock.history.post[0].url).toEqual('/users/authenticate');
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
-        },
-        session: {
-          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
-          token: 'really-long-token',
         },
       });
     });
@@ -119,9 +113,8 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithPassword', () => {
     it('sends an password authentication request', async () => {
-      mock.onPost('/users/sessions/token').reply(200, {
+      mock.onPost('/users/authenticate').reply(200, {
         user: userFixture,
-        session: sessionFixture,
       });
       const resp = await workos.users.authenticateUserWithPassword({
         clientId: 'proj_whatever',
@@ -129,14 +122,10 @@ describe('UserManagement', () => {
         password: 'extra-secure',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(mock.history.post[0].url).toEqual('/users/authenticate');
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
-        },
-        session: {
-          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
-          token: 'really-long-token',
         },
       });
     });
@@ -144,16 +133,13 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithCode', () => {
     it('sends a token authentication request', async () => {
-      mock
-        .onPost('/users/sessions/token')
-        .reply(200, { user: userFixture, session: sessionFixture });
+      mock.onPost('/users/authenticate').reply(200, { user: userFixture });
       const resp = await workos.users.authenticateUserWithCode({
         clientId: 'proj_whatever',
         code: 'or this',
-        expiresIn: 15,
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/sessions/token');
+      expect(mock.history.post[0].url).toEqual('/users/authenticate');
       expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
         client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         grant_type: 'authorization_code',
@@ -162,10 +148,6 @@ describe('UserManagement', () => {
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
-        },
-        session: {
-          id: 'session_01H5K05VP5CPCXJA5Z7G191GS4',
-          token: 'really-long-token',
         },
       });
     });

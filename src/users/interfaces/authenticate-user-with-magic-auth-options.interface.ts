@@ -4,7 +4,6 @@ export interface AuthenticateUserWithMagicAuthOptions {
   magicAuthChallengeId: string;
   ipAddress?: string;
   userAgent?: string;
-  expiresIn?: number;
 }
 
 export interface AuthenticateUserWithMagicAuthCredentials {
@@ -19,5 +18,4 @@ export interface SerializedAuthenticateUserWithMagicAuthOptions {
   magic_auth_challenge_id: string;
   ip_address?: string;
   user_agent?: string;
-  expires_in?: number;
 }
