@@ -4,7 +4,6 @@ export interface AuthenticateUserWithPasswordOptions {
   password: string;
   ipAddress?: string;
   userAgent?: string;
-  expiresIn?: number;
 }
 
 export interface AuthenticateUserWithPasswordCredentials {
@@ -19,5 +18,4 @@ export interface SerializedAuthenticateUserWithPasswordOptions {
   password: string;
   ip_address?: string;
   user_agent?: string;
-  expires_in?: number;
 }

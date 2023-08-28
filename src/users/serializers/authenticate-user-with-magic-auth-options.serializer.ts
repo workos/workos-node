@@ -15,5 +15,4 @@ export const serializeAuthenticateUserWithMagicAuthOptions = (
   magic_auth_challenge_id: options.magicAuthChallengeId,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
-  expires_in: options.expiresIn,
 });
