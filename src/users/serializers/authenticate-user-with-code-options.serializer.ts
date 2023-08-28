@@ -12,5 +12,4 @@ export const serializeAuthenticateUserWithCodeOptions = (
   client_id: options.clientId,
   client_secret: options.clientSecret,
   code: options.code,
-  expires_in: options.expiresIn,
 });

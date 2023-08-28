@@ -13,7 +13,7 @@ export * from './magic-auth-challenge.interface';
 export * from './remove-user-from-organization-options.interface';
 export * from './send-magic-auth-code-options.interface';
 export * from './send-verification-email-options';
-export * from './session.interface';
+export * from './user-authentication.interface';
 export * from './update-user-options.interface';
 export * from './update-user-password-options.interface';
 export * from './user.interface';

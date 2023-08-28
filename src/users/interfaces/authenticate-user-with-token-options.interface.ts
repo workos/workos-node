@@ -1,7 +1,6 @@
 export interface AuthenticateUserWithCodeOptions {
   clientId: string;
   code: string;
-  expiresIn?: number;
 }
 
 export interface AuthenticateUserWithCodeCredentials {
@@ -13,5 +12,4 @@ export interface SerializedAuthenticateUserWithCodeOptions {
   client_id: string;
   client_secret: string | undefined;
   code: string;
-  expires_in?: number;
 }
