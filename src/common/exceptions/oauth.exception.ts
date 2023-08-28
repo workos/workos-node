@@ -6,6 +6,7 @@ export class OauthException extends Error {
     readonly requestID: string,
     readonly error: string | undefined,
     readonly errorDescription: string | undefined,
+    readonly rawData: unknown,
   ) {
     super();
     if (error && errorDescription) {
