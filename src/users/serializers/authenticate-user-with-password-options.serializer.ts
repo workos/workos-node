@@ -15,5 +15,4 @@ export const serializeAuthenticateUserWithPasswordOptions = (
   password: options.password,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
-  expires_in: options.expiresIn,
 });

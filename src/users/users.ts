@@ -103,7 +103,7 @@ export class Users {
       any,
       SerializedAuthenticateUserWithMagicAuthOptions
     >(
-      '/users/sessions/token',
+      '/users/authenticate',
       serializeAuthenticateUserWithMagicAuthOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -121,7 +121,7 @@ export class Users {
       any,
       SerializedAuthenticateUserWithPasswordOptions
     >(
-      '/users/sessions/token',
+      '/users/authenticate',
       serializeAuthenticateUserWithPasswordOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -139,7 +139,7 @@ export class Users {
       any,
       SerializedAuthenticateUserWithCodeOptions
     >(
-      '/users/sessions/token',
+      '/users/authenticate',
       serializeAuthenticateUserWithCodeOptions({
         ...payload,
         clientSecret: this.workos.key,
