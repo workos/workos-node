@@ -1,7 +1,7 @@
 export interface AuthenticateUserWithMagicAuthOptions {
   clientId: string;
   code: string;
-  magicAuthChallengeId: string;
+  userId: string;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -15,7 +15,7 @@ export interface SerializedAuthenticateUserWithMagicAuthOptions {
   client_id: string;
   client_secret: string | undefined;
   code: string;
-  magic_auth_challenge_id: string;
+  user_id: string;
   ip_address?: string;
   user_agent?: string;
 }
