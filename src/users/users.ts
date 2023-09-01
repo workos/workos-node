@@ -175,16 +175,16 @@ export class Users {
   async verifyEmailCode({
     code,
     userId,
-  }: VerifyEmailCodeOptions): Promise<User> {
+  }: VerifyEmailCodeOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
-      UserResponse,
+      { user: UserResponse },
       any,
       SerializedVerifyEmailCodeOptions
     >(`/users/${userId}/verify_email_code`, {
       code,
     });
 
-    return deserializeUser(data);
+    return { user: deserializeUser(data.user) };
   }
 
   async createPasswordResetChallenge(
