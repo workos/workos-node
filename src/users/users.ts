@@ -8,9 +8,8 @@ import {
   AuthenticationResponse,
   AuthenticationResponseResponse,
   ResetPasswordOptions,
-  CreatePasswordResetChallengeOptions,
-  CreatePasswordResetChallengeResponse,
-  CreatePasswordResetChallengeResponseResponse,
+  SendPasswordResetEmailOptions,
+  SendPasswordResetEmailResponse,
   CreateUserOptions,
   DeleteUserOptions,
   EnrollUserInMfaFactorOptions,
@@ -23,7 +22,7 @@ import {
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
   SerializedResetPasswordOptions,
-  SerializedCreatePasswordResetChallengeOptions,
+  SerializedSendPasswordResetEmailOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
   SerializedVerifyEmailCodeOptions,
@@ -32,16 +31,17 @@ import {
   User,
   UserResponse,
   VerifyEmailCodeOptions,
+  SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
-  deserializeCreatePasswordResetChallengeResponse,
+  deserializeSendPasswordResetEmailResponse,
   deserializeUser,
   serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
   serializeAuthenticateUserWithCodeOptions,
   serializeResetPasswordOptions,
-  serializeCreatePasswordResetChallengeOptions,
+  serializeSendPasswordResetEmailOptions,
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
@@ -187,19 +187,19 @@ export class Users {
     return { user: deserializeUser(data.user) };
   }
 
-  async createPasswordResetChallenge(
-    payload: CreatePasswordResetChallengeOptions,
-  ): Promise<CreatePasswordResetChallengeResponse> {
+  async sendPasswordResetEmail(
+    payload: SendPasswordResetEmailOptions,
+  ): Promise<SendPasswordResetEmailResponse> {
     const { data } = await this.workos.post<
-      CreatePasswordResetChallengeResponseResponse,
+      SendPasswordResetEmailResponseResponse,
       any,
-      SerializedCreatePasswordResetChallengeOptions
+      SerializedSendPasswordResetEmailOptions
     >(
-      '/users/password_reset_challenge',
-      serializeCreatePasswordResetChallengeOptions(payload),
+      '/users/send_password_reset_email',
+      serializeSendPasswordResetEmailOptions(payload),
     );
 
-    return deserializeCreatePasswordResetChallengeResponse(data);
+    return deserializeSendPasswordResetEmailResponse(data);
   }
 
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
