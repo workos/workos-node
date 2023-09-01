@@ -1,11 +1,11 @@
 import {
-  CompletePasswordResetOptions,
-  SerializedCompletePasswordResetOptions,
+  ResetPasswordOptions,
+  SerializedResetPasswordOptions,
 } from '../interfaces';
 
-export const serializeCompletePasswordResetOptions = (
-  options: CompletePasswordResetOptions,
-): SerializedCompletePasswordResetOptions => ({
+export const serializeResetPasswordOptions = (
+  options: ResetPasswordOptions,
+): SerializedResetPasswordOptions => ({
   token: options.token,
   new_password: options.newPassword,
 });
