@@ -37,6 +37,7 @@ import {
   AuthenticateUserWithTotpOptions,
   SerializedAuthenticateUserWithTotpOptions,
 } from './interfaces/authenticate-user-with-totp-options.interface';
+import { ListAuthFactorsOptions } from './interfaces/list-auth-factors-options.interface';
 import {
   deserializeAuthenticationResponse,
   deserializeSendPasswordResetEmailResponse,
@@ -297,6 +298,14 @@ export class Users {
         data.authentication_challenge,
       ),
     };
+  }
+
+  async listAuthFactors(payload: ListAuthFactorsOptions): Promise<Factor[]> {
+    const { data } = await this.workos.get<FactorResponse[]>(
+      `/users/${payload.userId}/auth/factors`,
+    );
+
+    return data.map(deserializeFactor);
   }
 
   async deleteUser(payload: DeleteUserOptions) {
