@@ -4,7 +4,7 @@ export * from './authenticate-user-with-password-options.interface';
 export * from './authenticate-user-with-token-options.interface';
 export * from './authentication-response.interface';
 export * from './reset-password-options.interface';
-export * from './create-password-reset-challenge-options.interface';
+export * from './send-password-reset-options.interface';
 export * from './create-user-options.interface';
 export * from './delete-user-options.interface';
 export * from './enroll-user-in-mfa-factor.interface';
