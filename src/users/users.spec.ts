@@ -185,7 +185,7 @@ describe('UserManagement', () => {
       it('sends a Complete Email Verification request', async () => {
         mock
           .onPost(`/users/user_123/verify_email_code`)
-          .reply(200, userFixture);
+          .reply(200, { user: userFixture });
 
         const resp = await workos.users.verifyEmailCode({
           userId: 'user_123',
@@ -196,7 +196,7 @@ describe('UserManagement', () => {
           `/users/user_123/verify_email_code`,
         );
 
-        expect(resp).toMatchObject({
+        expect(resp.user).toMatchObject({
           email: 'test01@example.com',
         });
       });
