@@ -12,7 +12,7 @@ export const serializeAuthenticateUserWithMagicAuthOptions = (
   client_id: options.clientId,
   client_secret: options.clientSecret,
   code: options.code,
-  magic_auth_challenge_id: options.magicAuthChallengeId,
+  user_id: options.userId,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
 });
