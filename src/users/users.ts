@@ -34,6 +34,10 @@ import {
   SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
+  AuthenticateUserWithTotpOptions,
+  SerializedAuthenticateUserWithTotpOptions,
+} from './interfaces/authenticate-user-with-totp-options.interface';
+import {
   deserializeAuthenticationResponse,
   deserializeSendPasswordResetEmailResponse,
   deserializeUser,
@@ -55,6 +59,7 @@ import {
   FactorResponse,
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import { serializeAuthenticateUserWithTotpOptions } from './serializers/authenticate-user-with-totp-options.serializer';
 import { serializeEnrollUserInMfaFactorOptions } from './serializers/enroll-user-in-mfa-factor-options.serializer';
 
 export class Users {
@@ -141,6 +146,24 @@ export class Users {
     >(
       '/users/authenticate',
       serializeAuthenticateUserWithCodeOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateUserWithTotp(
+    payload: AuthenticateUserWithTotpOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateUserWithTotpOptions
+    >(
+      '/users/authenticate',
+      serializeAuthenticateUserWithTotpOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
