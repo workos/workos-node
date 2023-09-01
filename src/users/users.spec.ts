@@ -153,6 +153,32 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateUserWithTotp', () => {
+    it('sends a token authentication request', async () => {
+      mock.onPost('/users/authenticate').reply(200, { user: userFixture });
+      const resp = await workos.users.authenticateUserWithTotp({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        authenticationChallengeId: 'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+        pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs'
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'urn:workos:oauth:grant-type:mfa-totp',
+        authentication_challenge_id: 'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs'
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
+
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock
