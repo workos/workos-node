@@ -12,7 +12,7 @@ import {
   SendPasswordResetEmailResponse,
   CreateUserOptions,
   DeleteUserOptions,
-  EnrollUserInMfaFactorOptions,
+  EnrollAuthFactorOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
@@ -45,6 +45,8 @@ import {
   serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
   serializeAuthenticateUserWithCodeOptions,
+  serializeAuthenticateUserWithTotpOptions,
+  serializeEnrollAuthFactorOptions,
   serializeResetPasswordOptions,
   serializeSendPasswordResetEmailOptions,
   serializeCreateUserOptions,
@@ -60,8 +62,6 @@ import {
   FactorResponse,
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
-import { serializeAuthenticateUserWithTotpOptions } from './serializers/authenticate-user-with-totp-options.serializer';
-import { serializeEnrollUserInMfaFactorOptions } from './serializers/enroll-user-in-mfa-factor-options.serializer';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
@@ -280,7 +280,7 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async enrollUserInMfaFactor(payload: EnrollUserInMfaFactorOptions): Promise<{
+  async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
     authenticationFactor: Factor;
     authenticationChallenge: Challenge;
   }> {
@@ -289,7 +289,7 @@ export class Users {
       authentication_challenge: ChallengeResponse;
     }>(
       `/users/${payload.userId}/auth/factors`,
-      serializeEnrollUserInMfaFactorOptions(payload),
+      serializeEnrollAuthFactorOptions(payload),
     );
 
     return {
