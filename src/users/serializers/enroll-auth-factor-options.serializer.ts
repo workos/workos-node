@@ -1,10 +1,10 @@
 import {
-  EnrollUserInMfaFactorOptions,
+  EnrollAuthFactorOptions,
   SerializedEnrollUserInMfaFactorOptions,
 } from '../interfaces';
 
-export const serializeEnrollUserInMfaFactorOptions = (
-  options: EnrollUserInMfaFactorOptions,
+export const serializeEnrollAuthFactorOptions = (
+  options: EnrollAuthFactorOptions,
 ): SerializedEnrollUserInMfaFactorOptions => ({
   type: options.type,
   totp_issuer: options.totpIssuer,
