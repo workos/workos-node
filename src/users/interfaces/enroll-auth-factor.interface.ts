@@ -1,4 +1,4 @@
-export interface EnrollUserInMfaFactorOptions {
+export interface EnrollAuthFactorOptions {
   userId: string;
   type: 'totp';
   totpIssuer: string;
