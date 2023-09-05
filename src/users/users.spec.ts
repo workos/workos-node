@@ -407,8 +407,8 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('enrollUserInMfaFactor', () => {
-    it('sends an enrollUserInMfaFactor request', async () => {
+  describe('enrollAuthFactor', () => {
+    it('sends an enrollAuthFactor request', async () => {
       mock.onPost(`/users/${userId}/auth/factors`).reply(200, {
         authentication_factor: factorFixture,
         authentication_challenge: {
@@ -422,7 +422,7 @@ describe('UserManagement', () => {
         },
       });
 
-      const resp = await workos.users.enrollUserInMfaFactor({
+      const resp = await workos.users.enrollAuthFactor({
         userId,
         type: 'totp',
         totpIssuer: 'WorkOS',
