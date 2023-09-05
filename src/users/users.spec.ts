@@ -3,6 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import userFixture from './fixtures/user.json';
 import listUsersFixture from './fixtures/list-users.json';
+import factorFixture from './fixtures/factor.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -409,20 +410,7 @@ describe('UserManagement', () => {
   describe('enrollUserInMfaFactor', () => {
     it('sends an enrollUserInMfaFactor request', async () => {
       mock.onPost(`/users/${userId}/auth/factors`).reply(200, {
-        authentication_factor: {
-          object: 'authentication_factor',
-          id: 'auth_factor_1234',
-          created_at: '2022-03-15T20:39:19.892Z',
-          updated_at: '2022-03-15T20:39:19.892Z',
-          type: 'totp',
-          totp: {
-            issuer: 'WorkOS',
-            qr_code: 'qr-code-test',
-            secret: 'secret-test',
-            uri: 'uri-test',
-            user: 'some_user',
-          },
-        },
+        authentication_factor: factorFixture,
         authentication_challenge: {
           object: 'authentication_challenge',
           id: 'auth_challenge_1234',
@@ -467,6 +455,18 @@ describe('UserManagement', () => {
           authenticationFactorId: 'auth_factor_1234',
         },
       });
+    });
+  });
+
+  describe('listAuthFactors', () => {
+    it('sends a listAuthFactors request', async () => {
+      mock.onGet(`/users/${userId}/auth/factors`).reply(200, [factorFixture]);
+
+      const resp = await workos.users.listAuthFactors({ userId });
+
+      expect(mock.history.get[0].url).toEqual(`/users/${userId}/auth/factors`);
+
+      expect(resp[0]).toMatchObject({ id: factorFixture.id });
     });
   });
 
