@@ -7,7 +7,7 @@ import {
   AuthenticateUserWithPasswordOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
-  CompletePasswordResetOptions,
+  ResetPasswordOptions,
   CreatePasswordResetChallengeOptions,
   CreatePasswordResetChallengeResponse,
   CreatePasswordResetChallengeResponseResponse,
@@ -22,7 +22,7 @@ import {
   SerializedAuthenticateUserWithCodeOptions,
   SerializedAuthenticateUserWithMagicAuthOptions,
   SerializedAuthenticateUserWithPasswordOptions,
-  SerializedCompletePasswordResetOptions,
+  SerializedResetPasswordOptions,
   SerializedCreatePasswordResetChallengeOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
@@ -40,7 +40,7 @@ import {
   serializeAuthenticateUserWithMagicAuthOptions,
   serializeAuthenticateUserWithPasswordOptions,
   serializeAuthenticateUserWithCodeOptions,
-  serializeCompletePasswordResetOptions,
+  serializeResetPasswordOptions,
   serializeCreatePasswordResetChallengeOptions,
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
@@ -202,16 +202,14 @@ export class Users {
     return deserializeCreatePasswordResetChallengeResponse(data);
   }
 
-  async completePasswordReset(
-    payload: CompletePasswordResetOptions,
-  ): Promise<User> {
+  async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
-      UserResponse,
+      { user: UserResponse },
       any,
-      SerializedCompletePasswordResetOptions
-    >('/users/password_reset', serializeCompletePasswordResetOptions(payload));
+      SerializedResetPasswordOptions
+    >('/users/password_reset', serializeResetPasswordOptions(payload));
 
-    return deserializeUser(data);
+    return { user: deserializeUser(data.user) };
   }
 
   async addUserToOrganization({
