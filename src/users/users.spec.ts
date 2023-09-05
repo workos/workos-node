@@ -267,16 +267,16 @@ describe('UserManagement', () => {
 
   describe('completePasswordReset', () => {
     it('sends a completePasswordReset request', async () => {
-      mock.onPost(`/users/password_reset`).reply(200, userFixture);
+      mock.onPost(`/users/password_reset`).reply(200, { user: userFixture });
 
-      const resp = await workos.users.completePasswordReset({
+      const resp = await workos.users.resetPassword({
         token: '',
         newPassword: 'correct horse battery staple',
       });
 
       expect(mock.history.post[0].url).toEqual(`/users/password_reset`);
 
-      expect(resp).toMatchObject({
+      expect(resp.user).toMatchObject({
         email: 'test01@example.com',
       });
     });
