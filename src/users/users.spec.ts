@@ -243,17 +243,17 @@ describe('UserManagement', () => {
 
   describe('createPasswordResetChallenge', () => {
     it('sends a Create Password Reset Challenge request', async () => {
-      mock.onPost(`/users/password_reset_challenge`).reply(200, {
+      mock.onPost(`/users/send_password_reset_email`).reply(200, {
         token: 'password-reset-token',
         user: userFixture,
       });
-      const resp = await workos.users.createPasswordResetChallenge({
+      const resp = await workos.users.sendPasswordResetEmail({
         email: 'test01@example.com',
         passwordResetUrl: 'https://example.com/forgot-password',
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/users/password_reset_challenge`,
+        `/users/send_password_reset_email`,
       );
 
       expect(resp).toMatchObject({
