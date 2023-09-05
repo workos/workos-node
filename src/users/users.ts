@@ -13,7 +13,7 @@ import {
   SendPasswordResetEmailResponse,
   CreateUserOptions,
   DeleteUserOptions,
-  EnrollUserInMfaFactorOptions,
+  EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
@@ -44,7 +44,7 @@ import {
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithCodeOptions,
   serializeAuthenticateWithTotpOptions,
-  serializeEnrollUserInMfaFactorOptions,
+  serializeEnrollAuthFactorOptions,
   serializeResetPasswordOptions,
   serializeSendPasswordResetEmailOptions,
   serializeCreateUserOptions,
@@ -278,7 +278,7 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async enrollUserInMfaFactor(payload: EnrollUserInMfaFactorOptions): Promise<{
+  async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
     authenticationFactor: Factor;
     authenticationChallenge: Challenge;
   }> {
@@ -287,7 +287,7 @@ export class Users {
       authentication_challenge: ChallengeResponse;
     }>(
       `/users/${payload.userId}/auth/factors`,
-      serializeEnrollUserInMfaFactorOptions(payload),
+      serializeEnrollAuthFactorOptions(payload),
     );
 
     return {
