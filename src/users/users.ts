@@ -5,6 +5,7 @@ import {
   AuthenticateWithCodeOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
+  AuthenticateWithTotpOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
   ResetPasswordOptions,
@@ -13,6 +14,7 @@ import {
   CreateUserOptions,
   DeleteUserOptions,
   EnrollUserInMfaFactorOptions,
+  ListAuthFactorsOptions,
   ListUsersOptions,
   RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
@@ -21,6 +23,7 @@ import {
   SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
+  SerializedAuthenticateWithTotpOptions,
   SerializedResetPasswordOptions,
   SerializedSendPasswordResetEmailOptions,
   SerializedCreateUserOptions,
@@ -34,16 +37,14 @@ import {
   SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
-  AuthenticateWithTotpOptions,
-  SerializedAuthenticateWithTotpOptions,
-} from './interfaces/authenticate-with-totp-options.interface';
-import {
   deserializeAuthenticationResponse,
   deserializeSendPasswordResetEmailResponse,
   deserializeUser,
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithCodeOptions,
+  serializeAuthenticateWithTotpOptions,
+  serializeEnrollUserInMfaFactorOptions,
   serializeResetPasswordOptions,
   serializeSendPasswordResetEmailOptions,
   serializeCreateUserOptions,
@@ -59,8 +60,6 @@ import {
   FactorResponse,
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
-import { serializeAuthenticateWithTotpOptions } from './serializers/authenticate-with-totp-options.serializer';
-import { serializeEnrollUserInMfaFactorOptions } from './serializers/enroll-user-in-mfa-factor-options.serializer';
 
 export class Users {
   constructor(private readonly workos: WorkOS) {}
@@ -297,6 +296,14 @@ export class Users {
         data.authentication_challenge,
       ),
     };
+  }
+
+  async listAuthFactors(payload: ListAuthFactorsOptions): Promise<Factor[]> {
+    const { data } = await this.workos.get<FactorResponse[]>(
+      `/users/${payload.userId}/auth/factors`,
+    );
+
+    return data.map(deserializeFactor);
   }
 
   async deleteUser(payload: DeleteUserOptions) {
