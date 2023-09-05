@@ -1,13 +1,13 @@
 import {
   AuthenticateUserWithPasswordCredentials,
-  AuthenticateUserWithPasswordOptions,
-  SerializedAuthenticateUserWithPasswordOptions,
+  AuthenticateWithPasswordOptions,
+  SerializedAuthenticateWithPasswordOptions,
 } from '../interfaces';
 
-export const serializeAuthenticateUserWithPasswordOptions = (
-  options: AuthenticateUserWithPasswordOptions &
+export const serializeAuthenticateWithPasswordOptions = (
+  options: AuthenticateWithPasswordOptions &
     AuthenticateUserWithPasswordCredentials,
-): SerializedAuthenticateUserWithPasswordOptions => ({
+): SerializedAuthenticateWithPasswordOptions => ({
   grant_type: 'password',
   client_id: options.clientId,
   client_secret: options.clientSecret,

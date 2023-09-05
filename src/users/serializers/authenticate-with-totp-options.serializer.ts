@@ -1,14 +1,13 @@
 import {} from '../interfaces';
 import {
   AuthenticateUserWithTotpCredentials,
-  AuthenticateUserWithTotpOptions,
-  SerializedAuthenticateUserWithTotpOptions,
-} from '../interfaces/authenticate-user-with-totp-options.interface';
+  AuthenticateWithTotpOptions,
+  SerializedAuthenticateWithTotpOptions,
+} from '../interfaces/authenticate-with-totp-options.interface';
 
-export const serializeAuthenticateUserWithTotpOptions = (
-  options: AuthenticateUserWithTotpOptions &
-    AuthenticateUserWithTotpCredentials,
-): SerializedAuthenticateUserWithTotpOptions => ({
+export const serializeAuthenticateWithTotpOptions = (
+  options: AuthenticateWithTotpOptions & AuthenticateUserWithTotpCredentials,
+): SerializedAuthenticateWithTotpOptions => ({
   grant_type: 'urn:workos:oauth:grant-type:mfa-totp',
   client_id: options.clientId,
   client_secret: options.clientSecret,
