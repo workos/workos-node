@@ -8,7 +8,7 @@ export * from './reset-password-options.interface';
 export * from './send-password-reset-options.interface';
 export * from './create-user-options.interface';
 export * from './delete-user-options.interface';
-export * from './enroll-user-in-mfa-factor.interface';
+export * from './enroll-auth-factor.interface';
 export * from './list-users-options.interface';
 export * from './list-auth-factors-options.interface';
 export * from './remove-user-from-organization-options.interface';
