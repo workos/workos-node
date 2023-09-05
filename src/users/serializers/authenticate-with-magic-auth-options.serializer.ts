@@ -1,13 +1,13 @@
 import {
   AuthenticateUserWithMagicAuthCredentials,
-  AuthenticateUserWithMagicAuthOptions,
-  SerializedAuthenticateUserWithMagicAuthOptions,
+  AuthenticateWithMagicAuthOptions,
+  SerializedAuthenticateWithMagicAuthOptions,
 } from '../interfaces';
 
-export const serializeAuthenticateUserWithMagicAuthOptions = (
-  options: AuthenticateUserWithMagicAuthOptions &
+export const serializeAuthenticateWithMagicAuthOptions = (
+  options: AuthenticateWithMagicAuthOptions &
     AuthenticateUserWithMagicAuthCredentials,
-): SerializedAuthenticateUserWithMagicAuthOptions => ({
+): SerializedAuthenticateWithMagicAuthOptions => ({
   grant_type: 'urn:workos:oauth:grant-type:magic-auth:code',
   client_id: options.clientId,
   client_secret: options.clientSecret,

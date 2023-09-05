@@ -1,4 +1,4 @@
-export interface AuthenticateUserWithMagicAuthOptions {
+export interface AuthenticateWithMagicAuthOptions {
   clientId: string;
   code: string;
   userId: string;
@@ -10,7 +10,7 @@ export interface AuthenticateUserWithMagicAuthCredentials {
   clientSecret: string | undefined;
 }
 
-export interface SerializedAuthenticateUserWithMagicAuthOptions {
+export interface SerializedAuthenticateWithMagicAuthOptions {
   grant_type: 'urn:workos:oauth:grant-type:magic-auth:code';
   client_id: string;
   client_secret: string | undefined;

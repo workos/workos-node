@@ -2,9 +2,9 @@ import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import {
   AddUserToOrganizationOptions,
-  AuthenticateUserWithCodeOptions,
-  AuthenticateUserWithMagicAuthOptions,
-  AuthenticateUserWithPasswordOptions,
+  AuthenticateWithCodeOptions,
+  AuthenticateWithMagicAuthOptions,
+  AuthenticateWithPasswordOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
   ResetPasswordOptions,
@@ -18,9 +18,9 @@ import {
   SendMagicAuthCodeOptions,
   SendVerificationEmailOptions,
   SerializedAddUserToOrganizationOptions,
-  SerializedAuthenticateUserWithCodeOptions,
-  SerializedAuthenticateUserWithMagicAuthOptions,
-  SerializedAuthenticateUserWithPasswordOptions,
+  SerializedAuthenticateWithCodeOptions,
+  SerializedAuthenticateWithMagicAuthOptions,
+  SerializedAuthenticateWithPasswordOptions,
   SerializedResetPasswordOptions,
   SerializedSendPasswordResetEmailOptions,
   SerializedCreateUserOptions,
@@ -34,12 +34,16 @@ import {
   SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
+  AuthenticateWithTotpOptions,
+  SerializedAuthenticateWithTotpOptions,
+} from './interfaces/authenticate-with-totp-options.interface';
+import {
   deserializeAuthenticationResponse,
   deserializeSendPasswordResetEmailResponse,
   deserializeUser,
-  serializeAuthenticateUserWithMagicAuthOptions,
-  serializeAuthenticateUserWithPasswordOptions,
-  serializeAuthenticateUserWithCodeOptions,
+  serializeAuthenticateWithMagicAuthOptions,
+  serializeAuthenticateWithPasswordOptions,
+  serializeAuthenticateWithCodeOptions,
   serializeResetPasswordOptions,
   serializeSendPasswordResetEmailOptions,
   serializeCreateUserOptions,
@@ -55,6 +59,7 @@ import {
   FactorResponse,
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import { serializeAuthenticateWithTotpOptions } from './serializers/authenticate-with-totp-options.serializer';
 import { serializeEnrollUserInMfaFactorOptions } from './serializers/enroll-user-in-mfa-factor-options.serializer';
 
 export class Users {
@@ -95,16 +100,16 @@ export class Users {
     return deserializeUser(data);
   }
 
-  async authenticateUserWithMagicAuth(
-    payload: AuthenticateUserWithMagicAuthOptions,
+  async authenticateWithMagicAuth(
+    payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       any,
-      SerializedAuthenticateUserWithMagicAuthOptions
+      SerializedAuthenticateWithMagicAuthOptions
     >(
       '/users/authenticate',
-      serializeAuthenticateUserWithMagicAuthOptions({
+      serializeAuthenticateWithMagicAuthOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
@@ -113,16 +118,16 @@ export class Users {
     return deserializeAuthenticationResponse(data);
   }
 
-  async authenticateUserWithPassword(
-    payload: AuthenticateUserWithPasswordOptions,
+  async authenticateWithPassword(
+    payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       any,
-      SerializedAuthenticateUserWithPasswordOptions
+      SerializedAuthenticateWithPasswordOptions
     >(
       '/users/authenticate',
-      serializeAuthenticateUserWithPasswordOptions({
+      serializeAuthenticateWithPasswordOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
@@ -131,16 +136,34 @@ export class Users {
     return deserializeAuthenticationResponse(data);
   }
 
-  async authenticateUserWithCode(
-    payload: AuthenticateUserWithCodeOptions,
+  async authenticateWithCode(
+    payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       any,
-      SerializedAuthenticateUserWithCodeOptions
+      SerializedAuthenticateWithCodeOptions
     >(
       '/users/authenticate',
-      serializeAuthenticateUserWithCodeOptions({
+      serializeAuthenticateWithCodeOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateWithTotp(
+    payload: AuthenticateWithTotpOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateWithTotpOptions
+    >(
+      '/users/authenticate',
+      serializeAuthenticateWithTotpOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),

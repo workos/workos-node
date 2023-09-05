@@ -96,7 +96,7 @@ describe('UserManagement', () => {
         user: userFixture,
       });
 
-      const resp = await workos.users.authenticateUserWithMagicAuth({
+      const resp = await workos.users.authenticateWithMagicAuth({
         clientId: 'proj_whatever',
         code: '123456',
         userId: userFixture.id,
@@ -116,7 +116,7 @@ describe('UserManagement', () => {
       mock.onPost('/users/authenticate').reply(200, {
         user: userFixture,
       });
-      const resp = await workos.users.authenticateUserWithPassword({
+      const resp = await workos.users.authenticateWithPassword({
         clientId: 'proj_whatever',
         email: 'test01@example.com',
         password: 'extra-secure',
@@ -134,7 +134,7 @@ describe('UserManagement', () => {
   describe('authenticateUserWithCode', () => {
     it('sends a token authentication request', async () => {
       mock.onPost('/users/authenticate').reply(200, { user: userFixture });
-      const resp = await workos.users.authenticateUserWithCode({
+      const resp = await workos.users.authenticateWithCode({
         clientId: 'proj_whatever',
         code: 'or this',
       });
@@ -143,6 +143,35 @@ describe('UserManagement', () => {
       expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
         client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         grant_type: 'authorization_code',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
+
+  describe('authenticateUserWithTotp', () => {
+    it('sends a token authentication request', async () => {
+      mock.onPost('/users/authenticate').reply(200, { user: userFixture });
+      const resp = await workos.users.authenticateWithTotp({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        authenticationChallengeId: 'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+        pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
+        client_id: 'proj_whatever',
+        code: 'or this',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'urn:workos:oauth:grant-type:mfa-totp',
+        authentication_challenge_id:
+          'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
       });
 
       expect(resp).toMatchObject({
