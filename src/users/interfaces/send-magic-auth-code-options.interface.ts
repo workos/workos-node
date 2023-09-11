@@ -1,7 +1,7 @@
 export interface SendMagicAuthCodeOptions {
-  emailAddress: string;
+  email: string;
 }
 
 export interface SerializedSendMagicAuthCodeOptions {
-  email_address: string;
+  email: string;
 }

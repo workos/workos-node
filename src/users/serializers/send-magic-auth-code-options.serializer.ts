@@ -6,5 +6,5 @@ import {
 export const serializeSendMagicAuthCodeOptions = (
   options: SendMagicAuthCodeOptions,
 ): SerializedSendMagicAuthCodeOptions => ({
-  email_address: options.emailAddress,
+  email: options.email,
 });
