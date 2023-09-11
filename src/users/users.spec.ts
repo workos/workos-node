@@ -237,7 +237,7 @@ describe('UserManagement', () => {
     it('sends a Send Magic Auth Code request', async () => {
       mock
         .onPost('/users/magic_auth/send', {
-          email_address: 'bob.loblaw@example.com',
+          email: 'bob.loblaw@example.com',
         })
         .reply(200, {
           user: {
@@ -252,7 +252,7 @@ describe('UserManagement', () => {
         });
 
       const response = await workos.users.sendMagicAuthCode({
-        emailAddress: 'bob.loblaw@example.com',
+        email: 'bob.loblaw@example.com',
       });
 
       expect(mock.history.post[0].url).toEqual('/users/magic_auth/send');
