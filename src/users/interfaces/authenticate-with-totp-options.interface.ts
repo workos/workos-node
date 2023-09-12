@@ -3,6 +3,8 @@ export interface AuthenticateWithTotpOptions {
   code: string;
   pendingAuthenticationToken: string;
   authenticationChallengeId: string;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface AuthenticateUserWithTotpCredentials {
@@ -16,4 +18,6 @@ export interface SerializedAuthenticateWithTotpOptions {
   code: string;
   pending_authentication_token: string;
   authentication_challenge_id: string;
+  ip_address?: string;
+  user_agent?: string;
 }
