@@ -298,12 +298,25 @@ export class Users {
     };
   }
 
-  async listAuthFactors(payload: ListAuthFactorsOptions): Promise<Factor[]> {
-    const { data } = await this.workos.get<FactorResponse[]>(
-      `/users/${payload.userId}/auth/factors`,
+  async listAuthFactors(
+    options: ListAuthFactorsOptions,
+  ): Promise<AutoPaginatable<Factor>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<FactorResponse, Factor>(
+        this.workos,
+        `/users/${options.userId}/auth/factors`,
+        deserializeFactor,
+        options,
+      ),
+      (params) =>
+        fetchAndDeserialize<FactorResponse, Factor>(
+          this.workos,
+          `/users/${options.userId}/auth/factors`,
+          deserializeFactor,
+          params,
+        ),
+      options,
     );
-
-    return data.map(deserializeFactor);
   }
 
   async deleteUser(payload: DeleteUserOptions) {
