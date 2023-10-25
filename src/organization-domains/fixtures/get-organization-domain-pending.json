@@ -1,8 +1,7 @@
 {
-    "object": "organization_domain",
-    "id": "org_domain_01HD50K7EPWCMNPGMKXKKE14XT",
-    "domain": "workos.com",
-    "state": "pending",
-    "verification_token": "F06PGMsZIO0shrveGWuGxgCj7"
-  }
-  
+  "object": "organization_domain",
+  "id": "org_domain_01HD50K7EPWCMNPGMKXKKE14XT",
+  "domain": "workos.com",
+  "state": "pending",
+  "verification_token": "F06PGMsZIO0shrveGWuGxgCj7"
+}
