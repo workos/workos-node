@@ -18,6 +18,7 @@ import {
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Events } from './events/events';
 import { Organizations } from './organizations/organizations';
+import { OrganizationDomains } from './organization-domains/organization-domains';
 import { Passwordless } from './passwordless/passwordless';
 import { Portal } from './portal/portal';
 import { SSO } from './sso/sso';
@@ -39,6 +40,7 @@ export class WorkOS {
   readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
+  readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
@@ -113,7 +115,6 @@ export class WorkOS {
   ): Promise<AxiosResponse<T, D>> {
     try {
       const { accessToken } = options;
-
       return await this.client.get(path, {
         params: options.query,
         headers: accessToken
