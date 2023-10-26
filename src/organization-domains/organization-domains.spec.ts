@@ -3,7 +3,7 @@ import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import getOrganizationDomainPending from './fixtures/get-organization-domain-pending.json';
 import getOrganizationDomainUnverified from './fixtures/get-organization-domain-unverified.json';
-import { VerificationState } from './interfaces';
+import { OrganizationDomainState } from './interfaces';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -12,7 +12,7 @@ describe('OrganizationDomains', () => {
   afterEach(() => mock.resetHistory());
 
   describe('get', () => {
-    it(`requests an Organization Domain`, async () => {
+    it('requests an Organization Domain', async () => {
       mock
         .onGet('/organization_domains/org_domain_01HCZRAP3TPQ0X0DKJHR32TATG')
         .replyOnce(200, getOrganizationDomainUnverified);
@@ -26,11 +26,11 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HCZRAP3TPQ0X0DKJHR32TATG');
       expect(subject.domain).toEqual('workos.com');
-      expect(subject.state).toEqual(VerificationState.Pending);
+      expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toBeUndefined();
     });
 
-    it(`requests an Organization Domain`, async () => {
+    it('requests an Organization Domain', async () => {
       mock
         .onGet('/organization_domains/org_domain_01HD50K7EPWCMNPGMKXKKE14XT')
         .replyOnce(200, getOrganizationDomainPending);
@@ -44,13 +44,13 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
-      expect(subject.state).toEqual(VerificationState.Pending);
+      expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
     });
   });
 
   describe('verify', () => {
-    it(`start Organization Domain verification flow`, async () => {
+    it('start Organization Domain verification flow', async () => {
       mock
         .onPost(
           '/organization_domains/org_domain_01HD50K7EPWCMNPGMKXKKE14XT/verify',
@@ -66,13 +66,13 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
-      expect(subject.state).toEqual(VerificationState.Pending);
+      expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
     });
   });
 
   describe('create', () => {
-    it(`creates an Organization Domain`, async () => {
+    it('creates an Organization Domain', async () => {
       mock
         .onPost('/organization_domains', {
           domain: 'workos.com',
@@ -93,7 +93,7 @@ describe('OrganizationDomains', () => {
 
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
-      expect(subject.state).toEqual(VerificationState.Pending);
+      expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
     });
   });

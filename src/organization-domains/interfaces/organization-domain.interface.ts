@@ -1,4 +1,4 @@
-export enum VerificationState {
+export enum OrganizationDomainState {
   Unverified = 'unverified',
   Verified = 'verified',
   Pending = 'pending',
@@ -9,7 +9,7 @@ export interface OrganizationDomain {
   object: 'organization_domain';
   id: string;
   domain: string;
-  state: VerificationState;
+  state: OrganizationDomainState;
   verificationToken: string;
 }
 
@@ -17,6 +17,6 @@ export interface OrganizationDomainResponse {
   object: 'organization_domain';
   id: string;
   domain: string;
-  state: VerificationState;
+  state: OrganizationDomainState;
   verification_token: string;
 }
