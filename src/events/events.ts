@@ -1,6 +1,7 @@
 import { WorkOS } from '../workos';
 import { ListEventOptions } from './interfaces';
 import { deserializeEvent, deserializeList } from '../common/serializers';
+import { serializeListEventOptions } from './serializers';
 import { Event, EventResponse, List, ListResponse } from '../common/interfaces';
 
 export class Events {
@@ -10,7 +11,7 @@ export class Events {
     const { data } = await this.workos.get<ListResponse<EventResponse>>(
       `/events`,
       {
-        query: options,
+        query: options ? serializeListEventOptions(options) : undefined,
       },
     );
 
