@@ -8,5 +8,4 @@ export const serializeListEventOptions = (
   range_end: options.rangeEnd,
   limit: options.limit,
   after: options.after,
-  before: options.before,
 });

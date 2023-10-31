@@ -6,7 +6,6 @@ export interface ListEventOptions {
   rangeEnd?: string;
   limit?: number;
   after?: string;
-  before?: string;
 }
 
 export interface SerializedListEventOptions {
@@ -15,5 +14,4 @@ export interface SerializedListEventOptions {
   range_end?: string;
   limit?: number;
   after?: string;
-  before?: string;
 }
