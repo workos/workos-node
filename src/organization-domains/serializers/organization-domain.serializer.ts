@@ -8,4 +8,5 @@ export const deserializeOrganizationDomain = (
   domain: organizationDomain.domain,
   state: organizationDomain.state,
   verificationToken: organizationDomain.verification_token,
+  verificationStrategy: organizationDomain.verification_strategy,
 });
