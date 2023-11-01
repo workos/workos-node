@@ -1,8 +1,16 @@
 export enum OrganizationDomainState {
-  Unverified = 'unverified',
+  /**
+   * @deprecated
+   */
+  LegacyVerified = 'legacy_verified',
   Verified = 'verified',
   Pending = 'pending',
   Failed = 'failed',
+}
+
+export enum OrganizationDomainVerificationStrategy {
+  Dns = 'dns',
+  Developer = 'developer',
 }
 
 export interface OrganizationDomain {
@@ -11,6 +19,7 @@ export interface OrganizationDomain {
   domain: string;
   state: OrganizationDomainState;
   verificationToken: string;
+  verificationStrategy: OrganizationDomainVerificationStrategy;
 }
 
 export interface OrganizationDomainResponse {
@@ -19,4 +28,5 @@ export interface OrganizationDomainResponse {
   domain: string;
   state: OrganizationDomainState;
   verification_token: string;
+  verification_strategy: OrganizationDomainVerificationStrategy;
 }
