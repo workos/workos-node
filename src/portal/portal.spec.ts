@@ -35,6 +35,28 @@ describe('Portal', () => {
         });
       });
 
+      describe('with the domain_verification intent', () => {
+        it('returns an Admin Portal link', async () => {
+          mock
+            .onPost('/portal/generate_link', {
+              intent: GeneratePortalLinkIntent.DomainVerification,
+              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+              return_url: 'https://www.example.com',
+            })
+            .replyOnce(201, generateLink);
+
+          const { link } = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.DomainVerification,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
+        });
+      });
+
       describe('with the dsync intent', () => {
         it('returns an Admin Portal link', async () => {
           mock
