@@ -7,3 +7,11 @@ export interface ListEventOptions {
   limit?: number;
   after?: string;
 }
+
+export interface SerializedListEventOptions {
+  events?: EventName[];
+  range_start?: string;
+  range_end?: string;
+  limit?: number;
+  after?: string;
+}
