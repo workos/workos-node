@@ -28,7 +28,7 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { Users } from './users/users';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-const VERSION = '3.7.1';
+const VERSION = '3.8.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
