@@ -1,6 +1,7 @@
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
+import { CreateOrganizationMembershipOptions } from './interfaces/create-organization-membership-options.interface';
 import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
 import {
   OrganizationMembership,
@@ -46,5 +47,16 @@ export class OrganizationMemberships {
         ),
       options,
     );
+  }
+
+  async createOrganizationMembership(
+    options: CreateOrganizationMembershipOptions,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.post<OrganizationMembershipResponse>(
+      '/organization_memberships',
+      options,
+    );
+
+    return deserializeOrganizationMembership(data);
   }
 }
