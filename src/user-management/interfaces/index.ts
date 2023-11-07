@@ -1,4 +1,3 @@
-export * from './add-user-to-organization-options.interface';
 export * from './authenticate-with-magic-auth-options.interface';
 export * from './authenticate-with-password-options.interface';
 export * from './authenticate-with-code-options.interface';
@@ -11,7 +10,6 @@ export * from './delete-user-options.interface';
 export * from './enroll-auth-factor.interface';
 export * from './list-users-options.interface';
 export * from './list-auth-factors-options.interface';
-export * from './remove-user-from-organization-options.interface';
 export * from './send-magic-auth-code-options.interface';
 export * from './send-verification-email-options';
 export * from './update-user-options.interface';
