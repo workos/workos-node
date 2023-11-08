@@ -39,8 +39,8 @@ describe('UserManagement', () => {
         .reply(200, listOrganizationMembershipsFixture);
       const organizationMembershipsList =
         await workos.organizationMemberships.listOrganizationMemberships({
-          organization: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
-          user: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         });
       expect(mock.history.get[0].url).toEqual('/organization_memberships');
       expect(organizationMembershipsList).toMatchObject({
@@ -62,15 +62,15 @@ describe('UserManagement', () => {
     it('sends the correct params when filtering', async () => {
       mock.onGet('/users').reply(200, listOrganizationMembershipsFixture);
       await workos.organizationMemberships.listOrganizationMemberships({
-        user: 'user_someuser',
-        organization: 'org_someorg',
+        userId: 'user_someuser',
+        organizationId: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
       });
 
       expect(mock.history.get[0].params).toEqual({
-        user: 'user_someuser',
-        organization: 'org_someorg',
+        userId: 'user_someuser',
+        organizationId: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
         order: 'desc',
