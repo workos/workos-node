@@ -27,7 +27,7 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { Users } from './users/users';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
-import { OrganizationMemberships } from './organization-memberships/organization-membership';
+import { OrganizationMemberships } from './organization-memberships/organization-memberships';
 
 const VERSION = '3.8.0';
 
