@@ -5,8 +5,7 @@ import organizationMembershipFixture from './fixtures/organization-membership.js
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-const organizationMembershipId =
-  'organization_membership_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   afterEach(() => mock.resetHistory());
@@ -25,7 +24,7 @@ describe('UserManagement', () => {
       );
       expect(organizationMembership).toMatchObject({
         object: 'organization_membership',
-        id: 'organization_membership_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        id: 'om_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
       });
