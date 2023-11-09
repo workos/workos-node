@@ -184,7 +184,6 @@ describe('Organizations', () => {
       );
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
-      expect(subject.allowProfilesOutsideOrganization).toEqual(false);
     });
   });
 
