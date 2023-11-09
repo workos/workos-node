@@ -2,5 +2,7 @@
   "object": "organization_domain",
   "id": "org_domain_01HCZRAP3TPQ0X0DKJHR32TATG",
   "domain": "workos.com",
-  "state": "pending"
+  "state": "verified",
+  "verification_token": null,
+  "verification_strategy": "manual"
 }
