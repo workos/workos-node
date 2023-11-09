@@ -8,7 +8,6 @@ export const deserializeOrganization = (
   name: organization.name,
   allowProfilesOutsideOrganization:
     organization.allow_profiles_outside_organization,
-  domains: organization.domains,
   createdAt: organization.created_at,
   updatedAt: organization.updated_at,
 });

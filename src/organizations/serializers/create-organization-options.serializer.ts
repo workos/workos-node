@@ -8,5 +8,4 @@ export const serializeCreateOrganizationOptions = (
 ): SerializedCreateOrganizationOptions => ({
   name: options.name,
   allow_profiles_outside_organization: options.allowProfilesOutsideOrganization,
-  domains: options.domains,
 });

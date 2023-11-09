@@ -35,29 +35,6 @@ describe('Organizations', () => {
       });
     });
 
-    describe('with the domain option', () => {
-      it('forms the proper request to the API', async () => {
-        mock
-          .onGet('/organizations', {
-            domains: ['example.com'],
-          })
-          .replyOnce(200, listOrganizationsFixture);
-
-        const { data } = await workos.organizations.listOrganizations({
-          domains: ['example.com'],
-        });
-
-        expect(mock.history.get[0].params).toEqual({
-          domains: ['example.com'],
-          order: 'desc',
-        });
-
-        expect(mock.history.get[0].url).toEqual('/organizations');
-
-        expect(data).toHaveLength(7);
-      });
-    });
-
     describe('with the before option', () => {
       it('forms the proper request to the API', async () => {
         mock
@@ -133,14 +110,12 @@ describe('Organizations', () => {
       it('includes an idempotency key with request', async () => {
         mock
           .onPost('/organizations', {
-            domains: ['example.com'],
             name: 'Test Organization',
           })
           .replyOnce(201, createOrganization);
 
         await workos.organizations.createOrganization(
           {
-            domains: ['example.com'],
             name: 'Test Organization',
           },
           {
@@ -158,19 +133,16 @@ describe('Organizations', () => {
       it('creates an organization', async () => {
         mock
           .onPost('/organizations', {
-            domains: ['example.com'],
             name: 'Test Organization',
           })
           .replyOnce(201, createOrganization);
 
         const subject = await workos.organizations.createOrganization({
-          domains: ['example.com'],
           name: 'Test Organization',
         });
 
         expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
         expect(subject.name).toEqual('Test Organization');
-        expect(subject.domains).toHaveLength(1);
       });
     });
 
@@ -178,7 +150,6 @@ describe('Organizations', () => {
       it('returns an error', async () => {
         mock
           .onPost('/organizations', {
-            domains: ['example.com'],
             name: 'Test Organization',
           })
           .replyOnce(409, createOrganizationInvalid, {
@@ -187,7 +158,6 @@ describe('Organizations', () => {
 
         await expect(
           workos.organizations.createOrganization({
-            domains: ['example.com'],
             name: 'Test Organization',
           }),
         ).rejects.toThrowError(
@@ -215,7 +185,6 @@ describe('Organizations', () => {
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
       expect(subject.allowProfilesOutsideOrganization).toEqual(false);
-      expect(subject.domains).toHaveLength(1);
     });
   });
 
@@ -242,20 +211,17 @@ describe('Organizations', () => {
       it('updates an organization', async () => {
         mock
           .onPut('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T', {
-            domains: ['example.com'],
             name: 'Test Organization 2',
           })
           .replyOnce(201, updateOrganization);
 
         const subject = await workos.organizations.updateOrganization({
           organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-          domains: ['example.com'],
           name: 'Test Organization 2',
         });
 
         expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
         expect(subject.name).toEqual('Test Organization 2');
-        expect(subject.domains).toHaveLength(1);
       });
     });
   });
