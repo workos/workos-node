@@ -312,6 +312,7 @@ describe('UserManagement', () => {
     });
   });
 
+<<<<<<< HEAD:src/user-management/user-management.spec.ts
   describe('addUserToOrganization', () => {
     it('sends a addUserToOrganization request', async () => {
       mock.onPost(`/users/${userId}/organizations`).reply(200, userFixture);
@@ -352,6 +353,8 @@ describe('UserManagement', () => {
     });
   });
 
+=======
+>>>>>>> ecf0e2a (done):src/users/users.spec.ts
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
       mock.onPut(`/users/${userId}`).reply(200, userFixture);
