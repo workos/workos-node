@@ -10,7 +10,7 @@ export enum OrganizationDomainState {
 
 export enum OrganizationDomainVerificationStrategy {
   Dns = 'dns',
-  Developer = 'developer',
+  Manual = 'manual',
 }
 
 export interface OrganizationDomain {

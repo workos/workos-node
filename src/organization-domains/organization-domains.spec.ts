@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import { WorkOS } from '../workos';
 import getOrganizationDomainPending from './fixtures/get-organization-domain-pending.json';
-import getOrganizationDomainUnverified from './fixtures/get-organization-domain-unverified.json';
+import getOrganizationDomainVerified from './fixtures/get-organization-domain-verified.json';
 import { OrganizationDomainState } from './interfaces';
 
 const mock = new MockAdapter(axios);
@@ -15,7 +15,7 @@ describe('OrganizationDomains', () => {
     it('requests an Organization Domain', async () => {
       mock
         .onGet('/organization_domains/org_domain_01HCZRAP3TPQ0X0DKJHR32TATG')
-        .replyOnce(200, getOrganizationDomainUnverified);
+        .replyOnce(200, getOrganizationDomainVerified);
 
       const subject = await workos.organizationDomains.get(
         'org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
@@ -26,8 +26,9 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HCZRAP3TPQ0X0DKJHR32TATG');
       expect(subject.domain).toEqual('workos.com');
-      expect(subject.state).toEqual(OrganizationDomainState.Pending);
-      expect(subject.verificationToken).toBeUndefined();
+      expect(subject.state).toEqual(OrganizationDomainState.Verified);
+      expect(subject.verificationToken).toBeNull();
+      expect(subject.verificationStrategy).toEqual('manual');
     });
 
     it('requests an Organization Domain', async () => {
@@ -46,6 +47,7 @@ describe('OrganizationDomains', () => {
       expect(subject.domain).toEqual('workos.com');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
+      expect(subject.verificationStrategy).toEqual('dns');
     });
   });
 
@@ -68,6 +70,7 @@ describe('OrganizationDomains', () => {
       expect(subject.domain).toEqual('workos.com');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
+      expect(subject.verificationStrategy).toEqual('dns');
     });
   });
 
@@ -95,6 +98,7 @@ describe('OrganizationDomains', () => {
       expect(subject.domain).toEqual('workos.com');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
+      expect(subject.verificationStrategy).toEqual('dns');
     });
   });
 });
