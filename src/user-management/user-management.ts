@@ -61,7 +61,7 @@ import {
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
 
-export class Users {
+export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
 
   async getUser(userId: string): Promise<User> {

@@ -15,7 +15,7 @@ describe('UserManagement', () => {
   describe('getUser', () => {
     it('sends a Get User request', async () => {
       mock.onGet(`/users/${userId}`).reply(200, userFixture);
-      const user = await workos.users.getUser(userId);
+      const user = await workos.userManagement.getUser(userId);
       expect(mock.history.get[0].url).toEqual(`/users/${userId}`);
       expect(user).toMatchObject({
         object: 'user',
@@ -31,7 +31,7 @@ describe('UserManagement', () => {
   describe('listUsers', () => {
     it('lists users', async () => {
       mock.onGet('/users').reply(200, listUsersFixture);
-      const userList = await workos.users.listUsers();
+      const userList = await workos.userManagement.listUsers();
       expect(mock.history.get[0].url).toEqual('/users');
       expect(userList).toMatchObject({
         object: 'list',
@@ -50,7 +50,7 @@ describe('UserManagement', () => {
 
     it('sends the correct params when filtering', async () => {
       mock.onGet('/users').reply(200, listUsersFixture);
-      await workos.users.listUsers({
+      await workos.userManagement.listUsers({
         email: 'foo@example.com',
         organization: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
@@ -70,7 +70,7 @@ describe('UserManagement', () => {
   describe('createUser', () => {
     it('sends a Create User request', async () => {
       mock.onPost('/users').reply(200, userFixture);
-      const user = await workos.users.createUser({
+      const user = await workos.userManagement.createUser({
         email: 'test01@example.com',
         password: 'extra-secure',
         firstName: 'Test 01',
@@ -97,7 +97,7 @@ describe('UserManagement', () => {
         user: userFixture,
       });
 
-      const resp = await workos.users.authenticateWithMagicAuth({
+      const resp = await workos.userManagement.authenticateWithMagicAuth({
         clientId: 'proj_whatever',
         code: '123456',
         userId: userFixture.id,
@@ -117,7 +117,7 @@ describe('UserManagement', () => {
       mock.onPost('/users/authenticate').reply(200, {
         user: userFixture,
       });
-      const resp = await workos.users.authenticateWithPassword({
+      const resp = await workos.userManagement.authenticateWithPassword({
         clientId: 'proj_whatever',
         email: 'test01@example.com',
         password: 'extra-secure',
@@ -135,7 +135,7 @@ describe('UserManagement', () => {
   describe('authenticateUserWithCode', () => {
     it('sends a token authentication request', async () => {
       mock.onPost('/users/authenticate').reply(200, { user: userFixture });
-      const resp = await workos.users.authenticateWithCode({
+      const resp = await workos.userManagement.authenticateWithCode({
         clientId: 'proj_whatever',
         code: 'or this',
       });
@@ -157,7 +157,7 @@ describe('UserManagement', () => {
   describe('authenticateUserWithTotp', () => {
     it('sends a token authentication request', async () => {
       mock.onPost('/users/authenticate').reply(200, { user: userFixture });
-      const resp = await workos.users.authenticateWithTotp({
+      const resp = await workos.userManagement.authenticateWithTotp({
         clientId: 'proj_whatever',
         code: 'or this',
         authenticationChallengeId: 'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
@@ -189,7 +189,7 @@ describe('UserManagement', () => {
         .onPost(`/users/${userId}/send_verification_email`)
         .reply(200, { user: userFixture });
 
-      const resp = await workos.users.sendVerificationEmail({
+      const resp = await workos.userManagement.sendVerificationEmail({
         userId,
       });
 
@@ -217,7 +217,7 @@ describe('UserManagement', () => {
           .onPost(`/users/user_123/verify_email_code`)
           .reply(200, { user: userFixture });
 
-        const resp = await workos.users.verifyEmailCode({
+        const resp = await workos.userManagement.verifyEmailCode({
           userId: 'user_123',
           code: '123456',
         });
@@ -251,7 +251,7 @@ describe('UserManagement', () => {
           },
         });
 
-      const response = await workos.users.sendMagicAuthCode({
+      const response = await workos.userManagement.sendMagicAuthCode({
         email: 'bob.loblaw@example.com',
       });
 
@@ -277,7 +277,7 @@ describe('UserManagement', () => {
         token: 'password-reset-token',
         user: userFixture,
       });
-      const resp = await workos.users.sendPasswordResetEmail({
+      const resp = await workos.userManagement.sendPasswordResetEmail({
         email: 'test01@example.com',
         passwordResetUrl: 'https://example.com/forgot-password',
       });
@@ -299,7 +299,7 @@ describe('UserManagement', () => {
     it('sends a completePasswordReset request', async () => {
       mock.onPost(`/users/password_reset`).reply(200, { user: userFixture });
 
-      const resp = await workos.users.resetPassword({
+      const resp = await workos.userManagement.resetPassword({
         token: '',
         newPassword: 'correct horse battery staple',
       });
@@ -316,7 +316,7 @@ describe('UserManagement', () => {
     it('sends a addUserToOrganization request', async () => {
       mock.onPost(`/users/${userId}/organizations`).reply(200, userFixture);
 
-      const resp = await workos.users.addUserToOrganization({
+      const resp = await workos.userManagement.addUserToOrganization({
         userId,
         organizationId: 'org_coolorg',
       });
@@ -337,7 +337,7 @@ describe('UserManagement', () => {
       mock
         .onDelete(`/users/${userId}/organizations/${orgId}`)
         .reply(200, userFixture);
-      const resp = await workos.users.removeUserFromOrganization({
+      const resp = await workos.userManagement.removeUserFromOrganization({
         userId,
         organizationId: orgId,
       });
@@ -355,7 +355,7 @@ describe('UserManagement', () => {
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
       mock.onPut(`/users/${userId}`).reply(200, userFixture);
-      const resp = await workos.users.updateUser({
+      const resp = await workos.userManagement.updateUser({
         userId,
         firstName: 'Dane',
         lastName: 'Williams',
@@ -376,7 +376,7 @@ describe('UserManagement', () => {
     describe('when only one property is provided', () => {
       it('sends a updateUser request', async () => {
         mock.onPut(`/users/${userId}`).reply(200, userFixture);
-        const resp = await workos.users.updateUser({
+        const resp = await workos.userManagement.updateUser({
           userId,
           firstName: 'Dane',
         });
@@ -395,7 +395,7 @@ describe('UserManagement', () => {
   describe('updateUserPassword', () => {
     it('sends a updateUserPassword request', async () => {
       mock.onPut(`/users/${userId}/password`).reply(200, userFixture);
-      const resp = await workos.users.updateUserPassword({
+      const resp = await workos.userManagement.updateUserPassword({
         userId,
         password: 'secure',
       });
@@ -435,7 +435,7 @@ describe('UserManagement', () => {
         },
       });
 
-      const resp = await workos.users.enrollAuthFactor({
+      const resp = await workos.userManagement.enrollAuthFactor({
         userId,
         type: 'totp',
         totpIssuer: 'WorkOS',
@@ -475,7 +475,7 @@ describe('UserManagement', () => {
     it('sends a listAuthFactors request', async () => {
       mock.onGet(`/users/${userId}/auth/factors`).reply(200, listFactorFixture);
 
-      const resp = await workos.users.listAuthFactors({ userId });
+      const resp = await workos.userManagement.listAuthFactors({ userId });
 
       expect(mock.history.get[0].url).toEqual(`/users/${userId}/auth/factors`);
 
@@ -509,7 +509,7 @@ describe('UserManagement', () => {
     it('sends a deleteUser request', async () => {
       mock.onDelete(`/users/${userId}`).reply(200);
 
-      const resp = await workos.users.deleteUser({
+      const resp = await workos.userManagement.deleteUser({
         userId,
       });
 
