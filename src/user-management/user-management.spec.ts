@@ -312,46 +312,6 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('addUserToOrganization', () => {
-    it('sends a addUserToOrganization request', async () => {
-      mock.onPost(`/users/${userId}/organizations`).reply(200, userFixture);
-
-      const resp = await workos.userManagement.addUserToOrganization({
-        userId,
-        organizationId: 'org_coolorg',
-      });
-
-      expect(mock.history.post[0].url).toEqual(
-        `/users/${userId}/organizations`,
-      );
-
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
-      });
-    });
-  });
-
-  describe('removeUserFromOrganization', () => {
-    it('sends a removeUserFromOrganization request', async () => {
-      const orgId = 'org_coolorg';
-      mock
-        .onDelete(`/users/${userId}/organizations/${orgId}`)
-        .reply(200, userFixture);
-      const resp = await workos.userManagement.removeUserFromOrganization({
-        userId,
-        organizationId: orgId,
-      });
-
-      expect(mock.history.delete[0].url).toEqual(
-        `/users/${userId}/organizations/${orgId}`,
-      );
-
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
-      });
-    });
-  });
-
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
       mock.onPut(`/users/${userId}`).reply(200, userFixture);

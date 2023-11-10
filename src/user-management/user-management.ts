@@ -1,7 +1,6 @@
 import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import {
-  AddUserToOrganizationOptions,
   AuthenticateWithCodeOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
@@ -16,10 +15,8 @@ import {
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
   ListUsersOptions,
-  RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
   SendVerificationEmailOptions,
-  SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
@@ -232,32 +229,6 @@ export class UserManagement {
     >('/users/password_reset', serializeResetPasswordOptions(payload));
 
     return { user: deserializeUser(data.user) };
-  }
-
-  async addUserToOrganization({
-    userId,
-    organizationId,
-  }: AddUserToOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.post<
-      UserResponse,
-      any,
-      SerializedAddUserToOrganizationOptions
-    >(`/users/${userId}/organizations`, {
-      organization_id: organizationId,
-    });
-
-    return deserializeUser(data);
-  }
-
-  async removeUserFromOrganization({
-    userId,
-    organizationId,
-  }: RemoveUserFromOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.delete<UserResponse>(
-      `/users/${userId}/organizations/${organizationId}`,
-    );
-
-    return deserializeUser(data);
   }
 
   async updateUser(payload: UpdateUserOptions): Promise<User> {
