@@ -27,7 +27,6 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
-import { OrganizationMemberships } from './organization-memberships/organization-memberships';
 
 const VERSION = '3.8.0';
 
@@ -42,7 +41,6 @@ export class WorkOS {
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
-  readonly organizationMemberships = new OrganizationMemberships(this);
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
