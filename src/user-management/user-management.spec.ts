@@ -628,8 +628,8 @@ describe('UserManagement', () => {
         .reply(200, organizationMembershipFixture);
       const organizationMembership =
         await workos.userManagement.createOrganizationMembership({
-          organization: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
-          user: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         });
 
       expect(mock.history.post[0].url).toEqual('/organization_memberships');
