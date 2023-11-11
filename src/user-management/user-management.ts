@@ -60,6 +60,11 @@ import {
   FactorResponse,
 } from '../mfa/interfaces';
 import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import {
+  OrganizationMembership,
+  OrganizationMembershipResponse,
+} from './interfaces/organization-membership.interface';
+import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -329,5 +334,15 @@ export class UserManagement {
 
   async deleteUser(payload: DeleteUserOptions) {
     await this.workos.delete(`/user_management/${payload.userId}`);
+  }
+
+  async getOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.get<OrganizationMembershipResponse>(
+      `/organization_memberships/${organizationMembershipId}`,
+    );
+
+    return deserializeOrganizationMembership(data);
   }
 }
