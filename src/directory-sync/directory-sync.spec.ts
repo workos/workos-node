@@ -72,7 +72,6 @@ describe('DirectorySync', () => {
   };
 
   const userWithGroup: DirectoryUserWithGroups = {
-    object: 'directory_user',
     id: 'user_123',
     customAttributes: {
       custom: true,
@@ -99,7 +98,6 @@ describe('DirectorySync', () => {
   };
 
   const userWithGroupResponse: DirectoryUserWithGroupsResponse = {
-    object: 'directory_user',
     id: 'user_123',
     custom_attributes: {
       custom: true,
@@ -303,7 +301,6 @@ describe('DirectorySync', () => {
             .replyOnce(200, {
               data: [
                 {
-                  object: 'directory_user',
                   id: 'directory_user_01FBSYNGBVB4Q0GE4PJR328QB6',
                   directory_id: 'directory_01FBSYNGBN6R6WRMQM47PRCVMH',
                   idp_id: 'd899102f-86ad-4c14-9629-cd478b6a1971',
@@ -330,7 +327,6 @@ describe('DirectorySync', () => {
                   ],
                 },
                 {
-                  object: 'directory_user',
                   id: 'directory_user_01FBSYQPYWG0SMTGRFFDS5FRQ9',
                   directory_id: 'directory_01FBSYQPYN2XMDN7BQHP490M03',
                   idp_id: '044d1610-7b9f-47bf-8269-9a5774a7a0d7',

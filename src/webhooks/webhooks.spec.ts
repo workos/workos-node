@@ -32,7 +32,6 @@ describe('Webhooks', () => {
         },
       ],
       idpId: '00u1e8mutl6wlH3lL4x7',
-      object: 'directory_user',
       username: 'blair@foo-corp.com',
       lastName: 'Lunchford',
       firstName: 'Blair',

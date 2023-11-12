@@ -9,7 +9,6 @@ export interface DirectoryUser<
   TCustomAttributes extends object = DefaultCustomAttributes,
   TRawAttributes = any,
 > {
-  object: 'directory_user';
   id: string;
   directoryId: string;
   organizationId: string | null;
@@ -34,7 +33,6 @@ export interface DirectoryUserResponse<
   TCustomAttributes extends object = DefaultCustomAttributes,
   TRawAttributes = any,
 > {
-  object: 'directory_user';
   id: string;
   directory_id: string;
   organization_id: string | null;

@@ -3,7 +3,6 @@ import { DirectoryUser } from '../interfaces';
 
 describe('getPrimaryEmail', () => {
   const user: DirectoryUser = {
-    object: 'directory_user',
     id: 'user_123',
     customAttributes: {
       custom: true,
