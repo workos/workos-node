@@ -14,7 +14,6 @@ export const deserializeDirectoryUser = <
     | DirectoryUserResponse<TCustomAttributes>
     | DirectoryUserWithGroupsResponse<TCustomAttributes>,
 ): DirectoryUser<TCustomAttributes> => ({
-  object: directoryUser.object,
   id: directoryUser.id,
   directoryId: directoryUser.directory_id,
   organizationId: directoryUser.organization_id,
@@ -43,7 +42,6 @@ export const deserializeDirectoryUserWithGroups = <
 export const deserializeUpdatedEventDirectoryUser = (
   directoryUser: DirectoryUserResponse & Record<'previous_attributes', any>,
 ): DirectoryUser & Record<'previousAttributes', any> => ({
-  object: 'directory_user',
   id: directoryUser.id,
   directoryId: directoryUser.directory_id,
   organizationId: directoryUser.organization_id,
