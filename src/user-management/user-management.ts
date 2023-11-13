@@ -27,7 +27,6 @@ import {
   SerializedSendMagicAuthCodeOptions,
   SerializedVerifyEmailCodeOptions,
   UpdateUserOptions,
-  UpdateUserPasswordOptions,
   User,
   UserResponse,
   VerifyEmailCodeOptions,
@@ -47,7 +46,6 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
-  serializeUpdateUserPasswordOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import {
@@ -243,15 +241,6 @@ export class UserManagement {
     const { data } = await this.workos.put<UserResponse>(
       `/user_management/users/${payload.userId}`,
       serializeUpdateUserOptions(payload),
-    );
-
-    return deserializeUser(data);
-  }
-
-  async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
-    const { data } = await this.workos.put<UserResponse>(
-      `/user_management/${payload.userId}/password`,
-      serializeUpdateUserPasswordOptions(payload),
     );
 
     return deserializeUser(data);
