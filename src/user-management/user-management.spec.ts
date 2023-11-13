@@ -543,14 +543,16 @@ describe('UserManagement', () => {
   describe('getOrganizationMembership', () => {
     it('sends a Get OrganizationMembership request', async () => {
       mock
-        .onGet(`/organization_memberships/${organizationMembershipId}`)
+        .onGet(
+          `/user_management/organization_memberships/${organizationMembershipId}`,
+        )
         .reply(200, organizationMembershipFixture);
       const organizationMembership =
-        await workos.organizationMemberships.getOrganizationMembership(
+        await workos.userManagement.getOrganizationMembership(
           organizationMembershipId,
         );
       expect(mock.history.get[0].url).toEqual(
-        `/organization_memberships/${organizationMembershipId}`,
+        `/user_management/organization_memberships/${organizationMembershipId}`,
       );
       expect(organizationMembership).toMatchObject({
         object: 'organization_membership',
