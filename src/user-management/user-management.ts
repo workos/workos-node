@@ -65,7 +65,9 @@ export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
 
   async getUser(userId: string): Promise<User> {
-    const { data } = await this.workos.get<UserResponse>(`/users/${userId}`);
+    const { data } = await this.workos.get<UserResponse>(
+      `/user_management/${userId}`,
+    );
 
     return deserializeUser(data);
   }
@@ -74,14 +76,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<UserResponse, User>(
         this.workos,
-        '/users',
+        '/user_management',
         deserializeUser,
         options,
       ),
       (params) =>
         fetchAndDeserialize<UserResponse, User>(
           this.workos,
-          '/users',
+          '/user_management',
           deserializeUser,
           params,
         ),
@@ -94,7 +96,7 @@ export class UserManagement {
       UserResponse,
       any,
       SerializedCreateUserOptions
-    >('/users', serializeCreateUserOptions(payload));
+    >('/user_management', serializeCreateUserOptions(payload));
 
     return deserializeUser(data);
   }
@@ -107,7 +109,7 @@ export class UserManagement {
       any,
       SerializedAuthenticateWithMagicAuthOptions
     >(
-      '/users/authenticate',
+      '/user_management/authenticate',
       serializeAuthenticateWithMagicAuthOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -125,7 +127,7 @@ export class UserManagement {
       any,
       SerializedAuthenticateWithPasswordOptions
     >(
-      '/users/authenticate',
+      '/user_management/authenticate',
       serializeAuthenticateWithPasswordOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -143,7 +145,7 @@ export class UserManagement {
       any,
       SerializedAuthenticateWithCodeOptions
     >(
-      '/users/authenticate',
+      '/user_management/authenticate',
       serializeAuthenticateWithCodeOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -161,7 +163,7 @@ export class UserManagement {
       any,
       SerializedAuthenticateWithTotpOptions
     >(
-      '/users/authenticate',
+      '/user_management/authenticate',
       serializeAuthenticateWithTotpOptions({
         ...payload,
         clientSecret: this.workos.key,
@@ -175,7 +177,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/users/${userId}/send_verification_email`,
+      `/user_management/${userId}/send_verification_email`,
       {},
     );
 
@@ -189,7 +191,10 @@ export class UserManagement {
       { user: UserResponse },
       any,
       SerializedSendMagicAuthCodeOptions
-    >('/users/magic_auth/send', serializeSendMagicAuthCodeOptions(options));
+    >(
+      '/user_management/magic_auth/send',
+      serializeSendMagicAuthCodeOptions(options),
+    );
 
     return { user: deserializeUser(data.user) };
   }
@@ -202,7 +207,7 @@ export class UserManagement {
       { user: UserResponse },
       any,
       SerializedVerifyEmailCodeOptions
-    >(`/users/${userId}/verify_email_code`, {
+    >(`/user_management/${userId}/verify_email_code`, {
       code,
     });
 
@@ -217,7 +222,7 @@ export class UserManagement {
       any,
       SerializedSendPasswordResetEmailOptions
     >(
-      '/users/send_password_reset_email',
+      '/user_management/send_password_reset_email',
       serializeSendPasswordResetEmailOptions(payload),
     );
 
@@ -229,7 +234,10 @@ export class UserManagement {
       { user: UserResponse },
       any,
       SerializedResetPasswordOptions
-    >('/users/password_reset', serializeResetPasswordOptions(payload));
+    >(
+      '/user_management/password_reset',
+      serializeResetPasswordOptions(payload),
+    );
 
     return { user: deserializeUser(data.user) };
   }
@@ -242,7 +250,7 @@ export class UserManagement {
       UserResponse,
       any,
       SerializedAddUserToOrganizationOptions
-    >(`/users/${userId}/organizations`, {
+    >(`/user_management/${userId}/organizations`, {
       organization_id: organizationId,
     });
 
@@ -254,7 +262,7 @@ export class UserManagement {
     organizationId,
   }: RemoveUserFromOrganizationOptions): Promise<User> {
     const { data } = await this.workos.delete<UserResponse>(
-      `/users/${userId}/organizations/${organizationId}`,
+      `/user_management/${userId}/organizations/${organizationId}`,
     );
 
     return deserializeUser(data);
@@ -262,7 +270,7 @@ export class UserManagement {
 
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/users/${payload.userId}`,
+      `/user_management/${payload.userId}`,
       serializeUpdateUserOptions(payload),
     );
 
@@ -271,7 +279,7 @@ export class UserManagement {
 
   async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/users/${payload.userId}/password`,
+      `/user_management/${payload.userId}/password`,
       serializeUpdateUserPasswordOptions(payload),
     );
 
@@ -286,7 +294,7 @@ export class UserManagement {
       authentication_factor: FactorResponse;
       authentication_challenge: ChallengeResponse;
     }>(
-      `/users/${payload.userId}/auth/factors`,
+      `/user_management/${payload.userId}/auth/factors`,
       serializeEnrollAuthFactorOptions(payload),
     );
 
@@ -304,14 +312,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
-        `/users/${options.userId}/auth/factors`,
+        `/user_management/${options.userId}/auth/factors`,
         deserializeFactor,
         options,
       ),
       (params) =>
         fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
-          `/users/${options.userId}/auth/factors`,
+          `/user_management/${options.userId}/auth/factors`,
           deserializeFactor,
           params,
         ),
@@ -320,6 +328,6 @@ export class UserManagement {
   }
 
   async deleteUser(payload: DeleteUserOptions) {
-    await this.workos.delete(`/users/${payload.userId}`);
+    await this.workos.delete(`/user_management/${payload.userId}`);
   }
 }
