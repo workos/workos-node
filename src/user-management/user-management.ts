@@ -340,7 +340,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.get<OrganizationMembershipResponse>(
-      `/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${organizationMembershipId}`,
     );
 
     return deserializeOrganizationMembership(data);
