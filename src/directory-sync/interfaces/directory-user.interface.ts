@@ -16,14 +16,14 @@ export interface DirectoryUser<
   rawAttributes: TRawAttributes;
   customAttributes: TCustomAttributes;
   idpId: string;
-  firstName: string;
+  firstName: string | null;
   emails: {
-    type: string;
-    value: string;
-    primary: boolean;
+    type?: string;
+    value?: string;
+    primary?: boolean;
   }[];
-  username: string;
-  lastName: string;
+  username: string | null;
+  lastName: string | null;
   jobTitle: string | null;
   state: 'active' | 'inactive' | 'suspended';
   createdAt: string;
@@ -41,14 +41,14 @@ export interface DirectoryUserResponse<
   raw_attributes: TRawAttributes;
   custom_attributes: TCustomAttributes;
   idp_id: string;
-  first_name: string;
+  first_name: string | null;
   emails: {
-    type: string;
-    value: string;
-    primary: boolean;
+    type?: string;
+    value?: string;
+    primary?: boolean;
   }[];
-  username: string;
-  last_name: string;
+  username: string | null;
+  last_name: string | null;
   job_title: string | null;
   state: 'active' | 'inactive' | 'suspended';
   created_at: string;
