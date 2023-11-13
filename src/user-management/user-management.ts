@@ -382,7 +382,7 @@ export class UserManagement {
     options: CreateOrganizationMembershipOptions,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.post<OrganizationMembershipResponse>(
-      '/organization_memberships',
+      '/user_management/organization_memberships',
       options,
     );
 
