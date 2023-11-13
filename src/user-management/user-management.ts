@@ -66,7 +66,7 @@ export class UserManagement {
 
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/${userId}`,
+      `/user_management/users/${userId}`,
     );
 
     return deserializeUser(data);
@@ -76,14 +76,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<UserResponse, User>(
         this.workos,
-        '/user_management',
+        '/user_management/users',
         deserializeUser,
         options,
       ),
       (params) =>
         fetchAndDeserialize<UserResponse, User>(
           this.workos,
-          '/user_management',
+          '/user_management/users',
           deserializeUser,
           params,
         ),
@@ -96,7 +96,7 @@ export class UserManagement {
       UserResponse,
       any,
       SerializedCreateUserOptions
-    >('/user_management', serializeCreateUserOptions(payload));
+    >('/user_management/users', serializeCreateUserOptions(payload));
 
     return deserializeUser(data);
   }
@@ -270,7 +270,7 @@ export class UserManagement {
 
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/user_management/${payload.userId}`,
+      `/user_management/users/${payload.userId}`,
       serializeUpdateUserOptions(payload),
     );
 
