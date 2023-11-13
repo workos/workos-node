@@ -635,4 +635,23 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('deleteOrganizationMembership', () => {
+    it('sends a deleteOrganizationMembership request', async () => {
+      mock
+        .onDelete(
+          `/user_management/organization_memberships/${organizationMembershipId}`,
+        )
+        .reply(200);
+
+      const resp = await workos.userManagement.deleteOrganizationMembership(
+        organizationMembershipId,
+      );
+
+      expect(mock.history.delete[0].url).toEqual(
+        `/user_management/organization_memberships/${organizationMembershipId}`,
+      );
+      expect(resp).toBeUndefined();
+    });
+  });
 });
