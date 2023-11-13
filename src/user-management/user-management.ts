@@ -356,7 +356,7 @@ export class UserManagement {
         OrganizationMembership
       >(
         this.workos,
-        '/organization_memberships',
+        '/user_management/organization_memberships',
         deserializeOrganizationMembership,
         options,
       ),
@@ -366,7 +366,7 @@ export class UserManagement {
           OrganizationMembership
         >(
           this.workos,
-          '/organization_memberships',
+          '/user_management/organization_memberships',
           deserializeOrganizationMembership,
           params,
         ),
