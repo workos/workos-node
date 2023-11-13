@@ -361,7 +361,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<void> {
     await this.workos.delete(
-      `/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${organizationMembershipId}`,
     );
   }
 }
