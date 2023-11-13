@@ -370,23 +370,6 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('updateUserPassword', () => {
-    it('sends a updateUserPassword request', async () => {
-      mock.onPut(`/user_management/${userId}/password`).reply(200, userFixture);
-      const resp = await workos.userManagement.updateUserPassword({
-        userId,
-        password: 'secure',
-      });
-
-      expect(mock.history.put[0].url).toEqual(
-        `/user_management/${userId}/password`,
-      );
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
-      });
-    });
-  });
-
   describe('enrollAuthFactor', () => {
     it('sends an enrollAuthFactor request', async () => {
       mock.onPost(`/user_management/${userId}/auth/factors`).reply(200, {
