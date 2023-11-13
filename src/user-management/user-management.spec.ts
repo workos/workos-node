@@ -565,7 +565,7 @@ describe('UserManagement', () => {
   describe('createOrganizationMembership', () => {
     it('sends a create organization membership request', async () => {
       mock
-        .onPost('/organization_memberships')
+        .onPost('/user_management/organization_memberships')
         .reply(200, organizationMembershipFixture);
       const organizationMembership =
         await workos.userManagement.createOrganizationMembership({
@@ -573,7 +573,9 @@ describe('UserManagement', () => {
           userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         });
 
-      expect(mock.history.post[0].url).toEqual('/organization_memberships');
+      expect(mock.history.post[0].url).toEqual(
+        '/user_management/organization_memberships',
+      );
       expect(organizationMembership).toMatchObject({
         object: 'organization_membership',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
