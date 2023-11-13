@@ -14,9 +14,11 @@ describe('UserManagement', () => {
 
   describe('getUser', () => {
     it('sends a Get User request', async () => {
-      mock.onGet(`/user_management/${userId}`).reply(200, userFixture);
+      mock.onGet(`/user_management/users/${userId}`).reply(200, userFixture);
       const user = await workos.userManagement.getUser(userId);
-      expect(mock.history.get[0].url).toEqual(`/user_management/${userId}`);
+      expect(mock.history.get[0].url).toEqual(
+        `/user_management/users/${userId}`,
+      );
       expect(user).toMatchObject({
         object: 'user',
         id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
@@ -30,9 +32,9 @@ describe('UserManagement', () => {
 
   describe('listUsers', () => {
     it('lists users', async () => {
-      mock.onGet('/user_management').reply(200, listUsersFixture);
+      mock.onGet('/user_management/users').reply(200, listUsersFixture);
       const userList = await workos.userManagement.listUsers();
-      expect(mock.history.get[0].url).toEqual('/user_management');
+      expect(mock.history.get[0].url).toEqual('/user_management/users');
       expect(userList).toMatchObject({
         object: 'list',
         data: [
@@ -49,7 +51,7 @@ describe('UserManagement', () => {
     });
 
     it('sends the correct params when filtering', async () => {
-      mock.onGet('/user_management').reply(200, listUsersFixture);
+      mock.onGet('/user_management/users').reply(200, listUsersFixture);
       await workos.userManagement.listUsers({
         email: 'foo@example.com',
         organization: 'org_someorg',
@@ -69,7 +71,7 @@ describe('UserManagement', () => {
 
   describe('createUser', () => {
     it('sends a Create User request', async () => {
-      mock.onPost('/user_management').reply(200, userFixture);
+      mock.onPost('/user_management/users').reply(200, userFixture);
       const user = await workos.userManagement.createUser({
         email: 'test01@example.com',
         password: 'extra-secure',
@@ -78,7 +80,7 @@ describe('UserManagement', () => {
         emailVerified: true,
       });
 
-      expect(mock.history.post[0].url).toEqual('/user_management');
+      expect(mock.history.post[0].url).toEqual('/user_management/users');
       expect(user).toMatchObject({
         object: 'user',
         email: 'test01@example.com',
@@ -366,7 +368,7 @@ describe('UserManagement', () => {
 
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
-      mock.onPut(`/user_management/${userId}`).reply(200, userFixture);
+      mock.onPut(`/user_management/users/${userId}`).reply(200, userFixture);
       const resp = await workos.userManagement.updateUser({
         userId,
         firstName: 'Dane',
@@ -374,7 +376,9 @@ describe('UserManagement', () => {
         emailVerified: true,
       });
 
-      expect(mock.history.put[0].url).toEqual(`/user_management/${userId}`);
+      expect(mock.history.put[0].url).toEqual(
+        `/user_management/users/${userId}`,
+      );
       expect(JSON.parse(mock.history.put[0].data)).toEqual({
         first_name: 'Dane',
         last_name: 'Williams',
@@ -387,13 +391,15 @@ describe('UserManagement', () => {
 
     describe('when only one property is provided', () => {
       it('sends a updateUser request', async () => {
-        mock.onPut(`/user_management/${userId}`).reply(200, userFixture);
+        mock.onPut(`/user_management/users/${userId}`).reply(200, userFixture);
         const resp = await workos.userManagement.updateUser({
           userId,
           firstName: 'Dane',
         });
 
-        expect(mock.history.put[0].url).toEqual(`/user_management/${userId}`);
+        expect(mock.history.put[0].url).toEqual(
+          `/user_management/users/${userId}`,
+        );
         expect(JSON.parse(mock.history.put[0].data)).toEqual({
           first_name: 'Dane',
         });
