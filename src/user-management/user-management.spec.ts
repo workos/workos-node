@@ -324,48 +324,6 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('addUserToOrganization', () => {
-    it('sends a addUserToOrganization request', async () => {
-      mock
-        .onPost(`/user_management/${userId}/organizations`)
-        .reply(200, userFixture);
-
-      const resp = await workos.userManagement.addUserToOrganization({
-        userId,
-        organizationId: 'org_coolorg',
-      });
-
-      expect(mock.history.post[0].url).toEqual(
-        `/user_management/${userId}/organizations`,
-      );
-
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
-      });
-    });
-  });
-
-  describe('removeUserFromOrganization', () => {
-    it('sends a removeUserFromOrganization request', async () => {
-      const orgId = 'org_coolorg';
-      mock
-        .onDelete(`/user_management/${userId}/organizations/${orgId}`)
-        .reply(200, userFixture);
-      const resp = await workos.userManagement.removeUserFromOrganization({
-        userId,
-        organizationId: orgId,
-      });
-
-      expect(mock.history.delete[0].url).toEqual(
-        `/user_management/${userId}/organizations/${orgId}`,
-      );
-
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
-      });
-    });
-  });
-
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
       mock.onPut(`/user_management/users/${userId}`).reply(200, userFixture);
@@ -406,23 +364,6 @@ describe('UserManagement', () => {
         expect(resp).toMatchObject({
           email: 'test01@example.com',
         });
-      });
-    });
-  });
-
-  describe('updateUserPassword', () => {
-    it('sends a updateUserPassword request', async () => {
-      mock.onPut(`/user_management/${userId}/password`).reply(200, userFixture);
-      const resp = await workos.userManagement.updateUserPassword({
-        userId,
-        password: 'secure',
-      });
-
-      expect(mock.history.put[0].url).toEqual(
-        `/user_management/${userId}/password`,
-      );
-      expect(resp).toMatchObject({
-        email: 'test01@example.com',
       });
     });
   });
