@@ -639,7 +639,9 @@ describe('UserManagement', () => {
   describe('deleteOrganizationMembership', () => {
     it('sends a deleteOrganizationMembership request', async () => {
       mock
-        .onDelete(`/organization_memberships/${organizationMembershipId}`)
+        .onDelete(
+          `/user_management/organization_memberships/${organizationMembershipId}`,
+        )
         .reply(200);
 
       const resp = await workos.userManagement.deleteOrganizationMembership(
@@ -647,7 +649,7 @@ describe('UserManagement', () => {
       );
 
       expect(mock.history.delete[0].url).toEqual(
-        `/organization_memberships/${organizationMembershipId}`,
+        `/user_management/organization_memberships/${organizationMembershipId}`,
       );
       expect(resp).toBeUndefined();
     });
