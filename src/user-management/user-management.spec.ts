@@ -5,6 +5,7 @@ import userFixture from './fixtures/user.json';
 import listUsersFixture from './fixtures/list-users.json';
 import listFactorFixture from './fixtures/list-factors.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
+import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -559,6 +560,56 @@ describe('UserManagement', () => {
         id: 'om_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+      });
+    });
+  });
+
+  describe('listOrganizationMemberships', () => {
+    it('lists organization memberships', async () => {
+      mock
+        .onGet('/user_management/organization_memberships')
+        .reply(200, listOrganizationMembershipsFixture);
+      const organizationMembershipsList =
+        await workos.userManagement.listOrganizationMemberships({
+          organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        });
+      expect(mock.history.get[0].url).toEqual(
+        '/user_management/organization_memberships',
+      );
+      expect(organizationMembershipsList).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'organization_membership',
+            organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+
+    it('sends the correct params when filtering', async () => {
+      mock
+        .onGet('/user_management/organization_memberships')
+        .reply(200, listOrganizationMembershipsFixture);
+      await workos.userManagement.listOrganizationMemberships({
+        userId: 'user_someuser',
+        organizationId: 'org_someorg',
+        after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        limit: 10,
+      });
+
+      expect(mock.history.get[0].params).toEqual({
+        userId: 'user_someuser',
+        organizationId: 'org_someorg',
+        after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        limit: 10,
+        order: 'desc',
       });
     });
   });
