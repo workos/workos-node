@@ -14,9 +14,9 @@ describe('UserManagement', () => {
 
   describe('getUser', () => {
     it('sends a Get User request', async () => {
-      mock.onGet(`/users/${userId}`).reply(200, userFixture);
-      const user = await workos.users.getUser(userId);
-      expect(mock.history.get[0].url).toEqual(`/users/${userId}`);
+      mock.onGet(`/user_management/${userId}`).reply(200, userFixture);
+      const user = await workos.userManagement.getUser(userId);
+      expect(mock.history.get[0].url).toEqual(`/user_management/${userId}`);
       expect(user).toMatchObject({
         object: 'user',
         id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
@@ -30,9 +30,9 @@ describe('UserManagement', () => {
 
   describe('listUsers', () => {
     it('lists users', async () => {
-      mock.onGet('/users').reply(200, listUsersFixture);
-      const userList = await workos.users.listUsers();
-      expect(mock.history.get[0].url).toEqual('/users');
+      mock.onGet('/user_management').reply(200, listUsersFixture);
+      const userList = await workos.userManagement.listUsers();
+      expect(mock.history.get[0].url).toEqual('/user_management');
       expect(userList).toMatchObject({
         object: 'list',
         data: [
@@ -49,8 +49,8 @@ describe('UserManagement', () => {
     });
 
     it('sends the correct params when filtering', async () => {
-      mock.onGet('/users').reply(200, listUsersFixture);
-      await workos.users.listUsers({
+      mock.onGet('/user_management').reply(200, listUsersFixture);
+      await workos.userManagement.listUsers({
         email: 'foo@example.com',
         organization: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
@@ -69,8 +69,8 @@ describe('UserManagement', () => {
 
   describe('createUser', () => {
     it('sends a Create User request', async () => {
-      mock.onPost('/users').reply(200, userFixture);
-      const user = await workos.users.createUser({
+      mock.onPost('/user_management').reply(200, userFixture);
+      const user = await workos.userManagement.createUser({
         email: 'test01@example.com',
         password: 'extra-secure',
         firstName: 'Test 01',
@@ -78,7 +78,7 @@ describe('UserManagement', () => {
         emailVerified: true,
       });
 
-      expect(mock.history.post[0].url).toEqual('/users');
+      expect(mock.history.post[0].url).toEqual('/user_management');
       expect(user).toMatchObject({
         object: 'user',
         email: 'test01@example.com',
@@ -93,17 +93,17 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithMagicAuth', () => {
     it('sends a magic auth authentication request', async () => {
-      mock.onPost('/users/authenticate').reply(200, {
+      mock.onPost('/user_management/authenticate').reply(200, {
         user: userFixture,
       });
 
-      const resp = await workos.users.authenticateWithMagicAuth({
+      const resp = await workos.userManagement.authenticateWithMagicAuth({
         clientId: 'proj_whatever',
         code: '123456',
         userId: userFixture.id,
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
@@ -114,16 +114,16 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithPassword', () => {
     it('sends an password authentication request', async () => {
-      mock.onPost('/users/authenticate').reply(200, {
+      mock.onPost('/user_management/authenticate').reply(200, {
         user: userFixture,
       });
-      const resp = await workos.users.authenticateWithPassword({
+      const resp = await workos.userManagement.authenticateWithPassword({
         clientId: 'proj_whatever',
         email: 'test01@example.com',
         password: 'extra-secure',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
       expect(resp).toMatchObject({
         user: {
           email: 'test01@example.com',
@@ -134,13 +134,15 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithCode', () => {
     it('sends a token authentication request', async () => {
-      mock.onPost('/users/authenticate').reply(200, { user: userFixture });
-      const resp = await workos.users.authenticateWithCode({
+      mock
+        .onPost('/user_management/authenticate')
+        .reply(200, { user: userFixture });
+      const resp = await workos.userManagement.authenticateWithCode({
         clientId: 'proj_whatever',
         code: 'or this',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
       expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
         client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
         grant_type: 'authorization_code',
@@ -156,15 +158,17 @@ describe('UserManagement', () => {
 
   describe('authenticateUserWithTotp', () => {
     it('sends a token authentication request', async () => {
-      mock.onPost('/users/authenticate').reply(200, { user: userFixture });
-      const resp = await workos.users.authenticateWithTotp({
+      mock
+        .onPost('/user_management/authenticate')
+        .reply(200, { user: userFixture });
+      const resp = await workos.userManagement.authenticateWithTotp({
         clientId: 'proj_whatever',
         code: 'or this',
         authenticationChallengeId: 'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
         pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/authenticate');
+      expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
       expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
         client_id: 'proj_whatever',
         code: 'or this',
@@ -186,15 +190,15 @@ describe('UserManagement', () => {
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock
-        .onPost(`/users/${userId}/send_verification_email`)
+        .onPost(`/user_management/${userId}/send_verification_email`)
         .reply(200, { user: userFixture });
 
-      const resp = await workos.users.sendVerificationEmail({
+      const resp = await workos.userManagement.sendVerificationEmail({
         userId,
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/users/${userId}/send_verification_email`,
+        `/user_management/${userId}/send_verification_email`,
       );
 
       expect(resp).toMatchObject({
@@ -214,16 +218,16 @@ describe('UserManagement', () => {
     describe('verifyEmailCode', () => {
       it('sends a Complete Email Verification request', async () => {
         mock
-          .onPost(`/users/user_123/verify_email_code`)
+          .onPost(`/user_management/user_123/verify_email_code`)
           .reply(200, { user: userFixture });
 
-        const resp = await workos.users.verifyEmailCode({
+        const resp = await workos.userManagement.verifyEmailCode({
           userId: 'user_123',
           code: '123456',
         });
 
         expect(mock.history.post[0].url).toEqual(
-          `/users/user_123/verify_email_code`,
+          `/user_management/user_123/verify_email_code`,
         );
 
         expect(resp.user).toMatchObject({
@@ -236,7 +240,7 @@ describe('UserManagement', () => {
   describe('sendMagicAuthCode', () => {
     it('sends a Send Magic Auth Code request', async () => {
       mock
-        .onPost('/users/magic_auth/send', {
+        .onPost('/user_management/magic_auth/send', {
           email: 'bob.loblaw@example.com',
         })
         .reply(200, {
@@ -251,11 +255,13 @@ describe('UserManagement', () => {
           },
         });
 
-      const response = await workos.users.sendMagicAuthCode({
+      const response = await workos.userManagement.sendMagicAuthCode({
         email: 'bob.loblaw@example.com',
       });
 
-      expect(mock.history.post[0].url).toEqual('/users/magic_auth/send');
+      expect(mock.history.post[0].url).toEqual(
+        '/user_management/magic_auth/send',
+      );
 
       expect(response).toMatchObject({
         user: {
@@ -273,17 +279,17 @@ describe('UserManagement', () => {
 
   describe('createPasswordResetChallenge', () => {
     it('sends a Create Password Reset Challenge request', async () => {
-      mock.onPost(`/users/send_password_reset_email`).reply(200, {
+      mock.onPost(`/user_management/send_password_reset_email`).reply(200, {
         token: 'password-reset-token',
         user: userFixture,
       });
-      const resp = await workos.users.sendPasswordResetEmail({
+      const resp = await workos.userManagement.sendPasswordResetEmail({
         email: 'test01@example.com',
         passwordResetUrl: 'https://example.com/forgot-password',
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/users/send_password_reset_email`,
+        `/user_management/send_password_reset_email`,
       );
 
       expect(resp).toMatchObject({
@@ -297,14 +303,18 @@ describe('UserManagement', () => {
 
   describe('completePasswordReset', () => {
     it('sends a completePasswordReset request', async () => {
-      mock.onPost(`/users/password_reset`).reply(200, { user: userFixture });
+      mock
+        .onPost(`/user_management/password_reset`)
+        .reply(200, { user: userFixture });
 
-      const resp = await workos.users.resetPassword({
+      const resp = await workos.userManagement.resetPassword({
         token: '',
         newPassword: 'correct horse battery staple',
       });
 
-      expect(mock.history.post[0].url).toEqual(`/users/password_reset`);
+      expect(mock.history.post[0].url).toEqual(
+        `/user_management/password_reset`,
+      );
 
       expect(resp.user).toMatchObject({
         email: 'test01@example.com',
@@ -314,15 +324,17 @@ describe('UserManagement', () => {
 
   describe('addUserToOrganization', () => {
     it('sends a addUserToOrganization request', async () => {
-      mock.onPost(`/users/${userId}/organizations`).reply(200, userFixture);
+      mock
+        .onPost(`/user_management/${userId}/organizations`)
+        .reply(200, userFixture);
 
-      const resp = await workos.users.addUserToOrganization({
+      const resp = await workos.userManagement.addUserToOrganization({
         userId,
         organizationId: 'org_coolorg',
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/users/${userId}/organizations`,
+        `/user_management/${userId}/organizations`,
       );
 
       expect(resp).toMatchObject({
@@ -335,15 +347,15 @@ describe('UserManagement', () => {
     it('sends a removeUserFromOrganization request', async () => {
       const orgId = 'org_coolorg';
       mock
-        .onDelete(`/users/${userId}/organizations/${orgId}`)
+        .onDelete(`/user_management/${userId}/organizations/${orgId}`)
         .reply(200, userFixture);
-      const resp = await workos.users.removeUserFromOrganization({
+      const resp = await workos.userManagement.removeUserFromOrganization({
         userId,
         organizationId: orgId,
       });
 
       expect(mock.history.delete[0].url).toEqual(
-        `/users/${userId}/organizations/${orgId}`,
+        `/user_management/${userId}/organizations/${orgId}`,
       );
 
       expect(resp).toMatchObject({
@@ -354,15 +366,15 @@ describe('UserManagement', () => {
 
   describe('updateUser', () => {
     it('sends a updateUser request', async () => {
-      mock.onPut(`/users/${userId}`).reply(200, userFixture);
-      const resp = await workos.users.updateUser({
+      mock.onPut(`/user_management/${userId}`).reply(200, userFixture);
+      const resp = await workos.userManagement.updateUser({
         userId,
         firstName: 'Dane',
         lastName: 'Williams',
         emailVerified: true,
       });
 
-      expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+      expect(mock.history.put[0].url).toEqual(`/user_management/${userId}`);
       expect(JSON.parse(mock.history.put[0].data)).toEqual({
         first_name: 'Dane',
         last_name: 'Williams',
@@ -375,13 +387,13 @@ describe('UserManagement', () => {
 
     describe('when only one property is provided', () => {
       it('sends a updateUser request', async () => {
-        mock.onPut(`/users/${userId}`).reply(200, userFixture);
-        const resp = await workos.users.updateUser({
+        mock.onPut(`/user_management/${userId}`).reply(200, userFixture);
+        const resp = await workos.userManagement.updateUser({
           userId,
           firstName: 'Dane',
         });
 
-        expect(mock.history.put[0].url).toEqual(`/users/${userId}`);
+        expect(mock.history.put[0].url).toEqual(`/user_management/${userId}`);
         expect(JSON.parse(mock.history.put[0].data)).toEqual({
           first_name: 'Dane',
         });
@@ -394,13 +406,15 @@ describe('UserManagement', () => {
 
   describe('updateUserPassword', () => {
     it('sends a updateUserPassword request', async () => {
-      mock.onPut(`/users/${userId}/password`).reply(200, userFixture);
-      const resp = await workos.users.updateUserPassword({
+      mock.onPut(`/user_management/${userId}/password`).reply(200, userFixture);
+      const resp = await workos.userManagement.updateUserPassword({
         userId,
         password: 'secure',
       });
 
-      expect(mock.history.put[0].url).toEqual(`/users/${userId}/password`);
+      expect(mock.history.put[0].url).toEqual(
+        `/user_management/${userId}/password`,
+      );
       expect(resp).toMatchObject({
         email: 'test01@example.com',
       });
@@ -409,7 +423,7 @@ describe('UserManagement', () => {
 
   describe('enrollAuthFactor', () => {
     it('sends an enrollAuthFactor request', async () => {
-      mock.onPost(`/users/${userId}/auth/factors`).reply(200, {
+      mock.onPost(`/user_management/${userId}/auth/factors`).reply(200, {
         authentication_factor: {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
@@ -435,14 +449,16 @@ describe('UserManagement', () => {
         },
       });
 
-      const resp = await workos.users.enrollAuthFactor({
+      const resp = await workos.userManagement.enrollAuthFactor({
         userId,
         type: 'totp',
         totpIssuer: 'WorkOS',
         totpUser: 'some_user',
       });
 
-      expect(mock.history.post[0].url).toEqual(`/users/${userId}/auth/factors`);
+      expect(mock.history.post[0].url).toEqual(
+        `/user_management/${userId}/auth/factors`,
+      );
       expect(resp).toMatchObject({
         authenticationFactor: {
           object: 'authentication_factor',
@@ -473,11 +489,15 @@ describe('UserManagement', () => {
 
   describe('listAuthFactors', () => {
     it('sends a listAuthFactors request', async () => {
-      mock.onGet(`/users/${userId}/auth/factors`).reply(200, listFactorFixture);
+      mock
+        .onGet(`/user_management/${userId}/auth/factors`)
+        .reply(200, listFactorFixture);
 
-      const resp = await workos.users.listAuthFactors({ userId });
+      const resp = await workos.userManagement.listAuthFactors({ userId });
 
-      expect(mock.history.get[0].url).toEqual(`/users/${userId}/auth/factors`);
+      expect(mock.history.get[0].url).toEqual(
+        `/user_management/${userId}/auth/factors`,
+      );
 
       expect(resp).toMatchObject({
         object: 'list',
@@ -507,13 +527,13 @@ describe('UserManagement', () => {
 
   describe('deleteUser', () => {
     it('sends a deleteUser request', async () => {
-      mock.onDelete(`/users/${userId}`).reply(200);
+      mock.onDelete(`/user_management/${userId}`).reply(200);
 
-      const resp = await workos.users.deleteUser({
+      const resp = await workos.userManagement.deleteUser({
         userId,
       });
 
-      expect(mock.history.delete[0].url).toEqual(`/users/${userId}`);
+      expect(mock.history.delete[0].url).toEqual(`/user_management/${userId}`);
       expect(resp).toBeUndefined();
     });
   });
