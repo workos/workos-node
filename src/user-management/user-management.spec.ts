@@ -611,8 +611,9 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.get[0].params).toEqual({
-        userId: 'user_someuser',
-        organizationId: 'org_someorg',
+        user_id: 'user_someuser',
+        organization_id: 'org_someorg',
+        before: undefined,
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
         order: 'desc',
