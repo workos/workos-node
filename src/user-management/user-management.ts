@@ -396,4 +396,12 @@ export class UserManagement {
 
     return deserializeOrganizationMembership(data);
   }
+
+  async deleteOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/user_management/organization_memberships/${organizationMembershipId}`,
+    );
+  }
 }
