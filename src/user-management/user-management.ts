@@ -1,7 +1,6 @@
 import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import {
-  AddUserToOrganizationOptions,
   AuthenticateWithCodeOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
@@ -16,10 +15,8 @@ import {
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
   ListUsersOptions,
-  RemoveUserFromOrganizationOptions,
   SendMagicAuthCodeOptions,
   SendVerificationEmailOptions,
-  SerializedAddUserToOrganizationOptions,
   SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
@@ -30,7 +27,6 @@ import {
   SerializedSendMagicAuthCodeOptions,
   SerializedVerifyEmailCodeOptions,
   UpdateUserOptions,
-  UpdateUserPasswordOptions,
   User,
   UserResponse,
   VerifyEmailCodeOptions,
@@ -50,7 +46,6 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
-  serializeUpdateUserPasswordOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import {
@@ -247,45 +242,10 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
-  async addUserToOrganization({
-    userId,
-    organizationId,
-  }: AddUserToOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.post<
-      UserResponse,
-      any,
-      SerializedAddUserToOrganizationOptions
-    >(`/user_management/${userId}/organizations`, {
-      organization_id: organizationId,
-    });
-
-    return deserializeUser(data);
-  }
-
-  async removeUserFromOrganization({
-    userId,
-    organizationId,
-  }: RemoveUserFromOrganizationOptions): Promise<User> {
-    const { data } = await this.workos.delete<UserResponse>(
-      `/user_management/${userId}/organizations/${organizationId}`,
-    );
-
-    return deserializeUser(data);
-  }
-
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
       `/user_management/users/${payload.userId}`,
       serializeUpdateUserOptions(payload),
-    );
-
-    return deserializeUser(data);
-  }
-
-  async updateUserPassword(payload: UpdateUserPasswordOptions): Promise<User> {
-    const { data } = await this.workos.put<UserResponse>(
-      `/user_management/${payload.userId}/password`,
-      serializeUpdateUserPasswordOptions(payload),
     );
 
     return deserializeUser(data);
