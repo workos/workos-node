@@ -66,6 +66,7 @@ import {
 } from './interfaces/organization-membership.interface';
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
+import { serializeListOrganizationMembershipsOptions } from './serializers/list-organization-memberships-options.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -358,7 +359,9 @@ export class UserManagement {
         this.workos,
         '/user_management/organization_memberships',
         deserializeOrganizationMembership,
-        options,
+        options
+          ? serializeListOrganizationMembershipsOptions(options)
+          : undefined,
       ),
       (params) =>
         fetchAndDeserialize<
