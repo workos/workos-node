@@ -62,6 +62,11 @@ import {
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
 import { serializeListOrganizationMembershipsOptions } from './serializers/list-organization-memberships-options.serializer';
+import {
+  CreateOrganizationMembershipOptions,
+  SerializedCreateOrganizationMembershipOptions,
+} from './interfaces/create-organization-membership-options.interface';
+import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -335,5 +340,20 @@ export class UserManagement {
         ),
       options,
     );
+  }
+
+  async createOrganizationMembership(
+    options: CreateOrganizationMembershipOptions,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.post<
+      OrganizationMembershipResponse,
+      any,
+      SerializedCreateOrganizationMembershipOptions
+    >(
+      '/user_management/organization_memberships',
+      serializeCreateOrganizationMembershipOptions(options),
+    );
+
+    return deserializeOrganizationMembership(data);
   }
 }
