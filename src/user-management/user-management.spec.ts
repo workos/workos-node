@@ -4,10 +4,12 @@ import { WorkOS } from '../workos';
 import userFixture from './fixtures/user.json';
 import listUsersFixture from './fixtures/list-users.json';
 import listFactorFixture from './fixtures/list-factors.json';
+import organizationMembershipFixture from './fixtures/organization-membership.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   afterEach(() => mock.resetHistory());
@@ -541,6 +543,29 @@ describe('UserManagement', () => {
 
       expect(mock.history.delete[0].url).toEqual(`/user_management/${userId}`);
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('getOrganizationMembership', () => {
+    it('sends a Get OrganizationMembership request', async () => {
+      mock
+        .onGet(
+          `/user_management/organization_memberships/${organizationMembershipId}`,
+        )
+        .reply(200, organizationMembershipFixture);
+      const organizationMembership =
+        await workos.userManagement.getOrganizationMembership(
+          organizationMembershipId,
+        );
+      expect(mock.history.get[0].url).toEqual(
+        `/user_management/organization_memberships/${organizationMembershipId}`,
+      );
+      expect(organizationMembership).toMatchObject({
+        object: 'organization_membership',
+        id: 'om_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+      });
     });
   });
 });
