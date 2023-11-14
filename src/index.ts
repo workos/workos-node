@@ -12,7 +12,7 @@ export * from './organizations/interfaces';
 export * from './passwordless/interfaces';
 export * from './portal/interfaces';
 export * from './sso/interfaces';
-export * from './users/interfaces';
+export * from './user-management/interfaces';
 
 export { WorkOS };
 
