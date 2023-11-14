@@ -30,6 +30,8 @@ describe('WorkOS', () => {
         userId: user.id,
       });
 
+      console.log(om);
+
       expect(om).toEqual(
         expect.objectContaining({
           id: expect.any(String),
@@ -44,6 +46,8 @@ describe('WorkOS', () => {
         userId: user.id,
       });
 
+      console.log(list_oms.data);
+
       expect(list_oms).toEqual(
         expect.objectContaining({
           data: [
@@ -57,15 +61,24 @@ describe('WorkOS', () => {
         }),
       );
 
-      // const single_om = await workos.userManagement.getOrganizationMembership(
-      //   om.id,
-      // );
+      const single_om = await workos.userManagement.getOrganizationMembership(
+        om.id,
+      );
 
-      // await workos.userManagement.deleteOrganizationMembership(om.id);
+      expect(single_om).toEqual(
+        expect.objectContaining({
+          id: expect.any(String),
+          object: 'organization_membership',
+          organizationId: org.id,
+          userId: user.id,
+        }),
+      );
 
-      // const deleted_om = await workos.userManagement.getOrganizationMembership(
-      //   om.id,
-      // );
+      await workos.userManagement.deleteOrganizationMembership(om.id);
+
+      await expect(
+        workos.userManagement.getOrganizationMembership(om.id),
+      ).rejects.toThrowError();
     });
   });
 });
