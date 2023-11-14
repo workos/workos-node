@@ -39,10 +39,23 @@ describe('WorkOS', () => {
         }),
       );
 
-      // const list_oms = await workos.userManagement.listOrganizationMemberships({
-      //   organizationId: org.id,
-      //   userId: user.id,
-      // });
+      const list_oms = await workos.userManagement.listOrganizationMemberships({
+        organizationId: org.id,
+        userId: user.id,
+      });
+
+      expect(list_oms).toEqual(
+        expect.objectContaining({
+          data: [
+            expect.objectContaining({
+              id: expect.any(String),
+              object: 'organization_membership',
+              organizationId: org.id,
+              userId: user.id,
+            }),
+          ],
+        }),
+      );
 
       // const single_om = await workos.userManagement.getOrganizationMembership(
       //   om.id,
