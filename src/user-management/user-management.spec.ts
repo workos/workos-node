@@ -706,4 +706,22 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('revokeInvitation', () => {
+    it('send a Revoke Invitation request', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      mock
+        .onPost(`/user_management/invitations/${invitationId}/revoke`)
+        .reply(200, null);
+
+      const response = await workos.userManagement.revokeInvitation(
+        invitationId,
+      );
+
+      expect(mock.history.post[0].url).toEqual(
+        `/user_management/invitations/${invitationId}/revoke`,
+      );
+      expect(response).toBeUndefined();
+    });
+  });
 });
