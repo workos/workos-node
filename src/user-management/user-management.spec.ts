@@ -668,4 +668,42 @@ describe('UserManagement', () => {
       });
     });
   });
+
+  describe('sendInvitation', () => {
+    it('sends a Send Invitation request', async () => {
+      mock
+        .onPost('/user_management/invitations', {
+          email: 'dane@workos.com',
+        })
+        .reply(200, invitationFixture);
+
+      const response = await workos.userManagement.sendInvitation({
+        email: 'dane@workos.com',
+      });
+
+      expect(mock.history.post[0].url).toEqual('/user_management/invitations');
+
+      expect(response).toMatchObject({
+        object: 'invitation',
+        email: 'dane@workos.com',
+      });
+    });
+
+    it('sends the correct params when provided', async () => {
+      mock.onPost('/user_management/invitations').reply(200, invitationFixture);
+      await workos.userManagement.sendInvitation({
+        email: 'dane@workos.com',
+        organizationId: 'org_someorg',
+        expiresInDays: 4,
+        inviterUserId: 'user_someuser',
+      });
+
+      expect(JSON.parse(mock.history.post[0].data)).toEqual({
+        email: 'dane@workos.com',
+        organization_id: 'org_someorg',
+        expires_in_days: 4,
+        inviter_user_id: 'user_someuser',
+      });
+    });
+  });
 });
