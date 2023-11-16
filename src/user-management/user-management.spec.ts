@@ -721,6 +721,7 @@ describe('UserManagement', () => {
       expect(mock.history.post[0].url).toEqual(
         `/user_management/invitations/${invitationId}/revoke`,
       );
+      expect(response).toBeUndefined();
     });
   });
 });
