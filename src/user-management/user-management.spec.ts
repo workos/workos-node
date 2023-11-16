@@ -6,11 +6,13 @@ import listUsersFixture from './fixtures/list-users.json';
 import listFactorFixture from './fixtures/list-factors.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
+import invitationFixture from './fixtures/invitation.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   afterEach(() => mock.resetHistory());
@@ -600,6 +602,21 @@ describe('UserManagement', () => {
         `/user_management/organization_memberships/${organizationMembershipId}`,
       );
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('getInvitation', () => {
+    it('sends a Get Invitation request', async () => {
+      mock
+        .onGet(`/user_management/invitations/${invitationId}`)
+        .reply(200, invitationFixture);
+      const invitation = await workos.userManagement.getInvitation(
+        invitationId,
+      );
+      expect(mock.history.get[0].url).toEqual(
+        `/user_management/invitations/${invitationId}`,
+      );
+      expect(invitation).toMatchObject({});
     });
   });
 });
