@@ -630,7 +630,7 @@ describe('UserManagement', () => {
         organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
       });
-      console.log(invitationsList.data);
+
       expect(mock.history.get[0].url).toEqual('/user_management/invitations');
       expect(invitationsList).toMatchObject({
         object: 'list',
