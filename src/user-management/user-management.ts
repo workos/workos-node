@@ -67,6 +67,11 @@ import {
   SerializedCreateOrganizationMembershipOptions,
 } from './interfaces/create-organization-membership-options.interface';
 import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
+import {
+  Invitation,
+  InvitationResponse,
+} from './interfaces/invitation.interface';
+import { deserializeInvitation } from './serializers/invitation.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -363,5 +368,13 @@ export class UserManagement {
     await this.workos.delete(
       `/user_management/organization_memberships/${organizationMembershipId}`,
     );
+  }
+
+  async getInvitation(invitationId: string): Promise<Invitation> {
+    const { data } = await this.workos.get<InvitationResponse>(
+      `/user_management/invitations/${invitationId}`,
+    );
+
+    return deserializeInvitation(data);
   }
 }
