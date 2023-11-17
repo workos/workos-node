@@ -74,6 +74,11 @@ import {
 import { deserializeInvitation } from './serializers/invitation.serializer';
 import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
 import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
+import {
+  SendInvitationOptions,
+  SerializedSendInvitationOptions,
+} from './interfaces/send-invitation-options.interface';
+import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -399,5 +404,20 @@ export class UserManagement {
         ),
       options,
     );
+  }
+
+  async sendInvitation(payload: SendInvitationOptions): Promise<Invitation> {
+    const { data } = await this.workos.post<
+      InvitationResponse,
+      any,
+      SerializedSendInvitationOptions
+    >(
+      '/user_management/invitations',
+      serializeSendInvitationOptions({
+        ...payload,
+      }),
+    );
+
+    return deserializeInvitation(data);
   }
 }
