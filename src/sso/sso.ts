@@ -64,7 +64,7 @@ export class SSO {
 
   getAuthorizationURL({
     connection,
-    clientID,
+    clientId,
     domain,
     domainHint,
     loginHint,
@@ -92,7 +92,7 @@ export class SSO {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
-      client_id: clientID,
+      client_id: clientId,
       redirect_uri: redirectURI,
       response_type: 'code',
       state,
@@ -111,10 +111,10 @@ export class SSO {
 
   async getProfileAndToken({
     code,
-    clientID,
+    clientId,
   }: GetProfileAndTokenOptions): Promise<ProfileAndToken> {
     const form = new URLSearchParams({
-      client_id: clientID,
+      client_id: clientId,
       client_secret: this.workos.key as string,
       grant_type: 'authorization_code',
       code,
