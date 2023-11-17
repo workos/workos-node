@@ -7,6 +7,7 @@ import listFactorFixture from './fixtures/list-factors.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import invitationFixture from './fixtures/invitation.json';
+import listInvitationsFixture from './fixtures/list-invitations.json';
 
 const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -617,6 +618,54 @@ describe('UserManagement', () => {
         `/user_management/invitations/${invitationId}`,
       );
       expect(invitation).toMatchObject({});
+    });
+  });
+
+  describe('listInvitations', () => {
+    it('lists invitations', async () => {
+      mock
+        .onGet('/user_management/invitations')
+        .reply(200, listInvitationsFixture);
+      const invitationsList = await workos.userManagement.listInvitations({
+        organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+      });
+
+      expect(mock.history.get[0].url).toEqual('/user_management/invitations');
+      expect(invitationsList).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'invitation',
+            id: 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'dane@workos.com',
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+
+    it('sends the correct params when filtering', async () => {
+      mock
+        .onGet('/user_management/invitations')
+        .reply(200, listInvitationsFixture);
+      await workos.userManagement.listInvitations({
+        organizationId: 'org_someorg',
+        after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        limit: 10,
+      });
+
+      expect(mock.history.get[0].params).toEqual({
+        organization_id: 'org_someorg',
+        before: undefined,
+        after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        limit: 10,
+        order: 'desc',
+      });
     });
   });
 });

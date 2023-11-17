@@ -72,6 +72,8 @@ import {
   InvitationResponse,
 } from './interfaces/invitation.interface';
 import { deserializeInvitation } from './serializers/invitation.serializer';
+import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
+import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -376,5 +378,26 @@ export class UserManagement {
     );
 
     return deserializeInvitation(data);
+  }
+
+  async listInvitations(
+    options: ListInvitationsOptions,
+  ): Promise<AutoPaginatable<Invitation>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<InvitationResponse, Invitation>(
+        this.workos,
+        '/user_management/invitations',
+        deserializeInvitation,
+        options ? serializeListInvitationsOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<InvitationResponse, Invitation>(
+          this.workos,
+          '/user_management/invitations',
+          deserializeInvitation,
+          params,
+        ),
+      options,
+    );
   }
 }
