@@ -1,5 +1,5 @@
 export interface AuthorizationURLOptions {
-  clientID: string;
+  clientId: string;
   connection?: string;
   organization?: string;
 
