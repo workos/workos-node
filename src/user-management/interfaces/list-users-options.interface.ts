@@ -2,5 +2,10 @@ import { PaginationOptions } from '../../common/interfaces/pagination-options.in
 
 export interface ListUsersOptions extends PaginationOptions {
   email?: string;
-  organization?: string;
+  organizationId?: string;
+}
+
+export interface SerializedListUsersOptions extends PaginationOptions {
+  email?: string;
+  organization_id?: string;
 }
