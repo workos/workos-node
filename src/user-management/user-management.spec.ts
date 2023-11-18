@@ -482,9 +482,7 @@ describe('UserManagement', () => {
     it('sends a deleteUser request', async () => {
       mock.onDelete(`/user_management/${userId}`).reply(200);
 
-      const resp = await workos.userManagement.deleteUser({
-        userId,
-      });
+      const resp = await workos.userManagement.deleteUser(userId);
 
       expect(mock.history.delete[0].url).toEqual(`/user_management/${userId}`);
       expect(resp).toBeUndefined();

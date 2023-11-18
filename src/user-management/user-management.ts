@@ -11,7 +11,6 @@ import {
   SendPasswordResetEmailOptions,
   SendPasswordResetEmailResponse,
   CreateUserOptions,
-  DeleteUserOptions,
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
   ListUsersOptions,
@@ -312,8 +311,8 @@ export class UserManagement {
     );
   }
 
-  async deleteUser(payload: DeleteUserOptions) {
-    await this.workos.delete(`/user_management/${payload.userId}`);
+  async deleteUser(userId: string) {
+    await this.workos.delete(`/user_management/${userId}`);
   }
 
   async getOrganizationMembership(
