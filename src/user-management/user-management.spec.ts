@@ -60,14 +60,14 @@ describe('UserManagement', () => {
       mock.onGet('/user_management/users').reply(200, listUsersFixture);
       await workos.userManagement.listUsers({
         email: 'foo@example.com',
-        organization: 'org_someorg',
+        organizationId: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
       });
 
       expect(mock.history.get[0].params).toEqual({
         email: 'foo@example.com',
-        organization: 'org_someorg',
+        organization_id: 'org_someorg',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
         order: 'desc',

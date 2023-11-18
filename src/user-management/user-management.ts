@@ -79,6 +79,7 @@ import {
   SerializedSendInvitationOptions,
 } from './interfaces/send-invitation-options.interface';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
+import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -97,7 +98,7 @@ export class UserManagement {
         this.workos,
         '/user_management/users',
         deserializeUser,
-        options,
+        options ? serializeListUsersOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<UserResponse, User>(
