@@ -198,7 +198,7 @@ describe('UserManagement', () => {
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock
-        .onPost(`/user_management/${userId}/send_verification_email`)
+        .onPost(`/user_management/users/${userId}/email_verification/send`)
         .reply(200, { user: userFixture });
 
       const resp = await workos.userManagement.sendVerificationEmail({
@@ -206,7 +206,7 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/user_management/${userId}/send_verification_email`,
+        `/user_management/users/${userId}/email_verification/send`,
       );
 
       expect(resp).toMatchObject({
