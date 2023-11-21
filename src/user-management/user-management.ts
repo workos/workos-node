@@ -24,11 +24,11 @@ import {
   SerializedSendPasswordResetEmailOptions,
   SerializedCreateUserOptions,
   SerializedSendMagicAuthCodeOptions,
-  SerializedVerifyEmailCodeOptions,
+  SerializedVerifyEmailOptions,
   UpdateUserOptions,
   User,
   UserResponse,
-  VerifyEmailCodeOptions,
+  VerifyEmailOptions,
   SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
@@ -257,15 +257,15 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
-  async verifyEmailCode({
+  async verifyEmail({
     code,
     userId,
-  }: VerifyEmailCodeOptions): Promise<{ user: User }> {
+  }: VerifyEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
       { user: UserResponse },
       any,
-      SerializedVerifyEmailCodeOptions
-    >(`/user_management/${userId}/verify_email_code`, {
+      SerializedVerifyEmailOptions
+    >(`/user_management/users/${userId}/email_verification/confirm`, {
       code,
     });
 
