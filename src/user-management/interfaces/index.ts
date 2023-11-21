@@ -14,4 +14,4 @@ export * from './send-verification-email-options';
 export * from './update-user-options.interface';
 export * from './update-user-password-options.interface';
 export * from './user.interface';
-export * from './verify-email-code-options.interface';
+export * from './verify-email-options.interface';
