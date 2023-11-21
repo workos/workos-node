@@ -62,7 +62,7 @@ export class SSO {
     await this.workos.delete(`/connections/${id}`);
   }
 
-  getAuthorizationURL({
+  getAuthorizationUrl({
     connection,
     clientId,
     domain,
