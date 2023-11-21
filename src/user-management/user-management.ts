@@ -212,7 +212,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/user_management/${userId}/send_verification_email`,
+      `/user_management/users/${userId}/email_verification/send`,
       {},
     );
 
