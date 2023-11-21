@@ -312,14 +312,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
-        `/user_management/${options.userId}/auth/factors`,
+        `/user_management/users/${options.userId}/auth_factors`,
         deserializeFactor,
         options,
       ),
       (params) =>
         fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
-          `/user_management/${options.userId}/auth/factors`,
+          `/user_management/users/${options.userId}/auth_factors`,
           deserializeFactor,
           params,
         ),

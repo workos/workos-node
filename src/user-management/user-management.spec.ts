@@ -443,13 +443,13 @@ describe('UserManagement', () => {
   describe('listAuthFactors', () => {
     it('sends a listAuthFactors request', async () => {
       mock
-        .onGet(`/user_management/${userId}/auth/factors`)
+        .onGet(`/user_management/users/${userId}/auth_factors`)
         .reply(200, listFactorFixture);
 
       const resp = await workos.userManagement.listAuthFactors({ userId });
 
       expect(mock.history.get[0].url).toEqual(
-        `/user_management/${userId}/auth/factors`,
+        `/user_management/users/${userId}/auth_factors`,
       );
 
       expect(resp).toMatchObject({
