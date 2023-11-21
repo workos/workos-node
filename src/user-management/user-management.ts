@@ -293,7 +293,7 @@ export class UserManagement {
       any,
       SerializedResetPasswordOptions
     >(
-      '/user_management/password_reset',
+      '/user_management/password_reset/confirm',
       serializeResetPasswordOptions(payload),
     );
 
