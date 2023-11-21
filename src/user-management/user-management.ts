@@ -79,6 +79,22 @@ import {
 } from './interfaces/send-invitation-options.interface';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
+import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+
+const toQueryString = (options: Record<string, string | undefined>): string => {
+  const searchParams = new URLSearchParams();
+  const keys = Object.keys(options).sort();
+
+  for (const key of keys) {
+    const value = options[key];
+
+    if (value) {
+      searchParams.append(key, value);
+    }
+  }
+
+  return searchParams.toString();
+};
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -426,5 +442,36 @@ export class UserManagement {
       `/user_management/invitations/${invitationId}/revoke`,
       null,
     );
+  }
+
+  getAuthorizationUrl({
+    connectionId,
+    clientId,
+    domainHint,
+    loginHint,
+    organizationId,
+    provider,
+    redirectURI,
+    state,
+  }: AuthorizationURLOptions): string {
+    if (!provider && !connectionId && !organizationId) {
+      throw new Error(
+        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    }
+
+    const query = toQueryString({
+      connection_id: connectionId,
+      organization_id: organizationId,
+      domain_hint: domainHint,
+      login_hint: loginHint,
+      provider,
+      client_id: clientId,
+      redirect_uri: redirectURI,
+      response_type: 'code',
+      state,
+    });
+
+    return `${this.workos.baseURL}/user_management/authorize?${query}`;
   }
 }
