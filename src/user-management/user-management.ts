@@ -278,7 +278,7 @@ export class UserManagement {
       authentication_factor: FactorResponse;
       authentication_challenge: ChallengeResponse;
     }>(
-      `user_management/users/${payload.userId}/auth_factors`,
+      `/user_management/users/${payload.userId}/auth_factors`,
       serializeEnrollAuthFactorOptions(payload),
     );
 

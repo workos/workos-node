@@ -376,7 +376,7 @@ describe('UserManagement', () => {
 
   describe('enrollAuthFactor', () => {
     it('sends an enrollAuthFactor request', async () => {
-      mock.onPost(`user_management/users/${userId}/auth_factors`).reply(200, {
+      mock.onPost(`/user_management/users/${userId}/auth_factors`).reply(200, {
         authentication_factor: {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
@@ -410,7 +410,7 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `user_management/users/${userId}/auth_factors`,
+        `/user_management/users/${userId}/auth_factors`,
       );
       expect(resp).toMatchObject({
         authenticationFactor: {
