@@ -722,4 +722,143 @@ describe('UserManagement', () => {
       expect(response).toBeUndefined();
     });
   });
+
+  describe.only('getAuthorizationUrl', () => {
+    describe('with no custom api hostname', () => {
+      it('generates an authorize url with the default api hostname', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'Google',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with no domain or provider', () => {
+      it('throws an error for incomplete arguments', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const urlFn = () =>
+          workos.userManagement.getAuthorizationUrl({
+            clientId: 'proj_123',
+            redirectURI: 'example.com/auth/workos/callback',
+          });
+
+        expect(urlFn).toThrowErrorMatchingSnapshot();
+      });
+    });
+
+    describe('with a provider', () => {
+      it('generates an authorize url with the provider', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'Google',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with a connectionId', () => {
+      it('generates an authorize url with the connection', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with an organizationId', () => {
+      it('generates an authorization URL with the organization', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          organizationId: 'organization_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with a custom api hostname', () => {
+      it('generates an authorize url with the custom api hostname', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          apiHostname: 'api.workos.dev',
+        });
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          organizationId: 'organization_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with state', () => {
+      it('generates an authorize url with the provided state', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          organizationId: 'organization_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with domainHint', () => {
+      it('generates an authorize url with the provided domain hint', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          domainHint: 'example.com',
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toMatchInlineSnapshot(
+          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&domain_hint=example.com&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
+        );
+      });
+    });
+
+    describe('with loginHint', () => {
+      it('generates an authorize url with the provided login hint', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          loginHint: 'foo@workos.com',
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectURI: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toMatchInlineSnapshot(
+          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&login_hint=foo%40workos.com&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
+        );
+      });
+    });
+  });
 });
