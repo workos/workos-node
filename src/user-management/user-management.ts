@@ -280,7 +280,7 @@ export class UserManagement {
       any,
       SerializedSendPasswordResetEmailOptions
     >(
-      '/user_management/send_password_reset_email',
+      '/user_management/password_reset/send',
       serializeSendPasswordResetEmailOptions(payload),
     );
 
