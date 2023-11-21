@@ -195,6 +195,35 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateUserWithEmailVerification', () => {
+    it('sends an email verification authentication request', async () => {
+      mock
+        .onPost('/user_management/authenticate')
+        .reply(200, { user: userFixture });
+      const resp =
+        await workos.userManagement.authenticateWithEmailVerification({
+          clientId: 'proj_whatever',
+          code: 'or this',
+          pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        });
+
+      expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
+      expect(JSON.parse(mock.history.post[0].data)).toMatchObject({
+        client_id: 'proj_whatever',
+        code: 'or this',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'urn:workos:oauth:grant-type:email-verification:code',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+  });
+
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock

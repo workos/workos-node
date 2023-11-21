@@ -80,6 +80,11 @@ import {
 } from './interfaces/send-invitation-options.interface';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
+import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
+import {
+  AuthenticateWithEmailVerificationOptions,
+  SerializedAuthenticateWithEmailVerificationOptions,
+} from './interfaces/authenticate-with-email-verification-options.interface';
 
 export class UserManagement {
   constructor(private readonly workos: WorkOS) {}
@@ -185,6 +190,24 @@ export class UserManagement {
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithTotpOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateWithEmailVerification(
+    payload: AuthenticateWithEmailVerificationOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateWithEmailVerificationOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithEmailVerificationOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
