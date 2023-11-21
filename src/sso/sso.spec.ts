@@ -18,12 +18,12 @@ describe('SSO', () => {
   };
 
   describe('SSO', () => {
-    describe('getAuthorizationURL', () => {
+    describe('getAuthorizationUrl', () => {
       describe('with no custom api hostname', () => {
         it('generates an authorize url with the default api hostname', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -38,7 +38,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const urlFn = () =>
-            workos.sso.getAuthorizationURL({
+            workos.sso.getAuthorizationUrl({
               clientId: 'proj_123',
               redirectURI: 'example.com/sso/workos/callback',
             });
@@ -53,7 +53,7 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             provider: 'Google',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -69,7 +69,7 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             connection: 'connection_123',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -85,7 +85,7 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             organization: 'organization_123',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -101,7 +101,7 @@ describe('SSO', () => {
             apiHostname: 'api.workos.dev',
           });
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -115,7 +115,7 @@ describe('SSO', () => {
         it('generates an authorize url with the provided state', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
             redirectURI: 'example.com/sso/workos/callback',
@@ -130,7 +130,7 @@ describe('SSO', () => {
         it('generates an authorize url with the provided domain hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             domainHint: 'lyft.com',
             connection: 'connection_123',
             clientId: 'proj_123',
@@ -148,7 +148,7 @@ describe('SSO', () => {
         it('generates an authorize url with the provided login hint', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-          const url = workos.sso.getAuthorizationURL({
+          const url = workos.sso.getAuthorizationUrl({
             loginHint: 'foo@workos.com',
             connection: 'connection_123',
             clientId: 'proj_123',
