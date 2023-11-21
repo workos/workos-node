@@ -338,10 +338,10 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('completePasswordReset', () => {
-    it('sends a completePasswordReset request', async () => {
+  describe('resetPassword', () => {
+    it('sends a Reset Password request', async () => {
       mock
-        .onPost(`/user_management/password_reset`)
+        .onPost(`/user_management/password_reset/confirm`)
         .reply(200, { user: userFixture });
 
       const resp = await workos.userManagement.resetPassword({
@@ -350,7 +350,7 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/user_management/password_reset`,
+        `/user_management/password_reset/confirm`,
       );
 
       expect(resp.user).toMatchObject({
