@@ -235,7 +235,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/user_management/${userId}/send_verification_email`,
+      `/user_management/users/${userId}/email_verification/send`,
       {},
     );
 
@@ -280,7 +280,7 @@ export class UserManagement {
       any,
       SerializedSendPasswordResetEmailOptions
     >(
-      '/user_management/send_password_reset_email',
+      '/user_management/password_reset/send',
       serializeSendPasswordResetEmailOptions(payload),
     );
 

@@ -227,7 +227,7 @@ describe('UserManagement', () => {
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       mock
-        .onPost(`/user_management/${userId}/send_verification_email`)
+        .onPost(`/user_management/users/${userId}/email_verification/send`)
         .reply(200, { user: userFixture });
 
       const resp = await workos.userManagement.sendVerificationEmail({
@@ -235,7 +235,7 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/user_management/${userId}/send_verification_email`,
+        `/user_management/users/${userId}/email_verification/send`,
       );
 
       expect(resp).toMatchObject({
@@ -314,9 +314,9 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('createPasswordResetChallenge', () => {
-    it('sends a Create Password Reset Challenge request', async () => {
-      mock.onPost(`/user_management/send_password_reset_email`).reply(200, {
+  describe('/user_management/password_reset/send', () => {
+    it('sends a Send Password Reset Email request', async () => {
+      mock.onPost(`/user_management/password_reset/send`).reply(200, {
         token: 'password-reset-token',
         user: userFixture,
       });
@@ -326,7 +326,7 @@ describe('UserManagement', () => {
       });
 
       expect(mock.history.post[0].url).toEqual(
-        `/user_management/send_password_reset_email`,
+        `/user_management/password_reset/send`,
       );
 
       expect(resp).toMatchObject({
