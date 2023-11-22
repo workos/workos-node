@@ -287,6 +287,7 @@ describe('UserManagement', () => {
             first_name: 'Test 01',
             last_name: 'User',
             email_verified: true,
+            link_authorization_code: 'mySuperCoolCode',
             created_at: '2023-07-18T02:07:19.911Z',
             updated_at: '2023-07-18T02:07:19.911Z',
           },
