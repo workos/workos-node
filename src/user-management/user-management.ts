@@ -262,19 +262,11 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
-  async sendMagicAuthCode(
-    options: SendMagicAuthCodeOptions,
-  ): Promise<{ user: User }> {
-    const { data } = await this.workos.post<
-      { user: UserResponse },
-      any,
-      SerializedSendMagicAuthCodeOptions
-    >(
+  async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
+    await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
       '/user_management/magic_auth/send',
       serializeSendMagicAuthCodeOptions(options),
     );
-
-    return { user: deserializeUser(data.user) };
   }
 
   async verifyEmail({
