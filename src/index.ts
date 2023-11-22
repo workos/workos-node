@@ -1,7 +1,6 @@
 import { WorkOS } from './workos';
 
 export * from './audit-logs/interfaces';
-export * from './audit-trail/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';
