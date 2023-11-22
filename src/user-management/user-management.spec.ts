@@ -310,18 +310,7 @@ describe('UserManagement', () => {
         .onPost('/user_management/magic_auth/send', {
           email: 'bob.loblaw@example.com',
         })
-        .reply(200, {
-          user: {
-            object: 'user',
-            email: 'test01@example.com',
-            first_name: 'Test 01',
-            last_name: 'User',
-            email_verified: true,
-            link_authorization_code: 'mySuperCoolCode',
-            created_at: '2023-07-18T02:07:19.911Z',
-            updated_at: '2023-07-18T02:07:19.911Z',
-          },
-        });
+        .reply(200);
 
       const response = await workos.userManagement.sendMagicAuthCode({
         email: 'bob.loblaw@example.com',
@@ -331,17 +320,7 @@ describe('UserManagement', () => {
         '/user_management/magic_auth/send',
       );
 
-      expect(response).toMatchObject({
-        user: {
-          object: 'user',
-          email: 'test01@example.com',
-          firstName: 'Test 01',
-          lastName: 'User',
-          emailVerified: true,
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
-        },
-      });
+      expect(response).toBeUndefined();
     });
   });
 
