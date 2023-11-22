@@ -8,4 +8,5 @@ export const deserializeAuthenticationResponse = (
   authenticationResponse: AuthenticationResponseResponse,
 ): AuthenticationResponse => ({
   user: deserializeUser(authenticationResponse.user),
+  organizationId: authenticationResponse.organization_id,
 });
