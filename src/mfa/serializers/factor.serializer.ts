@@ -10,4 +10,5 @@ export const deserializeFactor = (factor: FactorResponse): Factor => ({
   type: factor.type,
   ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
   ...(factor.totp ? { totp: deserializeTotp(factor.totp) } : {}),
+  userId: factor.user_id,
 });
