@@ -1,21 +1,21 @@
-export interface AuthenticateWithEmailVerificationOptions {
-  clientId: string;
+import {
+  AuthenticateWithOptionsBase,
+  SerializedAuthenticateWithOptionsBase,
+} from './authenticate-with-options-base.interface';
+
+export interface AuthenticateWithEmailVerificationOptions
+  extends AuthenticateWithOptionsBase {
   code: string;
   pendingAuthenticationToken: string;
-  ipAddress?: string;
-  userAgent?: string;
 }
 
 export interface AuthenticateUserWithEmailVerificationCredentials {
   clientSecret: string | undefined;
 }
 
-export interface SerializedAuthenticateWithEmailVerificationOptions {
+export interface SerializedAuthenticateWithEmailVerificationOptions
+  extends SerializedAuthenticateWithOptionsBase {
   grant_type: 'urn:workos:oauth:grant-type:email-verification:code';
-  client_id: string;
-  client_secret: string | undefined;
   code: string;
   pending_authentication_token: string;
-  ip_address?: string;
-  user_agent?: string;
 }
