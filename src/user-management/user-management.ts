@@ -357,7 +357,7 @@ export class UserManagement {
   }
 
   async deleteUser(userId: string) {
-    await this.workos.delete(`/user_management/${userId}`);
+    await this.workos.delete(`/user_management/users/${userId}`);
   }
 
   async getOrganizationMembership(
