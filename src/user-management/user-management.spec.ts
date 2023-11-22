@@ -108,7 +108,7 @@ describe('UserManagement', () => {
       const resp = await workos.userManagement.authenticateWithMagicAuth({
         clientId: 'proj_whatever',
         code: '123456',
-        userId: userFixture.id,
+        email: userFixture.email,
       });
 
       expect(mock.history.post[0].url).toEqual('/user_management/authenticate');
