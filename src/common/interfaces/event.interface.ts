@@ -8,6 +8,10 @@ import {
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import { User, UserResponse } from '../../user-management/interfaces';
+import {
+  OrganizationMembership,
+  OrganizationMembershipResponse,
+} from '../../user-management/interfaces/organization-membership.interface';
 
 export interface EventBase {
   id: string;
@@ -205,6 +209,27 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
+export interface OrganizationMembershipAdded extends EventBase {
+  event: 'organization_membership.added';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipAddedResponse extends EventResponseBase {
+  event: 'organization_membership.added';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipRemoved extends EventBase {
+  event: 'organization_membership.removed';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipRemovedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.removed';
+  data: OrganizationMembershipResponse;
+}
+
 export type Event =
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
@@ -222,7 +247,9 @@ export type Event =
   | DsyncUserDeletedEvent
   | UserCreatedEvent
   | UserUpdatedEvent
-  | UserDeletedEvent;
+  | UserDeletedEvent
+  | OrganizationMembershipAdded
+  | OrganizationMembershipRemoved;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -241,7 +268,9 @@ export type EventResponse =
   | DsyncUserDeletedEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
-  | UserDeletedEventResponse;
+  | UserDeletedEventResponse
+  | OrganizationMembershipAddedResponse
+  | OrganizationMembershipRemovedResponse;
 
 export type EventName =
   | 'connection.activated'
@@ -260,4 +289,6 @@ export type EventName =
   | 'dsync.user.updated'
   | 'user.created'
   | 'user.updated'
-  | 'user.deleted';
+  | 'user.deleted'
+  | 'organization_membership.added'
+  | 'organization_membership.removed';

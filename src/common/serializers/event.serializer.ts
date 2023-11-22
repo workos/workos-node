@@ -8,6 +8,7 @@ import {
 } from '../../directory-sync/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import { deserializeUser } from '../../user-management/serializers';
+import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
 
 export const deserializeEvent = (event: EventResponse): Event => {
@@ -82,6 +83,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeUser(event.data),
+      };
+    case 'organization_membership.added':
+    case 'organization_membership.removed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeOrganizationMembership(event.data),
       };
   }
 };
