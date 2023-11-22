@@ -1,23 +1,23 @@
-export interface AuthenticateWithMagicAuthOptions {
-  clientId: string;
+import {
+  AuthenticateWithOptionsBase,
+  SerializedAuthenticateWithOptionsBase,
+} from './authenticate-with-options-base.interface';
+
+export interface AuthenticateWithMagicAuthOptions
+  extends AuthenticateWithOptionsBase {
   code: string;
   email: string;
   linkAuthorizationCode?: string;
-  ipAddress?: string;
-  userAgent?: string;
 }
 
 export interface AuthenticateUserWithMagicAuthCredentials {
   clientSecret: string | undefined;
 }
 
-export interface SerializedAuthenticateWithMagicAuthOptions {
+export interface SerializedAuthenticateWithMagicAuthOptions
+  extends SerializedAuthenticateWithOptionsBase {
   grant_type: 'urn:workos:oauth:grant-type:magic-auth:code';
-  client_id: string;
-  client_secret: string | undefined;
   code: string;
   email: string;
   link_authorization_code?: string;
-  ip_address?: string;
-  user_agent?: string;
 }
