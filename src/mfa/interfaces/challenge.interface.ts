@@ -4,7 +4,7 @@ export interface Challenge {
   createdAt: string;
   updatedAt: string;
   expiresAt?: string;
-  code: string;
+  code?: string;
   authenticationFactorId: string;
 }
 
@@ -14,6 +14,6 @@ export interface ChallengeResponse {
   created_at: string;
   updated_at: string;
   expires_at?: string;
-  code: string;
+  code?: string;
   authentication_factor_id: string;
 }
