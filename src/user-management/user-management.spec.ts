@@ -347,10 +347,7 @@ describe('UserManagement', () => {
 
   describe('sendPasswordResetEmail', () => {
     it('sends a Send Password Reset Email request', async () => {
-      mock.onPost(`/user_management/password_reset/send`).reply(200, {
-        token: 'password-reset-token',
-        user: userFixture,
-      });
+      mock.onPost(`/user_management/password_reset/send`).reply(200);
       const resp = await workos.userManagement.sendPasswordResetEmail({
         email: 'test01@example.com',
         passwordResetUrl: 'https://example.com/forgot-password',
