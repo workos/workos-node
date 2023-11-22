@@ -345,7 +345,7 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('/user_management/password_reset/send', () => {
+  describe('sendPasswordResetEmail', () => {
     it('sends a Send Password Reset Email request', async () => {
       mock.onPost(`/user_management/password_reset/send`).reply(200, {
         token: 'password-reset-token',
