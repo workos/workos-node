@@ -360,12 +360,7 @@ describe('UserManagement', () => {
         `/user_management/password_reset/send`,
       );
 
-      expect(resp).toMatchObject({
-        token: 'password-reset-token',
-        user: {
-          email: 'test01@example.com',
-        },
-      });
+      expect(resp).toBeUndefined();
     });
   });
 

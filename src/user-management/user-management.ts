@@ -9,7 +9,6 @@ import {
   AuthenticationResponseResponse,
   ResetPasswordOptions,
   SendPasswordResetEmailOptions,
-  SendPasswordResetEmailResponse,
   CreateUserOptions,
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
@@ -29,11 +28,9 @@ import {
   User,
   UserResponse,
   VerifyEmailOptions,
-  SendPasswordResetEmailResponseResponse,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
-  deserializeSendPasswordResetEmailResponse,
   deserializeUser,
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
@@ -297,17 +294,11 @@ export class UserManagement {
 
   async sendPasswordResetEmail(
     payload: SendPasswordResetEmailOptions,
-  ): Promise<SendPasswordResetEmailResponse> {
-    const { data } = await this.workos.post<
-      SendPasswordResetEmailResponseResponse,
-      any,
-      SerializedSendPasswordResetEmailOptions
-    >(
+  ): Promise<void> {
+    await this.workos.post<any, SerializedSendPasswordResetEmailOptions>(
       '/user_management/password_reset/send',
       serializeSendPasswordResetEmailOptions(payload),
     );
-
-    return deserializeSendPasswordResetEmailResponse(data);
   }
 
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
