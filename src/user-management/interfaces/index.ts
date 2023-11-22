@@ -4,7 +4,7 @@ export * from './authenticate-with-code-options.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-response.interface';
 export * from './reset-password-options.interface';
-export * from './send-password-reset-options.interface';
+export * from './send-password-reset-email-options.interface';
 export * from './create-user-options.interface';
 export * from './enroll-auth-factor.interface';
 export * from './list-users-options.interface';
