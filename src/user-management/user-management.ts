@@ -85,6 +85,11 @@ import {
   AuthenticateWithEmailVerificationOptions,
   SerializedAuthenticateWithEmailVerificationOptions,
 } from './interfaces/authenticate-with-email-verification-options.interface';
+import {
+  AuthenticateWithOrganizationSelectionOptions,
+  SerializedAuthenticateWithOrganizationSelectionOptions,
+} from './interfaces/authenticate-with-organization-selection.interface';
+import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -223,6 +228,24 @@ export class UserManagement {
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithEmailVerificationOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateWithOrganizationSelection(
+    payload: AuthenticateWithOrganizationSelectionOptions,
+  ): Promise<AuthenticationResponse> {
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      any,
+      SerializedAuthenticateWithOrganizationSelectionOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithOrganizationSelectionOptions({
         ...payload,
         clientSecret: this.workos.key,
       }),
