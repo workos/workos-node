@@ -3,10 +3,10 @@ export interface Invitation {
   id: string;
   email: string;
   state: 'pending' | 'accepted' | 'expired' | 'revoked';
-  acceptedAt: string | null;
-  revokedAt: string | null;
+  acceptedAt?: string;
+  revokedAt?: string;
   expiresAt: string;
-  organizationId: string | null;
+  organizationId?: string;
   token: string;
   createdAt: string;
   updatedAt: string;
@@ -17,10 +17,10 @@ export interface InvitationResponse {
   id: string;
   email: string;
   state: 'pending' | 'accepted' | 'expired' | 'revoked';
-  accepted_at: string | null;
-  revoked_at: string | null;
+  accepted_at?: string;
+  revoked_at?: string;
   expires_at: string;
-  organization_id: string | null;
+  organization_id?: string;
   token: string;
   created_at: string;
   updated_at: string;
