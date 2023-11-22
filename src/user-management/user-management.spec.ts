@@ -232,7 +232,6 @@ describe('UserManagement', () => {
       const resp =
         await workos.userManagement.authenticateWithOrganizationSelection({
           clientId: 'proj_whatever',
-          code: 'or this',
           pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
           organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
         });

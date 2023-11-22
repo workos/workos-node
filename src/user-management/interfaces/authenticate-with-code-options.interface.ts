@@ -1,19 +1,19 @@
-export interface AuthenticateWithCodeOptions {
-  clientId: string;
+import {
+  AuthenticateWithOptionsBase,
+  SerializedAuthenticateWithOptionsBase,
+} from './authenticate-with-options-base.interface';
+
+export interface AuthenticateWithCodeOptions
+  extends AuthenticateWithOptionsBase {
   code: string;
-  ipAddress?: string;
-  userAgent?: string;
 }
 
 export interface AuthenticateUserWithCodeCredentials {
   clientSecret: string | undefined;
 }
 
-export interface SerializedAuthenticateWithCodeOptions {
+export interface SerializedAuthenticateWithCodeOptions
+  extends SerializedAuthenticateWithOptionsBase {
   grant_type: 'authorization_code';
-  client_id: string;
-  client_secret: string | undefined;
   code: string;
-  ip_address?: string;
-  user_agent?: string;
 }
