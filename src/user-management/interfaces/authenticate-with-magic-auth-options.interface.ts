@@ -2,6 +2,7 @@ export interface AuthenticateWithMagicAuthOptions {
   clientId: string;
   code: string;
   userId: string;
+  linkAuthorizationCode?: string;
   ipAddress?: string;
   userAgent?: string;
 }
@@ -16,6 +17,7 @@ export interface SerializedAuthenticateWithMagicAuthOptions {
   client_secret: string | undefined;
   code: string;
   user_id: string;
+  link_authorization_code?: string;
   ip_address?: string;
   user_agent?: string;
 }
