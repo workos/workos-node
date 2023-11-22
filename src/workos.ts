@@ -1,5 +1,4 @@
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
-import { AuditTrail } from './audit-trail/audit-trail';
 import {
   GenericServerException,
   NoApiKeyProvidedException,
@@ -37,7 +36,6 @@ export class WorkOS {
   private readonly client: AxiosInstance;
 
   readonly auditLogs = new AuditLogs(this);
-  readonly auditTrail = new AuditTrail(this);
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
