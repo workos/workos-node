@@ -7,6 +7,7 @@ import {
   deserializeUpdatedEventDirectoryUser,
 } from '../../directory-sync/serializers';
 import { deserializeConnection } from '../../sso/serializers';
+import { deserializeUser } from '../../user-management/serializers';
 import { Event, EventBase, EventResponse } from '../interfaces';
 
 export const deserializeEvent = (event: EventResponse): Event => {
@@ -73,6 +74,14 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeUpdatedEventDirectoryUser(event.data),
+      };
+    case 'user.created':
+    case 'user.updated':
+    case 'user.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeUser(event.data),
       };
   }
 };
