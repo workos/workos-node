@@ -515,7 +515,9 @@ describe('UserManagement', () => {
 
       const resp = await workos.userManagement.deleteUser(userId);
 
-      expect(mock.history.delete[0].url).toEqual(`/user_management/${userId}`);
+      expect(mock.history.delete[0].url).toEqual(
+        `/user_management/users/${userId}`,
+      );
       expect(resp).toBeUndefined();
     });
   });
