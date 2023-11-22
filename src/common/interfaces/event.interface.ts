@@ -7,6 +7,7 @@ import {
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
+import { User, UserResponse } from '../../user-management/interfaces';
 
 export interface EventBase {
   id: string;
@@ -174,6 +175,36 @@ export interface DsyncUserUpdatedEventResponse extends EventResponseBase {
   data: DirectoryUserResponse & Record<'previous_attributes', any>;
 }
 
+export interface UserCreatedEvent extends EventBase {
+  event: 'user.created';
+  data: User;
+}
+
+export interface UserCreatedEventResponse extends EventResponseBase {
+  event: 'user.created';
+  data: UserResponse;
+}
+
+export interface UserUpdatedEvent extends EventBase {
+  event: 'user.updated';
+  data: User;
+}
+
+export interface UserUpdatedEventResponse extends EventResponseBase {
+  event: 'user.updated';
+  data: UserResponse;
+}
+
+export interface UserDeletedEvent extends EventBase {
+  event: 'user.deleted';
+  data: User;
+}
+
+export interface UserDeletedEventResponse extends EventResponseBase {
+  event: 'user.deleted';
+  data: UserResponse;
+}
+
 export type Event =
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
@@ -188,7 +219,10 @@ export type Event =
   | DsyncGroupUserRemovedEvent
   | DsyncUserCreatedEvent
   | DsyncUserUpdatedEvent
-  | DsyncUserDeletedEvent;
+  | DsyncUserDeletedEvent
+  | UserCreatedEvent
+  | UserUpdatedEvent
+  | UserDeletedEvent;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -204,7 +238,10 @@ export type EventResponse =
   | DsyncGroupUserRemovedEventResponse
   | DsyncUserCreatedEventResponse
   | DsyncUserUpdatedEventResponse
-  | DsyncUserDeletedEventResponse;
+  | DsyncUserDeletedEventResponse
+  | UserCreatedEventResponse
+  | UserUpdatedEventResponse
+  | UserDeletedEventResponse;
 
 export type EventName =
   | 'connection.activated'
@@ -220,4 +257,7 @@ export type EventName =
   | 'dsync.group.user_removed'
   | 'dsync.user.created'
   | 'dsync.user.deleted'
-  | 'dsync.user.updated';
+  | 'dsync.user.updated'
+  | 'user.created'
+  | 'user.updated'
+  | 'user.deleted';
