@@ -1,4 +1,4 @@
-export interface Totp {
+interface TotpObject {
   issuer: string;
   user: string;
   qrCode: string;
@@ -6,10 +6,23 @@ export interface Totp {
   uri: string;
 }
 
-export interface TotpResponse {
+type TotpObjectWithOnlyIssuerAndUser = Pick<TotpObject, 'issuer' | 'user'>;
+
+export type Totp = TotpObject | TotpObjectWithOnlyIssuerAndUser;
+
+interface TotpResponseObject {
   issuer: string;
   user: string;
   qr_code: string;
   secret: string;
   uri: string;
 }
+
+type TotpResponseObjectWithOnlyIssuerAndUser = Pick<
+  TotpResponseObject,
+  'issuer' | 'user'
+>;
+
+export type TotpResponse =
+  | TotpResponseObject
+  | TotpResponseObjectWithOnlyIssuerAndUser;
