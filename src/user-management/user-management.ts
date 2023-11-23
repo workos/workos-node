@@ -482,7 +482,7 @@ export class UserManagement {
     loginHint,
     organizationId,
     provider,
-    redirectURI,
+    redirectUri,
     state,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
@@ -498,7 +498,7 @@ export class UserManagement {
       login_hint: loginHint,
       provider,
       client_id: clientId,
-      redirect_uri: redirectURI,
+      redirect_uri: redirectUri,
       response_type: 'code',
       state,
     });
