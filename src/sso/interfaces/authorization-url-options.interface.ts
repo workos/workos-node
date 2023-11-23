@@ -10,6 +10,6 @@ export interface AuthorizationURLOptions {
   domainHint?: string;
   loginHint?: string;
   provider?: string;
-  redirectURI: string;
+  redirectUri: string;
   state?: string;
 }
