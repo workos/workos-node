@@ -26,7 +26,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -40,7 +40,7 @@ describe('SSO', () => {
           const urlFn = () =>
             workos.sso.getAuthorizationUrl({
               clientId: 'proj_123',
-              redirectURI: 'example.com/sso/workos/callback',
+              redirectUri: 'example.com/sso/workos/callback',
             });
 
           expect(urlFn).toThrowErrorMatchingSnapshot();
@@ -56,7 +56,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             provider: 'Google',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -72,7 +72,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             connection: 'connection_123',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -88,7 +88,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             organization: 'organization_123',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -104,7 +104,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
           });
 
           expect(url).toMatchSnapshot();
@@ -118,7 +118,7 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             domain: 'lyft.com',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
@@ -134,7 +134,7 @@ describe('SSO', () => {
             domainHint: 'lyft.com',
             connection: 'connection_123',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
@@ -152,7 +152,7 @@ describe('SSO', () => {
             loginHint: 'foo@workos.com',
             connection: 'connection_123',
             clientId: 'proj_123',
-            redirectURI: 'example.com/sso/workos/callback',
+            redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
           });
 
