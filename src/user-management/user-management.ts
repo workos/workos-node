@@ -466,11 +466,13 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
-  async revokeInvitation(invitationId: string): Promise<void> {
-    await this.workos.post(
+  async revokeInvitation(invitationId: string): Promise<Invitation> {
+    const { data } = await this.workos.post<InvitationResponse, any>(
       `/user_management/invitations/${invitationId}/revoke`,
       null,
     );
+
+    return deserializeInvitation(data);
   }
 
   getAuthorizationUrl({
