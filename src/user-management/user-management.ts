@@ -44,13 +44,8 @@ import {
   serializeUpdateUserOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import {
-  Challenge,
-  ChallengeResponse,
-  Factor,
-  FactorResponse,
-} from '../mfa/interfaces';
-import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import { Challenge, ChallengeResponse, Factor } from '../mfa/interfaces';
+import { deserializeChallenge } from '../mfa/serializers';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -87,6 +82,11 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
+import {
+  UserManagementFactor,
+  UserManagementFactorResponse,
+} from '../mfa/interfaces/user-management-factor.interface';
+import { deserializeUserManagementFactor } from '../mfa/serializers/user-management-factor.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -316,11 +316,11 @@ export class UserManagement {
   }
 
   async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
-    authenticationFactor: Factor;
+    authenticationFactor: UserManagementFactor;
     authenticationChallenge: Challenge;
   }> {
     const { data } = await this.workos.post<{
-      authentication_factor: FactorResponse;
+      authentication_factor: UserManagementFactorResponse;
       authentication_challenge: ChallengeResponse;
     }>(
       `/user_management/users/${payload.userId}/auth_factors`,
@@ -328,7 +328,9 @@ export class UserManagement {
     );
 
     return {
-      authenticationFactor: deserializeFactor(data.authentication_factor),
+      authenticationFactor: deserializeUserManagementFactor(
+        data.authentication_factor,
+      ),
       authenticationChallenge: deserializeChallenge(
         data.authentication_challenge,
       ),
@@ -339,17 +341,17 @@ export class UserManagement {
     options: ListAuthFactorsOptions,
   ): Promise<AutoPaginatable<Factor>> {
     return new AutoPaginatable(
-      await fetchAndDeserialize<FactorResponse, Factor>(
+      await fetchAndDeserialize<UserManagementFactorResponse, Factor>(
         this.workos,
         `/user_management/users/${options.userId}/auth_factors`,
-        deserializeFactor,
+        deserializeUserManagementFactor,
         options,
       ),
       (params) =>
-        fetchAndDeserialize<FactorResponse, Factor>(
+        fetchAndDeserialize<UserManagementFactorResponse, Factor>(
           this.workos,
           `/user_management/users/${options.userId}/auth_factors`,
-          deserializeFactor,
+          deserializeUserManagementFactor,
           params,
         ),
       options,

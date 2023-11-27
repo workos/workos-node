@@ -11,7 +11,6 @@ export interface Factor {
   type: FactorType;
   sms?: Sms;
   totp?: Totp;
-  userId?: string;
 }
 
 export interface FactorResponse {
