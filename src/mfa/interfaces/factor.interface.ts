@@ -11,7 +11,16 @@ export interface Factor {
   type: FactorType;
   sms?: Sms;
   totp?: Totp;
-  userId?: string;
+}
+
+export interface UserManagementFactor {
+  object: 'authentication_factor';
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  type: 'totp';
+  totp: Totp;
+  userId: string;
 }
 
 export interface FactorResponse {
@@ -23,4 +32,14 @@ export interface FactorResponse {
   sms?: SmsResponse;
   totp?: TotpResponse;
   user_id?: string;
+}
+
+export interface UserManagementFactorResponse {
+  object: 'authentication_factor';
+  id: string;
+  created_at: string;
+  updated_at: string;
+  type: 'totp';
+  totp: TotpResponse;
+  user_id: string;
 }
