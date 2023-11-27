@@ -9,9 +9,6 @@
       "type": "totp",
       "totp": {
         "issuer": "WorkOS",
-        "qr_code": "qr-code-test",
-        "secret": "secret-test",
-        "uri": "uri-test",
         "user": "some_user"
       }
     }

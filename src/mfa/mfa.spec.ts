@@ -8,6 +8,8 @@ import {
   ChallengeResponse,
   Factor,
   FactorResponse,
+  FactorWithSecrets,
+  FactorWithSecretsResponse,
   VerifyResponse,
   VerifyResponseResponse,
 } from './interfaces';
@@ -25,9 +27,6 @@ describe('MFA', () => {
         type: 'totp',
         totp: {
           issuer: 'WorkOS',
-          qrCode: 'qr-code-test',
-          secret: 'secret-test',
-          uri: 'uri-test',
           user: 'some_user',
         },
       };
@@ -40,9 +39,6 @@ describe('MFA', () => {
         type: 'totp',
         totp: {
           issuer: 'WorkOS',
-          qr_code: 'qr-code-test',
-          secret: 'secret-test',
-          uri: 'uri-test',
           user: 'some_user',
         },
       };
@@ -102,7 +98,7 @@ describe('MFA', () => {
 
     describe('with totp', () => {
       it('enrolls a factor with totp type', async () => {
-        const factor: Factor = {
+        const factor: FactorWithSecrets = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
           createdAt: '2022-03-15T20:39:19.892Z',
@@ -117,7 +113,7 @@ describe('MFA', () => {
           },
         };
 
-        const factorResponse: FactorResponse = {
+        const factorResponse: FactorWithSecretsResponse = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
           created_at: '2022-03-15T20:39:19.892Z',
