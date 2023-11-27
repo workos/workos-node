@@ -21,5 +21,4 @@ export interface FactorResponse {
   type: FactorType;
   sms?: SmsResponse;
   totp?: TotpResponse;
-  user_id?: string;
 }
