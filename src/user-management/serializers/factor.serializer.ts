@@ -1,12 +1,7 @@
-import {
-  UserManagementFactor,
-  UserManagementFactorResponse,
-} from '../interfaces/user-management-factor.interface';
+import { Factor, FactorResponse } from '../interfaces/factor.interface';
 import { deserializeTotp } from '../../mfa/serializers/totp.serializer';
 
-export const deserializeUserManagementFactor = (
-  factor: UserManagementFactorResponse,
-): UserManagementFactor => ({
+export const deserializeFactor = (factor: FactorResponse): Factor => ({
   object: factor.object,
   id: factor.id,
   createdAt: factor.created_at,

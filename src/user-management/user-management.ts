@@ -82,11 +82,8 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
-import {
-  UserManagementFactor,
-  UserManagementFactorResponse,
-} from './interfaces/user-management-factor.interface';
-import { deserializeUserManagementFactor } from './serializers/user-management-factor.serializer';
+import { Factor, FactorResponse } from './interfaces/factor.interface';
+import { deserializeFactor } from './serializers/factor.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -316,11 +313,11 @@ export class UserManagement {
   }
 
   async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
-    authenticationFactor: UserManagementFactor;
+    authenticationFactor: Factor;
     authenticationChallenge: Challenge;
   }> {
     const { data } = await this.workos.post<{
-      authentication_factor: UserManagementFactorResponse;
+      authentication_factor: FactorResponse;
       authentication_challenge: ChallengeResponse;
     }>(
       `/user_management/users/${payload.userId}/auth_factors`,
@@ -328,9 +325,7 @@ export class UserManagement {
     );
 
     return {
-      authenticationFactor: deserializeUserManagementFactor(
-        data.authentication_factor,
-      ),
+      authenticationFactor: deserializeFactor(data.authentication_factor),
       authenticationChallenge: deserializeChallenge(
         data.authentication_challenge,
       ),
@@ -339,22 +334,19 @@ export class UserManagement {
 
   async listAuthFactors(
     options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<UserManagementFactor>> {
+  ): Promise<AutoPaginatable<Factor>> {
     return new AutoPaginatable(
-      await fetchAndDeserialize<
-        UserManagementFactorResponse,
-        UserManagementFactor
-      >(
+      await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
         `/user_management/users/${options.userId}/auth_factors`,
-        deserializeUserManagementFactor,
+        deserializeFactor,
         options,
       ),
       (params) =>
-        fetchAndDeserialize<UserManagementFactorResponse, UserManagementFactor>(
+        fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
           `/user_management/users/${options.userId}/auth_factors`,
-          deserializeUserManagementFactor,
+          deserializeFactor,
           params,
         ),
       options,

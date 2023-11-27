@@ -1,6 +1,6 @@
 import { Totp, TotpResponse } from '../../mfa/interfaces/totp.interface';
 
-export interface UserManagementFactor {
+export interface Factor {
   object: 'authentication_factor';
   id: string;
   createdAt: string;
@@ -10,7 +10,7 @@ export interface UserManagementFactor {
   userId: string;
 }
 
-export interface UserManagementFactorResponse {
+export interface FactorResponse {
   object: 'authentication_factor';
   id: string;
   created_at: string;
