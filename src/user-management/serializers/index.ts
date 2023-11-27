@@ -4,6 +4,7 @@ export * from './authenticate-with-password-options.serializer';
 export * from './authenticate-with-totp-options.serializer';
 export * from './authentication-response.serializer';
 export * from './enroll-auth-factor-options.serializer';
+export * from './factor.serializer';
 export * from './reset-password-options.serializer';
 export * from './send-password-reset-email.serializer';
 export * from './create-user-options.serializer';

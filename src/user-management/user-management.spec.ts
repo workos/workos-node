@@ -493,9 +493,6 @@ describe('UserManagement', () => {
             type: 'totp',
             totp: {
               issuer: 'WorkOS',
-              qrCode: 'qr-code-test',
-              secret: 'secret-test',
-              uri: 'uri-test',
               user: 'some_user',
             },
           },
