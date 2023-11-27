@@ -1,9 +1,4 @@
-import {
-  Factor,
-  FactorResponse,
-  UserManagementFactor,
-  UserManagementFactorResponse,
-} from '../interfaces';
+import { Factor, FactorResponse } from '../interfaces';
 import { deserializeSms } from './sms.serializer';
 import { deserializeTotp } from './totp.serializer';
 
@@ -15,16 +10,4 @@ export const deserializeFactor = (factor: FactorResponse): Factor => ({
   type: factor.type,
   ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
   ...(factor.totp ? { totp: deserializeTotp(factor.totp) } : {}),
-});
-
-export const deserializeUserManagementFactor = (
-  factor: UserManagementFactorResponse,
-): UserManagementFactor => ({
-  object: factor.object,
-  id: factor.id,
-  createdAt: factor.created_at,
-  updatedAt: factor.updated_at,
-  type: factor.type,
-  totp: deserializeTotp(factor.totp),
-  userId: factor.user_id,
 });
