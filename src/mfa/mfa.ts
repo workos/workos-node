@@ -10,10 +10,13 @@ import {
   FactorResponse,
   ChallengeResponse,
   VerifyResponseResponse,
+  FactorWithSecretsResponse,
+  FactorWithSecrets,
 } from './interfaces';
 import {
   deserializeChallenge,
   deserializeFactor,
+  deserializeFactorWithSecrets,
   deserializeVerifyResponse,
 } from './serializers';
 
@@ -32,8 +35,8 @@ export class Mfa {
     return deserializeFactor(data);
   }
 
-  async enrollFactor(options: EnrollFactorOptions): Promise<Factor> {
-    const { data } = await this.workos.post<FactorResponse>(
+  async enrollFactor(options: EnrollFactorOptions): Promise<FactorWithSecrets> {
+    const { data } = await this.workos.post<FactorWithSecretsResponse>(
       '/auth/factors/enroll',
       {
         type: options.type,
@@ -55,7 +58,7 @@ export class Mfa {
       },
     );
 
-    return deserializeFactor(data);
+    return deserializeFactorWithSecrets(data);
   }
 
   async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {

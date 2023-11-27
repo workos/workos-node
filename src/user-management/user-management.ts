@@ -31,6 +31,7 @@ import {
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
+  deserializeFactorWithSecrets,
   deserializeUser,
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
@@ -82,7 +83,12 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
-import { Factor, FactorResponse } from './interfaces/factor.interface';
+import {
+  Factor,
+  FactorResponse,
+  FactorWithSecrets,
+  FactorWithSecretsResponse,
+} from './interfaces/factor.interface';
 import { deserializeFactor } from './serializers/factor.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
@@ -313,11 +319,11 @@ export class UserManagement {
   }
 
   async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
-    authenticationFactor: Factor;
+    authenticationFactor: FactorWithSecrets;
     authenticationChallenge: Challenge;
   }> {
     const { data } = await this.workos.post<{
-      authentication_factor: FactorResponse;
+      authentication_factor: FactorWithSecretsResponse;
       authentication_challenge: ChallengeResponse;
     }>(
       `/user_management/users/${payload.userId}/auth_factors`,
@@ -325,7 +331,9 @@ export class UserManagement {
     );
 
     return {
-      authenticationFactor: deserializeFactor(data.authentication_factor),
+      authenticationFactor: deserializeFactorWithSecrets(
+        data.authentication_factor,
+      ),
       authenticationChallenge: deserializeChallenge(
         data.authentication_challenge,
       ),
