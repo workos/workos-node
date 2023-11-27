@@ -766,7 +766,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           provider: 'Google',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
         });
 
         expect(url).toMatchSnapshot();
@@ -780,7 +780,7 @@ describe('UserManagement', () => {
         const urlFn = () =>
           workos.userManagement.getAuthorizationUrl({
             clientId: 'proj_123',
-            redirectURI: 'example.com/auth/workos/callback',
+            redirectUri: 'example.com/auth/workos/callback',
           });
 
         expect(urlFn).toThrowErrorMatchingSnapshot();
@@ -794,7 +794,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           provider: 'Google',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
         });
 
         expect(url).toMatchSnapshot();
@@ -808,7 +808,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           connectionId: 'connection_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
         });
 
         expect(url).toMatchSnapshot();
@@ -822,7 +822,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           organizationId: 'organization_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
         });
 
         expect(url).toMatchSnapshot();
@@ -838,7 +838,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           organizationId: 'organization_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
         });
 
         expect(url).toMatchSnapshot();
@@ -852,7 +852,7 @@ describe('UserManagement', () => {
         const url = workos.userManagement.getAuthorizationUrl({
           organizationId: 'organization_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
           state: 'custom state',
         });
 
@@ -868,7 +868,7 @@ describe('UserManagement', () => {
           domainHint: 'example.com',
           connectionId: 'connection_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
           state: 'custom state',
         });
 
@@ -886,7 +886,7 @@ describe('UserManagement', () => {
           loginHint: 'foo@workos.com',
           connectionId: 'connection_123',
           clientId: 'proj_123',
-          redirectURI: 'example.com/auth/workos/callback',
+          redirectUri: 'example.com/auth/workos/callback',
           state: 'custom state',
         });
 

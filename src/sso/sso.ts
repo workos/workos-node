@@ -70,7 +70,7 @@ export class SSO {
     loginHint,
     organization,
     provider,
-    redirectURI,
+    redirectUri,
     state,
   }: AuthorizationURLOptions): string {
     if (!domain && !provider && !connection && !organization) {
@@ -93,7 +93,7 @@ export class SSO {
       login_hint: loginHint,
       provider,
       client_id: clientId,
-      redirect_uri: redirectURI,
+      redirect_uri: redirectUri,
       response_type: 'code',
       state,
     });
