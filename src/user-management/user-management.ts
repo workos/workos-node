@@ -44,7 +44,7 @@ import {
   serializeUpdateUserOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { Challenge, ChallengeResponse, Factor } from '../mfa/interfaces';
+import { Challenge, ChallengeResponse } from '../mfa/interfaces';
 import { deserializeChallenge } from '../mfa/serializers';
 import {
   OrganizationMembership,
@@ -339,16 +339,19 @@ export class UserManagement {
 
   async listAuthFactors(
     options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<Factor>> {
+  ): Promise<AutoPaginatable<UserManagementFactor>> {
     return new AutoPaginatable(
-      await fetchAndDeserialize<UserManagementFactorResponse, Factor>(
+      await fetchAndDeserialize<
+        UserManagementFactorResponse,
+        UserManagementFactor
+      >(
         this.workos,
         `/user_management/users/${options.userId}/auth_factors`,
         deserializeUserManagementFactor,
         options,
       ),
       (params) =>
-        fetchAndDeserialize<UserManagementFactorResponse, Factor>(
+        fetchAndDeserialize<UserManagementFactorResponse, UserManagementFactor>(
           this.workos,
           `/user_management/users/${options.userId}/auth_factors`,
           deserializeUserManagementFactor,
