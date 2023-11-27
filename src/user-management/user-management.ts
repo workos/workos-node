@@ -44,13 +44,8 @@ import {
   serializeUpdateUserOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import {
-  Challenge,
-  ChallengeResponse,
-  Factor,
-  FactorResponse,
-} from '../mfa/interfaces';
-import { deserializeChallenge, deserializeFactor } from '../mfa/serializers';
+import { Challenge, ChallengeResponse } from '../mfa/interfaces';
+import { deserializeChallenge } from '../mfa/serializers';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -87,6 +82,8 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
+import { Factor, FactorResponse } from './interfaces/factor.interface';
+import { deserializeFactor } from './serializers/factor.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
