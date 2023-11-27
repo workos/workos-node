@@ -6,7 +6,7 @@ import {
   TotpWithSecretsResponse,
 } from './totp.interface';
 
-type FactorType = 'sms' | 'totp';
+type FactorType = 'sms' | 'totp' | 'generic_otp';
 
 export interface Factor {
   object: 'authentication_factor';
