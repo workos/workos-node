@@ -85,8 +85,8 @@ import { serializeAuthenticateWithOrganizationSelectionOptions } from './seriali
 import {
   UserManagementFactor,
   UserManagementFactorResponse,
-} from '../mfa/interfaces/user-management-factor.interface';
-import { deserializeUserManagementFactor } from '../mfa/serializers/user-management-factor.serializer';
+} from './interfaces/user-management-factor.interface';
+import { deserializeUserManagementFactor } from './serializers/user-management-factor.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();

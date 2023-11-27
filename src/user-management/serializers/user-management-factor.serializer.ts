@@ -2,7 +2,7 @@ import {
   UserManagementFactor,
   UserManagementFactorResponse,
 } from '../interfaces/user-management-factor.interface';
-import { deserializeTotp } from './totp.serializer';
+import { deserializeTotp } from '../../mfa/serializers/totp.serializer';
 
 export const deserializeUserManagementFactor = (
   factor: UserManagementFactorResponse,

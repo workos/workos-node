@@ -1,4 +1,4 @@
-import { Totp, TotpResponse } from './totp.interface';
+import { Totp, TotpResponse } from '../../mfa/interfaces/totp.interface';
 
 export interface UserManagementFactor {
   object: 'authentication_factor';
