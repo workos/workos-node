@@ -2,6 +2,7 @@ import {
   Totp,
   TotpResponse,
   TotpWithSecrets,
+  TotpWithSecretsResponse,
 } from '../../mfa/interfaces/totp.interface';
 
 export interface Factor {
@@ -40,6 +41,6 @@ export interface FactorWithSecretsResponse {
   created_at: string;
   updated_at: string;
   type: 'totp';
-  totp: TotpWithSecrets;
+  totp: TotpWithSecretsResponse;
   user_id: string;
 }
