@@ -6,22 +6,17 @@ export type DirectoryType =
   | 'cyberark scim v2.0'
   | 'fourth hr'
   | 'gsuite directory'
-  | 'generic scim v1.1'
   | 'generic scim v2.0'
-  | 'gusto'
   | 'hibob'
   | 'jump cloud scim v2.0'
-  | 'okta scim v1.1'
   | 'okta scim v2.0'
   | 'onelogin scim v2.0'
   | 'people hr'
   | 'personio'
   | 'pingfederate scim v2.0'
-  | 'rippling'
   | 'rippling scim v2.0'
   | 'sftp'
   | 'sftp workday'
-  | 's3'
   | 'workday';
 
 export type DirectoryState =
