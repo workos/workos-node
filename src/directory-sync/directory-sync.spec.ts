@@ -28,7 +28,7 @@ describe('DirectorySync', () => {
     object: 'directory',
     organizationId: 'org_01EXSR7M9QTKCC5D531SMCWMYG',
     state: 'active',
-    type: 'okta scim v1.1',
+    type: 'okta scim v2.0',
     updatedAt: '2021-12-13 12:15:45.531847',
   };
 
@@ -41,7 +41,7 @@ describe('DirectorySync', () => {
     object: 'directory',
     organization_id: 'org_01EXSR7M9QTKCC5D531SMCWMYG',
     state: 'linked',
-    type: 'okta scim v1.1',
+    type: 'okta scim v2.0',
     updated_at: '2021-12-13 12:15:45.531847',
   };
 
