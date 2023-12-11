@@ -25,7 +25,7 @@ export interface DirectoryUser<
   username: string | null;
   lastName: string | null;
   jobTitle: string | null;
-  state: 'active' | 'inactive' | 'suspended';
+  state: 'active' | 'inactive';
   createdAt: string;
   updatedAt: string;
 }
@@ -50,7 +50,7 @@ export interface DirectoryUserResponse<
   username: string | null;
   last_name: string | null;
   job_title: string | null;
-  state: 'active' | 'inactive' | 'suspended';
+  state: 'active' | 'inactive';
   created_at: string;
   updated_at: string;
 }
