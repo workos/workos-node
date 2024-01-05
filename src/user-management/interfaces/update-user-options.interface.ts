@@ -5,7 +5,7 @@ export interface UpdateUserOptions {
   emailVerified?: boolean;
   password?: string;
   passwordHash?: string;
-  passwordHashType?: 'bcrypt';
+  passwordHashType?: 'bcrypt' | 'firebase-scrypt';
 }
 
 export interface SerializedUpdateUserOptions {
@@ -14,5 +14,5 @@ export interface SerializedUpdateUserOptions {
   email_verified?: boolean;
   password?: string;
   password_hash?: string;
-  password_hash_type?: 'bcrypt';
+  password_hash_type?: 'bcrypt' | 'firebase-scrypt';
 }
