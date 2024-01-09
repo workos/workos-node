@@ -13,6 +13,7 @@ export const serializeAuthenticateWithPasswordOptions = (
   client_secret: options.clientSecret,
   email: options.email,
   password: options.password,
+  invitation_token: options.invitationToken,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
 });
