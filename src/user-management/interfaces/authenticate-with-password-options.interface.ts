@@ -7,6 +7,7 @@ export interface AuthenticateWithPasswordOptions
   extends AuthenticateWithOptionsBase {
   email: string;
   password: string;
+  invitationToken?: string;
 }
 
 export interface AuthenticateUserWithPasswordCredentials {
@@ -18,4 +19,5 @@ export interface SerializedAuthenticateWithPasswordOptions
   grant_type: 'password';
   email: string;
   password: string;
+  invitation_token?: string;
 }
