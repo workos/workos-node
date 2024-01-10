@@ -7,7 +7,6 @@ export interface AuthenticateWithMagicAuthOptions
   extends AuthenticateWithOptionsBase {
   code: string;
   email: string;
-  invitationToken?: string;
   linkAuthorizationCode?: string;
 }
 
@@ -20,6 +19,5 @@ export interface SerializedAuthenticateWithMagicAuthOptions
   grant_type: 'urn:workos:oauth:grant-type:magic-auth:code';
   code: string;
   email: string;
-  invitation_token?: string;
   link_authorization_code?: string;
 }
