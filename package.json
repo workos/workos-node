@@ -34,7 +34,7 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
-    "axios": "^1.6.5",
+    "axios": "~1.6.5",
     "pluralize": "8.0.0"
   },
   "devDependencies": {
