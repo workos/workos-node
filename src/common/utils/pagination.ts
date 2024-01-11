@@ -38,9 +38,11 @@ export class AutoPaginatable<T> {
     }
   }
 
+  /**
+   * Automatically paginates over the list of results, returning the complete data set.
+   * Returns the first result if `options.limit` is passed to the first request.
+   */
   async autoPagination(): Promise<T[]> {
-    // assume user only wants the exact number of records
-    // they requested with the limit option
     if (this.options.limit) {
       return this.data;
     }
