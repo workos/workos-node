@@ -25,6 +25,7 @@ export class AutoPaginatable<T> {
   private async *generatePages(params: PaginationOptions): AsyncGenerator<T[]> {
     const result = await this.apiCall({
       ...this.options,
+      limit: 100,
       after: params.after,
     });
 
@@ -38,20 +39,20 @@ export class AutoPaginatable<T> {
   }
 
   async autoPagination(): Promise<T[]> {
-    if (!this.options.limit) {
-      const generatePages = this.generatePages({
-        after: this.options.after,
-      });
-
-      const results: T[] = [];
-
-      for await (const page of generatePages) {
-        results.push(...page);
-      }
-
-      return results;
-    } else {
+    // assume user only wants the exact number of records
+    // they requested with the limit option
+    if (this.options.limit) {
       return this.data;
     }
+
+    const results: T[] = [];
+
+    for await (const page of this.generatePages({
+      after: this.options.after,
+    })) {
+      results.push(...page);
+    }
+
+    return results;
   }
 }
