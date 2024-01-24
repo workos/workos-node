@@ -55,7 +55,7 @@ export class SSO {
           deserializeConnection,
           params,
         ),
-      options,
+      options ? serializeListConnectionsOptions(options) : undefined,
     );
   }
   async deleteConnection(id: string) {
