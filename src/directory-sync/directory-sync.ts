@@ -40,7 +40,7 @@ export class DirectorySync {
           deserializeDirectory,
           params,
         ),
-      options,
+      options ? serializeListDirectoriesOptions(options) : undefined,
     );
   }
 
