@@ -132,7 +132,7 @@ export class UserManagement {
           deserializeUser,
           params,
         ),
-      options,
+      options ? serializeListUsersOptions(options) : undefined,
     );
   }
 
@@ -400,7 +400,9 @@ export class UserManagement {
           deserializeOrganizationMembership,
           params,
         ),
-      options,
+      options
+        ? serializeListOrganizationMembershipsOptions(options)
+        : undefined,
     );
   }
 
@@ -452,7 +454,7 @@ export class UserManagement {
           deserializeInvitation,
           params,
         ),
-      options,
+      options ? serializeListInvitationsOptions(options) : undefined,
     );
   }
 
