@@ -3,6 +3,7 @@ export interface User {
   id: string;
   email: string;
   emailVerified: boolean;
+  profilePictureUrl: string | null;
   firstName: string | null;
   lastName: string | null;
   createdAt: string;
@@ -14,6 +15,7 @@ export interface UserResponse {
   id: string;
   email: string;
   email_verified: boolean;
+  profile_picture_url: string | null;
   first_name: string | null;
   last_name: string | null;
   created_at: string;
