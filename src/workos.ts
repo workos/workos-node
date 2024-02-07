@@ -72,6 +72,7 @@ export class WorkOS {
     this.client = new FetchClient(this.baseURL, {
       ...options.config,
       headers: {
+        ...options.config?.headers,
         Authorization: `Bearer ${this.key}`,
         'User-Agent': `workos-node/${VERSION}`,
       },
