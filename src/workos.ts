@@ -25,7 +25,7 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
-import { FetchError, createFetchClient } from './common/utils/fetch-client';
+import { FetchClient, FetchError } from './common/utils/fetch-client';
 
 const VERSION = '5.1.4';
 
@@ -33,7 +33,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  private readonly client: ReturnType<typeof createFetchClient>;
+  private readonly client: FetchClient;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -69,14 +69,11 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    this.client = createFetchClient({
-      baseURL: this.baseURL,
-      options: {
-        ...options.config,
-        headers: {
-          Authorization: `Bearer ${this.key}`,
-          'User-Agent': `workos-node/${VERSION}`,
-        },
+    this.client = new FetchClient(this.baseURL, {
+      ...options.config,
+      headers: {
+        Authorization: `Bearer ${this.key}`,
+        'User-Agent': `workos-node/${VERSION}`,
       },
     });
   }

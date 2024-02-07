@@ -1,24 +1,23 @@
 import { getQueryString } from './query-string';
 
-export function createFetchClient({
-  baseURL,
-  options: globalOptions,
-}: {
-  baseURL: string;
-  options: RequestInit;
-}) {
-  function getResourceURL(path: string, params?: Record<string, any>) {
-    const queryString = getQueryString(params);
-    return new URL([path, queryString].join('?'), baseURL);
+export class FetchClient {
+  constructor(readonly baseURL: string, readonly options?: RequestInit) {
+    this.baseURL = baseURL;
+    this.options = options;
   }
 
-  async function _fetch(url: URL, options?: RequestInit) {
+  private getResourceURL(path: string, params?: Record<string, any>) {
+    const queryString = getQueryString(params);
+    return new URL([path, queryString].join('?'), this.baseURL);
+  }
+
+  private async fetch(url: URL, options?: RequestInit) {
     const response = await fetch(url, {
-      ...globalOptions,
+      ...this.options,
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...globalOptions.headers,
+        ...this.options?.headers,
         ...options?.headers,
       },
     });
@@ -37,52 +36,55 @@ export function createFetchClient({
     return response;
   }
 
-  return {
-    async get(
-      path: string,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      const resourceURL = getResourceURL(path, options.params);
-      const response = await _fetch(resourceURL, { headers: options.headers });
-      return { data: await response.json() };
-    },
+  async get(
+    path: string,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      headers: options.headers,
+    });
+    return { data: await response.json() };
+  }
 
-    async post<P = any>(
-      path: string,
-      entity: P,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      const resourceURL = getResourceURL(path, options.params);
-      const response = await _fetch(resourceURL, {
-        method: 'POST',
-        headers: options.headers,
-        body: JSON.stringify(entity),
-      });
-      return { data: await response.json() };
-    },
+  async post<P = any>(
+    path: string,
+    entity: P,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      method: 'POST',
+      headers: options.headers,
+      body: JSON.stringify(entity),
+    });
+    return { data: await response.json() };
+  }
 
-    async put<P = any>(
-      path: string,
-      entity: P,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      const resourceURL = getResourceURL(path, options.params);
-      const response = await _fetch(resourceURL, {
-        method: 'PUT',
-        headers: options.headers,
-        body: JSON.stringify(entity),
-      });
-      return { data: await response.json() };
-    },
+  async put<P = any>(
+    path: string,
+    entity: P,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      method: 'PUT',
+      headers: options.headers,
+      body: JSON.stringify(entity),
+    });
+    return { data: await response.json() };
+  }
 
-    async delete(
-      path: string,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      const resourceURL = getResourceURL(path, options.params);
-      await _fetch(resourceURL, { method: 'DELETE', headers: options.headers });
-    },
-  };
+  async delete(
+    path: string,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    await this.fetch(resourceURL, {
+      method: 'DELETE',
+      headers: options.headers,
+    });
+  }
 }
 
 export class FetchError<T> extends Error {
