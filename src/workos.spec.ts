@@ -75,7 +75,7 @@ describe('WorkOS', () => {
         mock.onPost().reply(200, 'OK', { 'X-Request-ID': 'a-request-id' });
 
         const workos = new WorkOS('sk_test', {
-          axios: {
+          config: {
             headers: {
               'X-My-Custom-Header': 'Hey there!',
             },
