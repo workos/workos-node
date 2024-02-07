@@ -1,11 +1,12 @@
 import { getQueryString } from './query-string';
 
-interface FetchClientOptions {
+export function createFetchClient({
+  baseURL,
+  options: globalOptions,
+}: {
   baseURL: string;
-  headers: HeadersInit;
-}
-
-export function createFetchClient({ baseURL, headers }: FetchClientOptions) {
+  options: RequestInit;
+}) {
   function getResourceURL(path: string, params?: Record<string, any>) {
     const queryString = getQueryString(params);
     return new URL([path, queryString].join('?'), baseURL);
@@ -13,10 +14,11 @@ export function createFetchClient({ baseURL, headers }: FetchClientOptions) {
 
   async function _fetch(url: URL, options?: RequestInit) {
     const response = await fetch(url, {
+      ...globalOptions,
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...headers,
+        ...globalOptions.headers,
         ...options?.headers,
       },
     });
