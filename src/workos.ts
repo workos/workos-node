@@ -82,11 +82,11 @@ export class WorkOS {
     return VERSION;
   }
 
-  async post<T = any, P = any>(
+  async post<Result = any, Entity = any>(
     path: string,
-    entity: P,
+    entity: Entity,
     options: PostOptions = {},
-  ): Promise<{ data: T }> {
+  ): Promise<{ data: Result }> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -94,7 +94,7 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.post<P>(path, entity, {
+      return await this.client.post<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
@@ -105,10 +105,10 @@ export class WorkOS {
     }
   }
 
-  async get<T = any>(
+  async get<Result = any>(
     path: string,
     options: GetOptions = {},
-  ): Promise<{ data: T }> {
+  ): Promise<{ data: Result }> {
     try {
       const { accessToken } = options;
       return await this.client.get(path, {
@@ -124,11 +124,11 @@ export class WorkOS {
     }
   }
 
-  async put<T = any, P = any>(
+  async put<Result = any, Entity = any>(
     path: string,
-    entity: P,
+    entity: Entity,
     options: PutOptions = {},
-  ): Promise<{ data: T }> {
+  ): Promise<{ data: Result }> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -136,7 +136,7 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.put<P>(path, entity, {
+      return await this.client.put<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
