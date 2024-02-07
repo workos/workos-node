@@ -6,9 +6,59 @@ export class FetchClient {
     this.options = options;
   }
 
+  async get(
+    path: string,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      headers: options.headers,
+    });
+    return { data: await response.json() };
+  }
+
+  async post<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      method: 'POST',
+      headers: options.headers,
+      body: JSON.stringify(entity),
+    });
+    return { data: await response.json() };
+  }
+
+  async put<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    const response = await this.fetch(resourceURL, {
+      method: 'PUT',
+      headers: options.headers,
+      body: JSON.stringify(entity),
+    });
+    return { data: await response.json() };
+  }
+
+  async delete(
+    path: string,
+    options: { params?: Record<string, any>; headers?: HeadersInit },
+  ) {
+    const resourceURL = this.getResourceURL(path, options.params);
+    await this.fetch(resourceURL, {
+      method: 'DELETE',
+      headers: options.headers,
+    });
+  }
+
   private getResourceURL(path: string, params?: Record<string, any>) {
     const queryString = getQueryString(params);
-    return new URL([path, queryString].join('?'), this.baseURL);
+    return new URL([path, queryString].filter(Boolean).join('?'), this.baseURL);
   }
 
   private async fetch(url: URL, options?: RequestInit) {
@@ -34,56 +84,6 @@ export class FetchClient {
     }
 
     return response;
-  }
-
-  async get(
-    path: string,
-    options: { params?: Record<string, any>; headers?: HeadersInit },
-  ) {
-    const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
-      headers: options.headers,
-    });
-    return { data: await response.json() };
-  }
-
-  async post<P = any>(
-    path: string,
-    entity: P,
-    options: { params?: Record<string, any>; headers?: HeadersInit },
-  ) {
-    const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
-      method: 'POST',
-      headers: options.headers,
-      body: JSON.stringify(entity),
-    });
-    return { data: await response.json() };
-  }
-
-  async put<P = any>(
-    path: string,
-    entity: P,
-    options: { params?: Record<string, any>; headers?: HeadersInit },
-  ) {
-    const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
-      method: 'PUT',
-      headers: options.headers,
-      body: JSON.stringify(entity),
-    });
-    return { data: await response.json() };
-  }
-
-  async delete(
-    path: string,
-    options: { params?: Record<string, any>; headers?: HeadersInit },
-  ) {
-    const resourceURL = this.getResourceURL(path, options.params);
-    await this.fetch(resourceURL, {
-      method: 'DELETE',
-      headers: options.headers,
-    });
   }
 }
 
