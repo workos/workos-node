@@ -29,6 +29,7 @@ describe('UserManagement', () => {
         object: 'user',
         id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'test01@example.com',
+        profilePictureUrl: 'https://example.com/profile_picture.jpg',
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
@@ -93,6 +94,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
+        profilePictureUrl: 'https://example.com/profile_picture.jpg',
         createdAt: '2023-07-18T02:07:19.911Z',
         updatedAt: '2023-07-18T02:07:19.911Z',
       });
@@ -380,6 +382,7 @@ describe('UserManagement', () => {
       });
       expect(resp).toMatchObject({
         email: 'test01@example.com',
+        profilePictureUrl: 'https://example.com/profile_picture.jpg',
       });
     });
 
@@ -399,6 +402,7 @@ describe('UserManagement', () => {
         });
         expect(resp).toMatchObject({
           email: 'test01@example.com',
+          profilePictureUrl: 'https://example.com/profile_picture.jpg',
         });
       });
     });
