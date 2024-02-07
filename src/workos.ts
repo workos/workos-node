@@ -1,4 +1,3 @@
-import axios, { AxiosError, AxiosInstance, AxiosResponse } from 'axios';
 import {
   GenericServerException,
   NoApiKeyProvidedException,
@@ -26,6 +25,7 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
+import { FetchError, createFetchClient } from './common/utils/fetch-client';
 
 const VERSION = '5.1.4';
 
@@ -33,8 +33,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  private readonly client: AxiosInstance;
-  private readonly fetchClient: ReturnType<typeof createFetchClient>;
+  private readonly client: ReturnType<typeof createFetchClient>;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -70,17 +69,7 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    this.client = axios.create({
-      ...options.axios,
-      baseURL: this.baseURL,
-      headers: {
-        ...options.axios?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': `workos-node/${VERSION}`,
-      },
-    });
-
-    this.fetchClient = createFetchClient({
+    this.client = createFetchClient({
       baseURL: this.baseURL,
       headers: {
         Authorization: `Bearer ${this.key}`,
@@ -93,11 +82,11 @@ export class WorkOS {
     return VERSION;
   }
 
-  async post<T = any, D = any, P = any>(
+  async post<T = any, P = any>(
     path: string,
     entity: P,
     options: PostOptions = {},
-  ): Promise<AxiosResponse<T, D>> {
+  ): Promise<{ data: T }> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -105,12 +94,12 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.post<any, AxiosResponse<T, D>, P>(path, entity, {
+      return await this.client.post<P>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
     } catch (error) {
-      this.handleAxiosError({ path, error });
+      this.handleFetchError({ path, error });
 
       throw error;
     }
@@ -122,7 +111,7 @@ export class WorkOS {
   ): Promise<{ data: T }> {
     try {
       const { accessToken } = options;
-      return await this.fetchClient.get(path, {
+      return await this.client.get(path, {
         params: options.query,
         headers: accessToken
           ? { Authorization: `Bearer ${accessToken}` }
@@ -135,11 +124,11 @@ export class WorkOS {
     }
   }
 
-  async put<T = any, D = any>(
+  async put<T = any, P = any>(
     path: string,
-    entity: any,
+    entity: P,
     options: PutOptions = {},
-  ): Promise<AxiosResponse<T, D>> {
+  ): Promise<{ data: T }> {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
@@ -147,12 +136,12 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.put(path, entity, {
+      return await this.client.put<P>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
     } catch (error) {
-      this.handleAxiosError({ path, error });
+      this.handleFetchError({ path, error });
 
       throw error;
     }
@@ -160,7 +149,7 @@ export class WorkOS {
 
   async delete(path: string, query?: any): Promise<void> {
     try {
-      await this.fetchClient.delete(path, {
+      await this.client.delete(path, {
         params: query,
       });
     } catch (error) {
@@ -177,73 +166,6 @@ export class WorkOS {
     }
 
     return process.emitWarning(warning, 'WorkOS');
-  }
-
-  private handleAxiosError({ path, error }: { path: string; error: unknown }) {
-    const { response } = error as AxiosError<WorkOSResponseError>;
-
-    if (response) {
-      const { status, data, headers } = response;
-      const requestID = headers['X-Request-ID'];
-      const {
-        code,
-        error_description: errorDescription,
-        error,
-        errors,
-        message,
-      } = data;
-
-      switch (status) {
-        case 401: {
-          throw new UnauthorizedException(requestID);
-        }
-        case 422: {
-          const { errors } = data;
-
-          throw new UnprocessableEntityException({
-            code,
-            errors,
-            message,
-            requestID,
-          });
-        }
-        case 404: {
-          throw new NotFoundException({
-            code,
-            message,
-            path,
-            requestID,
-          });
-        }
-        default: {
-          if (error || errorDescription) {
-            throw new OauthException(
-              status,
-              requestID,
-              error,
-              errorDescription,
-              data,
-            );
-          } else if (code && errors) {
-            // Note: ideally this should be mapped directly with a `400` status code.
-            // However, this would break existing logic for the `OauthException` exception.
-            throw new BadRequestException({
-              code,
-              errors,
-              message,
-              requestID,
-            });
-          } else {
-            throw new GenericServerException(
-              status,
-              data.message,
-              data,
-              requestID,
-            );
-          }
-        }
-      }
-    }
   }
 
   private handleFetchError({ path, error }: { path: string; error: unknown }) {
@@ -309,85 +231,5 @@ export class WorkOS {
         }
       }
     }
-  }
-}
-
-interface FetchClientOptions {
-  baseURL: string;
-  headers: HeadersInit;
-}
-
-function createFetchClient({ baseURL, headers }: FetchClientOptions) {
-  async function execute(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
-    path: string,
-    options: { params?: Record<string, any>; headers?: HeadersInit },
-  ) {
-    const queryString = getQueryString(options.params);
-    const resourceURL = new URL([path, queryString].join('?'), baseURL);
-    const response = await fetch(resourceURL, {
-      method,
-      headers: { ...headers, ...options.headers },
-    });
-
-    if (!response.ok) {
-      throw new FetchError({
-        message: response.statusText,
-        response: {
-          status: response.status,
-          headers: response.headers,
-          data: await response.json(),
-        },
-      });
-    }
-
-    return response;
-  }
-
-  return {
-    async get(
-      path: string,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      const response = await execute('GET', path, options);
-      return { data: await response.json() };
-    },
-
-    async delete(
-      path: string,
-      options: { params?: Record<string, any>; headers?: HeadersInit },
-    ) {
-      await execute('DELETE', path, options);
-    },
-  };
-}
-
-function getQueryString(queryObj?: Record<string, any>) {
-  if (!queryObj) return undefined;
-
-  const sanitizedQueryObj: Record<string, any> = {};
-
-  Object.entries(queryObj).forEach(([param, value]) => {
-    if (value !== '' && value !== undefined) sanitizedQueryObj[param] = value;
-  });
-
-  return new URLSearchParams(sanitizedQueryObj).toString();
-}
-
-class FetchError<T> extends Error {
-  readonly name: string = 'FetchError';
-  readonly message: string = 'The request could not be completed.';
-  readonly response: { status: number; headers: Headers; data: T };
-
-  constructor({
-    message,
-    response,
-  }: {
-    message: string;
-    readonly response: FetchError<T>['response'];
-  }) {
-    super(message);
-    this.message = message;
-    this.response = response;
   }
 }
