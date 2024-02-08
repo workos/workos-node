@@ -1,13 +1,11 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import { fetchOnce } from '../common/utils/test-utils';
 import { Event, EventResponse, ListResponse } from '../common/interfaces';
 import { WorkOS } from '../workos';
 import { ConnectionType } from '../sso/interfaces';
 
-const mock = new MockAdapter(axios);
-
 describe('Event', () => {
-  afterEach(() => mock.resetHistory());
+  beforeEach(() => fetch.resetMocks());
 
   const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -54,7 +52,7 @@ describe('Event', () => {
     };
 
     it(`requests Events`, async () => {
-      mock.onGet('/events', {}).replyOnce(200, eventsListResponse);
+      fetchOnce(eventsListResponse);
 
       const subject = await workos.events.listEvents({});
 
@@ -66,7 +64,7 @@ describe('Event', () => {
     });
 
     it(`requests Events with a valid event name`, async () => {
-      mock.onGet('/events').replyOnce(200, eventsListResponse);
+      fetchOnce(eventsListResponse);
 
       const list = await workos.events.listEvents({
         events: ['connection.activated'],

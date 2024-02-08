@@ -1,8 +1,5 @@
 export class FetchClient {
-  constructor(readonly baseURL: string, readonly options?: RequestInit) {
-    this.baseURL = baseURL;
-    this.options = options;
-  }
+  constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
   async get(
     path: string,
@@ -21,10 +18,15 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
+    const bodyIsSearchParams = entity instanceof URLSearchParams;
+    const contentTypeHeader = bodyIsSearchParams
+      ? { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
+      : undefined;
+    const body = bodyIsSearchParams ? entity : JSON.stringify(entity);
     const response = await this.fetch(resourceURL, {
       method: 'POST',
-      headers: options.headers,
-      body: JSON.stringify(entity),
+      headers: { ...contentTypeHeader, ...options.headers },
+      body,
     });
     return { data: await response.json() };
   }
@@ -56,14 +58,19 @@ export class FetchClient {
 
   private getResourceURL(path: string, params?: Record<string, any>) {
     const queryString = getQueryString(params);
-    return new URL([path, queryString].filter(Boolean).join('?'), this.baseURL);
+    const url = new URL(
+      [path, queryString].filter(Boolean).join('?'),
+      this.baseURL,
+    );
+    return url.toString();
   }
 
-  private async fetch(url: URL, options?: RequestInit) {
+  private async fetch(url: string, options?: RequestInit) {
     const response = await fetch(url, {
       ...this.options,
       ...options,
       headers: {
+        Accept: 'application/json, text/plain, */*',
         'Content-Type': 'application/json',
         ...this.options?.headers,
         ...options?.headers,

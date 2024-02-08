@@ -1,5 +1,11 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import {
+  fetchOnce,
+  fetchURL,
+  fetchSearchParams,
+  fetchHeaders,
+  fetchBody,
+} from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import createOrganization from './fixtures/create-organization.json';
@@ -7,24 +13,23 @@ import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
 
-const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Organizations', () => {
-  afterEach(() => mock.resetHistory());
+  beforeEach(() => fetch.resetMocks());
 
   describe('listOrganizations', () => {
     describe('without any options', () => {
       it('returns organizations and metadata', async () => {
-        mock.onGet('/organizations').replyOnce(200, listOrganizationsFixture);
+        fetchOnce(listOrganizationsFixture);
 
         const { data, listMetadata } =
           await workos.organizations.listOrganizations();
 
-        expect(mock.history.get[0].params).toEqual({
+        expect(fetchSearchParams()).toEqual({
           order: 'desc',
         });
-        expect(mock.history.get[0].url).toEqual('/organizations');
+        expect(fetchURL()).toContain('/organizations');
 
         expect(data).toHaveLength(7);
 
@@ -37,22 +42,18 @@ describe('Organizations', () => {
 
     describe('with the domain option', () => {
       it('forms the proper request to the API', async () => {
-        mock
-          .onGet('/organizations', {
-            domains: ['example.com'],
-          })
-          .replyOnce(200, listOrganizationsFixture);
+        fetchOnce(listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
-          domains: ['example.com'],
+          domains: ['example.com', 'example2.com'],
         });
 
-        expect(mock.history.get[0].params).toEqual({
-          domains: ['example.com'],
+        expect(fetchSearchParams()).toEqual({
+          domains: 'example.com,example2.com',
           order: 'desc',
         });
 
-        expect(mock.history.get[0].url).toEqual('/organizations');
+        expect(fetchURL()).toContain('/organizations');
 
         expect(data).toHaveLength(7);
       });
@@ -60,22 +61,18 @@ describe('Organizations', () => {
 
     describe('with the before option', () => {
       it('forms the proper request to the API', async () => {
-        mock
-          .onGet('/organizations', {
-            before: 'before-id',
-          })
-          .replyOnce(200, listOrganizationsFixture);
+        fetchOnce(listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           before: 'before-id',
         });
 
-        expect(mock.history.get[0].params).toEqual({
+        expect(fetchSearchParams()).toEqual({
           before: 'before-id',
           order: 'desc',
         });
 
-        expect(mock.history.get[0].url).toEqual('/organizations');
+        expect(fetchURL()).toContain('/organizations');
 
         expect(data).toHaveLength(7);
       });
@@ -83,22 +80,18 @@ describe('Organizations', () => {
 
     describe('with the after option', () => {
       it('forms the proper request to the API', async () => {
-        mock
-          .onGet('/organizations', {
-            after: 'after-id',
-          })
-          .replyOnce(200, listOrganizationsFixture);
+        fetchOnce(listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           after: 'after-id',
         });
 
-        expect(mock.history.get[0].params).toEqual({
+        expect(fetchSearchParams()).toEqual({
           after: 'after-id',
           order: 'desc',
         });
 
-        expect(mock.history.get[0].url).toEqual('/organizations');
+        expect(fetchURL()).toContain('/organizations');
 
         expect(data).toHaveLength(7);
       });
@@ -106,22 +99,18 @@ describe('Organizations', () => {
 
     describe('with the limit option', () => {
       it('forms the proper request to the API', async () => {
-        mock
-          .onGet('/organizations', {
-            limit: 10,
-          })
-          .replyOnce(200, listOrganizationsFixture);
+        fetchOnce(listOrganizationsFixture);
 
         const { data } = await workos.organizations.listOrganizations({
           limit: 10,
         });
 
-        expect(mock.history.get[0].params).toEqual({
-          limit: 10,
+        expect(fetchSearchParams()).toEqual({
+          limit: '10',
           order: 'desc',
         });
 
-        expect(mock.history.get[0].url).toEqual('/organizations');
+        expect(fetchURL()).toContain('/organizations');
 
         expect(data).toHaveLength(7);
       });
@@ -131,12 +120,7 @@ describe('Organizations', () => {
   describe('createOrganization', () => {
     describe('with an idempotency key', () => {
       it('includes an idempotency key with request', async () => {
-        mock
-          .onPost('/organizations', {
-            domains: ['example.com'],
-            name: 'Test Organization',
-          })
-          .replyOnce(201, createOrganization);
+        fetchOnce(createOrganization, { status: 201 });
 
         await workos.organizations.createOrganization(
           {
@@ -148,26 +132,29 @@ describe('Organizations', () => {
           },
         );
 
-        expect(mock.history.post[0].headers?.['Idempotency-Key']).toEqual(
-          'the-idempotency-key',
-        );
+        expect(fetchHeaders()).toMatchObject({
+          'Idempotency-Key': 'the-idempotency-key',
+        });
+        expect(fetchBody()).toEqual({
+          domains: ['example.com'],
+          name: 'Test Organization',
+        });
       });
     });
 
     describe('with a valid payload', () => {
       it('creates an organization', async () => {
-        mock
-          .onPost('/organizations', {
-            domains: ['example.com'],
-            name: 'Test Organization',
-          })
-          .replyOnce(201, createOrganization);
+        fetchOnce(createOrganization, { status: 201 });
 
         const subject = await workos.organizations.createOrganization({
           domains: ['example.com'],
           name: 'Test Organization',
         });
 
+        expect(fetchBody()).toEqual({
+          domains: ['example.com'],
+          name: 'Test Organization',
+        });
         expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
         expect(subject.name).toEqual('Test Organization');
         expect(subject.domains).toHaveLength(1);
@@ -176,14 +163,10 @@ describe('Organizations', () => {
 
     describe('with an invalid payload', () => {
       it('returns an error', async () => {
-        mock
-          .onPost('/organizations', {
-            domains: ['example.com'],
-            name: 'Test Organization',
-          })
-          .replyOnce(409, createOrganizationInvalid, {
-            'X-Request-ID': 'a-request-id',
-          });
+        fetchOnce(createOrganizationInvalid, {
+          status: 409,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
 
         await expect(
           workos.organizations.createOrganization({
@@ -193,23 +176,24 @@ describe('Organizations', () => {
         ).rejects.toThrowError(
           'An Organization with the domain example.com already exists.',
         );
+        expect(fetchBody()).toEqual({
+          domains: ['example.com'],
+          name: 'Test Organization',
+        });
       });
     });
   });
 
   describe('getOrganization', () => {
     it(`requests an Organization`, async () => {
-      const mock = new MockAdapter(axios);
-      mock
-        .onGet('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T')
-        .replyOnce(200, getOrganization);
+      fetchOnce(getOrganization);
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       const subject = await workos.organizations.getOrganization(
         'org_01EHT88Z8J8795GZNQ4ZP1J81T',
       );
 
-      expect(mock.history.get[0].url).toEqual(
+      expect(fetchURL()).toContain(
         '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
       );
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
@@ -221,17 +205,14 @@ describe('Organizations', () => {
 
   describe('deleteOrganization', () => {
     it('sends request to delete an Organization', async () => {
-      const mock = new MockAdapter(axios);
-      mock
-        .onDelete('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T')
-        .replyOnce(200, {});
+      fetchOnce();
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       await workos.organizations.deleteOrganization(
         'org_01EHT88Z8J8795GZNQ4ZP1J81T',
       );
 
-      expect(mock.history.delete[0].url).toEqual(
+      expect(fetchURL()).toContain(
         '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
       );
     });
@@ -240,12 +221,7 @@ describe('Organizations', () => {
   describe('updateOrganization', () => {
     describe('with a valid payload', () => {
       it('updates an organization', async () => {
-        mock
-          .onPut('/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T', {
-            domains: ['example.com'],
-            name: 'Test Organization 2',
-          })
-          .replyOnce(201, updateOrganization);
+        fetchOnce(updateOrganization, { status: 201 });
 
         const subject = await workos.organizations.updateOrganization({
           organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
@@ -253,6 +229,10 @@ describe('Organizations', () => {
           name: 'Test Organization 2',
         });
 
+        expect(fetchBody()).toEqual({
+          domains: ['example.com'],
+          name: 'Test Organization 2',
+        });
         expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
         expect(subject.name).toEqual('Test Organization 2');
         expect(subject.domains).toHaveLength(1);
