@@ -1,27 +1,20 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import { fetchBody, fetchOnce } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import generateLinkInvalid from './fixtures/generate-link-invalid.json';
 import generateLink from './fixtures/generate-link.json';
 import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 
-const mock = new MockAdapter(axios);
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Portal', () => {
-  afterEach(() => mock.resetHistory());
+  beforeEach(() => fetch.resetMocks());
 
   describe('generateLink', () => {
     describe('with a valid organization', () => {
       describe('with the sso intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock
-            .onPost('/portal/generate_link', {
-              intent: GeneratePortalLinkIntent.SSO,
-              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-              return_url: 'https://www.example.com',
-            })
-            .replyOnce(201, generateLink);
+          fetchOnce(generateLink, { status: 201 });
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.SSO,
@@ -29,6 +22,11 @@ describe('Portal', () => {
             returnUrl: 'https://www.example.com',
           });
 
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.SSO,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
           expect(link).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
@@ -37,13 +35,7 @@ describe('Portal', () => {
 
       describe('with the domain_verification intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock
-            .onPost('/portal/generate_link', {
-              intent: GeneratePortalLinkIntent.DomainVerification,
-              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-              return_url: 'https://www.example.com',
-            })
-            .replyOnce(201, generateLink);
+          fetchOnce(generateLink, { status: 201 });
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.DomainVerification,
@@ -51,6 +43,11 @@ describe('Portal', () => {
             returnUrl: 'https://www.example.com',
           });
 
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.DomainVerification,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
           expect(link).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
@@ -59,13 +56,7 @@ describe('Portal', () => {
 
       describe('with the dsync intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock
-            .onPost('/portal/generate_link', {
-              intent: GeneratePortalLinkIntent.DSync,
-              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-              return_url: 'https://www.example.com',
-            })
-            .reply(201, generateLink);
+          fetchOnce(generateLink, { status: 201 });
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.DSync,
@@ -73,6 +64,11 @@ describe('Portal', () => {
             returnUrl: 'https://www.example.com',
           });
 
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.DSync,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
           expect(link).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
@@ -81,13 +77,7 @@ describe('Portal', () => {
 
       describe('with the `audit_logs` intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock
-            .onPost('/portal/generate_link', {
-              intent: GeneratePortalLinkIntent.AuditLogs,
-              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-              return_url: 'https://www.example.com',
-            })
-            .reply(201, generateLink);
+          fetchOnce(generateLink, { status: 201 });
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.AuditLogs,
@@ -95,6 +85,11 @@ describe('Portal', () => {
             returnUrl: 'https://www.example.com',
           });
 
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.AuditLogs,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
           expect(link).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
@@ -103,13 +98,7 @@ describe('Portal', () => {
 
       describe('with the `log_streams` intent', () => {
         it('returns an Admin Portal link', async () => {
-          mock
-            .onPost('/portal/generate_link', {
-              intent: GeneratePortalLinkIntent.LogStreams,
-              organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-              return_url: 'https://www.example.com',
-            })
-            .reply(201, generateLink);
+          fetchOnce(generateLink, { status: 201 });
 
           const { link } = await workos.portal.generateLink({
             intent: GeneratePortalLinkIntent.LogStreams,
@@ -117,6 +106,11 @@ describe('Portal', () => {
             returnUrl: 'https://www.example.com',
           });
 
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.LogStreams,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
           expect(link).toEqual(
             'https://id.workos.com/portal/launch?secret=secret',
           );
@@ -126,15 +120,10 @@ describe('Portal', () => {
 
     describe('with an invalid organization', () => {
       it('throws an error', async () => {
-        mock
-          .onPost('/portal/generate_link', {
-            intent: GeneratePortalLinkIntent.SSO,
-            organization: 'bogus-id',
-            return_url: 'https://www.example.com',
-          })
-          .reply(400, generateLinkInvalid, {
-            'X-Request-ID': 'a-request-id',
-          });
+        fetchOnce(generateLinkInvalid, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
 
         await expect(
           workos.portal.generateLink({
@@ -145,6 +134,11 @@ describe('Portal', () => {
         ).rejects.toThrowError(
           'Could not find an organization with the id, bogus-id.',
         );
+        expect(fetchBody()).toEqual({
+          intent: GeneratePortalLinkIntent.SSO,
+          organization: 'bogus-id',
+          return_url: 'https://www.example.com',
+        });
       });
     });
   });
