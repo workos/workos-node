@@ -37,6 +37,7 @@
     "pluralize": "8.0.0"
   },
   "devDependencies": {
+    "@peculiar/webcrypto": "^1.4.5",
     "@types/jest": "29.5.3",
     "@types/node": "14.18.54",
     "@types/pluralize": "0.0.30",
