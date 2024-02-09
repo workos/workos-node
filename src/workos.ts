@@ -25,7 +25,8 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
-import { FetchClient, FetchError } from './common/utils/fetch-client';
+import { FetchClient } from './common/utils/fetch-client';
+import { FetchError } from './common/utils/fetch-error';
 
 const VERSION = '5.1.4';
 
