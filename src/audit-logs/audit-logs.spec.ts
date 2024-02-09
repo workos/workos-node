@@ -1,4 +1,4 @@
-import { AxiosError } from 'axios';
+import fetch from 'jest-fetch-mock';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
@@ -13,6 +13,7 @@ import {
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
 } from './serializers';
+import { FetchError } from '../common/utils/fetch-client';
 
 const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
@@ -38,6 +39,8 @@ const event: CreateAuditLogEventOptions = {
 };
 
 describe('AuditLogs', () => {
+  beforeEach(() => fetch.resetMocks());
+
   describe('createEvent', () => {
     describe('with an idempotency key', () => {
       it('includes an idempotency key with request', async () => {
@@ -96,10 +99,11 @@ describe('AuditLogs', () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
 
         workosSpy.mockImplementationOnce(() => {
-          throw new AxiosError(
-            'Could not authorize the request. Maybe your API key is invalid?',
-            '401',
-          );
+          throw new FetchError({
+            message:
+              'Could not authorize the request. Maybe your API key is invalid?',
+            response: { status: 401, headers: new Headers(), data: {} },
+          });
         });
 
         const workos = new WorkOS('invalid apikey');
@@ -247,10 +251,11 @@ describe('AuditLogs', () => {
         };
 
         workosSpy.mockImplementationOnce(() => {
-          throw new AxiosError(
-            'Could not authorize the request. Maybe your API key is invalid?',
-            '401',
-          );
+          throw new FetchError({
+            message:
+              'Could not authorize the request. Maybe your API key is invalid?',
+            response: { status: 401, headers: new Headers(), data: {} },
+          });
         });
 
         const workos = new WorkOS('invalid apikey');
@@ -306,10 +311,11 @@ describe('AuditLogs', () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
 
         workosSpy.mockImplementationOnce(() => {
-          throw new AxiosError(
-            'Could not authorize the request. Maybe your API key is invalid?',
-            '401',
-          );
+          throw new FetchError({
+            message:
+              'Could not authorize the request. Maybe your API key is invalid?',
+            response: { status: 401, headers: new Headers(), data: {} },
+          });
         });
 
         const workos = new WorkOS('invalid apikey');

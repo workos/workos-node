@@ -1,6 +1,9 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
-
+import fetch from 'jest-fetch-mock';
+import {
+  fetchOnce,
+  fetchURL,
+  fetchSearchParams,
+} from '../common/utils/test-utils';
 import { ListResponse } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
 import {
@@ -12,10 +15,8 @@ import {
   DirectoryUserWithGroupsResponse,
 } from './interfaces';
 
-const mock = new MockAdapter(axios);
-
 describe('DirectorySync', () => {
-  afterEach(() => mock.resetHistory());
+  beforeEach(() => fetch.resetMocks());
 
   const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -134,18 +135,17 @@ describe('DirectorySync', () => {
           list_metadata: {},
         };
 
-        mock
-          .onGet('/directories', {
-            domain: 'google.com',
-            organization_id: 'org_1234',
-          })
-          .replyOnce(200, directoryListResponse);
+        fetchOnce(directoryListResponse);
 
         const subject = await workos.directorySync.listDirectories({
           domain: 'google.com',
           organizationId: 'org_1234',
         });
 
+        expect(fetchSearchParams()).toMatchObject({
+          domain: 'google.com',
+          organization_id: 'org_1234',
+        });
         expect(subject).toMatchObject({
           object: 'list',
           list: {
@@ -164,9 +164,7 @@ describe('DirectorySync', () => {
 
   describe('getDirectory', () => {
     it(`requests a Directory`, async () => {
-      mock
-        .onGet('/directories/directory_123')
-        .replyOnce(200, directoryResponse);
+      fetchOnce(directoryResponse);
 
       const subject = await workos.directorySync.getDirectory('directory_123');
 
@@ -176,17 +174,17 @@ describe('DirectorySync', () => {
 
   describe('deleteDirectory', () => {
     it('sends a request to delete the directory', async () => {
-      mock.onDelete('/directories/directory_123').replyOnce(202, {});
+      fetchOnce({}, { status: 202 });
 
       await workos.directorySync.deleteDirectory('directory_123');
 
-      expect(mock.history.delete[0].url).toEqual('/directories/directory_123');
+      expect(fetchURL()).toContain('/directories/directory_123');
     });
   });
 
   describe('getGroup', () => {
     it(`requests a Directory Group`, async () => {
-      mock.onGet('/directory_groups/dir_grp_123').replyOnce(200, groupResponse);
+      fetchOnce(groupResponse);
 
       const subject = await workos.directorySync.getGroup('dir_grp_123');
 
@@ -203,16 +201,15 @@ describe('DirectorySync', () => {
 
     describe('with a Directory', () => {
       it(`requests a Directory's Groups`, async () => {
-        mock
-          .onGet('/directory_groups', {
-            directory: 'directory_123',
-          })
-          .replyOnce(200, groupListResponse);
+        fetchOnce(groupListResponse);
 
         const subject = await workos.directorySync.listGroups({
           directory: 'directory_123',
         });
 
+        expect(fetchSearchParams()).toMatchObject({
+          directory: 'directory_123',
+        });
         expect(subject).toMatchObject({
           object: 'list',
           list: {
@@ -230,16 +227,15 @@ describe('DirectorySync', () => {
 
     describe('with a User', () => {
       it(`requests a Directory's Groups`, async () => {
-        mock
-          .onGet('/directory_groups', {
-            user: 'directory_usr_123',
-          })
-          .replyOnce(200, groupListResponse);
+        fetchOnce(groupListResponse);
 
         const subject = await workos.directorySync.listGroups({
           user: 'directory_usr_123',
         });
 
+        expect(fetchSearchParams()).toMatchObject({
+          user: 'directory_usr_123',
+        });
         expect(subject).toEqual({
           object: 'list',
           list: {
@@ -266,16 +262,15 @@ describe('DirectorySync', () => {
 
     describe('with a Directory', () => {
       it(`requests a Directory's Users`, async () => {
-        mock
-          .onGet('/directory_users', {
-            directory: 'directory_123',
-          })
-          .replyOnce(200, userWithGroupListResponse);
+        fetchOnce(userWithGroupListResponse);
 
         const subject = await workos.directorySync.listUsers({
           directory: 'directory_123',
         });
 
+        expect(fetchSearchParams()).toMatchObject({
+          directory: 'directory_123',
+        });
         expect(subject).toMatchObject({
           object: 'list',
           list: {
@@ -296,11 +291,8 @@ describe('DirectorySync', () => {
             managerId: string;
           }
 
-          mock
-            .onGet('/directory_users', {
-              directory: 'directory_123',
-            })
-            .replyOnce(200, {
+          fetchOnce(
+            {
               data: [
                 {
                   object: 'directory_user',
@@ -357,12 +349,18 @@ describe('DirectorySync', () => {
                   ],
                 },
               ],
-            });
+            },
+            { status: 200 },
+          );
 
           const users =
             await workos.directorySync.listUsers<MyCustomAttributes>({
               directory: 'directory_123',
             });
+
+          expect(fetchSearchParams()).toMatchObject({
+            directory: 'directory_123',
+          });
 
           const managerIds = users.data.map(
             (user) => user.customAttributes.managerId,
@@ -378,16 +376,15 @@ describe('DirectorySync', () => {
 
     describe('with a Group', () => {
       it(`requests a Directory's Users`, async () => {
-        mock
-          .onGet('/directory_users', {
-            group: 'directory_grp_123',
-          })
-          .replyOnce(200, userWithGroupListResponse);
+        fetchOnce(userWithGroupListResponse);
 
         const subject = await workos.directorySync.listUsers({
           group: 'directory_grp_123',
         });
 
+        expect(fetchSearchParams()).toMatchObject({
+          group: 'directory_grp_123',
+        });
         expect(subject).toMatchObject({
           object: 'list',
           list: {
@@ -406,9 +403,7 @@ describe('DirectorySync', () => {
 
   describe('getUser', () => {
     it(`requests a Directory User`, async () => {
-      mock
-        .onGet('/directory_users/dir_usr_123')
-        .replyOnce(200, userWithGroupResponse);
+      fetchOnce(userWithGroupResponse);
 
       const subject = await workos.directorySync.getUser('dir_usr_123');
 
