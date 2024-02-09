@@ -1,13 +1,11 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import { fetchOnce, fetchURL, fetchBody } from '../common/utils/test-utils';
 
 import createSession from './fixtures/create-session.json';
 import { WorkOS } from '../workos';
 
-const mock = new MockAdapter(axios);
-
 describe('Passwordless', () => {
-  afterEach(() => mock.resetHistory());
+  beforeEach(() => fetch.resetMocks());
 
   describe('createSession', () => {
     describe('with valid options', () => {
@@ -15,13 +13,7 @@ describe('Passwordless', () => {
         const email = 'passwordless-session-email@workos.com';
         const redirectURI = 'https://example.com/passwordless/callback';
 
-        mock
-          .onPost('/passwordless/sessions', {
-            type: 'MagicLink',
-            email,
-            redirect_uri: redirectURI,
-          })
-          .replyOnce(201, createSession);
+        fetchOnce(createSession, { status: 201 });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -34,11 +26,9 @@ describe('Passwordless', () => {
         expect(session.email).toEqual(email);
         expect(session.object).toEqual('passwordless_session');
 
-        expect(JSON.parse(mock.history.post[0].data).email).toEqual(email);
-        expect(JSON.parse(mock.history.post[0].data).redirect_uri).toEqual(
-          redirectURI,
-        );
-        expect(mock.history.post[0].url).toEqual('/passwordless/sessions');
+        expect(fetchBody().email).toEqual(email);
+        expect(fetchBody().redirect_uri).toEqual(redirectURI);
+        expect(fetchURL()).toContain('/passwordless/sessions');
       });
     });
   });
@@ -46,13 +36,13 @@ describe('Passwordless', () => {
   describe('sendEmail', () => {
     describe('with a valid session id', () => {
       it(`sends a request to send a magic link email`, async () => {
-        mock.onPost('/passwordless/sessions/session_123/send').replyOnce(200);
+        fetchOnce();
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         const sessionId = 'session_123';
         await workos.passwordless.sendSession(sessionId);
 
-        expect(mock.history.post[0].url).toEqual(
+        expect(fetchURL()).toContain(
           `/passwordless/sessions/${sessionId}/send`,
         );
       });
