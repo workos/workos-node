@@ -13,7 +13,7 @@ import {
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
 } from './serializers';
-import { FetchError } from '../common/utils/fetch-client';
+import { FetchError } from '../common/utils/fetch-error';
 
 const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
