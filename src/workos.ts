@@ -50,7 +50,8 @@ export class WorkOS {
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
-      this.key = process.env.WORKOS_API_KEY;
+      // process might be undefined in some environments
+      this.key = process?.env.WORKOS_API_KEY;
 
       if (!this.key) {
         throw new NoApiKeyProvidedException();
@@ -162,7 +163,8 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
-    if (typeof process.emitWarning !== 'function') {
+    // process might be undefined in some environments
+    if (typeof process?.emitWarning !== 'function') {
       //  tslint:disable:no-console
       return console.warn(`WorkOS: ${warning}`);
     }
