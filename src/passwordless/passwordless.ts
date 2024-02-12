@@ -18,7 +18,6 @@ export class Passwordless {
   }: CreatePasswordlessSessionOptions): Promise<PasswordlessSession> {
     const { data } = await this.workos.post<
       PasswordlessSessionResponse,
-      any,
       SerializedCreatePasswordlessSessionOptions
     >('/passwordless/sessions', {
       ...options,
