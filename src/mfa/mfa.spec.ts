@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import { fetchOnce, fetchURL, fetchBody } from '../common/utils/test-utils';
 import { UnprocessableEntityException } from '../common/exceptions';
 
 import { WorkOS } from '../workos';
@@ -14,9 +14,9 @@ import {
   VerifyResponseResponse,
 } from './interfaces';
 
-const mock = new MockAdapter(axios);
-
 describe('MFA', () => {
+  beforeEach(() => fetch.resetMocks());
+
   describe('getFactor', () => {
     it('returns the requested factor', async () => {
       const factor: Factor = {
@@ -43,7 +43,7 @@ describe('MFA', () => {
         },
       };
 
-      mock.onGet().reply(200, factorResponse);
+      fetchOnce(factorResponse);
 
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
       const subject = await workos.mfa.getFactor('test_123');
@@ -54,12 +54,12 @@ describe('MFA', () => {
 
   describe('deleteFactor', () => {
     it('sends request to delete a Factor', async () => {
-      mock.onDelete().reply(200, {});
+      fetchOnce();
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       await workos.mfa.deleteFactor('conn_123');
 
-      expect(mock.history.delete[0].url).toEqual('/auth/factors/conn_123');
+      expect(fetchURL()).toContain('/auth/factors/conn_123');
     });
   });
 
@@ -82,7 +82,7 @@ describe('MFA', () => {
           type: 'generic_otp',
         };
 
-        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
+        fetchOnce(factorResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -128,7 +128,7 @@ describe('MFA', () => {
           },
         };
 
-        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
+        fetchOnce(factorResponse);
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
         });
@@ -167,7 +167,7 @@ describe('MFA', () => {
           },
         };
 
-        mock.onPost('/auth/factors/enroll').reply(200, factorResponse);
+        fetchOnce(factorResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -183,14 +183,14 @@ describe('MFA', () => {
 
       describe('when phone number is invalid', () => {
         it('throws an exception', async () => {
-          mock.onPost('/auth/factors/enroll').reply(
-            422,
+          fetchOnce(
             {
               message: `Phone number is invalid: 'foo'`,
               code: 'invalid_phone_number',
             },
             {
-              'X-Request-ID': 'req_123',
+              status: 422,
+              headers: { 'X-Request-ID': 'req_123' },
             },
           );
 
@@ -232,9 +232,7 @@ describe('MFA', () => {
           authentication_factor_id: 'auth_factor_1234',
         };
 
-        mock
-          .onPost('/auth/factors/auth_factor_1234/challenge')
-          .reply(200, challengeResponse);
+        fetchOnce(challengeResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -270,11 +268,7 @@ describe('MFA', () => {
           authentication_factor_id: 'auth_factor_1234',
         };
 
-        mock
-          .onPost('/auth/factors/auth_factor_1234/challenge', {
-            sms_template: 'This is your code: 12345',
-          })
-          .reply(200, challengeResponse);
+        fetchOnce(challengeResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -285,6 +279,9 @@ describe('MFA', () => {
           smsTemplate: 'This is your code: 12345',
         });
 
+        expect(fetchBody()).toEqual({
+          sms_template: 'This is your code: 12345',
+        });
         expect(subject).toEqual(challenge);
       });
     });
@@ -319,11 +316,7 @@ describe('MFA', () => {
           valid: true,
         };
 
-        mock
-          .onPost('/auth/challenges/auth_challenge_1234/verify', {
-            code: '12345',
-          })
-          .reply(200, verifyResponseResponse);
+        fetchOnce(verifyResponseResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -334,26 +327,25 @@ describe('MFA', () => {
           code: '12345',
         });
 
+        expect(fetchBody()).toEqual({
+          code: '12345',
+        });
         expect(subject).toEqual(verifyResponse);
       });
     });
 
     describe('when the challenge has been previously verified', () => {
       it('throws an exception', async () => {
-        mock
-          .onPost('/auth/challenges/auth_challenge_1234/verify', {
-            code: '12345',
-          })
-          .reply(
-            422,
-            {
-              message: `The authentication challenge '12345' has already been verified.`,
-              code: 'authentication_challenge_previously_verified',
-            },
-            {
-              'X-Request-ID': 'req_123',
-            },
-          );
+        fetchOnce(
+          {
+            message: `The authentication challenge '12345' has already been verified.`,
+            code: 'authentication_challenge_previously_verified',
+          },
+          {
+            status: 422,
+            headers: { 'X-Request-ID': 'req_123' },
+          },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -365,25 +357,24 @@ describe('MFA', () => {
             code: '12345',
           }),
         ).rejects.toThrow(UnprocessableEntityException);
+        expect(fetchBody()).toEqual({
+          code: '12345',
+        });
       });
     });
 
     describe('when the challenge has expired', () => {
       it('throws an exception', async () => {
-        mock
-          .onPost('/auth/challenges/auth_challenge_1234/verify', {
-            code: '12345',
-          })
-          .reply(
-            422,
-            {
-              message: `The authentication challenge '12345' has expired.`,
-              code: 'authentication_challenge_expired',
-            },
-            {
-              'X-Request-ID': 'req_123',
-            },
-          );
+        fetchOnce(
+          {
+            message: `The authentication challenge '12345' has expired.`,
+            code: 'authentication_challenge_expired',
+          },
+          {
+            status: 422,
+            headers: { 'X-Request-ID': 'req_123' },
+          },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -395,23 +386,22 @@ describe('MFA', () => {
             code: '12345',
           }),
         ).rejects.toThrow(UnprocessableEntityException);
+        expect(fetchBody()).toEqual({
+          code: '12345',
+        });
       });
 
       it('exception has code', async () => {
-        mock
-          .onPost('/auth/challenges/auth_challenge_1234/verify', {
-            code: '12345',
-          })
-          .reply(
-            422,
-            {
-              message: `The authentication challenge '12345' has expired.`,
-              code: 'authentication_challenge_expired',
-            },
-            {
-              'X-Request-ID': 'req_123',
-            },
-          );
+        fetchOnce(
+          {
+            message: `The authentication challenge '12345' has expired.`,
+            code: 'authentication_challenge_expired',
+          },
+          {
+            status: 422,
+            headers: { 'X-Request-ID': 'req_123' },
+          },
+        );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           apiHostname: 'api.workos.dev',
@@ -427,6 +417,9 @@ describe('MFA', () => {
             code: 'authentication_challenge_expired',
           });
         }
+        expect(fetchBody()).toEqual({
+          code: '12345',
+        });
       });
     });
   });

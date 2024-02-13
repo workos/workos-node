@@ -1,10 +1,9 @@
-import crypto from 'crypto';
 import { SignatureVerificationException } from '../common/exceptions';
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
 
 export class Webhooks {
-  constructEvent({
+  async constructEvent({
     payload,
     sigHeader,
     secret,
@@ -14,16 +13,16 @@ export class Webhooks {
     sigHeader: string;
     secret: string;
     tolerance?: number;
-  }): Event {
+  }): Promise<Event> {
     const options = { payload, sigHeader, secret, tolerance };
-    this.verifyHeader(options);
+    await this.verifyHeader(options);
 
     const webhookPayload = payload as EventResponse;
 
     return deserializeEvent(webhookPayload);
   }
 
-  verifyHeader({
+  async verifyHeader({
     payload,
     sigHeader,
     secret,
@@ -33,7 +32,7 @@ export class Webhooks {
     sigHeader: string;
     secret: string;
     tolerance?: number;
-  }): boolean {
+  }): Promise<boolean> {
     const [timestamp, signatureHash] =
       this.getTimestampAndSignatureHash(sigHeader);
 
@@ -49,8 +48,8 @@ export class Webhooks {
       );
     }
 
-    const expectedSig = this.computeSignature(timestamp, payload, secret);
-    if (this.secureCompare(expectedSig, signatureHash) === false) {
+    const expectedSig = await this.computeSignature(timestamp, payload, secret);
+    if ((await this.secureCompare(expectedSig, signatureHash)) === false) {
       throw new SignatureVerificationException(
         'Signature hash does not match the expected signature hash for payload',
       );
@@ -58,7 +57,7 @@ export class Webhooks {
     return true;
   }
 
-  getTimestampAndSignatureHash(sigHeader: string): string[] {
+  getTimestampAndSignatureHash(sigHeader: string): [string, string] {
     const signature = sigHeader;
     const [t, v1] = signature.split(',');
     if (typeof t === 'undefined' || typeof v1 === 'undefined') {
@@ -72,37 +71,64 @@ export class Webhooks {
     return [timestamp, signatureHash];
   }
 
-  computeSignature(timestamp: any, payload: any, secret: string): string {
+  async computeSignature(
+    timestamp: any,
+    payload: any,
+    secret: string,
+  ): Promise<string> {
     payload = JSON.stringify(payload);
     const signedPayload = `${timestamp}.${payload}`;
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(signedPayload)
-      .digest()
-      .toString('hex');
 
-    return expectedSignature;
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign'],
+    );
+
+    const signatureBuffer = await crypto.subtle.sign(
+      'HMAC',
+      key,
+      new TextEncoder().encode(signedPayload),
+    );
+
+    // crypto.subtle returns the signature in base64 format. This must be
+    // encoded in hex to match the CryptoProvider contract. We map each byte in
+    // the buffer to its corresponding hex octet and then combine into a string.
+    const signatureBytes = new Uint8Array(signatureBuffer);
+    const signatureHexCodes = new Array(signatureBytes.length);
+
+    for (let i = 0; i < signatureBytes.length; i++) {
+      signatureHexCodes[i] = byteHexMapping[signatureBytes[i]];
+    }
+
+    return signatureHexCodes.join('');
   }
 
-  secureCompare(stringA: string, stringB: string): boolean {
-    const strA = Buffer.from(stringA);
-    const strB = Buffer.from(stringB);
+  async secureCompare(stringA: string, stringB: string): Promise<boolean> {
+    const bufferA = Buffer.from(stringA);
+    const bufferB = Buffer.from(stringB);
 
-    if (strA.length !== strB.length) {
+    if (bufferA.length !== bufferB.length) {
       return false;
     }
 
-    if (crypto.timingSafeEqual) {
-      return crypto.timingSafeEqual(strA, strB);
-    }
+    const algorithm = { name: 'HMAC', hash: 'SHA-256' };
+    const key = (await crypto.subtle.generateKey(algorithm, false, [
+      'sign',
+      'verify',
+    ])) as CryptoKey;
+    const hmac = await crypto.subtle.sign(algorithm, key, bufferA);
+    const equal = await crypto.subtle.verify(algorithm, key, hmac, bufferB);
 
-    const len = strA.length;
-    let result = 0;
-
-    for (let i = 0; i < len; ++i) {
-      // tslint:disable-next-line:no-bitwise
-      result |= strA[i] ^ strB[i];
-    }
-    return result === 0;
+    return equal;
   }
+}
+
+// Cached mapping of byte to hex representation. We do this once to avoid re-
+// computing every time we need to convert the result of a signature to hex.
+const byteHexMapping = new Array(256);
+for (let i = 0; i < byteHexMapping.length; i++) {
+  byteHexMapping[i] = i.toString(16).padStart(2, '0');
 }
