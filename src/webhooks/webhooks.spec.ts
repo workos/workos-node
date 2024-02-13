@@ -11,6 +11,7 @@ describe('Webhooks', () => {
   let unhashedString: string;
   let signatureHash: string;
   let expectation: object;
+
   beforeEach(() => {
     payload = mockWebhook;
     secret = 'secret';
@@ -87,10 +88,10 @@ describe('Webhooks', () => {
 
   describe('constructEvent', () => {
     describe('with the correct payload, sig_header, and secret', () => {
-      it('returns a webhook event', () => {
+      it('returns a webhook event', async () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
         const options = { payload, sigHeader, secret };
-        const webhook = workos.webhooks.constructEvent(options);
+        const webhook = await workos.webhooks.constructEvent(options);
 
         expect(webhook.data).toEqual(expectation);
         expect(webhook.event).toEqual('dsync.user.created');
@@ -99,10 +100,10 @@ describe('Webhooks', () => {
     });
 
     describe('with the correct payload, sig_header, secret, and tolerance', () => {
-      it('returns a webhook event', () => {
+      it('returns a webhook event', async () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
         const options = { payload, sigHeader, secret, tolerance: 200 };
-        const webhook = workos.webhooks.constructEvent(options);
+        const webhook = await workos.webhooks.constructEvent(options);
 
         expect(webhook.data).toEqual(expectation);
         expect(webhook.event).toEqual('dsync.user.created');
@@ -111,80 +112,80 @@ describe('Webhooks', () => {
     });
 
     describe('with an empty header', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = '';
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
 
     describe('with an empty signature hash', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = `t=${timestamp}, v1=`;
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
 
     describe('with an incorrect signature hash', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = `t=${timestamp}, v1=99999`;
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
 
     describe('with an incorrect payload', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
         payload = 'invalid';
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
 
     describe('with an incorrect webhook secret', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
         secret = 'invalid';
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
 
     describe('with a timestamp outside tolerance', () => {
-      it('raises an error', () => {
+      it('raises an error', async () => {
         const sigHeader = `t=9999, v1=${signatureHash}`;
         const options = { payload, sigHeader, secret };
 
-        expect(() => workos.webhooks.constructEvent(options)).toThrowError(
-          SignatureVerificationException,
-        );
+        await expect(
+          workos.webhooks.constructEvent(options),
+        ).rejects.toThrowError(SignatureVerificationException);
       });
     });
   });
 
   describe('verifyHeader', () => {
-    it('returns true when the signature is valid', () => {
+    it('returns true when the signature is valid', async () => {
       const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
       const options = { payload, sigHeader, secret };
-
-      expect(() => workos.webhooks.verifyHeader(options)).toBeTruthy();
+      const result = await workos.webhooks.verifyHeader(options);
+      expect(result).toBeTruthy();
     });
   });
 
@@ -202,8 +203,8 @@ describe('Webhooks', () => {
   });
 
   describe('computeSignature', () => {
-    it('returns the computed signature', () => {
-      const signature = workos.webhooks.computeSignature(
+    it('returns the computed signature', async () => {
+      const signature = await workos.webhooks.computeSignature(
         timestamp,
         payload,
         secret,

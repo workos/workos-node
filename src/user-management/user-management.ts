@@ -139,7 +139,6 @@ export class UserManagement {
   async createUser(payload: CreateUserOptions): Promise<User> {
     const { data } = await this.workos.post<
       UserResponse,
-      any,
       SerializedCreateUserOptions
     >('/user_management/users', serializeCreateUserOptions(payload));
 
@@ -151,7 +150,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithMagicAuthOptions
     >(
       '/user_management/authenticate',
@@ -169,7 +167,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithPasswordOptions
     >(
       '/user_management/authenticate',
@@ -187,7 +184,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithCodeOptions
     >(
       '/user_management/authenticate',
@@ -205,7 +201,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithTotpOptions
     >(
       '/user_management/authenticate',
@@ -223,7 +218,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithEmailVerificationOptions
     >(
       '/user_management/authenticate',
@@ -241,7 +235,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithOrganizationSelectionOptions
     >(
       '/user_management/authenticate',
@@ -278,7 +271,6 @@ export class UserManagement {
   }: VerifyEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
       { user: UserResponse },
-      any,
       SerializedVerifyEmailOptions
     >(`/user_management/users/${userId}/email_verification/confirm`, {
       code,
@@ -299,7 +291,6 @@ export class UserManagement {
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
       { user: UserResponse },
-      any,
       SerializedResetPasswordOptions
     >(
       '/user_management/password_reset/confirm',
@@ -411,7 +402,6 @@ export class UserManagement {
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.post<
       OrganizationMembershipResponse,
-      any,
       SerializedCreateOrganizationMembershipOptions
     >(
       '/user_management/organization_memberships',
@@ -461,7 +451,6 @@ export class UserManagement {
   async sendInvitation(payload: SendInvitationOptions): Promise<Invitation> {
     const { data } = await this.workos.post<
       InvitationResponse,
-      any,
       SerializedSendInvitationOptions
     >(
       '/user_management/invitations',
