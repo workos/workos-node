@@ -24,7 +24,7 @@ export class FetchClient {
     const contentTypeHeader = bodyIsSearchParams
       ? { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
       : undefined;
-    const body = bodyIsSearchParams ? entity : JSON.stringify(entity);
+    const body = entity !== null ? (bodyIsSearchParams ? entity : JSON.stringify(entity)) : null;
     const response = await this.fetch(resourceURL, {
       method: 'POST',
       headers: { ...contentTypeHeader, ...options.headers },
