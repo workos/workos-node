@@ -111,11 +111,7 @@ function getContentTypeHeader(entity: any): HeadersInit | undefined {
 }
 
 function getBody(entity: any): BodyInit | null | undefined {
-  if (
-    entity === null ||
-    entity instanceof URLSearchParams ||
-    entity instanceof FormData
-  ) {
+  if (entity === null || entity instanceof URLSearchParams) {
     return entity;
   }
 
