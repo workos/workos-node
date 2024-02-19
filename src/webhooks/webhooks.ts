@@ -3,6 +3,8 @@ import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
 
 export class Webhooks {
+  private encoder = new TextEncoder();
+
   async constructEvent({
     payload,
     sigHeader,
@@ -81,7 +83,7 @@ export class Webhooks {
 
     const key = await crypto.subtle.importKey(
       'raw',
-      new TextEncoder().encode(secret),
+      this.encoder.encode(secret),
       { name: 'HMAC', hash: 'SHA-256' },
       false,
       ['sign'],
@@ -90,7 +92,7 @@ export class Webhooks {
     const signatureBuffer = await crypto.subtle.sign(
       'HMAC',
       key,
-      new TextEncoder().encode(signedPayload),
+      this.encoder.encode(signedPayload),
     );
 
     // crypto.subtle returns the signature in base64 format. This must be
@@ -107,8 +109,8 @@ export class Webhooks {
   }
 
   async secureCompare(stringA: string, stringB: string): Promise<boolean> {
-    const bufferA = Buffer.from(stringA);
-    const bufferB = Buffer.from(stringB);
+    const bufferA = this.encoder.encode(stringA);
+    const bufferB = this.encoder.encode(stringB);
 
     if (bufferA.length !== bufferB.length) {
       return false;
