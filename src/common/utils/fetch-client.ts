@@ -20,15 +20,10 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
-    const bodyIsSearchParams = entity instanceof URLSearchParams;
-    const contentTypeHeader = bodyIsSearchParams
-      ? { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' }
-      : undefined;
-    const body = bodyIsSearchParams ? entity : JSON.stringify(entity);
     const response = await this.fetch(resourceURL, {
       method: 'POST',
-      headers: { ...contentTypeHeader, ...options.headers },
-      body,
+      headers: { ...getContentTypeHeader(entity), ...options.headers },
+      body: getBody(entity),
     });
     return { data: await response.json() };
   }
@@ -41,8 +36,8 @@ export class FetchClient {
     const resourceURL = this.getResourceURL(path, options.params);
     const response = await this.fetch(resourceURL, {
       method: 'PUT',
-      headers: options.headers,
-      body: JSON.stringify(entity),
+      headers: { ...getContentTypeHeader(entity), ...options.headers },
+      body: getBody(entity),
     });
     return { data: await response.json() };
   }
@@ -104,4 +99,21 @@ function getQueryString(queryObj?: Record<string, any>) {
   });
 
   return new URLSearchParams(sanitizedQueryObj).toString();
+}
+
+function getContentTypeHeader(entity: any): HeadersInit | undefined {
+  if (entity instanceof URLSearchParams) {
+    return {
+      'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
+    };
+  }
+  return undefined;
+}
+
+function getBody(entity: any): BodyInit | null | undefined {
+  if (entity === null || entity instanceof URLSearchParams) {
+    return entity;
+  }
+
+  return JSON.stringify(entity);
 }

@@ -19,10 +19,13 @@ export function fetchHeaders() {
   return fetch.mock.calls[0][1]?.headers;
 }
 
-export function fetchBody() {
+export function fetchBody({ raw = false } = {}) {
   const body = fetch.mock.calls[0][1]?.body;
   if (body instanceof URLSearchParams) {
     return body.toString();
+  }
+  if (raw) {
+    return body;
   }
   return JSON.parse(String(body));
 }
