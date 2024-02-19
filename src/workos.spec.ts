@@ -1,5 +1,5 @@
 import fetch from 'jest-fetch-mock';
-import { fetchOnce, fetchHeaders } from './common/utils/test-utils';
+import { fetchOnce, fetchHeaders, fetchBody } from './common/utils/test-utils';
 import fs from 'fs/promises';
 import {
   GenericServerException,
@@ -196,6 +196,17 @@ describe('WorkOS', () => {
             { error: 'error', error_description: 'error description' },
           ),
         );
+      });
+    });
+
+    describe('when the entity is null', () => {
+      it('sends a null body', async () => {
+        fetchOnce();
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        await workos.post('/somewhere', null);
+
+        expect(fetchBody({ raw: true })).toBeNull();
       });
     });
   });
