@@ -8,10 +8,9 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
+    return await this.fetch(resourceURL, {
       headers: options.headers,
     });
-    return { data: await response.json() };
   }
 
   async post<Entity = any>(
@@ -20,12 +19,11 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
+    return await this.fetch(resourceURL, {
       method: 'POST',
       headers: { ...getContentTypeHeader(entity), ...options.headers },
       body: getBody(entity),
     });
-    return { data: await response.json() };
   }
 
   async put<Entity = any>(
@@ -34,12 +32,11 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
-    const response = await this.fetch(resourceURL, {
+    return await this.fetch(resourceURL, {
       method: 'PUT',
       headers: { ...getContentTypeHeader(entity), ...options.headers },
       body: getBody(entity),
     });
-    return { data: await response.json() };
   }
 
   async delete(
@@ -47,7 +44,7 @@ export class FetchClient {
     options: { params?: Record<string, any>; headers?: HeadersInit },
   ) {
     const resourceURL = this.getResourceURL(path, options.params);
-    await this.fetch(resourceURL, {
+    return await this.fetch(resourceURL, {
       method: 'DELETE',
       headers: options.headers,
     });
@@ -85,7 +82,14 @@ export class FetchClient {
       });
     }
 
-    return response;
+    const contentType = response.headers.get('content-type');
+    const isJsonResponse = contentType?.includes('application/json');
+
+    if (isJsonResponse) {
+      return { data: await response.json() };
+    }
+
+    return { data: null };
   }
 }
 

@@ -2,9 +2,13 @@ import fetch, { MockParams } from 'jest-fetch-mock';
 
 export function fetchOnce(
   response: any = {},
-  { status = 200, ...rest }: MockParams = {},
+  { status = 200, headers, ...rest }: MockParams = {},
 ) {
-  return fetch.once(JSON.stringify(response), { status, ...rest });
+  return fetch.once(JSON.stringify(response), {
+    status,
+    headers: { 'content-type': 'application/json;charset=UTF-8', ...headers },
+    ...rest,
+  });
 }
 
 export function fetchURL() {
