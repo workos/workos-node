@@ -25,6 +25,17 @@ export class FetchClient {
       headers: { ...getContentTypeHeader(entity), ...options.headers },
       body: getBody(entity),
     });
+
+    const contentLength = parseInt(
+      response.headers.get('content-length') as string,
+      10,
+    );
+    const contentType = response.headers.get('content-type');
+
+    if (contentLength <= 0 || contentType !== 'application/json') {
+      return { data: null };
+    }
+
     return { data: await response.json() };
   }
 
