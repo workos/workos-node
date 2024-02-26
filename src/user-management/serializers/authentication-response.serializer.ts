@@ -6,7 +6,11 @@ import { deserializeUser } from './user.serializer';
 
 export const deserializeAuthenticationResponse = (
   authenticationResponse: AuthenticationResponseResponse,
-): AuthenticationResponse => ({
-  user: deserializeUser(authenticationResponse.user),
-  organizationId: authenticationResponse.organization_id,
-});
+): AuthenticationResponse => {
+  const { user, organization_id, ...rest } = authenticationResponse;
+  return {
+    user: deserializeUser(user),
+    organizationId: organization_id,
+    ...rest,
+  };
+};
