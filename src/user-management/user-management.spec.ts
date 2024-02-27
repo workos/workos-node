@@ -164,6 +164,32 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateWithRefreshToken', () => {
+    it('sends a refresh_token authentication request', async () => {
+      fetchOnce({
+        access_token: 'access_token',
+        refresh_token: 'refreshToken2',
+      });
+      const resp = await workos.userManagement.authenticateWithRefreshToken({
+        clientId: 'proj_whatever',
+        refreshToken: 'refresh_token1',
+      });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        refresh_token: 'refresh_token1',
+        grant_type: 'refresh_token',
+      });
+
+      expect(resp).toMatchObject({
+        accessToken: 'access_token',
+        refreshToken: 'refreshToken2',
+      });
+    });
+  });
+
   describe('authenticateUserWithTotp', () => {
     it('sends a token authentication request', async () => {
       fetchOnce({ user: userFixture });
@@ -707,6 +733,22 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('revokeSession', () => {
+    it('sends a Revoke Session request', async () => {
+      const sessionId = 'session_12345';
+      fetchOnce({});
+
+      await workos.userManagement.revokeSession({
+        sessionId,
+      });
+
+      expect(fetchURL()).toContain('/user_management/sessions/revoke');
+      expect(fetchBody()).toEqual({
+        session_id: 'session_12345',
+      });
+    });
+  });
+
   describe('getAuthorizationUrl', () => {
     describe('with no custom api hostname', () => {
       it('generates an authorize url with the default api hostname', () => {
@@ -843,6 +885,20 @@ describe('UserManagement', () => {
           `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&login_hint=foo%40workos.com&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
         );
       });
+    });
+  });
+
+  describe('getLogoutUrl', () => {
+    it('returns a logout url', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const url = workos.userManagement.getLogoutUrl({
+        sessionId: '123456',
+      });
+
+      expect(url).toBe(
+        'https://api.workos.com/user_management/sessions/logout?session_id=123456',
+      );
     });
   });
 });
