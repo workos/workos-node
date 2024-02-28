@@ -4,10 +4,12 @@ import {
   fetchURL,
   fetchHeaders,
   fetchBody,
+  fetchSearchParams,
 } from '../common/utils/test-utils';
 
 import { WorkOS } from '../workos';
 import { ConnectionResponse, ConnectionType } from './interfaces';
+import { ListResponse } from '../common/interfaces';
 
 describe('SSO', () => {
   beforeEach(() => fetch.resetMocks());
@@ -25,6 +27,29 @@ describe('SSO', () => {
   };
 
   describe('SSO', () => {
+    describe('with options', () => {
+      it('requests Connections with query parameters', async () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const listConnectionsResponse: ListResponse<ConnectionResponse> = {
+          object: 'list',
+          data: [connectionResponse],
+          list_metadata: {},
+        };
+
+        fetchOnce(listConnectionsResponse);
+
+        await workos.sso.listConnections({
+          connectionType: ConnectionType.OktaSAML,
+          organizationId: 'org_123',
+        });
+
+        expect(fetchSearchParams()).toMatchObject({
+          connection_type: ConnectionType.OktaSAML,
+          organization_id: 'org_123',
+        });
+      });
+    });
+
     describe('getAuthorizationUrl', () => {
       describe('with no custom api hostname', () => {
         it('generates an authorize url with the default api hostname', () => {
