@@ -85,6 +85,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeUser(event.data),
       };
     case 'organization_membership.added':
+    case 'organization_membership.updated':
     case 'organization_membership.removed':
       return {
         ...eventBase,

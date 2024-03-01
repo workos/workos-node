@@ -219,6 +219,17 @@ export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   data: OrganizationMembershipResponse;
 }
 
+export interface OrganizationMembershipUpdated extends EventBase {
+  event: 'organization_membership.updated';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipUpdatedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.updated';
+  data: OrganizationMembershipResponse;
+}
+
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
   data: OrganizationMembership;
@@ -249,6 +260,7 @@ export type Event =
   | UserUpdatedEvent
   | UserDeletedEvent
   | OrganizationMembershipAdded
+  | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved;
 
 export type EventResponse =
@@ -270,6 +282,7 @@ export type EventResponse =
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
+  | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse;
 
 export type EventName =
@@ -291,4 +304,5 @@ export type EventName =
   | 'user.updated'
   | 'user.deleted'
   | 'organization_membership.added'
+  | 'organization_membership.updated'
   | 'organization_membership.removed';
