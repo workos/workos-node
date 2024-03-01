@@ -509,6 +509,7 @@ describe('UserManagement', () => {
         id: 'om_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'active',
       });
     });
   });
@@ -531,6 +532,7 @@ describe('UserManagement', () => {
             object: 'organization_membership',
             organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
             userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            status: 'active',
           },
         ],
         listMetadata: {
@@ -577,6 +579,7 @@ describe('UserManagement', () => {
         object: 'organization_membership',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'active',
       });
     });
   });
