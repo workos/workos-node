@@ -517,7 +517,7 @@ export class UserManagement {
     state,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
-      throw new Error(
+      throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
       );
     }
@@ -539,7 +539,7 @@ export class UserManagement {
 
   getLogoutUrl({ sessionId }: { sessionId: string }): string {
     if (!sessionId) {
-      throw new Error(`Incomplete arguments. Need to specify 'sessionId'.`);
+      throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
     }
 
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
