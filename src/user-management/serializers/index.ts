@@ -1,6 +1,7 @@
 export * from './authenticate-with-code-options.serializer';
 export * from './authenticate-with-magic-auth-options.serializer';
 export * from './authenticate-with-password-options.serializer';
+export * from './authenticate-with-refresh-token.options.serializer';
 export * from './authenticate-with-totp-options.serializer';
 export * from './authentication-response.serializer';
 export * from './enroll-auth-factor-options.serializer';
