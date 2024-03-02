@@ -28,6 +28,10 @@ import {
   User,
   UserResponse,
   VerifyEmailOptions,
+  AuthenticateWithRefreshTokenOptions,
+  SerializedAuthenticateWithRefreshTokenOptions,
+  RefreshAuthenticationResponseResponse,
+  RefreshAuthenticationResponse,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -43,6 +47,8 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
+  deserializeRefreshAuthenticationResponse,
+  serializeAuthenticateWithRefreshTokenOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -90,6 +96,11 @@ import {
   FactorWithSecretsResponse,
 } from './interfaces/factor.interface';
 import { deserializeFactor } from './serializers/factor.serializer';
+import {
+  RevokeSessionOptions,
+  SerializedRevokeSessionOptions,
+  serializeRevokeSessionOptions,
+} from './interfaces/revoke-session-options.interface';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -194,6 +205,23 @@ export class UserManagement {
     );
 
     return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateWithRefreshToken(
+    payload: AuthenticateWithRefreshTokenOptions,
+  ): Promise<RefreshAuthenticationResponse> {
+    const { data } = await this.workos.post<
+      RefreshAuthenticationResponseResponse,
+      SerializedAuthenticateWithRefreshTokenOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithRefreshTokenOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeRefreshAuthenticationResponse(data);
   }
 
   async authenticateWithTotp(
@@ -471,6 +499,13 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async revokeSession(payload: RevokeSessionOptions): Promise<void> {
+    await this.workos.post<void, SerializedRevokeSessionOptions>(
+      '/user_management/sessions/revoke',
+      serializeRevokeSessionOptions(payload),
+    );
+  }
+
   getAuthorizationUrl({
     connectionId,
     clientId,
@@ -482,7 +517,7 @@ export class UserManagement {
     state,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
-      throw new Error(
+      throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
       );
     }
@@ -500,5 +535,13 @@ export class UserManagement {
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
+  }
+
+  getLogoutUrl({ sessionId }: { sessionId: string }): string {
+    if (!sessionId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
+    }
+
+    return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
   }
 }

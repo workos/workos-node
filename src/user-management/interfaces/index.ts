@@ -1,6 +1,7 @@
 export * from './authenticate-with-magic-auth-options.interface';
 export * from './authenticate-with-password-options.interface';
 export * from './authenticate-with-code-options.interface';
+export * from './authenticate-with-refresh-token-options.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-response.interface';
 export * from './reset-password-options.interface';
