@@ -3,4 +3,6 @@ import { Crypto } from '@peculiar/webcrypto';
 
 enableFetchMocks();
 
-global.crypto = new Crypto();
+if (!global.crypto) {
+    global.crypto = new Crypto();
+}
