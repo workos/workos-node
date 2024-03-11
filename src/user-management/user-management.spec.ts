@@ -904,4 +904,18 @@ describe('UserManagement', () => {
       );
     });
   });
+
+  describe('getJwksUrl', () => {
+    it('returns the jwks url', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const url = workos.userManagement.getJwksUrl({
+        clientId: 'client_whatever',
+      });
+
+      expect(url).toBe(
+        'https://api.workos.com/sso/jwks/client_whatever',
+      );
+    });
+  });
 });
