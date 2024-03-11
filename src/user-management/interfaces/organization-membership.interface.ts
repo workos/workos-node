@@ -1,3 +1,5 @@
+import { RoleResponse } from "./role.interface";
+
 export interface OrganizationMembership {
   object: 'organization_membership';
   id: string;
@@ -6,6 +8,7 @@ export interface OrganizationMembership {
   userId: string;
   createdAt: string;
   updatedAt: string;
+  role: RoleResponse;
 }
 
 export interface OrganizationMembershipResponse {
@@ -16,4 +19,5 @@ export interface OrganizationMembershipResponse {
   user_id: string;
   created_at: string;
   updated_at: string;
+  role: RoleResponse;
 }
