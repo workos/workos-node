@@ -7,5 +7,5 @@ export interface CreateOrganizationMembershipOptions {
 export interface SerializedCreateOrganizationMembershipOptions {
   organization_id: string;
   user_id: string;
-  roleSlug?: string;
+  role_slug?: string;
 }
