@@ -544,4 +544,8 @@ export class UserManagement {
 
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
   }
+
+  getJwksUrl(clientId: string): string {
+    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
+  }
 }
