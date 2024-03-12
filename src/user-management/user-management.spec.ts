@@ -162,6 +162,32 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('when the code is for an impersonator', () => {
+      it('deserializes the impersonator metadata', async () => {
+        fetchOnce({
+          user: userFixture,
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'A good reason.',
+          },
+        });
+        const resp = await workos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'A good reason.',
+          },
+        });
+      });
+    });
   });
 
   describe('authenticateWithRefreshToken', () => {
