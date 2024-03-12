@@ -302,25 +302,4 @@ export type EventResponse =
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse;
 
-export type EventName =
-  | 'connection.activated'
-  | 'connection.deactivated'
-  | 'connection.deleted'
-  | 'dsync.activated'
-  | 'dsync.deactivated'
-  | 'dsync.deleted'
-  | 'dsync.group.created'
-  | 'dsync.group.deleted'
-  | 'dsync.group.updated'
-  | 'dsync.group.user_added'
-  | 'dsync.group.user_removed'
-  | 'dsync.user.created'
-  | 'dsync.user.deleted'
-  | 'dsync.user.updated'
-  | 'user.created'
-  | 'user.updated'
-  | 'user.deleted'
-  | 'user.impersonated'
-  | 'organization_membership.added'
-  | 'organization_membership.updated'
-  | 'organization_membership.removed';
+export type EventName = Event['event'];
