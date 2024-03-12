@@ -7,7 +7,12 @@ import {
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
-import { User, UserResponse } from '../../user-management/interfaces';
+import {
+  Session,
+  SessionResponse,
+  User,
+  UserResponse,
+} from '../../user-management/interfaces';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -209,6 +214,16 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
+export interface UserImpersonatedEvent extends EventBase {
+  event: 'user.impersonated';
+  data: Session;
+}
+
+export interface UserImpersonatedEventResponse extends EventResponseBase {
+  event: 'user.impersonated';
+  data: SessionResponse;
+}
+
 export interface OrganizationMembershipAdded extends EventBase {
   event: 'organization_membership.added';
   data: OrganizationMembership;
@@ -259,6 +274,7 @@ export type Event =
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
+  | UserImpersonatedEvent
   | OrganizationMembershipAdded
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved;
@@ -281,6 +297,7 @@ export type EventResponse =
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
+  | UserImpersonatedEventResponse
   | OrganizationMembershipAddedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse;
@@ -303,6 +320,7 @@ export type EventName =
   | 'user.created'
   | 'user.updated'
   | 'user.deleted'
+  | 'user.impersonated'
   | 'organization_membership.added'
   | 'organization_membership.updated'
   | 'organization_membership.removed';
