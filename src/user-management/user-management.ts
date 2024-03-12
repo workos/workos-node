@@ -546,6 +546,9 @@ export class UserManagement {
   }
 
   getJwksUrl(clientId: string): string {
+    if (!clientId) {
+      throw TypeError('clientId must be a valid clientId');
+    }
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }
