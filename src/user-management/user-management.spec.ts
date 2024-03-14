@@ -598,7 +598,6 @@ describe('UserManagement', () => {
         await workos.userManagement.createOrganizationMembership({
           organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
           userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-          roleSlug: 'member',
         });
 
       expect(fetchURL()).toContain('/user_management/organization_memberships');
