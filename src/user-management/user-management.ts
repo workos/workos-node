@@ -544,4 +544,11 @@ export class UserManagement {
 
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
   }
+
+  getJwksUrl(clientId: string): string {
+    if (!clientId) {
+      throw TypeError('clientId must be a valid clientId');
+    }
+    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
+  }
 }
