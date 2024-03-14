@@ -1,4 +1,4 @@
-import { RoleResponse } from "./role.interface";
+import { RoleResponse } from './role.interface';
 
 export interface OrganizationMembership {
   object: 'organization_membership';
