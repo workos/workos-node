@@ -606,6 +606,34 @@ describe('UserManagement', () => {
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         status: 'active',
+        role: {
+          slug: 'member',
+        },
+      });
+    });
+  });
+
+  describe('updateOrganizationMembership', () => {
+    it('sends an update organization membership request', async () => {
+      fetchOnce(organizationMembershipFixture, {
+        status: 200,
+      });
+      const organizationMembership =
+        await workos.userManagement.updateOrganizationMembership(organizationMembershipId,
+          {
+            roleSlug: 'member',
+          }
+        );
+
+      expect(fetchURL()).toContain(`/user_management/organization_memberships/${organizationMembershipId}`);
+      expect(organizationMembership).toMatchObject({
+        object: 'organization_membership',
+        organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'active',
+        role: {
+          slug: 'member',
+        },
       });
     });
   });
