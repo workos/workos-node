@@ -606,6 +606,9 @@ describe('UserManagement', () => {
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         status: 'active',
+        role: {
+          slug: 'member',
+        },
       });
     });
   });

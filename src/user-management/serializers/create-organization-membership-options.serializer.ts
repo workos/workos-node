@@ -8,4 +8,5 @@ export const serializeCreateOrganizationMembershipOptions = (
 ): SerializedCreateOrganizationMembershipOptions => ({
   organization_id: options.organizationId,
   user_id: options.userId,
+  role_slug: options.roleSlug,
 });
