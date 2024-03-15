@@ -619,13 +619,16 @@ describe('UserManagement', () => {
         status: 200,
       });
       const organizationMembership =
-        await workos.userManagement.updateOrganizationMembership(organizationMembershipId,
+        await workos.userManagement.updateOrganizationMembership(
+          organizationMembershipId,
           {
             roleSlug: 'member',
-          }
+          },
         );
 
-      expect(fetchURL()).toContain(`/user_management/organization_memberships/${organizationMembershipId}`);
+      expect(fetchURL()).toContain(
+        `/user_management/organization_memberships/${organizationMembershipId}`,
+      );
       expect(organizationMembership).toMatchObject({
         object: 'organization_membership',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',

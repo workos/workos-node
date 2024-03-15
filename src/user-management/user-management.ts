@@ -101,7 +101,10 @@ import {
   SerializedRevokeSessionOptions,
   serializeRevokeSessionOptions,
 } from './interfaces/revoke-session-options.interface';
-import { SerializedUpdateOrganizationMembershipOptions, UpdateOrganizationMembershipOptions } from './interfaces/update-organization-membership-options.interface';
+import {
+  SerializedUpdateOrganizationMembershipOptions,
+  UpdateOrganizationMembershipOptions,
+} from './interfaces/update-organization-membership-options.interface';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
@@ -447,7 +450,7 @@ export class UserManagement {
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.put<
       OrganizationMembershipResponse,
-      SerializedUpdateOrganizationMembershipOptions,
+      SerializedUpdateOrganizationMembershipOptions
     >(
       `/user_management/organization_memberships/${organizationMembershipId}`,
       serializeUpdateOrganizationMembershipOptions(options),
