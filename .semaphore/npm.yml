@@ -3,8 +3,8 @@ version: v1.0
 name: Publish to NPM
 agent:
   machine:
-    type: e1-standard-2
-    os_image: ubuntu1804
+    type: e2-standard-2
+    os_image: ubuntu2004
 
 blocks:
   - name: Publish
