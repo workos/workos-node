@@ -1,3 +1,4 @@
+import { Impersonator, ImpersonatorResponse } from './impersonator.interface';
 import { User, UserResponse } from './user.interface';
 
 export interface AuthenticationResponse {
@@ -5,6 +6,7 @@ export interface AuthenticationResponse {
   organizationId?: string;
   accessToken?: string;
   refreshToken?: string;
+  impersonator?: Impersonator;
 }
 
 export interface AuthenticationResponseResponse {
@@ -12,6 +14,7 @@ export interface AuthenticationResponseResponse {
   organization_id?: string;
   access_token?: string;
   refresh_token?: string;
+  impersonator?: ImpersonatorResponse;
 }
 
 export interface RefreshAuthenticationResponse {
