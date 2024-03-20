@@ -85,12 +85,6 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeUser(event.data),
       };
-    case 'user.impersonated':
-      return {
-        ...eventBase,
-        event: event.event,
-        data: deserializeSession(event.data),
-      };
     case 'organization_membership.added':
     case 'organization_membership.updated':
     case 'organization_membership.removed':
