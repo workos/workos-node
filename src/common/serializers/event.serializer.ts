@@ -9,7 +9,6 @@ import {
 import { deserializeConnection } from '../../sso/serializers';
 import { deserializeUser } from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
-import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
 
 export const deserializeEvent = (event: EventResponse): Event => {
