@@ -259,7 +259,6 @@ export type Event =
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
-  | UserImpersonatedEvent
   | OrganizationMembershipAdded
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved;
@@ -282,7 +281,6 @@ export type EventResponse =
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
-  | UserImpersonatedEventResponse
   | OrganizationMembershipAddedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse;
