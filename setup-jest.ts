@@ -3,4 +3,7 @@ import { Crypto } from '@peculiar/webcrypto';
 
 enableFetchMocks();
 
-global.crypto = new Crypto();
+// Assign Node's Crypto to global.crypto if it is not already present
+if (!global.crypto) {
+    global.crypto = new Crypto();
+}
