@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { SignatureVerificationException } from '../common/exceptions';
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
