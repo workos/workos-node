@@ -1,7 +1,9 @@
-import crypto from 'crypto';
+import { Crypto } from '@peculiar/webcrypto';
 import { SignatureVerificationException } from '../common/exceptions';
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
+
+const crypto = new Crypto();
 
 export class Webhooks {
   private encoder = new TextEncoder();
