@@ -7,7 +7,12 @@ import {
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
-import { User, UserResponse } from '../../user-management/interfaces';
+import {
+  Session,
+  SessionResponse,
+  User,
+  UserResponse,
+} from '../../user-management/interfaces';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -241,6 +246,16 @@ export interface OrganizationMembershipRemovedResponse
   data: OrganizationMembershipResponse;
 }
 
+export interface SessionCreatedEvent extends EventBase {
+  event: 'session.created';
+  data: Session;
+}
+
+export interface SessionCreatedEventResponse extends EventResponseBase {
+  event: 'session.created';
+  data: SessionResponse;
+}
+
 export type Event =
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
@@ -261,7 +276,8 @@ export type Event =
   | UserDeletedEvent
   | OrganizationMembershipAdded
   | OrganizationMembershipUpdated
-  | OrganizationMembershipRemoved;
+  | OrganizationMembershipRemoved
+  | SessionCreatedEvent;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -283,26 +299,7 @@ export type EventResponse =
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
   | OrganizationMembershipUpdatedResponse
-  | OrganizationMembershipRemovedResponse;
+  | OrganizationMembershipRemovedResponse
+  | SessionCreatedEventResponse;
 
-export type EventName =
-  | 'connection.activated'
-  | 'connection.deactivated'
-  | 'connection.deleted'
-  | 'dsync.activated'
-  | 'dsync.deactivated'
-  | 'dsync.deleted'
-  | 'dsync.group.created'
-  | 'dsync.group.deleted'
-  | 'dsync.group.updated'
-  | 'dsync.group.user_added'
-  | 'dsync.group.user_removed'
-  | 'dsync.user.created'
-  | 'dsync.user.deleted'
-  | 'dsync.user.updated'
-  | 'user.created'
-  | 'user.updated'
-  | 'user.deleted'
-  | 'organization_membership.added'
-  | 'organization_membership.updated'
-  | 'organization_membership.removed';
+export type EventName = Event['event'];

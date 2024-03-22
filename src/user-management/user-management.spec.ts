@@ -162,6 +162,32 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('when the code is for an impersonator', () => {
+      it('deserializes the impersonator metadata', async () => {
+        fetchOnce({
+          user: userFixture,
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'A good reason.',
+          },
+        });
+        const resp = await workos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'A good reason.',
+          },
+        });
+      });
+    });
   });
 
   describe('authenticateWithRefreshToken', () => {
@@ -606,6 +632,37 @@ describe('UserManagement', () => {
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         status: 'active',
+        role: {
+          slug: 'member',
+        },
+      });
+    });
+  });
+
+  describe('updateOrganizationMembership', () => {
+    it('sends an update organization membership request', async () => {
+      fetchOnce(organizationMembershipFixture, {
+        status: 200,
+      });
+      const organizationMembership =
+        await workos.userManagement.updateOrganizationMembership(
+          organizationMembershipId,
+          {
+            roleSlug: 'member',
+          },
+        );
+
+      expect(fetchURL()).toContain(
+        `/user_management/organization_memberships/${organizationMembershipId}`,
+      );
+      expect(organizationMembership).toMatchObject({
+        object: 'organization_membership',
+        organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'active',
+        role: {
+          slug: 'member',
+        },
       });
     });
   });
@@ -902,6 +959,24 @@ describe('UserManagement', () => {
       expect(url).toBe(
         'https://api.workos.com/user_management/sessions/logout?session_id=123456',
       );
+    });
+  });
+
+  describe('getJwksUrl', () => {
+    it('returns the jwks url', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const url = workos.userManagement.getJwksUrl('client_whatever');
+
+      expect(url).toBe('https://api.workos.com/sso/jwks/client_whatever');
+    });
+
+    it('throws an error if the clientId is blank', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      expect(() => {
+        workos.userManagement.getJwksUrl('');
+      }).toThrowError(TypeError);
     });
   });
 });

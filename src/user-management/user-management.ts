@@ -101,6 +101,11 @@ import {
   SerializedRevokeSessionOptions,
   serializeRevokeSessionOptions,
 } from './interfaces/revoke-session-options.interface';
+import {
+  SerializedUpdateOrganizationMembershipOptions,
+  UpdateOrganizationMembershipOptions,
+} from './interfaces/update-organization-membership-options.interface';
+import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -439,6 +444,21 @@ export class UserManagement {
     return deserializeOrganizationMembership(data);
   }
 
+  async updateOrganizationMembership(
+    organizationMembershipId: string,
+    options: UpdateOrganizationMembershipOptions,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<
+      OrganizationMembershipResponse,
+      SerializedUpdateOrganizationMembershipOptions
+    >(
+      `/user_management/organization_memberships/${organizationMembershipId}`,
+      serializeUpdateOrganizationMembershipOptions(options),
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
   async deleteOrganizationMembership(
     organizationMembershipId: string,
   ): Promise<void> {
@@ -543,5 +563,12 @@ export class UserManagement {
     }
 
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
+  }
+
+  getJwksUrl(clientId: string): string {
+    if (!clientId) {
+      throw TypeError('clientId must be a valid clientId');
+    }
+    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }
