@@ -1,3 +1,4 @@
+export * from './authentication-events.interface';
 export * from './authenticate-with-magic-auth-options.interface';
 export * from './authenticate-with-password-options.interface';
 export * from './authenticate-with-code-options.interface';
