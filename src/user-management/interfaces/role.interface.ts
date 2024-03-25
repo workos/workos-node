@@ -15,4 +15,3 @@ export interface RoleEventResponse {
   created_at: string;
   updated_at: string;
 }
-
