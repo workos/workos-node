@@ -103,6 +103,30 @@ export interface AuthenticationOAuthFailedEventResponse
   data: AuthenticationEventResponse<'oauth'>;
 }
 
+export interface AuthenticationSSOSucceededEvent extends EventBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEvent<'sso'>;
+}
+
+export interface AuthenticationSSOSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEventResponse<'sso'>;
+}
+
+
+export interface AuthenticationSSOFailedEvent extends EventBase {
+  event: 'authentication.sso_failed';
+  data: AuthenticationEvent<'sso'>;
+}
+
+export interface AuthenticationSSOFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.sso_failed';
+  data: AuthenticationEventResponse<'sso'>;
+}
+
+
 export interface ConnectionActivatedEvent extends EventBase {
   event: 'connection.activated';
   data: Connection;
