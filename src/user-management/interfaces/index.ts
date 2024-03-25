@@ -17,3 +17,4 @@ export * from './update-user-password-options.interface';
 export * from './user.interface';
 export * from './session.interface';
 export * from './verify-email-options.interface';
+export * from './role.interface';
