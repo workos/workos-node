@@ -75,6 +75,34 @@ export interface AuthenticationMfaFailedEventResponse
   data: AuthenticationEventResponse<'mfa'>;
 }
 
+export interface AuthenticationOAuthFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.oauth_failed';
+  data: AuthenticationEventResponse<'oauth'>;
+}
+
+export interface AuthenticationOAuthSucceededEvent extends EventBase {
+  event: 'authentication.oauth_succeeded';
+  data: AuthenticationEvent<'oauth'>;
+}
+
+export interface AuthenticationOAuthSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.oauth_succeeded';
+  data: AuthenticationEventResponse<'oauth'>;
+}
+
+export interface AuthenticationOAuthFailedEvent extends EventBase {
+  event: 'authentication.oauth_failed';
+  data: AuthenticationEvent<'oauth'>;
+}
+
+export interface AuthenticationOAuthFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.oauth_failed';
+  data: AuthenticationEventResponse<'oauth'>;
+}
+
 export interface ConnectionActivatedEvent extends EventBase {
   event: 'connection.activated';
   data: Connection;
@@ -308,6 +336,8 @@ export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaFailedEvent
   | AuthenticationMfaSucceededEvent
+  | AuthenticationOAuthFailedEvent
+  | AuthenticationOAuthSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -335,6 +365,8 @@ export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
   | AuthenticationMfaFailedEventResponse
   | AuthenticationMfaSucceededEventResponse
+  | AuthenticationOAuthFailedEventResponse
+  | AuthenticationOAuthSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse

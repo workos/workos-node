@@ -34,6 +34,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeAuthenticationEvent(event.data),
       };
+    case 'authentication.oauth_failed':
+    case 'authentication.oauth_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
     case 'connection.activated':
     case 'connection.deactivated':
     case 'connection.deleted':
