@@ -8,15 +8,13 @@ import {
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  EmailVerification,
+  EmailVerificationResponse,
   Session,
   SessionResponse,
   User,
   UserResponse,
 } from '../../user-management/interfaces';
-import {
-  EmailVerification,
-  EmailVerificationResponse,
-} from '../../user-management/interfaces/email-verification.interface';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,

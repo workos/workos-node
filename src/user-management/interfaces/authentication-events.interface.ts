@@ -1,4 +1,4 @@
-type EmailVerificationStatus =
+type EventStatus =
   | {
       status: 'succeeded';
     }
@@ -16,7 +16,7 @@ export type EmailVerification = {
   ipAddress: string | null;
   userAgent: string | null;
   userId: string | null;
-} & EmailVerificationStatus;
+} & EventStatus;
 
 export type EmailVerificationResponse = {
   object: 'email_verification';
@@ -24,4 +24,4 @@ export type EmailVerificationResponse = {
   ip_address: string | null;
   user_agent: string | null;
   user_id: string | null;
-} & EmailVerificationStatus;
+} & EventStatus;
