@@ -14,6 +14,10 @@ import {
   UserResponse,
 } from '../../user-management/interfaces';
 import {
+  EmailVerification,
+  EmailVerificationResponse,
+} from '../../user-management/interfaces/email-verification.interface';
+import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
@@ -26,6 +30,29 @@ export interface EventBase {
 interface EventResponseBase {
   id: string;
   created_at: string;
+}
+
+export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
+  event: 'authentication.email_verification_failed';
+  data: EmailVerification;
+}
+
+export interface AuthenticationEmailVerificationFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.email_verification_failed';
+  data: EmailVerificationResponse;
+}
+
+export interface AuthenticationEmailVerificationSucceededEvent
+  extends EventBase {
+  event: 'authentication.email_verification_succeeded';
+  data: EmailVerification;
+}
+
+export interface AuthenticationEmailVerificationSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.email_verification_succeeded';
+  data: EmailVerificationResponse;
 }
 
 export interface ConnectionActivatedEvent extends EventBase {
@@ -257,6 +284,8 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
 }
 
 export type Event =
+  | AuthenticationEmailVerificationFailedEvent
+  | AuthenticationEmailVerificationSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -280,6 +309,8 @@ export type Event =
   | SessionCreatedEvent;
 
 export type EventResponse =
+  | AuthenticationEmailVerificationFailedEventResponse
+  | AuthenticationEmailVerificationSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
