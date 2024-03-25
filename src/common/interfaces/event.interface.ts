@@ -255,7 +255,7 @@ export interface RoleCreatedEvent extends EventBase {
   data: RoleEvent;
 }
 
-export interface RoleCreatedEventResponse extends EventBase {
+export interface RoleCreatedEventResponse extends EventResponseBase {
   event: 'role.created';
   data: RoleEventResponse;
 }
@@ -265,7 +265,7 @@ export interface RoleDeletedEvent extends EventBase {
   data: RoleEvent;
 }
 
-export interface RoleDeletedEventResponse extends EventBase {
+export interface RoleDeletedEventResponse extends EventResponseBase {
   event: 'role.deleted';
   data: RoleEventResponse;
 }
