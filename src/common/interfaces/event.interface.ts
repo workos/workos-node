@@ -17,7 +17,10 @@ import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
-import { RoleEvent, RoleEventResponse } from '../../user-management/interfaces/role.interface';
+import {
+  RoleEvent,
+  RoleEventResponse,
+} from '../../user-management/interfaces/role.interface';
 
 export interface EventBase {
   id: string;
