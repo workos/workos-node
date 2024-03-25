@@ -8,8 +8,8 @@ import {
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
-  EmailVerification,
-  EmailVerificationResponse,
+  AuthenticationEvent,
+  AuthenticationEventResponse,
   Session,
   SessionResponse,
   User,
@@ -32,25 +32,25 @@ interface EventResponseBase {
 
 export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
   event: 'authentication.email_verification_failed';
-  data: EmailVerification;
+  data: AuthenticationEvent<'email_verification'>;
 }
 
 export interface AuthenticationEmailVerificationFailedEventResponse
   extends EventResponseBase {
   event: 'authentication.email_verification_failed';
-  data: EmailVerificationResponse;
+  data: AuthenticationEventResponse<'email_verification'>;
 }
 
 export interface AuthenticationEmailVerificationSucceededEvent
   extends EventBase {
   event: 'authentication.email_verification_succeeded';
-  data: EmailVerification;
+  data: AuthenticationEvent<'email_verification'>;
 }
 
 export interface AuthenticationEmailVerificationSucceededEventResponse
   extends EventResponseBase {
   event: 'authentication.email_verification_succeeded';
-  data: EmailVerificationResponse;
+  data: AuthenticationEventResponse<'email_verification'>;
 }
 
 export interface ConnectionActivatedEvent extends EventBase {
