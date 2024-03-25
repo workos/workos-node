@@ -8,6 +8,8 @@ import {
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  AuthenticationEvent,
+  AuthenticationEventResponse,
   Session,
   SessionResponse,
   User,
@@ -26,6 +28,51 @@ export interface EventBase {
 interface EventResponseBase {
   id: string;
   created_at: string;
+}
+
+export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEvent<'email_verification'>;
+}
+
+export interface AuthenticationEmailVerificationFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEventResponse<'email_verification'>;
+}
+
+export interface AuthenticationEmailVerificationSucceededEvent
+  extends EventBase {
+  event: 'authentication.email_verification_succeeded';
+  data: AuthenticationEvent<'email_verification'>;
+}
+
+export interface AuthenticationEmailVerificationSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.email_verification_succeeded';
+  data: AuthenticationEventResponse<'email_verification'>;
+}
+
+export interface AuthenticationMfaSucceededEvent extends EventBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEvent<'mfa'>;
+}
+
+export interface AuthenticationMfaSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEventResponse<'mfa'>;
+}
+
+export interface AuthenticationMfaFailedEvent extends EventBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEvent<'mfa'>;
+}
+
+export interface AuthenticationMfaFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEventResponse<'mfa'>;
 }
 
 export interface ConnectionActivatedEvent extends EventBase {
@@ -257,6 +304,10 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
 }
 
 export type Event =
+  | AuthenticationEmailVerificationFailedEvent
+  | AuthenticationEmailVerificationSucceededEvent
+  | AuthenticationMfaFailedEvent
+  | AuthenticationMfaSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -280,6 +331,10 @@ export type Event =
   | SessionCreatedEvent;
 
 export type EventResponse =
+  | AuthenticationEmailVerificationFailedEventResponse
+  | AuthenticationEmailVerificationSucceededEventResponse
+  | AuthenticationMfaFailedEventResponse
+  | AuthenticationMfaSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
