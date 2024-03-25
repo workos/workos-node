@@ -53,6 +53,28 @@ export interface AuthenticationEmailVerificationSucceededEventResponse
   data: AuthenticationEventResponse<'email_verification'>;
 }
 
+export interface AuthenticationMfaSucceededEvent extends EventBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEvent<'mfa'>;
+}
+
+export interface AuthenticationMfaSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEventResponse<'mfa'>;
+}
+
+export interface AuthenticationMfaFailedEvent extends EventBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEvent<'mfa'>;
+}
+
+export interface AuthenticationMfaFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEventResponse<'mfa'>;
+}
+
 export interface ConnectionActivatedEvent extends EventBase {
   event: 'connection.activated';
   data: Connection;
@@ -284,6 +306,8 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
 export type Event =
   | AuthenticationEmailVerificationFailedEvent
   | AuthenticationEmailVerificationSucceededEvent
+  | AuthenticationMfaFailedEvent
+  | AuthenticationMfaSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -309,6 +333,8 @@ export type Event =
 export type EventResponse =
   | AuthenticationEmailVerificationFailedEventResponse
   | AuthenticationEmailVerificationSucceededEventResponse
+  | AuthenticationMfaFailedEventResponse
+  | AuthenticationMfaSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
