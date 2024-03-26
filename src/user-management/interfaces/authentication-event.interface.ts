@@ -3,22 +3,25 @@ interface AuthenticationEventError {
   message: string;
 }
 
-export type AuthenticationEventType =
-  | 'email_verification'
-  | 'magic_auth'
-  | 'mfa'
-  | 'oauth'
-  | 'password'
-  | 'sso';
+interface AuthenticationEventTypes {
+  'sso': {},
+  'password': {},
+  'oauth': {},
+  'mfa': {},
+  'magic_auth': {},
+  'email_verification': {},
+}
 
-export interface AuthenticationEvent<T extends AuthenticationEventType> {
+export type AuthenticationEventType = keyof AuthenticationEventTypes;
+
+export type AuthenticationEvent<T extends AuthenticationEventType> = {
   type: T;
   email: string;
   ipAddress: string | null;
   userAgent: string | null;
   userId: string | null;
   error?: AuthenticationEventError;
-}
+} & Pick<AuthenticationEventTypes, T>
 
 export interface AuthenticationEventResponse<
   T extends AuthenticationEventType,
