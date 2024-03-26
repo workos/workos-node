@@ -8,6 +8,7 @@ import {
 } from '../../directory-sync/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import { deserializeUser } from '../../user-management/serializers';
+import { deserializeAuthenticationEvent } from '../../user-management/serializers/authentication-event.serializer';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
@@ -19,6 +20,27 @@ export const deserializeEvent = (event: EventResponse): Event => {
   };
 
   switch (event.event) {
+    case 'authentication.email_verification_failed':
+    case 'authentication.email_verification_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
+    case 'authentication.mfa_failed':
+    case 'authentication.mfa_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
+    case 'authentication.oauth_failed':
+    case 'authentication.oauth_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
     case 'connection.activated':
     case 'connection.deactivated':
     case 'connection.deleted':
