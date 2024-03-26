@@ -543,6 +543,12 @@ export class UserManagement {
       );
     }
 
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
+      );
+    }
+
     const query = toQueryString({
       connection_id: connectionId,
       organization_id: organizationId,
