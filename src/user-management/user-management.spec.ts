@@ -810,6 +810,20 @@ describe('UserManagement', () => {
   });
 
   describe('getAuthorizationUrl', () => {
+    describe('with a screenHint', () => {
+      it('generates an authorize url with a screenHint', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          screenHint: 'sign-up',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
     describe('with no custom api hostname', () => {
       it('generates an authorize url with the default api hostname', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');

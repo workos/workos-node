@@ -535,6 +535,7 @@ export class UserManagement {
     provider,
     redirectUri,
     state,
+    screenHint,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
@@ -552,6 +553,7 @@ export class UserManagement {
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
+      screenHint,
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;

@@ -7,4 +7,5 @@ export interface AuthorizationURLOptions {
   provider?: string;
   redirectUri: string;
   state?: string;
+  screenHint?: 'sign-up' | 'sign-in';
 }
