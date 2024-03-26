@@ -13,7 +13,7 @@ export type AuthenticationEventType =
 
 export type AuthenticationEvent = {
   type: AuthenticationEventType;
-  email?: string;
+  email?: string | null;
   ipAddress: string | null;
   userAgent: string | null;
   userId: string | null;
@@ -22,7 +22,7 @@ export type AuthenticationEvent = {
 
 export interface AuthenticationEventResponse {
   type: AuthenticationEventType;
-  email?: string;
+  email?: string | null;
   ip_address: string | null;
   user_agent: string | null;
   user_id: string | null;
