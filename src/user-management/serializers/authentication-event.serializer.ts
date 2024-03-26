@@ -1,14 +1,11 @@
 import {
   AuthenticationEvent,
   AuthenticationEventResponse,
-  AuthenticationEventType,
 } from '../interfaces';
 
-export const deserializeAuthenticationEvent = <
-  T extends AuthenticationEventType,
->(
-  authenticationEvent: AuthenticationEventResponse<T>,
-): AuthenticationEvent<T> => ({
+export const deserializeAuthenticationEvent = (
+  authenticationEvent: AuthenticationEventResponse,
+): AuthenticationEvent => ({
   type: authenticationEvent.type,
   email: authenticationEvent.email,
   ipAddress: authenticationEvent.ip_address,

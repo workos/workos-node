@@ -32,100 +32,136 @@ interface EventResponseBase {
 
 export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
   event: 'authentication.email_verification_failed';
-  data: AuthenticationEvent<'email_verification'>;
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationEmailVerificationFailedEventResponse
   extends EventResponseBase {
   event: 'authentication.email_verification_failed';
-  data: AuthenticationEventResponse<'email_verification'>;
+  data: AuthenticationEventResponse;
 }
 
 export interface AuthenticationEmailVerificationSucceededEvent
   extends EventBase {
   event: 'authentication.email_verification_succeeded';
-  data: AuthenticationEvent<'email_verification'>;
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationEmailVerificationSucceededEventResponse
   extends EventResponseBase {
   event: 'authentication.email_verification_succeeded';
-  data: AuthenticationEventResponse<'email_verification'>;
+  data: AuthenticationEventResponse;
 }
 
-export interface AuthenticationMfaSucceededEvent extends EventBase {
-  event: 'authentication.mfa_succeeded';
-  data: AuthenticationEvent<'mfa'>;
+export interface AuthenticationMagicAuthFailedEvent extends EventBase {
+  event: 'authentication.magic_auth_failed';
+  data: AuthenticationEvent;
 }
 
-export interface AuthenticationMfaSucceededEventResponse
+export interface AuthenticationMagicAuthFailedEventResponse
   extends EventResponseBase {
-  event: 'authentication.mfa_succeeded';
-  data: AuthenticationEventResponse<'mfa'>;
+  event: 'authentication.magic_auth_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMagicAuthSucceededEvent extends EventBase {
+  event: 'authentication.magic_auth_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMagicAuthSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.magic_auth_succeeded';
+  data: AuthenticationEventResponse;
 }
 
 export interface AuthenticationMfaFailedEvent extends EventBase {
   event: 'authentication.mfa_failed';
-  data: AuthenticationEvent<'mfa'>;
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationMfaFailedEventResponse
   extends EventResponseBase {
   event: 'authentication.mfa_failed';
-  data: AuthenticationEventResponse<'mfa'>;
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMfaSucceededEvent extends EventBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMfaSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationOAuthFailedEvent extends EventBase {
+  event: 'authentication.oauth_failed';
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationOAuthFailedEventResponse
   extends EventResponseBase {
   event: 'authentication.oauth_failed';
-  data: AuthenticationEventResponse<'oauth'>;
+  data: AuthenticationEventResponse;
 }
 
 export interface AuthenticationOAuthSucceededEvent extends EventBase {
   event: 'authentication.oauth_succeeded';
-  data: AuthenticationEvent<'oauth'>;
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationOAuthSucceededEventResponse
   extends EventResponseBase {
   event: 'authentication.oauth_succeeded';
-  data: AuthenticationEventResponse<'oauth'>;
+  data: AuthenticationEventResponse;
 }
 
-export interface AuthenticationOAuthFailedEvent extends EventBase {
-  event: 'authentication.oauth_failed';
-  data: AuthenticationEvent<'oauth'>;
+export interface AuthenticationPasswordFailedEvent extends EventBase {
+  event: 'authentication.password_failed';
+  data: AuthenticationEvent;
 }
 
-export interface AuthenticationOAuthFailedEventResponse
+export interface AuthenticationPasswordFailedEventResponse
   extends EventResponseBase {
-  event: 'authentication.oauth_failed';
-  data: AuthenticationEventResponse<'oauth'>;
+  event: 'authentication.password_failed';
+  data: AuthenticationEventResponse;
 }
 
-export interface AuthenticationSSOSucceededEvent extends EventBase {
-  event: 'authentication.sso_succeeded';
-  data: AuthenticationEvent<'sso'>;
+export interface AuthenticationPasswordSucceededEvent extends EventBase {
+  event: 'authentication.password_succeeded';
+  data: AuthenticationEvent;
 }
 
-export interface AuthenticationSSOSucceededEventResponse
+export interface AuthenticationPasswordSucceededEventResponse
   extends EventResponseBase {
-  event: 'authentication.sso_succeeded';
-  data: AuthenticationEventResponse<'sso'>;
+  event: 'authentication.password_succeeded';
+  data: AuthenticationEventResponse;
 }
-
 
 export interface AuthenticationSSOFailedEvent extends EventBase {
   event: 'authentication.sso_failed';
-  data: AuthenticationEvent<'sso'>;
+  data: AuthenticationEvent;
 }
 
 export interface AuthenticationSSOFailedEventResponse
   extends EventResponseBase {
   event: 'authentication.sso_failed';
-  data: AuthenticationEventResponse<'sso'>;
+  data: AuthenticationEventResponse;
 }
 
+export interface AuthenticationSSOSucceededEvent extends EventBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEventResponse;
+}
 
 export interface ConnectionActivatedEvent extends EventBase {
   event: 'connection.activated';
@@ -362,6 +398,12 @@ export type Event =
   | AuthenticationMfaSucceededEvent
   | AuthenticationOAuthFailedEvent
   | AuthenticationOAuthSucceededEvent
+  | AuthenticationSSOFailedEvent
+  | AuthenticationSSOSucceededEvent
+  | AuthenticationPasswordFailedEvent
+  | AuthenticationPasswordSucceededEvent
+  | AuthenticationMagicAuthFailedEvent
+  | AuthenticationMagicAuthSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -387,10 +429,16 @@ export type Event =
 export type EventResponse =
   | AuthenticationEmailVerificationFailedEventResponse
   | AuthenticationEmailVerificationSucceededEventResponse
+  | AuthenticationMagicAuthFailedEventResponse
+  | AuthenticationMagicAuthSucceededEventResponse
   | AuthenticationMfaFailedEventResponse
   | AuthenticationMfaSucceededEventResponse
   | AuthenticationOAuthFailedEventResponse
   | AuthenticationOAuthSucceededEventResponse
+  | AuthenticationPasswordFailedEventResponse
+  | AuthenticationPasswordSucceededEventResponse
+  | AuthenticationSSOFailedEventResponse
+  | AuthenticationSSOSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
