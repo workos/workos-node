@@ -22,9 +22,9 @@ export type AuthenticationEvent = {
 
 export interface AuthenticationEventResponse {
   type: AuthenticationEventType;
-  email?: string | null;
+  email: string | null;
   ip_address: string | null;
   user_agent: string | null;
   user_id: string | null;
-  error?: AuthenticationEventError;
+  error: AuthenticationEventError | null;
 }
