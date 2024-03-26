@@ -6,10 +6,11 @@ import {
 export const deserializeAuthenticationEvent = (
   authenticationEvent: AuthenticationEventResponse,
 ): AuthenticationEvent => ({
-  type: authenticationEvent.type,
   email: authenticationEvent.email,
+  error: authenticationEvent.error,
   ipAddress: authenticationEvent.ip_address,
+  status: authenticationEvent.status,
+  type: authenticationEvent.type,
   userAgent: authenticationEvent.user_agent,
   userId: authenticationEvent.user_id,
-  error: authenticationEvent.error,
 });

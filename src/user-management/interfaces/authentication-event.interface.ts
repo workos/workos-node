@@ -3,7 +3,7 @@ interface AuthenticationEventError {
   message: string;
 }
 
-export type AuthenticationEventType =
+type AuthenticationEventType =
   | 'sso'
   | 'password'
   | 'oauth'
@@ -11,20 +11,24 @@ export type AuthenticationEventType =
   | 'magic_auth'
   | 'email_verification';
 
+type AuthenticationEventStatus = 'failed' | 'succeeded';
+
 export type AuthenticationEvent = {
-  type: AuthenticationEventType;
   email?: string | null;
+  error?: AuthenticationEventError;
   ipAddress: string | null;
+  status: AuthenticationEventStatus;
+  type: AuthenticationEventType;
   userAgent: string | null;
   userId: string | null;
-  error?: AuthenticationEventError;
 };
 
 export interface AuthenticationEventResponse {
-  type: AuthenticationEventType;
   email: string | null;
+  error?: AuthenticationEventError;
   ip_address: string | null;
+  status: AuthenticationEventStatus;
+  type: AuthenticationEventType;
   user_agent: string | null;
   user_id: string | null;
-  error: AuthenticationEventError | null;
 }
