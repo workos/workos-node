@@ -5,7 +5,7 @@ on:
   workflow_dispatch: {}
   # Trigger when a release is published
   release:
-    types: [published]
+    types: [released]
 
 defaults:
   run:
