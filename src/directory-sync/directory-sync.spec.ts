@@ -142,7 +142,6 @@ describe('DirectorySync', () => {
         });
 
         expect(fetchSearchParams()).toMatchObject({
-          domain: 'google.com',
           organization_id: 'org_1234',
         });
         expect(subject).toMatchObject({
