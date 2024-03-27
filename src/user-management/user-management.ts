@@ -28,6 +28,10 @@ import {
   User,
   UserResponse,
   VerifyEmailOptions,
+  AuthenticateWithRefreshTokenOptions,
+  SerializedAuthenticateWithRefreshTokenOptions,
+  RefreshAuthenticationResponseResponse,
+  RefreshAuthenticationResponse,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -43,6 +47,8 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
+  deserializeRefreshAuthenticationResponse,
+  serializeAuthenticateWithRefreshTokenOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -90,6 +96,16 @@ import {
   FactorWithSecretsResponse,
 } from './interfaces/factor.interface';
 import { deserializeFactor } from './serializers/factor.serializer';
+import {
+  RevokeSessionOptions,
+  SerializedRevokeSessionOptions,
+  serializeRevokeSessionOptions,
+} from './interfaces/revoke-session-options.interface';
+import {
+  SerializedUpdateOrganizationMembershipOptions,
+  UpdateOrganizationMembershipOptions,
+} from './interfaces/update-organization-membership-options.interface';
+import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -132,14 +148,13 @@ export class UserManagement {
           deserializeUser,
           params,
         ),
-      options,
+      options ? serializeListUsersOptions(options) : undefined,
     );
   }
 
   async createUser(payload: CreateUserOptions): Promise<User> {
     const { data } = await this.workos.post<
       UserResponse,
-      any,
       SerializedCreateUserOptions
     >('/user_management/users', serializeCreateUserOptions(payload));
 
@@ -151,7 +166,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithMagicAuthOptions
     >(
       '/user_management/authenticate',
@@ -169,7 +183,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithPasswordOptions
     >(
       '/user_management/authenticate',
@@ -187,7 +200,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithCodeOptions
     >(
       '/user_management/authenticate',
@@ -200,12 +212,28 @@ export class UserManagement {
     return deserializeAuthenticationResponse(data);
   }
 
+  async authenticateWithRefreshToken(
+    payload: AuthenticateWithRefreshTokenOptions,
+  ): Promise<RefreshAuthenticationResponse> {
+    const { data } = await this.workos.post<
+      RefreshAuthenticationResponseResponse,
+      SerializedAuthenticateWithRefreshTokenOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithRefreshTokenOptions({
+        ...payload,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return deserializeRefreshAuthenticationResponse(data);
+  }
+
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithTotpOptions
     >(
       '/user_management/authenticate',
@@ -223,7 +251,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithEmailVerificationOptions
     >(
       '/user_management/authenticate',
@@ -241,7 +268,6 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      any,
       SerializedAuthenticateWithOrganizationSelectionOptions
     >(
       '/user_management/authenticate',
@@ -278,7 +304,6 @@ export class UserManagement {
   }: VerifyEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
       { user: UserResponse },
-      any,
       SerializedVerifyEmailOptions
     >(`/user_management/users/${userId}/email_verification/confirm`, {
       code,
@@ -299,7 +324,6 @@ export class UserManagement {
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
       { user: UserResponse },
-      any,
       SerializedResetPasswordOptions
     >(
       '/user_management/password_reset/confirm',
@@ -400,7 +424,9 @@ export class UserManagement {
           deserializeOrganizationMembership,
           params,
         ),
-      options,
+      options
+        ? serializeListOrganizationMembershipsOptions(options)
+        : undefined,
     );
   }
 
@@ -409,11 +435,25 @@ export class UserManagement {
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.post<
       OrganizationMembershipResponse,
-      any,
       SerializedCreateOrganizationMembershipOptions
     >(
       '/user_management/organization_memberships',
       serializeCreateOrganizationMembershipOptions(options),
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
+  async updateOrganizationMembership(
+    organizationMembershipId: string,
+    options: UpdateOrganizationMembershipOptions,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<
+      OrganizationMembershipResponse,
+      SerializedUpdateOrganizationMembershipOptions
+    >(
+      `/user_management/organization_memberships/${organizationMembershipId}`,
+      serializeUpdateOrganizationMembershipOptions(options),
     );
 
     return deserializeOrganizationMembership(data);
@@ -452,14 +492,13 @@ export class UserManagement {
           deserializeInvitation,
           params,
         ),
-      options,
+      options ? serializeListInvitationsOptions(options) : undefined,
     );
   }
 
   async sendInvitation(payload: SendInvitationOptions): Promise<Invitation> {
     const { data } = await this.workos.post<
       InvitationResponse,
-      any,
       SerializedSendInvitationOptions
     >(
       '/user_management/invitations',
@@ -480,6 +519,13 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async revokeSession(payload: RevokeSessionOptions): Promise<void> {
+    await this.workos.post<void, SerializedRevokeSessionOptions>(
+      '/user_management/sessions/revoke',
+      serializeRevokeSessionOptions(payload),
+    );
+  }
+
   getAuthorizationUrl({
     connectionId,
     clientId,
@@ -491,7 +537,7 @@ export class UserManagement {
     state,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
-      throw new Error(
+      throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
       );
     }
@@ -509,5 +555,20 @@ export class UserManagement {
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
+  }
+
+  getLogoutUrl({ sessionId }: { sessionId: string }): string {
+    if (!sessionId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
+    }
+
+    return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
+  }
+
+  getJwksUrl(clientId: string): string {
+    if (!clientId) {
+      throw TypeError('clientId must be a valid clientId');
+    }
+    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }

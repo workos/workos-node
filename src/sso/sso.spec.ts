@@ -1,10 +1,19 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import {
+  fetchOnce,
+  fetchURL,
+  fetchHeaders,
+  fetchBody,
+  fetchSearchParams,
+} from '../common/utils/test-utils';
 
 import { WorkOS } from '../workos';
 import { ConnectionResponse, ConnectionType } from './interfaces';
+import { ListResponse } from '../common/interfaces';
 
 describe('SSO', () => {
+  beforeEach(() => fetch.resetMocks());
+
   const connectionResponse: ConnectionResponse = {
     object: 'connection',
     id: 'conn_123',
@@ -18,6 +27,29 @@ describe('SSO', () => {
   };
 
   describe('SSO', () => {
+    describe('with options', () => {
+      it('requests Connections with query parameters', async () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const listConnectionsResponse: ListResponse<ConnectionResponse> = {
+          object: 'list',
+          data: [connectionResponse],
+          list_metadata: {},
+        };
+
+        fetchOnce(listConnectionsResponse);
+
+        await workos.sso.listConnections({
+          connectionType: ConnectionType.OktaSAML,
+          organizationId: 'org_123',
+        });
+
+        expect(fetchSearchParams()).toMatchObject({
+          connection_type: ConnectionType.OktaSAML,
+          organization_id: 'org_123',
+        });
+      });
+    });
+
     describe('getAuthorizationUrl', () => {
       describe('with no custom api hostname', () => {
         it('generates an authorize url with the default api hostname', () => {
@@ -166,47 +198,25 @@ describe('SSO', () => {
     describe('getProfileAndToken', () => {
       describe('with all information provided', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
-          const mock = new MockAdapter(axios);
-
-          const expectedBody = new URLSearchParams({
-            client_id: 'proj_123',
-            client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
-            code: 'authorization_code',
-            grant_type: 'authorization_code',
-          });
-          expectedBody.sort();
-
-          mock.onPost('/sso/token').replyOnce((config) => {
-            const actualBody = new URLSearchParams(config.data);
-            actualBody.sort();
-
-            if (actualBody.toString() === expectedBody.toString()) {
-              return [
-                200,
-                {
-                  access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
-                  profile: {
-                    id: 'prof_123',
-                    idp_id: '123',
-                    organization_id: 'org_123',
-                    connection_id: 'conn_123',
-                    connection_type: 'OktaSAML',
-                    email: 'foo@test.com',
-                    first_name: 'foo',
-                    last_name: 'bar',
-                    groups: ['Admins', 'Developers'],
-                    raw_attributes: {
-                      email: 'foo@test.com',
-                      first_name: 'foo',
-                      last_name: 'bar',
-                      groups: ['Admins', 'Developers'],
-                    },
-                  },
-                },
-              ];
-            }
-
-            return [404];
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              groups: ['Admins', 'Developers'],
+              raw_attributes: {
+                email: 'foo@test.com',
+                first_name: 'foo',
+                last_name: 'bar',
+                groups: ['Admins', 'Developers'],
+              },
+            },
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -215,11 +225,10 @@ describe('SSO', () => {
             clientId: 'proj_123',
           });
 
-          expect(mock.history.post.length).toBe(1);
-          const { data, headers } = mock.history.post[0];
+          expect(fetch.mock.calls.length).toEqual(1);
 
-          expect(data).toMatchSnapshot();
-          expect(headers).toMatchSnapshot();
+          expect(fetchBody()).toMatchSnapshot();
+          expect(fetchHeaders()).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -227,45 +236,23 @@ describe('SSO', () => {
 
       describe('without a groups attribute', () => {
         it('sends a request to the WorkOS api for a profile', async () => {
-          const mock = new MockAdapter(axios);
-
-          const expectedBody = new URLSearchParams({
-            client_id: 'proj_123',
-            client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
-            code: 'authorization_code',
-            grant_type: 'authorization_code',
-          });
-          expectedBody.sort();
-
-          mock.onPost('/sso/token').replyOnce((config) => {
-            const actualBody = new URLSearchParams(config.data);
-            actualBody.sort();
-
-            if (actualBody.toString() === expectedBody.toString()) {
-              return [
-                200,
-                {
-                  access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
-                  profile: {
-                    id: 'prof_123',
-                    idp_id: '123',
-                    organization_id: 'org_123',
-                    connection_id: 'conn_123',
-                    connection_type: 'OktaSAML',
-                    email: 'foo@test.com',
-                    first_name: 'foo',
-                    last_name: 'bar',
-                    raw_attributes: {
-                      email: 'foo@test.com',
-                      first_name: 'foo',
-                      last_name: 'bar',
-                    },
-                  },
-                },
-              ];
-            }
-
-            return [404];
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              raw_attributes: {
+                email: 'foo@test.com',
+                first_name: 'foo',
+                last_name: 'bar',
+              },
+            },
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -274,11 +261,10 @@ describe('SSO', () => {
             clientId: 'proj_123',
           });
 
-          expect(mock.history.post.length).toBe(1);
-          const { data, headers } = mock.history.post[0];
+          expect(fetch.mock.calls.length).toEqual(1);
 
-          expect(data).toMatchSnapshot();
-          expect(headers).toMatchSnapshot();
+          expect(fetchBody()).toMatchSnapshot();
+          expect(fetchHeaders()).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -287,38 +273,33 @@ describe('SSO', () => {
 
     describe('getProfile', () => {
       it('calls the `/sso/profile` endpoint with the provided access token', async () => {
-        const mock = new MockAdapter(axios);
-
-        mock
-          .onGet('/sso/profile', {
-            accessToken: 'access_token',
-          })
-          .replyOnce(200, {
-            id: 'prof_123',
-            idp_id: '123',
-            organization_id: 'org_123',
-            connection_id: 'conn_123',
-            connection_type: 'OktaSAML',
+        fetchOnce({
+          id: 'prof_123',
+          idp_id: '123',
+          organization_id: 'org_123',
+          connection_id: 'conn_123',
+          connection_type: 'OktaSAML',
+          email: 'foo@test.com',
+          first_name: 'foo',
+          last_name: 'bar',
+          groups: ['Admins', 'Developers'],
+          raw_attributes: {
             email: 'foo@test.com',
             first_name: 'foo',
             last_name: 'bar',
             groups: ['Admins', 'Developers'],
-            raw_attributes: {
-              email: 'foo@test.com',
-              first_name: 'foo',
-              last_name: 'bar',
-              groups: ['Admins', 'Developers'],
-            },
-          });
+          },
+        });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         const profile = await workos.sso.getProfile({
           accessToken: 'access_token',
         });
 
-        expect(mock.history.get.length).toBe(1);
-        const { headers } = mock.history.get[0];
-        expect(headers?.Authorization).toBe(`Bearer access_token`);
+        expect(fetch.mock.calls.length).toEqual(1);
+        expect(fetchHeaders()).toMatchObject({
+          Authorization: 'Bearer access_token',
+        });
 
         expect(profile.id).toBe('prof_123');
       });
@@ -326,27 +307,25 @@ describe('SSO', () => {
 
     describe('deleteConnection', () => {
       it('sends request to delete a Connection', async () => {
-        const mock = new MockAdapter(axios);
-        mock.onDelete('/connections/conn_123').replyOnce(200, {});
+        fetchOnce();
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         await workos.sso.deleteConnection('conn_123');
 
-        expect(mock.history.delete[0].url).toEqual('/connections/conn_123');
+        expect(fetchURL()).toContain('/connections/conn_123');
       });
     });
 
     describe('getConnection', () => {
       it(`requests a Connection`, async () => {
-        const mock = new MockAdapter(axios);
-        mock.onGet('/connections/conn_123').replyOnce(200, connectionResponse);
+        fetchOnce(connectionResponse);
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         const subject = await workos.sso.getConnection('conn_123');
 
-        expect(mock.history.get[0].url).toEqual('/connections/conn_123');
+        expect(fetchURL()).toContain('/connections/conn_123');
 
         expect(subject.connectionType).toEqual('OktaSAML');
       });
@@ -354,8 +333,7 @@ describe('SSO', () => {
 
     describe('listConnections', () => {
       it(`requests a list of Connections`, async () => {
-        const mock = new MockAdapter(axios);
-        mock.onGet('/connections').replyOnce(200, {
+        fetchOnce({
           data: [connectionResponse],
           list_metadata: {},
         });
@@ -366,7 +344,7 @@ describe('SSO', () => {
           organizationId: 'org_1234',
         });
 
-        expect(mock.history.get[0].url).toEqual('/connections');
+        expect(fetchURL()).toContain('/connections');
 
         expect(subject.data).toHaveLength(1);
       });

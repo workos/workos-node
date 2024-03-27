@@ -10,6 +10,8 @@ export const deserializeOrganizationMembership = (
   id: organizationMembership.id,
   userId: organizationMembership.user_id,
   organizationId: organizationMembership.organization_id,
+  status: organizationMembership.status,
   createdAt: organizationMembership.created_at,
   updatedAt: organizationMembership.updated_at,
+  role: organizationMembership.role,
 });

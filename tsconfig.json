@@ -13,7 +13,8 @@
     "module": "commonjs",
     "declaration": true,
     "outDir": "lib",
-    "strict": true
+    "strict": true,
+    "lib": ["dom", "es2019"]
   },
   "include": ["src"]
 }

@@ -7,7 +7,12 @@ import {
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
-import { User, UserResponse } from '../../user-management/interfaces';
+import {
+  Session,
+  SessionResponse,
+  User,
+  UserResponse,
+} from '../../user-management/interfaces';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -219,6 +224,17 @@ export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   data: OrganizationMembershipResponse;
 }
 
+export interface OrganizationMembershipUpdated extends EventBase {
+  event: 'organization_membership.updated';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipUpdatedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.updated';
+  data: OrganizationMembershipResponse;
+}
+
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
   data: OrganizationMembership;
@@ -228,6 +244,16 @@ export interface OrganizationMembershipRemovedResponse
   extends EventResponseBase {
   event: 'organization_membership.removed';
   data: OrganizationMembershipResponse;
+}
+
+export interface SessionCreatedEvent extends EventBase {
+  event: 'session.created';
+  data: Session;
+}
+
+export interface SessionCreatedEventResponse extends EventResponseBase {
+  event: 'session.created';
+  data: SessionResponse;
 }
 
 export type Event =
@@ -249,7 +275,9 @@ export type Event =
   | UserUpdatedEvent
   | UserDeletedEvent
   | OrganizationMembershipAdded
-  | OrganizationMembershipRemoved;
+  | OrganizationMembershipUpdated
+  | OrganizationMembershipRemoved
+  | SessionCreatedEvent;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -270,25 +298,8 @@ export type EventResponse =
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
-  | OrganizationMembershipRemovedResponse;
+  | OrganizationMembershipUpdatedResponse
+  | OrganizationMembershipRemovedResponse
+  | SessionCreatedEventResponse;
 
-export type EventName =
-  | 'connection.activated'
-  | 'connection.deactivated'
-  | 'connection.deleted'
-  | 'dsync.activated'
-  | 'dsync.deactivated'
-  | 'dsync.deleted'
-  | 'dsync.group.created'
-  | 'dsync.group.deleted'
-  | 'dsync.group.updated'
-  | 'dsync.group.user_added'
-  | 'dsync.group.user_removed'
-  | 'dsync.user.created'
-  | 'dsync.user.deleted'
-  | 'dsync.user.updated'
-  | 'user.created'
-  | 'user.updated'
-  | 'user.deleted'
-  | 'organization_membership.added'
-  | 'organization_membership.removed';
+export type EventName = Event['event'];

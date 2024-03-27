@@ -1,5 +1,5 @@
-import axios from 'axios';
-import MockAdapter from 'axios-mock-adapter';
+import fetch from 'jest-fetch-mock';
+import { fetchOnce, fetchHeaders, fetchBody } from './common/utils/test-utils';
 import fs from 'fs/promises';
 import {
   GenericServerException,
@@ -9,9 +9,9 @@ import {
 } from './common/exceptions';
 import { WorkOS } from './workos';
 
-const mock = new MockAdapter(axios);
-
 describe('WorkOS', () => {
+  beforeEach(() => fetch.resetMocks());
+
   describe('constructor', () => {
     const OLD_ENV = process.env;
 
@@ -70,12 +70,12 @@ describe('WorkOS', () => {
       });
     });
 
-    describe('when the `axios` option is provided', () => {
-      it('applies the configuration to the Axios client', async () => {
-        mock.onPost().reply(200, 'OK', { 'X-Request-ID': 'a-request-id' });
+    describe('when the `config` option is provided', () => {
+      it('applies the configuration to the fetch client', async () => {
+        fetchOnce('{}', { headers: { 'X-Request-ID': 'a-request-id' } });
 
         const workos = new WorkOS('sk_test', {
-          axios: {
+          config: {
             headers: {
               'X-My-Custom-Header': 'Hey there!',
             },
@@ -84,7 +84,7 @@ describe('WorkOS', () => {
 
         await workos.post('/somewhere', {});
 
-        expect(mock.history.post[0].headers).toMatchObject({
+        expect(fetchHeaders()).toMatchObject({
           'X-My-Custom-Header': 'Hey there!',
         });
       });
@@ -107,12 +107,9 @@ describe('WorkOS', () => {
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
         const message = 'Not Found';
-        mock.onPost().reply(
-          404,
-          {
-            message,
-          },
-          { 'X-Request-ID': 'a-request-id' },
+        fetchOnce(
+          { message },
+          { status: 404, headers: { 'X-Request-ID': 'a-request-id' } },
         );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -129,13 +126,9 @@ describe('WorkOS', () => {
       it('preserves the error code, status, and message from the underlying response', async () => {
         const message = 'The thing you are looking for is not here.';
         const code = 'thing-not-found';
-        mock.onPost().reply(
-          404,
-          {
-            code,
-            message,
-          },
-          { 'X-Request-ID': 'a-request-id' },
+        fetchOnce(
+          { code, message },
+          { status: 404, headers: { 'X-Request-ID': 'a-request-id' } },
         );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -150,12 +143,9 @@ describe('WorkOS', () => {
       it('includes the path in the message if there is no message in the response', async () => {
         const code = 'thing-not-found';
         const path = '/path/to/thing/that-aint-there';
-        mock.onPost().reply(
-          404,
-          {
-            code,
-          },
-          { 'X-Request-ID': 'a-request-id' },
+        fetchOnce(
+          { code },
+          { status: 404, headers: { 'X-Request-ID': 'a-request-id' } },
         );
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -170,11 +160,11 @@ describe('WorkOS', () => {
 
     describe('when the api responds with a 500 and no error/error_description', () => {
       it('throws an GenericServerException', async () => {
-        mock.onPost().reply(
-          500,
+        fetchOnce(
           {},
           {
-            'X-Request-ID': 'a-request-id',
+            status: 500,
+            headers: { 'X-Request-ID': 'a-request-id' },
           },
         );
 
@@ -187,11 +177,11 @@ describe('WorkOS', () => {
     });
     describe('when the api responds with a 400 and an error/error_description', () => {
       it('throws an OauthException', async () => {
-        mock.onPost().reply(
-          400,
+        fetchOnce(
           { error: 'error', error_description: 'error description' },
           {
-            'X-Request-ID': 'a-request-id',
+            status: 400,
+            headers: { 'X-Request-ID': 'a-request-id' },
           },
         );
 
@@ -206,6 +196,17 @@ describe('WorkOS', () => {
             { error: 'error', error_description: 'error description' },
           ),
         );
+      });
+    });
+
+    describe('when the entity is null', () => {
+      it('sends a null body', async () => {
+        fetchOnce();
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        await workos.post('/somewhere', null);
+
+        expect(fetchBody({ raw: true })).toBeNull();
       });
     });
   });

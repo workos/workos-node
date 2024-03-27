@@ -1,6 +1,7 @@
 export * from './authenticate-with-magic-auth-options.interface';
 export * from './authenticate-with-password-options.interface';
 export * from './authenticate-with-code-options.interface';
+export * from './authenticate-with-refresh-token-options.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-response.interface';
 export * from './reset-password-options.interface';
@@ -14,4 +15,5 @@ export * from './send-verification-email-options';
 export * from './update-user-options.interface';
 export * from './update-user-password-options.interface';
 export * from './user.interface';
+export * from './session.interface';
 export * from './verify-email-options.interface';
