@@ -535,10 +535,17 @@ export class UserManagement {
     provider,
     redirectUri,
     state,
+    screenHint,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    }
+
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
       );
     }
 
@@ -552,6 +559,7 @@ export class UserManagement {
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
+      screenHint,
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
