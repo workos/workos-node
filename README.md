@@ -1,7 +1,7 @@
 # WorkOS Node.js Library
 
 ![npm](https://img.shields.io/npm/v/@workos-inc/node)
-[![Build Status](https://workos.semaphoreci.com/badges/workos-node/branches/main.svg?style=shields)](https://workos.semaphoreci.com/projects/workos-node)
+[![Build Status](https://github.com/workos/workos-node/actions/workflows/ci.yml/badge.svg)](https://github.com/workos/workos-node/actions/workflows/ci.yml)
 
 The WorkOS library for Node.js provides convenient access to the WorkOS API from applications written in server-side JavaScript.
 
