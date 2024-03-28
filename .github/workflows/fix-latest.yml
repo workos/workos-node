@@ -1,0 +1,36 @@
+name: Fix @latest tag
+
+on:
+  workflow_dispatch:
+    inputs:
+      latest-version:
+        description: 'The version that should be @latest, e.g. "6.7.0"'
+        required: true
+        type: string
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  test:
+    name: Update @latest tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install Dependencies
+        run: |
+          npm install
+
+      - name: Tag
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          LATEST_VERSION: ${{ inputs.latest-version }}
+        run: |
+          echo "Setting @workos-inc/node@latest to $LATEST_VERSION"
+          npm dist-tag add @workos-inc/node@$LATEST_VERSION latest
