@@ -6,7 +6,6 @@ import {
 export const serializeListDirectoriesOptions = (
   options: ListDirectoriesOptions,
 ): SerializedListDirectoriesOptions => ({
-  domain: options.domain,
   organization_id: options.organizationId,
   search: options.search,
   limit: options.limit,
