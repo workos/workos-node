@@ -559,7 +559,7 @@ export class UserManagement {
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
-      screenHint,
+      screen_hint: screenHint,
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
