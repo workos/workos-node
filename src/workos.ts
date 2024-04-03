@@ -28,6 +28,13 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FetchClient } from './common/utils/fetch-client';
 import { FetchError } from './common/utils/fetch-error';
 
+import { Crypto } from '@peculiar/webcrypto';
+
+// Assign Node's Crypto to global.crypto if it is not already present
+if (!global.crypto) {
+  global.crypto = new Crypto();
+}
+
 const VERSION = '6.8.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
