@@ -15,6 +15,7 @@
   "engines": {
     "node": ">=19"
   },
+  "engineStrict": true,
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
