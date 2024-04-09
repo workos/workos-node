@@ -71,12 +71,20 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
+    let userAgent: string = `workos-node/${VERSION}`;
+
+    if (options.appInfo) {
+      const { name, version }: { name: string; version: string } =
+        options.appInfo;
+      userAgent += ` ${name}: ${version}`;
+    }
+
     this.client = new FetchClient(this.baseURL, {
       ...options.config,
       headers: {
         ...options.config?.headers,
         Authorization: `Bearer ${this.key}`,
-        'User-Agent': `workos-node/${VERSION}`,
+        'User-Agent': userAgent,
       },
     });
   }
