@@ -186,7 +186,7 @@ export class WorkOS {
         message,
       } = data;
 
-      console.log(code, errorDescription, error, errors, message);
+      console.log(status, data, headers);
 
       switch (status) {
         case 401: {
