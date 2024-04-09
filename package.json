@@ -12,6 +12,10 @@
     "node": "14.21.3",
     "yarn": "1.22.19"
   },
+  "engines": {
+    "node": ">=19"
+  },
+  "engineStrict": true,
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
