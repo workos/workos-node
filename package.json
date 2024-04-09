@@ -9,7 +9,8 @@
     "workos"
   ],
   "volta": {
-    "node": "20.12.0"
+    "node": "14.21.3",
+    "yarn": "1.22.19"
   },
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -30,7 +31,7 @@
     "test:watch": "jest --watch",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "yarn run build"
   },
   "dependencies": {
     "pluralize": "8.0.0"
