@@ -186,6 +186,8 @@ export class WorkOS {
         message,
       } = data;
 
+      console.log(code, errorDescription, error, errors, message);
+
       switch (status) {
         case 401: {
           throw new UnauthorizedException(requestID);
