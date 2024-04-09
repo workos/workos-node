@@ -89,6 +89,29 @@ describe('WorkOS', () => {
         });
       });
     });
+
+    describe('when the `appInfo` option is provided', () => {
+      it('applies the configuration to the fetch client user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test', {
+          appInfo: {
+            name: 'fooApp',
+            version: '1.0.0',
+          },
+        });
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version} fooApp: 1.0.0`,
+        });
+      });
+    });
   });
 
   describe('version', () => {
