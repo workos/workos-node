@@ -138,12 +138,10 @@ describe('DirectorySync', () => {
         fetchOnce(directoryListResponse);
 
         const subject = await workos.directorySync.listDirectories({
-          domain: 'google.com',
           organizationId: 'org_1234',
         });
 
         expect(fetchSearchParams()).toMatchObject({
-          domain: 'google.com',
           organization_id: 'org_1234',
         });
         expect(subject).toMatchObject({
@@ -154,9 +152,6 @@ describe('DirectorySync', () => {
             listMetadata: {},
           },
           apiCall: expect.any(Function),
-          options: {
-            domain: 'google.com',
-          },
         });
       });
     });
