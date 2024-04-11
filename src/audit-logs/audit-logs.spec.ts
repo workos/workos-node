@@ -205,7 +205,7 @@ describe('AuditLogs', () => {
           targets: ['user', 'team'],
         };
 
-        const timestamp = new Date().toISOString();
+        const timestamp: string = new Date().toISOString();
 
         const auditLogExport: AuditLogExport = {
           object: 'audit_log_export',
