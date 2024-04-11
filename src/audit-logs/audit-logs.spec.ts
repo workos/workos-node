@@ -205,13 +205,15 @@ describe('AuditLogs', () => {
           targets: ['user', 'team'],
         };
 
+        const timestamp = new Date().toISOString();
+
         const auditLogExport: AuditLogExport = {
           object: 'audit_log_export',
           id: 'audit_log_export_1234',
           state: 'pending',
           url: undefined,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          createdAt: timestamp,
+          updatedAt: timestamp,
         };
 
         const auditLogExportResponse: AuditLogExportResponse = {
@@ -219,8 +221,8 @@ describe('AuditLogs', () => {
           id: 'audit_log_export_1234',
           state: 'pending',
           url: undefined,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
+          created_at: timestamp,
+          updated_at: timestamp,
         };
 
         workosSpy.mockResolvedValueOnce(
