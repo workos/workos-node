@@ -6,6 +6,10 @@ import {
   EventDirectory,
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
+import {
+  Organization,
+  OrganizationResponse,
+} from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
   Session,
@@ -246,6 +250,36 @@ export interface OrganizationMembershipRemovedResponse
   data: OrganizationMembershipResponse;
 }
 
+export interface OrganizationCreatedEvent extends EventBase {
+  event: 'organization.created';
+  data: Organization;
+}
+
+export interface OrganizationCreatedResponse extends EventResponseBase {
+  event: 'organization.created';
+  data: OrganizationResponse;
+}
+
+export interface OrganizationUpdatedEvent extends EventBase {
+  event: 'organization.updated';
+  data: Organization;
+}
+
+export interface OrganizationUpdatedResponse extends EventResponseBase {
+  event: 'organization.updated';
+  data: OrganizationResponse;
+}
+
+export interface OrganizationDeletedEvent extends EventBase {
+  event: 'organization.deleted';
+  data: Organization;
+}
+
+export interface OrganizationDeletedResponse extends EventResponseBase {
+  event: 'organization.deleted';
+  data: OrganizationResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -277,7 +311,10 @@ export type Event =
   | OrganizationMembershipAdded
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved
-  | SessionCreatedEvent;
+  | SessionCreatedEvent
+  | OrganizationCreatedEvent
+  | OrganizationUpdatedEvent
+  | OrganizationDeletedEvent;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -300,6 +337,9 @@ export type EventResponse =
   | OrganizationMembershipAddedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse
-  | SessionCreatedEventResponse;
+  | SessionCreatedEventResponse
+  | OrganizationCreatedResponse
+  | OrganizationUpdatedResponse
+  | OrganizationDeletedResponse;
 
 export type EventName = Event['event'];
