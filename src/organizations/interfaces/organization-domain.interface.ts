@@ -3,6 +3,6 @@ export interface OrganizationDomain {
   id: string;
   domain: string;
   verification_token?: string;
-  verification_stragegy?: 'dns' | 'manual';
-  state?: 'failed' | 'pending' | 'legacy_verified' | 'verified';
+  verification_strategy?: string;
+  state?: string;
 }
