@@ -40,7 +40,7 @@ For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)
 ## Beta Releases
 
 WorkOS has features in Beta that can be accessed via Beta releases. We would love for you to try these
-and share feedback with us before these features reach general audience (GA). To install a Beta version,
+and share feedback with us before these features reach general availability (GA). To install a Beta version,
 please follow the [installation steps](#installation) above using the Beta release version.
 
 > Note: there can be breaking changes between Beta versions. Therefore, we recommend pinning the package version to a
