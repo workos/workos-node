@@ -27,6 +27,7 @@ import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FetchClient } from './common/utils/fetch-client';
 import { FetchError } from './common/utils/fetch-error';
+import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 
 const VERSION = '7.1.0';
 
@@ -213,6 +214,15 @@ export class WorkOS {
             path,
             requestID,
           });
+        }
+        case 429: {
+          const retryAfter = headers.get('Retry-After');
+
+          throw new RateLimitExceededException(
+            data.message,
+            requestID,
+            retryAfter ? Number(retryAfter) : null,
+          );
         }
         default: {
           if (error || errorDescription) {
