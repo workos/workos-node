@@ -6,6 +6,7 @@ import {
   deserializeUpdatedEventDirectoryGroup,
   deserializeUpdatedEventDirectoryUser,
 } from '../../directory-sync/serializers';
+import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import { deserializeUser } from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
@@ -98,6 +99,14 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeSession(event.data),
+      };
+    case 'organization.created':
+    case 'organization.updated':
+    case 'organization.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeOrganization(event.data),
       };
   }
 };

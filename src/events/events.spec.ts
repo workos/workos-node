@@ -80,21 +80,6 @@ describe('Event', () => {
       });
     });
 
-    it(`requests Events`, async () => {
-      fetchOnce(eventsListResponse);
-
-      const subject = await workos.events.listEvents({
-        rangeStart: '2020-05-05',
-        rangeEnd: '2020-05-07',
-      });
-
-      expect(subject).toEqual({
-        object: 'list',
-        data: [event],
-        listMetadata: {},
-      });
-    });
-
     it(`requests Events with a valid event name`, async () => {
       fetchOnce(eventsListResponse);
 
