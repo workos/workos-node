@@ -7,8 +7,8 @@ export class UnprocessableEntityException
   extends Error
   implements RequestException
 {
-  readonly status: number = 422;
-  readonly name: string = 'UnprocessableEntityException';
+  readonly status = 422;
+  readonly name = 'UnprocessableEntityException';
   readonly message: string = 'Unprocessable entity';
   readonly code?: string;
   readonly requestID: string;

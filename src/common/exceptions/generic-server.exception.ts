@@ -1,7 +1,7 @@
 import { RequestException } from '../interfaces/request-exception.interface';
 
 export class GenericServerException extends Error implements RequestException {
-  readonly name: string = 'GenericServerException';
+  readonly name = 'GenericServerException';
   readonly message: string = 'The request could not be completed.';
 
   constructor(

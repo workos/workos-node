@@ -1,8 +1,8 @@
 import { RequestException } from '../interfaces/request-exception.interface';
 
 export class UnauthorizedException extends Error implements RequestException {
-  readonly status: number = 401;
-  readonly name: string = 'UnauthorizedException';
+  readonly status = 401;
+  readonly name = 'UnauthorizedException';
   readonly message: string;
 
   constructor(readonly requestID: string) {
