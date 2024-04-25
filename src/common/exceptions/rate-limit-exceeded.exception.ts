@@ -10,6 +10,9 @@ export class RateLimitExceededException
   constructor(
     readonly message: string,
     readonly requestID: string,
+    /**
+     * The number of seconds to wait before retrying the request.
+     */
     readonly retryAfter: number | null,
   ) {
     super();
