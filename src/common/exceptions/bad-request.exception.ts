@@ -1,4 +1,6 @@
-export class BadRequestException extends Error {
+import { RequestException } from '../interfaces/request-exception.interface';
+
+export class BadRequestException extends Error implements RequestException {
   readonly status: number = 400;
   readonly name: string = 'BadRequestException';
   readonly message: string = 'Bad request';

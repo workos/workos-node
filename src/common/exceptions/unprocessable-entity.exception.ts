@@ -1,8 +1,12 @@
 import pluralize from 'pluralize';
 
 import { UnprocessableEntityError } from '../interfaces';
+import { RequestException } from '../interfaces/request-exception.interface';
 
-export class UnprocessableEntityException extends Error {
+export class UnprocessableEntityException
+  extends Error
+  implements RequestException
+{
   readonly status: number = 422;
   readonly name: string = 'UnprocessableEntityException';
   readonly message: string = 'Unprocessable entity';
