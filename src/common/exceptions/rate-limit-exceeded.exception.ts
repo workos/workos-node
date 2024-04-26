@@ -1,20 +1,20 @@
-import { RequestException } from '../interfaces/request-exception.interface';
+import { GenericServerException } from './generic-server.exception';
 
-export class RateLimitExceededException
-  extends Error
-  implements RequestException
-{
+// Inheriting from `GenericServerException` in order to maintain backwards
+// compatibility with what 429 errors would have previously been thrown as.
+//
+// TODO: Consider making it the base class for all request errors.
+export class RateLimitExceededException extends GenericServerException {
   readonly name = 'RateLimitExceededException';
-  readonly status = 429;
 
   constructor(
-    readonly message: string,
-    readonly requestID: string,
+    message: string,
+    requestID: string,
     /**
      * The number of seconds to wait before retrying the request.
      */
     readonly retryAfter: number | null,
   ) {
-    super();
+    super(429, message, {}, requestID);
   }
 }
