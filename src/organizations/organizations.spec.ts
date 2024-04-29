@@ -12,6 +12,7 @@ import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
+import { DomainDataState } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -143,21 +144,44 @@ describe('Organizations', () => {
     });
 
     describe('with a valid payload', () => {
-      it('creates an organization', async () => {
-        fetchOnce(createOrganization, { status: 201 });
+      describe('with `domains`', () => {
+        it('creates an organization', async () => {
+          fetchOnce(createOrganization, { status: 201 });
 
-        const subject = await workos.organizations.createOrganization({
-          domains: ['example.com'],
-          name: 'Test Organization',
-        });
+          const subject = await workos.organizations.createOrganization({
+            domains: ['example.com'],
+            name: 'Test Organization',
+          });
 
-        expect(fetchBody()).toEqual({
-          domains: ['example.com'],
-          name: 'Test Organization',
+          expect(fetchBody()).toEqual({
+            domains: ['example.com'],
+            name: 'Test Organization',
+          });
+          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+          expect(subject.name).toEqual('Test Organization');
+          expect(subject.domains).toHaveLength(1);
         });
-        expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
-        expect(subject.name).toEqual('Test Organization');
-        expect(subject.domains).toHaveLength(1);
+      });
+
+      describe('with `domain_data`', () => {
+        it('creates an organization', async () => {
+          fetchOnce(createOrganization, { status: 201 });
+
+          const subject = await workos.organizations.createOrganization({
+            domainData: [
+              { domain: 'example.com', state: DomainDataState.Verified },
+            ],
+            name: 'Test Organization',
+          });
+
+          expect(fetchBody()).toEqual({
+            domain_data: [{ domain: 'example.com', state: 'verified' }],
+            name: 'Test Organization',
+          });
+          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+          expect(subject.name).toEqual('Test Organization');
+          expect(subject.domains).toHaveLength(1);
+        });
       });
     });
 
@@ -220,22 +244,46 @@ describe('Organizations', () => {
 
   describe('updateOrganization', () => {
     describe('with a valid payload', () => {
-      it('updates an organization', async () => {
-        fetchOnce(updateOrganization, { status: 201 });
+      describe('with `domains', () => {
+        it('updates an organization', async () => {
+          fetchOnce(updateOrganization, { status: 201 });
 
-        const subject = await workos.organizations.updateOrganization({
-          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-          domains: ['example.com'],
-          name: 'Test Organization 2',
-        });
+          const subject = await workos.organizations.updateOrganization({
+            organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            domains: ['example.com'],
+            name: 'Test Organization 2',
+          });
 
-        expect(fetchBody()).toEqual({
-          domains: ['example.com'],
-          name: 'Test Organization 2',
+          expect(fetchBody()).toEqual({
+            domains: ['example.com'],
+            name: 'Test Organization 2',
+          });
+          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+          expect(subject.name).toEqual('Test Organization 2');
+          expect(subject.domains).toHaveLength(1);
         });
-        expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
-        expect(subject.name).toEqual('Test Organization 2');
-        expect(subject.domains).toHaveLength(1);
+      });
+
+      describe('with `domain_data`', () => {
+        it('updates an organization', async () => {
+          fetchOnce(updateOrganization, { status: 201 });
+
+          const subject = await workos.organizations.updateOrganization({
+            organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            domainData: [
+              { domain: 'example.com', state: DomainDataState.Verified },
+            ],
+            name: 'Test Organization 2',
+          });
+
+          expect(fetchBody()).toEqual({
+            domain_data: [{ domain: 'example.com', state: 'verified' }],
+            name: 'Test Organization 2',
+          });
+          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+          expect(subject.name).toEqual('Test Organization 2');
+          expect(subject.domains).toHaveLength(1);
+        });
       });
     });
   });
