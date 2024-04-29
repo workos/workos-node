@@ -168,7 +168,7 @@ describe('Organizations', () => {
           fetchOnce(createOrganization, { status: 201 });
 
           const subject = await workos.organizations.createOrganization({
-            domain_data: [
+            domainData: [
               { domain: 'example.com', state: DomainDataState.Verified },
             ],
             name: 'Test Organization',
@@ -270,7 +270,7 @@ describe('Organizations', () => {
 
           const subject = await workos.organizations.updateOrganization({
             organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-            domain_data: [
+            domainData: [
               { domain: 'example.com', state: DomainDataState.Verified },
             ],
             name: 'Test Organization 2',
