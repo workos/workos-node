@@ -21,6 +21,10 @@ import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
+import {
+  RoleEvent,
+  RoleEventResponse,
+} from '../../user-management/interfaces/role.interface';
 
 export interface EventBase {
   id: string;
@@ -314,6 +318,26 @@ export interface OrganizationDeletedResponse extends EventResponseBase {
   data: OrganizationResponse;
 }
 
+export interface RoleCreatedEvent extends EventBase {
+  event: 'role.created';
+  data: RoleEvent;
+}
+
+export interface RoleCreatedEventResponse extends EventResponseBase {
+  event: 'role.created';
+  data: RoleEventResponse;
+}
+
+export interface RoleDeletedEvent extends EventBase {
+  event: 'role.deleted';
+  data: RoleEvent;
+}
+
+export interface RoleDeletedEventResponse extends EventResponseBase {
+  event: 'role.deleted';
+  data: RoleEventResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -347,6 +371,8 @@ export type Event =
   | OrganizationMembershipDeleted
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved
+  | RoleCreatedEvent
+  | RoleDeletedEvent
   | SessionCreatedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
@@ -375,6 +401,8 @@ export type EventResponse =
   | OrganizationMembershipDeletedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse
+  | RoleCreatedEventResponse
+  | RoleDeletedEventResponse
   | SessionCreatedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
