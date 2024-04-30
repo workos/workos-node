@@ -163,6 +163,25 @@ describe('UserManagement', () => {
       });
     });
 
+    it('deserializes authentication_method', async () => {
+      fetchOnce({
+        user: userFixture,
+        authentication_method: 'Password',
+      });
+
+      const resp = await workos.userManagement.authenticateWithCode({
+        clientId: 'proj_whatever',
+        code: 'or this',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+        authenticationMethod: 'Password',
+      });
+    });
+
     describe('when the code is for an impersonator', () => {
       it('deserializes the impersonator metadata', async () => {
         fetchOnce({
