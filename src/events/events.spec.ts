@@ -93,5 +93,20 @@ describe('Event', () => {
         listMetadata: {},
       });
     });
+
+    it(`requests Events with a valid organization id`, async () => {
+      fetchOnce(eventsListResponse);
+
+      const list = await workos.events.listEvents({
+        events: ['connection.activated'],
+        organizationId: 'org_1234',
+      });
+
+      expect(list).toEqual({
+        object: 'list',
+        data: [event],
+        listMetadata: {},
+      });
+    });
   });
 });
