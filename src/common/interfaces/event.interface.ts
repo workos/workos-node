@@ -218,13 +218,41 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreated instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAdded extends EventBase {
   event: 'organization_membership.added';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreatedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   event: 'organization_membership.added';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipCreated extends EventBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipCreatedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipDeleted extends EventBase {
+  event: 'organization_membership.deleted';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipDeletedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.deleted';
   data: OrganizationMembershipResponse;
 }
 
@@ -239,11 +267,17 @@ export interface OrganizationMembershipUpdatedResponse
   data: OrganizationMembershipResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeleted instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeletedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemovedResponse
   extends EventResponseBase {
   event: 'organization_membership.removed';
@@ -309,6 +343,8 @@ export type Event =
   | UserUpdatedEvent
   | UserDeletedEvent
   | OrganizationMembershipAdded
+  | OrganizationMembershipCreated
+  | OrganizationMembershipDeleted
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved
   | SessionCreatedEvent
@@ -335,6 +371,8 @@ export type EventResponse =
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
+  | OrganizationMembershipCreatedResponse
+  | OrganizationMembershipDeletedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse
   | SessionCreatedEventResponse
