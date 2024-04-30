@@ -80,26 +80,26 @@ describe('Event', () => {
       });
     });
 
-    it(`requests Events`, async () => {
+    it(`requests Events with a valid event name`, async () => {
       fetchOnce(eventsListResponse);
 
-      const subject = await workos.events.listEvents({
-        rangeStart: '2020-05-05',
-        rangeEnd: '2020-05-07',
+      const list = await workos.events.listEvents({
+        events: ['connection.activated'],
       });
 
-      expect(subject).toEqual({
+      expect(list).toEqual({
         object: 'list',
         data: [event],
         listMetadata: {},
       });
     });
 
-    it(`requests Events with a valid event name`, async () => {
+    it(`requests Events with a valid organization id`, async () => {
       fetchOnce(eventsListResponse);
 
       const list = await workos.events.listEvents({
         events: ['connection.activated'],
+        organizationId: 'org_1234',
       });
 
       expect(list).toEqual({

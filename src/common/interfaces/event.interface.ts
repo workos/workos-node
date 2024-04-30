@@ -6,6 +6,10 @@ import {
   EventDirectory,
   EventDirectoryResponse,
 } from '../../directory-sync/interfaces';
+import {
+  Organization,
+  OrganizationResponse,
+} from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
   Session,
@@ -218,13 +222,41 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreated instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAdded extends EventBase {
   event: 'organization_membership.added';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreatedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   event: 'organization_membership.added';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipCreated extends EventBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipCreatedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipDeleted extends EventBase {
+  event: 'organization_membership.deleted';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipDeletedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.deleted';
   data: OrganizationMembershipResponse;
 }
 
@@ -239,15 +271,51 @@ export interface OrganizationMembershipUpdatedResponse
   data: OrganizationMembershipResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeleted instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeletedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemovedResponse
   extends EventResponseBase {
   event: 'organization_membership.removed';
   data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationCreatedEvent extends EventBase {
+  event: 'organization.created';
+  data: Organization;
+}
+
+export interface OrganizationCreatedResponse extends EventResponseBase {
+  event: 'organization.created';
+  data: OrganizationResponse;
+}
+
+export interface OrganizationUpdatedEvent extends EventBase {
+  event: 'organization.updated';
+  data: Organization;
+}
+
+export interface OrganizationUpdatedResponse extends EventResponseBase {
+  event: 'organization.updated';
+  data: OrganizationResponse;
+}
+
+export interface OrganizationDeletedEvent extends EventBase {
+  event: 'organization.deleted';
+  data: Organization;
+}
+
+export interface OrganizationDeletedResponse extends EventResponseBase {
+  event: 'organization.deleted';
+  data: OrganizationResponse;
 }
 
 export interface RoleCreatedEvent extends EventBase {
@@ -299,11 +367,16 @@ export type Event =
   | UserUpdatedEvent
   | UserDeletedEvent
   | OrganizationMembershipAdded
+  | OrganizationMembershipCreated
+  | OrganizationMembershipDeleted
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved
   | RoleCreatedEvent
   | RoleDeletedEvent
-  | SessionCreatedEvent;
+  | SessionCreatedEvent
+  | OrganizationCreatedEvent
+  | OrganizationUpdatedEvent
+  | OrganizationDeletedEvent;
 
 export type EventResponse =
   | ConnectionActivatedEventResponse
@@ -324,10 +397,15 @@ export type EventResponse =
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
+  | OrganizationMembershipCreatedResponse
+  | OrganizationMembershipDeletedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse
   | RoleCreatedEventResponse
   | RoleDeletedEventResponse
-  | SessionCreatedEventResponse;
+  | SessionCreatedEventResponse
+  | OrganizationCreatedResponse
+  | OrganizationUpdatedResponse
+  | OrganizationDeletedResponse;
 
 export type EventName = Event['event'];

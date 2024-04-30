@@ -28,7 +28,7 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FetchClient } from './common/utils/fetch-client';
 import { FetchError } from './common/utils/fetch-error';
 
-const VERSION = '6.7.0';
+const VERSION = '7.1.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -71,12 +71,20 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
+    let userAgent: string = `workos-node/${VERSION}`;
+
+    if (options.appInfo) {
+      const { name, version }: { name: string; version: string } =
+        options.appInfo;
+      userAgent += ` ${name}: ${version}`;
+    }
+
     this.client = new FetchClient(this.baseURL, {
       ...options.config,
       headers: {
         ...options.config?.headers,
         Authorization: `Bearer ${this.key}`,
-        'User-Agent': `workos-node/${VERSION}`,
+        'User-Agent': userAgent,
       },
     });
   }
