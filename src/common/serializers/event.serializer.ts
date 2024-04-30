@@ -10,6 +10,7 @@ import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import { deserializeUser } from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
+import { deserializeRole } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
 
@@ -95,6 +96,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeOrganizationMembership(event.data),
+      };
+    case 'role.created':
+    case 'role.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeRole(event.data),
       };
     case 'session.created':
       return {
