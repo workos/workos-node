@@ -14,6 +14,7 @@ export const deserializeAuthenticationResponse = (
     organization_id,
     access_token,
     refresh_token,
+    authentication_method,
     impersonator,
     ...rest
   } = authenticationResponse;
@@ -24,6 +25,7 @@ export const deserializeAuthenticationResponse = (
     accessToken: access_token,
     refreshToken: refresh_token,
     impersonator,
+    authenticationMethod: authentication_method,
     ...rest,
   };
 };
