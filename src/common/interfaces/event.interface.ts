@@ -219,7 +219,7 @@ export interface UserDeletedEventResponse extends EventResponseBase {
 }
 
 /**
- * @deprecated Use OrganizationMembershipCreated instead.
+ * @deprecated Use OrganizationMembershipCreated instead. Will be removed in a future major version.
  */
 export interface OrganizationMembershipAdded extends EventBase {
   event: 'organization_membership.added';
@@ -227,7 +227,7 @@ export interface OrganizationMembershipAdded extends EventBase {
 }
 
 /**
- * @deprecated Use OrganizationMembershipCreatedResponse instead.
+ * @deprecated Use OrganizationMembershipCreatedResponse instead. Will be removed in a future major version.
  */
 export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   event: 'organization_membership.added';
@@ -268,7 +268,7 @@ export interface OrganizationMembershipUpdatedResponse
 }
 
 /**
- * @deprecated Use OrganizationMembershipDeleted instead.
+ * @deprecated Use OrganizationMembershipDeleted instead. Will be removed in a future major version.
  */
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
@@ -276,7 +276,7 @@ export interface OrganizationMembershipRemoved extends EventBase {
 }
 
 /**
- * @deprecated Use OrganizationMembershipDeletedResponse instead.
+ * @deprecated Use OrganizationMembershipDeletedResponse instead. Will be removed in a future major version.
  */
 export interface OrganizationMembershipRemovedResponse
   extends EventResponseBase {
