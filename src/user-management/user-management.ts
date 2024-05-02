@@ -319,6 +319,9 @@ export class UserManagement {
     return deserializeMagicAuth(data);
   }
 
+  /**
+   * @deprecated Please use `createMagicAuth` instead.
+   */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
       '/user_management/magic_auth/send',
