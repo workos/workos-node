@@ -12,6 +12,10 @@ import {
 } from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  InvitationEvent,
+  InvitationEventResponse,
+  MagicAuthEvent,
+  MagicAuthEventResponse,
   Session,
   SessionResponse,
   User,
@@ -192,6 +196,26 @@ export interface DsyncUserUpdatedEventResponse extends EventResponseBase {
   data: DirectoryUserResponse & Record<'previous_attributes', any>;
 }
 
+export interface InvitationCreatedEvent extends EventBase {
+  event: 'invitation.created';
+  data: InvitationEvent;
+}
+
+export interface InvitationCreatedEventResponse extends EventResponseBase {
+  event: 'invitation.created';
+  data: InvitationEventResponse;
+}
+
+export interface MagicAuthCreatedEvent extends EventBase {
+  event: 'magic_auth.created';
+  data: MagicAuthEvent;
+}
+
+export interface MagicAuthCreatedEventResponse extends EventResponseBase {
+  event: 'magic_auth.created';
+  data: MagicAuthEventResponse;
+}
+
 export interface UserCreatedEvent extends EventBase {
   event: 'user.created';
   data: User;
@@ -363,6 +387,8 @@ export type Event =
   | DsyncUserCreatedEvent
   | DsyncUserUpdatedEvent
   | DsyncUserDeletedEvent
+  | InvitationCreatedEvent
+  | MagicAuthCreatedEvent
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
@@ -393,6 +419,8 @@ export type EventResponse =
   | DsyncUserCreatedEventResponse
   | DsyncUserUpdatedEventResponse
   | DsyncUserDeletedEventResponse
+  | InvitationCreatedEventResponse
+  | MagicAuthCreatedEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
