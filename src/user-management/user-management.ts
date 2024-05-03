@@ -320,7 +320,7 @@ export class UserManagement {
   }
 
   /**
-   * @deprecated Please use `createMagicAuth` instead.
+   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
    */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
