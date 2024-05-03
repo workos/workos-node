@@ -13,11 +13,13 @@ import organizationMembershipFixture from './fixtures/organization-membership.js
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import invitationFixture from './fixtures/invitation.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
+import magicAuthFixture from './fixtures/magic_auth.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   beforeEach(() => fetch.resetMocks());
@@ -360,6 +362,49 @@ describe('UserManagement', () => {
         expect(resp.user).toMatchObject({
           email: 'test01@example.com',
         });
+      });
+    });
+  });
+
+  describe('getMagicAuth', () => {
+    it('sends a Get Magic Auth request', async () => {
+      fetchOnce(magicAuthFixture);
+      const magicAuth = await workos.userManagement.getMagicAuth(magicAuthId);
+      expect(fetchURL()).toContain(
+        `/user_management/magic_auth/${magicAuthId}`,
+      );
+      expect(magicAuth).toMatchObject({
+        id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+        expiresAt: '2023-07-18T02:07:19.911Z',
+        code: '123456',
+        createdAt: '2023-07-18T02:07:19.911Z',
+        updatedAt: '2023-07-18T02:07:19.911Z',
+      });
+    });
+  });
+
+  describe('createMagicAuth', () => {
+    it('sends a Create Magic Auth request', async () => {
+      fetchOnce(magicAuthFixture);
+
+      const response = await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+      });
+
+      expect(fetchURL()).toContain('/user_management/magic_auth');
+      expect(fetchBody()).toEqual({
+        email: 'bob.loblaw@example.com',
+      });
+      expect(response).toMatchObject({
+        id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+        expiresAt: '2023-07-18T02:07:19.911Z',
+        code: '123456',
+        createdAt: '2023-07-18T02:07:19.911Z',
+        updatedAt: '2023-07-18T02:07:19.911Z',
       });
     });
   });
