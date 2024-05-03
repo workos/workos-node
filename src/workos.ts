@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
   OauthException,
+  RateLimitExceededException,
 } from './common/exceptions';
 import {
   GetOptions,
@@ -213,6 +214,15 @@ export class WorkOS {
             path,
             requestID,
           });
+        }
+        case 429: {
+          const retryAfter = headers.get('Retry-After');
+
+          throw new RateLimitExceededException(
+            data.message,
+            requestID,
+            retryAfter ? Number(retryAfter) : null,
+          );
         }
         default: {
           if (error || errorDescription) {

@@ -1,5 +1,7 @@
-export class OauthException extends Error {
-  readonly name: string = 'OauthException';
+import { RequestException } from '../interfaces/request-exception.interface';
+
+export class OauthException extends Error implements RequestException {
+  readonly name = 'OauthException';
 
   constructor(
     readonly status: number,
