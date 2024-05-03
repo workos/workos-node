@@ -9,6 +9,7 @@ import {
 } from './common/exceptions';
 import { WorkOS } from './workos';
 import { FetchHttpClient, NodeHttpClient } from './common/net';
+import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -226,6 +227,7 @@ describe('WorkOS', () => {
         );
       });
     });
+
     describe('when the api responds with a 400 and an error/error_description', () => {
       it('throws an OauthException', async () => {
         fetchOnce(
@@ -245,6 +247,30 @@ describe('WorkOS', () => {
             'error',
             'error description',
             { error: 'error', error_description: 'error description' },
+          ),
+        );
+      });
+    });
+
+    describe('when the api responses with a 429', () => {
+      it('throws a RateLimitExceededException', async () => {
+        fetchOnce(
+          {
+            message: 'Too many requests',
+          },
+          {
+            status: 429,
+            headers: { 'X-Request-ID': 'a-request-id', 'Retry-After': '10' },
+          },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.get('/path')).rejects.toStrictEqual(
+          new RateLimitExceededException(
+            'Too many requests',
+            'a-request-id',
+            10,
           ),
         );
       });
