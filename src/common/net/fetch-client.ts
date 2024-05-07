@@ -1,7 +1,16 @@
-import { RequestOptions } from './http-client.interface';
-import { HttpClient } from './http-client';
+import {
+  HttpClientInterface,
+  HttpClientResponseInterface,
+} from './http-client.interface';
+import {
+  HttpClient,
+  HttpClientResponse,
+  RequestHeaders,
+  RequestOptions,
+  ResponseHeaders,
+} from './http-client';
 
-export class FetchHttpClient extends HttpClient implements HttpClient {
+export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
 
   constructor(
@@ -23,7 +32,10 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
     this._fetchFn = fetchFn;
   }
 
-  async get(path: string, options: RequestOptions): Promise<Response> {
+  async get(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
     const resourceURL = HttpClient.getResourceURL(
       this.baseURL,
       path,
@@ -37,7 +49,7 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
     path: string,
     entity: Entity,
     options: RequestOptions,
-  ): Promise<Response> {
+  ): Promise<HttpClientResponseInterface> {
     const resourceURL = HttpClient.getResourceURL(
       this.baseURL,
       path,
@@ -59,7 +71,7 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
     path: string,
     entity: Entity,
     options: RequestOptions,
-  ): Promise<Response> {
+  ): Promise<HttpClientResponseInterface> {
     const resourceURL = HttpClient.getResourceURL(
       this.baseURL,
       path,
@@ -77,7 +89,10 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
     );
   }
 
-  async delete(path: string, options: RequestOptions): Promise<Response> {
+  async delete(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
     const resourceURL = HttpClient.getResourceURL(
       this.baseURL,
       path,
@@ -96,8 +111,8 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
     url: string,
     method: string,
     body?: any,
-    headers?: HeadersInit | undefined,
-  ): Promise<Response> {
+    headers?: RequestHeaders,
+  ): Promise<HttpClientResponseInterface> {
     // For methods which expect payloads, we should always pass a body value
     // even when it is empty. Without this, some JS runtimes (eg. Deno) will
     // inject a second Content-Length header.
@@ -106,14 +121,57 @@ export class FetchHttpClient extends HttpClient implements HttpClient {
 
     const requestBody = body || (methodHasPayload ? '' : undefined);
 
-    const response = await this._fetchFn(url, {
+    const res = await this._fetchFn(url, {
       method,
-      headers,
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        ...this.options?.headers,
+        ...headers,
+      },
       body: requestBody,
     });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+    return new FetchHttpClientResponse(res);
+  }
+}
+
+export class FetchHttpClientResponse
+  extends HttpClientResponse
+  implements HttpClientResponseInterface
+{
+  _res: Response;
+
+  constructor(res: Response) {
+    super(
+      res.status,
+      FetchHttpClientResponse._transformHeadersToObject(res.headers),
+    );
+    this._res = res;
+  }
+
+  getRawResponse(): Response {
+    return this._res;
+  }
+
+  toJSON(): Promise<any> {
+    return this._res.json();
+  }
+
+  static _transformHeadersToObject(headers: Headers): ResponseHeaders {
+    // Fetch uses a Headers instance so this must be converted to a barebones
+    // JS object to meet the HttpClient interface.
+    const headersObj: ResponseHeaders = {};
+    for (const entry of headers) {
+      if (!Array.isArray(entry) || entry.length != 2) {
+        throw new Error(
+          'Response objects produced by the fetch function given to FetchHttpClient do not have an iterable headers map. Response#headers should be an iterable object.',
+        );
+      }
+
+      headersObj[entry[0]] = entry[1];
     }
-    return response;
+
+    return headersObj;
   }
 }

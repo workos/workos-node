@@ -1,16 +1,29 @@
-import HttpClientInterface, { RequestOptions } from './http-client.interface';
+import {
+  HttpClientInterface,
+  HttpClientResponseInterface,
+} from './http-client.interface';
 import { FetchHttpClient } from './fetch-client';
 import { NodeHttpClient } from './node-client';
 
 type TimeoutError = TypeError & { code?: string };
 
-const TIMEOUT_ERROR_CODE: string = 'ETIMEDOUT';
+export type RequestHeaders = Record<string, string | number | string[]>;
+export type RequestOptions = {
+  params?: Record<string, any>;
+  headers?: RequestHeaders;
+};
+export type ResponseHeaderValue = string | string[];
+export type ResponseHeaders = Record<string, ResponseHeaderValue>;
 
-async function createHttpClient(fetchFn?: typeof fetch): HttpClient {
+export function createHttpClient(
+  baseURL: string,
+  options?: RequestInit,
+  fetchFn?: typeof fetch,
+): HttpClient {
   if (typeof fetch !== 'undefined') {
-    return new FetchHttpClient(fetchFn);
+    return new FetchHttpClient(baseURL, options, fetchFn);
   } else {
-    return new NodeHttpClient();
+    return new NodeHttpClient(baseURL, options);
   }
 }
 
@@ -19,7 +32,10 @@ export class HttpClient implements HttpClientInterface {
 
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
-  async get(path: string, options: RequestOptions): Promise<Response> {
+  async get(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
     throw new Error('get not implemented');
   }
 
@@ -27,7 +43,7 @@ export class HttpClient implements HttpClientInterface {
     path: string,
     entity: Entity,
     options: RequestOptions,
-  ): Promise<Response> {
+  ): Promise<HttpClientResponseInterface> {
     throw new Error('post not implemented');
   }
 
@@ -35,11 +51,14 @@ export class HttpClient implements HttpClientInterface {
     path: string,
     entity: Entity,
     options: RequestOptions,
-  ): Promise<Response> {
+  ): Promise<HttpClientResponseInterface> {
     throw new Error('put not implemented');
   }
 
-  async delete(path: string, options: RequestOptions): Promise<Response> {
+  async delete(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
     throw new Error('delete not implemented');
   }
 
@@ -65,7 +84,7 @@ export class HttpClient implements HttpClientInterface {
     return new URLSearchParams(sanitizedQueryObj).toString();
   }
 
-  static getContentTypeHeader(entity: any): HeadersInit | undefined {
+  static getContentTypeHeader(entity: any): RequestHeaders | undefined {
     if (entity instanceof URLSearchParams) {
       return {
         'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -83,8 +102,34 @@ export class HttpClient implements HttpClientInterface {
   }
 
   static makeTimeoutError(): TimeoutError {
-    const timeoutErr: TimeoutError = new TypeError(TIMEOUT_ERROR_CODE);
-    timeoutErr.code = TIMEOUT_ERROR_CODE;
+    const timeoutErr: TimeoutError = new TypeError(this.TIMEOUT_ERROR_CODE);
+    timeoutErr.code = this.TIMEOUT_ERROR_CODE;
     return timeoutErr;
+  }
+}
+
+export class HttpClientResponse implements HttpClientResponseInterface {
+  _statusCode: number;
+  _headers: ResponseHeaders;
+
+  constructor(statusCode: number, headers: ResponseHeaders) {
+    this._statusCode = statusCode;
+    this._headers = headers;
+  }
+
+  getStatusCode(): number {
+    return this._statusCode;
+  }
+
+  getHeaders(): ResponseHeaders {
+    return this._headers;
+  }
+
+  getRawResponse(): unknown {
+    throw new Error('getRawResponse not implemented.');
+  }
+
+  toJSON(): any {
+    throw new Error('toJSON not implemented.');
   }
 }

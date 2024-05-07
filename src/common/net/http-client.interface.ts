@@ -1,9 +1,6 @@
-export type RequestOptions = {
-  params?: Record<string, any>;
-  headers?: HeadersInit;
-};
+import { RequestOptions, ResponseHeaders } from './http-client';
 
-export default interface HttpClientInterface {
+export interface HttpClientInterface {
   get(path: string, options: RequestOptions): any;
   post<Entity = any>(
     path: string,
@@ -12,4 +9,11 @@ export default interface HttpClientInterface {
   ): any;
   put<Entity = any>(path: string, entity: Entity, options: RequestOptions): any;
   delete(path: string, options: RequestOptions): any;
+}
+
+export interface HttpClientResponseInterface {
+  getStatusCode: () => number;
+  getHeaders: () => ResponseHeaders;
+  getRawResponse: () => unknown;
+  toJSON: () => Promise<any>;
 }
