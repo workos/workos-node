@@ -13,9 +13,8 @@
     "yarn": "1.22.19"
   },
   "engines": {
-    "node": ">=19"
+    "node": ">=16"
   },
-  "engineStrict": true,
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [

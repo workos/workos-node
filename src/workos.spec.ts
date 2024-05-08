@@ -9,6 +9,7 @@ import {
 } from './common/exceptions';
 import { WorkOS } from './workos';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
+import { FetchHttpClient, NodeHttpClient } from './common/net';
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -109,8 +110,53 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', {});
 
         expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version} fooApp: 1.0.0`,
+          'User-Agent': `workos-node/${packageJson.version}/fetch fooApp: 1.0.0`,
         });
+      });
+    });
+
+    describe('when no `appInfo` option is provided', () => {
+      it('adds the HTTP client name to the user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test');
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+        });
+      });
+    });
+
+    describe('when no `appInfo` option is provided', () => {
+      it('adds the HTTP client name to the user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test');
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+        });
+      });
+    });
+
+    describe('when using an environment that supports fetch', () => {
+      it('automatically uses the fetch HTTP client', () => {
+        const workos = new WorkOS('sk_test');
+
+        // Bracket notation gets past private visibility
+        expect(workos['client']).toBeInstanceOf(FetchHttpClient);
       });
     });
   });
@@ -249,14 +295,33 @@ describe('WorkOS', () => {
     });
 
     describe('when the entity is null', () => {
-      it('sends a null body', async () => {
+      it('sends an empty string body', async () => {
         fetchOnce();
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         await workos.post('/somewhere', null);
 
-        expect(fetchBody({ raw: true })).toBeNull();
+        expect(fetchBody({ raw: true })).toBe('');
       });
+    });
+  });
+
+  describe("when in an environment that doesn't support fetch", () => {
+    const fetchFn = globalThis.fetch;
+
+    beforeEach(() => {
+      //@ts-ignore
+      delete globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = fetchFn;
+    });
+
+    it('automatically uses the node HTTP client', () => {
+      const workos = new WorkOS('sk_test_key');
+
+      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
     });
   });
 });

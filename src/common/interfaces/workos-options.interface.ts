@@ -6,4 +6,5 @@ export interface WorkOSOptions {
   port?: number;
   config?: RequestInit;
   appInfo?: AppInfo;
+  fetchFn?: typeof fetch;
 }
