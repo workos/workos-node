@@ -3,9 +3,9 @@ name: Release
 on:
   # Support manually pushing a new release
   workflow_dispatch: {}
-  # Trigger when a release is published
+  # Trigger when a release or a pre-release is published
   release:
-    types: [released]
+    types: [published]
 
 defaults:
   run:
@@ -31,7 +31,15 @@ jobs:
           npm run test
 
       - name: Publish
+        if: ${{ !github.event.release.prerelease }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --access=public
+          npm publish --tag latest --access=public
+
+      - name: Publish Pre-Release
+        if: ${{ github.event.release.prerelease }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm publish --tag next --access=public
