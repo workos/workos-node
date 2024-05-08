@@ -8,6 +8,7 @@ import {
   OauthException,
 } from './common/exceptions';
 import { WorkOS } from './workos';
+import { FetchHttpClient, NodeHttpClient } from './common/net';
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -130,6 +131,15 @@ describe('WorkOS', () => {
         });
       });
     });
+
+    describe('when using an environment that supports fetch', () => {
+      it('automatically uses the fetch HTTP client', () => {
+        const workos = new WorkOS('sk_test');
+
+        // Bracket notation gets past private visibility
+        expect(workos['client']).toBeInstanceOf(FetchHttpClient);
+      });
+    });
   });
 
   describe('version', () => {
@@ -249,6 +259,25 @@ describe('WorkOS', () => {
 
         expect(fetchBody({ raw: true })).toBe('');
       });
+    });
+  });
+
+  describe("when in an environment that doesn't support fetch", () => {
+    const fetchFn = globalThis.fetch;
+
+    beforeEach(() => {
+      //@ts-ignore
+      delete globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = fetchFn;
+    });
+
+    it('automatically uses the node HTTP client', () => {
+      const workos = new WorkOS('sk_test_key');
+
+      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
     });
   });
 });
