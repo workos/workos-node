@@ -1,14 +1,11 @@
 import {
   HttpClientInterface,
   HttpClientResponseInterface,
-} from './http-client.interface';
-import {
-  HttpClient,
-  HttpClientResponse,
   RequestHeaders,
   RequestOptions,
   ResponseHeaders,
-} from './http-client';
+} from './http-client.interface';
+import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
 
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
@@ -19,6 +16,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     fetchFn?: typeof fetch,
   ) {
     super(baseURL, options);
+
     // Default to global fetch if available
     if (!fetchFn) {
       if (!globalThis.fetch) {
@@ -132,6 +130,17 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       body: requestBody,
     });
 
+    if (!res.ok) {
+      throw new HttpClientError({
+        message: res.statusText,
+        response: {
+          status: res.status,
+          headers: res.headers,
+          data: await res.json(),
+        },
+      });
+    }
+
     return new FetchHttpClientResponse(res);
   }
 }
@@ -154,15 +163,22 @@ export class FetchHttpClientResponse
     return this._res;
   }
 
-  toJSON(): Promise<any> {
-    return this._res.json();
+  toJSON(): Promise<any> | null {
+    const contentType = this._res.headers.get('content-type');
+    const isJsonResponse = contentType?.includes('application/json');
+
+    if (isJsonResponse) {
+      return this._res.json();
+    }
+
+    return null;
   }
 
   static _transformHeadersToObject(headers: Headers): ResponseHeaders {
     // Fetch uses a Headers instance so this must be converted to a barebones
     // JS object to meet the HttpClient interface.
     const headersObj: ResponseHeaders = {};
-    for (const entry of headers) {
+    for (const entry of Object.entries(headers)) {
       if (!Array.isArray(entry) || entry.length != 2) {
         throw new Error(
           'Response objects produced by the fetch function given to FetchHttpClient do not have an iterable headers map. Response#headers should be an iterable object.',

@@ -223,13 +223,13 @@ describe('WorkOS', () => {
     });
 
     describe('when the entity is null', () => {
-      it('sends a null body', async () => {
+      it('sends an empty string body', async () => {
         fetchOnce();
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         await workos.post('/somewhere', null);
 
-        expect(fetchBody({ raw: true })).toBeNull();
+        expect(fetchBody({ raw: true })).toBe('');
       });
     });
   });

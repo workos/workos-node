@@ -1,12 +1,9 @@
-import {
-  HttpClient,
-  HttpClientResponse,
-  RequestHeaders,
-  RequestOptions,
-} from './http-client';
+import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
 import {
   HttpClientInterface,
   HttpClientResponseInterface,
+  RequestHeaders,
+  RequestOptions,
 } from './http-client.interface';
 
 import { RequestOptions as HttpRequestOptions, Agent as HttpAgent } from 'http';
@@ -125,12 +122,32 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       const req = lib.request(url, options, (res) => {
         const chunks: Buffer[] = [];
         res.on('data', (chunk) => chunks.push(chunk));
-        res.on('end', (res) => {
-          resolve(new NodeHttpClientResponse(res));
+        res.once('end', async () => {
+          const clientResponse = new NodeHttpClientResponse(res);
+
+          if (
+            res.statusCode &&
+            (res.statusCode < 200 || res.statusCode > 299)
+          ) {
+            reject(
+              new HttpClientError({
+                message: res.statusMessage as string,
+                response: {
+                  status: res.statusCode,
+                  headers: res.headers as unknown as Headers,
+                  data: await clientResponse.toJSON(),
+                },
+              }),
+            );
+          }
+
+          resolve(clientResponse);
         });
       });
 
-      req.on('error', (err) => reject(err));
+      req.on('error', (err) => {
+        reject(new Error(err.message));
+      });
 
       if (body) {
         const data = JSON.stringify(body);
@@ -160,6 +177,13 @@ export class NodeHttpClientResponse
 
   toJSON(): any {
     return new Promise((resolve, reject) => {
+      const contentType = this._res.headers['content-type'];
+      const isJsonResponse = contentType?.includes('application/json');
+
+      if (!isJsonResponse) {
+        resolve(null);
+      }
+
       let response = '';
 
       this._res.setEncoding('utf8');

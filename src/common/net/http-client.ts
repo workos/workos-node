@@ -1,63 +1,40 @@
 import {
   HttpClientInterface,
   HttpClientResponseInterface,
+  RequestHeaders,
+  RequestOptions,
+  ResponseHeaders,
 } from './http-client.interface';
-import { FetchHttpClient } from './fetch-client';
-import { NodeHttpClient } from './node-client';
-
-type TimeoutError = TypeError & { code?: string };
-
-export type RequestHeaders = Record<string, string | number | string[]>;
-export type RequestOptions = {
-  params?: Record<string, any>;
-  headers?: RequestHeaders;
-};
-export type ResponseHeaderValue = string | string[];
-export type ResponseHeaders = Record<string, ResponseHeaderValue>;
-
-export function createHttpClient(
-  baseURL: string,
-  options?: RequestInit,
-  fetchFn?: typeof fetch,
-): HttpClient {
-  if (typeof fetch !== 'undefined') {
-    return new FetchHttpClient(baseURL, options, fetchFn);
-  } else {
-    return new NodeHttpClient(baseURL, options);
-  }
-}
 
 export class HttpClient implements HttpClientInterface {
-  static TIMEOUT_ERROR_CODE: string = 'ETIMEDOUT';
-
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
   async get(
-    path: string,
-    options: RequestOptions,
+    _path: string,
+    _options: RequestOptions,
   ): Promise<HttpClientResponseInterface> {
     throw new Error('get not implemented');
   }
 
   async post<Entity = any>(
-    path: string,
-    entity: Entity,
-    options: RequestOptions,
+    _path: string,
+    _entity: Entity,
+    _options: RequestOptions,
   ): Promise<HttpClientResponseInterface> {
     throw new Error('post not implemented');
   }
 
   async put<Entity = any>(
-    path: string,
-    entity: Entity,
-    options: RequestOptions,
+    _path: string,
+    _entity: Entity,
+    _options: RequestOptions,
   ): Promise<HttpClientResponseInterface> {
     throw new Error('put not implemented');
   }
 
   async delete(
-    path: string,
-    options: RequestOptions,
+    _path: string,
+    _options: RequestOptions,
   ): Promise<HttpClientResponseInterface> {
     throw new Error('delete not implemented');
   }
@@ -100,12 +77,6 @@ export class HttpClient implements HttpClientInterface {
 
     return JSON.stringify(entity);
   }
-
-  static makeTimeoutError(): TimeoutError {
-    const timeoutErr: TimeoutError = new TypeError(this.TIMEOUT_ERROR_CODE);
-    timeoutErr.code = this.TIMEOUT_ERROR_CODE;
-    return timeoutErr;
-  }
 }
 
 export class HttpClientResponse implements HttpClientResponseInterface {
@@ -129,7 +100,25 @@ export class HttpClientResponse implements HttpClientResponseInterface {
     throw new Error('getRawResponse not implemented.');
   }
 
-  toJSON(): any {
+  toJSON(): any | null {
     throw new Error('toJSON not implemented.');
+  }
+}
+
+export class HttpClientError<T> extends Error {
+  readonly name: string = 'HttpClientError';
+  readonly message: string = 'The request could not be completed.';
+  readonly response: { status: number; headers: Headers; data: T };
+
+  constructor({
+    message,
+    response,
+  }: {
+    message: string;
+    readonly response: HttpClientError<T>['response'];
+  }) {
+    super(message);
+    this.message = message;
+    this.response = response;
   }
 }
