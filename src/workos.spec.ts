@@ -8,7 +8,6 @@ import {
   OauthException,
 } from './common/exceptions';
 import { WorkOS } from './workos';
-import { FetchHttpClient, NodeHttpClient } from './common/net';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 import { FetchHttpClient, NodeHttpClient } from './common/net';
 
