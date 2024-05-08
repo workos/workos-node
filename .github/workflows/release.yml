@@ -3,9 +3,9 @@ name: Release
 on:
   # Support manually pushing a new release
   workflow_dispatch: {}
-  # Trigger when a release is published
+  # Trigger when a release or a pre-release is published
   release:
-    types: [released]
+    types: [published]
 
 defaults:
   run:
