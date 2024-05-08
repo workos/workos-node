@@ -108,7 +108,25 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', {});
 
         expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version} fooApp: 1.0.0`,
+          'User-Agent': `workos-node/${packageJson.version}/fetch fooApp: 1.0.0`,
+        });
+      });
+    });
+
+    describe('when no `appInfo` option is provided', () => {
+      it('adds the HTTP client name to the user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test');
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch`,
         });
       });
     });

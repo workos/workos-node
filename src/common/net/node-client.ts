@@ -4,7 +4,7 @@ import {
   HttpClientResponseInterface,
   RequestHeaders,
   RequestOptions,
-} from './http-client.interface';
+} from '../interfaces/http-client.interface';
 
 import { RequestOptions as HttpRequestOptions, Agent as HttpAgent } from 'http';
 import { Agent as HttpsAgent } from 'https';
@@ -31,6 +31,10 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
 
     this.httpAgent = new http.Agent({ keepAlive: true });
     this.httpsAgent = new https.Agent({ keepAlive: true });
+  }
+
+  getClientName(): string {
+    return 'node';
   }
 
   async get(
@@ -113,9 +117,19 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       const isSecureConnection = url.startsWith('https');
       const agent = isSecureConnection ? this.httpsAgent : this.httpAgent;
       const lib = isSecureConnection ? https : http;
+
+      const { 'User-Agent': userAgent } = this.options
+        ?.headers as RequestHeaders;
+
       const options: HttpRequestOptions = {
         method,
-        headers,
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          ...(this.options?.headers as http_.OutgoingHttpHeaders),
+          ...headers,
+          'User-Agent': this.addClientToUserAgent(userAgent.toString()),
+        },
         agent,
       };
 

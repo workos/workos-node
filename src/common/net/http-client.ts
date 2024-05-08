@@ -4,10 +4,14 @@ import {
   RequestHeaders,
   RequestOptions,
   ResponseHeaders,
-} from './http-client.interface';
+} from '../interfaces/http-client.interface';
 
 export class HttpClient implements HttpClientInterface {
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
+
+  getClientName(): string {
+    throw new Error('getClientName not implemented');
+  }
 
   async get(
     _path: string,
@@ -37,6 +41,14 @@ export class HttpClient implements HttpClientInterface {
     _options: RequestOptions,
   ): Promise<HttpClientResponseInterface> {
     throw new Error('delete not implemented');
+  }
+
+  addClientToUserAgent(userAgent: string): string {
+    if (userAgent.indexOf(' ') > -1) {
+      return userAgent.replace(/\b\s/, `/${this.getClientName()} `);
+    } else {
+      return (userAgent += `/${this.getClientName()}`);
+    }
   }
 
   static getResourceURL(

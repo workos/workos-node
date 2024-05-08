@@ -7,3 +7,4 @@ export * from './unprocessable-entity-error.interface';
 export * from './workos-options.interface';
 export * from './workos-response-error.interface';
 export * from './pagination-options.interface';
+export * from './http-client.interface';

@@ -4,7 +4,7 @@ import {
   RequestHeaders,
   RequestOptions,
   ResponseHeaders,
-} from './http-client.interface';
+} from '../interfaces/http-client.interface';
 import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
 
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
@@ -28,6 +28,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     }
 
     this._fetchFn = fetchFn;
+  }
+
+  getClientName(): string {
+    return 'fetch';
   }
 
   async get(
@@ -119,6 +123,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     const requestBody = body || (methodHasPayload ? '' : undefined);
 
+    const { 'User-Agent': userAgent } = this.options?.headers as RequestHeaders;
+
     const res = await this._fetchFn(url, {
       method,
       headers: {
@@ -126,6 +132,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         'Content-Type': 'application/json',
         ...this.options?.headers,
         ...headers,
+        'User-Agent': this.addClientToUserAgent(userAgent.toString()),
       },
       body: requestBody,
     });

@@ -4,7 +4,7 @@ import { NodeHttpClient } from './node-client';
 
 export function createHttpClient(
   baseURL: string,
-  options?: RequestInit,
+  options: RequestInit,
   fetchFn?: typeof fetch,
 ): HttpClient {
   if (typeof fetch !== 'undefined') {
