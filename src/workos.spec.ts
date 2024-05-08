@@ -156,6 +156,7 @@ describe('WorkOS', () => {
         const workos = new WorkOS('sk_test');
 
         // Bracket notation gets past private visibility
+        // tslint:disable-next-line
         expect(workos['client']).toBeInstanceOf(FetchHttpClient);
       });
     });
@@ -306,11 +307,12 @@ describe('WorkOS', () => {
     });
   });
 
+  // tslint:disable-next-line
   describe("when in an environment that doesn't support fetch", () => {
     const fetchFn = globalThis.fetch;
 
     beforeEach(() => {
-      //@ts-ignore
+      // @ts-ignore
       delete globalThis.fetch;
     });
 
@@ -321,6 +323,7 @@ describe('WorkOS', () => {
     it('automatically uses the node HTTP client', () => {
       const workos = new WorkOS('sk_test_key');
 
+      // tslint:disable-next-line
       expect(workos['client']).toBeInstanceOf(NodeHttpClient);
     });
   });

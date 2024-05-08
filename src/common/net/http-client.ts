@@ -92,6 +92,7 @@ export class HttpClient implements HttpClientInterface {
   }
 }
 
+// tslint:disable-next-line
 export class HttpClientResponse implements HttpClientResponseInterface {
   _statusCode: number;
   _headers: ResponseHeaders;
@@ -118,6 +119,7 @@ export class HttpClientResponse implements HttpClientResponseInterface {
   }
 }
 
+// tslint:disable-next-line
 export class HttpClientError<T> extends Error {
   readonly name: string = 'HttpClientError';
   readonly message: string = 'The request could not be completed.';

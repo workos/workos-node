@@ -120,7 +120,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     // even when it is empty. Without this, some JS runtimes (eg. Deno) will
     // inject a second Content-Length header.
     const methodHasPayload =
-      method == 'POST' || method == 'PUT' || method == 'PATCH';
+      method === 'POST' || method === 'PUT' || method === 'PATCH';
 
     const requestBody = body || (methodHasPayload ? '' : undefined);
 
@@ -153,6 +153,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   }
 }
 
+// tslint:disable-next-line
 export class FetchHttpClientResponse
   extends HttpClientResponse
   implements HttpClientResponseInterface
@@ -187,7 +188,7 @@ export class FetchHttpClientResponse
     // JS object to meet the HttpClient interface.
     const headersObj: ResponseHeaders = {};
     for (const entry of Object.entries(headers)) {
-      if (!Array.isArray(entry) || entry.length != 2) {
+      if (!Array.isArray(entry) || entry.length !== 2) {
         throw new Error(
           'Response objects produced by the fetch function given to FetchHttpClient do not have an iterable headers map. Response#headers should be an iterable object.',
         );

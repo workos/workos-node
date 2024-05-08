@@ -217,6 +217,7 @@ describe('Webhooks', () => {
 
   describe('when in an environment that supports SubtleCrypto', () => {
     it('automatically uses the subtle crypto library', () => {
+      // tslint:disable-next-line
       expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
         SubtleCryptoProvider,
       );
