@@ -9,6 +9,7 @@ import {
 export class HttpClient implements HttpClientInterface {
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
+  /** The HTTP client name used for diagnotics */
   getClientName(): string {
     throw new Error('getClientName not implemented');
   }

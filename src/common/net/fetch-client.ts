@@ -30,6 +30,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     this._fetchFn = fetchFn;
   }
 
+  /** @override */
   getClientName(): string {
     return 'fetch';
   }
