@@ -32,6 +32,10 @@ import {
   SerializedAuthenticateWithRefreshTokenOptions,
   RefreshAuthenticationResponseResponse,
   RefreshAuthenticationResponse,
+  MagicAuth,
+  MagicAuthResponse,
+  CreateMagicAuthOptions,
+  SerializedCreateMagicAuthOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -49,6 +53,8 @@ import {
   serializeUpdateUserOptions,
   deserializeRefreshAuthenticationResponse,
   serializeAuthenticateWithRefreshTokenOptions,
+  serializeCreateMagicAuthOptions,
+  deserializeMagicAuth,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -291,6 +297,31 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
+    const { data } = await this.workos.get<MagicAuthResponse>(
+      `/user_management/magic_auth/${magicAuthId}`,
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  async createMagicAuth(options: CreateMagicAuthOptions): Promise<MagicAuth> {
+    const { data } = await this.workos.post<
+      MagicAuthResponse,
+      SerializedCreateMagicAuthOptions
+    >(
+      '/user_management/magic_auth',
+      serializeCreateMagicAuthOptions({
+        ...options,
+      }),
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  /**
+   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
+   */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
       '/user_management/magic_auth/send',
