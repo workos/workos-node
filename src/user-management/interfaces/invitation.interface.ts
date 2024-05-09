@@ -7,6 +7,7 @@ export interface Invitation {
   revokedAt: string | null;
   expiresAt: string;
   organizationId: string | null;
+  inviterUserId: string | null;
   token: string;
   acceptInvitationUrl: string;
   createdAt: string;
@@ -22,6 +23,7 @@ export interface InvitationEvent {
   revokedAt: string | null;
   expiresAt: string;
   organizationId: string | null;
+  inviterUserId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,6 +37,7 @@ export interface InvitationResponse {
   revoked_at: string | null;
   expires_at: string;
   organization_id: string | null;
+  inviter_user_id: string | null;
   token: string;
   accept_invitation_url: string;
   created_at: string;
@@ -50,6 +53,7 @@ export interface InvitationEventResponse {
   revoked_at: string | null;
   expires_at: string;
   organization_id: string | null;
+  inviter_user_id: string | null;
   created_at: string;
   updated_at: string;
 }
