@@ -1,19 +1,20 @@
 import fetch from 'jest-fetch-mock';
 import {
-  fetchOnce,
-  fetchURL,
-  fetchSearchParams,
   fetchBody,
+  fetchOnce,
+  fetchSearchParams,
+  fetchURL,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
-import userFixture from './fixtures/user.json';
-import listUsersFixture from './fixtures/list-users.json';
-import listFactorFixture from './fixtures/list-factors.json';
-import organizationMembershipFixture from './fixtures/organization-membership.json';
-import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
+import deactivateOrganizationMembershipsFixture from './fixtures/deactivate-organization-membership.json';
 import invitationFixture from './fixtures/invitation.json';
+import listFactorFixture from './fixtures/list-factors.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
+import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
+import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
+import organizationMembershipFixture from './fixtures/organization-membership.json';
+import userFixture from './fixtures/user.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -665,6 +666,7 @@ describe('UserManagement', () => {
       await workos.userManagement.listOrganizationMemberships({
         userId: 'user_someuser',
         organizationId: 'org_someorg',
+        statuses: ['active', 'inactive'],
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: 10,
       });
@@ -672,6 +674,7 @@ describe('UserManagement', () => {
       expect(fetchSearchParams()).toEqual({
         user_id: 'user_someuser',
         organization_id: 'org_someorg',
+        statuses: 'active,inactive',
         after: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         limit: '10',
         order: 'desc',
@@ -743,6 +746,54 @@ describe('UserManagement', () => {
         `/user_management/organization_memberships/${organizationMembershipId}`,
       );
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('deactivateOrganizationMembership', () => {
+    it('sends a deactivateOrganizationMembership request', async () => {
+      fetchOnce(deactivateOrganizationMembershipsFixture);
+
+      const organizationMembership =
+        await workos.userManagement.deactivateOrganizationMembership(
+          organizationMembershipId,
+        );
+
+      expect(fetchURL()).toContain(
+        `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      );
+      expect(organizationMembership).toMatchObject({
+        object: 'organization_membership',
+        organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'inactive',
+        role: {
+          slug: 'member',
+        },
+      });
+    });
+  });
+
+  describe('reactivateOrganizationMembership', () => {
+    it('sends a reactivateOrganizationMembership request', async () => {
+      fetchOnce(organizationMembershipFixture);
+
+      const organizationMembership =
+        await workos.userManagement.reactivateOrganizationMembership(
+          organizationMembershipId,
+        );
+
+      expect(fetchURL()).toContain(
+        `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      );
+      expect(organizationMembership).toMatchObject({
+        object: 'organization_membership',
+        organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        status: 'active',
+        role: {
+          slug: 'member',
+        },
+      });
     });
   });
 
