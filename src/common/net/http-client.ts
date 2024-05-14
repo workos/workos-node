@@ -6,7 +6,7 @@ import {
   ResponseHeaders,
 } from '../interfaces/http-client.interface';
 
-export class HttpClient implements HttpClientInterface {
+export abstract class HttpClient implements HttpClientInterface {
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
   /** The HTTP client name used for diagnotics */
@@ -14,35 +14,27 @@ export class HttpClient implements HttpClientInterface {
     throw new Error('getClientName not implemented');
   }
 
-  async get(
-    _path: string,
-    _options: RequestOptions,
-  ): Promise<HttpClientResponseInterface> {
-    throw new Error('get not implemented');
-  }
+  abstract get(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
 
-  async post<Entity = any>(
-    _path: string,
-    _entity: Entity,
-    _options: RequestOptions,
-  ): Promise<HttpClientResponseInterface> {
-    throw new Error('post not implemented');
-  }
+  abstract post<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
 
-  async put<Entity = any>(
-    _path: string,
-    _entity: Entity,
-    _options: RequestOptions,
-  ): Promise<HttpClientResponseInterface> {
-    throw new Error('put not implemented');
-  }
+  abstract put<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
 
-  async delete(
-    _path: string,
-    _options: RequestOptions,
-  ): Promise<HttpClientResponseInterface> {
-    throw new Error('delete not implemented');
-  }
+  abstract delete(
+    path: string,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
 
   addClientToUserAgent(userAgent: string): string {
     if (userAgent.indexOf(' ') > -1) {
@@ -93,7 +85,9 @@ export class HttpClient implements HttpClientInterface {
 }
 
 // tslint:disable-next-line
-export class HttpClientResponse implements HttpClientResponseInterface {
+export abstract class HttpClientResponse
+  implements HttpClientResponseInterface
+{
   _statusCode: number;
   _headers: ResponseHeaders;
 
@@ -110,13 +104,9 @@ export class HttpClientResponse implements HttpClientResponseInterface {
     return this._headers;
   }
 
-  getRawResponse(): unknown {
-    throw new Error('getRawResponse not implemented.');
-  }
+  abstract getRawResponse(): unknown;
 
-  toJSON(): any | null {
-    throw new Error('toJSON not implemented.');
-  }
+  abstract toJSON(): any | null;
 }
 
 // tslint:disable-next-line

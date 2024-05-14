@@ -2,7 +2,7 @@
  * Interface encapsulating the various crypto computations used by the library,
  * allowing pluggable underlying crypto implementations.
  */
-export class CryptoProvider {
+export abstract class CryptoProvider {
   encoder = new TextEncoder();
 
   /**
@@ -13,9 +13,7 @@ export class CryptoProvider {
    * - computeHMACSignature('', 'test_secret') => 'f7f9bd47fb987337b5796fdc1fdb9ba221d0d5396814bfcaf9521f43fd8927fd'
    * - computeHMACSignature('\ud83d\ude00', 'test_secret') => '837da296d05c4fe31f61d5d7ead035099d9585a5bcde87de952012a78f0b0c43
    */
-  computeHMACSignature(_payload: string, _secret: string): string {
-    throw new Error('computeHMACSignature not implemented.');
-  }
+  abstract computeHMACSignature(payload: string, secret: string): string;
 
   /**
    * Asynchronous version of `computeHMACSignature`. Some implementations may
@@ -28,17 +26,13 @@ export class CryptoProvider {
    * - computeHMACSignature('', 'test_secret') => 'f7f9bd47fb987337b5796fdc1fdb9ba221d0d5396814bfcaf9521f43fd8927fd'
    * - computeHMACSignature('\ud83d\ude00', 'test_secret') => '837da296d05c4fe31f61d5d7ead035099d9585a5bcde87de952012a78f0b0c43
    */
-  computeHMACSignatureAsync(
-    _payload: string,
-    _secret: string,
-  ): Promise<string> {
-    throw new Error('computeHMACSignatureAsync not implemented.');
-  }
+  abstract computeHMACSignatureAsync(
+    payload: string,
+    secret: string,
+  ): Promise<string>;
 
   /**
    * Cryptographically determine whether two signatures are equal
    */
-  secureCompare(_stringA: string, _stringB: string): Promise<boolean> {
-    throw new Error('secureCompare not implemented');
-  }
+  abstract secureCompare(stringA: string, stringB: string): Promise<boolean>;
 }

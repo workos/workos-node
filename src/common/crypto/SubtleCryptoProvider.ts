@@ -17,6 +17,12 @@ export class SubtleCryptoProvider extends CryptoProvider {
     this.subtleCrypto = subtleCrypto || crypto.subtle;
   }
 
+  computeHMACSignature(_payload: string, _secret: string): string {
+    throw new Error(
+      'SubleCryptoProvider cannot be used in a synchronous context.',
+    );
+  }
+
   /** @override */
   async computeHMACSignatureAsync(
     payload: string,
