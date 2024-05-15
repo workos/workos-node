@@ -501,7 +501,7 @@ export class UserManagement {
   async deactivateOrganizationMembership(
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
-    const { data } = await this.workos.post<OrganizationMembershipResponse>(
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
       `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
       {},
     );
@@ -512,7 +512,7 @@ export class UserManagement {
   async reactivateOrganizationMembership(
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
-    const { data } = await this.workos.post<OrganizationMembershipResponse>(
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
       `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
       {},
     );
