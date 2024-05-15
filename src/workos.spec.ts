@@ -307,7 +307,7 @@ describe('WorkOS', () => {
     });
   });
 
-  describe("when in an environment that doesn't support fetch", () => {
+  describe('when in an environment that does not support fetch', () => {
     const fetchFn = globalThis.fetch;
 
     beforeEach(() => {
@@ -331,6 +331,7 @@ describe('WorkOS', () => {
         fetchFn,
       });
 
+      // tslint:disable-next-line
       expect(workos['client']).toBeInstanceOf(FetchHttpClient);
     });
   });
