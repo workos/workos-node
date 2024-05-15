@@ -80,14 +80,18 @@ export class WorkOS {
       userAgent += ` ${name}: ${version}`;
     }
 
-    this.client = createHttpClient(this.baseURL, {
-      ...options.config,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
+    this.client = createHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        headers: {
+          ...options.config?.headers,
+          Authorization: `Bearer ${this.key}`,
+          'User-Agent': userAgent,
+        },
       },
-    });
+      options.fetchFn,
+    );
   }
 
   get version() {
@@ -194,7 +198,8 @@ export class WorkOS {
 
     if (response) {
       const { status, data, headers } = response;
-      const requestID = headers.get('X-Request-ID') ?? '';
+
+      const requestID = headers['X-Request-ID'] ?? '';
       const {
         code,
         error_description: errorDescription,

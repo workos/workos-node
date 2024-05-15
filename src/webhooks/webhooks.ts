@@ -11,7 +11,7 @@ export class Webhooks {
   private cryptoProvider: CryptoProvider;
 
   constructor(subtleCrypto?: typeof crypto.subtle) {
-    if (typeof crypto.subtle !== 'undefined') {
+    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
       this.cryptoProvider = new SubtleCryptoProvider(subtleCrypto);
     } else {
       this.cryptoProvider = new NodeCryptoProvider();

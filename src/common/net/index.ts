@@ -7,7 +7,7 @@ export function createHttpClient(
   options: RequestInit,
   fetchFn?: typeof fetch,
 ): HttpClient {
-  if (typeof fetch !== 'undefined') {
+  if (typeof fetch !== 'undefined' || typeof fetchFn !== 'undefined') {
     return new FetchHttpClient(baseURL, options, fetchFn);
   } else {
     return new NodeHttpClient(baseURL, options);

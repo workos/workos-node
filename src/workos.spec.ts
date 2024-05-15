@@ -307,7 +307,6 @@ describe('WorkOS', () => {
     });
   });
 
-  // tslint:disable-next-line
   describe("when in an environment that doesn't support fetch", () => {
     const fetchFn = globalThis.fetch;
 
@@ -325,6 +324,14 @@ describe('WorkOS', () => {
 
       // tslint:disable-next-line
       expect(workos['client']).toBeInstanceOf(NodeHttpClient);
+    });
+
+    it('uses a fetch function if provided', () => {
+      const workos = new WorkOS('sk_test_key', {
+        fetchFn,
+      });
+
+      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
     });
   });
 });

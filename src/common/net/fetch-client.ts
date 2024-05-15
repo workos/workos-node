@@ -176,11 +176,7 @@ export class FetchHttpClientResponse
     const contentType = this._res.headers.get('content-type');
     const isJsonResponse = contentType?.includes('application/json');
 
-    if (isJsonResponse) {
-      return this._res.json();
-    }
-
-    return null;
+    return isJsonResponse ? this._res.json() : null;
   }
 
   static _transformHeadersToObject(headers: Headers): ResponseHeaders {

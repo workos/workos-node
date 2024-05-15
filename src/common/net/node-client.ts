@@ -133,30 +133,23 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
         agent,
       };
 
-      const req = lib.request(url, options, (res) => {
-        const chunks: Buffer[] = [];
-        res.on('data', (chunk) => chunks.push(chunk));
-        res.once('end', async () => {
-          const clientResponse = new NodeHttpClientResponse(res);
+      const req = lib.request(url, options, async (res) => {
+        const clientResponse = new NodeHttpClientResponse(res);
 
-          if (
-            res.statusCode &&
-            (res.statusCode < 200 || res.statusCode > 299)
-          ) {
-            reject(
-              new HttpClientError({
-                message: res.statusMessage as string,
-                response: {
-                  status: res.statusCode,
-                  headers: res.headers as unknown as Headers,
-                  data: await clientResponse.toJSON(),
-                },
-              }),
-            );
-          }
+        if (res.statusCode && (res.statusCode < 200 || res.statusCode > 299)) {
+          reject(
+            new HttpClientError({
+              message: res.statusMessage as string,
+              response: {
+                status: res.statusCode,
+                headers: res.headers,
+                data: await clientResponse.toJSON(),
+              },
+            }),
+          );
+        }
 
-          resolve(clientResponse);
-        });
+        resolve(clientResponse);
       });
 
       req.on('error', (err) => {
@@ -164,9 +157,8 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       });
 
       if (body) {
-        const data = JSON.stringify(body);
-        req.setHeader('Content-Length', Buffer.byteLength(data));
-        req.write(data);
+        req.setHeader('Content-Length', Buffer.byteLength(body));
+        req.write(body);
       }
       req.end();
     });
@@ -190,7 +182,7 @@ export class NodeHttpClientResponse
     return this._res;
   }
 
-  toJSON(): any {
+  toJSON(): Promise<any> | any {
     return new Promise((resolve, reject) => {
       const contentType = this._res.headers['content-type'];
       const isJsonResponse = contentType?.includes('application/json');
