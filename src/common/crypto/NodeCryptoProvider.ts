@@ -37,6 +37,6 @@ export class NodeCryptoProvider extends CryptoProvider {
     const hmacB = crypto.createHmac('sha256', key).update(bufferB).digest();
 
     // Perform a constant time comparison
-    return hmacA.equals(hmacB);
+    return crypto.timingSafeEqual(hmacA, hmacB);
   }
 }
