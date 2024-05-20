@@ -498,6 +498,28 @@ export class UserManagement {
     );
   }
 
+  async deactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
+  async reactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
   async getInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
       `/user_management/invitations/${invitationId}`,
