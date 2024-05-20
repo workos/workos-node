@@ -29,7 +29,7 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FetchClient } from './common/utils/fetch-client';
 import { FetchError } from './common/utils/fetch-error';
 
-const VERSION = '7.4.0';
+const VERSION = '7.5.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
