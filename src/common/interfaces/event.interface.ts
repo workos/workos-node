@@ -28,7 +28,7 @@ import {
 import {
   RoleEvent,
   RoleEventResponse,
-} from '../../user-management/interfaces/role.interface';
+} from '../../roles/interfaces/role.interface';
 
 export interface EventBase {
   id: string;
