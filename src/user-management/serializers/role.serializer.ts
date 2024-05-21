@@ -1,4 +1,4 @@
-import { RoleEvent, RoleEventResponse } from '../interfaces';
+import { RoleEvent, RoleEventResponse } from '../../roles/interfaces';
 
 export const deserializeRole = (role: RoleEventResponse): RoleEvent => ({
   object: 'role',
