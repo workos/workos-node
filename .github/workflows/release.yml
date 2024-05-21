@@ -42,4 +42,4 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --tag next --access=public
+          npm publish --tag ${{ github.event.release.tag_name }} --access=public
