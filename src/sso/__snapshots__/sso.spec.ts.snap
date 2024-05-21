@@ -21,7 +21,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/7.5.0",
+  "User-Agent": "workos-node/7.5.0/fetch",
 }
 `;
 
@@ -58,15 +58,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-<<<<<<< HEAD
-<<<<<<< HEAD
-  "User-Agent": "workos-node/7.4.0/fetch",
-=======
-  "User-Agent": "workos-node/7.5.0",
->>>>>>> 27a2181 (Bump to version 7.5.0 (#1043))
-=======
-  "User-Agent": "workos-node/7.4.0/fetch",
->>>>>>> 21162a7 (Add backwards compatibility for older versions of Node (#1038))
+  "User-Agent": "workos-node/7.5.0/fetch",
 }
 `;
 
