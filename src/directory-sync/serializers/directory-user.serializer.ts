@@ -57,6 +57,7 @@ export const deserializeUpdatedEventDirectoryUser = (
   lastName: directoryUser.last_name,
   jobTitle: directoryUser.job_title,
   state: directoryUser.state,
+  role: directoryUser.role,
   createdAt: directoryUser.created_at,
   updatedAt: directoryUser.updated_at,
   previousAttributes: directoryUser.previous_attributes,
