@@ -9,6 +9,10 @@ The WorkOS library for Node.js provides convenient access to the WorkOS API from
 
 See the [API Reference](https://workos.com/docs/reference/client-libraries) for Node.js usage examples.
 
+## Requirements
+
+Node 16 or higher.
+
 ## Installation
 
 Install the package with:

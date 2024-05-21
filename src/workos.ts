@@ -26,8 +26,8 @@ import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
-import { FetchClient } from './common/utils/fetch-client';
-import { FetchError } from './common/utils/fetch-error';
+
+import { HttpClient, HttpClientError, createHttpClient } from './common/net';
 
 const VERSION = '7.4.0';
 
@@ -35,7 +35,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  private readonly client: FetchClient;
+  private readonly client: HttpClient;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -80,14 +80,18 @@ export class WorkOS {
       userAgent += ` ${name}: ${version}`;
     }
 
-    this.client = new FetchClient(this.baseURL, {
-      ...options.config,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
+    this.client = createHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        headers: {
+          ...options.config?.headers,
+          Authorization: `Bearer ${this.key}`,
+          'User-Agent': userAgent,
+        },
       },
-    });
+      options.fetchFn,
+    );
   }
 
   get version() {
@@ -106,12 +110,14 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.post<Entity>(path, entity, {
+      const res = await this.client.post<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
+
+      return { data: await res.toJSON() };
     } catch (error) {
-      this.handleFetchError({ path, error });
+      this.handleHttpError({ path, error });
 
       throw error;
     }
@@ -123,14 +129,15 @@ export class WorkOS {
   ): Promise<{ data: Result }> {
     try {
       const { accessToken } = options;
-      return await this.client.get(path, {
+      const res = await this.client.get(path, {
         params: options.query,
         headers: accessToken
           ? { Authorization: `Bearer ${accessToken}` }
           : undefined,
       });
+      return { data: await res.toJSON() };
     } catch (error) {
-      this.handleFetchError({ path, error });
+      this.handleHttpError({ path, error });
 
       throw error;
     }
@@ -148,12 +155,13 @@ export class WorkOS {
     }
 
     try {
-      return await this.client.put<Entity>(path, entity, {
+      const res = await this.client.put<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
+      return { data: await res.toJSON() };
     } catch (error) {
-      this.handleFetchError({ path, error });
+      this.handleHttpError({ path, error });
 
       throw error;
     }
@@ -165,7 +173,7 @@ export class WorkOS {
         params: query,
       });
     } catch (error) {
-      this.handleFetchError({ path, error });
+      this.handleHttpError({ path, error });
 
       throw error;
     }
@@ -181,12 +189,17 @@ export class WorkOS {
     return process.emitWarning(warning, 'WorkOS');
   }
 
-  private handleFetchError({ path, error }: { path: string; error: unknown }) {
-    const { response } = error as FetchError<WorkOSResponseError>;
+  private handleHttpError({ path, error }: { path: string; error: unknown }) {
+    if (!(error instanceof HttpClientError)) {
+      throw new Error(`Unexpected error: ${error}`);
+    }
+
+    const { response } = error as HttpClientError<WorkOSResponseError>;
 
     if (response) {
       const { status, data, headers } = response;
-      const requestID = headers.get('X-Request-ID') ?? '';
+
+      const requestID = headers['X-Request-ID'] ?? '';
       const {
         code,
         error_description: errorDescription,
