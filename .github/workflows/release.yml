@@ -42,4 +42,13 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --tag ${{ github.event.release.tag_name }} --access=public
+          # Tags may come prefixed with "v" which we want to remove before putting
+          # it as the version of this deploy. E.g. this will turn "v7.5.0-beta" to "7.5.0-beta"
+          CLEAN_TAG=$(echo "${{ github.event.release.tag_name }}" | sed 's/[^0-9]//')
+          jq ".version=\"${CLEAN_TAG}\"" package.json > package.json.deploy
+          cp package.json.deploy package.json
+
+          echo "Deploying with package.json"
+          cat package.json
+
+          npm publish --tag next --access=public
