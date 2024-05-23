@@ -9,7 +9,7 @@
   "organization_id": "org_01H5JQDV7R7ATEYZDEG0W5PRYS",
   "inviter_user_id": null,
   "token": "Z1uX3RbwcIl5fIGJJJCXXisdI",
-  "accept_invitation_url": "https://myauthkit.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
+  "accept_invitation_url": "https://your-app.com.com/invite?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI",
   "created_at": "2023-07-18T02:07:19.911Z",
   "updated_at": "2023-07-18T02:07:19.911Z"
 }
