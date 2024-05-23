@@ -9,8 +9,10 @@ import {
 import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import {
+  deserializeEmailVerificationEvent,
   deserializeInvitationEvent,
   deserializeMagicAuthEvent,
+  deserializePasswordResetEvent,
   deserializeUser,
 } from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
@@ -83,6 +85,12 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeUpdatedEventDirectoryUser(event.data),
       };
+    case 'email_verification.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeEmailVerificationEvent(event.data),
+      };
     case 'invitation.created':
       return {
         ...eventBase,
@@ -94,6 +102,12 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeMagicAuthEvent(event.data),
+      };
+    case 'password_reset.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePasswordResetEvent(event.data),
       };
     case 'user.created':
     case 'user.updated':

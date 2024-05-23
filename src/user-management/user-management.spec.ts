@@ -7,6 +7,7 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import deactivateOrganizationMembershipsFixture from './fixtures/deactivate-organization-membership.json';
+import emailVerificationFixture from './fixtures/email_verification.json';
 import invitationFixture from './fixtures/invitation.json';
 import listFactorFixture from './fixtures/list-factors.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
@@ -14,13 +15,16 @@ import listOrganizationMembershipsFixture from './fixtures/list-organization-mem
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
+import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   beforeEach(() => fetch.resetMocks());
@@ -321,6 +325,26 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('getEmailVerification', () => {
+    it('sends a Get EmailVerification request', async () => {
+      fetchOnce(emailVerificationFixture);
+      const emailVerification =
+        await workos.userManagement.getEmailVerification(emailVerificationId);
+      expect(fetchURL()).toContain(
+        `/user_management/email_verification/${emailVerificationId}`,
+      );
+      expect(emailVerification).toMatchObject({
+        id: 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+        expiresAt: '2023-07-18T02:07:19.911Z',
+        code: '123456',
+        createdAt: '2023-07-18T02:07:19.911Z',
+        updatedAt: '2023-07-18T02:07:19.911Z',
+      });
+    });
+  });
+
   describe('sendVerificationEmail', () => {
     it('sends a Create Email Verification Challenge request', async () => {
       fetchOnce({ user: userFixture });
@@ -423,6 +447,53 @@ describe('UserManagement', () => {
         email: 'bob.loblaw@example.com',
       });
       expect(response).toBeUndefined();
+    });
+  });
+
+  describe('getPasswordReset', () => {
+    it('sends a Get PaswordReset request', async () => {
+      fetchOnce(passwordResetFixture);
+      const passwordReset = await workos.userManagement.getPasswordReset(
+        passwordResetId,
+      );
+      expect(fetchURL()).toContain(
+        `/user_management/password_reset/${passwordResetId}`,
+      );
+      expect(passwordReset).toMatchObject({
+        id: 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+        passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
+        passwordResetUrl:
+          'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
+        expiresAt: '2023-07-18T02:07:19.911Z',
+        createdAt: '2023-07-18T02:07:19.911Z',
+      });
+    });
+  });
+
+  describe('createMagicAuth', () => {
+    it('sends a Create Magic Auth request', async () => {
+      fetchOnce(passwordResetFixture);
+
+      const response = await workos.userManagement.createPasswordReset({
+        email: 'dane@workos.com',
+      });
+
+      expect(fetchURL()).toContain('/user_management/password_reset');
+      expect(fetchBody()).toEqual({
+        email: 'dane@workos.com',
+      });
+      expect(response).toMatchObject({
+        id: 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'dane@workos.com',
+        passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
+        passwordResetUrl:
+          'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
+        expiresAt: '2023-07-18T02:07:19.911Z',
+        createdAt: '2023-07-18T02:07:19.911Z',
+      });
     });
   });
 
