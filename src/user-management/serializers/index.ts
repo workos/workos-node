@@ -5,7 +5,7 @@ export * from './authenticate-with-refresh-token.options.serializer';
 export * from './authenticate-with-totp-options.serializer';
 export * from './authentication-response.serializer';
 export * from './create-magic-auth-options.serializer';
-export * from './create-password-reset-options.serializer ';
+export * from './create-password-reset-options.serializer';
 export * from './email-verification.serializer';
 export * from './enroll-auth-factor-options.serializer';
 export * from './factor.serializer';

@@ -465,7 +465,7 @@ describe('UserManagement', () => {
         email: 'dane@workos.com',
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
-          'https://your-app.com.com/reset-password?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI',
+          'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
         expiresAt: '2023-07-18T02:07:19.911Z',
         createdAt: '2023-07-18T02:07:19.911Z',
       });
@@ -490,7 +490,7 @@ describe('UserManagement', () => {
         email: 'dane@workos.com',
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
-          'https://your-app.com.com/reset-password?invitation_token=Z1uX3RbwcIl5fIGJJJCXXisdI',
+          'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
         expiresAt: '2023-07-18T02:07:19.911Z',
         createdAt: '2023-07-18T02:07:19.911Z',
       });
