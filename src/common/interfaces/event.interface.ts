@@ -12,6 +12,14 @@ import {
 } from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  EmailVerificationEvent,
+  EmailVerificationEventResponse,
+  InvitationEvent,
+  InvitationEventResponse,
+  MagicAuthEvent,
+  MagicAuthEventResponse,
+  PasswordResetEvent,
+  PasswordResetEventResponse,
   Session,
   SessionResponse,
   User,
@@ -21,6 +29,10 @@ import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
+import {
+  RoleEvent,
+  RoleEventResponse,
+} from '../../roles/interfaces/role.interface';
 
 export interface EventBase {
   id: string;
@@ -188,6 +200,47 @@ export interface DsyncUserUpdatedEventResponse extends EventResponseBase {
   data: DirectoryUserResponse & Record<'previous_attributes', any>;
 }
 
+export interface EmailVerificationCreatedEvent extends EventBase {
+  event: 'email_verification.created';
+  data: EmailVerificationEvent;
+}
+
+export interface EmailVerificationCreatedEventResponse
+  extends EventResponseBase {
+  event: 'email_verification.created';
+  data: EmailVerificationEventResponse;
+}
+
+export interface InvitationCreatedEvent extends EventBase {
+  event: 'invitation.created';
+  data: InvitationEvent;
+}
+
+export interface InvitationCreatedEventResponse extends EventResponseBase {
+  event: 'invitation.created';
+  data: InvitationEventResponse;
+}
+
+export interface MagicAuthCreatedEvent extends EventBase {
+  event: 'magic_auth.created';
+  data: MagicAuthEvent;
+}
+
+export interface MagicAuthCreatedEventResponse extends EventResponseBase {
+  event: 'magic_auth.created';
+  data: MagicAuthEventResponse;
+}
+
+export interface PasswordResetCreatedEvent extends EventBase {
+  event: 'password_reset.created';
+  data: PasswordResetEvent;
+}
+
+export interface PasswordResetCreatedEventResponse extends EventResponseBase {
+  event: 'password_reset.created';
+  data: PasswordResetEventResponse;
+}
+
 export interface UserCreatedEvent extends EventBase {
   event: 'user.created';
   data: User;
@@ -218,13 +271,41 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreated instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAdded extends EventBase {
   event: 'organization_membership.added';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipCreatedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   event: 'organization_membership.added';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipCreated extends EventBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipCreatedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.created';
+  data: OrganizationMembershipResponse;
+}
+
+export interface OrganizationMembershipDeleted extends EventBase {
+  event: 'organization_membership.deleted';
+  data: OrganizationMembership;
+}
+
+export interface OrganizationMembershipDeletedResponse
+  extends EventResponseBase {
+  event: 'organization_membership.deleted';
   data: OrganizationMembershipResponse;
 }
 
@@ -239,11 +320,17 @@ export interface OrganizationMembershipUpdatedResponse
   data: OrganizationMembershipResponse;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeleted instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemoved extends EventBase {
   event: 'organization_membership.removed';
   data: OrganizationMembership;
 }
 
+/**
+ * @deprecated Use OrganizationMembershipDeletedResponse instead. Will be removed in a future major version.
+ */
 export interface OrganizationMembershipRemovedResponse
   extends EventResponseBase {
   event: 'organization_membership.removed';
@@ -280,6 +367,26 @@ export interface OrganizationDeletedResponse extends EventResponseBase {
   data: OrganizationResponse;
 }
 
+export interface RoleCreatedEvent extends EventBase {
+  event: 'role.created';
+  data: RoleEvent;
+}
+
+export interface RoleCreatedEventResponse extends EventResponseBase {
+  event: 'role.created';
+  data: RoleEventResponse;
+}
+
+export interface RoleDeletedEvent extends EventBase {
+  event: 'role.deleted';
+  data: RoleEvent;
+}
+
+export interface RoleDeletedEventResponse extends EventResponseBase {
+  event: 'role.deleted';
+  data: RoleEventResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -305,12 +412,20 @@ export type Event =
   | DsyncUserCreatedEvent
   | DsyncUserUpdatedEvent
   | DsyncUserDeletedEvent
+  | EmailVerificationCreatedEvent
+  | InvitationCreatedEvent
+  | MagicAuthCreatedEvent
+  | PasswordResetCreatedEvent
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
   | OrganizationMembershipAdded
+  | OrganizationMembershipCreated
+  | OrganizationMembershipDeleted
   | OrganizationMembershipUpdated
   | OrganizationMembershipRemoved
+  | RoleCreatedEvent
+  | RoleDeletedEvent
   | SessionCreatedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
@@ -331,12 +446,20 @@ export type EventResponse =
   | DsyncUserCreatedEventResponse
   | DsyncUserUpdatedEventResponse
   | DsyncUserDeletedEventResponse
+  | EmailVerificationCreatedEventResponse
+  | InvitationCreatedEventResponse
+  | MagicAuthCreatedEventResponse
+  | PasswordResetCreatedEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
   | OrganizationMembershipAddedResponse
+  | OrganizationMembershipCreatedResponse
+  | OrganizationMembershipDeletedResponse
   | OrganizationMembershipUpdatedResponse
   | OrganizationMembershipRemovedResponse
+  | RoleCreatedEventResponse
+  | RoleDeletedEventResponse
   | SessionCreatedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse

@@ -32,6 +32,16 @@ import {
   SerializedAuthenticateWithRefreshTokenOptions,
   RefreshAuthenticationResponseResponse,
   RefreshAuthenticationResponse,
+  MagicAuth,
+  MagicAuthResponse,
+  CreateMagicAuthOptions,
+  SerializedCreateMagicAuthOptions,
+  EmailVerification,
+  EmailVerificationResponse,
+  PasswordReset,
+  PasswordResetResponse,
+  CreatePasswordResetOptions,
+  SerializedCreatePasswordResetOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -49,6 +59,11 @@ import {
   serializeUpdateUserOptions,
   deserializeRefreshAuthenticationResponse,
   serializeAuthenticateWithRefreshTokenOptions,
+  serializeCreateMagicAuthOptions,
+  deserializeMagicAuth,
+  deserializeEmailVerification,
+  deserializePasswordReset,
+  serializeCreatePasswordResetOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -280,6 +295,16 @@ export class UserManagement {
     return deserializeAuthenticationResponse(data);
   }
 
+  async getEmailVerification(
+    emailVerificationId: string,
+  ): Promise<EmailVerification> {
+    const { data } = await this.workos.get<EmailVerificationResponse>(
+      `/user_management/email_verification/${emailVerificationId}`,
+    );
+
+    return deserializeEmailVerification(data);
+  }
+
   async sendVerificationEmail({
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
@@ -291,6 +316,31 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
+    const { data } = await this.workos.get<MagicAuthResponse>(
+      `/user_management/magic_auth/${magicAuthId}`,
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  async createMagicAuth(options: CreateMagicAuthOptions): Promise<MagicAuth> {
+    const { data } = await this.workos.post<
+      MagicAuthResponse,
+      SerializedCreateMagicAuthOptions
+    >(
+      '/user_management/magic_auth',
+      serializeCreateMagicAuthOptions({
+        ...options,
+      }),
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  /**
+   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
+   */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
       '/user_management/magic_auth/send',
@@ -312,6 +362,33 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
+    const { data } = await this.workos.get<PasswordResetResponse>(
+      `/user_management/password_reset/${passwordResetId}`,
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  async createPasswordReset(
+    options: CreatePasswordResetOptions,
+  ): Promise<PasswordReset> {
+    const { data } = await this.workos.post<
+      PasswordResetResponse,
+      SerializedCreatePasswordResetOptions
+    >(
+      '/user_management/password_reset',
+      serializeCreatePasswordResetOptions({
+        ...options,
+      }),
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  /**
+   * @deprecated Please use `createPasswordReset` instead. This method will be removed in a future major version.
+   */
   async sendPasswordResetEmail(
     payload: SendPasswordResetEmailOptions,
   ): Promise<void> {
@@ -465,6 +542,28 @@ export class UserManagement {
     await this.workos.delete(
       `/user_management/organization_memberships/${organizationMembershipId}`,
     );
+  }
+
+  async deactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
+  async reactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
   }
 
   async getInvitation(invitationId: string): Promise<Invitation> {

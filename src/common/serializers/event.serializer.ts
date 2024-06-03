@@ -8,8 +8,15 @@ import {
 } from '../../directory-sync/serializers';
 import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
-import { deserializeUser } from '../../user-management/serializers';
+import {
+  deserializeEmailVerificationEvent,
+  deserializeInvitationEvent,
+  deserializeMagicAuthEvent,
+  deserializePasswordResetEvent,
+  deserializeUser,
+} from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
+import { deserializeRole } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
 
@@ -78,6 +85,30 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeUpdatedEventDirectoryUser(event.data),
       };
+    case 'email_verification.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeEmailVerificationEvent(event.data),
+      };
+    case 'invitation.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeInvitationEvent(event.data),
+      };
+    case 'magic_auth.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeMagicAuthEvent(event.data),
+      };
+    case 'password_reset.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePasswordResetEvent(event.data),
+      };
     case 'user.created':
     case 'user.updated':
     case 'user.deleted':
@@ -87,12 +118,21 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeUser(event.data),
       };
     case 'organization_membership.added':
+    case 'organization_membership.created':
+    case 'organization_membership.deleted':
     case 'organization_membership.updated':
     case 'organization_membership.removed':
       return {
         ...eventBase,
         event: event.event,
         data: deserializeOrganizationMembership(event.data),
+      };
+    case 'role.created':
+    case 'role.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeRole(event.data),
       };
     case 'session.created':
       return {

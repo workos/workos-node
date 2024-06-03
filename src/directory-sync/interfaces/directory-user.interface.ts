@@ -1,3 +1,4 @@
+import { RoleResponse } from '../../roles/interfaces/';
 import {
   DirectoryGroup,
   DirectoryGroupResponse,
@@ -26,6 +27,7 @@ export interface DirectoryUser<
   lastName: string | null;
   jobTitle: string | null;
   state: 'active' | 'inactive';
+  role?: RoleResponse;
   createdAt: string;
   updatedAt: string;
 }
@@ -51,6 +53,7 @@ export interface DirectoryUserResponse<
   last_name: string | null;
   job_title: string | null;
   state: 'active' | 'inactive';
+  role?: RoleResponse;
   created_at: string;
   updated_at: string;
 }

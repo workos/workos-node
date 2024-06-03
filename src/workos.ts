@@ -5,6 +5,7 @@ import {
   UnauthorizedException,
   UnprocessableEntityException,
   OauthException,
+  RateLimitExceededException,
 } from './common/exceptions';
 import {
   GetOptions,
@@ -28,7 +29,7 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FetchClient } from './common/utils/fetch-client';
 import { FetchError } from './common/utils/fetch-error';
 
-const VERSION = '7.0.0';
+const VERSION = '7.6.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -213,6 +214,15 @@ export class WorkOS {
             path,
             requestID,
           });
+        }
+        case 429: {
+          const retryAfter = headers.get('Retry-After');
+
+          throw new RateLimitExceededException(
+            data.message,
+            requestID,
+            retryAfter ? Number(retryAfter) : null,
+          );
         }
         default: {
           if (error || errorDescription) {
