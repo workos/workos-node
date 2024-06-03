@@ -884,7 +884,7 @@ describe('UserManagement', () => {
   });
 
   describe('findInvitationByToken', () => {
-    it('sends a Find Invitation by token request', async () => {
+    it('sends a find invitation by token request', async () => {
       fetchOnce(invitationFixture);
       const invitation = await workos.userManagement.findInvitationByToken(
         invitationToken,
