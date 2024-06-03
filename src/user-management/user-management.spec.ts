@@ -467,6 +467,7 @@ describe('UserManagement', () => {
         type: 'totp',
         totpIssuer: 'WorkOS',
         totpUser: 'some_user',
+        totpSecret: 'secret-test',
       });
 
       expect(fetchURL()).toContain(
