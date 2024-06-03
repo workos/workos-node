@@ -23,6 +23,7 @@ const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const invitationToken = 'Z1uX3RbwcIl5fIGJJJCXXisdI';
 const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
@@ -877,6 +878,19 @@ describe('UserManagement', () => {
       );
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}`,
+      );
+      expect(invitation).toMatchObject({});
+    });
+  });
+
+  describe('findInvitationByToken', () => {
+    it('sends a Find Invitation by token request', async () => {
+      fetchOnce(invitationFixture);
+      const invitation = await workos.userManagement.findInvitationByToken(
+        invitationToken,
+      );
+      expect(fetchURL()).toContain(
+        `/user_management/invitations/by_token/${invitationToken}`,
       );
       expect(invitation).toMatchObject({});
     });
