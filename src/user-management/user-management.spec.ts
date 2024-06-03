@@ -879,7 +879,10 @@ describe('UserManagement', () => {
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}`,
       );
-      expect(invitation).toMatchObject({});
+      expect(invitation).toMatchObject({
+        object: 'invitation',
+        email: 'dane@workos.com',
+      });
     });
   });
 
@@ -892,7 +895,11 @@ describe('UserManagement', () => {
       expect(fetchURL()).toContain(
         `/user_management/invitations/by_token/${invitationToken}`,
       );
-      expect(invitation).toMatchObject({});
+      expect(invitation).toMatchObject({
+        object: 'invitation',
+        email: 'dane@workos.com',
+        token: invitationToken,
+      });
     });
   });
 
