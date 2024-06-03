@@ -881,7 +881,7 @@ describe('UserManagement', () => {
       );
       expect(invitation).toMatchObject({
         object: 'invitation',
-        email: 'dane@workos.com',
+        id: invitationId,
       });
     });
   });
@@ -897,7 +897,6 @@ describe('UserManagement', () => {
       );
       expect(invitation).toMatchObject({
         object: 'invitation',
-        email: 'dane@workos.com',
         token: invitationToken,
       });
     });
