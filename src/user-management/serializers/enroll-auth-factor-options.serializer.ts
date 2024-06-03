@@ -9,4 +9,5 @@ export const serializeEnrollAuthFactorOptions = (
   type: options.type,
   totp_issuer: options.totpIssuer,
   totp_user: options.totpUser,
+  totp_secret: options.totpSecret,
 });
