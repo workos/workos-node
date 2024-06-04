@@ -5,6 +5,7 @@ import {
 
 export interface AuthenticateWithCodeOptions
   extends AuthenticateWithOptionsBase {
+  codeVerifier?: string;
   code: string;
   invitationToken?: string;
 }
@@ -16,6 +17,7 @@ export interface AuthenticateUserWithCodeCredentials {
 export interface SerializedAuthenticateWithCodeOptions
   extends SerializedAuthenticateWithOptionsBase {
   grant_type: 'authorization_code';
+  code_verifier?: string;
   code: string;
   invitation_token?: string;
 }

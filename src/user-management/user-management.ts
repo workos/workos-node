@@ -635,6 +635,8 @@ export class UserManagement {
 
   getAuthorizationUrl({
     connectionId,
+    codeChallenge,
+    codeChallengeMethod,
     clientId,
     domainHint,
     loginHint,
@@ -658,6 +660,8 @@ export class UserManagement {
 
     const query = toQueryString({
       connection_id: connectionId,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
       organization_id: organizationId,
       domain_hint: domainHint,
       login_hint: loginHint,
