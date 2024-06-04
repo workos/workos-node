@@ -574,6 +574,14 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async findInvitationByToken(invitationToken: string): Promise<Invitation> {
+    const { data } = await this.workos.get<InvitationResponse>(
+      `/user_management/invitations/by_token/${invitationToken}`,
+    );
+
+    return deserializeInvitation(data);
+  }
+
   async listInvitations(
     options: ListInvitationsOptions,
   ): Promise<AutoPaginatable<Invitation>> {
