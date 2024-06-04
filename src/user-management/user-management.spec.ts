@@ -170,6 +170,30 @@ describe('UserManagement', () => {
       });
     });
 
+    it('sends a token authentication request when including the code_verifier', async () => {
+      fetchOnce({ user: userFixture });
+      const resp = await workos.userManagement.authenticateWithCode({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        codeVerifier: 'code_verifier_value',
+      });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        code: 'or this',
+        code_verifier: 'code_verifier_value',
+        grant_type: 'authorization_code',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+
     it('deserializes authentication_method', async () => {
       fetchOnce({
         user: userFixture,
@@ -1006,6 +1030,22 @@ describe('UserManagement', () => {
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
           screenHint: 'sign-up',
+        });
+
+        expect(url).toMatchSnapshot();
+      });
+    });
+
+    describe('with a code_challenge and code_challenge_method', () => {
+      it('generates an authorize url', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          codeChallenge: 'code_challenge_value',
+          codeChallengeMethod: 'S256',
         });
 
         expect(url).toMatchSnapshot();
