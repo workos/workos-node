@@ -36,6 +36,12 @@ import {
   MagicAuthResponse,
   CreateMagicAuthOptions,
   SerializedCreateMagicAuthOptions,
+  EmailVerification,
+  EmailVerificationResponse,
+  PasswordReset,
+  PasswordResetResponse,
+  CreatePasswordResetOptions,
+  SerializedCreatePasswordResetOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -55,6 +61,9 @@ import {
   serializeAuthenticateWithRefreshTokenOptions,
   serializeCreateMagicAuthOptions,
   deserializeMagicAuth,
+  deserializeEmailVerification,
+  deserializePasswordReset,
+  serializeCreatePasswordResetOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -286,6 +295,16 @@ export class UserManagement {
     return deserializeAuthenticationResponse(data);
   }
 
+  async getEmailVerification(
+    emailVerificationId: string,
+  ): Promise<EmailVerification> {
+    const { data } = await this.workos.get<EmailVerificationResponse>(
+      `/user_management/email_verification/${emailVerificationId}`,
+    );
+
+    return deserializeEmailVerification(data);
+  }
+
   async sendVerificationEmail({
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
@@ -343,6 +362,33 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
+    const { data } = await this.workos.get<PasswordResetResponse>(
+      `/user_management/password_reset/${passwordResetId}`,
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  async createPasswordReset(
+    options: CreatePasswordResetOptions,
+  ): Promise<PasswordReset> {
+    const { data } = await this.workos.post<
+      PasswordResetResponse,
+      SerializedCreatePasswordResetOptions
+    >(
+      '/user_management/password_reset',
+      serializeCreatePasswordResetOptions({
+        ...options,
+      }),
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  /**
+   * @deprecated Please use `createPasswordReset` instead. This method will be removed in a future major version.
+   */
   async sendPasswordResetEmail(
     payload: SendPasswordResetEmailOptions,
   ): Promise<void> {
@@ -528,6 +574,14 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async findInvitationByToken(invitationToken: string): Promise<Invitation> {
+    const { data } = await this.workos.get<InvitationResponse>(
+      `/user_management/invitations/by_token/${invitationToken}`,
+    );
+
+    return deserializeInvitation(data);
+  }
+
   async listInvitations(
     options: ListInvitationsOptions,
   ): Promise<AutoPaginatable<Invitation>> {
@@ -581,6 +635,8 @@ export class UserManagement {
 
   getAuthorizationUrl({
     connectionId,
+    codeChallenge,
+    codeChallengeMethod,
     clientId,
     domainHint,
     loginHint,
@@ -604,6 +660,8 @@ export class UserManagement {
 
     const query = toQueryString({
       connection_id: connectionId,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
       organization_id: organizationId,
       domain_hint: domainHint,
       login_hint: loginHint,

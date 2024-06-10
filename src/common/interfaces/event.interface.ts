@@ -12,10 +12,14 @@ import {
 } from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  EmailVerificationEvent,
+  EmailVerificationEventResponse,
   InvitationEvent,
   InvitationEventResponse,
   MagicAuthEvent,
   MagicAuthEventResponse,
+  PasswordResetEvent,
+  PasswordResetEventResponse,
   Session,
   SessionResponse,
   User,
@@ -196,6 +200,17 @@ export interface DsyncUserUpdatedEventResponse extends EventResponseBase {
   data: DirectoryUserResponse & Record<'previous_attributes', any>;
 }
 
+export interface EmailVerificationCreatedEvent extends EventBase {
+  event: 'email_verification.created';
+  data: EmailVerificationEvent;
+}
+
+export interface EmailVerificationCreatedEventResponse
+  extends EventResponseBase {
+  event: 'email_verification.created';
+  data: EmailVerificationEventResponse;
+}
+
 export interface InvitationCreatedEvent extends EventBase {
   event: 'invitation.created';
   data: InvitationEvent;
@@ -214,6 +229,16 @@ export interface MagicAuthCreatedEvent extends EventBase {
 export interface MagicAuthCreatedEventResponse extends EventResponseBase {
   event: 'magic_auth.created';
   data: MagicAuthEventResponse;
+}
+
+export interface PasswordResetCreatedEvent extends EventBase {
+  event: 'password_reset.created';
+  data: PasswordResetEvent;
+}
+
+export interface PasswordResetCreatedEventResponse extends EventResponseBase {
+  event: 'password_reset.created';
+  data: PasswordResetEventResponse;
 }
 
 export interface UserCreatedEvent extends EventBase {
@@ -387,8 +412,10 @@ export type Event =
   | DsyncUserCreatedEvent
   | DsyncUserUpdatedEvent
   | DsyncUserDeletedEvent
+  | EmailVerificationCreatedEvent
   | InvitationCreatedEvent
   | MagicAuthCreatedEvent
+  | PasswordResetCreatedEvent
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
@@ -419,8 +446,10 @@ export type EventResponse =
   | DsyncUserCreatedEventResponse
   | DsyncUserUpdatedEventResponse
   | DsyncUserDeletedEventResponse
+  | EmailVerificationCreatedEventResponse
   | InvitationCreatedEventResponse
   | MagicAuthCreatedEventResponse
+  | PasswordResetCreatedEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse

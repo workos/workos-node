@@ -29,7 +29,7 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 import { HttpClient, HttpClientError, createHttpClient } from './common/net';
 
-const VERSION = '7.5.0';
+const VERSION = '7.9.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
