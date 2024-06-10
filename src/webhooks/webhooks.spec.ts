@@ -3,6 +3,7 @@ import { WorkOS } from '../workos';
 import mockWebhook from './fixtures/webhook.json';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 import { SignatureVerificationException } from '../common/exceptions';
+import { NodeCryptoProvider, SubtleCryptoProvider } from '../common/crypto';
 
 describe('Webhooks', () => {
   let payload: any;
@@ -211,6 +212,60 @@ describe('Webhooks', () => {
       );
 
       expect(signature).toEqual(signatureHash);
+    });
+  });
+
+  describe('when in an environment that supports SubtleCrypto', () => {
+    it('automatically uses the subtle crypto library', () => {
+      // tslint:disable-next-line
+      expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
+        SubtleCryptoProvider,
+      );
+    });
+  });
+
+  describe('CryptoProvider', () => {
+    describe('when computing HMAC signature', () => {
+      it('returns the same for the Node crypto and Web Crypto versions', async () => {
+        const nodeCryptoProvider = new NodeCryptoProvider();
+        const subtleCryptoProvider = new SubtleCryptoProvider();
+
+        const stringifiedPayload = JSON.stringify(payload);
+        const payloadHMAC = `${timestamp}.${stringifiedPayload}`;
+
+        const nodeCompare = await nodeCryptoProvider.computeHMACSignatureAsync(
+          payloadHMAC,
+          secret,
+        );
+        const subtleCompare =
+          await subtleCryptoProvider.computeHMACSignatureAsync(
+            payloadHMAC,
+            secret,
+          );
+
+        expect(nodeCompare).toEqual(subtleCompare);
+      });
+    });
+
+    describe('when securely comparing', () => {
+      it('returns the same for the Node crypto and Web Crypto versions', async () => {
+        const nodeCryptoProvider = new NodeCryptoProvider();
+        const subtleCryptoProvider = new SubtleCryptoProvider();
+
+        const signature = await workos.webhooks.computeSignature(
+          timestamp,
+          payload,
+          secret,
+        );
+
+        expect(
+          nodeCryptoProvider.secureCompare(signature, signatureHash),
+        ).toEqual(subtleCryptoProvider.secureCompare(signature, signatureHash));
+
+        expect(nodeCryptoProvider.secureCompare(signature, 'foo')).toEqual(
+          subtleCryptoProvider.secureCompare(signature, 'foo'),
+        );
+      });
     });
   });
 });
