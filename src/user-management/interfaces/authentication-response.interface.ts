@@ -4,6 +4,7 @@ import { User, UserResponse } from './user.interface';
 type AuthenticationMethod =
   | 'SSO'
   | 'Password'
+  | 'AppleOAuth'
   | 'GitHubOAuth'
   | 'GoogleOAuth'
   | 'MicrosoftOAuth'
