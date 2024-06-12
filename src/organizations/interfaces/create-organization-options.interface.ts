@@ -6,7 +6,7 @@ export interface CreateOrganizationOptions {
   domainData?: DomainData[];
 
   /**
-   * @deprecated Contact support@workos.com to enable the replacement for this setting.
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
    */
   allowProfilesOutsideOrganization?: boolean;
   /**
@@ -20,7 +20,7 @@ export interface SerializedCreateOrganizationOptions {
   domain_data?: DomainData[];
 
   /**
-   * @deprecated Contact support@workos.com to enable the replacement for this setting.
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
    */
   allow_profiles_outside_organization?: boolean;
   /**
