@@ -3,8 +3,12 @@ import { DomainData } from './domain-data.interface';
 
 export interface CreateOrganizationOptions {
   name: string;
-  allowProfilesOutsideOrganization?: boolean;
   domainData?: DomainData[];
+
+  /**
+  * @deprecated Contact support@workos.com to enable the replacement for this setting.
+  */
+  allowProfilesOutsideOrganization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */
@@ -13,8 +17,12 @@ export interface CreateOrganizationOptions {
 
 export interface SerializedCreateOrganizationOptions {
   name: string;
-  allow_profiles_outside_organization?: boolean;
   domain_data?: DomainData[];
+
+  /**
+  * @deprecated Contact support@workos.com to enable the replacement for this setting.
+  */
+  allow_profiles_outside_organization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */
