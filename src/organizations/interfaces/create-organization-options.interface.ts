@@ -6,8 +6,8 @@ export interface CreateOrganizationOptions {
   domainData?: DomainData[];
 
   /**
-  * @deprecated Contact support@workos.com to enable the replacement for this setting.
-  */
+   * @deprecated Contact support@workos.com to enable the replacement for this setting.
+   */
   allowProfilesOutsideOrganization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
@@ -20,8 +20,8 @@ export interface SerializedCreateOrganizationOptions {
   domain_data?: DomainData[];
 
   /**
-  * @deprecated Contact support@workos.com to enable the replacement for this setting.
-  */
+   * @deprecated Contact support@workos.com to enable the replacement for this setting.
+   */
   allow_profiles_outside_organization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
