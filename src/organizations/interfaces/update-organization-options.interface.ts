@@ -3,8 +3,12 @@ import { DomainData } from './domain-data.interface';
 export interface UpdateOrganizationOptions {
   organization: string;
   name: string;
-  allowProfilesOutsideOrganization?: boolean;
   domainData?: DomainData[];
+
+  /**
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
+   */
+  allowProfilesOutsideOrganization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */
@@ -13,8 +17,12 @@ export interface UpdateOrganizationOptions {
 
 export interface SerializedUpdateOrganizationOptions {
   name: string;
-  allow_profiles_outside_organization?: boolean;
   domain_data?: DomainData[];
+
+  /**
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
+   */
+  allow_profiles_outside_organization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */
