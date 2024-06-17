@@ -1,21 +1,13 @@
 import { SignatureVerificationException } from '../common/exceptions';
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
-import {
-  CryptoProvider,
-  SubtleCryptoProvider,
-  NodeCryptoProvider,
-} from '../common/crypto';
+import { CryptoProvider } from '../common/crypto/crypto-provider';
 
 export class Webhooks {
   private cryptoProvider: CryptoProvider;
 
-  constructor(subtleCrypto?: typeof crypto.subtle) {
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      this.cryptoProvider = new SubtleCryptoProvider(subtleCrypto);
-    } else {
-      this.cryptoProvider = new NodeCryptoProvider();
-    }
+  constructor(cryptoProvider: CryptoProvider) {
+    this.cryptoProvider = cryptoProvider;
   }
 
   async constructEvent({
