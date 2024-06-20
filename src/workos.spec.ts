@@ -7,9 +7,12 @@ import {
   NotFoundException,
   OauthException,
 } from './common/exceptions';
-import { WorkOS } from './workos';
+import { WorkOS } from './index';
+import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
-import { FetchHttpClient, NodeHttpClient } from './common/net';
+import { FetchHttpClient } from './common/net/fetch-client';
+import { NodeHttpClient } from './common/net/node-client';
+import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -333,6 +336,20 @@ describe('WorkOS', () => {
 
       // tslint:disable-next-line
       expect(workos['client']).toBeInstanceOf(FetchHttpClient);
+    });
+  });
+
+  describe('when in a worker environment', () => {
+    it('uses the worker client', () => {
+      const workos = new WorkOSWorker('sk_test_key');
+
+      // tslint:disable-next-line
+      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
+
+      // tslint:disable-next-line
+      expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
+        SubtleCryptoProvider,
+      );
     });
   });
 });

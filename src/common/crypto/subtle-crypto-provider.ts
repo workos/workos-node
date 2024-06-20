@@ -1,4 +1,4 @@
-import { CryptoProvider } from './CryptoProvider';
+import { CryptoProvider } from './crypto-provider';
 
 /**
  * `CryptoProvider which uses the SubtleCrypto interface of the Web Crypto API.
