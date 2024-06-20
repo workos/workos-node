@@ -27,7 +27,9 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-import { HttpClient, HttpClientError, createHttpClient } from './common/net';
+import { HttpClient, HttpClientError } from './common/net/http-client';
+import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
+import { FetchHttpClient } from './common/net/fetch-client';
 
 const VERSION = '7.11.0';
 
@@ -35,7 +37,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 
 export class WorkOS {
   readonly baseURL: string;
-  private readonly client: HttpClient;
+  readonly client: HttpClient;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -44,7 +46,7 @@ export class WorkOS {
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
-  readonly webhooks = new Webhooks();
+  readonly webhooks: Webhooks;
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
   readonly userManagement = new UserManagement(this);
@@ -80,18 +82,24 @@ export class WorkOS {
       userAgent += ` ${name}: ${version}`;
     }
 
-    this.client = createHttpClient(
-      this.baseURL,
-      {
-        ...options.config,
-        headers: {
-          ...options.config?.headers,
-          Authorization: `Bearer ${this.key}`,
-          'User-Agent': userAgent,
-        },
+    this.webhooks = this.createWebhookClient();
+
+    this.client = this.createHttpClient(options, userAgent);
+  }
+
+  createWebhookClient() {
+    return new Webhooks(new SubtleCryptoProvider());
+  }
+
+  createHttpClient(options: WorkOSOptions, userAgent: string) {
+    return new FetchHttpClient(this.baseURL, {
+      ...options.config,
+      headers: {
+        ...options.config?.headers,
+        Authorization: `Bearer ${this.key}`,
+        'User-Agent': userAgent,
       },
-      options.fetchFn,
-    );
+    }) as HttpClient;
   }
 
   get version() {

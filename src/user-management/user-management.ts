@@ -444,21 +444,22 @@ export class UserManagement {
   async listAuthFactors(
     options: ListAuthFactorsOptions,
   ): Promise<AutoPaginatable<Factor>> {
+    const { userId, ...restOfOptions } = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
-        `/user_management/users/${options.userId}/auth_factors`,
+        `/user_management/users/${userId}/auth_factors`,
         deserializeFactor,
-        options,
+        restOfOptions,
       ),
       (params) =>
         fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
-          `/user_management/users/${options.userId}/auth_factors`,
+          `/user_management/users/${userId}/auth_factors`,
           deserializeFactor,
           params,
         ),
-      options,
+      restOfOptions,
     );
   }
 
