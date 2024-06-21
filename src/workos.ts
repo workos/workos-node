@@ -31,7 +31,7 @@ import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 
-const VERSION = '7.11.0';
+const VERSION = '7.11.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
