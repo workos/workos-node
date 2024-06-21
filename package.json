@@ -52,7 +52,7 @@
     "typescript": "5.1.6"
   },
   "exports": {
-    "types": "./types/index.d.ts",
+    "types": "./lib/index.d.ts",
     "worker": {
       "import": "./lib/index.worker.js"
     },
