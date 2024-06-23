@@ -55,10 +55,12 @@
   "exports": {
     "types": "./lib/index.d.ts",
     "worker": {
-      "import": "./lib/index.worker.js"
+      "import": "./lib/index.worker.js",
+      "default": "./lib/index.worker.js"
     },
     "default": {
-      "import": "./lib/index.js"
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
     }
   }
 }
