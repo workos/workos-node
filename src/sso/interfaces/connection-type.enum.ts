@@ -1,6 +1,7 @@
 export enum ConnectionType {
   ADFSSAML = 'ADFSSAML',
   AdpOidc = 'AdpOidc',
+  AppleOAuth = 'AppleOAuth',
   Auth0SAML = 'Auth0SAML',
   AzureSAML = 'AzureSAML',
   CasSAML = 'CasSAML',
@@ -10,6 +11,7 @@ export enum ConnectionType {
   DuoSAML = 'DuoSAML',
   GenericOIDC = 'GenericOIDC',
   GenericSAML = 'GenericSAML',
+  GitHubOAuth = 'GitHubOAuth',
   GoogleOAuth = 'GoogleOAuth',
   GoogleSAML = 'GoogleSAML',
   JumpCloudSAML = 'JumpCloudSAML',
