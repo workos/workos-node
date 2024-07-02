@@ -40,6 +40,18 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
     return 'node';
   }
 
+  static override getBody(entity: unknown): string | null {
+    if (entity === null || entity === undefined) {
+      return null;
+    }
+
+    if (entity instanceof URLSearchParams) {
+      return entity.toString();
+    }
+
+    return JSON.stringify(entity);
+  }
+
   async get(
     path: string,
     options: RequestOptions,
@@ -67,7 +79,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
     return await this.nodeRequest(
       resourceURL,
       'POST',
-      HttpClient.getBody(entity),
+      NodeHttpClient.getBody(entity),
       {
         ...HttpClient.getContentTypeHeader(entity),
         ...options.headers,
@@ -89,7 +101,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
     return await this.nodeRequest(
       resourceURL,
       'PUT',
-      HttpClient.getBody(entity),
+      NodeHttpClient.getBody(entity),
       {
         ...HttpClient.getContentTypeHeader(entity),
         ...options.headers,
@@ -113,7 +125,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   private async nodeRequest(
     url: string,
     method: string,
-    body?: any,
+    body: string | null,
     headers?: RequestHeaders,
   ): Promise<HttpClientResponseInterface> {
     return new Promise<HttpClientResponseInterface>((resolve, reject) => {
