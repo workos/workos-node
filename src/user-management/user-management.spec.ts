@@ -244,6 +244,7 @@ describe('UserManagement', () => {
   describe('authenticateWithRefreshToken', () => {
     it('sends a refresh_token authentication request', async () => {
       fetchOnce({
+        user: userFixture,
         access_token: 'access_token',
         refresh_token: 'refreshToken2',
       });

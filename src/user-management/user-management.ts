@@ -30,8 +30,6 @@ import {
   VerifyEmailOptions,
   AuthenticateWithRefreshTokenOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
-  RefreshAuthenticationResponseResponse,
-  RefreshAuthenticationResponse,
   MagicAuth,
   MagicAuthResponse,
   CreateMagicAuthOptions,
@@ -57,7 +55,6 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
-  deserializeRefreshAuthenticationResponse,
   serializeAuthenticateWithRefreshTokenOptions,
   serializeCreateMagicAuthOptions,
   deserializeMagicAuth,
@@ -229,9 +226,9 @@ export class UserManagement {
 
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
-  ): Promise<RefreshAuthenticationResponse> {
+  ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
-      RefreshAuthenticationResponseResponse,
+      AuthenticationResponseResponse,
       SerializedAuthenticateWithRefreshTokenOptions
     >(
       '/user_management/authenticate',
@@ -241,7 +238,7 @@ export class UserManagement {
       }),
     );
 
-    return deserializeRefreshAuthenticationResponse(data);
+    return deserializeAuthenticationResponse(data);
   }
 
   async authenticateWithTotp(
