@@ -471,11 +471,11 @@ export class UserManagement {
       throw new TypeError(`Incomplete arguments. Need to specify 'userId'.`);
     }
 
-    const corp = await this.workos.get<IdentityResponse[]>(
+    const { data } = await this.workos.get<IdentityResponse[]>(
       `/user_management/users/${userId}/identities`,
     );
 
-    return deserializeIdentities(corp.data);
+    return deserializeIdentities(data);
   }
 
   async getOrganizationMembership(
