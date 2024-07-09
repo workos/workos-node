@@ -475,8 +475,6 @@ export class UserManagement {
       `/user_management/users/${userId}/identities`,
     );
 
-    console.log(corp);
-
     return deserializeIdentities(corp.data);
   }
 
