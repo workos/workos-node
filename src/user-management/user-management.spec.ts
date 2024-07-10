@@ -17,6 +17,7 @@ import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
 import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
+import identityFixture from './fixtures/identity.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -704,6 +705,30 @@ describe('UserManagement', () => {
 
       expect(fetchURL()).toContain(`/user_management/users/${userId}`);
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('getUserIdentities', () => {
+    it('sends a Get User Identities request', async () => {
+      fetchOnce(identityFixture);
+
+      const resp = await workos.userManagement.getUserIdentities(userId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/users/${userId}/identities`,
+      );
+      expect(resp).toMatchObject([
+        {
+          idpId: '108872335',
+          type: 'OAuth',
+          provider: 'GithubOAuth',
+        },
+        {
+          idpId: '111966195055680542408',
+          type: 'OAuth',
+          provider: 'GoogleOAuth',
+        },
+      ]);
     });
   });
 

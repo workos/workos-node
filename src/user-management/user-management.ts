@@ -118,6 +118,8 @@ import {
   UpdateOrganizationMembershipOptions,
 } from './interfaces/update-organization-membership-options.interface';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { Identity, IdentityResponse } from './interfaces/identity.interface';
+import { deserializeIdentities } from './serializers/identity.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -462,6 +464,18 @@ export class UserManagement {
 
   async deleteUser(userId: string) {
     await this.workos.delete(`/user_management/users/${userId}`);
+  }
+
+  async getUserIdentities(userId: string): Promise<Identity[]> {
+    if (!userId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'userId'.`);
+    }
+
+    const { data } = await this.workos.get<IdentityResponse[]>(
+      `/user_management/users/${userId}/identities`,
+    );
+
+    return deserializeIdentities(data);
   }
 
   async getOrganizationMembership(
