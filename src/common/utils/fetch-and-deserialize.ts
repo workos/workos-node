@@ -1,5 +1,5 @@
 import { WorkOS } from '../../workos';
-import { List, ListResponse, PaginationOptions } from '../interfaces';
+import { GetOptions, List, ListResponse, PaginationOptions } from '../interfaces';
 import { deserializeList } from '../serializers';
 
 const setDefaultOptions = (options?: PaginationOptions): PaginationOptions => {
@@ -14,9 +14,11 @@ export const fetchAndDeserialize = async <T, U>(
   endpoint: string,
   deserializeFn: (data: T) => U,
   options?: PaginationOptions,
+  requestOptions?: GetOptions,
 ): Promise<List<U>> => {
   const { data } = await workos.get<ListResponse<T>>(endpoint, {
     query: setDefaultOptions(options),
+    ...requestOptions,
   });
 
   return deserializeList(data, deserializeFn);

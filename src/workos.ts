@@ -25,6 +25,7 @@ import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
+import { FGA } from './fga/fga';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
@@ -51,6 +52,7 @@ export class WorkOS {
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
   readonly userManagement: UserManagement;
+  readonly fga = new FGA(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
