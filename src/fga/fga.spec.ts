@@ -33,7 +33,6 @@ describe('FGA', () => {
           objectId: 'user_123',
         },
       });
-      console.log(checkResult);
       expect(fetchURL()).toContain('/fga/v2/check');
       expect(checkResult).toEqual(true);
     });

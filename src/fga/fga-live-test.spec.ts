@@ -684,7 +684,7 @@ describe('FGA Live Test', () => {
       meta: { name: 'Permission 2', description: 'Permission 2' },
     });
 
-    let userHasPermissions = await workos.fga.checkMany(
+    const userHasPermissions = await workos.fga.checkMany(
       {
         op: CheckOp.AnyOf,
         warrants: [
