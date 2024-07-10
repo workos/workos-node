@@ -123,6 +123,10 @@ export class WorkOS {
       requestHeaders['Idempotency-Key'] = options.idempotencyKey;
     }
 
+    if (options.warrantToken) {
+      requestHeaders['Warrant-Token'] = options.warrantToken;
+    }
+
     try {
       const res = await this.client.post<Entity>(path, entity, {
         params: options.query,
@@ -141,13 +145,20 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
+    const requestHeaders: any = {};
+
+    if (options.accessToken) {
+      requestHeaders['Authorization'] = `Bearer ${options.accessToken}`;
+    }
+
+    if (options.warrantToken) {
+      requestHeaders['Warrant-Token'] = options.warrantToken;
+    }
+
     try {
-      const { accessToken } = options;
       const res = await this.client.get(path, {
         params: options.query,
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
+        headers: requestHeaders,
       });
       return { data: await res.toJSON() };
     } catch (error) {
