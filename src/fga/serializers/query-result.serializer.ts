@@ -1,4 +1,4 @@
-import { QueryResult, QueryResultResponse } from "../interfaces";
+import { QueryResult, QueryResultResponse } from '../interfaces';
 
 export const deserializeQueryResult = (
   queryResult: QueryResultResponse,

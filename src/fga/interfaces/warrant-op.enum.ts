@@ -1,4 +1,4 @@
 export enum WarrantOp {
-  Create = "create",
-  Delete = "delete",
+  Create = 'create',
+  Delete = 'delete',
 }

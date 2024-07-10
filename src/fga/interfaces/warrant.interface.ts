@@ -1,6 +1,9 @@
 import { GetOptions } from '../../common/interfaces';
-import { WarrantObject, WarrantObjectLiteral } from './warrant-object.interface';
-import { WarrantOp } from "./warrant-op.enum";
+import {
+  WarrantObject,
+  WarrantObjectLiteral,
+} from './warrant-object.interface';
+import { WarrantOp } from './warrant-op.enum';
 
 export interface ListWarrantsOptions {
   objectType?: string;
@@ -65,10 +68,7 @@ export interface SerializedWriteWarrantOptions {
   policy?: string;
 }
 
-export type ListWarrantsRequestsOptions = Pick<
-  GetOptions,
-  'warrantToken'
->;
+export type ListWarrantsRequestsOptions = Pick<GetOptions, 'warrantToken'>;
 
 export interface WarrantResponse {
   object_type: string;

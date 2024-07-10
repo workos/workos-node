@@ -1,4 +1,7 @@
-import { WarrantObject, WarrantObjectLiteral } from './warrant-object.interface';
+import {
+  WarrantObject,
+  WarrantObjectLiteral,
+} from './warrant-object.interface';
 import { PolicyContext, SerializedSubject, Subject } from './warrant.interface';
 import { CheckOp } from './check-op.enum';
 import { PostOptions } from '../../common/interfaces';
@@ -71,11 +74,8 @@ export class CheckResult implements CheckResultInterface {
   }
 
   isAuthorized(): boolean {
-    return this.result === "Authorized";
+    return this.result === 'Authorized';
   }
 }
 
-export type CheckRequestOptions = Pick<
-  PostOptions,
-  'warrantToken'
->;
+export type CheckRequestOptions = Pick<PostOptions, 'warrantToken'>;

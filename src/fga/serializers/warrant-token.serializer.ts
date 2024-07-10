@@ -1,4 +1,7 @@
-import { WarrantToken, WarrantTokenResponse } from "../interfaces/warrant-token.interface";
+import {
+  WarrantToken,
+  WarrantTokenResponse,
+} from '../interfaces/warrant-token.interface';
 
 export const deserializeWarrantToken = (
   warrantToken: WarrantTokenResponse,

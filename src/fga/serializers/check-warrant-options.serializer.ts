@@ -1,5 +1,12 @@
-import { CheckManyOptions, CheckOp, CheckOptions, CheckWarrantOptions, SerializedCheck, SerializedCheckWarrant } from "../interfaces";
-import { isSubject, isWarrantObject } from "../utils/interface-check";
+import {
+  CheckManyOptions,
+  CheckOp,
+  CheckOptions,
+  CheckWarrantOptions,
+  SerializedCheck,
+  SerializedCheckWarrant,
+} from '../interfaces';
+import { isSubject, isWarrantObject } from '../utils/interface-check';
 
 export const serializeCheckOptions = (
   checkOptions: CheckOptions,
@@ -24,12 +31,28 @@ export const serializeBatchCheckOptions = (
   debug: batchCheckOptions.debug,
 });
 
-const serializeCheckWarrantOptions = (warrant: CheckWarrantOptions): SerializedCheckWarrant => {
+const serializeCheckWarrantOptions = (
+  warrant: CheckWarrantOptions,
+): SerializedCheckWarrant => {
   return {
-    object_type: isWarrantObject(warrant.object) ? warrant.object.getObjectType() : warrant.object.objectType,
-    object_id: isWarrantObject(warrant.object) ? warrant.object.getObjectId() : (warrant.object.objectId ? warrant.object.objectId : ""),
+    object_type: isWarrantObject(warrant.object)
+      ? warrant.object.getObjectType()
+      : warrant.object.objectType,
+    object_id: isWarrantObject(warrant.object)
+      ? warrant.object.getObjectId()
+      : warrant.object.objectId
+      ? warrant.object.objectId
+      : '',
     relation: warrant.relation,
-    subject: isSubject(warrant.subject) ? { object_type: warrant.subject.objectType, object_id: warrant.subject.objectId } : { object_type: warrant.subject.getObjectType(), object_id: warrant.subject.getObjectId() },
-    context: warrant.context ? warrant.context : {}
-  }
-}
+    subject: isSubject(warrant.subject)
+      ? {
+          object_type: warrant.subject.objectType,
+          object_id: warrant.subject.objectId,
+        }
+      : {
+          object_type: warrant.subject.getObjectType(),
+          object_id: warrant.subject.getObjectId(),
+        },
+    context: warrant.context ? warrant.context : {},
+  };
+};

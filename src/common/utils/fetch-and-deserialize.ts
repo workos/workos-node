@@ -1,5 +1,10 @@
 import { WorkOS } from '../../workos';
-import { GetOptions, List, ListResponse, PaginationOptions } from '../interfaces';
+import {
+  GetOptions,
+  List,
+  ListResponse,
+  PaginationOptions,
+} from '../interfaces';
 import { deserializeList } from '../serializers';
 
 const setDefaultOptions = (options?: PaginationOptions): PaginationOptions => {

@@ -1,4 +1,4 @@
-import { BaseWarrantObject, WarrantObjectResponse } from "../interfaces";
+import { BaseWarrantObject, WarrantObjectResponse } from '../interfaces';
 
 export const deserializeBaseWarrantObject = (
   warrantObject: WarrantObjectResponse,

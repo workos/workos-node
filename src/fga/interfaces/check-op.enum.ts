@@ -1,5 +1,5 @@
 export enum CheckOp {
-    AllOf = "all_of",
-    AnyOf = "any_of",
-    Batch = "batch",
+  AllOf = 'all_of',
+  AnyOf = 'any_of',
+  Batch = 'batch',
 }

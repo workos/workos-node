@@ -1,4 +1,4 @@
-import { ListObjectOptions, SerializedListObjectOptions } from "../interfaces";
+import { ListObjectOptions, SerializedListObjectOptions } from '../interfaces';
 
 export const serializeListObjectOptions = (
   options: ListObjectOptions,

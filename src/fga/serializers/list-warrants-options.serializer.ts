@@ -1,4 +1,7 @@
-import { ListWarrantsOptions, SerializedListWarrantsOptions } from "../interfaces";
+import {
+  ListWarrantsOptions,
+  SerializedListWarrantsOptions,
+} from '../interfaces';
 
 export const serializeListWarrantsOptions = (
   options: ListWarrantsOptions,
@@ -12,4 +15,3 @@ export const serializeListWarrantsOptions = (
   limit: options.limit,
   after: options.after,
 });
-
