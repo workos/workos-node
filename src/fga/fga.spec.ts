@@ -33,7 +33,7 @@ describe('FGA', () => {
           objectId: 'user_123',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/check');
+      expect(fetchURL()).toContain('/fga/v1/check');
       expect(checkResult).toEqual(true);
     });
   });
@@ -50,7 +50,7 @@ describe('FGA', () => {
           objectId: 'admin',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/objects');
+      expect(fetchURL()).toContain('/fga/v1/objects');
       expect(object).toMatchObject({
         objectType: 'role',
         objectId: 'admin',
@@ -74,7 +74,7 @@ describe('FGA', () => {
           description: 'The admin role',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/objects');
+      expect(fetchURL()).toContain('/fga/v1/objects');
       expect(object).toMatchObject({
         objectType: 'role',
         objectId: 'admin',
@@ -95,7 +95,7 @@ describe('FGA', () => {
         objectType: 'role',
         objectId: 'admin',
       });
-      expect(fetchURL()).toContain('/fga/v2/objects/role/admin');
+      expect(fetchURL()).toContain('/fga/v1/objects/role/admin');
       expect(object).toMatchObject({
         objectType: 'role',
         objectId: 'admin',
@@ -116,7 +116,7 @@ describe('FGA', () => {
         },
       ]);
       const objects = await workos.fga.listObjects();
-      expect(fetchURL()).toContain('/fga/v2/objects');
+      expect(fetchURL()).toContain('/fga/v1/objects');
       expect(objects).toMatchObject([
         {
           objectType: 'role',
@@ -143,7 +143,7 @@ describe('FGA', () => {
       await workos.fga.listObjects({
         objectType: 'role',
       });
-      expect(fetchURL()).toContain('/fga/v2/objects');
+      expect(fetchURL()).toContain('/fga/v1/objects');
       expect(fetchSearchParams()).toEqual({
         objectType: 'role',
       });
@@ -157,7 +157,7 @@ describe('FGA', () => {
         objectType: 'role',
         objectId: 'admin',
       });
-      expect(fetchURL()).toContain('/fga/v2/objects/role/admin');
+      expect(fetchURL()).toContain('/fga/v1/objects/role/admin');
       expect(response).toBeUndefined();
     });
   });
@@ -178,7 +178,7 @@ describe('FGA', () => {
           objectId: 'user_123',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
         op: 'create',
         objectType: 'role',
@@ -210,7 +210,7 @@ describe('FGA', () => {
           objectId: 'user_123',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
         op: 'create',
         objectType: 'role',
@@ -242,7 +242,7 @@ describe('FGA', () => {
           objectId: 'user_123',
         },
       });
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
         op: 'delete',
         objectType: 'role',
@@ -301,36 +301,36 @@ describe('FGA', () => {
           },
         },
       ]);
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual([
         {
           op: 'create',
-          objectType: 'role',
-          objectId: 'admin',
+          object_type: 'role',
+          object_id: 'admin',
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_123',
+            object_type: 'user',
+            object_id: 'user_123',
           },
         },
         {
           op: 'create',
-          objectType: 'role',
-          objectId: 'admin',
+          object_type: 'role',
+          object_id: 'admin',
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_124',
+            object_type: 'user',
+            object_id: 'user_124',
           },
         },
         {
           op: 'delete',
-          objectType: 'role',
-          objectId: 'admin',
+          object_type: 'role',
+          object_id: 'admin',
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_125',
+            object_type: 'user',
+            object_id: 'user_125',
           },
         },
       ]);
@@ -342,28 +342,34 @@ describe('FGA', () => {
 
   describe('listWarrants', () => {
     it('should list warrants', async () => {
-      fetchOnce([
-        {
-          objectType: 'role',
-          objectId: 'admin',
-          relation: 'member',
-          subject: {
-            objectType: 'user',
-            objectId: 'user_123',
+      fetchOnce({
+        data: [
+          {
+            objectType: 'role',
+            objectId: 'admin',
+            relation: 'member',
+            subject: {
+              objectType: 'user',
+              objectId: 'user_123',
+            },
           },
-        },
-        {
-          objectType: 'role',
-          objectId: 'admin',
-          relation: 'member',
-          subject: {
-            objectType: 'user',
-            objectId: 'user_124',
+          {
+            objectType: 'role',
+            objectId: 'admin',
+            relation: 'member',
+            subject: {
+              objectType: 'user',
+              objectId: 'user_124',
+            },
           },
+        ],
+        list_metadata: {
+          before: null,
+          after: null,
         },
-      ]);
-      const warrants = await workos.fga.listWarrants();
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      });
+      const { data: warrants } = await workos.fga.listWarrants();
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(warrants).toMatchObject([
         {
           objectType: 'role',
@@ -387,22 +393,28 @@ describe('FGA', () => {
     });
 
     it('sends correct params when filtering', async () => {
-      fetchOnce([
-        {
-          objectType: 'role',
-          objectId: 'admin',
-          relation: 'member',
-          subject: {
-            objectType: 'user',
-            objectId: 'user_123',
+      fetchOnce({
+        data: [
+          {
+            objectType: 'role',
+            objectId: 'admin',
+            relation: 'member',
+            subject: {
+              objectType: 'user',
+              objectId: 'user_123',
+            },
           },
+        ],
+        list_metadata: {
+          before: null,
+          after: null,
         },
-      ]);
+      });
       await workos.fga.listWarrants({
         subjectType: 'user',
         subjectId: 'user_123',
       });
-      expect(fetchURL()).toContain('/fga/v2/warrants');
+      expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchSearchParams()).toEqual({
         subjectType: 'user',
         subjectId: 'user_123',
@@ -412,26 +424,32 @@ describe('FGA', () => {
 
   describe('query', () => {
     it('makes query request', async () => {
-      fetchOnce([
-        {
-          objectType: 'role',
-          objectId: 'admin',
-          warrant: {
+      fetchOnce({
+        data: [
+          {
             objectType: 'role',
             objectId: 'admin',
-            relation: 'member',
-            subject: {
-              objectType: 'user',
-              objectId: 'user_123',
+            warrant: {
+              objectType: 'role',
+              objectId: 'admin',
+              relation: 'member',
+              subject: {
+                objectType: 'user',
+                objectId: 'user_123',
+              },
             },
+            isImplicit: false,
           },
-          isImplicit: false,
+        ],
+        list_metadata: {
+          before: null,
+          after: null,
         },
-      ]);
+      });
       const queryResult = await workos.fga.query({
         q: 'select role where user:user_123 is member',
       });
-      expect(fetchURL()).toContain('/fga/v2/query');
+      expect(fetchURL()).toContain('/fga/v1/query');
       expect(queryResult).toMatchObject([
         {
           objectType: 'role',
@@ -451,22 +469,28 @@ describe('FGA', () => {
     });
 
     it('sends correct params and options', async () => {
-      fetchOnce([
-        {
-          objectType: 'role',
-          objectId: 'admin',
-          warrant: {
+      fetchOnce({
+        data: [
+          {
             objectType: 'role',
             objectId: 'admin',
-            relation: 'member',
-            subject: {
-              objectType: 'user',
-              objectId: 'user_123',
+            warrant: {
+              objectType: 'role',
+              objectId: 'admin',
+              relation: 'member',
+              subject: {
+                objectType: 'user',
+                objectId: 'user_123',
+              },
             },
+            isImplicit: false,
           },
-          isImplicit: false,
+        ],
+        list_metadata: {
+          before: null,
+          after: null,
         },
-      ]);
+      });
       await workos.fga.query(
         {
           q: 'select role where user:user_123 is member',
@@ -476,7 +500,7 @@ describe('FGA', () => {
           warrantToken: 'some_token',
         },
       );
-      expect(fetchURL()).toContain('/fga/v2/query');
+      expect(fetchURL()).toContain('/fga/v1/query');
       expect(fetchSearchParams()).toEqual({
         q: 'select role where user:user_123 is member',
         order: 'asc',
