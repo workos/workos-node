@@ -3,7 +3,7 @@ import { disableFetchMocks, enableFetchMocks } from 'jest-fetch-mock';
 import { WorkOS } from '../workos';
 import { CheckOp, WarrantOp } from './interfaces';
 
-describe('FGA Live Test', () => {
+describe.skip('FGA Live Test', () => {
   let workos: WorkOS;
 
   beforeAll(() => {
