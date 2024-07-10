@@ -5,7 +5,6 @@ import {
   CheckManyOptions,
   CheckOptions,
   CheckRequestOptions,
-  CheckResultInterface,
   CheckResult,
   CreateObjectOptions,
   DeleteObjectOptions,
@@ -23,6 +22,7 @@ import {
   ListWarrantsRequestsOptions,
   WarrantResponse,
   QueryResultResponse,
+  CheckResultResponse,
 } from './interfaces';
 import {
   WarrantToken,
@@ -53,7 +53,7 @@ export class FGA {
     checkOptions: CheckOptions,
     options: CheckRequestOptions = {},
   ): Promise<CheckResult> {
-    const { data } = await this.workos.post<CheckResultInterface>(
+    const { data } = await this.workos.post<CheckResultResponse>(
       `/fga/v1/check`,
       serializeCheckOptions(checkOptions),
       options,
@@ -65,7 +65,7 @@ export class FGA {
     checkOptions: CheckManyOptions,
     options: CheckRequestOptions = {},
   ): Promise<CheckResult> {
-    const { data } = await this.workos.post<CheckResultInterface>(
+    const { data } = await this.workos.post<CheckResultResponse>(
       `/fga/v1/check`,
       serializeCheckManyOptions(checkOptions),
       options,
@@ -77,13 +77,13 @@ export class FGA {
     checkOptions: BatchCheckOptions,
     options: CheckRequestOptions = {},
   ): Promise<CheckResult[]> {
-    const { data } = await this.workos.post<CheckResultInterface[]>(
+    const { data } = await this.workos.post<CheckResultResponse[]>(
       `/fga/v1/check`,
       serializeBatchCheckOptions(checkOptions),
       options,
     );
     return data.map(
-      (checkResult: CheckResultInterface) => new CheckResult(checkResult),
+      (checkResult: CheckResultResponse) => new CheckResult(checkResult),
     );
   }
 

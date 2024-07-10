@@ -56,6 +56,12 @@ export interface SerializedCheck {
   debug?: boolean;
 }
 
+export interface CheckResultResponse {
+  code: number;
+  result: string;
+  is_implicit: boolean;
+}
+
 export interface CheckResultInterface {
   code: number;
   result: string;
@@ -67,10 +73,10 @@ export class CheckResult implements CheckResultInterface {
   public result: string;
   public isImplicit: boolean;
 
-  constructor(json: CheckResultInterface) {
+  constructor(json: CheckResultResponse) {
     this.code = json.code;
     this.result = json.result;
-    this.isImplicit = json.isImplicit;
+    this.isImplicit = json.is_implicit;
   }
 
   isAuthorized(): boolean {
