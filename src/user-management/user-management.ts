@@ -120,6 +120,14 @@ import {
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { Identity, IdentityResponse } from './interfaces/identity.interface';
 import { deserializeIdentities } from './serializers/identity.serializer';
+import {
+  AccessToken,
+  AuthenticateWithSessionCookieFailedResponse,
+  AuthenticateWithSessionCookieSuccessResponse,
+  SessionCookieData,
+} from './interfaces/authenticate-with-session-cookie.interface';
+import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
+import { unsealData } from 'iron-session';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -137,7 +145,14 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 };
 
 export class UserManagement {
-  constructor(private readonly workos: WorkOS) {}
+  private jwks;
+
+  constructor(private readonly workos: WorkOS) {
+    // Set the JWKS URL. This is used to verify if the JWT is still valid
+    this.jwks = createRemoteJWKSet(
+      new URL(this.getJwksUrl(process.env.WORKOS_CLIENT_ID as string)),
+    );
+  }
 
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
@@ -292,6 +307,62 @@ export class UserManagement {
     );
 
     return deserializeAuthenticationResponse(data);
+  }
+
+  async authenticateWithSessionCookie({
+    sessionCookie,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: {
+    sessionCookie: string;
+    cookiePassword?: string;
+  }): Promise<
+    | AuthenticateWithSessionCookieSuccessResponse
+    | AuthenticateWithSessionCookieFailedResponse
+  > {
+    if (!cookiePassword) {
+      throw new Error('Cookie password is required');
+    }
+
+    if (!sessionCookie) {
+      return { authenticated: false };
+    }
+
+    const session = await unsealData<SessionCookieData>(sessionCookie, {
+      password: cookiePassword,
+    });
+
+    if (!session) {
+      return { authenticated: false };
+    }
+
+    if (!(await this.isValidJwt(session.accessToken))) {
+      return { authenticated: false };
+    }
+
+    const {
+      sid: sessionId,
+      org_id: organizationId,
+      role,
+      permissions,
+    } = decodeJwt<AccessToken>(session.accessToken);
+
+    return {
+      authenticated: true,
+      sessionId,
+      organizationId,
+      role,
+      permissions,
+    };
+  }
+
+  private async isValidJwt(accessToken: string): Promise<boolean> {
+    try {
+      await jwtVerify(accessToken, this.jwks);
+      return true;
+    } catch (e) {
+      console.warn('Failed to verify session:', e);
+      return false;
+    }
   }
 
   async getEmailVerification(
