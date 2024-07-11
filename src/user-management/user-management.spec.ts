@@ -21,7 +21,6 @@ import identityFixture from './fixtures/identity.json';
 import * as jose from 'jose';
 import { sealData } from 'iron-session';
 
-const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -31,7 +30,24 @@ const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
+  const originalEnv = process.env;
+  let workos: WorkOS;
+
+  beforeAll(() => {
+    jest.resetModules();
+    process.env = {
+      ...originalEnv,
+      WORKOS_CLIENT_ID: 'proj_123',
+    };
+
+    workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+  });
+
   beforeEach(() => fetch.resetMocks());
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
 
   describe('getUser', () => {
     it('sends a Get User request', async () => {

@@ -37,8 +37,8 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
-    "iron-session": "^8.0.2",
-    "jose": "^5.6.3",
+    "iron-session": "~8.0.2",
+    "jose": "~5.6.3",
     "pluralize": "8.0.0"
   },
   "devDependencies": {
