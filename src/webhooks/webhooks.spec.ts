@@ -3,7 +3,8 @@ import { WorkOS } from '../workos';
 import mockWebhook from './fixtures/webhook.json';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 import { SignatureVerificationException } from '../common/exceptions';
-import { NodeCryptoProvider, SubtleCryptoProvider } from '../common/crypto';
+import { NodeCryptoProvider } from '../common/crypto/node-crypto-provider';
+import { SubtleCryptoProvider } from '../common/crypto/subtle-crypto-provider';
 
 describe('Webhooks', () => {
   let payload: any;

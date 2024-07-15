@@ -6,11 +6,14 @@ import {
   RequestOptions,
 } from '../interfaces/http-client.interface';
 
-import { RequestOptions as HttpRequestOptions, Agent as HttpAgent } from 'http';
-import { Agent as HttpsAgent } from 'https';
+import {
+  RequestOptions as HttpRequestOptions,
+  Agent as HttpAgent,
+} from 'node:http';
+import { Agent as HttpsAgent } from 'node:https';
 
-import * as http_ from 'http';
-import * as https_ from 'https';
+import * as http_ from 'node:http';
+import * as https_ from 'node:https';
 
 // `import * as http_ from 'http'` creates a "Module Namespace Exotic Object"
 // which is immune to monkey-patching, whereas http_.default (in an ES Module context)
@@ -35,6 +38,18 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
 
   getClientName(): string {
     return 'node';
+  }
+
+  static override getBody(entity: unknown): string | null {
+    if (entity === null || entity === undefined) {
+      return null;
+    }
+
+    if (entity instanceof URLSearchParams) {
+      return entity.toString();
+    }
+
+    return JSON.stringify(entity);
   }
 
   async get(
@@ -64,7 +79,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
     return await this.nodeRequest(
       resourceURL,
       'POST',
-      HttpClient.getBody(entity),
+      NodeHttpClient.getBody(entity),
       {
         ...HttpClient.getContentTypeHeader(entity),
         ...options.headers,
@@ -86,7 +101,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
     return await this.nodeRequest(
       resourceURL,
       'PUT',
-      HttpClient.getBody(entity),
+      NodeHttpClient.getBody(entity),
       {
         ...HttpClient.getContentTypeHeader(entity),
         ...options.headers,
@@ -110,7 +125,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   private async nodeRequest(
     url: string,
     method: string,
-    body?: any,
+    body: string | null,
     headers?: RequestHeaders,
   ): Promise<HttpClientResponseInterface> {
     return new Promise<HttpClientResponseInterface>((resolve, reject) => {

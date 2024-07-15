@@ -30,8 +30,6 @@ import {
   VerifyEmailOptions,
   AuthenticateWithRefreshTokenOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
-  RefreshAuthenticationResponseResponse,
-  RefreshAuthenticationResponse,
   MagicAuth,
   MagicAuthResponse,
   CreateMagicAuthOptions,
@@ -57,7 +55,6 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
-  deserializeRefreshAuthenticationResponse,
   serializeAuthenticateWithRefreshTokenOptions,
   serializeCreateMagicAuthOptions,
   deserializeMagicAuth,
@@ -121,6 +118,8 @@ import {
   UpdateOrganizationMembershipOptions,
 } from './interfaces/update-organization-membership-options.interface';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { Identity, IdentityResponse } from './interfaces/identity.interface';
+import { deserializeIdentities } from './serializers/identity.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -229,9 +228,9 @@ export class UserManagement {
 
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
-  ): Promise<RefreshAuthenticationResponse> {
+  ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
-      RefreshAuthenticationResponseResponse,
+      AuthenticationResponseResponse,
       SerializedAuthenticateWithRefreshTokenOptions
     >(
       '/user_management/authenticate',
@@ -241,7 +240,7 @@ export class UserManagement {
       }),
     );
 
-    return deserializeRefreshAuthenticationResponse(data);
+    return deserializeAuthenticationResponse(data);
   }
 
   async authenticateWithTotp(
@@ -444,26 +443,39 @@ export class UserManagement {
   async listAuthFactors(
     options: ListAuthFactorsOptions,
   ): Promise<AutoPaginatable<Factor>> {
+    const { userId, ...restOfOptions } = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
-        `/user_management/users/${options.userId}/auth_factors`,
+        `/user_management/users/${userId}/auth_factors`,
         deserializeFactor,
-        options,
+        restOfOptions,
       ),
       (params) =>
         fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
-          `/user_management/users/${options.userId}/auth_factors`,
+          `/user_management/users/${userId}/auth_factors`,
           deserializeFactor,
           params,
         ),
-      options,
+      restOfOptions,
     );
   }
 
   async deleteUser(userId: string) {
     await this.workos.delete(`/user_management/users/${userId}`);
+  }
+
+  async getUserIdentities(userId: string): Promise<Identity[]> {
+    if (!userId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'userId'.`);
+    }
+
+    const { data } = await this.workos.get<IdentityResponse[]>(
+      `/user_management/users/${userId}/identities`,
+    );
+
+    return deserializeIdentities(data);
   }
 
   async getOrganizationMembership(
