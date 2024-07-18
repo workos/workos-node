@@ -23,15 +23,19 @@ describe('FGA', () => {
         is_implicit: false,
       });
       const checkResult = await workos.fga.check({
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
-        },
-        relation: 'member',
-        subject: {
-          objectType: 'user',
-          objectId: 'user_123',
-        },
+        checks: [
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'admin',
+            },
+            relation: 'member',
+            subject: {
+              resourceType: 'user',
+              resourceId: 'user_123',
+            },
+          },
+        ],
       });
       expect(fetchURL()).toContain('/fga/v1/check');
       expect(checkResult).toMatchObject({
@@ -42,82 +46,82 @@ describe('FGA', () => {
     });
   });
 
-  describe('createObject', () => {
-    it('creates object', async () => {
+  describe('createResource', () => {
+    it('creates resource', async () => {
       fetchOnce({
-        object_type: 'role',
-        object_id: 'admin',
+        resource_type: 'role',
+        resource_id: 'admin',
       });
-      const object = await workos.fga.createObject({
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
+      const resource = await workos.fga.createResource({
+        resource: {
+          resourceType: 'role',
+          resourceId: 'admin',
         },
       });
-      expect(fetchURL()).toContain('/fga/v1/objects');
-      expect(object).toMatchObject({
-        objectType: 'role',
-        objectId: 'admin',
+      expect(fetchURL()).toContain('/fga/v1/resources');
+      expect(resource).toMatchObject({
+        resourceType: 'role',
+        resourceId: 'admin',
       });
     });
 
-    it('creates object with metadata', async () => {
+    it('creates resource with metadata', async () => {
       fetchOnce({
-        object_type: 'role',
-        object_id: 'admin',
+        resource_type: 'role',
+        resource_id: 'admin',
         meta: {
           description: 'The admin role',
         },
       });
-      const object = await workos.fga.createObject({
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
+      const resource = await workos.fga.createResource({
+        resource: {
+          resourceType: 'role',
+          resourceId: 'admin',
         },
         meta: {
           description: 'The admin role',
         },
       });
-      expect(fetchURL()).toContain('/fga/v1/objects');
-      expect(object).toMatchObject({
-        objectType: 'role',
-        objectId: 'admin',
+      expect(fetchURL()).toContain('/fga/v1/resources');
+      expect(resource).toMatchObject({
+        resourceType: 'role',
+        resourceId: 'admin',
         meta: {
           description: 'The admin role',
         },
-      });
-    });
-  });
-
-  describe('getObject', () => {
-    it('gets object', async () => {
-      fetchOnce({
-        object_type: 'role',
-        object_id: 'admin',
-      });
-      const object = await workos.fga.getObject({
-        objectType: 'role',
-        objectId: 'admin',
-      });
-      expect(fetchURL()).toContain('/fga/v1/objects/role/admin');
-      expect(object).toMatchObject({
-        objectType: 'role',
-        objectId: 'admin',
       });
     });
   });
 
-  describe('listObjects', () => {
-    it('lists objects', async () => {
+  describe('getResource', () => {
+    it('gets resource', async () => {
+      fetchOnce({
+        resource_type: 'role',
+        resource_id: 'admin',
+      });
+      const resource = await workos.fga.getResource({
+        resourceType: 'role',
+        resourceId: 'admin',
+      });
+      expect(fetchURL()).toContain('/fga/v1/resources/role/admin');
+      expect(resource).toMatchObject({
+        resourceType: 'role',
+        resourceId: 'admin',
+      });
+    });
+  });
+
+  describe('listResources', () => {
+    it('lists resources', async () => {
       fetchOnce({
         data: [
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
           },
           {
-            object_type: 'role',
-            object_id: 'manager',
+            resource_type: 'role',
+            resource_id: 'manager',
           },
         ],
         list_metadata: {
@@ -125,16 +129,16 @@ describe('FGA', () => {
           after: null,
         },
       });
-      const { data: objects } = await workos.fga.listObjects();
-      expect(fetchURL()).toContain('/fga/v1/objects');
-      expect(objects).toMatchObject([
+      const { data: resources } = await workos.fga.listResources();
+      expect(fetchURL()).toContain('/fga/v1/resources');
+      expect(resources).toMatchObject([
         {
-          objectType: 'role',
-          objectId: 'admin',
+          resourceType: 'role',
+          resourceId: 'admin',
         },
         {
-          objectType: 'role',
-          objectId: 'manager',
+          resourceType: 'role',
+          resourceId: 'manager',
         },
       ]);
     });
@@ -143,12 +147,12 @@ describe('FGA', () => {
       fetchOnce({
         data: [
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
           },
           {
-            object_type: 'role',
-            object_id: 'manager',
+            resource_type: 'role',
+            resource_id: 'manager',
           },
         ],
         list_metadata: {
@@ -156,25 +160,25 @@ describe('FGA', () => {
           after: null,
         },
       });
-      await workos.fga.listObjects({
-        objectType: 'role',
+      await workos.fga.listResources({
+        resourceType: 'role',
       });
-      expect(fetchURL()).toContain('/fga/v1/objects');
+      expect(fetchURL()).toContain('/fga/v1/resources');
       expect(fetchSearchParams()).toEqual({
-        object_type: 'role',
+        resource_type: 'role',
         order: 'desc',
       });
     });
   });
 
-  describe('deleteObject', () => {
-    it('should delete object', async () => {
+  describe('deleteResource', () => {
+    it('should delete resource', async () => {
       fetchOnce();
-      const response = await workos.fga.deleteObject({
-        objectType: 'role',
-        objectId: 'admin',
+      const response = await workos.fga.deleteResource({
+        resourceType: 'role',
+        resourceId: 'admin',
       });
-      expect(fetchURL()).toContain('/fga/v1/objects/role/admin');
+      expect(fetchURL()).toContain('/fga/v1/resources/role/admin');
       expect(response).toBeUndefined();
     });
   });
@@ -185,24 +189,24 @@ describe('FGA', () => {
         warrant_token: 'some_token',
       });
       const warrantToken = await workos.fga.writeWarrant({
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
+        resource: {
+          resourceType: 'role',
+          resourceId: 'admin',
         },
         relation: 'member',
         subject: {
-          objectType: 'user',
-          objectId: 'user_123',
+          resourceType: 'user',
+          resourceId: 'user_123',
         },
       });
       expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
-        object_type: 'role',
-        object_id: 'admin',
+        resource_type: 'role',
+        resource_id: 'admin',
         relation: 'member',
         subject: {
-          object_type: 'user',
-          object_id: 'user_123',
+          resource_type: 'user',
+          resource_id: 'user_123',
         },
       });
       expect(warrantToken).toMatchObject({
@@ -216,25 +220,25 @@ describe('FGA', () => {
       });
       const warrantToken = await workos.fga.writeWarrant({
         op: WarrantOp.Create,
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
+        resource: {
+          resourceType: 'role',
+          resourceId: 'admin',
         },
         relation: 'member',
         subject: {
-          objectType: 'user',
-          objectId: 'user_123',
+          resourceType: 'user',
+          resourceId: 'user_123',
         },
       });
       expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
         op: 'create',
-        object_type: 'role',
-        object_id: 'admin',
+        resource_type: 'role',
+        resource_id: 'admin',
         relation: 'member',
         subject: {
-          object_type: 'user',
-          object_id: 'user_123',
+          resource_type: 'user',
+          resource_id: 'user_123',
         },
       });
       expect(warrantToken).toMatchObject({
@@ -248,25 +252,25 @@ describe('FGA', () => {
       });
       const warrantToken = await workos.fga.writeWarrant({
         op: WarrantOp.Delete,
-        object: {
-          objectType: 'role',
-          objectId: 'admin',
+        resource: {
+          resourceType: 'role',
+          resourceId: 'admin',
         },
         relation: 'member',
         subject: {
-          objectType: 'user',
-          objectId: 'user_123',
+          resourceType: 'user',
+          resourceId: 'user_123',
         },
       });
       expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual({
         op: 'delete',
-        object_type: 'role',
-        object_id: 'admin',
+        resource_type: 'role',
+        resource_id: 'admin',
         relation: 'member',
         subject: {
-          object_type: 'user',
-          object_id: 'user_123',
+          resource_type: 'user',
+          resource_id: 'user_123',
         },
       });
       expect(warrantToken).toMatchObject({
@@ -282,70 +286,70 @@ describe('FGA', () => {
       });
       const warrantToken = await workos.fga.batchWriteWarrants([
         {
-          object: {
-            objectType: 'role',
-            objectId: 'admin',
+          resource: {
+            resourceType: 'role',
+            resourceId: 'admin',
           },
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_123',
+            resourceType: 'user',
+            resourceId: 'user_123',
           },
         },
         {
           op: WarrantOp.Create,
-          object: {
-            objectType: 'role',
-            objectId: 'admin',
+          resource: {
+            resourceType: 'role',
+            resourceId: 'admin',
           },
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_124',
+            resourceType: 'user',
+            resourceId: 'user_124',
           },
         },
         {
           op: WarrantOp.Delete,
-          object: {
-            objectType: 'role',
-            objectId: 'admin',
+          resource: {
+            resourceType: 'role',
+            resourceId: 'admin',
           },
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_125',
+            resourceType: 'user',
+            resourceId: 'user_125',
           },
         },
       ]);
       expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(fetchBody()).toEqual([
         {
-          object_type: 'role',
-          object_id: 'admin',
+          resource_type: 'role',
+          resource_id: 'admin',
           relation: 'member',
           subject: {
-            object_type: 'user',
-            object_id: 'user_123',
+            resource_type: 'user',
+            resource_id: 'user_123',
           },
         },
         {
           op: 'create',
-          object_type: 'role',
-          object_id: 'admin',
+          resource_type: 'role',
+          resource_id: 'admin',
           relation: 'member',
           subject: {
-            object_type: 'user',
-            object_id: 'user_124',
+            resource_type: 'user',
+            resource_id: 'user_124',
           },
         },
         {
           op: 'delete',
-          object_type: 'role',
-          object_id: 'admin',
+          resource_type: 'role',
+          resource_id: 'admin',
           relation: 'member',
           subject: {
-            object_type: 'user',
-            object_id: 'user_125',
+            resource_type: 'user',
+            resource_id: 'user_125',
           },
         },
       ]);
@@ -360,21 +364,21 @@ describe('FGA', () => {
       fetchOnce({
         data: [
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
             relation: 'member',
             subject: {
-              object_type: 'user',
-              object_id: 'user_123',
+              resource_type: 'user',
+              resource_id: 'user_123',
             },
           },
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
             relation: 'member',
             subject: {
-              object_type: 'user',
-              object_id: 'user_124',
+              resource_type: 'user',
+              resource_id: 'user_124',
             },
           },
         ],
@@ -387,21 +391,21 @@ describe('FGA', () => {
       expect(fetchURL()).toContain('/fga/v1/warrants');
       expect(warrants).toMatchObject([
         {
-          objectType: 'role',
-          objectId: 'admin',
+          resourceType: 'role',
+          resourceId: 'admin',
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_123',
+            resourceType: 'user',
+            resourceId: 'user_123',
           },
         },
         {
-          objectType: 'role',
-          objectId: 'admin',
+          resourceType: 'role',
+          resourceId: 'admin',
           relation: 'member',
           subject: {
-            objectType: 'user',
-            objectId: 'user_124',
+            resourceType: 'user',
+            resourceId: 'user_124',
           },
         },
       ]);
@@ -411,12 +415,12 @@ describe('FGA', () => {
       fetchOnce({
         data: [
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
             relation: 'member',
             subject: {
-              object_type: 'user',
-              object_id: 'user_123',
+              resource_type: 'user',
+              resource_id: 'user_123',
             },
           },
         ],
@@ -443,15 +447,15 @@ describe('FGA', () => {
       fetchOnce({
         data: [
           {
-            object_type: 'role',
-            object_id: 'admin',
+            resource_type: 'role',
+            resource_id: 'admin',
             warrant: {
-              object_type: 'role',
-              object_id: 'admin',
+              resource_type: 'role',
+              resource_id: 'admin',
               relation: 'member',
               subject: {
-                object_type: 'user',
-                object_id: 'user_123',
+                resource_type: 'user',
+                resource_id: 'user_123',
               },
             },
             is_implicit: false,
@@ -468,15 +472,15 @@ describe('FGA', () => {
       expect(fetchURL()).toContain('/fga/v1/query');
       expect(queryResults).toMatchObject([
         {
-          objectType: 'role',
-          objectId: 'admin',
+          resourceType: 'role',
+          resourceId: 'admin',
           warrant: {
-            objectType: 'role',
-            objectId: 'admin',
+            resourceType: 'role',
+            resourceId: 'admin',
             relation: 'member',
             subject: {
-              objectType: 'user',
-              objectId: 'user_123',
+              resourceType: 'user',
+              resourceId: 'user_123',
             },
           },
           isImplicit: false,
@@ -488,15 +492,15 @@ describe('FGA', () => {
       fetchOnce({
         data: [
           {
-            objectType: 'role',
-            objectId: 'admin',
+            resourceType: 'role',
+            resourceId: 'admin',
             warrant: {
-              objectType: 'role',
-              objectId: 'admin',
+              resourceType: 'role',
+              resourceId: 'admin',
               relation: 'member',
               subject: {
-                objectType: 'user',
-                objectId: 'user_123',
+                resourceType: 'user',
+                resourceId: 'user_123',
               },
             },
             isImplicit: false,

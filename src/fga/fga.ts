@@ -1,50 +1,46 @@
 import { WorkOS } from '../workos';
 import {
-  BaseWarrantObject,
-  BatchCheckOptions,
-  CheckManyOptions,
+  Resource,
+  CheckBatchOptions,
   CheckOptions,
   CheckRequestOptions,
   CheckResult,
-  CreateObjectOptions,
-  DeleteObjectOptions,
-  ListObjectOptions,
+  CheckResultResponse,
+  CreateResourceOptions,
+  DeleteResourceOptions,
+  ListResourcesOptions,
+  ListWarrantsRequestOptions,
   ListWarrantsOptions,
   QueryOptions,
   QueryRequestOptions,
   QueryResult,
-  UpdateObjectOptions,
-  Warrant,
-  WarrantObject,
-  WarrantObjectLiteral,
-  WarrantObjectResponse,
-  WriteWarrantOptions,
-  ListWarrantsRequestsOptions,
-  WarrantResponse,
   QueryResultResponse,
-  CheckResultResponse,
-} from './interfaces';
-import {
+  ResourceInterface,
+  ResourceOptions,
+  ResourceResponse,
+  UpdateResourceOptions,
+  WriteWarrantOptions,
+  Warrant,
+  WarrantResponse,
   WarrantToken,
   WarrantTokenResponse,
-} from './interfaces/warrant-token.interface';
+} from './interfaces';
 import {
-  serializeBatchCheckOptions,
-  serializeCheckManyOptions,
+  deserializeQueryResult,
+  deserializeResource,
+  deserializeWarrant,
+  deserializeWarrantToken,
+  serializeCheckBatchOptions,
   serializeCheckOptions,
-} from './serializers/check-warrant-options.serializer';
-import { serializeCreateObjectOptions } from './serializers/create-object-options.serializer';
-import { isWarrantObject } from './utils/interface-check';
+  serializeCreateResourceOptions,
+  serializeListResourceOptions,
+  serializeListWarrantsOptions,
+  serializeQueryOptions,
+  serializeWriteWarrantOptions,
+} from './serializers';
+import { isResourceInterface } from './utils/interface-check';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { deserializeBaseWarrantObject } from './serializers/warrant-object.serializer';
-import { deserializeWarrantToken } from './serializers/warrant-token.serializer';
-import { serializeWriteWarrantOptions } from './serializers/write-warrant-options.serializer';
-import { deserializeWarrant } from './serializers/warrant.serializer';
-import { deserializeQueryResult } from './serializers/query-result.serializer';
-import { serializeListWarrantsOptions } from './serializers/list-warrants-options.serializer';
-import { serializeQueryOptions } from './serializers/query-options.serializer';
-import { serializeListObjectOptions } from './serializers/list-object-options.serializer';
 
 export class FGA {
   constructor(private readonly workos: WorkOS) {}
@@ -61,25 +57,13 @@ export class FGA {
     return new CheckResult(data);
   }
 
-  async checkMany(
-    checkOptions: CheckManyOptions,
-    options: CheckRequestOptions = {},
-  ): Promise<CheckResult> {
-    const { data } = await this.workos.post<CheckResultResponse>(
-      `/fga/v1/check`,
-      serializeCheckManyOptions(checkOptions),
-      options,
-    );
-    return new CheckResult(data);
-  }
-
-  async batchCheck(
-    checkOptions: BatchCheckOptions,
+  async checkBatch(
+    checkOptions: CheckBatchOptions,
     options: CheckRequestOptions = {},
   ): Promise<CheckResult[]> {
     const { data } = await this.workos.post<CheckResultResponse[]>(
       `/fga/v1/check`,
-      serializeBatchCheckOptions(checkOptions),
+      serializeCheckBatchOptions(checkOptions),
       options,
     );
     return data.map(
@@ -87,80 +71,80 @@ export class FGA {
     );
   }
 
-  async createObject(object: CreateObjectOptions): Promise<BaseWarrantObject> {
-    const { data } = await this.workos.post<WarrantObjectResponse>(
-      '/fga/v1/objects',
-      serializeCreateObjectOptions(object),
+  async createResource(resource: CreateResourceOptions): Promise<Resource> {
+    const { data } = await this.workos.post<ResourceResponse>(
+      '/fga/v1/resources',
+      serializeCreateResourceOptions(resource),
     );
 
-    return deserializeBaseWarrantObject(data);
+    return deserializeResource(data);
   }
 
-  async getObject(
-    object: WarrantObject | WarrantObjectLiteral,
-  ): Promise<BaseWarrantObject> {
-    const objectType = isWarrantObject(object)
-      ? object.getObjectType()
-      : object.objectType;
-    const objectId = isWarrantObject(object)
-      ? object.getObjectId()
-      : object.objectId;
+  async getResource(
+    resource: ResourceInterface | ResourceOptions,
+  ): Promise<Resource> {
+    const resourceType = isResourceInterface(resource)
+      ? resource.getResourceType()
+      : resource.resourceType;
+    const resourceId = isResourceInterface(resource)
+      ? resource.getResourceId()
+      : resource.resourceId;
 
-    const { data } = await this.workos.get<WarrantObjectResponse>(
-      `/fga/v1/objects/${objectType}/${objectId}`,
+    const { data } = await this.workos.get<ResourceResponse>(
+      `/fga/v1/resources/${resourceType}/${resourceId}`,
     );
 
-    return deserializeBaseWarrantObject(data);
+    return deserializeResource(data);
   }
 
-  async listObjects(
-    options?: ListObjectOptions,
-  ): Promise<AutoPaginatable<BaseWarrantObject>> {
+  async listResources(
+    options?: ListResourcesOptions,
+  ): Promise<AutoPaginatable<Resource>> {
     return new AutoPaginatable(
-      await fetchAndDeserialize<WarrantObjectResponse, BaseWarrantObject>(
+      await fetchAndDeserialize<ResourceResponse, Resource>(
         this.workos,
-        '/fga/v1/objects',
-        deserializeBaseWarrantObject,
-        options ? serializeListObjectOptions(options) : undefined,
+        '/fga/v1/resources',
+        deserializeResource,
+        options ? serializeListResourceOptions(options) : undefined,
       ),
       (params) =>
-        fetchAndDeserialize<WarrantObjectResponse, BaseWarrantObject>(
+        fetchAndDeserialize<ResourceResponse, Resource>(
           this.workos,
-          '/fga/v1/objects',
-          deserializeBaseWarrantObject,
+          '/fga/v1/resources',
+          deserializeResource,
           params,
         ),
-      options ? serializeListObjectOptions(options) : undefined,
+      options ? serializeListResourceOptions(options) : undefined,
     );
   }
 
-  async updateObject(options: UpdateObjectOptions): Promise<BaseWarrantObject> {
-    const objectType = isWarrantObject(options.object)
-      ? options.object.getObjectType()
-      : options.object.objectType;
-    const objectId = isWarrantObject(options.object)
-      ? options.object.getObjectId()
-      : options.object.objectId;
+  async updateResource(options: UpdateResourceOptions): Promise<Resource> {
+    const resourceType = isResourceInterface(options.resource)
+      ? options.resource.getResourceType()
+      : options.resource.resourceType;
+    const resourceId = isResourceInterface(options.resource)
+      ? options.resource.getResourceId()
+      : options.resource.resourceId;
 
-    const { data } = await this.workos.put<WarrantObjectResponse>(
-      `/fga/v1/objects/${objectType}/${objectId}`,
+    const { data } = await this.workos.put<ResourceResponse>(
+      `/fga/v1/resources/${resourceType}/${resourceId}`,
       {
         meta: options.meta,
       },
     );
 
-    return deserializeBaseWarrantObject(data);
+    return deserializeResource(data);
   }
 
-  async deleteObject(object: DeleteObjectOptions): Promise<void> {
-    const objectType = isWarrantObject(object)
-      ? object.getObjectType()
-      : object.objectType;
-    const objectId = isWarrantObject(object)
-      ? object.getObjectId()
-      : object.objectId;
+  async deleteResource(resource: DeleteResourceOptions): Promise<void> {
+    const resourceType = isResourceInterface(resource)
+      ? resource.getResourceType()
+      : resource.resourceType;
+    const resourceId = isResourceInterface(resource)
+      ? resource.getResourceId()
+      : resource.resourceId;
 
-    await this.workos.delete(`/fga/v1/objects/${objectType}/${objectId}`);
+    await this.workos.delete(`/fga/v1/resources/${resourceType}/${resourceId}`);
   }
 
   async writeWarrant(options: WriteWarrantOptions): Promise<WarrantToken> {
@@ -185,7 +169,7 @@ export class FGA {
 
   async listWarrants(
     options?: ListWarrantsOptions,
-    requestOptions?: ListWarrantsRequestsOptions,
+    requestOptions?: ListWarrantsRequestOptions,
   ): Promise<AutoPaginatable<Warrant>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<WarrantResponse, Warrant>(

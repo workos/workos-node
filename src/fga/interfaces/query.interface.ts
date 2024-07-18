@@ -13,8 +13,8 @@ export interface SerializedQueryOptions extends PaginationOptions {
 }
 
 export interface QueryResult {
-  objectType: string;
-  objectId: string;
+  resourceType: string;
+  resourceId: string;
   relation: string;
   warrant: Warrant;
   isImplicit: boolean;
@@ -22,8 +22,8 @@ export interface QueryResult {
 }
 
 export interface QueryResultResponse {
-  object_type: string;
-  object_id: string;
+  resource_type: string;
+  resource_id: string;
   relation: string;
   warrant: WarrantResponse;
   is_implicit: boolean;

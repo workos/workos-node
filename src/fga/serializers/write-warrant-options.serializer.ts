@@ -2,29 +2,29 @@ import {
   SerializedWriteWarrantOptions,
   WriteWarrantOptions,
 } from '../interfaces';
-import { isSubject, isWarrantObject } from '../utils/interface-check';
+import { isSubject, isResourceInterface } from '../utils/interface-check';
 
 export const serializeWriteWarrantOptions = (
   warrant: WriteWarrantOptions,
 ): SerializedWriteWarrantOptions => ({
   op: warrant.op,
-  object_type: isWarrantObject(warrant.object)
-    ? warrant.object.getObjectType()
-    : warrant.object.objectType,
-  object_id: isWarrantObject(warrant.object)
-    ? warrant.object.getObjectId()
-    : warrant.object.objectId
-    ? warrant.object.objectId
+  resource_type: isResourceInterface(warrant.resource)
+    ? warrant.resource.getResourceType()
+    : warrant.resource.resourceType,
+  resource_id: isResourceInterface(warrant.resource)
+    ? warrant.resource.getResourceId()
+    : warrant.resource.resourceId
+    ? warrant.resource.resourceId
     : '',
   relation: warrant.relation,
   subject: isSubject(warrant.subject)
     ? {
-        object_type: warrant.subject.objectType,
-        object_id: warrant.subject.objectId,
+        resource_type: warrant.subject.resourceType,
+        resource_id: warrant.subject.resourceId,
       }
     : {
-        object_type: warrant.subject.getObjectType(),
-        object_id: warrant.subject.getObjectId(),
+        resource_type: warrant.subject.getResourceType(),
+        resource_id: warrant.subject.getResourceId(),
       },
   policy: warrant.policy,
 });

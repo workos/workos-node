@@ -1,58 +1,38 @@
-import {
-  WarrantObject,
-  WarrantObjectLiteral,
-} from './warrant-object.interface';
+import { ResourceInterface, ResourceOptions } from './resource.interface';
 import { PolicyContext, SerializedSubject, Subject } from './warrant.interface';
 import { CheckOp } from './check-op.enum';
 import { PostOptions } from '../../common/interfaces';
+import { deserializeDecisionTreeNode } from '../serializers/check-options.serializer';
 
 export interface CheckWarrantOptions {
-  object: WarrantObject | WarrantObjectLiteral;
+  resource: ResourceInterface | ResourceOptions;
   relation: string;
-  subject: WarrantObject | Subject;
+  subject: ResourceInterface | Subject;
   context?: PolicyContext;
 }
 
-export interface CheckOptions extends CheckWarrantOptions {
-  debug?: boolean;
-}
-
-export interface CheckManyOptions {
-  op?: CheckOp;
-  warrants: CheckWarrantOptions[];
-  debug?: boolean;
-}
-
-export interface BatchCheckOptions {
-  warrants: CheckWarrantOptions[];
-  debug?: boolean;
-}
-
-export interface CheckWarrant {
-  objectType: string;
-  objectId: string;
-  relation: string;
-  subject: Subject;
-  context: PolicyContext;
-}
-
-export interface SerializedCheckWarrant {
-  object_type: string;
-  object_id: string;
+export interface SerializedCheckWarrantOptions {
+  resource_type: string;
+  resource_id: string;
   relation: string;
   subject: SerializedSubject;
   context: PolicyContext;
 }
 
-export interface Check {
+export interface CheckOptions {
   op?: CheckOp;
-  warrants: CheckWarrant[];
+  checks: CheckWarrantOptions[];
   debug?: boolean;
 }
 
-export interface SerializedCheck {
+export interface CheckBatchOptions {
+  checks: CheckWarrantOptions[];
+  debug?: boolean;
+}
+
+export interface SerializedCheckOptions {
   op?: CheckOp;
-  warrants: SerializedCheckWarrant[];
+  checks: SerializedCheckWarrantOptions[];
   debug?: boolean;
 }
 
@@ -60,23 +40,60 @@ export interface CheckResultResponse {
   code: number;
   result: string;
   is_implicit: boolean;
+  debug_info?: DebugInfoResponse;
+}
+
+export interface DebugInfo {
+  processingTime: number;
+  decisionTree: DecisionTreeNode;
+}
+
+export interface DecisionTreeNode {
+  check: CheckWarrantOptions;
+  policy?: string;
+  decision: string;
+  processingTime: number;
+  children: DecisionTreeNode[];
+}
+
+export interface DebugInfoResponse {
+  processing_time: number;
+  decision_tree: DecisionTreeNodeResponse;
+}
+
+export interface DecisionTreeNodeResponse {
+  check: SerializedCheckWarrantOptions;
+  policy?: string;
+  decision: string;
+  processing_time: number;
+  children: DecisionTreeNodeResponse[];
 }
 
 export interface CheckResultInterface {
   code: number;
   result: string;
   isImplicit: boolean;
+  debugInfo?: DebugInfo;
 }
 
 export class CheckResult implements CheckResultInterface {
   public code: number;
   public result: string;
   public isImplicit: boolean;
+  public debugInfo?: DebugInfo;
 
   constructor(json: CheckResultResponse) {
     this.code = json.code;
     this.result = json.result;
     this.isImplicit = json.is_implicit;
+    this.debugInfo = json.debug_info
+      ? {
+          processingTime: json.debug_info.processing_time,
+          decisionTree: deserializeDecisionTreeNode(
+            json.debug_info.decision_tree,
+          ),
+        }
+      : undefined;
   }
 
   isAuthorized(): boolean {

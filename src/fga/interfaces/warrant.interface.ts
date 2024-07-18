@@ -1,13 +1,10 @@
 import { GetOptions } from '../../common/interfaces';
-import {
-  WarrantObject,
-  WarrantObjectLiteral,
-} from './warrant-object.interface';
+import { ResourceInterface, ResourceOptions } from './resource.interface';
 import { WarrantOp } from './warrant-op.enum';
 
 export interface ListWarrantsOptions {
-  objectType?: string;
-  objectId?: string;
+  resourceType?: string;
+  resourceId?: string;
   relation?: string;
   subjectType?: string;
   subjectId?: string;
@@ -17,8 +14,8 @@ export interface ListWarrantsOptions {
 }
 
 export interface SerializedListWarrantsOptions {
-  object_type?: string;
-  object_id?: string;
+  resource_type?: string;
+  resource_id?: string;
   relation?: string;
   subject_type?: string;
   subject_id?: string;
@@ -32,20 +29,20 @@ export interface PolicyContext {
 }
 
 export interface Subject {
-  objectType: string;
-  objectId: string;
+  resourceType: string;
+  resourceId: string;
   relation?: string;
 }
 
 export interface SerializedSubject {
-  object_type: string;
-  object_id: string;
+  resource_type: string;
+  resource_id: string;
   relation?: string;
 }
 
 export interface Warrant {
-  objectType: string;
-  objectId: string;
+  resourceType: string;
+  resourceId: string;
   relation: string;
   subject: Subject;
   policy?: string;
@@ -53,26 +50,26 @@ export interface Warrant {
 
 export interface WriteWarrantOptions {
   op?: WarrantOp;
-  object: WarrantObject | WarrantObjectLiteral;
+  resource: ResourceInterface | ResourceOptions;
   relation: string;
-  subject: WarrantObject | Subject;
+  subject: ResourceInterface | Subject;
   policy?: string;
 }
 
 export interface SerializedWriteWarrantOptions {
   op?: WarrantOp;
-  object_type: string;
-  object_id: string;
+  resource_type: string;
+  resource_id: string;
   relation: string;
   subject: SerializedSubject;
   policy?: string;
 }
 
-export type ListWarrantsRequestsOptions = Pick<GetOptions, 'warrantToken'>;
+export type ListWarrantsRequestOptions = Pick<GetOptions, 'warrantToken'>;
 
 export interface WarrantResponse {
-  object_type: string;
-  object_id: string;
+  resource_type: string;
+  resource_id: string;
   relation: string;
   subject: SerializedSubject;
 }

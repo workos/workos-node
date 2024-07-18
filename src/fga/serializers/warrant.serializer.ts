@@ -1,12 +1,12 @@
 import { Warrant, WarrantResponse } from '../interfaces';
 
 export const deserializeWarrant = (warrant: WarrantResponse): Warrant => ({
-  objectType: warrant.object_type,
-  objectId: warrant.object_id,
+  resourceType: warrant.resource_type,
+  resourceId: warrant.resource_id,
   relation: warrant.relation,
   subject: {
-    objectType: warrant.subject.object_type,
-    objectId: warrant.subject.object_id,
+    resourceType: warrant.subject.resource_type,
+    resourceId: warrant.subject.resource_id,
     relation: warrant.subject.relation,
   },
 });

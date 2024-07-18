@@ -1,12 +1,17 @@
-import { Subject, WarrantObject } from '../interfaces';
+import { Subject, ResourceInterface } from '../interfaces';
 
-export function isSubject(object: any): object is Subject {
+export function isSubject(resource: any): resource is Subject {
   return (
-    Object.prototype.hasOwnProperty.call(object, 'objectType') &&
-    Object.prototype.hasOwnProperty.call(object, 'objectId')
+    Object.prototype.hasOwnProperty.call(resource, 'resourceType') &&
+    Object.prototype.hasOwnProperty.call(resource, 'resourceId')
   );
 }
 
-export function isWarrantObject(object: any): object is WarrantObject {
-  return object.getObjectType !== undefined && object.getObjectId !== undefined;
+export function isResourceInterface(
+  resource: any,
+): resource is ResourceInterface {
+  return (
+    resource.getResourceType !== undefined &&
+    resource.getResourceId !== undefined
+  );
 }

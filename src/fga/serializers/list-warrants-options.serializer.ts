@@ -6,8 +6,8 @@ import {
 export const serializeListWarrantsOptions = (
   options: ListWarrantsOptions,
 ): SerializedListWarrantsOptions => ({
-  object_type: options.objectType,
-  object_id: options.objectId,
+  resource_type: options.resourceType,
+  resource_id: options.resourceId,
   relation: options.relation,
   subject_type: options.subjectType,
   subject_id: options.subjectId,
