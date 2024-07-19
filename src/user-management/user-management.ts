@@ -370,6 +370,7 @@ export class UserManagement {
       await jwtVerify(accessToken, this.jwks);
       return true;
     } catch (e) {
+      // eslint-disable-next-line no-console
       console.warn('Failed to verify session:', e);
       return false;
     }
