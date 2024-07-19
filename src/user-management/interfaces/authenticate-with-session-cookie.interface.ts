@@ -14,8 +14,14 @@ export type SessionCookieData = {
   impersonator: string;
 };
 
+export type AuthenticateWithSessionCookieFailureReason =
+  | 'invalid_jwt'
+  | 'invalid_session_cookie'
+  | 'no_session_cookie_provided';
+
 export type AuthenticateWithSessionCookieFailedResponse = {
   authenticated: false;
+  reason: AuthenticateWithSessionCookieFailureReason;
 };
 
 export type AuthenticateWithSessionCookieSuccessResponse = {

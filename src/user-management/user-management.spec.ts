@@ -30,24 +30,16 @@ const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
-  const originalEnv = process.env;
   let workos: WorkOS;
 
   beforeAll(() => {
-    jest.resetModules();
-    process.env = {
-      ...originalEnv,
-      WORKOS_CLIENT_ID: 'proj_123',
-    };
-
-    workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+    workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+      apiHostname: 'api.workos.test',
+      clientId: 'proj_123',
+    });
   });
 
   beforeEach(() => fetch.resetMocks());
-
-  afterAll(() => {
-    process.env = originalEnv;
-  });
 
   describe('getUser', () => {
     it('sends a Get User request', async () => {
@@ -414,7 +406,10 @@ describe('UserManagement', () => {
           sessionCookie: '',
           cookiePassword: 'secret',
         }),
-      ).resolves.toEqual({ authenticated: false });
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'no_session_cookie_provided',
+      });
     });
 
     it('returns authenticated = false when session cookie is invalid', async () => {
@@ -423,7 +418,10 @@ describe('UserManagement', () => {
           sessionCookie: 'thisisacookie',
           cookiePassword: 'secret',
         }),
-      ).resolves.toEqual({ authenticated: false });
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'invalid_session_cookie',
+      });
     });
 
     it('returns authenticated = false when session cookie cannot be unsealed', async () => {
@@ -446,7 +444,10 @@ describe('UserManagement', () => {
           sessionCookie,
           cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
         }),
-      ).resolves.toEqual({ authenticated: false });
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'invalid_session_cookie',
+      });
     });
 
     it('returns authenticated = false when the JWT is invalid', async () => {
@@ -473,7 +474,7 @@ describe('UserManagement', () => {
           sessionCookie,
           cookiePassword,
         }),
-      ).resolves.toEqual({ authenticated: false });
+      ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {

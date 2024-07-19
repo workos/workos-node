@@ -145,13 +145,15 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 };
 
 export class UserManagement {
-  private jwks;
+  private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
 
   constructor(private readonly workos: WorkOS) {
+    const { clientId } = workos.options;
+
     // Set the JWKS URL. This is used to verify if the JWT is still valid
-    this.jwks = createRemoteJWKSet(
-      new URL(this.getJwksUrl(process.env.WORKOS_CLIENT_ID as string)),
-    );
+    this.jwks = clientId
+      ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)))
+      : undefined;
   }
 
   async getUser(userId: string): Promise<User> {
@@ -323,20 +325,24 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
+    if (!this.jwks) {
+      throw new Error('Must provide clientId to initialize JWKS');
+    }
+
     if (!sessionCookie) {
-      return { authenticated: false };
+      return { authenticated: false, reason: 'no_session_cookie_provided' };
     }
 
     const session = await unsealData<SessionCookieData>(sessionCookie, {
       password: cookiePassword,
     });
 
-    if (!session) {
-      return { authenticated: false };
+    if (!session.accessToken) {
+      return { authenticated: false, reason: 'invalid_session_cookie' };
     }
 
     if (!(await this.isValidJwt(session.accessToken))) {
-      return { authenticated: false };
+      return { authenticated: false, reason: 'invalid_jwt' };
     }
 
     const {
@@ -356,6 +362,10 @@ export class UserManagement {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
+    if (!this.jwks) {
+      throw new Error('Must provide clientId to initialize JWKS');
+    }
+
     try {
       await jwtVerify(accessToken, this.jwks);
       return true;
