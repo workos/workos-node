@@ -1,97 +1,52 @@
-import { WorkOS } from '../workos';
+import { sealData, unsealData } from 'iron-session';
+import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
+import { Challenge, ChallengeResponse } from '../mfa/interfaces';
+import { deserializeChallenge } from '../mfa/serializers';
+import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
+  AuthenticateWithRefreshTokenOptions,
   AuthenticateWithTotpOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
-  ResetPasswordOptions,
-  SendPasswordResetEmailOptions,
+  CreateMagicAuthOptions,
+  CreatePasswordResetOptions,
   CreateUserOptions,
+  EmailVerification,
+  EmailVerificationResponse,
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
   ListUsersOptions,
+  MagicAuth,
+  MagicAuthResponse,
+  PasswordReset,
+  PasswordResetResponse,
+  ResetPasswordOptions,
   SendMagicAuthCodeOptions,
+  SendPasswordResetEmailOptions,
   SendVerificationEmailOptions,
   SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
+  SerializedAuthenticateWithRefreshTokenOptions,
   SerializedAuthenticateWithTotpOptions,
-  SerializedResetPasswordOptions,
-  SerializedSendPasswordResetEmailOptions,
+  SerializedCreateMagicAuthOptions,
+  SerializedCreatePasswordResetOptions,
   SerializedCreateUserOptions,
+  SerializedResetPasswordOptions,
   SerializedSendMagicAuthCodeOptions,
+  SerializedSendPasswordResetEmailOptions,
   SerializedVerifyEmailOptions,
   UpdateUserOptions,
   User,
   UserResponse,
   VerifyEmailOptions,
-  AuthenticateWithRefreshTokenOptions,
-  SerializedAuthenticateWithRefreshTokenOptions,
-  MagicAuth,
-  MagicAuthResponse,
-  CreateMagicAuthOptions,
-  SerializedCreateMagicAuthOptions,
-  EmailVerification,
-  EmailVerificationResponse,
-  PasswordReset,
-  PasswordResetResponse,
-  CreatePasswordResetOptions,
-  SerializedCreatePasswordResetOptions,
 } from './interfaces';
-import {
-  deserializeAuthenticationResponse,
-  deserializeFactorWithSecrets,
-  deserializeUser,
-  serializeAuthenticateWithMagicAuthOptions,
-  serializeAuthenticateWithPasswordOptions,
-  serializeAuthenticateWithCodeOptions,
-  serializeAuthenticateWithTotpOptions,
-  serializeEnrollAuthFactorOptions,
-  serializeResetPasswordOptions,
-  serializeSendPasswordResetEmailOptions,
-  serializeCreateUserOptions,
-  serializeSendMagicAuthCodeOptions,
-  serializeUpdateUserOptions,
-  serializeAuthenticateWithRefreshTokenOptions,
-  serializeCreateMagicAuthOptions,
-  deserializeMagicAuth,
-  deserializeEmailVerification,
-  deserializePasswordReset,
-  serializeCreatePasswordResetOptions,
-} from './serializers';
-import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { Challenge, ChallengeResponse } from '../mfa/interfaces';
-import { deserializeChallenge } from '../mfa/serializers';
-import {
-  OrganizationMembership,
-  OrganizationMembershipResponse,
-} from './interfaces/organization-membership.interface';
-import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
-import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
-import { serializeListOrganizationMembershipsOptions } from './serializers/list-organization-memberships-options.serializer';
-import {
-  CreateOrganizationMembershipOptions,
-  SerializedCreateOrganizationMembershipOptions,
-} from './interfaces/create-organization-membership-options.interface';
-import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
-import {
-  Invitation,
-  InvitationResponse,
-} from './interfaces/invitation.interface';
-import { deserializeInvitation } from './serializers/invitation.serializer';
-import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
-import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
-import {
-  SendInvitationOptions,
-  SerializedSendInvitationOptions,
-} from './interfaces/send-invitation-options.interface';
-import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
-import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
-import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
-import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
+import { AuthenticateWithCodeAndSealSessionDataResponse } from './interfaces/authenticate-with-code-and-seal-session-data.interface';
 import {
   AuthenticateWithEmailVerificationOptions,
   SerializedAuthenticateWithEmailVerificationOptions,
@@ -100,34 +55,82 @@ import {
   AuthenticateWithOrganizationSelectionOptions,
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
-import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
-import {
-  Factor,
-  FactorResponse,
-  FactorWithSecrets,
-  FactorWithSecretsResponse,
-} from './interfaces/factor.interface';
-import { deserializeFactor } from './serializers/factor.serializer';
-import {
-  RevokeSessionOptions,
-  SerializedRevokeSessionOptions,
-  serializeRevokeSessionOptions,
-} from './interfaces/revoke-session-options.interface';
-import {
-  SerializedUpdateOrganizationMembershipOptions,
-  UpdateOrganizationMembershipOptions,
-} from './interfaces/update-organization-membership-options.interface';
-import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
-import { Identity, IdentityResponse } from './interfaces/identity.interface';
-import { deserializeIdentities } from './serializers/identity.serializer';
 import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import { unsealData } from 'iron-session';
+import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import {
+  CreateOrganizationMembershipOptions,
+  SerializedCreateOrganizationMembershipOptions,
+} from './interfaces/create-organization-membership-options.interface';
+import {
+  Factor,
+  FactorResponse,
+  FactorWithSecrets,
+  FactorWithSecretsResponse,
+} from './interfaces/factor.interface';
+import { Identity, IdentityResponse } from './interfaces/identity.interface';
+import {
+  Invitation,
+  InvitationResponse,
+} from './interfaces/invitation.interface';
+import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
+import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
+import {
+  OrganizationMembership,
+  OrganizationMembershipResponse,
+} from './interfaces/organization-membership.interface';
+import { RefreshAndSealSessionDataResponse } from './interfaces/refresh-and-seal-session-data.interface';
+import {
+  RevokeSessionOptions,
+  SerializedRevokeSessionOptions,
+  serializeRevokeSessionOptions,
+} from './interfaces/revoke-session-options.interface';
+import {
+  SendInvitationOptions,
+  SerializedSendInvitationOptions,
+} from './interfaces/send-invitation-options.interface';
+import { SessionCookieOptions } from './interfaces/session-cookie-options.interface';
+import {
+  SerializedUpdateOrganizationMembershipOptions,
+  UpdateOrganizationMembershipOptions,
+} from './interfaces/update-organization-membership-options.interface';
+import {
+  deserializeAuthenticationResponse,
+  deserializeEmailVerification,
+  deserializeFactorWithSecrets,
+  deserializeMagicAuth,
+  deserializePasswordReset,
+  deserializeUser,
+  serializeAuthenticateWithCodeOptions,
+  serializeAuthenticateWithMagicAuthOptions,
+  serializeAuthenticateWithPasswordOptions,
+  serializeAuthenticateWithRefreshTokenOptions,
+  serializeAuthenticateWithTotpOptions,
+  serializeCreateMagicAuthOptions,
+  serializeCreatePasswordResetOptions,
+  serializeCreateUserOptions,
+  serializeEnrollAuthFactorOptions,
+  serializeResetPasswordOptions,
+  serializeSendMagicAuthCodeOptions,
+  serializeSendPasswordResetEmailOptions,
+  serializeUpdateUserOptions,
+} from './serializers';
+import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
+import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
+import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
+import { deserializeFactor } from './serializers/factor.serializer';
+import { deserializeIdentities } from './serializers/identity.serializer';
+import { deserializeInvitation } from './serializers/invitation.serializer';
+import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
+import { serializeListOrganizationMembershipsOptions } from './serializers/list-organization-memberships-options.serializer';
+import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
+import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
+import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
+import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -314,10 +317,7 @@ export class UserManagement {
   async authenticateWithSessionCookie({
     sessionCookie,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: {
-    sessionCookie: string;
-    cookiePassword?: string;
-  }): Promise<
+  }: SessionCookieOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
   > {
@@ -372,6 +372,98 @@ export class UserManagement {
     } catch (e) {
       return false;
     }
+  }
+
+  async refreshAndSealSessionData({
+    sessionCookie,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: SessionCookieOptions): Promise<RefreshAndSealSessionDataResponse> {
+    if (!cookiePassword) {
+      throw new Error('Cookie password is required');
+    }
+
+    if (!sessionCookie) {
+      return { authenticated: false, reason: 'no_session_cookie_provided' };
+    }
+
+    const session = await unsealData<SessionCookieData>(sessionCookie, {
+      password: cookiePassword,
+    });
+
+    if (!session.refreshToken || !session.user) {
+      return { authenticated: false, reason: 'invalid_session_cookie' };
+    }
+
+    const { accessToken, refreshToken } =
+      await this.authenticateWithRefreshToken({
+        clientId: this.workos.clientId as string,
+        refreshToken: session.refreshToken,
+      });
+
+    // Refresh tokens are single use, so update the session with the
+    // new access and refresh tokens
+    const encryptedSession = await sealData(
+      {
+        accessToken,
+        refreshToken,
+        user: session.user,
+        impersonator: session.impersonator,
+      },
+      { password: cookiePassword },
+    );
+
+    return { authenticated: true, sealedSessionData: encryptedSession };
+  }
+
+  async authenticateWithCodeAndSealSessionData({
+    code,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: { code: string } & Pick<
+    SessionCookieOptions,
+    'cookiePassword'
+  >): Promise<AuthenticateWithCodeAndSealSessionDataResponse> {
+    if (!code) {
+      return { authenticated: false, reason: 'no_code_provided' };
+    }
+
+    if (!cookiePassword) {
+      throw new Error('Cookie password is required');
+    }
+
+    const { user, accessToken, refreshToken, impersonator } =
+      await this.authenticateWithCode({
+        code,
+        clientId: this.workos.clientId as string,
+      });
+
+    const encryptedSession = await sealData(
+      {
+        accessToken,
+        refreshToken,
+        user,
+        impersonator,
+      },
+      { password: cookiePassword },
+    );
+
+    return { authenticated: true, sealedSessionData: encryptedSession };
+  }
+
+  async getSessionFromCookie({
+    sessionCookie,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: SessionCookieOptions): Promise<SessionCookieData | undefined> {
+    if (!cookiePassword) {
+      throw new Error('Cookie password is required');
+    }
+
+    if (sessionCookie) {
+      return unsealData<SessionCookieData>(sessionCookie, {
+        password: cookiePassword,
+      });
+    }
+
+    return undefined;
   }
 
   async getEmailVerification(

@@ -512,6 +512,175 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateWithCodeAndSealSessionData', () => {
+    it('returns authenticated = false when the code is empty', async () => {
+      await expect(
+        workos.userManagement.authenticateWithCodeAndSealSessionData({
+          code: '',
+        }),
+      ).resolves.toEqual({ authenticated: false, reason: 'no_code_provided' });
+    });
+
+    it('throws an error when the cookie password is undefined', async () => {
+      await expect(
+        workos.userManagement.authenticateWithCodeAndSealSessionData({
+          code: 'abc123',
+        }),
+      ).rejects.toThrow('Cookie password is required');
+    });
+
+    it('returns the sealed refreshed session cookie when provided a valid code', async () => {
+      fetchOnce({ user: userFixture });
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+      await expect(
+        workos.userManagement.authenticateWithCodeAndSealSessionData({
+          code: 'abc123',
+          cookiePassword,
+        }),
+      ).resolves.toEqual({
+        sealedSessionData: expect.any(String),
+        authenticated: true,
+      });
+    });
+  });
+
+  describe('refreshAndSealSessionData', () => {
+    it('throws an error when the cookie password is undefined', async () => {
+      await expect(
+        workos.userManagement.refreshAndSealSessionData({
+          sessionCookie: 'session_cookie',
+        }),
+      ).rejects.toThrow('Cookie password is required');
+    });
+
+    it('returns authenticated = false when the session cookie is empty', async () => {
+      await expect(
+        workos.userManagement.refreshAndSealSessionData({
+          sessionCookie: '',
+          cookiePassword: 'secret',
+        }),
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'no_session_cookie_provided',
+      });
+    });
+
+    it('returns authenticated = false when session cookie is invalid', async () => {
+      await expect(
+        workos.userManagement.refreshAndSealSessionData({
+          sessionCookie: 'thisisacookie',
+          cookiePassword: 'secret',
+        }),
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'invalid_session_cookie',
+      });
+    });
+
+    it('returns authenticated = false when session cookie cannot be unsealed', async () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const sessionCookie = await sealData(
+        {
+          accessToken: 'abc123',
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      await expect(
+        workos.userManagement.refreshAndSealSessionData({
+          sessionCookie,
+          cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
+        }),
+      ).resolves.toEqual({
+        authenticated: false,
+        reason: 'invalid_session_cookie',
+      });
+    });
+
+    it('returns the sealed refreshed session cookie when provided a valid existing session cookie', async () => {
+      fetchOnce({
+        user: userFixture,
+        access_token: 'access_token',
+        refresh_token: 'refresh_token',
+      });
+
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const sessionCookie = await sealData(
+        {
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      await expect(
+        workos.userManagement.refreshAndSealSessionData({
+          sessionCookie,
+          cookiePassword,
+        }),
+      ).resolves.toEqual({
+        sealedSessionData: expect.any(String),
+        authenticated: true,
+      });
+    });
+  });
+
+  describe('getSessionFromCookie', () => {
+    it('throws an error when the cookie password is undefined', async () => {
+      await expect(
+        workos.userManagement.getSessionFromCookie({
+          sessionCookie: 'session_cookie',
+        }),
+      ).rejects.toThrow('Cookie password is required');
+    });
+
+    it('returns undefined when the session cookie cannot be unsealed', async () => {
+      await expect(
+        workos.userManagement.getSessionFromCookie({
+          sessionCookie: '',
+          cookiePassword: 'secret',
+        }),
+      ).resolves.toBeUndefined();
+    });
+
+    it('returns the unsealed session cookie data when provided a valid session cookie', async () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const sessionCookieData = {
+        accessToken:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        refreshToken: 'def456',
+        user: {
+          object: 'user',
+          id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          email: 'test@example.com',
+        },
+      };
+      const sessionCookie = await sealData(sessionCookieData, {
+        password: cookiePassword,
+      });
+
+      await expect(
+        workos.userManagement.getSessionFromCookie({
+          sessionCookie,
+          cookiePassword,
+        }),
+      ).resolves.toEqual(sessionCookieData);
+    });
+  });
+
   describe('getEmailVerification', () => {
     it('sends a Get EmailVerification request', async () => {
       fetchOnce(emailVerificationFixture);
