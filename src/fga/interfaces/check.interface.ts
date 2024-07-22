@@ -4,6 +4,8 @@ import { CheckOp } from './check-op.enum';
 import { PostOptions } from '../../common/interfaces';
 import { deserializeDecisionTreeNode } from '../serializers/check-options.serializer';
 
+const CHECK_RESULT_AUTHORIZED = 'authorized';
+
 export interface CheckWarrantOptions {
   resource: ResourceInterface | ResourceOptions;
   relation: string;
@@ -93,7 +95,7 @@ export class CheckResult implements CheckResultInterface {
   }
 
   isAuthorized(): boolean {
-    return this.result === 'authorized';
+    return this.result === CHECK_RESULT_AUTHORIZED;
   }
 }
 
