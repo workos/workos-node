@@ -18,8 +18,7 @@ describe('FGA', () => {
   describe('check', () => {
     it('makes check request', async () => {
       fetchOnce({
-        code: 200,
-        result: 'Authorized',
+        result: 'authorized',
         is_implicit: false,
       });
       const checkResult = await workos.fga.check({
@@ -39,8 +38,7 @@ describe('FGA', () => {
       });
       expect(fetchURL()).toContain('/fga/v1/check');
       expect(checkResult).toMatchObject({
-        code: 200,
-        result: 'Authorized',
+        result: 'authorized',
         isImplicit: false,
       });
     });
