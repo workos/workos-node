@@ -1,5 +1,7 @@
 export interface AuthorizationURLOptions {
   clientId: string;
+  codeChallenge?: string;
+  codeChallengeMethod?: 'S256';
   connectionId?: string;
   organizationId?: string;
   domainHint?: string;
@@ -7,4 +9,5 @@ export interface AuthorizationURLOptions {
   provider?: string;
   redirectUri: string;
   state?: string;
+  screenHint?: 'sign-up' | 'sign-in';
 }

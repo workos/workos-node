@@ -1,4 +1,6 @@
-export class GenericServerException extends Error {
+import { RequestException } from '../interfaces/request-exception.interface';
+
+export class GenericServerException extends Error implements RequestException {
   readonly name: string = 'GenericServerException';
   readonly message: string = 'The request could not be completed.';
 

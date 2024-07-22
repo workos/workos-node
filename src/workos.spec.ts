@@ -7,7 +7,12 @@ import {
   NotFoundException,
   OauthException,
 } from './common/exceptions';
-import { WorkOS } from './workos';
+import { WorkOS } from './index';
+import { WorkOS as WorkOSWorker } from './index.worker';
+import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
+import { FetchHttpClient } from './common/net/fetch-client';
+import { NodeHttpClient } from './common/net/node-client';
+import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -87,6 +92,75 @@ describe('WorkOS', () => {
         expect(fetchHeaders()).toMatchObject({
           'X-My-Custom-Header': 'Hey there!',
         });
+      });
+    });
+
+    describe('when the `appInfo` option is provided', () => {
+      it('applies the configuration to the fetch client user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test', {
+          appInfo: {
+            name: 'fooApp',
+            version: '1.0.0',
+          },
+        });
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch fooApp: 1.0.0`,
+        });
+      });
+    });
+
+    describe('when no `appInfo` option is provided', () => {
+      it('adds the HTTP client name to the user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test');
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+        });
+      });
+    });
+
+    describe('when no `appInfo` option is provided', () => {
+      it('adds the HTTP client name to the user-agent', async () => {
+        fetchOnce('{}');
+
+        const packageJson = JSON.parse(
+          await fs.readFile('package.json', 'utf8'),
+        );
+
+        const workos = new WorkOS('sk_test');
+
+        await workos.post('/somewhere', {});
+
+        expect(fetchHeaders()).toMatchObject({
+          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+        });
+      });
+    });
+
+    describe('when using an environment that supports fetch', () => {
+      it('automatically uses the fetch HTTP client', () => {
+        const workos = new WorkOS('sk_test');
+
+        // Bracket notation gets past private visibility
+        // tslint:disable-next-line
+        expect(workos['client']).toBeInstanceOf(FetchHttpClient);
       });
     });
   });
@@ -175,6 +249,7 @@ describe('WorkOS', () => {
         );
       });
     });
+
     describe('when the api responds with a 400 and an error/error_description', () => {
       it('throws an OauthException', async () => {
         fetchOnce(
@@ -199,15 +274,82 @@ describe('WorkOS', () => {
       });
     });
 
+    describe('when the api responses with a 429', () => {
+      it('throws a RateLimitExceededException', async () => {
+        fetchOnce(
+          {
+            message: 'Too many requests',
+          },
+          {
+            status: 429,
+            headers: { 'X-Request-ID': 'a-request-id', 'Retry-After': '10' },
+          },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.get('/path')).rejects.toStrictEqual(
+          new RateLimitExceededException(
+            'Too many requests',
+            'a-request-id',
+            10,
+          ),
+        );
+      });
+    });
+
     describe('when the entity is null', () => {
-      it('sends a null body', async () => {
+      it('sends an empty string body', async () => {
         fetchOnce();
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
         await workos.post('/somewhere', null);
 
-        expect(fetchBody({ raw: true })).toBeNull();
+        expect(fetchBody({ raw: true })).toBe('');
       });
+    });
+  });
+
+  describe('when in an environment that does not support fetch', () => {
+    const fetchFn = globalThis.fetch;
+
+    beforeEach(() => {
+      // @ts-ignore
+      delete globalThis.fetch;
+    });
+
+    afterEach(() => {
+      globalThis.fetch = fetchFn;
+    });
+
+    it('automatically uses the node HTTP client', () => {
+      const workos = new WorkOS('sk_test_key');
+
+      // tslint:disable-next-line
+      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
+    });
+
+    it('uses a fetch function if provided', () => {
+      const workos = new WorkOS('sk_test_key', {
+        fetchFn,
+      });
+
+      // tslint:disable-next-line
+      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
+    });
+  });
+
+  describe('when in a worker environment', () => {
+    it('uses the worker client', () => {
+      const workos = new WorkOSWorker('sk_test_key');
+
+      // tslint:disable-next-line
+      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
+
+      // tslint:disable-next-line
+      expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
+        SubtleCryptoProvider,
+      );
     });
   });
 });

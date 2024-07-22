@@ -1,5 +1,5 @@
 export class SignatureVerificationException extends Error {
-  readonly name: string = 'SignatureVerificationException';
+  readonly name = 'SignatureVerificationException';
 
   constructor(message: string) {
     super(message || 'Signature verification failed.');

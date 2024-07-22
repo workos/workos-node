@@ -126,6 +126,62 @@ describe('DirectorySync', () => {
     updated_at: '2021-12-13 12:15:45.531847',
   };
 
+  const userWithRole: DirectoryUserWithGroups = {
+    object: 'directory_user',
+    id: 'directory_user_456',
+    customAttributes: {
+      custom: true,
+    },
+    directoryId: 'dir_123',
+    organizationId: 'org_123',
+    emails: [
+      {
+        primary: true,
+        type: 'type',
+        value: 'jonsnow@workos.com',
+      },
+    ],
+    firstName: 'Jon',
+    groups: [group],
+    idpId: 'idp_foo',
+    lastName: 'Snow',
+    jobTitle: 'Knight of the Watch',
+    rawAttributes: {},
+    state: 'active',
+    username: 'jonsnow',
+    role: { slug: 'super_admin' },
+    createdAt: '2021-10-27 15:21:50.640959',
+    updatedAt: '2021-12-13 12:15:45.531847',
+  };
+
+  const userWithRoleResponse: DirectoryUserWithGroupsResponse = {
+    object: 'directory_user',
+    id: 'directory_user_456',
+    custom_attributes: {
+      custom: true,
+    },
+    directory_id: 'dir_123',
+    organization_id: 'org_123',
+    emails: [
+      {
+        primary: true,
+        type: 'type',
+        value: 'jonsnow@workos.com',
+      },
+    ],
+    first_name: 'Jon',
+    groups: [groupResponse],
+    idp_id: 'idp_foo',
+    last_name: 'Snow',
+    job_title: 'Knight of the Watch',
+    raw_attributes: {},
+    state: 'active',
+    username: 'jonsnow',
+    role: { slug: 'super_admin' },
+    created_at: '2021-10-27 15:21:50.640959',
+    updated_at: '2021-12-13 12:15:45.531847',
+  };
+
   describe('listDirectories', () => {
     describe('with options', () => {
       it('requests Directories with query parameters', async () => {
@@ -138,12 +194,10 @@ describe('DirectorySync', () => {
         fetchOnce(directoryListResponse);
 
         const subject = await workos.directorySync.listDirectories({
-          domain: 'google.com',
           organizationId: 'org_1234',
         });
 
         expect(fetchSearchParams()).toMatchObject({
-          domain: 'google.com',
           organization_id: 'org_1234',
         });
         expect(subject).toMatchObject({
@@ -154,9 +208,6 @@ describe('DirectorySync', () => {
             listMetadata: {},
           },
           apiCall: expect.any(Function),
-          options: {
-            domain: 'google.com',
-          },
         });
       });
     });
@@ -408,6 +459,18 @@ describe('DirectorySync', () => {
       const subject = await workos.directorySync.getUser('dir_usr_123');
 
       expect(subject).toEqual(userWithGroup);
+    });
+
+    describe('with a Role', () => {
+      it(`requests a Directory User`, async () => {
+        fetchOnce(userWithRoleResponse);
+
+        const subject = await workos.directorySync.getUser(
+          'directory_user_456',
+        );
+
+        expect(subject).toEqual(userWithRole);
+      });
     });
   });
 });

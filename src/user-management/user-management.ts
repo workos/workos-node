@@ -30,8 +30,16 @@ import {
   VerifyEmailOptions,
   AuthenticateWithRefreshTokenOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
-  RefreshAuthenticationResponseResponse,
-  RefreshAuthenticationResponse,
+  MagicAuth,
+  MagicAuthResponse,
+  CreateMagicAuthOptions,
+  SerializedCreateMagicAuthOptions,
+  EmailVerification,
+  EmailVerificationResponse,
+  PasswordReset,
+  PasswordResetResponse,
+  CreatePasswordResetOptions,
+  SerializedCreatePasswordResetOptions,
 } from './interfaces';
 import {
   deserializeAuthenticationResponse,
@@ -47,8 +55,12 @@ import {
   serializeCreateUserOptions,
   serializeSendMagicAuthCodeOptions,
   serializeUpdateUserOptions,
-  deserializeRefreshAuthenticationResponse,
   serializeAuthenticateWithRefreshTokenOptions,
+  serializeCreateMagicAuthOptions,
+  deserializeMagicAuth,
+  deserializeEmailVerification,
+  deserializePasswordReset,
+  serializeCreatePasswordResetOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -106,6 +118,8 @@ import {
   UpdateOrganizationMembershipOptions,
 } from './interfaces/update-organization-membership-options.interface';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { Identity, IdentityResponse } from './interfaces/identity.interface';
+import { deserializeIdentities } from './serializers/identity.serializer';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -214,9 +228,9 @@ export class UserManagement {
 
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
-  ): Promise<RefreshAuthenticationResponse> {
+  ): Promise<AuthenticationResponse> {
     const { data } = await this.workos.post<
-      RefreshAuthenticationResponseResponse,
+      AuthenticationResponseResponse,
       SerializedAuthenticateWithRefreshTokenOptions
     >(
       '/user_management/authenticate',
@@ -226,7 +240,7 @@ export class UserManagement {
       }),
     );
 
-    return deserializeRefreshAuthenticationResponse(data);
+    return deserializeAuthenticationResponse(data);
   }
 
   async authenticateWithTotp(
@@ -280,6 +294,16 @@ export class UserManagement {
     return deserializeAuthenticationResponse(data);
   }
 
+  async getEmailVerification(
+    emailVerificationId: string,
+  ): Promise<EmailVerification> {
+    const { data } = await this.workos.get<EmailVerificationResponse>(
+      `/user_management/email_verification/${emailVerificationId}`,
+    );
+
+    return deserializeEmailVerification(data);
+  }
+
   async sendVerificationEmail({
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
@@ -291,6 +315,31 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
+    const { data } = await this.workos.get<MagicAuthResponse>(
+      `/user_management/magic_auth/${magicAuthId}`,
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  async createMagicAuth(options: CreateMagicAuthOptions): Promise<MagicAuth> {
+    const { data } = await this.workos.post<
+      MagicAuthResponse,
+      SerializedCreateMagicAuthOptions
+    >(
+      '/user_management/magic_auth',
+      serializeCreateMagicAuthOptions({
+        ...options,
+      }),
+    );
+
+    return deserializeMagicAuth(data);
+  }
+
+  /**
+   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
+   */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
       '/user_management/magic_auth/send',
@@ -312,6 +361,33 @@ export class UserManagement {
     return { user: deserializeUser(data.user) };
   }
 
+  async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
+    const { data } = await this.workos.get<PasswordResetResponse>(
+      `/user_management/password_reset/${passwordResetId}`,
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  async createPasswordReset(
+    options: CreatePasswordResetOptions,
+  ): Promise<PasswordReset> {
+    const { data } = await this.workos.post<
+      PasswordResetResponse,
+      SerializedCreatePasswordResetOptions
+    >(
+      '/user_management/password_reset',
+      serializeCreatePasswordResetOptions({
+        ...options,
+      }),
+    );
+
+    return deserializePasswordReset(data);
+  }
+
+  /**
+   * @deprecated Please use `createPasswordReset` instead. This method will be removed in a future major version.
+   */
   async sendPasswordResetEmail(
     payload: SendPasswordResetEmailOptions,
   ): Promise<void> {
@@ -367,26 +443,39 @@ export class UserManagement {
   async listAuthFactors(
     options: ListAuthFactorsOptions,
   ): Promise<AutoPaginatable<Factor>> {
+    const { userId, ...restOfOptions } = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
         this.workos,
-        `/user_management/users/${options.userId}/auth_factors`,
+        `/user_management/users/${userId}/auth_factors`,
         deserializeFactor,
-        options,
+        restOfOptions,
       ),
       (params) =>
         fetchAndDeserialize<FactorResponse, Factor>(
           this.workos,
-          `/user_management/users/${options.userId}/auth_factors`,
+          `/user_management/users/${userId}/auth_factors`,
           deserializeFactor,
           params,
         ),
-      options,
+      restOfOptions,
     );
   }
 
   async deleteUser(userId: string) {
     await this.workos.delete(`/user_management/users/${userId}`);
+  }
+
+  async getUserIdentities(userId: string): Promise<Identity[]> {
+    if (!userId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'userId'.`);
+    }
+
+    const { data } = await this.workos.get<IdentityResponse[]>(
+      `/user_management/users/${userId}/identities`,
+    );
+
+    return deserializeIdentities(data);
   }
 
   async getOrganizationMembership(
@@ -467,9 +556,39 @@ export class UserManagement {
     );
   }
 
+  async deactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
+  async reactivateOrganizationMembership(
+    organizationMembershipId: string,
+  ): Promise<OrganizationMembership> {
+    const { data } = await this.workos.put<OrganizationMembershipResponse>(
+      `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      {},
+    );
+
+    return deserializeOrganizationMembership(data);
+  }
+
   async getInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
       `/user_management/invitations/${invitationId}`,
+    );
+
+    return deserializeInvitation(data);
+  }
+
+  async findInvitationByToken(invitationToken: string): Promise<Invitation> {
+    const { data } = await this.workos.get<InvitationResponse>(
+      `/user_management/invitations/by_token/${invitationToken}`,
     );
 
     return deserializeInvitation(data);
@@ -528,6 +647,8 @@ export class UserManagement {
 
   getAuthorizationUrl({
     connectionId,
+    codeChallenge,
+    codeChallengeMethod,
     clientId,
     domainHint,
     loginHint,
@@ -535,6 +656,7 @@ export class UserManagement {
     provider,
     redirectUri,
     state,
+    screenHint,
   }: AuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
@@ -542,8 +664,16 @@ export class UserManagement {
       );
     }
 
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
+      );
+    }
+
     const query = toQueryString({
       connection_id: connectionId,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
       organization_id: organizationId,
       domain_hint: domainHint,
       login_hint: loginHint,
@@ -552,6 +682,7 @@ export class UserManagement {
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
+      screen_hint: screenHint,
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
