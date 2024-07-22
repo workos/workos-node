@@ -139,9 +139,54 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithMagicAuth({
+              clientId: 'proj_whatever',
+              code: '123456',
+              email: userFixture.email,
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithMagicAuth({
+              clientId: 'proj_whatever',
+              code: '123456',
+              email: userFixture.email,
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
   });
 
-  describe('authenticateUserWithPassword', () => {
+  describe('authenticateWithPassword', () => {
     it('sends an password authentication request', async () => {
       fetchOnce({ user: userFixture });
       const resp = await workos.userManagement.authenticateWithPassword({
@@ -157,9 +202,55 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithPassword({
+              clientId: 'proj_whatever',
+              email: 'test01@example.com',
+              password: 'extra-secure',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response = await workos.userManagement.authenticateWithPassword(
+            {
+              clientId: 'proj_whatever',
+              email: 'test01@example.com',
+              password: 'extra-secure',
+              session: { sealSession: true, cookiePassword },
+            },
+          );
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
   });
 
-  describe('authenticateUserWithCode', () => {
+  describe('authenticateWithCode', () => {
     it('sends a token authentication request', async () => {
       fetchOnce({ user: userFixture });
       const resp = await workos.userManagement.authenticateWithCode({
@@ -250,6 +341,48 @@ describe('UserManagement', () => {
         });
       });
     });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithCode({
+              clientId: 'proj_whatever',
+              code: 'or this',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response = await workos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'or this',
+            session: { sealSession: true, cookiePassword },
+          });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
   });
 
   describe('authenticateWithRefreshToken', () => {
@@ -277,9 +410,52 @@ describe('UserManagement', () => {
         refreshToken: 'refreshToken2',
       });
     });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithRefreshToken({
+              clientId: 'proj_whatever',
+              refreshToken: 'refresh_token1',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithRefreshToken({
+              clientId: 'proj_whatever',
+              refreshToken: 'refresh_token1',
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
   });
 
-  describe('authenticateUserWithTotp', () => {
+  describe('authenticateWithTotp', () => {
     it('sends a token authentication request', async () => {
       fetchOnce({ user: userFixture });
       const resp = await workos.userManagement.authenticateWithTotp({
@@ -306,9 +482,57 @@ describe('UserManagement', () => {
         },
       });
     });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithTotp({
+              clientId: 'proj_whatever',
+              code: 'or this',
+              authenticationChallengeId:
+                'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response = await workos.userManagement.authenticateWithTotp({
+            clientId: 'proj_whatever',
+            code: 'or this',
+            authenticationChallengeId:
+              'auth_challenge_01H96FETXGTW1QMBSBT2T36PW0',
+            pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+            session: { sealSession: true, cookiePassword },
+          });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
   });
 
-  describe('authenticateUserWithEmailVerification', () => {
+  describe('authenticateWithEmailVerification', () => {
     it('sends an email verification authentication request', async () => {
       fetchOnce({ user: userFixture });
       const resp =
@@ -331,6 +555,51 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithEmailVerification({
+              clientId: 'proj_whatever',
+              code: 'or this',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithEmailVerification({
+              clientId: 'proj_whatever',
+              code: 'or this',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
       });
     });
   });
@@ -358,6 +627,51 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({ user: userFixture });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithOrganizationSelection({
+              clientId: 'proj_whatever',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithOrganizationSelection({
+              clientId: 'proj_whatever',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: undefined,
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
       });
     });
   });
@@ -508,39 +822,6 @@ describe('UserManagement', () => {
         organizationId: 'org_123',
         role: 'member',
         permissions: ['posts:create', 'posts:delete'],
-      });
-    });
-  });
-
-  describe('authenticateWithCodeAndSealSessionData', () => {
-    it('returns authenticated = false when the code is empty', async () => {
-      await expect(
-        workos.userManagement.authenticateWithCodeAndSealSessionData({
-          code: '',
-        }),
-      ).resolves.toEqual({ authenticated: false, reason: 'no_code_provided' });
-    });
-
-    it('throws an error when the cookie password is undefined', async () => {
-      await expect(
-        workos.userManagement.authenticateWithCodeAndSealSessionData({
-          code: 'abc123',
-        }),
-      ).rejects.toThrow('Cookie password is required');
-    });
-
-    it('returns the sealed refreshed session cookie when provided a valid code', async () => {
-      fetchOnce({ user: userFixture });
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-
-      await expect(
-        workos.userManagement.authenticateWithCodeAndSealSessionData({
-          code: 'abc123',
-          cookiePassword,
-        }),
-      ).resolves.toEqual({
-        sealedSessionData: expect.any(String),
-        authenticated: true,
       });
     });
   });
