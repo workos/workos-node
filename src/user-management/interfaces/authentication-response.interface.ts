@@ -17,6 +17,7 @@ export interface AuthenticationResponse {
   refreshToken: string;
   impersonator?: Impersonator;
   authenticationMethod?: AuthenticationMethod;
+  sealedSession?: string;
 }
 
 export interface AuthenticationResponseResponse {

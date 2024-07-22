@@ -1,4 +1,4 @@
-import { User } from './user.interface';
+import { AuthenticationResponse } from './authentication-response.interface';
 
 export interface AccessToken {
   sid: string;
@@ -7,12 +7,10 @@ export interface AccessToken {
   permissions?: string[];
 }
 
-export type SessionCookieData = {
-  user: User;
-  accessToken: string;
-  refreshToken: string;
-  impersonator: string;
-};
+export type SessionCookieData = Pick<
+  AuthenticationResponse,
+  'accessToken' | 'impersonator' | 'organizationId' | 'refreshToken' | 'user'
+>;
 
 export type AuthenticateWithSessionCookieFailureReason =
   | 'invalid_jwt'

@@ -1,6 +1,10 @@
 type RefreshAndSealSessionDataFailureReason =
   | 'invalid_session_cookie'
-  | 'no_session_cookie_provided';
+  | 'no_session_cookie_provided'
+  // TODO: Improve OauthException typing and pull in reasons from there
+  // instead of leaving this type wide open
+  | string
+  | undefined;
 
 type RefreshAndSealSessionDataFailedResponse = {
   authenticated: false;
@@ -9,7 +13,7 @@ type RefreshAndSealSessionDataFailedResponse = {
 
 type RefreshAndSealSessionDataSuccessResponse = {
   authenticated: true;
-  sealedSessionData: string;
+  sealedSession: string;
 };
 
 export type RefreshAndSealSessionDataResponse =

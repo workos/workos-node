@@ -10,6 +10,7 @@ import {
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
   AuthenticateWithRefreshTokenOptions,
+  AuthenticateWithSessionOptions,
   AuthenticateWithTotpOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
@@ -93,7 +94,7 @@ import {
   SendInvitationOptions,
   SerializedSendInvitationOptions,
 } from './interfaces/send-invitation-options.interface';
-import { SessionCookieOptions } from './interfaces/session-cookie-options.interface';
+import { SessionHandlerOptions } from './interfaces/session-handler-options.interface';
 import {
   SerializedUpdateOrganizationMembershipOptions,
   UpdateOrganizationMembershipOptions,
@@ -131,6 +132,7 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { OauthException } from '../common/exceptions/oauth.exception';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -232,92 +234,117 @@ export class UserManagement {
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithCodeOptions
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithCodeOptions({
-        ...payload,
+        ...remainingPayload,
         clientSecret: this.workos.key,
       }),
     );
 
-    return deserializeAuthenticationResponse(data);
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
   }
 
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithRefreshTokenOptions
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithRefreshTokenOptions({
-        ...payload,
+        ...remainingPayload,
         clientSecret: this.workos.key,
       }),
     );
 
-    return deserializeAuthenticationResponse(data);
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
   }
 
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithTotpOptions
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithTotpOptions({
-        ...payload,
+        ...remainingPayload,
         clientSecret: this.workos.key,
       }),
     );
 
-    return deserializeAuthenticationResponse(data);
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
   }
 
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithEmailVerificationOptions
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithEmailVerificationOptions({
-        ...payload,
+        ...remainingPayload,
         clientSecret: this.workos.key,
       }),
     );
 
-    return deserializeAuthenticationResponse(data);
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
   }
 
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithOrganizationSelectionOptions
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithOrganizationSelectionOptions({
-        ...payload,
+        ...remainingPayload,
         clientSecret: this.workos.key,
       }),
     );
 
-    return deserializeAuthenticationResponse(data);
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
   }
 
   async authenticateWithSessionCookie({
-    sessionCookie,
+    sessionData,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionCookieOptions): Promise<
+  }: SessionHandlerOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
   > {
@@ -329,11 +356,11 @@ export class UserManagement {
       throw new Error('Must provide clientId to initialize JWKS');
     }
 
-    if (!sessionCookie) {
+    if (!sessionData) {
       return { authenticated: false, reason: 'no_session_cookie_provided' };
     }
 
-    const session = await unsealData<SessionCookieData>(sessionCookie, {
+    const session = await unsealData<SessionCookieData>(sessionData, {
       password: cookiePassword,
     });
 
@@ -375,18 +402,18 @@ export class UserManagement {
   }
 
   async refreshAndSealSessionData({
-    sessionCookie,
+    sessionData,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionCookieOptions): Promise<RefreshAndSealSessionDataResponse> {
+  }: SessionHandlerOptions): Promise<RefreshAndSealSessionDataResponse> {
     if (!cookiePassword) {
       throw new Error('Cookie password is required');
     }
 
-    if (!sessionCookie) {
+    if (!sessionData) {
       return { authenticated: false, reason: 'no_session_cookie_provided' };
     }
 
-    const session = await unsealData<SessionCookieData>(sessionCookie, {
+    const session = await unsealData<SessionCookieData>(sessionData, {
       password: cookiePassword,
     });
 
@@ -394,32 +421,32 @@ export class UserManagement {
       return { authenticated: false, reason: 'invalid_session_cookie' };
     }
 
-    const { accessToken, refreshToken } =
-      await this.authenticateWithRefreshToken({
+    try {
+      const { sealedSession } = await this.authenticateWithRefreshToken({
         clientId: this.workos.clientId as string,
         refreshToken: session.refreshToken,
+        session: { sealSession: true, cookiePassword },
       });
 
-    // Refresh tokens are single use, so update the session with the
-    // new access and refresh tokens
-    const encryptedSession = await sealData(
-      {
-        accessToken,
-        refreshToken,
-        user: session.user,
-        impersonator: session.impersonator,
-      },
-      { password: cookiePassword },
-    );
+      if (!sealedSession) {
+        return { authenticated: false, reason: 'invalid_session_cookie' };
+      }
 
-    return { authenticated: true, sealedSessionData: encryptedSession };
+      return { authenticated: true, sealedSession };
+    } catch (error) {
+      if (error instanceof OauthException) {
+        return { authenticated: false, reason: error.error };
+      }
+
+      throw error;
+    }
   }
 
   async authenticateWithCodeAndSealSessionData({
     code,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
   }: { code: string } & Pick<
-    SessionCookieOptions,
+    SessionHandlerOptions,
     'cookiePassword'
   >): Promise<AuthenticateWithCodeAndSealSessionDataResponse> {
     if (!code) {
@@ -449,16 +476,57 @@ export class UserManagement {
     return { authenticated: true, sealedSessionData: encryptedSession };
   }
 
-  async getSessionFromCookie({
-    sessionCookie,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionCookieOptions): Promise<SessionCookieData | undefined> {
+  private async prepareAuthenticationResponse({
+    authenticationResponse,
+    session,
+  }: {
+    authenticationResponse: AuthenticationResponse;
+    session?: AuthenticateWithSessionOptions;
+  }): Promise<AuthenticationResponse> {
+    if (session) {
+      return {
+        ...authenticationResponse,
+        sealedSession: await this.sealSessionDataFromAuthenticationResponse({
+          authenticationResponse,
+          cookiePassword: session.cookiePassword,
+        }),
+      };
+    }
+
+    return authenticationResponse;
+  }
+
+  private async sealSessionDataFromAuthenticationResponse({
+    authenticationResponse,
+    cookiePassword,
+  }: {
+    authenticationResponse: AuthenticationResponse;
+    cookiePassword?: string;
+  }): Promise<string> {
     if (!cookiePassword) {
       throw new Error('Cookie password is required');
     }
 
-    if (sessionCookie) {
-      return unsealData<SessionCookieData>(sessionCookie, {
+    const sessionData: SessionCookieData = {
+      user: authenticationResponse.user,
+      accessToken: authenticationResponse.accessToken,
+      refreshToken: authenticationResponse.refreshToken,
+      impersonator: authenticationResponse.impersonator,
+    };
+
+    return sealData(sessionData, { password: cookiePassword });
+  }
+
+  async getSessionFromCookie({
+    sessionData,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: SessionHandlerOptions): Promise<SessionCookieData | undefined> {
+    if (!cookiePassword) {
+      throw new Error('Cookie password is required');
+    }
+
+    if (sessionData) {
+      return unsealData<SessionCookieData>(sessionData, {
         password: cookiePassword,
       });
     }

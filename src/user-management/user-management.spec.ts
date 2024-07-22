@@ -395,7 +395,7 @@ describe('UserManagement', () => {
     it('throws an error when the cookie password is undefined', async () => {
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie: 'session_cookie',
+          sessionData: 'session_cookie',
         }),
       ).rejects.toThrow('Cookie password is required');
     });
@@ -403,7 +403,7 @@ describe('UserManagement', () => {
     it('returns authenticated = false when the session cookie is empty', async () => {
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie: '',
+          sessionData: '',
           cookiePassword: 'secret',
         }),
       ).resolves.toEqual({
@@ -415,7 +415,7 @@ describe('UserManagement', () => {
     it('returns authenticated = false when session cookie is invalid', async () => {
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie: 'thisisacookie',
+          sessionData: 'thisisacookie',
           cookiePassword: 'secret',
         }),
       ).resolves.toEqual({
@@ -426,7 +426,7 @@ describe('UserManagement', () => {
 
     it('returns authenticated = false when session cookie cannot be unsealed', async () => {
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionCookie = await sealData(
+      const sessionData = await sealData(
         {
           accessToken: 'abc123',
           refreshToken: 'def456',
@@ -441,7 +441,7 @@ describe('UserManagement', () => {
 
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie,
+          sessionData,
           cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
         }),
       ).resolves.toEqual({
@@ -456,7 +456,7 @@ describe('UserManagement', () => {
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionCookie = await sealData(
+      const sessionData = await sealData(
         {
           accessToken: 'abc123',
           refreshToken: 'def456',
@@ -471,7 +471,7 @@ describe('UserManagement', () => {
 
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie,
+          sessionData,
           cookiePassword,
         }),
       ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
@@ -483,7 +483,7 @@ describe('UserManagement', () => {
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionCookie = await sealData(
+      const sessionData = await sealData(
         {
           accessToken:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
@@ -499,7 +499,7 @@ describe('UserManagement', () => {
 
       await expect(
         workos.userManagement.authenticateWithSessionCookie({
-          sessionCookie,
+          sessionData,
           cookiePassword,
         }),
       ).resolves.toEqual({
@@ -549,7 +549,7 @@ describe('UserManagement', () => {
     it('throws an error when the cookie password is undefined', async () => {
       await expect(
         workos.userManagement.refreshAndSealSessionData({
-          sessionCookie: 'session_cookie',
+          sessionData: 'session_cookie',
         }),
       ).rejects.toThrow('Cookie password is required');
     });
@@ -557,7 +557,7 @@ describe('UserManagement', () => {
     it('returns authenticated = false when the session cookie is empty', async () => {
       await expect(
         workos.userManagement.refreshAndSealSessionData({
-          sessionCookie: '',
+          sessionData: '',
           cookiePassword: 'secret',
         }),
       ).resolves.toEqual({
@@ -569,7 +569,7 @@ describe('UserManagement', () => {
     it('returns authenticated = false when session cookie is invalid', async () => {
       await expect(
         workos.userManagement.refreshAndSealSessionData({
-          sessionCookie: 'thisisacookie',
+          sessionData: 'thisisacookie',
           cookiePassword: 'secret',
         }),
       ).resolves.toEqual({
@@ -580,7 +580,7 @@ describe('UserManagement', () => {
 
     it('returns authenticated = false when session cookie cannot be unsealed', async () => {
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionCookie = await sealData(
+      const sessionData = await sealData(
         {
           accessToken: 'abc123',
           refreshToken: 'def456',
@@ -595,7 +595,7 @@ describe('UserManagement', () => {
 
       await expect(
         workos.userManagement.refreshAndSealSessionData({
-          sessionCookie,
+          sessionData,
           cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
         }),
       ).resolves.toEqual({
@@ -612,7 +612,7 @@ describe('UserManagement', () => {
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionCookie = await sealData(
+      const sessionData = await sealData(
         {
           accessToken:
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
@@ -628,11 +628,11 @@ describe('UserManagement', () => {
 
       await expect(
         workos.userManagement.refreshAndSealSessionData({
-          sessionCookie,
+          sessionData,
           cookiePassword,
         }),
       ).resolves.toEqual({
-        sealedSessionData: expect.any(String),
+        sealedSession: expect.any(String),
         authenticated: true,
       });
     });
@@ -642,7 +642,7 @@ describe('UserManagement', () => {
     it('throws an error when the cookie password is undefined', async () => {
       await expect(
         workos.userManagement.getSessionFromCookie({
-          sessionCookie: 'session_cookie',
+          sessionData: 'session_cookie',
         }),
       ).rejects.toThrow('Cookie password is required');
     });
@@ -650,7 +650,7 @@ describe('UserManagement', () => {
     it('returns undefined when the session cookie cannot be unsealed', async () => {
       await expect(
         workos.userManagement.getSessionFromCookie({
-          sessionCookie: '',
+          sessionData: '',
           cookiePassword: 'secret',
         }),
       ).resolves.toBeUndefined();
@@ -668,13 +668,13 @@ describe('UserManagement', () => {
           email: 'test@example.com',
         },
       };
-      const sessionCookie = await sealData(sessionCookieData, {
+      const sessionData = await sealData(sessionCookieData, {
         password: cookiePassword,
       });
 
       await expect(
         workos.userManagement.getSessionFromCookie({
-          sessionCookie,
+          sessionData,
           cookiePassword,
         }),
       ).resolves.toEqual(sessionCookieData);
