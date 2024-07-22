@@ -37,7 +37,6 @@ export interface SerializedCheckOptions {
 }
 
 export interface CheckResultResponse {
-  code: number;
   result: string;
   is_implicit: boolean;
   debug_info?: DebugInfoResponse;
@@ -70,34 +69,31 @@ export interface DecisionTreeNodeResponse {
 }
 
 export interface CheckResultInterface {
-  code: number;
   result: string;
   isImplicit: boolean;
   debugInfo?: DebugInfo;
 }
 
 export class CheckResult implements CheckResultInterface {
-  public code: number;
   public result: string;
   public isImplicit: boolean;
   public debugInfo?: DebugInfo;
 
   constructor(json: CheckResultResponse) {
-    this.code = json.code;
     this.result = json.result;
     this.isImplicit = json.is_implicit;
     this.debugInfo = json.debug_info
       ? {
-          processingTime: json.debug_info.processing_time,
-          decisionTree: deserializeDecisionTreeNode(
-            json.debug_info.decision_tree,
-          ),
-        }
+        processingTime: json.debug_info.processing_time,
+        decisionTree: deserializeDecisionTreeNode(
+          json.debug_info.decision_tree,
+        ),
+      }
       : undefined;
   }
 
   isAuthorized(): boolean {
-    return this.result === 'Authorized';
+    return this.result === 'authorized';
   }
 }
 
