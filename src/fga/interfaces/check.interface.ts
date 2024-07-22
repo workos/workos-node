@@ -86,11 +86,11 @@ export class CheckResult implements CheckResultInterface {
     this.isImplicit = json.is_implicit;
     this.debugInfo = json.debug_info
       ? {
-        processingTime: json.debug_info.processing_time,
-        decisionTree: deserializeDecisionTreeNode(
-          json.debug_info.decision_tree,
-        ),
-      }
+          processingTime: json.debug_info.processing_time,
+          decisionTree: deserializeDecisionTreeNode(
+            json.debug_info.decision_tree,
+          ),
+        }
       : undefined;
   }
 
