@@ -12,6 +12,8 @@ import {
 } from '../../organizations/interfaces';
 import { Connection, ConnectionResponse } from '../../sso/interfaces';
 import {
+  AuthenticationEvent,
+  AuthenticationEventResponse,
   EmailVerificationEvent,
   EmailVerificationEventResponse,
   InvitationEvent,
@@ -42,6 +44,95 @@ export interface EventBase {
 interface EventResponseBase {
   id: string;
   created_at: string;
+}
+
+export interface AuthenticationEmailVerificationSucceededEvent
+  extends EventBase {
+  event: 'authentication.email_verification_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationEmailVerificationSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.email_verification_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMagicAuthFailedEvent extends EventBase {
+  event: 'authentication.magic_auth_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMagicAuthFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.magic_auth_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMagicAuthSucceededEvent extends EventBase {
+  event: 'authentication.magic_auth_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMagicAuthSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.magic_auth_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMfaSucceededEvent extends EventBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMfaSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.mfa_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationOAuthSucceededEvent extends EventBase {
+  event: 'authentication.oauth_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationOAuthSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.oauth_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationPasswordFailedEvent extends EventBase {
+  event: 'authentication.password_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationPasswordFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.password_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationPasswordSucceededEvent extends EventBase {
+  event: 'authentication.password_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationPasswordSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.password_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationSSOSucceededEvent extends EventBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOSucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.sso_succeeded';
+  data: AuthenticationEventResponse;
 }
 
 export interface ConnectionActivatedEvent extends EventBase {
@@ -398,6 +489,14 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
 }
 
 export type Event =
+  | AuthenticationEmailVerificationSucceededEvent
+  | AuthenticationMfaSucceededEvent
+  | AuthenticationOAuthSucceededEvent
+  | AuthenticationSSOSucceededEvent
+  | AuthenticationPasswordFailedEvent
+  | AuthenticationPasswordSucceededEvent
+  | AuthenticationMagicAuthFailedEvent
+  | AuthenticationMagicAuthSucceededEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -432,6 +531,14 @@ export type Event =
   | OrganizationDeletedEvent;
 
 export type EventResponse =
+  | AuthenticationEmailVerificationSucceededEventResponse
+  | AuthenticationMagicAuthFailedEventResponse
+  | AuthenticationMagicAuthSucceededEventResponse
+  | AuthenticationMfaSucceededEventResponse
+  | AuthenticationOAuthSucceededEventResponse
+  | AuthenticationPasswordFailedEventResponse
+  | AuthenticationPasswordSucceededEventResponse
+  | AuthenticationSSOSucceededEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse

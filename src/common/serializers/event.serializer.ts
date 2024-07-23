@@ -9,6 +9,7 @@ import {
 import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import {
+  deserializeAuthenticationEvent,
   deserializeEmailVerificationEvent,
   deserializeInvitationEvent,
   deserializeMagicAuthEvent,
@@ -27,6 +28,19 @@ export const deserializeEvent = (event: EventResponse): Event => {
   };
 
   switch (event.event) {
+    case 'authentication.email_verification_succeeded':
+    case 'authentication.magic_auth_failed':
+    case 'authentication.magic_auth_succeeded':
+    case 'authentication.mfa_succeeded':
+    case 'authentication.oauth_succeeded':
+    case 'authentication.password_failed':
+    case 'authentication.password_succeeded':
+    case 'authentication.sso_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
     case 'connection.activated':
     case 'connection.deactivated':
     case 'connection.deleted':
