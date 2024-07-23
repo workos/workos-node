@@ -443,8 +443,16 @@ export class UserManagement {
 
       return { authenticated: true, sealedSession };
     } catch (error) {
-      if (error instanceof OauthException) {
-        return { authenticated: false, reason: error.error };
+      if (
+        error instanceof OauthException &&
+        // TODO: Add additional known errors and remove re-throw
+        (error.error === 'invalid_grant' ||
+          error.error === 'organization_not_authorized')
+      ) {
+        return {
+          authenticated: false,
+          reason: error.error,
+        };
       }
 
       throw error;

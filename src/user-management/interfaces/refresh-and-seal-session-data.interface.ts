@@ -1,10 +1,9 @@
 type RefreshAndSealSessionDataFailureReason =
   | 'invalid_session_cookie'
   | 'no_session_cookie_provided'
-  // TODO: Improve OauthException typing and pull in reasons from there
-  // instead of leaving this type wide open
-  | string
-  | undefined;
+  // API OauthErrors for refresh tokens
+  | 'invalid_grant'
+  | 'organization_not_authorized';
 
 type RefreshAndSealSessionDataFailedResponse = {
   authenticated: false;
