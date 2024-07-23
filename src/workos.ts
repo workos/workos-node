@@ -36,9 +36,9 @@ const VERSION = '7.16.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
-const AUTHORIZATION_HEADER = 'Authorization';
-const IDEMPOTENCY_KEY_HEADER = 'Idempotency-Key';
-const WARRANT_TOKEN_HEADER = 'Warrant-Token';
+const HEADER_AUTHORIZATION = 'Authorization';
+const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
+const HEADER_WARRANT_TOKEN = 'Warrant-Token';
 
 export class WorkOS {
   readonly baseURL: string;
@@ -126,11 +126,11 @@ export class WorkOS {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
-      requestHeaders[IDEMPOTENCY_KEY_HEADER] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
     if (options.warrantToken) {
-      requestHeaders[WARRANT_TOKEN_HEADER] = options.warrantToken;
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
     try {
@@ -154,11 +154,11 @@ export class WorkOS {
     const requestHeaders: any = {};
 
     if (options.accessToken) {
-      requestHeaders[AUTHORIZATION_HEADER] = `Bearer ${options.accessToken}`;
+      requestHeaders[HEADER_AUTHORIZATION] = `Bearer ${options.accessToken}`;
     }
 
     if (options.warrantToken) {
-      requestHeaders[WARRANT_TOKEN_HEADER] = options.warrantToken;
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
     try {
@@ -182,7 +182,7 @@ export class WorkOS {
     const requestHeaders: any = {};
 
     if (options.idempotencyKey) {
-      requestHeaders[IDEMPOTENCY_KEY_HEADER] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
     try {
