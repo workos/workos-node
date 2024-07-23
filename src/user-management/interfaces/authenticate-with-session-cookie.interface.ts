@@ -12,10 +12,11 @@ export type SessionCookieData = Pick<
   'accessToken' | 'impersonator' | 'organizationId' | 'refreshToken' | 'user'
 >;
 
-export type AuthenticateWithSessionCookieFailureReason =
-  | 'invalid_jwt'
-  | 'invalid_session_cookie'
-  | 'no_session_cookie_provided';
+export enum AuthenticateWithSessionCookieFailureReason {
+  INVALID_JWT = 'invalid_jwt',
+  INVALID_SESSION_COOKIE = 'invalid_session_cookie',
+  NO_SESSION_COOKIE_PROVIDED = 'no_session_cookie_provided',
+}
 
 export type AuthenticateWithSessionCookieFailedResponse = {
   authenticated: false;

@@ -1,9 +1,10 @@
-type RefreshAndSealSessionDataFailureReason =
-  | 'invalid_session_cookie'
-  | 'no_session_cookie_provided'
+export enum RefreshAndSealSessionDataFailureReason {
+  INVALID_SESSION_COOKE = 'invalid_session_cookie',
+  NO_SESSION_COOKIE_PROVIDED = 'no_session_cookie_provided',
   // API OauthErrors for refresh tokens
-  | 'invalid_grant'
-  | 'organization_not_authorized';
+  INVALID_GRANT = 'invalid_grant',
+  ORGANIZATION_NOT_AUTHORIZED = 'organization_not_authorized',
+}
 
 type RefreshAndSealSessionDataFailedResponse = {
   authenticated: false;

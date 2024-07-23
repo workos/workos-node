@@ -59,6 +59,7 @@ import {
 import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
+  AuthenticateWithSessionCookieFailureReason,
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
@@ -84,7 +85,10 @@ import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from './interfaces/organization-membership.interface';
-import { RefreshAndSealSessionDataResponse } from './interfaces/refresh-and-seal-session-data.interface';
+import {
+  RefreshAndSealSessionDataFailureReason,
+  RefreshAndSealSessionDataResponse,
+} from './interfaces/refresh-and-seal-session-data.interface';
 import {
   RevokeSessionOptions,
   SerializedRevokeSessionOptions,
@@ -366,7 +370,11 @@ export class UserManagement {
     }
 
     if (!sessionData) {
-      return { authenticated: false, reason: 'no_session_cookie_provided' };
+      return {
+        authenticated: false,
+        reason:
+          AuthenticateWithSessionCookieFailureReason.NO_SESSION_COOKIE_PROVIDED,
+      };
     }
 
     const session = await unsealData<SessionCookieData>(sessionData, {
@@ -374,11 +382,18 @@ export class UserManagement {
     });
 
     if (!session.accessToken) {
-      return { authenticated: false, reason: 'invalid_session_cookie' };
+      return {
+        authenticated: false,
+        reason:
+          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
+      };
     }
 
     if (!(await this.isValidJwt(session.accessToken))) {
-      return { authenticated: false, reason: 'invalid_jwt' };
+      return {
+        authenticated: false,
+        reason: AuthenticateWithSessionCookieFailureReason.INVALID_JWT,
+      };
     }
 
     const {
@@ -419,7 +434,11 @@ export class UserManagement {
     }
 
     if (!sessionData) {
-      return { authenticated: false, reason: 'no_session_cookie_provided' };
+      return {
+        authenticated: false,
+        reason:
+          RefreshAndSealSessionDataFailureReason.NO_SESSION_COOKIE_PROVIDED,
+      };
     }
 
     const session = await unsealData<SessionCookieData>(sessionData, {
@@ -427,7 +446,10 @@ export class UserManagement {
     });
 
     if (!session.refreshToken || !session.user) {
-      return { authenticated: false, reason: 'invalid_session_cookie' };
+      return {
+        authenticated: false,
+        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKE,
+      };
     }
 
     try {
@@ -438,7 +460,10 @@ export class UserManagement {
       });
 
       if (!sealedSession) {
-        return { authenticated: false, reason: 'invalid_session_cookie' };
+        return {
+          authenticated: false,
+          reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKE,
+        };
       }
 
       return { authenticated: true, sealedSession };
@@ -446,8 +471,9 @@ export class UserManagement {
       if (
         error instanceof OauthException &&
         // TODO: Add additional known errors and remove re-throw
-        (error.error === 'invalid_grant' ||
-          error.error === 'organization_not_authorized')
+        (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
+          error.error ===
+            RefreshAndSealSessionDataFailureReason.ORGANIZATION_NOT_AUTHORIZED)
       ) {
         return {
           authenticated: false,
