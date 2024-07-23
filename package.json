@@ -1,5 +1,5 @@
 {
-  "version": "7.14.0",
+  "version": "7.15.0",
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
@@ -37,6 +37,8 @@
     "prepublishOnly": "yarn run build"
   },
   "dependencies": {
+    "iron-session": "~6.3.1",
+    "jose": "~5.6.3",
     "pluralize": "8.0.0"
   },
   "devDependencies": {
