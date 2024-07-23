@@ -38,6 +38,7 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 export class WorkOS {
   readonly baseURL: string;
   readonly client: HttpClient;
+  readonly clientId?: string;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -49,7 +50,7 @@ export class WorkOS {
   readonly webhooks: Webhooks;
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
-  readonly userManagement = new UserManagement(this);
+  readonly userManagement: UserManagement;
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -64,6 +65,8 @@ export class WorkOS {
     if (this.options.https === undefined) {
       this.options.https = true;
     }
+
+    this.clientId = this.options.clientId ?? process?.env.WORKOS_CLIENT_ID;
 
     const protocol: string = this.options.https ? 'https' : 'http';
     const apiHostname: string = this.options.apiHostname || DEFAULT_HOSTNAME;
@@ -83,6 +86,9 @@ export class WorkOS {
     }
 
     this.webhooks = this.createWebhookClient();
+
+    // Must initialize UserManagement after baseURL is configured
+    this.userManagement = new UserManagement(this);
 
     this.client = this.createHttpClient(options, userAgent);
   }
