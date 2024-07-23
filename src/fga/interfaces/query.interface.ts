@@ -27,7 +27,7 @@ export interface QueryResultResponse {
   relation: string;
   warrant: WarrantResponse;
   is_implicit: boolean;
-  meta?: { [key: string]: any };
+  meta?: Record<string, any>;
 }
 
 export type QueryRequestOptions = Pick<GetOptions, 'warrantToken'>;

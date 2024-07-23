@@ -8,10 +8,12 @@ export function isSubject(resource: any): resource is Subject {
 }
 
 export function isResourceInterface(
-  resource: any,
+  resource: unknown,
 ): resource is ResourceInterface {
   return (
-    resource.getResourceType !== undefined &&
-    resource.getResourceId !== undefined
+    !!resource &&
+    typeof resource === 'object' &&
+    'getResouceType' in resource &&
+    'getResourceId' in resource
   );
 }

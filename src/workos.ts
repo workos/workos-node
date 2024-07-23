@@ -123,7 +123,7 @@ export class WorkOS {
     entity: Entity,
     options: PostOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
       requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
@@ -151,7 +151,7 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.accessToken) {
       requestHeaders[HEADER_AUTHORIZATION] = `Bearer ${options.accessToken}`;
@@ -179,7 +179,7 @@ export class WorkOS {
     entity: Entity,
     options: PutOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
       requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;

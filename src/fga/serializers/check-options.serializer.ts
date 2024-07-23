@@ -48,7 +48,7 @@ const serializeCheckWarrantOptions = (
           resource_type: warrant.subject.getResourceType(),
           resource_id: warrant.subject.getResourceId(),
         },
-    context: warrant.context ? warrant.context : {},
+    context: warrant.context ?? {},
   };
 };
 
