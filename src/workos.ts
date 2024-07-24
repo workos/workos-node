@@ -25,6 +25,7 @@ import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
+import { FGA } from './fga/fga';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
@@ -34,6 +35,10 @@ import { FetchHttpClient } from './common/net/fetch-client';
 const VERSION = '7.16.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
+
+const HEADER_AUTHORIZATION = 'Authorization';
+const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
+const HEADER_WARRANT_TOKEN = 'Warrant-Token';
 
 export class WorkOS {
   readonly baseURL: string;
@@ -51,6 +56,7 @@ export class WorkOS {
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
   readonly userManagement: UserManagement;
+  readonly fga = new FGA(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -117,10 +123,14 @@ export class WorkOS {
     entity: Entity,
     options: PostOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
-      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
+    }
+
+    if (options.warrantToken) {
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
     try {
@@ -141,13 +151,20 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
+    const requestHeaders: Record<string, string> = {};
+
+    if (options.accessToken) {
+      requestHeaders[HEADER_AUTHORIZATION] = `Bearer ${options.accessToken}`;
+    }
+
+    if (options.warrantToken) {
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
+    }
+
     try {
-      const { accessToken } = options;
       const res = await this.client.get(path, {
         params: options.query,
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
+        headers: requestHeaders,
       });
       return { data: await res.toJSON() };
     } catch (error) {
@@ -162,10 +179,10 @@ export class WorkOS {
     entity: Entity,
     options: PutOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
-      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
     try {
