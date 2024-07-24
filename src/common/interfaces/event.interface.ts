@@ -175,22 +175,6 @@ export interface DsyncActivatedEventResponse extends EventResponseBase {
   data: EventDirectoryResponse;
 }
 
-/**
- * @deprecated Use dsync.deleted only. Will be removed in a future major version.
- */
-export interface DsyncDeactivatedEvent extends EventBase {
-  event: 'dsync.deactivated';
-  data: EventDirectory;
-}
-
-/**
- * @deprecated Use dsync.deleted only. Will be removed in a future major version.
- */
-export interface DsyncDeactivatedEventResponse extends EventResponseBase {
-  event: 'dsync.deactivated';
-  data: EventDirectoryResponse;
-}
-
 export interface DsyncDeletedEvent extends EventBase {
   event: 'dsync.deleted';
   data: Omit<EventDirectory, 'domains' | 'externalKey'>;
@@ -507,7 +491,6 @@ export type Event =
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
   | DsyncActivatedEvent
-  | DsyncDeactivatedEvent
   | DsyncDeletedEvent
   | DsyncGroupCreatedEvent
   | DsyncGroupUpdatedEvent
@@ -549,7 +532,6 @@ export type EventResponse =
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
   | DsyncActivatedEventResponse
-  | DsyncDeactivatedEventResponse
   | DsyncDeletedEventResponse
   | DsyncGroupCreatedEventResponse
   | DsyncGroupUpdatedEventResponse
