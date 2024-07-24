@@ -175,11 +175,17 @@ export interface DsyncActivatedEventResponse extends EventResponseBase {
   data: EventDirectoryResponse;
 }
 
+/**
+ * @deprecated Use dsync.deleted only. Will be removed in a future major version.
+ */
 export interface DsyncDeactivatedEvent extends EventBase {
   event: 'dsync.deactivated';
   data: EventDirectory;
 }
 
+/**
+ * @deprecated Use dsync.deleted only. Will be removed in a future major version.
+ */
 export interface DsyncDeactivatedEventResponse extends EventResponseBase {
   event: 'dsync.deactivated';
   data: EventDirectoryResponse;
