@@ -448,7 +448,7 @@ export class UserManagement {
     if (!session.refreshToken || !session.user) {
       return {
         authenticated: false,
-        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKE,
+        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
       };
     }
 
@@ -462,7 +462,7 @@ export class UserManagement {
       if (!sealedSession) {
         return {
           authenticated: false,
-          reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKE,
+          reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
         };
       }
 
