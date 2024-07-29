@@ -32,6 +32,7 @@
     "lint": "tslint -p tsconfig.json -c tslint.json",
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:worker": "jest src/worker.spec.ts",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "yarn run build"
@@ -47,6 +48,7 @@
     "@types/node": "14.18.54",
     "@types/pluralize": "0.0.30",
     "jest": "29.6.2",
+    "jest-environment-miniflare": "^2.14.2",
     "jest-fetch-mock": "^3.0.3",
     "prettier": "2.8.8",
     "supertest": "6.3.3",
