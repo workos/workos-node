@@ -6,8 +6,11 @@ module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
   roots: ['<rootDir>/src'],
-  setupFiles: ['./setup-jest.ts'],
+  setupFilesAfterEnv: ['./setup-jest.ts'],
   transform: {
     '^.+\\.ts?$': 'ts-jest',
+  },
+  moduleNameMapper: {
+    '^jose': require.resolve('jose'),
   },
 };
