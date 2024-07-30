@@ -27,7 +27,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       fetchFn = globalThis.fetch;
     }
 
-    this._fetchFn = fetchFn;
+    this._fetchFn = fetchFn.bind(globalThis);
   }
 
   /** @override */

@@ -31,8 +31,9 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
+import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
-const VERSION = '7.17.1';
+const VERSION = '7.18.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -94,7 +95,10 @@ export class WorkOS {
     this.webhooks = this.createWebhookClient();
 
     // Must initialize UserManagement after baseURL is configured
-    this.userManagement = new UserManagement(this);
+    this.userManagement = new UserManagement(
+      this,
+      this.createIronSessionProvider(),
+    );
 
     this.client = this.createHttpClient(options, userAgent);
   }
@@ -112,6 +116,12 @@ export class WorkOS {
         'User-Agent': userAgent,
       },
     }) as HttpClient;
+  }
+
+  createIronSessionProvider(): IronSessionProvider {
+    throw new Error(
+      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
+    );
   }
 
   get version() {

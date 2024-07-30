@@ -1,4 +1,3 @@
-import { sealData, unsealData } from 'iron-session';
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
@@ -136,6 +135,7 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -155,7 +155,10 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 export class UserManagement {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
 
-  constructor(private readonly workos: WorkOS) {
+  constructor(
+    private readonly workos: WorkOS,
+    private readonly ironSessionProvider: IronSessionProvider,
+  ) {
     const { clientId } = workos.options;
 
     // Set the JWKS URL. This is used to verify if the JWT is still valid
@@ -377,9 +380,13 @@ export class UserManagement {
       };
     }
 
-    const session = await unsealData<SessionCookieData>(sessionData, {
-      password: cookiePassword,
-    });
+    const session =
+      await this.ironSessionProvider.unsealData<SessionCookieData>(
+        sessionData,
+        {
+          password: cookiePassword,
+        },
+      );
 
     if (!session.accessToken) {
       return {
@@ -441,9 +448,13 @@ export class UserManagement {
       };
     }
 
-    const session = await unsealData<SessionCookieData>(sessionData, {
-      password: cookiePassword,
-    });
+    const session =
+      await this.ironSessionProvider.unsealData<SessionCookieData>(
+        sessionData,
+        {
+          password: cookiePassword,
+        },
+      );
 
     if (!session.refreshToken || !session.user) {
       return {
@@ -523,7 +534,9 @@ export class UserManagement {
       impersonator: authenticationResponse.impersonator,
     };
 
-    return sealData(sessionData, { password: cookiePassword });
+    return this.ironSessionProvider.sealData(sessionData, {
+      password: cookiePassword,
+    });
   }
 
   async getSessionFromCookie({
@@ -535,9 +548,12 @@ export class UserManagement {
     }
 
     if (sessionData) {
-      return unsealData<SessionCookieData>(sessionData, {
-        password: cookiePassword,
-      });
+      return this.ironSessionProvider.unsealData<SessionCookieData>(
+        sessionData,
+        {
+          password: cookiePassword,
+        },
+      );
     }
 
     return undefined;
