@@ -1,3 +1,4 @@
+import { sealData, unsealData } from 'iron-session/edge';
 import {
   IronSessionProvider,
   SealDataOptions,
@@ -10,8 +11,7 @@ import {
 export class EdgeIronSessionProvider extends IronSessionProvider {
   /** @override */
   async sealData(data: unknown, options: SealDataOptions): Promise<string> {
-    const ironSession = await import('iron-session/edge');
-    return ironSession.sealData(data, options);
+    return sealData(data, options);
   }
 
   /** @override */
@@ -19,7 +19,6 @@ export class EdgeIronSessionProvider extends IronSessionProvider {
     seal: string,
     options: SealDataOptions,
   ): Promise<T> {
-    const ironSession = await import('iron-session/edge');
-    return ironSession.unsealData<T>(seal, options);
+    return unsealData<T>(seal, options);
   }
 }

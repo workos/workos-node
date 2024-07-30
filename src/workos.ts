@@ -31,11 +31,7 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
-import {
-  EdgeIronSessionProvider,
-  IronSessionProvider,
-  WebIronSessionProvider,
-} from './common/iron-session';
+import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
 const VERSION = '7.17.1';
 
@@ -123,15 +119,9 @@ export class WorkOS {
   }
 
   createIronSessionProvider(): IronSessionProvider {
-    let ironSessionProvider: IronSessionProvider;
-
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      ironSessionProvider = new EdgeIronSessionProvider();
-    } else {
-      ironSessionProvider = new WebIronSessionProvider();
-    }
-
-    return ironSessionProvider;
+    throw new Error(
+      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
+    );
   }
 
   get version() {

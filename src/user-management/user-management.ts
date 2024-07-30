@@ -135,7 +135,7 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
-import { IronSessionProvider } from '../common/iron-session';
+import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
