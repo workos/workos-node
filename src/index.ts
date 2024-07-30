@@ -9,6 +9,8 @@ import { NodeHttpClient } from './common/net/node-client';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
 import { WorkOSOptions } from './common/interfaces';
+import { WebIronSessionProvider } from './common/iron-session/web-iron-session-provider';
+import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
 export * from './audit-logs/interfaces';
 export * from './common/exceptions';
@@ -56,6 +58,11 @@ class WorkOSNode extends WorkOS {
     }
 
     return new Webhooks(cryptoProvider);
+  }
+
+  /** @override */
+  createIronSessionProvider(): IronSessionProvider {
+    return new WebIronSessionProvider();
   }
 }
 
