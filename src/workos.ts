@@ -33,7 +33,7 @@ import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
-const VERSION = '7.17.1';
+const VERSION = '7.18.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
