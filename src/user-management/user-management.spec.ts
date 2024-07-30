@@ -30,7 +30,7 @@ const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
-  var workos: WorkOS;
+  let workos: WorkOS;
 
   beforeAll(() => {
     workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
