@@ -961,6 +961,23 @@ export class UserManagement {
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
   }
 
+  async getLogoutUrlFromSessionCookie({
+    sessionData,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: SessionHandlerOptions): Promise<string> {
+    const authenticationResponse = await this.authenticateWithSessionCookie({
+      sessionData,
+      cookiePassword,
+    });
+
+    if (!authenticationResponse.authenticated) {
+      const { reason } = authenticationResponse;
+      throw new Error(`Failed to authenticate session: ${reason}`);
+    }
+
+    return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${authenticationResponse.sessionId}`;
+  }
+
   getJwksUrl(clientId: string): string {
     if (!clientId) {
       throw TypeError('clientId must be a valid clientId');
