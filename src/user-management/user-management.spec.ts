@@ -1905,7 +1905,9 @@ describe('UserManagement', () => {
           cookiePassword: 'secret',
         }),
       ).rejects.toThrowError(
-        new Error('Failed to authenticate session: no_session_cookie_provided'),
+        new Error(
+          'Failed to extract session ID for logout URL: no_session_cookie_provided',
+        ),
       );
     });
 
@@ -1916,7 +1918,9 @@ describe('UserManagement', () => {
           cookiePassword: 'secret',
         }),
       ).rejects.toThrowError(
-        new Error('Failed to authenticate session: invalid_session_cookie'),
+        new Error(
+          'Failed to extract session ID for logout URL: invalid_session_cookie',
+        ),
       );
     });
 
@@ -1941,7 +1945,9 @@ describe('UserManagement', () => {
           cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
         }),
       ).rejects.toThrowError(
-        new Error('Failed to authenticate session: invalid_session_cookie'),
+        new Error(
+          'Failed to extract session ID for logout URL: invalid_session_cookie',
+        ),
       );
     });
 
@@ -1970,7 +1976,7 @@ describe('UserManagement', () => {
           cookiePassword,
         }),
       ).rejects.toThrowError(
-        new Error('Failed to authenticate session: invalid_jwt'),
+        new Error('Failed to extract session ID for logout URL: invalid_jwt'),
       );
     });
 
