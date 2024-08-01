@@ -62,7 +62,10 @@ export class WorkOS {
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
       // process might be undefined in some environments
-      this.key = process?.env.WORKOS_API_KEY;
+      this.key =
+        typeof process !== 'undefined'
+          ? process?.env.WORKOS_API_KEY
+          : undefined;
 
       if (!this.key) {
         throw new NoApiKeyProvidedException();
@@ -73,7 +76,10 @@ export class WorkOS {
       this.options.https = true;
     }
 
-    this.clientId = this.options.clientId ?? process?.env.WORKOS_CLIENT_ID;
+    this.clientId = this.options.clientId;
+    if (!this.clientId && typeof process !== 'undefined') {
+      this.clientId = process?.env.WORKOS_CLIENT_ID;
+    }
 
     const protocol: string = this.options.https ? 'https' : 'http';
     const apiHostname: string = this.options.apiHostname || DEFAULT_HOSTNAME;
