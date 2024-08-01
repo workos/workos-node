@@ -961,6 +961,29 @@ export class UserManagement {
     return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
   }
 
+  /**
+   * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
+   * and uses the session ID to generate the logout URL.
+   *
+   * Use this over `getLogoutUrl` if you'd like to the SDK to handle session cookies for you.
+   */
+  async getLogoutUrlFromSessionCookie({
+    sessionData,
+    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+  }: SessionHandlerOptions): Promise<string> {
+    const authenticationResponse = await this.authenticateWithSessionCookie({
+      sessionData,
+      cookiePassword,
+    });
+
+    if (!authenticationResponse.authenticated) {
+      const { reason } = authenticationResponse;
+      throw new Error(`Failed to extract session ID for logout URL: ${reason}`);
+    }
+
+    return this.getLogoutUrl({ sessionId: authenticationResponse.sessionId });
+  }
+
   getJwksUrl(clientId: string): string {
     if (!clientId) {
       throw TypeError('clientId must be a valid clientId');
