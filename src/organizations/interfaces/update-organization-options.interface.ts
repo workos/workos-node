@@ -2,7 +2,7 @@ import { DomainData } from './domain-data.interface';
 
 export interface UpdateOrganizationOptions {
   organization: string;
-  name: string;
+  name?: string;
   domainData?: DomainData[];
 
   /**
@@ -16,7 +16,7 @@ export interface UpdateOrganizationOptions {
 }
 
 export interface SerializedUpdateOrganizationOptions {
-  name: string;
+  name?: string;
   domain_data?: DomainData[];
 
   /**
