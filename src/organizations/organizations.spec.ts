@@ -273,12 +273,10 @@ describe('Organizations', () => {
             domainData: [
               { domain: 'example.com', state: DomainDataState.Verified },
             ],
-            name: 'Test Organization 2',
           });
 
           expect(fetchBody()).toEqual({
             domain_data: [{ domain: 'example.com', state: 'verified' }],
-            name: 'Test Organization 2',
           });
           expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
           expect(subject.name).toEqual('Test Organization 2');
