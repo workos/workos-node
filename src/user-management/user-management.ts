@@ -484,7 +484,8 @@ export class UserManagement {
         // TODO: Add additional known errors and remove re-throw
         (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
           error.error ===
-            RefreshAndSealSessionDataFailureReason.ORGANIZATION_NOT_AUTHORIZED)
+            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
+          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
       ) {
         return {
           authenticated: false,
