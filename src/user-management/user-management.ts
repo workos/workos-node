@@ -59,6 +59,7 @@ import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
+  AuthenticateWithSessionCookieOptions,
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
@@ -360,7 +361,7 @@ export class UserManagement {
   async authenticateWithSessionCookie({
     sessionData,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<
+  }: AuthenticateWithSessionCookieOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
   > {

@@ -1,5 +1,10 @@
 import { AuthenticationResponse } from './authentication-response.interface';
 
+export interface AuthenticateWithSessionCookieOptions {
+  sessionData: string;
+  cookiePassword?: string;
+}
+
 export interface AccessToken {
   sid: string;
   org_id?: string;
