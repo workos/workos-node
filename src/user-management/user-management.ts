@@ -434,6 +434,7 @@ export class UserManagement {
 
   async refreshAndSealSessionData({
     sessionData,
+    organizationId,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
   }: SessionHandlerOptions): Promise<RefreshAndSealSessionDataResponse> {
     if (!cookiePassword) {
@@ -463,10 +464,15 @@ export class UserManagement {
       };
     }
 
+    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
+      session.accessToken,
+    );
+
     try {
       const { sealedSession } = await this.authenticateWithRefreshToken({
         clientId: this.workos.clientId as string,
         refreshToken: session.refreshToken,
+        organizationId: organizationId ?? organizationIdFromAccessToken,
         session: { sealSession: true, cookiePassword },
       });
 
