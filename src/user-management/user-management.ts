@@ -59,6 +59,7 @@ import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
+  AuthenticateWithSessionCookieOptions,
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
@@ -360,7 +361,7 @@ export class UserManagement {
   async authenticateWithSessionCookie({
     sessionData,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<
+  }: AuthenticateWithSessionCookieOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
   > {
@@ -434,6 +435,7 @@ export class UserManagement {
 
   async refreshAndSealSessionData({
     sessionData,
+    organizationId,
     cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
   }: SessionHandlerOptions): Promise<RefreshAndSealSessionDataResponse> {
     if (!cookiePassword) {
@@ -463,10 +465,15 @@ export class UserManagement {
       };
     }
 
+    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
+      session.accessToken,
+    );
+
     try {
       const { sealedSession } = await this.authenticateWithRefreshToken({
         clientId: this.workos.clientId as string,
         refreshToken: session.refreshToken,
+        organizationId: organizationId ?? organizationIdFromAccessToken,
         session: { sealSession: true, cookiePassword },
       });
 
@@ -484,7 +491,8 @@ export class UserManagement {
         // TODO: Add additional known errors and remove re-throw
         (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
           error.error ===
-            RefreshAndSealSessionDataFailureReason.ORGANIZATION_NOT_AUTHORIZED)
+            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
+          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
       ) {
         return {
           authenticated: false,
