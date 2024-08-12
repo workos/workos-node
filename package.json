@@ -58,7 +58,11 @@
   },
   "exports": {
     "types": "./lib/index.d.ts",
-    "worker": {
+    "workerd": {
+      "import": "./lib/index.worker.js",
+      "default": "./lib/index.worker.js"
+    },
+    "edge-light": {
       "import": "./lib/index.worker.js",
       "default": "./lib/index.worker.js"
     },
