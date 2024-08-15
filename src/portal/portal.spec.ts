@@ -116,6 +116,50 @@ describe('Portal', () => {
           );
         });
       });
+      describe('with the `certificate_renewal` intent', () => {
+        it('returns an Admin Portal link', async () => {
+          fetchOnce(generateLink, { status: 201 });
+
+          const { link } = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.CertificateRenewal,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.CertificateRenewal,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
+          expect(link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
+        });
+      });
+    });
+
+    describe('with an invalid organization', () => {
+      it('throws an error', async () => {
+        fetchOnce(generateLinkInvalid, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        await expect(
+          workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.SSO,
+            organization: 'bogus-id',
+            returnUrl: 'https://www.example.com',
+          }),
+        ).rejects.toThrowError(
+          'Could not find an organization with the id, bogus-id.',
+        );
+        expect(fetchBody()).toEqual({
+          intent: GeneratePortalLinkIntent.SSO,
+          organization: 'bogus-id',
+          return_url: 'https://www.example.com',
+        });
+      });
     });
 
     describe('with an invalid organization', () => {
