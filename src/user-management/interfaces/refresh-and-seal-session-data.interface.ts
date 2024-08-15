@@ -1,3 +1,5 @@
+import { AuthenticationResponse } from './authentication-response.interface';
+
 export enum RefreshAndSealSessionDataFailureReason {
   /**
    * @deprecated To be removed in a future major version.
@@ -23,7 +25,7 @@ type RefreshAndSealSessionDataFailedResponse = {
 
 type RefreshAndSealSessionDataSuccessResponse = {
   authenticated: true;
-  sealedSession: string;
+  session: string | AuthenticationResponse;
 };
 
 export type RefreshAndSealSessionDataResponse =

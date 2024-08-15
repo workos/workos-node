@@ -137,6 +137,7 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
+import { Session } from './session';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -155,17 +156,26 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 
 export class UserManagement {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
+  public clientId: string | undefined;
+  public ironSessionProvider: IronSessionProvider;
 
   constructor(
     private readonly workos: WorkOS,
-    private readonly ironSessionProvider: IronSessionProvider,
+    ironSessionProvider: IronSessionProvider,
   ) {
     const { clientId } = workos.options;
+
+    this.clientId = clientId;
+    this.ironSessionProvider = ironSessionProvider;
 
     // Set the JWKS URL. This is used to verify if the JWT is still valid
     this.jwks = clientId
       ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)))
       : undefined;
+  }
+
+  session(sessionData: string, cookiePassword: string): Session {
+    return new Session(this, sessionData, cookiePassword);
   }
 
   async getUser(userId: string): Promise<User> {
@@ -470,21 +480,24 @@ export class UserManagement {
     );
 
     try {
-      const { sealedSession } = await this.authenticateWithRefreshToken({
+      const authenticationResponse = await this.authenticateWithRefreshToken({
         clientId: this.workos.clientId as string,
         refreshToken: session.refreshToken,
         organizationId: organizationId ?? organizationIdFromAccessToken,
         session: { sealSession: true, cookiePassword },
       });
 
-      if (!sealedSession) {
+      if (!authenticationResponse.sealedSession) {
         return {
           authenticated: false,
           reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
         };
       }
 
-      return { authenticated: true, sealedSession };
+      return {
+        authenticated: true,
+        session: authenticationResponse.sealedSession,
+      };
     } catch (error) {
       if (
         error instanceof OauthException &&
@@ -511,7 +524,7 @@ export class UserManagement {
     authenticationResponse: AuthenticationResponse;
     session?: AuthenticateWithSessionOptions;
   }): Promise<AuthenticationResponse> {
-    if (session) {
+    if (session?.sealSession) {
       return {
         ...authenticationResponse,
         sealedSession: await this.sealSessionDataFromAuthenticationResponse({
