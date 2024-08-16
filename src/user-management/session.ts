@@ -146,7 +146,9 @@ export class Session {
           },
         });
 
-      if (options.sealSession) this.cookiePassword = options.cookiePassword;
+      if (options.sealSession) {
+        this.cookiePassword = options.cookiePassword;
+      }
       this.sessionData = authenticationResponse.sealedSession as string;
 
       return {
