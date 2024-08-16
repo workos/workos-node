@@ -19,6 +19,7 @@ export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
+export * from './fga/interfaces';
 export * from './organizations/interfaces';
 export * from './passwordless/interfaces';
 export * from './portal/interfaces';
