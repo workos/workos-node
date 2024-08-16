@@ -480,14 +480,14 @@ export class UserManagement {
     );
 
     try {
-      const authenticationResponse = await this.authenticateWithRefreshToken({
+      const { sealedSession } = await this.authenticateWithRefreshToken({
         clientId: this.workos.clientId as string,
         refreshToken: session.refreshToken,
         organizationId: organizationId ?? organizationIdFromAccessToken,
         session: { sealSession: true, cookiePassword },
       });
 
-      if (!authenticationResponse.sealedSession) {
+      if (!sealedSession) {
         return {
           authenticated: false,
           reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
@@ -496,7 +496,7 @@ export class UserManagement {
 
       return {
         authenticated: true,
-        session: authenticationResponse.sealedSession,
+        session: sealedSession,
       };
     } catch (error) {
       if (
