@@ -913,7 +913,7 @@ describe('UserManagement', () => {
           cookiePassword,
         }),
       ).resolves.toEqual({
-        sealedSession: expect.any(String),
+        session: expect.any(String),
         authenticated: true,
       });
     });
