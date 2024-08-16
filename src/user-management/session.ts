@@ -15,12 +15,12 @@ import {
 
 type RefreshOptions =
   | {
-      sealed: true;
+      sealSession: true;
       cookiePassword: string;
       organizationId?: string;
     }
   | {
-      sealed: false;
+      sealSession: false;
       cookiePassword?: string;
       organizationId?: string;
     };
@@ -109,7 +109,7 @@ export class Session {
   async refresh(
     options: RefreshOptions,
   ): Promise<RefreshAndSealSessionDataResponse> {
-    if (options.sealed && !options.cookiePassword) {
+    if (options.sealSession && !options.cookiePassword) {
       throw new Error('Cookie password is required for sealed sessions');
     }
 
@@ -146,12 +146,12 @@ export class Session {
           },
         });
 
-      if (options.sealed) this.cookiePassword = options.cookiePassword;
+      if (options.sealSession) this.cookiePassword = options.cookiePassword;
       this.sessionData = authenticationResponse.sealedSession as string;
 
       return {
         authenticated: true,
-        session: options.sealed
+        session: options.sealSession
           ? (authenticationResponse.sealedSession as string)
           : (authenticationResponse as AuthenticationResponse),
       };

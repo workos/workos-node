@@ -148,7 +148,7 @@ describe('Session', () => {
       );
 
       await expect(
-        session.refresh({ sealed: true, cookiePassword: '' }),
+        session.refresh({ sealSession: true, cookiePassword: '' }),
       ).rejects.toThrow('Cookie password is required for sealed sessions');
     });
 
@@ -158,7 +158,7 @@ describe('Session', () => {
       const session = workos.userManagement.session('', 'cookiePassword');
 
       const response = await session.refresh({
-        sealed: true,
+        sealSession: true,
         cookiePassword: 'cookiePassword',
       });
 
@@ -199,7 +199,7 @@ describe('Session', () => {
           );
 
           const response = await session.refresh({
-            sealed: true,
+            sealSession: true,
             cookiePassword,
           });
 
@@ -236,7 +236,7 @@ describe('Session', () => {
           );
 
           const response = await session.refresh({
-            sealed: false,
+            sealSession: false,
             cookiePassword,
           });
 
