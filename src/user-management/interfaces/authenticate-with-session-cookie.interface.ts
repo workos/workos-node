@@ -1,4 +1,6 @@
 import { AuthenticationResponse } from './authentication-response.interface';
+import { Impersonator } from './impersonator.interface';
+import { User } from './user.interface';
 
 export interface AuthenticateWithSessionCookieOptions {
   sessionData: string;
@@ -34,4 +36,6 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   organizationId?: string;
   role?: string;
   permissions?: string[];
+  user?: User;
+  impersonator?: Impersonator;
 };

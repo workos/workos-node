@@ -1009,6 +1009,7 @@ export class UserManagement {
     if (!clientId) {
       throw TypeError('clientId must be a valid clientId');
     }
+
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }

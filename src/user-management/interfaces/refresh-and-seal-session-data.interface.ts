@@ -18,6 +18,7 @@ export enum RefreshAndSealSessionDataFailureReason {
   ORGANIZATION_NOT_AUTHORIZED = 'organization_not_authorized',
 }
 
+// TODO: These should be renamed since it's possible to have an unsealed session
 type RefreshAndSealSessionDataFailedResponse = {
   authenticated: false;
   reason: RefreshAndSealSessionDataFailureReason;

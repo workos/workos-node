@@ -46,10 +46,10 @@ export class Session {
     this.cookiePassword = cookiePassword;
     this.sessionData = sessionData;
 
-    const { clientId, getJwksUrl } = this.userManagement;
+    const { clientId } = this.userManagement;
 
     this.jwks = clientId
-      ? createRemoteJWKSet(new URL(getJwksUrl(clientId)))
+      ? createRemoteJWKSet(new URL(userManagement.getJwksUrl(clientId)))
       : undefined;
   }
 
@@ -101,6 +101,8 @@ export class Session {
       organizationId,
       role,
       permissions,
+      user: session.user,
+      impersonator: session.impersonator,
     };
   }
 
@@ -138,7 +140,7 @@ export class Session {
           organizationId:
             options.organizationId ?? organizationIdFromAccessToken,
           session: {
-            // We want to store the new sealed session here, so this always needs to be true
+            // We want to store the new sealed session in this class instance, so this always needs to be true
             sealSession: true,
             cookiePassword: options.cookiePassword ?? this.cookiePassword,
           },
