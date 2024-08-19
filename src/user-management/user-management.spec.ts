@@ -142,7 +142,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -172,7 +176,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -205,7 +209,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -236,7 +244,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -344,7 +352,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -371,7 +383,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -413,7 +425,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -441,7 +457,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -485,7 +501,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -518,7 +538,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -560,7 +580,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -590,7 +614,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -632,7 +656,11 @@ describe('UserManagement', () => {
 
     describe('when sealSession = true', () => {
       beforeEach(() => {
-        fetchOnce({ user: userFixture });
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
       });
 
       describe('when the cookie password is undefined', () => {
@@ -662,7 +690,7 @@ describe('UserManagement', () => {
 
           expect(response).toEqual({
             sealedSession: expect.any(String),
-            accessToken: undefined,
+            accessToken: expect.any(String),
             authenticationMethod: undefined,
             impersonator: undefined,
             organizationId: undefined,
@@ -888,7 +916,8 @@ describe('UserManagement', () => {
     it('returns the sealed refreshed session cookie when provided a valid existing session cookie', async () => {
       fetchOnce({
         user: userFixture,
-        access_token: 'access_token',
+        access_token:
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
         refresh_token: 'refresh_token',
       });
 
