@@ -4,4 +4,5 @@ export enum GeneratePortalLinkIntent {
   DSync = 'dsync',
   LogStreams = 'log_streams',
   SSO = 'sso',
+  CertificateRenewal = 'certificate_renewal',
 }
