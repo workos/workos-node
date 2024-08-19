@@ -496,7 +496,7 @@ export class UserManagement {
 
       return {
         authenticated: true,
-        session: sealedSession,
+        sealedSession,
       };
     } catch (error) {
       if (

@@ -147,9 +147,9 @@ describe('Session', () => {
         'cookiePassword',
       );
 
-      await expect(
-        session.refresh({ sealSession: true, cookiePassword: '' }),
-      ).rejects.toThrow('Cookie password is required for sealed sessions');
+      await expect(session.refresh({ cookiePassword: '' })).rejects.toThrow(
+        'Cookie password is required for sealed sessions',
+      );
     });
 
     it('returns a failed response if invalid session data is provided', async () => {
@@ -158,7 +158,6 @@ describe('Session', () => {
       const session = workos.userManagement.session('', 'cookiePassword');
 
       const response = await session.refresh({
-        sealSession: true,
         cookiePassword: 'cookiePassword',
       });
 
@@ -169,86 +168,52 @@ describe('Session', () => {
     });
 
     describe('when the session data is valid', () => {
-      describe('and sealed = true', () => {
-        it('returns a successful response with a sealed session', async () => {
-          fetchOnce({ user: userFixture });
+      it('returns a successful response with a sealed and unsealed session', async () => {
+        fetchOnce({ user: userFixture });
 
-          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
-          const sessionData = await sealData(
-            {
-              accessToken:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-              refreshToken: 'def456',
-              impersonator: {
-                email: 'admin@example.com',
-                reason: 'test',
-              },
-              user: {
-                object: 'user',
-                id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-                email: 'test@example.com',
-              },
+        const sessionData = await sealData(
+          {
+            accessToken:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+            refreshToken: 'def456',
+            impersonator: {
+              email: 'admin@example.com',
+              reason: 'test',
             },
-            { password: cookiePassword },
-          );
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
 
-          const session = workos.userManagement.session(
-            sessionData,
-            cookiePassword,
-          );
+        const session = workos.userManagement.session(
+          sessionData,
+          cookiePassword,
+        );
 
-          const response = await session.refresh({
-            sealSession: true,
-            cookiePassword,
-          });
-
-          expect(response).toEqual({
-            authenticated: true,
-            session: expect.any(String),
-          });
+        const response = await session.refresh({
+          cookiePassword,
         });
-      });
 
-      describe('and sealed = false', () => {
-        it('returns a successful response with an unsealed session', async () => {
-          fetchOnce({ user: userFixture });
-
-          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-
-          const sessionData = await sealData(
-            {
-              accessToken:
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-              refreshToken: 'def456',
-              user: {
-                object: 'user',
-                id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-                email: 'test01@example.com',
-              },
-            },
-            { password: cookiePassword },
-          );
-
-          const session = workos.userManagement.session(
-            sessionData,
-            cookiePassword,
-          );
-
-          const response = await session.refresh({
-            sealSession: false,
-            cookiePassword,
-          });
-
-          expect(response).toEqual({
-            authenticated: true,
-            session: expect.objectContaining({
-              sealedSession: expect.any(String),
-              user: expect.objectContaining({
-                email: 'test01@example.com',
-              }),
+        expect(response).toEqual({
+          authenticated: true,
+          accessToken: undefined,
+          authenticationMethod: undefined,
+          impersonator: undefined,
+          organizationId: undefined,
+          refreshToken: undefined,
+          sealedSession: expect.any(String),
+          session: expect.objectContaining({
+            sealedSession: expect.any(String),
+            user: expect.objectContaining({
+              email: 'test01@example.com',
             }),
-          });
+          }),
         });
       });
     });

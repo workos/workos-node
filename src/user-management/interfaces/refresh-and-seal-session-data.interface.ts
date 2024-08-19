@@ -26,7 +26,8 @@ type RefreshAndSealSessionDataFailedResponse = {
 
 type RefreshAndSealSessionDataSuccessResponse = {
   authenticated: true;
-  session: string | AuthenticationResponse;
+  session?: AuthenticationResponse;
+  sealedSession?: string;
 };
 
 export type RefreshAndSealSessionDataResponse =

@@ -13,17 +13,10 @@ import {
   SessionCookieData,
 } from './interfaces';
 
-type RefreshOptions =
-  | {
-      sealSession: true;
-      cookiePassword: string;
-      organizationId?: string;
-    }
-  | {
-      sealSession: false;
-      cookiePassword?: string;
-      organizationId?: string;
-    };
+type RefreshOptions = {
+  cookiePassword: string;
+  organizationId?: string;
+};
 
 export class Session {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
@@ -109,7 +102,7 @@ export class Session {
   async refresh(
     options: RefreshOptions,
   ): Promise<RefreshAndSealSessionDataResponse> {
-    if (options.sealSession && !options.cookiePassword) {
+    if (!options.cookiePassword) {
       throw new Error('Cookie password is required for sealed sessions');
     }
 
@@ -146,16 +139,13 @@ export class Session {
           },
         });
 
-      if (options.sealSession) {
-        this.cookiePassword = options.cookiePassword;
-      }
+      this.cookiePassword = options.cookiePassword;
       this.sessionData = authenticationResponse.sealedSession as string;
 
       return {
         authenticated: true,
-        session: options.sealSession
-          ? (authenticationResponse.sealedSession as string)
-          : (authenticationResponse as AuthenticationResponse),
+        sealedSession: authenticationResponse.sealedSession,
+        session: authenticationResponse as AuthenticationResponse,
       };
     } catch (error) {
       if (
