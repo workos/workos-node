@@ -850,6 +850,9 @@ describe('UserManagement', () => {
         organizationId: 'org_123',
         role: 'member',
         permissions: ['posts:create', 'posts:delete'],
+        user: expect.objectContaining({
+          email: 'test@example.com',
+        }),
       });
     });
   });

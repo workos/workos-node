@@ -429,6 +429,7 @@ export class UserManagement {
       sessionId,
       organizationId,
       role,
+      user: session.user,
       permissions,
     };
   }

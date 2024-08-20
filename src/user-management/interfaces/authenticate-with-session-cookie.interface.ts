@@ -36,6 +36,6 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   organizationId?: string;
   role?: string;
   permissions?: string[];
-  user?: User;
+  user: User;
   impersonator?: Impersonator;
 };
