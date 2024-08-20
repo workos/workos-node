@@ -142,7 +142,7 @@ export class Session {
           session: {
             // We want to store the new sealed session in this class instance, so this always needs to be true
             sealSession: true,
-            cookiePassword: cookiePassword,
+            cookiePassword,
           },
         });
 
