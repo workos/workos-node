@@ -58,13 +58,22 @@ export class Session {
       };
     }
 
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
+    let session: SessionCookieData;
+
+    try {
+      session = await this.ironSessionProvider.unsealData<SessionCookieData>(
         this.sessionData,
         {
           password: this.cookiePassword,
         },
       );
+    } catch (e) {
+      return {
+        authenticated: false,
+        reason:
+          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
+      };
+    }
 
     if (!session.accessToken) {
       return {
