@@ -551,7 +551,12 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
+    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
+      authenticationResponse.accessToken,
+    );
+
     const sessionData: SessionCookieData = {
+      organizationId: organizationIdFromAccessToken,
       user: authenticationResponse.user,
       accessToken: authenticationResponse.accessToken,
       refreshToken: authenticationResponse.refreshToken,
