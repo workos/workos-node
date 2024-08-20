@@ -20,15 +20,18 @@ describe('Session', () => {
   describe('constructor', () => {
     it('throws an error if cookiePassword is not provided', () => {
       expect(() => {
-        workos.userManagement.session('sessionData', '');
+        workos.userManagement.loadSealedSession({
+          sessionData: 'sessionData',
+          cookiePassword: '',
+        });
       }).toThrow('cookiePassword is required');
     });
 
     it('creates a new Session instance', () => {
-      const session = workos.userManagement.session(
-        'sessionData',
-        'cookiePassword',
-      );
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: 'sessionData',
+        cookiePassword: 'cookiePassword',
+      });
 
       expect(session).toBeInstanceOf(Session);
     });
@@ -36,7 +39,10 @@ describe('Session', () => {
 
   describe('authenticate', () => {
     it('returns a failed response if no sessionData is provided', async () => {
-      const session = workos.userManagement.session('', 'cookiePassword');
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: '',
+        cookiePassword: 'cookiePassword',
+      });
       const response = await session.authenticate();
 
       expect(response).toEqual({
@@ -46,10 +52,11 @@ describe('Session', () => {
     });
 
     it('returns a failed response if no accessToken is found in the sessionData', async () => {
-      const session = workos.userManagement.session(
-        'sessionData',
-        'cookiePassword',
-      );
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: 'sessionData',
+        cookiePassword: 'cookiePassword',
+      });
+
       const response = await session.authenticate();
 
       expect(response).toEqual({
@@ -79,10 +86,10 @@ describe('Session', () => {
         { password: cookiePassword },
       );
 
-      const session = workos.userManagement.session(
+      const session = workos.userManagement.loadSealedSession({
         sessionData,
         cookiePassword,
-      );
+      });
       const response = await session.authenticate();
 
       expect(response).toEqual({
@@ -116,10 +123,10 @@ describe('Session', () => {
         { password: cookiePassword },
       );
 
-      const session = workos.userManagement.session(
+      const session = workos.userManagement.loadSealedSession({
         sessionData,
         cookiePassword,
-      );
+      });
 
       await expect(session.authenticate()).resolves.toEqual({
         authenticated: true,
@@ -141,25 +148,15 @@ describe('Session', () => {
   });
 
   describe('refresh', () => {
-    it('throws an error if no sealed option is provided without a cookiePassword', async () => {
-      const session = workos.userManagement.session(
-        'sessionData',
-        'cookiePassword',
-      );
-
-      await expect(session.refresh({ cookiePassword: '' })).rejects.toThrow(
-        'Cookie password is required for sealed sessions',
-      );
-    });
-
     it('returns a failed response if invalid session data is provided', async () => {
       fetchOnce({ user: userFixture });
 
-      const session = workos.userManagement.session('', 'cookiePassword');
-
-      const response = await session.refresh({
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: '',
         cookiePassword: 'cookiePassword',
       });
+
+      const response = await session.refresh();
 
       expect(response).toEqual({
         authenticated: false,
@@ -185,20 +182,18 @@ describe('Session', () => {
             user: {
               object: 'user',
               id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-              email: 'test@example.com',
+              email: 'test01@example.com',
             },
           },
           { password: cookiePassword },
         );
 
-        const session = workos.userManagement.session(
+        const session = workos.userManagement.loadSealedSession({
           sessionData,
           cookiePassword,
-        );
-
-        const response = await session.refresh({
-          cookiePassword,
         });
+
+        const response = await session.refresh();
 
         expect(response).toEqual({
           authenticated: true,
@@ -215,6 +210,55 @@ describe('Session', () => {
             }),
           }),
         });
+      });
+
+      it('overwrites the cookie password if a new one is provided', async () => {
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+        const refreshToken = 'def456';
+
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken,
+        });
+
+        jest
+          .spyOn(jose, 'jwtVerify')
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken,
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const newCookiePassword =
+          'anevenlongercookiesecretmadefortestingsessions';
+
+        const response = await session.refresh({
+          cookiePassword: newCookiePassword,
+        });
+
+        expect(response.authenticated).toBe(true);
+
+        const resp = await session.authenticate();
+
+        expect(resp.authenticated).toBe(true);
       });
     });
   });
@@ -241,10 +285,10 @@ describe('Session', () => {
         { password: cookiePassword },
       );
 
-      const session = workos.userManagement.session(
+      const session = workos.userManagement.loadSealedSession({
         sessionData,
         cookiePassword,
-      );
+      });
 
       const url = await session.getLogoutUrl();
 
@@ -254,7 +298,10 @@ describe('Session', () => {
     });
 
     it('returns an error if the session is invalid', async () => {
-      const session = workos.userManagement.session('', 'cookiePassword');
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: '',
+        cookiePassword: 'cookiePassword',
+      });
 
       await expect(session.getLogoutUrl()).rejects.toThrow(
         'Failed to extract session ID for logout URL: no_session_cookie_provided',

@@ -174,8 +174,11 @@ export class UserManagement {
       : undefined;
   }
 
-  session(sessionData: string, cookiePassword: string): Session {
-    return new Session(this, sessionData, cookiePassword);
+  loadSealedSession(options: {
+    sessionData: string;
+    cookiePassword: string;
+  }): Session {
+    return new Session(this, options.sessionData, options.cookiePassword);
   }
 
   async getUser(userId: string): Promise<User> {

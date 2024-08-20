@@ -14,7 +14,7 @@ import {
 } from './interfaces';
 
 type RefreshOptions = {
-  cookiePassword: string;
+  cookiePassword?: string;
   organizationId?: string;
 };
 
@@ -100,17 +100,13 @@ export class Session {
   }
 
   async refresh(
-    options: RefreshOptions,
+    options: RefreshOptions = {},
   ): Promise<RefreshAndSealSessionDataResponse> {
-    if (!options.cookiePassword) {
-      throw new Error('Cookie password is required for sealed sessions');
-    }
-
     const session =
       await this.ironSessionProvider.unsealData<SessionCookieData>(
         this.sessionData,
         {
-          password: options.cookiePassword as string,
+          password: this.cookiePassword,
         },
       );
 
@@ -126,6 +122,8 @@ export class Session {
     );
 
     try {
+      const cookiePassword = options.cookiePassword ?? this.cookiePassword;
+
       const authenticationResponse =
         await this.userManagement.authenticateWithRefreshToken({
           clientId: this.userManagement.clientId as string,
@@ -135,11 +133,15 @@ export class Session {
           session: {
             // We want to store the new sealed session in this class instance, so this always needs to be true
             sealSession: true,
-            cookiePassword: options.cookiePassword ?? this.cookiePassword,
+            cookiePassword: cookiePassword,
           },
         });
 
-      this.cookiePassword = options.cookiePassword;
+      // Update the password if a new one was provided
+      if (options.cookiePassword) {
+        this.cookiePassword = options.cookiePassword;
+      }
+
       this.sessionData = authenticationResponse.sealedSession as string;
 
       return {
@@ -181,7 +183,9 @@ export class Session {
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
     if (!this.jwks) {
-      throw new Error('Must provide clientId to initialize JWKS');
+      throw new Error(
+        'Missing client ID. Did you provide it when initializing WorkOS?',
+      );
     }
 
     try {
