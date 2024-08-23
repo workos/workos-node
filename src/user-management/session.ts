@@ -126,10 +126,6 @@ export class Session {
       };
     }
 
-    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
-      session.accessToken,
-    );
-
     try {
       const cookiePassword = options.cookiePassword ?? this.cookiePassword;
 
@@ -137,8 +133,7 @@ export class Session {
         await this.userManagement.authenticateWithRefreshToken({
           clientId: this.userManagement.clientId as string,
           refreshToken: session.refreshToken,
-          organizationId:
-            options.organizationId ?? organizationIdFromAccessToken,
+          organizationId: options.organizationId ?? undefined,
           session: {
             // We want to store the new sealed session in this class instance, so this always needs to be true
             sealSession: true,
