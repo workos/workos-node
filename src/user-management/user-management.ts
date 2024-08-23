@@ -174,6 +174,14 @@ export class UserManagement {
       : undefined;
   }
 
+  /**
+   * Loads a sealed session using the provided session data and cookie password.
+   *
+   * @param options - The options for loading the sealed session.
+   * @param options.sessionData - The sealed session data.
+   * @param options.cookiePassword - The password used to encrypt the session data.
+   * @returns The session class.
+   */
   loadSealedSession(options: {
     sessionData: string;
     cookiePassword: string;
@@ -447,6 +455,9 @@ export class UserManagement {
     }
   }
 
+  /**
+   * @deprecated This method is deprecated and will be removed in future versions. Please use the new `loadSealedSession` and its corresponding methods instead.
+   */
   async refreshAndSealSessionData({
     sessionData,
     organizationId,
@@ -992,6 +1003,8 @@ export class UserManagement {
   }
 
   /**
+   * @deprecated This method is deprecated and will be removed in future versions. Please use `loadSealedSession` and its `getLogoutUrl` method instead.
+   *
    * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
    * and uses the session ID to generate the logout URL.
    *

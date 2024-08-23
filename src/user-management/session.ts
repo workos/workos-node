@@ -46,6 +46,11 @@ export class Session {
       : undefined;
   }
 
+  /**
+   * Authenticates a user with a session cookie.
+   *
+   * @returns An object indicating whether the authentication was successful or not. If successful, it will include the user's session data.
+   */
   async authenticate(): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
@@ -108,6 +113,14 @@ export class Session {
     };
   }
 
+  /**
+   * Refreshes the user's session.
+   *
+   * @param options - Optional options for refreshing the session.
+   * @param options.cookiePassword - The password to use for the new session cookie.
+   * @param options.organizationId - The organization ID to use for the new session cookie.
+   * @returns An object indicating whether the refresh was successful or not. If successful, it will include the new sealed session data.
+   */
   async refresh(
     options: RefreshOptions = {},
   ): Promise<RefreshAndSealSessionDataResponse> {
@@ -172,6 +185,11 @@ export class Session {
     }
   }
 
+  /**
+   * Gets the URL to redirect the user to for logging out.
+   *
+   * @returns The URL to redirect the user to for logging out.
+   */
   async getLogoutUrl() {
     const authenticationResponse = await this.authenticate();
 
