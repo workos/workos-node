@@ -8,6 +8,7 @@ export interface AuthenticateWithOptionsBase {
   ipAddress?: string;
   userAgent?: string;
   session?: AuthenticateWithSessionOptions;
+  organizationId?: string;
 }
 
 export interface SerializedAuthenticateWithOptionsBase {
