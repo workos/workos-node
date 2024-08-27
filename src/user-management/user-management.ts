@@ -456,7 +456,8 @@ export class UserManagement {
   }
 
   /**
-   * @deprecated This method is deprecated and will be removed in future versions. Please use the new `loadSealedSession` and its corresponding methods instead.
+   * @deprecated This method is deprecated and will be removed in a future major version.
+   * Please use the new `loadSealedSession` helper and its corresponding methods instead.
    */
   async refreshAndSealSessionData({
     sessionData,
@@ -644,7 +645,8 @@ export class UserManagement {
   }
 
   /**
-   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
+   * @deprecated Please use `createMagicAuth` instead.
+   * This method will be removed in a future major version.
    */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
@@ -1003,7 +1005,8 @@ export class UserManagement {
   }
 
   /**
-   * @deprecated This method is deprecated and will be removed in future versions. Please use `loadSealedSession` and its `getLogoutUrl` method instead.
+   * @deprecated This method is deprecated and will be removed in a future major version.
+   * Please use the `loadSealedSession` helper and its `getLogoutUrl` method instead.
    *
    * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
    * and uses the session ID to generate the logout URL.
