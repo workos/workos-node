@@ -1,3 +1,5 @@
+import { PasswordHashType } from './password-hash-type.interface';
+
 export interface UpdateUserOptions {
   userId: string;
   firstName?: string;
@@ -5,7 +7,7 @@ export interface UpdateUserOptions {
   emailVerified?: boolean;
   password?: string;
   passwordHash?: string;
-  passwordHashType?: 'bcrypt' | 'firebase-scrypt' | 'ssha' | 'scrypt';
+  passwordHashType?: PasswordHashType;
 }
 
 export interface SerializedUpdateUserOptions {
@@ -14,5 +16,5 @@ export interface SerializedUpdateUserOptions {
   email_verified?: boolean;
   password?: string;
   password_hash?: string;
-  password_hash_type?: 'bcrypt' | 'firebase-scrypt' | 'ssha' | 'scrypt';
+  password_hash_type?: PasswordHashType;
 }
