@@ -1,6 +1,5 @@
 import {
   CheckBatchOptions,
-  CheckOp,
   CheckOptions,
   CheckWarrantOptions,
   DecisionTreeNode,
@@ -21,7 +20,7 @@ export const serializeCheckOptions = (
 export const serializeCheckBatchOptions = (
   options: CheckBatchOptions,
 ): SerializedCheckOptions => ({
-  op: CheckOp.Batch,
+  op: 'batch',
   checks: options.checks.map(serializeCheckWarrantOptions),
   debug: options.debug,
 });
