@@ -137,6 +137,7 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
+import { Session } from './session';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -155,17 +156,37 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 
 export class UserManagement {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
+  public clientId: string | undefined;
+  public ironSessionProvider: IronSessionProvider;
 
   constructor(
     private readonly workos: WorkOS,
-    private readonly ironSessionProvider: IronSessionProvider,
+    ironSessionProvider: IronSessionProvider,
   ) {
     const { clientId } = workos.options;
+
+    this.clientId = clientId;
+    this.ironSessionProvider = ironSessionProvider;
 
     // Set the JWKS URL. This is used to verify if the JWT is still valid
     this.jwks = clientId
       ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)))
       : undefined;
+  }
+
+  /**
+   * Loads a sealed session using the provided session data and cookie password.
+   *
+   * @param options - The options for loading the sealed session.
+   * @param options.sessionData - The sealed session data.
+   * @param options.cookiePassword - The password used to encrypt the session data.
+   * @returns The session class.
+   */
+  loadSealedSession(options: {
+    sessionData: string;
+    cookiePassword: string;
+  }): Session {
+    return new Session(this, options.sessionData, options.cookiePassword);
   }
 
   async getUser(userId: string): Promise<User> {
@@ -416,6 +437,7 @@ export class UserManagement {
       sessionId,
       organizationId,
       role,
+      user: session.user,
       permissions,
     };
   }
@@ -433,6 +455,10 @@ export class UserManagement {
     }
   }
 
+  /**
+   * @deprecated This method is deprecated and will be removed in a future major version.
+   * Please use the new `loadSealedSession` helper and its corresponding methods instead.
+   */
   async refreshAndSealSessionData({
     sessionData,
     organizationId,
@@ -484,7 +510,10 @@ export class UserManagement {
         };
       }
 
-      return { authenticated: true, sealedSession };
+      return {
+        authenticated: true,
+        sealedSession,
+      };
     } catch (error) {
       if (
         error instanceof OauthException &&
@@ -511,7 +540,7 @@ export class UserManagement {
     authenticationResponse: AuthenticationResponse;
     session?: AuthenticateWithSessionOptions;
   }): Promise<AuthenticationResponse> {
-    if (session) {
+    if (session?.sealSession) {
       return {
         ...authenticationResponse,
         sealedSession: await this.sealSessionDataFromAuthenticationResponse({
@@ -616,7 +645,8 @@ export class UserManagement {
   }
 
   /**
-   * @deprecated Please use `createMagicAuth` instead. This method will be removed in a future major version.
+   * @deprecated Please use `createMagicAuth` instead.
+   * This method will be removed in a future major version.
    */
   async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
     await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
@@ -975,6 +1005,9 @@ export class UserManagement {
   }
 
   /**
+   * @deprecated This method is deprecated and will be removed in a future major version.
+   * Please use the `loadSealedSession` helper and its `getLogoutUrl` method instead.
+   *
    * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
    * and uses the session ID to generate the logout URL.
    *
@@ -1001,6 +1034,7 @@ export class UserManagement {
     if (!clientId) {
       throw TypeError('clientId must be a valid clientId');
     }
+
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }
