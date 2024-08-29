@@ -33,7 +33,13 @@ export interface CheckBatchOptions {
 }
 
 export interface SerializedCheckOptions {
-  op?: string;
+  op?: CheckOp;
+  checks: SerializedCheckWarrantOptions[];
+  debug?: boolean;
+}
+
+export interface SerializedCheckBatchOptions {
+  op: 'batch';
   checks: SerializedCheckWarrantOptions[];
   debug?: boolean;
 }

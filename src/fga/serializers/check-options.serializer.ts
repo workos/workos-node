@@ -4,6 +4,7 @@ import {
   CheckWarrantOptions,
   DecisionTreeNode,
   DecisionTreeNodeResponse,
+  SerializedCheckBatchOptions,
   SerializedCheckOptions,
   SerializedCheckWarrantOptions,
 } from '../interfaces';
@@ -19,7 +20,7 @@ export const serializeCheckOptions = (
 
 export const serializeCheckBatchOptions = (
   options: CheckBatchOptions,
-): SerializedCheckOptions => ({
+): SerializedCheckBatchOptions => ({
   op: 'batch',
   checks: options.checks.map(serializeCheckWarrantOptions),
   debug: options.debug,
