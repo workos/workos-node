@@ -1,4 +1,8 @@
-import { BatchWriteResourcesResponse, Resource, ResourceResponse } from '../interfaces';
+import {
+  BatchWriteResourcesResponse,
+  Resource,
+  ResourceResponse,
+} from '../interfaces';
 
 export const deserializeResource = (response: ResourceResponse): Resource => ({
   resourceType: response.resource_type,
@@ -6,6 +10,8 @@ export const deserializeResource = (response: ResourceResponse): Resource => ({
   meta: response.meta,
 });
 
-export const deserializeBatchWriteResourcesResponse = (response: BatchWriteResourcesResponse): Resource[] => {
+export const deserializeBatchWriteResourcesResponse = (
+  response: BatchWriteResourcesResponse,
+): Resource[] => {
   return response.data.map((resource) => deserializeResource(resource));
-}
+};

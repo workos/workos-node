@@ -189,8 +189,8 @@ describe('FGA', () => {
             resource_type: 'role',
             resource_id: 'admin',
             meta: {
-              description: "The admin role",
-            }
+              description: 'The admin role',
+            },
           },
           {
             resource_type: 'role',
@@ -211,8 +211,8 @@ describe('FGA', () => {
               resourceId: 'admin',
             },
             meta: {
-              description: "The admin role",
-            }
+              description: 'The admin role',
+            },
           },
           {
             resource: {
@@ -234,8 +234,8 @@ describe('FGA', () => {
           resourceType: 'role',
           resourceId: 'admin',
           meta: {
-            description: "The admin role",
-          }
+            description: 'The admin role',
+          },
         },
         {
           resourceType: 'role',
@@ -274,8 +274,8 @@ describe('FGA', () => {
               resourceId: 'admin',
             },
             meta: {
-              description: "The admin role",
-            }
+              description: 'The admin role',
+            },
           },
           {
             resource: {
