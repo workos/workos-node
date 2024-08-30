@@ -1,4 +1,5 @@
 import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
+import { ResourceOp } from './resource-op.enum';
 
 export interface ResourceInterface {
   getResourceType(): string;
@@ -60,4 +61,13 @@ export interface ResourceResponse {
   resource_type: string;
   resource_id: string;
   meta?: { [key: string]: any };
+}
+
+export interface BatchWriteResourcesOptions {
+  op: ResourceOp;
+  resources: CreateResourceOptions[] | DeleteResourceOptions[];
+}
+
+export interface BatchWriteResourcesResponse {
+  data: ResourceResponse[];
 }

@@ -24,8 +24,11 @@ import {
   WarrantResponse,
   WarrantToken,
   WarrantTokenResponse,
+  BatchWriteResourcesOptions,
+  BatchWriteResourcesResponse,
 } from './interfaces';
 import {
+  deserializeBatchWriteResourcesResponse,
   deserializeQueryResult,
   deserializeResource,
   deserializeWarrant,
@@ -145,6 +148,16 @@ export class FGA {
       : resource.resourceId;
 
     await this.workos.delete(`/fga/v1/resources/${resourceType}/${resourceId}`);
+  }
+
+  async batchWriteResources(
+    options: BatchWriteResourcesOptions,
+  ): Promise<Resource[]> {
+    const { data } = await this.workos.post<BatchWriteResourcesResponse>(
+      '/fga/v1/resources/batch',
+      options,
+    );
+    return deserializeBatchWriteResourcesResponse(data);
   }
 
   async writeWarrant(options: WriteWarrantOptions): Promise<WarrantToken> {

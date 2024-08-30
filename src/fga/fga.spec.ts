@@ -8,7 +8,7 @@ import {
 } from '../common/utils/test-utils';
 
 import { WorkOS } from '../workos';
-import { WarrantOp } from './interfaces';
+import { ResourceOp, WarrantOp } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -178,6 +178,134 @@ describe('FGA', () => {
       });
       expect(fetchURL()).toContain('/fga/v1/resources/role/admin');
       expect(response).toBeUndefined();
+    });
+  });
+
+  describe('batchWriteResources', () => {
+    it('batch create resources', async () => {
+      fetchOnce({
+        data: [
+          {
+            resource_type: 'role',
+            resource_id: 'admin',
+            meta: {
+              description: 'The admin role',
+            },
+          },
+          {
+            resource_type: 'role',
+            resource_id: 'manager',
+          },
+          {
+            resource_type: 'role',
+            resource_id: 'employee',
+          },
+        ],
+      });
+      const createdResources = await workos.fga.batchWriteResources({
+        op: ResourceOp.Create,
+        resources: [
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'admin',
+            },
+            meta: {
+              description: 'The admin role',
+            },
+          },
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'manager',
+            },
+          },
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'employee',
+            },
+          },
+        ],
+      });
+      expect(fetchURL()).toContain('/fga/v1/resources/batch');
+      expect(createdResources).toMatchObject([
+        {
+          resourceType: 'role',
+          resourceId: 'admin',
+          meta: {
+            description: 'The admin role',
+          },
+        },
+        {
+          resourceType: 'role',
+          resourceId: 'manager',
+        },
+        {
+          resourceType: 'role',
+          resourceId: 'employee',
+        },
+      ]);
+    });
+
+    it('batch delete resources', async () => {
+      fetchOnce({
+        data: [
+          {
+            resource_type: 'role',
+            resource_id: 'admin',
+          },
+          {
+            resource_type: 'role',
+            resource_id: 'manager',
+          },
+          {
+            resource_type: 'role',
+            resource_id: 'employee',
+          },
+        ],
+      });
+      const deletedResources = await workos.fga.batchWriteResources({
+        op: ResourceOp.Delete,
+        resources: [
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'admin',
+            },
+            meta: {
+              description: 'The admin role',
+            },
+          },
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'manager',
+            },
+          },
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'employee',
+            },
+          },
+        ],
+      });
+      expect(fetchURL()).toContain('/fga/v1/resources/batch');
+      expect(deletedResources).toMatchObject([
+        {
+          resourceType: 'role',
+          resourceId: 'admin',
+        },
+        {
+          resourceType: 'role',
+          resourceId: 'manager',
+        },
+        {
+          resourceType: 'role',
+          resourceId: 'employee',
+        },
+      ]);
     });
   });
 

@@ -38,6 +38,12 @@ export interface SerializedCheckOptions {
   debug?: boolean;
 }
 
+export interface SerializedCheckBatchOptions {
+  op: 'batch';
+  checks: SerializedCheckWarrantOptions[];
+  debug?: boolean;
+}
+
 export interface CheckResultResponse {
   result: string;
   is_implicit: boolean;
