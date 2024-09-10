@@ -1,4 +1,4 @@
-import { OrganizationDomain } from './organization-domain.interface';
+import { OrganizationDomain } from '../../organization-domains/interfaces/organization-domain.interface';
 
 export interface Organization {
   object: 'organization';
