@@ -35,6 +35,10 @@ import {
   RoleEvent,
   RoleEventResponse,
 } from '../../roles/interfaces/role.interface';
+import {
+  OrganizationDomain,
+  OrganizationDomainResponse,
+} from '../../organization-domains/interfaces';
 
 export interface EventBase {
   id: string;
@@ -510,6 +514,28 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
   data: SessionResponse;
 }
 
+export interface OrganizationDomainVerifiedEvent extends EventBase {
+  event: 'organization_domain.verified';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainVerifiedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.verified';
+  data: OrganizationDomainResponse;
+}
+
+export interface OrganizationDomainVerificationFailedEvent extends EventBase {
+  event: 'organization_domain.verification_failed';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainVerificationFailedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.verification_failed';
+  data: OrganizationDomainResponse;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -552,7 +578,8 @@ export type Event =
   | SessionCreatedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
-  | OrganizationDeletedEvent;
+  | OrganizationDeletedEvent
+  | OrganizationDomainVerifiedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -596,6 +623,7 @@ export type EventResponse =
   | SessionCreatedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
-  | OrganizationDeletedResponse;
+  | OrganizationDeletedResponse
+  | OrganizationDomainVerifiedEventResponse;
 
 export type EventName = Event['event'];
