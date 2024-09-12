@@ -579,7 +579,8 @@ export type Event =
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
   | OrganizationDeletedEvent
-  | OrganizationDomainVerifiedEvent;
+  | OrganizationDomainVerifiedEvent
+  | OrganizationDomainVerificationFailedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -624,6 +625,7 @@ export type EventResponse =
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
   | OrganizationDeletedResponse
-  | OrganizationDomainVerifiedEventResponse;
+  | OrganizationDomainVerifiedEventResponse
+  | OrganizationDomainVerificationFailedEventResponse;
 
 export type EventName = Event['event'];

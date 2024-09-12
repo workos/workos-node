@@ -16,6 +16,7 @@ import {
   deserializePasswordResetEvent,
   deserializeUser,
 } from '../../user-management/serializers';
+import { deserializeOrganizationDomain } from '../../organization-domains/serializers/organization-domain.serializer';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import { deserializeRole } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
@@ -163,6 +164,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeOrganization(event.data),
+      };
+    case 'organization_domain.verified':
+    case 'organization_domain.verification_failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeOrganizationDomain(event.data),
       };
   }
 };
