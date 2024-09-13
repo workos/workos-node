@@ -671,7 +671,7 @@ describe.skip('FGA Live Test', () => {
       resource: newPermission,
       relation: 'member',
       subject: user2,
-      policy: 'region == \'us\''
+      policy: 'region == "us"',
     });
     expect(warrant2.warrantToken).toBeDefined();
 
@@ -685,7 +685,7 @@ describe.skip('FGA Live Test', () => {
     expect(warrants1.data[0].relation).toEqual('member');
     expect(warrants1.data[0].subject.resourceType).toEqual('user');
     expect(warrants1.data[0].subject.resourceId).toEqual(user2.resourceId);
-    expect(warrants1.data[0].policy).toEqual('region == \'us\'');
+    expect(warrants1.data[0].policy).toEqual('region == "us"');
 
     const warrants2 = await workos.fga.listWarrants(
       { limit: 1, after: warrants1.listMetadata.after },

@@ -506,7 +506,7 @@ describe('FGA', () => {
               resource_type: 'user',
               resource_id: 'user_124',
             },
-            policy: 'region == \'us\'',
+            policy: 'region == "us"',
           },
         ],
         list_metadata: {
@@ -534,7 +534,7 @@ describe('FGA', () => {
             resourceType: 'user',
             resourceId: 'user_124',
           },
-          policy: 'region == \'us\'',
+          policy: 'region == "us"',
         },
       ]);
     });
