@@ -70,7 +70,9 @@ export interface BatchWriteResourcesOptions {
 
 export interface SerializedBatchWriteResourcesOptions {
   op: string;
-  resources: SerializedCreateResourceOptions[] | SerializedDeleteResourceOptions[];
+  resources:
+    | SerializedCreateResourceOptions[]
+    | SerializedDeleteResourceOptions[];
 }
 
 export interface BatchWriteResourcesResponse {

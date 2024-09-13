@@ -1138,28 +1138,28 @@ describe.skip('FGA Live Test', () => {
     const objects = await workos.fga.batchWriteResources({
       op: ResourceOp.Create,
       resources: [
-        { 
+        {
           resource: {
             resourceType: 'user',
             resourceId: 'user1',
           },
         },
-        { 
+        {
           resource: {
             resourceType: 'user',
             resourceId: 'user2',
           },
         },
-        { 
+        {
           resource: {
             resourceType: 'tenant',
             resourceId: 'tenantA',
           },
           meta: {
-            name: "Tenant A",
-          }
-        }
-      ]
+            name: 'Tenant A',
+          },
+        },
+      ],
     });
     expect(objects.length).toEqual(3);
     expect(objects[0].resourceType).toEqual('user');
@@ -1173,19 +1173,19 @@ describe.skip('FGA Live Test', () => {
     await workos.fga.batchWriteResources({
       op: ResourceOp.Delete,
       resources: [
-        { 
+        {
           resourceType: 'user',
           resourceId: 'user1',
         },
-        { 
+        {
           resourceType: 'user',
           resourceId: 'user2',
         },
-        { 
+        {
           resourceType: 'tenant',
           resourceId: 'tenantA',
-        }
-      ]
+        },
+      ],
     });
-  })
+  });
 });

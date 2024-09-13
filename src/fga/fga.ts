@@ -47,7 +47,7 @@ import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 
 export class FGA {
-  constructor(private readonly workos: WorkOS) { }
+  constructor(private readonly workos: WorkOS) {}
 
   async check(
     checkOptions: CheckOptions,

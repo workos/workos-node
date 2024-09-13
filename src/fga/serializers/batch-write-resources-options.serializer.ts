@@ -13,13 +13,19 @@ import { serializeDeleteResourceOptions } from './delete-resource-options.serial
 export const serializeBatchWriteResourcesOptions = (
   options: BatchWriteResourcesOptions,
 ): SerializedBatchWriteResourcesOptions => {
-  let serializedResources: SerializedCreateResourceOptions[] | SerializedDeleteResourceOptions[] = [];
+  let serializedResources:
+    | SerializedCreateResourceOptions[]
+    | SerializedDeleteResourceOptions[] = [];
   if (options.op === ResourceOp.Create) {
     const resources = options.resources as CreateResourceOptions[];
-    serializedResources = resources.map((options: CreateResourceOptions) => serializeCreateResourceOptions(options));
+    serializedResources = resources.map((options: CreateResourceOptions) =>
+      serializeCreateResourceOptions(options),
+    );
   } else if (options.op === ResourceOp.Delete) {
     const resources = options.resources as DeleteResourceOptions[];
-    serializedResources = resources.map((options: DeleteResourceOptions) => serializeDeleteResourceOptions(options));
+    serializedResources = resources.map((options: DeleteResourceOptions) =>
+      serializeDeleteResourceOptions(options),
+    );
   }
 
   return {
