@@ -72,4 +72,5 @@ export interface WarrantResponse {
   resource_id: string;
   relation: string;
   subject: SerializedSubject;
+  policy?: string;
 }
