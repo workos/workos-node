@@ -68,6 +68,11 @@ export interface BatchWriteResourcesOptions {
   resources: CreateResourceOptions[] | DeleteResourceOptions[];
 }
 
+export interface SerializedBatchWriteResourcesOptions {
+  op: string;
+  resources: SerializedCreateResourceOptions[] | SerializedDeleteResourceOptions[];
+}
+
 export interface BatchWriteResourcesResponse {
   data: ResourceResponse[];
 }
