@@ -1,4 +1,5 @@
 export * from './check-options.serializer';
+export * from './batch-write-resources-options.serializer';
 export * from './create-resource-options.serializer';
 export * from './delete-resource-options.serializer';
 export * from './list-resources-options.serializer';

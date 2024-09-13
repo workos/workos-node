@@ -1,7 +1,7 @@
 import { disableFetchMocks, enableFetchMocks } from 'jest-fetch-mock';
 
 import { WorkOS } from '../workos';
-import { CheckOp, WarrantOp } from './interfaces';
+import { CheckOp, ResourceOp, WarrantOp } from './interfaces';
 
 describe.skip('FGA Live Test', () => {
   let workos: WorkOS;
@@ -671,6 +671,7 @@ describe.skip('FGA Live Test', () => {
       resource: newPermission,
       relation: 'member',
       subject: user2,
+      policy: 'region == "us"',
     });
     expect(warrant2.warrantToken).toBeDefined();
 
@@ -684,6 +685,7 @@ describe.skip('FGA Live Test', () => {
     expect(warrants1.data[0].relation).toEqual('member');
     expect(warrants1.data[0].subject.resourceType).toEqual('user');
     expect(warrants1.data[0].subject.resourceId).toEqual(user2.resourceId);
+    expect(warrants1.data[0].policy).toEqual('region == "us"');
 
     const warrants2 = await workos.fga.listWarrants(
       { limit: 1, after: warrants1.listMetadata.after },
@@ -1132,5 +1134,60 @@ describe.skip('FGA Live Test', () => {
     await workos.fga.deleteResource(permission3);
     await workos.fga.deleteResource(userA);
     await workos.fga.deleteResource(userB);
+  });
+
+  it('batch write resources', async () => {
+    const objects = await workos.fga.batchWriteResources({
+      op: ResourceOp.Create,
+      resources: [
+        {
+          resource: {
+            resourceType: 'user',
+            resourceId: 'user1',
+          },
+        },
+        {
+          resource: {
+            resourceType: 'user',
+            resourceId: 'user2',
+          },
+        },
+        {
+          resource: {
+            resourceType: 'tenant',
+            resourceId: 'tenantA',
+          },
+          meta: {
+            name: 'Tenant A',
+          },
+        },
+      ],
+    });
+    expect(objects.length).toEqual(3);
+    expect(objects[0].resourceType).toEqual('user');
+    expect(objects[0].resourceId).toEqual('user1');
+    expect(objects[1].resourceType).toEqual('user');
+    expect(objects[1].resourceId).toEqual('user2');
+    expect(objects[2].resourceType).toEqual('tenant');
+    expect(objects[2].resourceId).toEqual('tenantA');
+    expect(objects[2].meta).toEqual({ name: 'Tenant A' });
+
+    await workos.fga.batchWriteResources({
+      op: ResourceOp.Delete,
+      resources: [
+        {
+          resourceType: 'user',
+          resourceId: 'user1',
+        },
+        {
+          resourceType: 'user',
+          resourceId: 'user2',
+        },
+        {
+          resourceType: 'tenant',
+          resourceId: 'tenantA',
+        },
+      ],
+    });
   });
 });

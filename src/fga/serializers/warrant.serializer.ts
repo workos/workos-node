@@ -9,4 +9,5 @@ export const deserializeWarrant = (warrant: WarrantResponse): Warrant => ({
     resourceId: warrant.subject.resource_id,
     relation: warrant.subject.relation,
   },
+  policy: warrant.policy,
 });

@@ -33,6 +33,7 @@ import {
   deserializeResource,
   deserializeWarrant,
   deserializeWarrantToken,
+  serializeBatchWriteResourcesOptions,
   serializeCheckBatchOptions,
   serializeCheckOptions,
   serializeCreateResourceOptions,
@@ -155,7 +156,7 @@ export class FGA {
   ): Promise<Resource[]> {
     const { data } = await this.workos.post<BatchWriteResourcesResponse>(
       '/fga/v1/resources/batch',
-      options,
+      serializeBatchWriteResourcesOptions(options),
     );
     return deserializeBatchWriteResourcesResponse(data);
   }
