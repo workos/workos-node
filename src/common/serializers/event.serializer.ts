@@ -146,6 +146,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
       };
     case 'role.created':
     case 'role.deleted':
+    case 'role.updated':
       return {
         ...eventBase,
         event: event.event,

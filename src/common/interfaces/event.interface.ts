@@ -504,6 +504,16 @@ export interface RoleDeletedEventResponse extends EventResponseBase {
   data: RoleEventResponse;
 }
 
+export interface RoleUpdatedEvent extends EventBase {
+  event: 'role.updated';
+  data: RoleEvent;
+}
+
+export interface RoleUpdatedEventResponse extends EventResponseBase {
+  event: 'role.updated';
+  data: RoleEventResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -575,6 +585,7 @@ export type Event =
   | OrganizationMembershipRemoved
   | RoleCreatedEvent
   | RoleDeletedEvent
+  | RoleUpdatedEvent
   | SessionCreatedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
@@ -621,6 +632,7 @@ export type EventResponse =
   | OrganizationMembershipRemovedResponse
   | RoleCreatedEventResponse
   | RoleDeletedEventResponse
+  | RoleUpdatedEventResponse
   | SessionCreatedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
