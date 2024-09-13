@@ -35,6 +35,10 @@ import {
   RoleEvent,
   RoleEventResponse,
 } from '../../roles/interfaces/role.interface';
+import {
+  OrganizationDomain,
+  OrganizationDomainResponse,
+} from '../../organization-domains/interfaces';
 
 export interface EventBase {
   id: string;
@@ -500,6 +504,16 @@ export interface RoleDeletedEventResponse extends EventResponseBase {
   data: RoleEventResponse;
 }
 
+export interface RoleUpdatedEvent extends EventBase {
+  event: 'role.updated';
+  data: RoleEvent;
+}
+
+export interface RoleUpdatedEventResponse extends EventResponseBase {
+  event: 'role.updated';
+  data: RoleEventResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -508,6 +522,28 @@ export interface SessionCreatedEvent extends EventBase {
 export interface SessionCreatedEventResponse extends EventResponseBase {
   event: 'session.created';
   data: SessionResponse;
+}
+
+export interface OrganizationDomainVerifiedEvent extends EventBase {
+  event: 'organization_domain.verified';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainVerifiedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.verified';
+  data: OrganizationDomainResponse;
+}
+
+export interface OrganizationDomainVerificationFailedEvent extends EventBase {
+  event: 'organization_domain.verification_failed';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainVerificationFailedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.verification_failed';
+  data: OrganizationDomainResponse;
 }
 
 export type Event =
@@ -549,10 +585,13 @@ export type Event =
   | OrganizationMembershipRemoved
   | RoleCreatedEvent
   | RoleDeletedEvent
+  | RoleUpdatedEvent
   | SessionCreatedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
-  | OrganizationDeletedEvent;
+  | OrganizationDeletedEvent
+  | OrganizationDomainVerifiedEvent
+  | OrganizationDomainVerificationFailedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -593,9 +632,12 @@ export type EventResponse =
   | OrganizationMembershipRemovedResponse
   | RoleCreatedEventResponse
   | RoleDeletedEventResponse
+  | RoleUpdatedEventResponse
   | SessionCreatedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
-  | OrganizationDeletedResponse;
+  | OrganizationDeletedResponse
+  | OrganizationDomainVerifiedEventResponse
+  | OrganizationDomainVerificationFailedEventResponse;
 
 export type EventName = Event['event'];
