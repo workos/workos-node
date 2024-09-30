@@ -292,7 +292,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 // tslint:disable-next-line
 export class FetchHttpClientResponse
   extends HttpClientResponse
-  implements HttpClientResponseInterface {
+  implements HttpClientResponseInterface
+{
   _res: Response;
 
   constructor(res: Response) {
