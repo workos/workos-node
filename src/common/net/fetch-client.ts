@@ -7,6 +7,13 @@ import {
 } from '../interfaces/http-client.interface';
 import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
 
+const MAX_RETRY_ATTEMPTS = 3;
+const BACKOFF_MULTIPLIER = 1.5;
+const MINIMUM_SLEEP_TIME = 500;
+const RETRY_STATUS_CODES = [500, 502, 504];
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
 
@@ -45,7 +52,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
+    if (resourceURL.includes('fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'GET',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
+    }
   }
 
   async post<Entity = any>(
@@ -59,15 +75,27 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'POST',
-      HttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (resourceURL.includes('fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'POST',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'POST',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async put<Entity = any>(
@@ -81,15 +109,27 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'PUT',
-      HttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (resourceURL.includes('fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'PUT',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'PUT',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async delete(
@@ -102,12 +142,21 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'DELETE',
-      null,
-      options.headers,
-    );
+    if (resourceURL.includes('fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    }
   }
 
   private async fetchRequest(
@@ -151,13 +200,99 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     return new FetchHttpClientResponse(res);
   }
+
+  private async fetchRequestWithRetry(
+    url: string,
+    method: string,
+    body?: any,
+    headers?: RequestHeaders,
+  ): Promise<HttpClientResponseInterface> {
+    // For methods which expect payloads, we should always pass a body value
+    // even when it is empty. Without this, some JS runtimes (eg. Deno) will
+    // inject a second Content-Length header.
+    const methodHasPayload =
+      method === 'POST' || method === 'PUT' || method === 'PATCH';
+
+    const requestBody = body || (methodHasPayload ? '' : undefined);
+
+    const { 'User-Agent': userAgent } = this.options?.headers as RequestHeaders;
+
+    let response: Response;
+    let requestError: any = null;
+    let retryAttempts = 1;
+
+    const makeRequest = async (): Promise<HttpClientResponseInterface> => {
+      try {
+        response = await this._fetchFn(url, {
+          method,
+          headers: {
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            ...this.options?.headers,
+            ...headers,
+            'User-Agent': this.addClientToUserAgent(userAgent.toString()),
+          },
+          body: requestBody,
+        });
+      } catch (e) {
+        requestError = e;
+      }
+
+      if (this.shouldRetryRequest(response, requestError, retryAttempts)) {
+        retryAttempts++;
+        await sleep(this.getSleepTime(retryAttempts));
+        return makeRequest();
+      }
+
+      if (!response.ok) {
+        throw new HttpClientError({
+          message: response.statusText,
+          response: {
+            status: response.status,
+            headers: response.headers,
+            data: await response.json(),
+          },
+        });
+      }
+
+      return new FetchHttpClientResponse(response);
+    };
+
+    return makeRequest();
+  }
+
+  private shouldRetryRequest(
+    response: any,
+    requestError: any,
+    retryAttempt: number,
+  ): boolean {
+    if (retryAttempt > MAX_RETRY_ATTEMPTS) {
+      return false;
+    }
+
+    if (requestError != null && requestError instanceof TypeError) {
+      return true;
+    }
+
+    if (response != null && RETRY_STATUS_CODES.includes(response.status)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private getSleepTime(retryAttempt: number): number {
+    const sleepTime =
+      MINIMUM_SLEEP_TIME * Math.pow(BACKOFF_MULTIPLIER, retryAttempt);
+    const jitter = Math.random() + 0.5;
+    return sleepTime * jitter;
+  }
 }
 
 // tslint:disable-next-line
 export class FetchHttpClientResponse
   extends HttpClientResponse
-  implements HttpClientResponseInterface
-{
+  implements HttpClientResponseInterface {
   _res: Response;
 
   constructor(res: Response) {
