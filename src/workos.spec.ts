@@ -351,5 +351,25 @@ describe('WorkOS', () => {
         SubtleCryptoProvider,
       );
     });
+
+    it('uses console.warn to emit warnings', () => {
+      const workos = new WorkOSWorker('sk_test_key');
+      const warnSpy = jest.spyOn(console, 'warn');
+
+      workos.emitWarning('foo');
+
+      expect(warnSpy).toHaveBeenCalledWith('WorkOS: foo');
+    });
+  });
+
+  describe('when in a node environment', () => {
+    it('uses process.emitWarning to emit warnings', () => {
+      const workos = new WorkOS('sk_test_key');
+      const warnSpy = jest.spyOn(process, 'emitWarning');
+
+      workos.emitWarning('foo');
+
+      expect(warnSpy).toHaveBeenCalledWith('foo', 'WorkOS');
+    });
   });
 });

@@ -227,12 +227,6 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
-    // process might be undefined in some environments
-    if (typeof process?.emitWarning !== 'function') {
-      //  tslint:disable:no-console
-      return console.warn(`WorkOS: ${warning}`);
-    }
-
     return process.emitWarning(warning, 'WorkOS');
   }
 

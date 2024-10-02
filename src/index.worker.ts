@@ -44,6 +44,12 @@ class WorkOSWorker extends WorkOS {
   createIronSessionProvider(): IronSessionProvider {
     return new EdgeIronSessionProvider();
   }
+
+  /** @override */
+  emitWarning(warning: string): void {
+    // tslint:disable-next-line:no-console
+    return console.warn(`WorkOS: ${warning}`);
+  }
 }
 
 export { WorkOSWorker as WorkOS };
