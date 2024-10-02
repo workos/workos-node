@@ -48,6 +48,9 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
     ],
     "last_name": "bar",
   },
+  "role": {
+    "slug": "admin",
+  },
 }
 `;
 
@@ -77,6 +80,9 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
     "email": "foo@test.com",
     "first_name": "foo",
     "last_name": "bar",
+  },
+  "role": {
+    "slug": "admin",
   },
 }
 `;

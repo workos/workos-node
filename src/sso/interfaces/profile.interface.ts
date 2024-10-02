@@ -1,3 +1,4 @@
+import { RoleResponse } from '../../roles/interfaces';
 import { ConnectionType } from './connection-type.enum';
 
 export interface Profile {
@@ -9,6 +10,7 @@ export interface Profile {
   email: string;
   firstName?: string;
   lastName?: string;
+  role?: RoleResponse;
   groups?: string[];
   rawAttributes?: { [key: string]: any };
 }
@@ -22,6 +24,7 @@ export interface ProfileResponse {
   email: string;
   first_name?: string;
   last_name?: string;
+  role?: RoleResponse;
   groups?: string[];
   raw_attributes?: { [key: string]: any };
 }
