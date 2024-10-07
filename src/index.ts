@@ -66,6 +66,11 @@ class WorkOSNode extends WorkOS {
   createIronSessionProvider(): IronSessionProvider {
     return new WebIronSessionProvider();
   }
+
+  /** @override */
+  emitWarning(warning: string): void {
+    return process.emitWarning(warning, 'WorkOS');
+  }
 }
 
 export { WorkOSNode as WorkOS };
