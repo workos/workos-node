@@ -227,6 +227,7 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
+    // tslint:disable-next-line:no-console
     console.warn(`WorkOS: ${warning}`);
   }
 
