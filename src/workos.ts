@@ -227,7 +227,7 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
-    return process.emitWarning(warning, 'WorkOS');
+    console.warn(`WorkOS: ${warning}`);
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
