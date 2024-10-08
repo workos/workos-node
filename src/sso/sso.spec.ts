@@ -209,6 +209,9 @@ describe('SSO', () => {
               email: 'foo@test.com',
               first_name: 'foo',
               last_name: 'bar',
+              role: {
+                slug: 'admin',
+              },
               groups: ['Admins', 'Developers'],
               raw_attributes: {
                 email: 'foo@test.com',
@@ -247,6 +250,9 @@ describe('SSO', () => {
               email: 'foo@test.com',
               first_name: 'foo',
               last_name: 'bar',
+              role: {
+                slug: 'admin',
+              },
               raw_attributes: {
                 email: 'foo@test.com',
                 first_name: 'foo',
@@ -282,6 +288,9 @@ describe('SSO', () => {
           email: 'foo@test.com',
           first_name: 'foo',
           last_name: 'bar',
+          role: {
+            slug: 'admin',
+          },
           groups: ['Admins', 'Developers'],
           raw_attributes: {
             email: 'foo@test.com',
