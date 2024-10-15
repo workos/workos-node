@@ -1,8 +1,8 @@
 import { AuditLogSchema, CreateAuditLogSchemaResponse } from '../interfaces';
 
 function deserializeMetadata(metadata: {
-  properties?: Record<string, { type: string | number | boolean, nullable: boolean }>;
-}): Record<string, string> {
+  properties?: Record<string, { type: string | number | boolean }>;
+}): Record<string, string | number | boolean> {
   if (!metadata || !metadata.properties) {
     return {};
   }

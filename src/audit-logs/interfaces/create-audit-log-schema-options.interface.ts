@@ -9,31 +9,31 @@ export interface AuditLogSchema {
   version: number;
   targets: AuditLogTargetSchema[];
   actor: AuditLogActorSchema;
-  metadata: Record<string, string> | undefined;
+  metadata: Record<string, string | boolean | number> | undefined;
   createdAt: string;
 }
 
 export interface AuditLogActorSchema {
-  metadata: Record<string, string> | undefined;
+  metadata: Record<string, string | boolean | number> | undefined;
 }
 
 export interface AuditLogTargetSchema {
   type: string;
-  metadata?: Record<string, string> | undefined;
+  metadata?: Record<string, string | boolean | number> | undefined;
 }
 
 export interface CreateAuditLogSchemaOptions {
   action: string;
   targets: AuditLogTargetSchema[];
   actor?: AuditLogActorSchema;
-  metadata?: Record<string, string>;
+  metadata?: Record<string, string | boolean | number>;
 }
 
 interface SerializedAuditLogTargetSchema {
   type: string;
   metadata?: {
     type: 'object';
-    properties: Record<string, { type: string }>;
+    properties: AuditLogSchemaMetadata;
   };
 }
 
