@@ -1,5 +1,9 @@
 import { PostOptions } from '../../common/interfaces';
 
+export type AuditLogSchemaMetadata =
+  | Record<string, { type: 'string' | 'boolean' | 'number' }>
+  | undefined;
+
 export interface AuditLogSchema {
   object: 'audit_log_schema';
   version: number;
@@ -38,12 +42,12 @@ export interface SerializedCreateAuditLogSchemaOptions {
   actor?: {
     metadata: {
       type: 'object';
-      properties: Record<string, { type: string }> | undefined;
+      properties: AuditLogSchemaMetadata;
     };
   };
   metadata?: {
     type: 'object';
-    properties: Record<string, { type: string }> | undefined;
+    properties: AuditLogSchemaMetadata;
   };
 }
 
@@ -54,12 +58,12 @@ export interface CreateAuditLogSchemaResponse {
   actor: {
     metadata: {
       type: 'object';
-      properties: Record<string, { type: string }> | undefined;
+      properties: AuditLogSchemaMetadata;
     };
   };
   metadata: {
     type: 'object';
-    properties: Record<string, { type: string }> | undefined;
+    properties: AuditLogSchemaMetadata;
   };
   created_at: string;
 }

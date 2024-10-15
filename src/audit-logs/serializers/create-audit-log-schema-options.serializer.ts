@@ -1,4 +1,5 @@
 import {
+  AuditLogSchemaMetadata,
   CreateAuditLogSchemaOptions,
   SerializedCreateAuditLogSchemaOptions,
 } from '../interfaces';
@@ -8,11 +9,11 @@ function serializeMetadata(metadata: Record<string, string> | undefined) {
     return {};
   }
 
-  const serializedMetadata: Record<string, { type: string }> = {};
+  const serializedMetadata: AuditLogSchemaMetadata = {};
 
   Object.keys(metadata).forEach((key) => {
     serializedMetadata[key] = {
-      type: metadata[key],
+      type: metadata[key] as 'string' | 'number' | 'boolean',
     };
   });
 
