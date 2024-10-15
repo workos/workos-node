@@ -4,7 +4,7 @@ import {
   SerializedCreateAuditLogSchemaOptions,
 } from '../interfaces';
 
-function serializeMetadata(metadata: Record<string, string> | undefined) {
+function serializeMetadata(metadata: Record<string, string | number | boolean> | undefined) {
   if (!metadata) {
     return {};
   }

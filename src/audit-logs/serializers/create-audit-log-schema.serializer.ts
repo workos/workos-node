@@ -1,13 +1,13 @@
 import { AuditLogSchema, CreateAuditLogSchemaResponse } from '../interfaces';
 
 function deserializeMetadata(metadata: {
-  properties?: Record<string, { type: string }>;
+  properties?: Record<string, { type: string | number | boolean, nullable: boolean }>;
 }): Record<string, string> {
   if (!metadata || !metadata.properties) {
     return {};
   }
 
-  const deserializedMetadata: Record<string, string> = {};
+  const deserializedMetadata: Record<string, string | number | boolean> = {};
 
   Object.keys(metadata.properties).forEach((key) => {
     if (metadata.properties) {
