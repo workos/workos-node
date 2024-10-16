@@ -14,7 +14,7 @@ export interface AuditLogSchema {
 }
 
 export interface AuditLogActorSchema {
-  metadata: Record<string, string | boolean | number> | undefined;
+  metadata: Record<string, string | boolean | number>;
 }
 
 export interface AuditLogTargetSchema {
