@@ -33,7 +33,7 @@ import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
-const VERSION = '7.27.4';
+const VERSION = '7.27.5';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -227,7 +227,8 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
-    return process.emitWarning(warning, 'WorkOS');
+    // tslint:disable-next-line:no-console
+    console.warn(`WorkOS: ${warning}`);
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
