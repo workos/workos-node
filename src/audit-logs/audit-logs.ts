@@ -9,9 +9,17 @@ import {
   AuditLogExportResponse,
 } from './interfaces/audit-log-export.interface';
 import {
+  AuditLogSchema,
+  CreateAuditLogSchemaOptions,
+  CreateAuditLogSchemaRequestOptions,
+  CreateAuditLogSchemaResponse,
+} from './interfaces/create-audit-log-schema-options.interface';
+import {
   deserializeAuditLogExport,
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
+  serializeCreateAuditLogSchemaOptions,
+  deserializeAuditLogSchema,
 } from './serializers';
 
 export class AuditLogs {
@@ -47,5 +55,18 @@ export class AuditLogs {
     );
 
     return deserializeAuditLogExport(data);
+  }
+
+  async createSchema(
+    schema: CreateAuditLogSchemaOptions,
+    options: CreateAuditLogSchemaRequestOptions = {},
+  ): Promise<AuditLogSchema> {
+    const { data } = await this.workos.post<CreateAuditLogSchemaResponse>(
+      `/audit_logs/actions/${schema.action}/schemas`,
+      serializeCreateAuditLogSchemaOptions(schema),
+      options,
+    );
+
+    return deserializeAuditLogSchema(data);
   }
 }
