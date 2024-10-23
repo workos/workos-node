@@ -207,62 +207,34 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     body?: any,
     headers?: RequestHeaders,
   ): Promise<HttpClientResponseInterface> {
-    // For methods which expect payloads, we should always pass a body value
-    // even when it is empty. Without this, some JS runtimes (eg. Deno) will
-    // inject a second Content-Length header.
-    const methodHasPayload =
-      method === 'POST' || method === 'PUT' || method === 'PATCH';
-
-    const requestBody = body || (methodHasPayload ? '' : undefined);
-
-    const { 'User-Agent': userAgent } = this.options?.headers as RequestHeaders;
-
-    let response: Response;
+    let response: HttpClientResponseInterface;
     let requestError: any = null;
     let retryAttempts = 1;
 
     const makeRequest = async (): Promise<HttpClientResponseInterface> => {
       try {
-        response = await this._fetchFn(url, {
-          method,
-          headers: {
-            Accept: 'application/json, text/plain, */*',
-            'Content-Type': 'application/json',
-            ...this.options?.headers,
-            ...headers,
-            'User-Agent': this.addClientToUserAgent(userAgent.toString()),
-          },
-          body: requestBody,
-        });
+        response = await this.fetchRequest(url, method, body, headers);
       } catch (e) {
         requestError = e;
       }
 
-      if (this.shouldRetryRequest(response, requestError, retryAttempts)) {
+      if (this.shouldRetryRequest(requestError, retryAttempts)) {
         retryAttempts++;
         await sleep(this.getSleepTime(retryAttempts));
         return makeRequest();
       }
 
-      if (!response.ok) {
-        throw new HttpClientError({
-          message: response.statusText,
-          response: {
-            status: response.status,
-            headers: response.headers,
-            data: await response.json(),
-          },
-        });
+      if (requestError != null) {
+        throw requestError;
       }
 
-      return new FetchHttpClientResponse(response);
+      return response;
     };
 
     return makeRequest();
   }
 
   private shouldRetryRequest(
-    response: any,
     requestError: any,
     retryAttempt: number,
   ): boolean {
@@ -270,12 +242,14 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       return false;
     }
 
-    if (requestError != null && requestError instanceof TypeError) {
-      return true;
-    }
+    if (requestError != null) {
+      if (requestError instanceof TypeError) {
+        return true;
+      }
 
-    if (response != null && RETRY_STATUS_CODES.includes(response.status)) {
-      return true;
+      if (requestError instanceof HttpClientError && RETRY_STATUS_CODES.includes(requestError.response.status)) {
+        return true;
+      }
     }
 
     return false;
