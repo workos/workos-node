@@ -25,6 +25,13 @@ const http = (http_ as unknown as { default: typeof http_ }).default || http_;
 const https =
   (https_ as unknown as { default: typeof https_ }).default || https_;
 
+const MAX_RETRY_ATTEMPTS = 3;
+const BACKOFF_MULTIPLIER = 1.5;
+const MINIMUM_SLEEP_TIME = 500;
+const RETRY_STATUS_CODES = [500, 502, 504];
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   private httpAgent: HttpAgent;
   private httpsAgent: HttpsAgent;
@@ -62,7 +69,16 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.nodeRequest(resourceURL, 'GET', null, options.headers);
+    if (resourceURL.includes('fga/')) {
+      return await this.nodeRequestWithRetry(
+        resourceURL,
+        'GET',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.nodeRequest(resourceURL, 'GET', null, options.headers);
+    }
   }
 
   async post<Entity = any>(
@@ -76,15 +92,27 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.nodeRequest(
-      resourceURL,
-      'POST',
-      NodeHttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (resourceURL.includes('fga/')) {
+      return await this.nodeRequestWithRetry(
+        resourceURL,
+        'POST',
+        NodeHttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.nodeRequest(
+        resourceURL,
+        'POST',
+        NodeHttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async put<Entity = any>(
@@ -98,15 +126,27 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.nodeRequest(
-      resourceURL,
-      'PUT',
-      NodeHttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (resourceURL.includes('fga/')) {
+      return await this.nodeRequestWithRetry(
+        resourceURL,
+        'PUT',
+        NodeHttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.nodeRequest(
+        resourceURL,
+        'PUT',
+        NodeHttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async delete(
@@ -119,7 +159,21 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.nodeRequest(resourceURL, 'DELETE', null, options.headers);
+    if (resourceURL.includes('fga/')) {
+      return await this.nodeRequestWithRetry(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.nodeRequest(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    }
   }
 
   private async nodeRequest(
@@ -178,13 +232,107 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       req.end();
     });
   }
+
+  private async nodeRequestWithRetry(
+    url: string,
+    method: string,
+    body: string | null,
+    headers?: RequestHeaders,
+  ): Promise<HttpClientResponseInterface> {
+    const isSecureConnection = url.startsWith('https');
+    const agent = isSecureConnection ? this.httpsAgent : this.httpAgent;
+    const lib = isSecureConnection ? https : http;
+
+    const { 'User-Agent': userAgent } = this.options?.headers as RequestHeaders;
+
+    const options: HttpRequestOptions = {
+      method,
+      headers: {
+        Accept: 'application/json, text/plain, */*',
+        'Content-Type': 'application/json',
+        ...(this.options?.headers as http_.OutgoingHttpHeaders),
+        ...headers,
+        'User-Agent': this.addClientToUserAgent(userAgent.toString()),
+      },
+      agent,
+    };
+
+    let retryAttempts = 1;
+
+    const makeRequest = async (): Promise<HttpClientResponseInterface> =>
+      new Promise<HttpClientResponseInterface>((resolve, reject) => {
+        const req = lib.request(url, options, async (res) => {
+          const clientResponse = new NodeHttpClientResponse(res);
+
+          if (this.shouldRetryRequest(res, retryAttempts)) {
+            retryAttempts++;
+
+            await sleep(this.getSleepTime(retryAttempts));
+
+            return makeRequest().then(resolve).catch(reject);
+          }
+
+          if (
+            res.statusCode &&
+            (res.statusCode < 200 || res.statusCode > 299)
+          ) {
+            reject(
+              new HttpClientError({
+                message: res.statusMessage as string,
+                response: {
+                  status: res.statusCode,
+                  headers: res.headers,
+                  data: await clientResponse.toJSON(),
+                },
+              }),
+            );
+          }
+
+          resolve(new NodeHttpClientResponse(res));
+        });
+
+        req.on('error', async (err) => {
+          if (err != null && err instanceof TypeError) {
+            retryAttempts++;
+            await sleep(this.getSleepTime(retryAttempts));
+            return makeRequest().then(resolve).catch(reject);
+          }
+        });
+
+        if (body) {
+          req.setHeader('Content-Length', Buffer.byteLength(body));
+          req.write(body);
+        }
+        req.end();
+      });
+
+    return makeRequest();
+  }
+
+  private shouldRetryRequest(response: any, retryAttempt: number): boolean {
+    if (retryAttempt > MAX_RETRY_ATTEMPTS) {
+      return false;
+    }
+
+    if (response != null && RETRY_STATUS_CODES.includes(response.statusCode)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  private getSleepTime(retryAttempt: number): number {
+    let sleepTime =
+      MINIMUM_SLEEP_TIME * Math.pow(BACKOFF_MULTIPLIER, retryAttempt);
+    const jitter = Math.random() + 0.5;
+    return sleepTime * jitter;
+  }
 }
 
 // tslint:disable-next-line
 export class NodeHttpClientResponse
   extends HttpClientResponse
-  implements HttpClientResponseInterface
-{
+  implements HttpClientResponseInterface {
   _res: http_.IncomingMessage;
 
   constructor(res: http_.IncomingMessage) {
