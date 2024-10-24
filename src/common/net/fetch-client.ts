@@ -7,13 +7,6 @@ import {
 } from '../interfaces/http-client.interface';
 import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
 
-const MAX_RETRY_ATTEMPTS = 3;
-const BACKOFF_MULTIPLIER = 1.5;
-const MINIMUM_SLEEP_TIME = 500;
-const RETRY_STATUS_CODES = [500, 502, 504];
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
 
@@ -221,7 +214,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
       if (this.shouldRetryRequest(requestError, retryAttempts)) {
         retryAttempts++;
-        await sleep(this.getSleepTime(retryAttempts));
+        await this.sleep(retryAttempts);
         return makeRequest();
       }
 
@@ -236,7 +229,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   }
 
   private shouldRetryRequest(requestError: any, retryAttempt: number): boolean {
-    if (retryAttempt > MAX_RETRY_ATTEMPTS) {
+    if (retryAttempt > this.MAX_RETRY_ATTEMPTS) {
       return false;
     }
 
@@ -247,20 +240,13 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
       if (
         requestError instanceof HttpClientError &&
-        RETRY_STATUS_CODES.includes(requestError.response.status)
+        this.RETRY_STATUS_CODES.includes(requestError.response.status)
       ) {
         return true;
       }
     }
 
     return false;
-  }
-
-  private getSleepTime(retryAttempt: number): number {
-    const sleepTime =
-      MINIMUM_SLEEP_TIME * Math.pow(BACKOFF_MULTIPLIER, retryAttempt);
-    const jitter = Math.random() + 0.5;
-    return sleepTime * jitter;
   }
 }
 

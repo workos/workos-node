@@ -25,13 +25,6 @@ const http = (http_ as unknown as { default: typeof http_ }).default || http_;
 const https =
   (https_ as unknown as { default: typeof https_ }).default || https_;
 
-const MAX_RETRY_ATTEMPTS = 3;
-const BACKOFF_MULTIPLIER = 1.5;
-const MINIMUM_SLEEP_TIME = 500;
-const RETRY_STATUS_CODES = [500, 502, 504];
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   private httpAgent: HttpAgent;
   private httpsAgent: HttpsAgent;
@@ -267,7 +260,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
           if (this.shouldRetryRequest(res, retryAttempts)) {
             retryAttempts++;
 
-            await sleep(this.getSleepTime(retryAttempts));
+            await this.sleep(retryAttempts);
 
             return makeRequest().then(resolve).catch(reject);
           }
@@ -294,7 +287,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
         req.on('error', async (err) => {
           if (err != null && err instanceof TypeError) {
             retryAttempts++;
-            await sleep(this.getSleepTime(retryAttempts));
+            await this.sleep(retryAttempts);
             return makeRequest().then(resolve).catch(reject);
           }
         });
@@ -310,22 +303,15 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   }
 
   private shouldRetryRequest(response: any, retryAttempt: number): boolean {
-    if (retryAttempt > MAX_RETRY_ATTEMPTS) {
+    if (retryAttempt > this.MAX_RETRY_ATTEMPTS) {
       return false;
     }
 
-    if (response != null && RETRY_STATUS_CODES.includes(response.statusCode)) {
+    if (response != null && this.RETRY_STATUS_CODES.includes(response.statusCode)) {
       return true;
     }
 
     return false;
-  }
-
-  private getSleepTime(retryAttempt: number): number {
-    const sleepTime =
-      MINIMUM_SLEEP_TIME * Math.pow(BACKOFF_MULTIPLIER, retryAttempt);
-    const jitter = Math.random() + 0.5;
-    return sleepTime * jitter;
   }
 }
 
