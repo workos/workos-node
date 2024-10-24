@@ -225,7 +225,7 @@ describe('Organizations', () => {
       expect(subject.allowProfilesOutsideOrganization).toEqual(false);
       expect(subject.domains).toEqual([
         {
-          id: 'org_domain_01EHT88Z8J8795GZNQ4ZP1J81T',
+          id: 'org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8',
           domain: 'example.com',
           state: 'verified',
           verificationStrategy: 'dns',
