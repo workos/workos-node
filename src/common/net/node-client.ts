@@ -322,7 +322,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   }
 
   private getSleepTime(retryAttempt: number): number {
-    let sleepTime =
+    const sleepTime =
       MINIMUM_SLEEP_TIME * Math.pow(BACKOFF_MULTIPLIER, retryAttempt);
     const jitter = Math.random() + 0.5;
     return sleepTime * jitter;
