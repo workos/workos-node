@@ -223,7 +223,15 @@ describe('Organizations', () => {
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
       expect(subject.allowProfilesOutsideOrganization).toEqual(false);
-      expect(subject.domains).toHaveLength(1);
+      expect(subject.domains).toEqual([
+        {
+          id: 'org_domain_01EHT88Z8J8795GZNQ4ZP1J81T',
+          domain: 'example.com',
+          state: 'verified',
+          verificationStrategy: 'dns',
+          verificationToken: '',
+        },
+      ]);
     });
   });
 
