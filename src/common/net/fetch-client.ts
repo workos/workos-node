@@ -208,10 +208,11 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     headers?: RequestHeaders,
   ): Promise<HttpClientResponseInterface> {
     let response: HttpClientResponseInterface;
-    let requestError: any = null;
     let retryAttempts = 1;
 
     const makeRequest = async (): Promise<HttpClientResponseInterface> => {
+      let requestError: any = null;
+
       try {
         response = await this.fetchRequest(url, method, body, headers);
       } catch (e) {
