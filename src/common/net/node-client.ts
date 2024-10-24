@@ -307,7 +307,10 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       return false;
     }
 
-    if (response != null && this.RETRY_STATUS_CODES.includes(response.statusCode)) {
+    if (
+      response != null &&
+      this.RETRY_STATUS_CODES.includes(response.statusCode)
+    ) {
       return true;
     }
 
