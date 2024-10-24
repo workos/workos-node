@@ -1,4 +1,7 @@
-import { OrganizationDomain } from '../../organization-domains/interfaces/organization-domain.interface';
+import {
+  OrganizationDomain,
+  OrganizationDomainResponse,
+} from '../../organization-domains/interfaces/organization-domain.interface';
 
 export interface Organization {
   object: 'organization';
@@ -15,7 +18,7 @@ export interface OrganizationResponse {
   id: string;
   name: string;
   allow_profiles_outside_organization: boolean;
-  domains: OrganizationDomain[];
+  domains: OrganizationDomainResponse[];
   created_at: string;
   updated_at: string;
 }
