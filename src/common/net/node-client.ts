@@ -332,7 +332,8 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
 // tslint:disable-next-line
 export class NodeHttpClientResponse
   extends HttpClientResponse
-  implements HttpClientResponseInterface {
+  implements HttpClientResponseInterface
+{
   _res: http_.IncomingMessage;
 
   constructor(res: http_.IncomingMessage) {

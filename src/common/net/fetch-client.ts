@@ -235,10 +235,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     return makeRequest();
   }
 
-  private shouldRetryRequest(
-    requestError: any,
-    retryAttempt: number,
-  ): boolean {
+  private shouldRetryRequest(requestError: any, retryAttempt: number): boolean {
     if (retryAttempt > MAX_RETRY_ATTEMPTS) {
       return false;
     }
@@ -248,7 +245,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         return true;
       }
 
-      if (requestError instanceof HttpClientError && RETRY_STATUS_CODES.includes(requestError.response.status)) {
+      if (
+        requestError instanceof HttpClientError &&
+        RETRY_STATUS_CODES.includes(requestError.response.status)
+      ) {
         return true;
       }
     }
@@ -267,7 +267,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 // tslint:disable-next-line
 export class FetchHttpClientResponse
   extends HttpClientResponse
-  implements HttpClientResponseInterface {
+  implements HttpClientResponseInterface
+{
   _res: Response;
 
   constructor(res: Response) {
