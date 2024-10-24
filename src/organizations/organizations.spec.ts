@@ -225,11 +225,12 @@ describe('Organizations', () => {
       expect(subject.allowProfilesOutsideOrganization).toEqual(false);
       expect(subject.domains).toEqual([
         {
+          object: 'organization_domain',
           id: 'org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8',
           domain: 'example.com',
           state: 'verified',
           verificationStrategy: 'dns',
-          verificationToken: '',
+          verificationToken: 'xB8SeACdKJQP9DP4CahU4YuQZ',
         },
       ]);
     });
