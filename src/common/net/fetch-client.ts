@@ -45,7 +45,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (resourceURL.includes('fga/')) {
+    if (path.startsWith('/fga/')) {
       return await this.fetchRequestWithRetry(
         resourceURL,
         'GET',
@@ -68,7 +68,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (resourceURL.includes('fga/')) {
+    if (path.startsWith('/fga/')) {
       return await this.fetchRequestWithRetry(
         resourceURL,
         'POST',
@@ -102,7 +102,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (resourceURL.includes('fga/')) {
+    if (path.startsWith('/fga/')) {
       return await this.fetchRequestWithRetry(
         resourceURL,
         'PUT',
@@ -135,7 +135,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (resourceURL.includes('fga/')) {
+    if (path.startsWith('/fga/')) {
       return await this.fetchRequestWithRetry(
         resourceURL,
         'DELETE',
