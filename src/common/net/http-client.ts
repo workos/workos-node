@@ -9,7 +9,7 @@ import {
 export abstract class HttpClient implements HttpClientInterface {
   readonly MAX_RETRY_ATTEMPTS = 3;
   readonly BACKOFF_MULTIPLIER = 1.5;
-  readonly MINIMUM_SLEEP_TIME = 500;
+  readonly MINIMUM_SLEEP_TIME_IN_MILLISECONDS = 500;
   readonly RETRY_STATUS_CODES = [500, 502, 504];
 
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
@@ -88,16 +88,17 @@ export abstract class HttpClient implements HttpClientInterface {
     return JSON.stringify(entity);
   }
 
-  private getSleepTime(retryAttempt: number): number {
+  private getSleepTimeInMilliseconds(retryAttempt: number): number {
     const sleepTime =
-      this.MINIMUM_SLEEP_TIME * Math.pow(this.BACKOFF_MULTIPLIER, retryAttempt);
+      this.MINIMUM_SLEEP_TIME_IN_MILLISECONDS *
+      Math.pow(this.BACKOFF_MULTIPLIER, retryAttempt);
     const jitter = Math.random() + 0.5;
     return sleepTime * jitter;
   }
 
   sleep = (retryAttempt: number) =>
     new Promise((resolve) =>
-      setTimeout(resolve, this.getSleepTime(retryAttempt)),
+      setTimeout(resolve, this.getSleepTimeInMilliseconds(retryAttempt)),
     );
 }
 
