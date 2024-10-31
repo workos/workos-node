@@ -10,4 +10,5 @@ export const serializeUpdateOrganizationOptions = (
   allow_profiles_outside_organization: options.allowProfilesOutsideOrganization,
   domain_data: options.domainData,
   domains: options.domains,
+  stripe_customer_id: options.stripeCustomerId,
 });

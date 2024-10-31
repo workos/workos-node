@@ -10,6 +10,9 @@ export const deserializeOrganization = (
   allowProfilesOutsideOrganization:
     organization.allow_profiles_outside_organization,
   domains: organization.domains.map(deserializeOrganizationDomain),
+  ...(typeof organization.stripe_customer_id === 'undefined'
+    ? undefined
+    : { stripeCustomerId: organization.stripe_customer_id }),
   createdAt: organization.created_at,
   updatedAt: organization.updated_at,
 });
