@@ -12,6 +12,7 @@ export interface AccessToken {
   org_id?: string;
   role?: string;
   permissions?: string[];
+  entitlements?: string[];
 }
 
 export type SessionCookieData = Pick<
@@ -36,6 +37,7 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   organizationId?: string;
   role?: string;
   permissions?: string[];
+  entitlements?: string[];
   user: User;
   impersonator?: Impersonator;
 };
