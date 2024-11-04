@@ -233,7 +233,7 @@ export class WorkOS {
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
-      throw new Error(`Unexpected error: ${error}`);
+      throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
 
     const { response } = error as HttpClientError<WorkOSResponseError>;
