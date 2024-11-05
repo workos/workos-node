@@ -100,6 +100,7 @@ export class Session {
       org_id: organizationId,
       role,
       permissions,
+      entitlements,
     } = decodeJwt<AccessToken>(session.accessToken);
 
     return {
@@ -108,6 +109,7 @@ export class Session {
       organizationId,
       role,
       permissions,
+      entitlements,
       user: session.user,
       impersonator: session.impersonator,
     };

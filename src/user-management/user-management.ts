@@ -430,6 +430,7 @@ export class UserManagement {
       org_id: organizationId,
       role,
       permissions,
+      entitlements,
     } = decodeJwt<AccessToken>(session.accessToken);
 
     return {
@@ -439,6 +440,7 @@ export class UserManagement {
       role,
       user: session.user,
       permissions,
+      entitlements,
     };
   }
 
