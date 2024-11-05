@@ -32,6 +32,7 @@ import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
+import { Widgets } from './widgets/widgets';
 
 const VERSION = '7.30.0';
 
@@ -58,6 +59,7 @@ export class WorkOS {
   readonly events = new Events(this);
   readonly userManagement: UserManagement;
   readonly fga = new FGA(this);
+  readonly widgets = new Widgets(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
