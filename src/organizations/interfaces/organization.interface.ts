@@ -9,6 +9,7 @@ export interface Organization {
   name: string;
   allowProfilesOutsideOrganization: boolean;
   domains: OrganizationDomain[];
+  stripeCustomerId?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -19,6 +20,7 @@ export interface OrganizationResponse {
   name: string;
   allow_profiles_outside_organization: boolean;
   domains: OrganizationDomainResponse[];
+  stripe_customer_id?: string;
   created_at: string;
   updated_at: string;
 }

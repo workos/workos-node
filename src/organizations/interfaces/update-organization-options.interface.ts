@@ -4,6 +4,7 @@ export interface UpdateOrganizationOptions {
   organization: string;
   name?: string;
   domainData?: DomainData[];
+  stripeCustomerId?: string | null;
 
   /**
    * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
@@ -18,6 +19,7 @@ export interface UpdateOrganizationOptions {
 export interface SerializedUpdateOrganizationOptions {
   name?: string;
   domain_data?: DomainData[];
+  stripe_customer_id?: string | null;
 
   /**
    * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
