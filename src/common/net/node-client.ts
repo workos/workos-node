@@ -290,6 +290,8 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
             await this.sleep(retryAttempts);
             return makeRequest().then(resolve).catch(reject);
           }
+
+          reject(new Error(err.message));
         });
 
         if (body) {
