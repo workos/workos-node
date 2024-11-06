@@ -34,7 +34,7 @@ import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 
-const VERSION = '7.30.0';
+const VERSION = '7.30.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
