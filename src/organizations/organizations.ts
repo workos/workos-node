@@ -15,7 +15,6 @@ import {
 } from './serializers';
 
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { SetStripeCustomerIdOptions } from './interfaces/set-stripe-customer-id-options.interface';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -77,17 +76,5 @@ export class Organizations {
     );
 
     return deserializeOrganization(data);
-  }
-
-  async setStripeCustomerId(
-    options: SetStripeCustomerIdOptions,
-  ): Promise<string | undefined> {
-    const updatedOrganization = await this.updateOrganization(options);
-    return updatedOrganization.stripeCustomerId;
-  }
-
-  async getStripeCustomerId(id: string): Promise<string | undefined> {
-    const organization = await this.getOrganization(id);
-    return organization.stripeCustomerId;
   }
 }

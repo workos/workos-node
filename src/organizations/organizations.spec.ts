@@ -11,7 +11,6 @@ import clearStripeCustomerId from './fixtures/clear-stripe-customer-id.json';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
-import getStripeCustomerId from './fixtures/get-stripe-customer-id.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
 import setStripeCustomerId from './fixtures/set-stripe-customer-id.json';
@@ -297,42 +296,8 @@ describe('Organizations', () => {
         });
       });
     });
-  });
 
-  describe('setStripeCustomerId', () => {
-    describe('with a valid payload', () => {
-      it('updates the organization’s Stripe customer ID', async () => {
-        fetchOnce(setStripeCustomerId);
-
-        const subject = await workos.organizations.setStripeCustomerId({
-          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-          stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
-        });
-
-        expect(fetchBody()).toEqual({
-          stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
-        });
-
-        expect(subject).toBe('cus_MX8J9nfK4lP2Yw');
-      });
-
-      it('clears the organization’s Stripe customer ID with a `null` value', async () => {
-        fetchOnce(clearStripeCustomerId);
-
-        const subject = await workos.organizations.setStripeCustomerId({
-          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-          stripeCustomerId: null,
-        });
-
-        expect(fetchBody()).toEqual({
-          stripe_customer_id: null,
-        });
-
-        expect(subject).toBeUndefined();
-      });
-    });
-
-    describe('when set via `updateOrganization`', () => {
+    describe('when given `stripeCustomerId`', () => {
       it('updates the organization’s Stripe customer ID', async () => {
         fetchOnce(setStripeCustomerId);
 
@@ -362,42 +327,25 @@ describe('Organizations', () => {
 
         expect(subject.stripeCustomerId).toBeUndefined();
       });
-    });
 
-    describe('when the feature is not enabled', () => {
-      it('returns an error', async () => {
-        fetchOnce(setStripeCustomerIdDisabled, { status: 422 });
+      describe('when the feature is not enabled', () => {
+        it('returns an error', async () => {
+          fetchOnce(setStripeCustomerIdDisabled, { status: 422 });
 
-        await expect(
-          workos.organizations.setStripeCustomerId({
-            organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-            stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
-          }),
-        ).rejects.toThrowError(
-          'stripe_customer_id is not enabled for this environment',
-        );
+          await expect(
+            workos.organizations.updateOrganization({
+              organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+              stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
+            }),
+          ).rejects.toThrowError(
+            'stripe_customer_id is not enabled for this environment',
+          );
 
-        expect(fetchBody()).toEqual({
-          stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
+          expect(fetchBody()).toEqual({
+            stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
+          });
         });
       });
-    });
-  });
-
-  describe('getStripeCustomerId', () => {
-    it('returns the organization’s Stripe customer ID', async () => {
-      fetchOnce(getStripeCustomerId);
-
-      const subject = await workos.organizations.setStripeCustomerId({
-        organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-        stripeCustomerId: null,
-      });
-
-      expect(fetchURL()).toContain(
-        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
-      );
-
-      expect(subject).toEqual('cus_MX8J9nfK4lP2Yw');
     });
   });
 });
