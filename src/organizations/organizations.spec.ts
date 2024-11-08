@@ -388,10 +388,9 @@ describe('Organizations', () => {
     it('returns the organization’s Stripe customer ID', async () => {
       fetchOnce(getStripeCustomerId);
 
-      const subject = await workos.organizations.setStripeCustomerId({
-        organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-        stripeCustomerId: null,
-      });
+      const subject = await workos.organizations.getStripeCustomerId(
+        'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+      );
 
       expect(fetchURL()).toContain(
         '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T',
