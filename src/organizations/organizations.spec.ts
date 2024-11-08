@@ -313,7 +313,7 @@ describe('Organizations', () => {
           stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
         });
 
-        expect(subject).toBe('cus_MX8J9nfK4lP2Yw');
+        expect(subject.stripeCustomerId).toBe('cus_MX8J9nfK4lP2Yw');
       });
 
       it('clears the organization’s Stripe customer ID with a `null` value', async () => {
@@ -328,7 +328,7 @@ describe('Organizations', () => {
           stripe_customer_id: null,
         });
 
-        expect(subject).toBeUndefined();
+        expect(subject.stripeCustomerId).toBeUndefined();
       });
     });
 

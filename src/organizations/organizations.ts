@@ -81,9 +81,8 @@ export class Organizations {
 
   async setStripeCustomerId(
     options: SetStripeCustomerIdOptions,
-  ): Promise<string | undefined> {
-    const updatedOrganization = await this.updateOrganization(options);
-    return updatedOrganization.stripeCustomerId;
+  ): Promise<Organization> {
+    return this.updateOrganization(options);
   }
 
   async getStripeCustomerId(id: string): Promise<string | undefined> {
