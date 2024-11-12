@@ -3,8 +3,6 @@ import { WorkOS } from '../workos';
 import mockWebhook from './fixtures/webhook.json';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 import { SignatureVerificationException } from '../common/exceptions';
-import { NodeCryptoProvider } from '../common/crypto/node-crypto-provider';
-import { SubtleCryptoProvider } from '../common/crypto/subtle-crypto-provider';
 
 describe('Webhooks', () => {
   let payload: any;
@@ -183,90 +181,50 @@ describe('Webhooks', () => {
   });
 
   describe('verifyHeader', () => {
-    it('returns true when the signature is valid', async () => {
-      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
-      const options = { payload, sigHeader, secret };
-      const result = await workos.webhooks.verifyHeader(options);
-      expect(result).toBeTruthy();
-    });
-  });
+    it('aliases to the signature provider', async () => {
+      const spy = jest.spyOn(
+        // tslint:disable-next-line
+        workos.webhooks['signatureProvider'],
+        'verifyHeader',
+      );
 
-  describe('getTimestampAndSignatureHash', () => {
-    it('returns the timestamp and signature when the signature is valid', () => {
-      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
-      const timestampAndSignature =
-        workos.webhooks.getTimestampAndSignatureHash(sigHeader);
+      await workos.webhooks.verifyHeader({
+        payload,
+        sigHeader: `t=${timestamp}, v1=${signatureHash}`,
+        secret,
+      });
 
-      expect(timestampAndSignature).toEqual([
-        timestamp.toString(),
-        signatureHash,
-      ]);
+      expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('computeSignature', () => {
-    it('returns the computed signature', async () => {
-      const signature = await workos.webhooks.computeSignature(
-        timestamp,
-        payload,
-        secret,
+    it('aliases to the signature provider', async () => {
+      const spy = jest.spyOn(
+        // tslint:disable-next-line
+        workos.webhooks['signatureProvider'],
+        'computeSignature',
       );
 
-      expect(signature).toEqual(signatureHash);
+      await workos.webhooks.computeSignature(timestamp, payload, secret);
+
+      expect(spy).toHaveBeenCalled();
     });
   });
 
-  describe('when in an environment that supports SubtleCrypto', () => {
-    it('automatically uses the subtle crypto library', () => {
-      // tslint:disable-next-line
-      expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
-        SubtleCryptoProvider,
+  describe('getTimestampAndSignatureHash', () => {
+    it('aliases to the signature provider', async () => {
+      const spy = jest.spyOn(
+        // tslint:disable-next-line
+        workos.webhooks['signatureProvider'],
+        'getTimestampAndSignatureHash',
       );
-    });
-  });
 
-  describe('CryptoProvider', () => {
-    describe('when computing HMAC signature', () => {
-      it('returns the same for the Node crypto and Web Crypto versions', async () => {
-        const nodeCryptoProvider = new NodeCryptoProvider();
-        const subtleCryptoProvider = new SubtleCryptoProvider();
+      workos.webhooks.getTimestampAndSignatureHash(
+        `t=${timestamp}, v1=${signatureHash}`,
+      );
 
-        const stringifiedPayload = JSON.stringify(payload);
-        const payloadHMAC = `${timestamp}.${stringifiedPayload}`;
-
-        const nodeCompare = await nodeCryptoProvider.computeHMACSignatureAsync(
-          payloadHMAC,
-          secret,
-        );
-        const subtleCompare =
-          await subtleCryptoProvider.computeHMACSignatureAsync(
-            payloadHMAC,
-            secret,
-          );
-
-        expect(nodeCompare).toEqual(subtleCompare);
-      });
-    });
-
-    describe('when securely comparing', () => {
-      it('returns the same for the Node crypto and Web Crypto versions', async () => {
-        const nodeCryptoProvider = new NodeCryptoProvider();
-        const subtleCryptoProvider = new SubtleCryptoProvider();
-
-        const signature = await workos.webhooks.computeSignature(
-          timestamp,
-          payload,
-          secret,
-        );
-
-        expect(
-          nodeCryptoProvider.secureCompare(signature, signatureHash),
-        ).toEqual(subtleCryptoProvider.secureCompare(signature, signatureHash));
-
-        expect(nodeCryptoProvider.secureCompare(signature, 'foo')).toEqual(
-          subtleCryptoProvider.secureCompare(signature, 'foo'),
-        );
-      });
+      expect(spy).toHaveBeenCalled();
     });
   });
 });
