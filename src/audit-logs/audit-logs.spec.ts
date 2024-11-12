@@ -7,11 +7,15 @@ import {
   AuditLogExport,
   AuditLogExportOptions,
   AuditLogExportResponse,
+  AuditLogSchema,
   CreateAuditLogEventOptions,
+  CreateAuditLogSchemaOptions,
+  CreateAuditLogSchemaResponse,
 } from './interfaces';
 import {
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
+  serializeCreateAuditLogSchemaOptions,
 } from './serializers';
 import { FetchError } from '../common/utils/fetch-error';
 
@@ -35,6 +39,27 @@ const event: CreateAuditLogEventOptions = {
   },
   metadata: {
     successful: true,
+  },
+};
+
+const schema: CreateAuditLogSchemaOptions = {
+  action: 'user.logged_in',
+  actor: {
+    metadata: {
+      actor_id: 'string',
+    },
+  },
+  targets: [
+    {
+      type: 'user',
+      metadata: {
+        user_id: 'string',
+      },
+    },
+  ],
+  metadata: {
+    foo: 'number',
+    baz: 'boolean',
   },
 };
 
@@ -332,6 +357,209 @@ describe('AuditLogs', () => {
 
         expect(workosSpy).toHaveBeenCalledWith(
           `/audit_logs/exports/audit_log_export_1234`,
+        );
+      });
+    });
+  });
+
+  describe('createSchema', () => {
+    describe('with an idempotency key', () => {
+      it('includes an idempotency key with request', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        const time = new Date().toISOString();
+
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: {
+            foo: 'number',
+            baz: 'boolean',
+          },
+          createdAt: time,
+        };
+
+        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                type: 'object',
+                properties: {
+                  user_id: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              type: 'object',
+              properties: {
+                actor_id: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          metadata: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'number',
+              },
+              baz: {
+                type: 'boolean',
+              },
+            },
+          },
+          created_at: time,
+        };
+
+        workosSpy.mockResolvedValueOnce(
+          mockWorkOsResponse(201, createSchemaResponse),
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createSchema(schema, {
+            idempotencyKey: 'the-idempotency-key',
+          }),
+        ).resolves.toEqual(createSchemaResult);
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          serializeCreateAuditLogSchemaOptions(schema),
+          { idempotencyKey: 'the-idempotency-key' },
+        );
+      });
+    });
+
+    describe('when the api responds with a 201', () => {
+      it('returns `audit_log_schema`', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        const time = new Date().toISOString();
+
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: {
+            foo: 'number',
+            baz: 'boolean',
+          },
+          createdAt: time,
+        };
+
+        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                type: 'object',
+                properties: {
+                  user_id: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              type: 'object',
+              properties: {
+                actor_id: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          metadata: {
+            type: 'object',
+            properties: {
+              foo: {
+                type: 'number',
+              },
+              baz: {
+                type: 'boolean',
+              },
+            },
+          },
+          created_at: time,
+        };
+
+        workosSpy.mockResolvedValueOnce(
+          mockWorkOsResponse(201, createSchemaResponse),
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createSchema(schema, {
+            idempotencyKey: 'the-idempotency-key',
+          }),
+        ).resolves.toEqual(createSchemaResult);
+      });
+    });
+
+    describe('when the api responds with a 400', () => {
+      it('throws a BadRequestException', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        const errors = [
+          {
+            field: 'actor.metadata',
+            code: 'actor.metadata must be an object',
+          },
+        ];
+
+        workosSpy.mockImplementationOnce(() => {
+          throw new BadRequestException({
+            code: '400',
+            errors,
+            message:
+              'Audit Log Schema could not be processed due to missing or incorrect data.',
+            requestID: 'a-request-id',
+          });
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.auditLogs.createSchema(schema)).rejects.toThrow(
+          BadRequestException,
         );
       });
     });

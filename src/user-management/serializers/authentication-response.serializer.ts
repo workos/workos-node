@@ -1,8 +1,6 @@
 import {
   AuthenticationResponse,
   AuthenticationResponseResponse,
-  RefreshAuthenticationResponse,
-  RefreshAuthenticationResponseResponse,
 } from '../interfaces';
 import { deserializeUser } from './user.serializer';
 
@@ -26,19 +24,6 @@ export const deserializeAuthenticationResponse = (
     refreshToken: refresh_token,
     impersonator,
     authenticationMethod: authentication_method,
-    ...rest,
-  };
-};
-
-export const deserializeRefreshAuthenticationResponse = (
-  refreshAuthenticationResponse: RefreshAuthenticationResponseResponse,
-): RefreshAuthenticationResponse => {
-  const { access_token, refresh_token, ...rest } =
-    refreshAuthenticationResponse;
-
-  return {
-    accessToken: access_token,
-    refreshToken: refresh_token,
     ...rest,
   };
 };

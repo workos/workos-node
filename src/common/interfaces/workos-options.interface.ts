@@ -7,4 +7,5 @@ export interface WorkOSOptions {
   config?: RequestInit;
   appInfo?: AppInfo;
   fetchFn?: typeof fetch;
+  clientId?: string;
 }

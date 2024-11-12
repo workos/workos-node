@@ -25,17 +25,27 @@ import { Webhooks } from './webhooks/webhooks';
 import { Mfa } from './mfa/mfa';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
+import { FGA } from './fga/fga';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 
-import { HttpClient, HttpClientError, createHttpClient } from './common/net';
+import { HttpClient, HttpClientError } from './common/net/http-client';
+import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
+import { FetchHttpClient } from './common/net/fetch-client';
+import { IronSessionProvider } from './common/iron-session/iron-session-provider';
+import { Widgets } from './widgets/widgets';
 
-const VERSION = '7.9.0';
+const VERSION = '7.30.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
+const HEADER_AUTHORIZATION = 'Authorization';
+const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
+const HEADER_WARRANT_TOKEN = 'Warrant-Token';
+
 export class WorkOS {
   readonly baseURL: string;
-  private readonly client: HttpClient;
+  readonly client: HttpClient;
+  readonly clientId?: string;
 
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
@@ -44,15 +54,20 @@ export class WorkOS {
   readonly passwordless = new Passwordless(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
-  readonly webhooks = new Webhooks();
+  readonly webhooks: Webhooks;
   readonly mfa = new Mfa(this);
   readonly events = new Events(this);
-  readonly userManagement = new UserManagement(this);
+  readonly userManagement: UserManagement;
+  readonly fga = new FGA(this);
+  readonly widgets = new Widgets(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
       // process might be undefined in some environments
-      this.key = process?.env.WORKOS_API_KEY;
+      this.key =
+        typeof process !== 'undefined'
+          ? process?.env.WORKOS_API_KEY
+          : undefined;
 
       if (!this.key) {
         throw new NoApiKeyProvidedException();
@@ -61,6 +76,11 @@ export class WorkOS {
 
     if (this.options.https === undefined) {
       this.options.https = true;
+    }
+
+    this.clientId = this.options.clientId;
+    if (!this.clientId && typeof process !== 'undefined') {
+      this.clientId = process?.env.WORKOS_CLIENT_ID;
     }
 
     const protocol: string = this.options.https ? 'https' : 'http';
@@ -80,17 +100,35 @@ export class WorkOS {
       userAgent += ` ${name}: ${version}`;
     }
 
-    this.client = createHttpClient(
-      this.baseURL,
-      {
-        ...options.config,
-        headers: {
-          ...options.config?.headers,
-          Authorization: `Bearer ${this.key}`,
-          'User-Agent': userAgent,
-        },
+    this.webhooks = this.createWebhookClient();
+
+    // Must initialize UserManagement after baseURL is configured
+    this.userManagement = new UserManagement(
+      this,
+      this.createIronSessionProvider(),
+    );
+
+    this.client = this.createHttpClient(options, userAgent);
+  }
+
+  createWebhookClient() {
+    return new Webhooks(new SubtleCryptoProvider());
+  }
+
+  createHttpClient(options: WorkOSOptions, userAgent: string) {
+    return new FetchHttpClient(this.baseURL, {
+      ...options.config,
+      headers: {
+        ...options.config?.headers,
+        Authorization: `Bearer ${this.key}`,
+        'User-Agent': userAgent,
       },
-      options.fetchFn,
+    }) as HttpClient;
+  }
+
+  createIronSessionProvider(): IronSessionProvider {
+    throw new Error(
+      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
     );
   }
 
@@ -103,10 +141,14 @@ export class WorkOS {
     entity: Entity,
     options: PostOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
-      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
+    }
+
+    if (options.warrantToken) {
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
     try {
@@ -127,13 +169,20 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
+    const requestHeaders: Record<string, string> = {};
+
+    if (options.accessToken) {
+      requestHeaders[HEADER_AUTHORIZATION] = `Bearer ${options.accessToken}`;
+    }
+
+    if (options.warrantToken) {
+      requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
+    }
+
     try {
-      const { accessToken } = options;
       const res = await this.client.get(path, {
         params: options.query,
-        headers: accessToken
-          ? { Authorization: `Bearer ${accessToken}` }
-          : undefined,
+        headers: requestHeaders,
       });
       return { data: await res.toJSON() };
     } catch (error) {
@@ -148,10 +197,10 @@ export class WorkOS {
     entity: Entity,
     options: PutOptions = {},
   ): Promise<{ data: Result }> {
-    const requestHeaders: any = {};
+    const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
-      requestHeaders['Idempotency-Key'] = options.idempotencyKey;
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
     try {
@@ -180,18 +229,13 @@ export class WorkOS {
   }
 
   emitWarning(warning: string) {
-    // process might be undefined in some environments
-    if (typeof process?.emitWarning !== 'function') {
-      //  tslint:disable:no-console
-      return console.warn(`WorkOS: ${warning}`);
-    }
-
-    return process.emitWarning(warning, 'WorkOS');
+    // tslint:disable-next-line:no-console
+    console.warn(`WorkOS: ${warning}`);
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
-      throw new Error(`Unexpected error: ${error}`);
+      throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
 
     const { response } = error as HttpClientError<WorkOSResponseError>;

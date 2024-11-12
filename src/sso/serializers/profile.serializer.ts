@@ -9,6 +9,7 @@ export const deserializeProfile = (profile: ProfileResponse): Profile => ({
   email: profile.email,
   firstName: profile.first_name,
   lastName: profile.last_name,
+  role: profile.role,
   groups: profile.groups,
   rawAttributes: profile.raw_attributes,
 });

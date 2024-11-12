@@ -4,6 +4,7 @@ import { User, UserResponse } from './user.interface';
 type AuthenticationMethod =
   | 'SSO'
   | 'Password'
+  | 'AppleOAuth'
   | 'GitHubOAuth'
   | 'GoogleOAuth'
   | 'MicrosoftOAuth'
@@ -16,6 +17,7 @@ export interface AuthenticationResponse {
   refreshToken: string;
   impersonator?: Impersonator;
   authenticationMethod?: AuthenticationMethod;
+  sealedSession?: string;
 }
 
 export interface AuthenticationResponseResponse {
@@ -25,14 +27,4 @@ export interface AuthenticationResponseResponse {
   refresh_token: string;
   impersonator?: ImpersonatorResponse;
   authentication_method?: AuthenticationMethod;
-}
-
-export interface RefreshAuthenticationResponse {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export interface RefreshAuthenticationResponseResponse {
-  access_token: string;
-  refresh_token: string;
 }

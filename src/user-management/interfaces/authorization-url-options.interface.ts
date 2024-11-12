@@ -3,6 +3,7 @@ export interface AuthorizationURLOptions {
   codeChallenge?: string;
   codeChallengeMethod?: 'S256';
   connectionId?: string;
+  context?: string;
   organizationId?: string;
   domainHint?: string;
   loginHint?: string;
