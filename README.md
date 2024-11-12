@@ -32,7 +32,7 @@ WORKOS_API_KEY="sk_1234"
 Or, you can set it on your own before your application starts:
 
 ```ts
-import WorkOS from '@workos-inc/node';
+import { WorkOS } from '@workos-inc/node';
 
 const workos = new WorkOS('sk_1234');
 ```

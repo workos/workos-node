@@ -2,9 +2,14 @@ import { DomainData } from './domain-data.interface';
 
 export interface UpdateOrganizationOptions {
   organization: string;
-  name: string;
-  allowProfilesOutsideOrganization?: boolean;
+  name?: string;
   domainData?: DomainData[];
+  stripeCustomerId?: string | null;
+
+  /**
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
+   */
+  allowProfilesOutsideOrganization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */
@@ -12,9 +17,14 @@ export interface UpdateOrganizationOptions {
 }
 
 export interface SerializedUpdateOrganizationOptions {
-  name: string;
-  allow_profiles_outside_organization?: boolean;
+  name?: string;
   domain_data?: DomainData[];
+  stripe_customer_id?: string | null;
+
+  /**
+   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
+   */
+  allow_profiles_outside_organization?: boolean;
   /**
    * @deprecated Use `domain_data` instead.
    */

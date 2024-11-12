@@ -7,11 +7,14 @@ import {
   fetchBody,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
+import clearStripeCustomerId from './fixtures/clear-stripe-customer-id.json';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
+import setStripeCustomerId from './fixtures/set-stripe-customer-id.json';
+import setStripeCustomerIdDisabled from './fixtures/set-stripe-customer-id-disabled.json';
 import { DomainDataState } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -223,7 +226,16 @@ describe('Organizations', () => {
       expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
       expect(subject.name).toEqual('Test Organization 3');
       expect(subject.allowProfilesOutsideOrganization).toEqual(false);
-      expect(subject.domains).toHaveLength(1);
+      expect(subject.domains).toEqual([
+        {
+          object: 'organization_domain',
+          id: 'org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8',
+          domain: 'example.com',
+          state: 'verified',
+          verificationStrategy: 'dns',
+          verificationToken: 'xB8SeACdKJQP9DP4CahU4YuQZ',
+        },
+      ]);
     });
   });
 
@@ -273,16 +285,65 @@ describe('Organizations', () => {
             domainData: [
               { domain: 'example.com', state: DomainDataState.Verified },
             ],
-            name: 'Test Organization 2',
           });
 
           expect(fetchBody()).toEqual({
             domain_data: [{ domain: 'example.com', state: 'verified' }],
-            name: 'Test Organization 2',
           });
           expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
           expect(subject.name).toEqual('Test Organization 2');
           expect(subject.domains).toHaveLength(1);
+        });
+      });
+    });
+
+    describe('when given `stripeCustomerId`', () => {
+      it('updates the organization’s Stripe customer ID', async () => {
+        fetchOnce(setStripeCustomerId);
+
+        const subject = await workos.organizations.updateOrganization({
+          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
+        });
+
+        expect(fetchBody()).toMatchObject({
+          stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
+        });
+
+        expect(subject.stripeCustomerId).toBe('cus_MX8J9nfK4lP2Yw');
+      });
+
+      it('clears the organization’s Stripe customer ID with a `null` value', async () => {
+        fetchOnce(clearStripeCustomerId);
+
+        const subject = await workos.organizations.updateOrganization({
+          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          stripeCustomerId: null,
+        });
+
+        expect(fetchBody()).toEqual({
+          stripe_customer_id: null,
+        });
+
+        expect(subject.stripeCustomerId).toBeUndefined();
+      });
+
+      describe('when the feature is not enabled', () => {
+        it('returns an error', async () => {
+          fetchOnce(setStripeCustomerIdDisabled, { status: 422 });
+
+          await expect(
+            workos.organizations.updateOrganization({
+              organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+              stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
+            }),
+          ).rejects.toThrowError(
+            'stripe_customer_id is not enabled for this environment',
+          );
+
+          expect(fetchBody()).toEqual({
+            stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
+          });
         });
       });
     });

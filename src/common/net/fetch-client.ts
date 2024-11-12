@@ -27,7 +27,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       fetchFn = globalThis.fetch;
     }
 
-    this._fetchFn = fetchFn;
+    this._fetchFn = fetchFn.bind(globalThis);
   }
 
   /** @override */
@@ -45,7 +45,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
+    if (path.startsWith('/fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'GET',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
+    }
   }
 
   async post<Entity = any>(
@@ -59,15 +68,27 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'POST',
-      HttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (path.startsWith('/fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'POST',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'POST',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async put<Entity = any>(
@@ -81,15 +102,27 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'PUT',
-      HttpClient.getBody(entity),
-      {
-        ...HttpClient.getContentTypeHeader(entity),
-        ...options.headers,
-      },
-    );
+    if (path.startsWith('/fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'PUT',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'PUT',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
   }
 
   async delete(
@@ -102,12 +135,21 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    return await this.fetchRequest(
-      resourceURL,
-      'DELETE',
-      null,
-      options.headers,
-    );
+    if (path.startsWith('/fga/')) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'DELETE',
+        null,
+        options.headers,
+      );
+    }
   }
 
   private async fetchRequest(
@@ -150,6 +192,61 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     }
 
     return new FetchHttpClientResponse(res);
+  }
+
+  private async fetchRequestWithRetry(
+    url: string,
+    method: string,
+    body?: any,
+    headers?: RequestHeaders,
+  ): Promise<HttpClientResponseInterface> {
+    let response: HttpClientResponseInterface;
+    let retryAttempts = 1;
+
+    const makeRequest = async (): Promise<HttpClientResponseInterface> => {
+      let requestError: any = null;
+
+      try {
+        response = await this.fetchRequest(url, method, body, headers);
+      } catch (e) {
+        requestError = e;
+      }
+
+      if (this.shouldRetryRequest(requestError, retryAttempts)) {
+        retryAttempts++;
+        await this.sleep(retryAttempts);
+        return makeRequest();
+      }
+
+      if (requestError != null) {
+        throw requestError;
+      }
+
+      return response;
+    };
+
+    return makeRequest();
+  }
+
+  private shouldRetryRequest(requestError: any, retryAttempt: number): boolean {
+    if (retryAttempt > this.MAX_RETRY_ATTEMPTS) {
+      return false;
+    }
+
+    if (requestError != null) {
+      if (requestError instanceof TypeError) {
+        return true;
+      }
+
+      if (
+        requestError instanceof HttpClientError &&
+        this.RETRY_STATUS_CODES.includes(requestError.response.status)
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 

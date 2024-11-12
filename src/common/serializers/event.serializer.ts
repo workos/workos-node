@@ -9,12 +9,14 @@ import {
 import { deserializeOrganization } from '../../organizations/serializers';
 import { deserializeConnection } from '../../sso/serializers';
 import {
+  deserializeAuthenticationEvent,
   deserializeEmailVerificationEvent,
   deserializeInvitationEvent,
   deserializeMagicAuthEvent,
   deserializePasswordResetEvent,
   deserializeUser,
 } from '../../user-management/serializers';
+import { deserializeOrganizationDomain } from '../../organization-domains/serializers/organization-domain.serializer';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import { deserializeRole } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
@@ -27,6 +29,21 @@ export const deserializeEvent = (event: EventResponse): Event => {
   };
 
   switch (event.event) {
+    case 'authentication.email_verification_succeeded':
+    case 'authentication.magic_auth_failed':
+    case 'authentication.magic_auth_succeeded':
+    case 'authentication.mfa_succeeded':
+    case 'authentication.oauth_failed':
+    case 'authentication.oauth_succeeded':
+    case 'authentication.password_failed':
+    case 'authentication.password_succeeded':
+    case 'authentication.sso_failed':
+    case 'authentication.sso_succeeded':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationEvent(event.data),
+      };
     case 'connection.activated':
     case 'connection.deactivated':
     case 'connection.deleted':
@@ -129,6 +146,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
       };
     case 'role.created':
     case 'role.deleted':
+    case 'role.updated':
       return {
         ...eventBase,
         event: event.event,
@@ -147,6 +165,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeOrganization(event.data),
+      };
+    case 'organization_domain.verified':
+    case 'organization_domain.verification_failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeOrganizationDomain(event.data),
       };
   }
 };

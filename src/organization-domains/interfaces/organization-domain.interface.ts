@@ -18,7 +18,7 @@ export interface OrganizationDomain {
   id: string;
   domain: string;
   state: OrganizationDomainState;
-  verificationToken: string;
+  verificationToken?: string;
   verificationStrategy: OrganizationDomainVerificationStrategy;
 }
 
@@ -27,6 +27,6 @@ export interface OrganizationDomainResponse {
   id: string;
   domain: string;
   state: OrganizationDomainState;
-  verification_token: string;
+  verification_token?: string;
   verification_strategy: OrganizationDomainVerificationStrategy;
 }
