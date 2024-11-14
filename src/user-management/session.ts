@@ -112,6 +112,7 @@ export class Session {
       entitlements,
       user: session.user,
       impersonator: session.impersonator,
+      accessToken: session.accessToken,
     };
   }
 
