@@ -395,6 +395,37 @@ describe('UserManagement', () => {
         });
       });
     });
+
+    describe('when oauth_tokens is present', () => {
+      it('deserializes oauth_tokens', async () => {
+        fetchOnce({
+          user: userFixture,
+          oauth_tokens: {
+            access_token: 'access_token',
+            refresh_token: 'refresh',
+            expires_at: 123,
+            scopes: ['read:users'],
+          },
+        });
+
+        const resp = await workos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+          oauthTokens: {
+            accessToken: 'access_token',
+            refreshToken: 'refresh',
+            expiresAt: 123,
+            scopes: ['read:users'],
+          },
+        });
+      });
+    });
   });
 
   describe('authenticateWithRefreshToken', () => {
