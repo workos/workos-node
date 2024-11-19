@@ -35,7 +35,7 @@ import { IronSessionProvider } from './common/iron-session/iron-session-provider
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 
-const VERSION = '7.32.0';
+const VERSION = '7.30.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
