@@ -1,3 +1,4 @@
+import { Actions } from './actions/actions';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { EdgeIronSessionProvider } from './common/iron-session/edge-iron-session-provider';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
@@ -38,6 +39,13 @@ class WorkOSWorker extends WorkOS {
     const cryptoProvider = new SubtleCryptoProvider();
 
     return new Webhooks(cryptoProvider);
+  }
+
+  /** @override */
+  createActionsClient(): Actions {
+    const cryptoProvider = new SubtleCryptoProvider();
+
+    return new Actions(cryptoProvider);
   }
 
   /** @override */

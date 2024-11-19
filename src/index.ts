@@ -6,6 +6,7 @@ import { HttpClient } from './common/net/http-client';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { NodeHttpClient } from './common/net/node-client';
 
+import { Actions } from './actions/actions';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
 import { WorkOSOptions } from './common/interfaces';
@@ -60,6 +61,19 @@ class WorkOSNode extends WorkOS {
     }
 
     return new Webhooks(cryptoProvider);
+  }
+
+  /** @override */
+  createActionsClient(): Actions {
+    let cryptoProvider: CryptoProvider;
+
+    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
+      cryptoProvider = new SubtleCryptoProvider();
+    } else {
+      cryptoProvider = new NodeCryptoProvider();
+    }
+
+    return new Actions(cryptoProvider);
   }
 
   /** @override */

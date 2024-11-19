@@ -33,6 +33,7 @@ import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
+import { Actions } from './actions/actions';
 
 const VERSION = '7.32.0';
 
@@ -47,6 +48,7 @@ export class WorkOS {
   readonly client: HttpClient;
   readonly clientId?: string;
 
+  readonly actions: Actions;
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
@@ -101,6 +103,7 @@ export class WorkOS {
     }
 
     this.webhooks = this.createWebhookClient();
+    this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
     this.userManagement = new UserManagement(
@@ -113,6 +116,10 @@ export class WorkOS {
 
   createWebhookClient() {
     return new Webhooks(new SubtleCryptoProvider());
+  }
+
+  createActionsClient() {
+    return new Actions(new SubtleCryptoProvider());
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {
