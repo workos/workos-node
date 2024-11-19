@@ -1,15 +1,18 @@
 import { Impersonator, ImpersonatorResponse } from './impersonator.interface';
+import { OauthTokens, OauthTokensResponse } from './oauth-tokens.interface';
 import { User, UserResponse } from './user.interface';
 
 type AuthenticationMethod =
   | 'SSO'
   | 'Password'
+  | 'Passkey'
   | 'AppleOAuth'
   | 'GitHubOAuth'
   | 'GoogleOAuth'
   | 'MicrosoftOAuth'
   | 'MagicAuth'
   | 'Impersonation';
+
 export interface AuthenticationResponse {
   user: User;
   organizationId?: string;
@@ -18,6 +21,7 @@ export interface AuthenticationResponse {
   impersonator?: Impersonator;
   authenticationMethod?: AuthenticationMethod;
   sealedSession?: string;
+  oauthTokens?: OauthTokens;
 }
 
 export interface AuthenticationResponseResponse {
@@ -27,4 +31,5 @@ export interface AuthenticationResponseResponse {
   refresh_token: string;
   impersonator?: ImpersonatorResponse;
   authentication_method?: AuthenticationMethod;
+  oauth_tokens?: OauthTokensResponse;
 }
