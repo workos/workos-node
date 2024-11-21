@@ -63,6 +63,8 @@ const schema: CreateAuditLogSchemaOptions = {
   },
 };
 
+const schemaWithoutMetadata = { ...schema, metadata: undefined };
+
 describe('AuditLogs', () => {
   beforeEach(() => fetch.resetMocks());
 
@@ -448,6 +450,79 @@ describe('AuditLogs', () => {
           '/audit_logs/actions/user.logged_in/schemas',
           serializeCreateAuditLogSchemaOptions(schema),
           { idempotencyKey: 'the-idempotency-key' },
+        );
+      });
+    });
+
+    describe('without metadata', () => {
+      it('does not include metadata with the request', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        const time = new Date().toISOString();
+
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: undefined,
+          createdAt: time,
+        };
+
+        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                type: 'object',
+                properties: {
+                  user_id: {
+                    type: 'string',
+                  },
+                },
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              type: 'object',
+              properties: {
+                actor_id: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          created_at: time,
+        };
+
+        workosSpy.mockResolvedValueOnce(
+          mockWorkOsResponse(201, createSchemaResponse),
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createSchema(schemaWithoutMetadata),
+        ).resolves.toEqual(createSchemaResult);
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          serializeCreateAuditLogSchemaOptions(schemaWithoutMetadata),
+          {},
         );
       });
     });
