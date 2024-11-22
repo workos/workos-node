@@ -34,6 +34,8 @@ export const deserializeAuditLogSchema = (
   actor: {
     metadata: deserializeMetadata(auditLogSchema.actor?.metadata),
   },
-  metadata: deserializeMetadata(auditLogSchema.metadata),
+  metadata: auditLogSchema.metadata
+    ? deserializeMetadata(auditLogSchema.metadata)
+    : undefined,
   createdAt: auditLogSchema.created_at,
 });

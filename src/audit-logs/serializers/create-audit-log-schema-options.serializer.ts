@@ -42,8 +42,10 @@ export const serializeCreateAuditLogSchemaOptions = (
         : undefined,
     };
   }),
-  metadata: {
-    type: 'object',
-    properties: serializeMetadata(schema.metadata),
-  },
+  metadata: schema.metadata
+    ? {
+        type: 'object',
+        properties: serializeMetadata(schema.metadata),
+      }
+    : undefined,
 });
