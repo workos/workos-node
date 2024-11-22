@@ -9,7 +9,7 @@
     "workos"
   ],
   "volta": {
-    "node": "19.9.0",
+    "node": "20.15.0",
     "yarn": "1.22.19"
   },
   "engines": {

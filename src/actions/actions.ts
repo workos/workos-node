@@ -1,11 +1,13 @@
 import { SignatureProvider } from '../common/crypto';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { unreachable } from '../common/utils/unreachable';
+import { Action, ActionPayload } from './interfaces/action.interface';
 import {
   AuthenticationActionResponseData,
   ResponsePayload,
   UserRegistrationActionResponseData,
-} from './interfaces/response-payload';
+} from './interfaces/response-payload.interface';
+import { deserializeAction } from './serializers/action.serializer';
 
 export class Actions {
   private signatureProvider: SignatureProvider;
@@ -66,5 +68,22 @@ export class Actions {
     };
 
     return response;
+  }
+
+  async constructAction({
+    payload,
+    sigHeader,
+    secret,
+    tolerance = 180000,
+  }: {
+    payload: unknown;
+    sigHeader: string;
+    secret: string;
+    tolerance?: number;
+  }): Promise<Action> {
+    const options = { payload, sigHeader, secret, tolerance };
+    await this.verifyHeader(options);
+
+    return deserializeAction(payload as ActionPayload);
   }
 }
