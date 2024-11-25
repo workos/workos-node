@@ -940,6 +940,15 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async acceptInvitation(invitationId: string): Promise<Invitation> {
+    const { data } = await this.workos.post<InvitationResponse, any>(
+      `/user_management/invitations/${invitationId}/accept`,
+      null,
+    );
+
+    return deserializeInvitation(data);
+  }
+
   async revokeInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.post<InvitationResponse, any>(
       `/user_management/invitations/${invitationId}/revoke`,
