@@ -2,6 +2,11 @@ import { SignatureProvider } from '../common/crypto';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { unreachable } from '../common/utils/unreachable';
 import {
+  ActionPayload,
+  AuthenticationActionPayload,
+  UserRegistrationActionPayload,
+} from './interfaces/action-payload';
+import {
   AuthenticationActionResponseData,
   ResponsePayload,
   UserRegistrationActionResponseData,
@@ -66,5 +71,52 @@ export class Actions {
     };
 
     return response;
+  }
+
+  async deserialize({
+    payload,
+    sigHeader,
+    secret,
+    type,
+  }: {
+    payload: ActionPayload;
+    sigHeader: string;
+    secret: string;
+    type: 'authentication';
+  }): Promise<AuthenticationActionPayload>;
+
+  async deserialize({
+    payload,
+    sigHeader,
+    secret,
+    type,
+  }: {
+    payload: ActionPayload;
+    sigHeader: string;
+    secret: string;
+    type: 'user_registration';
+  }): Promise<UserRegistrationActionPayload>;
+
+  async deserialize({
+    payload,
+    sigHeader,
+    secret,
+    type,
+  }: {
+    payload: ActionPayload;
+    sigHeader: string;
+    secret: string;
+    type: 'authentication' | 'user_registration';
+  }) {
+    await this.verifyHeader({ payload, sigHeader, secret });
+
+    switch (type) {
+      case 'authentication':
+        return payload as AuthenticationActionPayload;
+      case 'user_registration':
+        return payload as UserRegistrationActionPayload;
+      default:
+        return unreachable(type);
+    }
   }
 }

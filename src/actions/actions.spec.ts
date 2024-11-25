@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 import { WorkOS } from '../workos';
-import mockActionContext from './fixtures/action-context.json';
+import { mockActionContext } from './fixtures/action-context';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 import { NodeCryptoProvider } from '../common/crypto';
 
@@ -95,6 +95,63 @@ describe('Actions', () => {
       });
 
       expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('deserialize', () => {
+    it('throws a SignatureVerificationException if the signature is missing', async () => {
+      await expect(
+        workos.actions.deserialize({
+          payload: mockActionContext,
+          sigHeader: '',
+          secret,
+          type: 'authentication',
+        }),
+      ).rejects.toThrow('Signature or timestamp missing');
+    });
+
+    it('throws a SignatureVerificationException if the signature is invalid', async () => {
+      const timestamp = Date.now() * 1000;
+      const unhashedString = `${timestamp}.${JSON.stringify(
+        mockActionContext,
+      )}`;
+      const signatureHash = crypto
+        .createHmac('sha256', secret)
+        .update(unhashedString)
+        .digest()
+        .toString('hex');
+
+      await expect(
+        workos.actions.deserialize({
+          payload: mockActionContext,
+          sigHeader: `t=${timestamp}, v1=${signatureHash}`,
+          secret: 'invalid',
+          type: 'authentication',
+        }),
+      ).rejects.toThrow(
+        'Signature hash does not match the expected signature hash for payload',
+      );
+    });
+
+    it('returns the payload if the signature is valid', async () => {
+      const timestamp = Date.now() * 1000;
+      const unhashedString = `${timestamp}.${JSON.stringify(
+        mockActionContext,
+      )}`;
+      const signatureHash = crypto
+        .createHmac('sha256', secret)
+        .update(unhashedString)
+        .digest()
+        .toString('hex');
+
+      const payload = await workos.actions.deserialize({
+        payload: mockActionContext,
+        sigHeader: `t=${timestamp}, v1=${signatureHash}`,
+        secret,
+        type: 'authentication',
+      });
+
+      expect(payload).toEqual(mockActionContext);
     });
   });
 });
