@@ -12,6 +12,17 @@ describe('Actions', () => {
     secret = 'secret';
   });
 
+  const makeSigHeader = (payload: unknown, secret: string) => {
+    const timestamp = Date.now() * 1000;
+    const unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
+    const signatureHash = crypto
+      .createHmac('sha256', secret)
+      .update(unhashedString)
+      .digest()
+      .toString('hex');
+    return `t=${timestamp}, v1=${signatureHash}`;
+  };
+
   describe('signResponse', () => {
     describe('type: authentication', () => {
       it('returns a signed response', async () => {
@@ -72,45 +83,31 @@ describe('Actions', () => {
   });
 
   describe('verifyHeader', () => {
-    it('aliases to the signature provider', async () => {
-      const spy = jest.spyOn(
-        // TODO: See if I can really test this without a spy
-        // tslint:disable-next-line
-        workos.actions['signatureProvider'],
-        'verifyHeader',
-      );
+    it('verifies the header', async () => {
+      await expect(
+        workos.actions.verifyHeader({
+          payload: mockAuthActionContext,
+          sigHeader: makeSigHeader(mockAuthActionContext, secret),
+          secret,
+        }),
+      ).resolves.not.toThrow();
+    });
 
-      const timestamp = Date.now() * 1000;
-      const unhashedString = `${timestamp}.${JSON.stringify(
-        mockAuthActionContext,
-      )}`;
-      const signatureHash = crypto
-        .createHmac('sha256', secret)
-        .update(unhashedString)
-        .digest()
-        .toString('hex');
-
-      await workos.actions.verifyHeader({
-        payload: mockAuthActionContext,
-        sigHeader: `t=${timestamp}, v1=${signatureHash}`,
-        secret,
-      });
-
-      expect(spy).toHaveBeenCalled();
+    it('throws when the header is invalid', async () => {
+      await expect(
+        workos.actions.verifyHeader({
+          payload: mockAuthActionContext,
+          sigHeader: 't=123, v1=123',
+          secret,
+        }),
+      ).rejects.toThrow();
     });
   });
 
   describe('constructAction', () => {
     it('returns an authentication action', async () => {
-      const timestamp = Date.now() * 1000;
       const payload = mockAuthActionContext;
-      const unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
-      const signatureHash = crypto
-        .createHmac('sha256', secret)
-        .update(unhashedString)
-        .digest()
-        .toString('hex');
-      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+      const sigHeader = makeSigHeader(payload, secret);
       const action = await workos.actions.constructAction({
         payload,
         sigHeader,
@@ -159,15 +156,8 @@ describe('Actions', () => {
     });
 
     it('returns a user registration action', async () => {
-      const timestamp = Date.now() * 1000;
       const payload = mockUserRegistrationActionContext;
-      const unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
-      const signatureHash = crypto
-        .createHmac('sha256', secret)
-        .update(unhashedString)
-        .digest()
-        .toString('hex');
-      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+      const sigHeader = makeSigHeader(payload, secret);
       const action = await workos.actions.constructAction({
         payload,
         sigHeader,
@@ -196,84 +186,5 @@ describe('Actions', () => {
         }),
       });
     });
-    // describe('with the correct payload, sig_header, secret, and tolerance', () => {
-    //   it('returns a webhook event', async () => {
-    //     const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
-    //     const options = { payload, sigHeader, secret, tolerance: 200 };
-    //     const webhook = await workos.webhooks.constructEvent(options);
-
-    //     expect(webhook.data).toEqual(expectation);
-    //     expect(webhook.event).toEqual('dsync.user.created');
-    //     expect(webhook.id).toEqual('wh_123');
-    //   });
-    // });
-
-    // describe('with an empty header', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = '';
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
-
-    // describe('with an empty signature hash', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = `t=${timestamp}, v1=`;
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
-
-    // describe('with an incorrect signature hash', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = `t=${timestamp}, v1=99999`;
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
-
-    // describe('with an incorrect payload', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
-    //     payload = 'invalid';
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
-
-    // describe('with an incorrect webhook secret', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
-    //     secret = 'invalid';
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
-
-    // describe('with a timestamp outside tolerance', () => {
-    //   it('raises an error', async () => {
-    //     const sigHeader = `t=9999, v1=${signatureHash}`;
-    //     const options = { payload, sigHeader, secret };
-
-    //     await expect(
-    //       workos.webhooks.constructEvent(options),
-    //     ).rejects.toThrowError(SignatureVerificationException);
-    //   });
-    // });
   });
 });
