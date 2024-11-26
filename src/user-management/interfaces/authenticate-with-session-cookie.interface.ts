@@ -40,4 +40,5 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   entitlements?: string[];
   user: User;
   impersonator?: Impersonator;
+  accessToken: string;
 };

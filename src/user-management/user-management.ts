@@ -441,6 +441,7 @@ export class UserManagement {
       user: session.user,
       permissions,
       entitlements,
+      accessToken: session.accessToken,
     };
   }
 
