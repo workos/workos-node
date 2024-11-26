@@ -11,7 +11,7 @@ import {
   UserResponse,
 } from '../../user-management/interfaces';
 
-interface AuthenticationAction {
+interface AuthenticationActionContext {
   id: string;
   object: 'authentication_action_context';
   user: User;
@@ -29,7 +29,7 @@ export interface UserData {
   lastName: string;
 }
 
-interface UserRegistrationAction {
+interface UserRegistrationActionContext {
   id: string;
   object: 'user_registration_action_context';
   userData: UserData;
@@ -38,7 +38,9 @@ interface UserRegistrationAction {
   userAgent?: string;
 }
 
-export type Action = AuthenticationAction | UserRegistrationAction;
+export type ActionContext =
+  | AuthenticationActionContext
+  | UserRegistrationActionContext;
 
 interface AuthenticationActionPayload {
   id: string;

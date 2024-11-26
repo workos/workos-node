@@ -5,7 +5,7 @@ import {
 } from '../../user-management/serializers';
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import {
-  Action,
+  ActionContext,
   ActionPayload,
   UserData,
   UserDataPayload,
@@ -20,7 +20,9 @@ const deserializeUserData = (userData: UserDataPayload): UserData => {
   };
 };
 
-export const deserializeAction = (actionPayload: ActionPayload): Action => {
+export const deserializeAction = (
+  actionPayload: ActionPayload,
+): ActionContext => {
   switch (actionPayload.object) {
     case 'user_registration_action_context':
       return {

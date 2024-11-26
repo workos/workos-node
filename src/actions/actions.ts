@@ -1,7 +1,7 @@
 import { SignatureProvider } from '../common/crypto';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { unreachable } from '../common/utils/unreachable';
-import { Action, ActionPayload } from './interfaces/action.interface';
+import { ActionContext, ActionPayload } from './interfaces/action.interface';
 import {
   AuthenticationActionResponseData,
   ResponsePayload,
@@ -74,13 +74,13 @@ export class Actions {
     payload,
     sigHeader,
     secret,
-    tolerance = 180000,
+    tolerance = 300,
   }: {
     payload: unknown;
     sigHeader: string;
     secret: string;
     tolerance?: number;
-  }): Promise<Action> {
+  }): Promise<ActionContext> {
     const options = { payload, sigHeader, secret, tolerance };
     await this.verifyHeader(options);
 
