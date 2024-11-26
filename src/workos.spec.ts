@@ -346,10 +346,15 @@ describe('WorkOS', () => {
       // tslint:disable-next-line
       expect(workos['client']).toBeInstanceOf(FetchHttpClient);
 
-      // tslint:disable-next-line
-      expect(workos.webhooks['cryptoProvider']).toBeInstanceOf(
-        SubtleCryptoProvider,
-      );
+      expect(
+        // tslint:disable-next-line
+        workos.webhooks['signatureProvider']['cryptoProvider'],
+      ).toBeInstanceOf(SubtleCryptoProvider);
+
+      expect(
+        // tslint:disable-next-line
+        workos.actions['signatureProvider']['cryptoProvider'],
+      ).toBeInstanceOf(SubtleCryptoProvider);
     });
 
     it('uses console.warn to emit warnings', () => {

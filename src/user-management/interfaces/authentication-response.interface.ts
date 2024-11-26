@@ -5,12 +5,14 @@ import { User, UserResponse } from './user.interface';
 type AuthenticationMethod =
   | 'SSO'
   | 'Password'
+  | 'Passkey'
   | 'AppleOAuth'
   | 'GitHubOAuth'
   | 'GoogleOAuth'
   | 'MicrosoftOAuth'
   | 'MagicAuth'
   | 'Impersonation';
+
 export interface AuthenticationResponse {
   user: User;
   organizationId?: string;

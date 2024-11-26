@@ -61,7 +61,7 @@ export interface CreateAuditLogSchemaResponse {
       properties: AuditLogSchemaMetadata;
     };
   };
-  metadata: {
+  metadata?: {
     type: 'object';
     properties: AuditLogSchemaMetadata;
   };
