@@ -1708,6 +1708,31 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('acceptInvitation', () => {
+    it('sends an Accept Invitation request', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce({
+        ...invitationFixture,
+        state: 'accepted',
+        accepted_user_id: 'user_01HGK4K4PXNSG85RNNV0GXYP5W',
+      });
+
+      const response = await workos.userManagement.acceptInvitation(
+        invitationId,
+      );
+
+      expect(fetchURL()).toContain(
+        `/user_management/invitations/${invitationId}/accept`,
+      );
+      expect(response).toMatchObject({
+        object: 'invitation',
+        email: 'dane@workos.com',
+        state: 'accepted',
+        acceptedUserId: 'user_01HGK4K4PXNSG85RNNV0GXYP5W',
+      });
+    });
+  });
+
   describe('revokeInvitation', () => {
     it('send a Revoke Invitation request', async () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';

@@ -17,6 +17,7 @@ export const deserializeInvitation = (
   expiresAt: invitation.expires_at,
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
+  acceptedUserId: invitation.accepted_user_id,
   token: invitation.token,
   acceptInvitationUrl: invitation.accept_invitation_url,
   createdAt: invitation.created_at,
@@ -35,6 +36,7 @@ export const deserializeInvitationEvent = (
   expiresAt: invitation.expires_at,
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
+  acceptedUserId: invitation.accepted_user_id,
   createdAt: invitation.created_at,
   updatedAt: invitation.updated_at,
 });

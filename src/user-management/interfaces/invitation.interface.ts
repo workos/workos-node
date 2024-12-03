@@ -8,6 +8,7 @@ export interface Invitation {
   expiresAt: string;
   organizationId: string | null;
   inviterUserId: string | null;
+  acceptedUserId: string | null;
   token: string;
   acceptInvitationUrl: string;
   createdAt: string;
@@ -24,6 +25,7 @@ export interface InvitationEvent {
   expiresAt: string;
   organizationId: string | null;
   inviterUserId: string | null;
+  acceptedUserId: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +40,7 @@ export interface InvitationResponse {
   expires_at: string;
   organization_id: string | null;
   inviter_user_id: string | null;
+  accepted_user_id: string | null;
   token: string;
   accept_invitation_url: string;
   created_at: string;
@@ -54,6 +57,7 @@ export interface InvitationEventResponse {
   expires_at: string;
   organization_id: string | null;
   inviter_user_id: string | null;
+  accepted_user_id: string | null;
   created_at: string;
   updated_at: string;
 }
