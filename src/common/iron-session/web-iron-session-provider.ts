@@ -25,17 +25,6 @@ export class WebIronSessionProvider extends IronSessionProvider {
     seal: string,
     options: SealDataOptions,
   ): Promise<T> {
-    try {
-      const sealOptions = {
-        ...options,
-        ttl: 0,
-      };
-      return unsealData<T>(seal, sealOptions);
-    } catch (e) {
-      // Older sessions might still have the ttl set to the default of 14 days, in which case the unsealing fails.
-      // This is a fallback to try unsealing with the default ttl of 14 days.
-      // In a future major version we can remove this fallback as all sessions should have been updated to use the ttl of 0.
-      return unsealData<T>(seal, options);
-    }
+    return unsealData<T>(seal, options);
   }
 }
