@@ -11,7 +11,13 @@ import {
 export class EdgeIronSessionProvider extends IronSessionProvider {
   /** @override */
   async sealData(data: unknown, options: SealDataOptions): Promise<string> {
-    return sealData(data, options);
+    // The iron-session default ttl is 14 days, which can be problematic if the WorkOS session is configured to be > 14 days.
+    // In that case the session expires and can't be refreshed, so we set the ttl to 0 to set it to the max possible value.
+    const sealOptions = {
+      ...options,
+      ttl: 0,
+    };
+    return sealData(data, sealOptions);
   }
 
   /** @override */
