@@ -15,6 +15,9 @@ import {
 } from './serializers';
 
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { ListOrganizationRolesResponse, RoleList } from '../roles/interfaces';
+import { deserializeRole } from '../roles/serializers/role.serializer';
+import { ListOrganizationRolesOptions } from './interfaces/list-organization-roles-options.interface';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -76,5 +79,21 @@ export class Organizations {
     );
 
     return deserializeOrganization(data);
+  }
+
+  async listOrganizationRoles(
+    options: ListOrganizationRolesOptions,
+  ): Promise<RoleList> {
+    const { organizationId } = options;
+
+    const { data: response } =
+      await this.workos.get<ListOrganizationRolesResponse>(
+        `/organizations/${organizationId}/roles`,
+      );
+
+    return {
+      object: 'list',
+      data: response.data.map((role) => deserializeRole(role)),
+    };
   }
 }

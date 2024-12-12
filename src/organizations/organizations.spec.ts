@@ -12,6 +12,7 @@ import createOrganizationInvalid from './fixtures/create-organization-invalid.js
 import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
+import listOrganizationRolesFixture from './fixtures/list-organization-roles.json';
 import updateOrganization from './fixtures/update-organization.json';
 import setStripeCustomerId from './fixtures/set-stripe-customer-id.json';
 import setStripeCustomerIdDisabled from './fixtures/set-stripe-customer-id-disabled.json';
@@ -346,6 +347,25 @@ describe('Organizations', () => {
           });
         });
       });
+    });
+  });
+
+  describe('listOrganizationRoles', () => {
+    it('returns roles for the organization', async () => {
+      fetchOnce(listOrganizationRolesFixture);
+
+      const { data, object } = await workos.organizations.listOrganizationRoles(
+        {
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/roles',
+      );
+
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(3);
     });
   });
 });
