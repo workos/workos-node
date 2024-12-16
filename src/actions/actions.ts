@@ -74,7 +74,7 @@ export class Actions {
     payload,
     sigHeader,
     secret,
-    tolerance = 300,
+    tolerance = 30000,
   }: {
     payload: unknown;
     sigHeader: string;
