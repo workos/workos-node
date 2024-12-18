@@ -2,7 +2,7 @@ import { RoleResponse } from '../../roles/interfaces/';
 
 export type OrganizationMembershipStatus = 'active' | 'inactive' | 'pending';
 
-export interface OrganizationMembership {
+export interface OrganizationMembership<TRole extends string = string> {
   object: 'organization_membership';
   id: string;
   organizationId: string;
@@ -10,10 +10,10 @@ export interface OrganizationMembership {
   userId: string;
   createdAt: string;
   updatedAt: string;
-  role: RoleResponse;
+  role: RoleResponse<TRole>;
 }
 
-export interface OrganizationMembershipResponse {
+export interface OrganizationMembershipResponse<TRole extends string = string> {
   object: 'organization_membership';
   id: string;
   organization_id: string;
@@ -21,5 +21,5 @@ export interface OrganizationMembershipResponse {
   user_id: string;
   created_at: string;
   updated_at: string;
-  role: RoleResponse;
+  role: RoleResponse<TRole>;
 }

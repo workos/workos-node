@@ -51,15 +51,17 @@ export class Session {
    *
    * @returns An object indicating whether the authentication was successful or not. If successful, it will include the user's session data.
    */
-  async authenticate(): Promise<
-    | AuthenticateWithSessionCookieSuccessResponse
+  async authenticate<
+    TRole extends string = string,
+    TPermission extends string = string
+  >(): Promise<
+    | AuthenticateWithSessionCookieSuccessResponse<TRole, TPermission>
     | AuthenticateWithSessionCookieFailedResponse
   > {
     if (!this.sessionData) {
       return {
         authenticated: false,
-        reason:
-          AuthenticateWithSessionCookieFailureReason.NO_SESSION_COOKIE_PROVIDED,
+        reason: AuthenticateWithSessionCookieFailureReason.NO_SESSION_COOKIE_PROVIDED,
       };
     }
 
@@ -75,16 +77,14 @@ export class Session {
     } catch (e) {
       return {
         authenticated: false,
-        reason:
-          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
+        reason: AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
       };
     }
 
     if (!session.accessToken) {
       return {
         authenticated: false,
-        reason:
-          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
+        reason: AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
       };
     }
 

@@ -9,11 +9,13 @@ import { deserializeDirectoryGroup } from './directory-group.serializer';
 
 export const deserializeDirectoryUser = <
   TCustomAttributes extends object = DefaultCustomAttributes,
+  TRawAttributes = any,
+  TRole extends string = string,
 >(
   directoryUser:
-    | DirectoryUserResponse<TCustomAttributes>
-    | DirectoryUserWithGroupsResponse<TCustomAttributes>,
-): DirectoryUser<TCustomAttributes> => ({
+    | DirectoryUserResponse<TCustomAttributes, TRawAttributes, TRole>
+    | DirectoryUserWithGroupsResponse<TCustomAttributes, TRawAttributes, TRole>,
+): DirectoryUser<TCustomAttributes, TRawAttributes, TRole> => ({
   object: directoryUser.object,
   id: directoryUser.id,
   directoryId: directoryUser.directory_id,
@@ -34,16 +36,23 @@ export const deserializeDirectoryUser = <
 
 export const deserializeDirectoryUserWithGroups = <
   TCustomAttributes extends object = DefaultCustomAttributes,
+  TRawAttributes = any,
+  TRole extends string = string,
 >(
-  directoryUserWithGroups: DirectoryUserWithGroupsResponse<TCustomAttributes>,
-): DirectoryUserWithGroups<TCustomAttributes> => ({
+  directoryUserWithGroups: DirectoryUserWithGroupsResponse<TCustomAttributes, TRawAttributes, TRole>,
+): DirectoryUserWithGroups<TCustomAttributes, TRawAttributes, TRole> => ({
   ...deserializeDirectoryUser(directoryUserWithGroups),
   groups: directoryUserWithGroups.groups.map(deserializeDirectoryGroup),
 });
 
-export const deserializeUpdatedEventDirectoryUser = (
-  directoryUser: DirectoryUserResponse & Record<'previous_attributes', any>,
-): DirectoryUser & Record<'previousAttributes', any> => ({
+export const deserializeUpdatedEventDirectoryUser = <
+  TCustomAttributes extends object = DefaultCustomAttributes,
+  TRawAttributes = any,
+  TRole extends string = string,
+>(
+  directoryUser: DirectoryUserResponse<TCustomAttributes, TRawAttributes, TRole> &
+    Record<'previous_attributes', any>,
+): DirectoryUser<TCustomAttributes, TRawAttributes, TRole> & Record<'previousAttributes', any> => ({
   object: 'directory_user',
   id: directoryUser.id,
   directoryId: directoryUser.directory_id,

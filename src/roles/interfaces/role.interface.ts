@@ -1,13 +1,13 @@
-export interface RoleResponse {
-  slug: string;
+export interface RoleResponse<TRole extends string = string> {
+  slug: TRole;
 }
 
-export interface RoleEvent {
+export interface RoleEvent<TRole extends string = string> {
   object: 'role';
-  slug: string;
+  slug: TRole;
 }
 
-export interface RoleEventResponse {
+export interface RoleEventResponse<TRole extends string = string> {
   object: 'role';
-  slug: string;
+  slug: TRole;
 }
