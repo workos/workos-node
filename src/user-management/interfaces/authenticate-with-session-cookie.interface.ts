@@ -7,18 +7,26 @@ export interface AuthenticateWithSessionCookieOptions {
   cookiePassword?: string;
 }
 
-export interface AccessToken {
+export interface AccessToken<TRole extends string = string, TPermission extends string = string> {
   sid: string;
   org_id?: string;
-  role?: string;
-  permissions?: string[];
+  role?: TRole;
+  permissions?: TPermission[];
   entitlements?: string[];
 }
 
-export type SessionCookieData = Pick<
-  AuthenticationResponse,
-  'accessToken' | 'impersonator' | 'organizationId' | 'refreshToken' | 'user'
->;
+export type SessionCookieData<
+  TRole extends string = string,
+  TPermission extends string = string
+> = Omit<
+  Pick<
+    AuthenticationResponse,
+    'accessToken' | 'impersonator' | 'organizationId' | 'refreshToken' | 'user'
+  >,
+  'accessToken'
+> & {
+  accessToken: AccessToken<TRole, TPermission>;
+};
 
 export enum AuthenticateWithSessionCookieFailureReason {
   INVALID_JWT = 'invalid_jwt',
@@ -31,12 +39,15 @@ export type AuthenticateWithSessionCookieFailedResponse = {
   reason: AuthenticateWithSessionCookieFailureReason;
 };
 
-export type AuthenticateWithSessionCookieSuccessResponse = {
+export type AuthenticateWithSessionCookieSuccessResponse<
+  TRole extends string = string,
+  TPermission extends string = string
+> = {
   authenticated: true;
   sessionId: string;
   organizationId?: string;
-  role?: string;
-  permissions?: string[];
+  role?: TRole;
+  permissions?: TPermission[];
   entitlements?: string[];
   user: User;
   impersonator?: Impersonator;

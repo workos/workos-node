@@ -25,9 +25,9 @@ import {
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
 
-  async createEvent(
+  async createEvent<TAuditLogEvent extends CreateAuditLogEventOptions = CreateAuditLogEventOptions>(
     organization: string,
-    event: CreateAuditLogEventOptions,
+    event: TAuditLogEvent,
     options: CreateAuditLogEventRequestOptions = {},
   ): Promise<void> {
     await this.workos.post(

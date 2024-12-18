@@ -404,37 +404,37 @@ export interface OrganizationMembershipAddedResponse extends EventResponseBase {
   data: OrganizationMembershipResponse;
 }
 
-export interface OrganizationMembershipCreated extends EventBase {
+export interface OrganizationMembershipCreated<TRole extends string = string> extends EventBase {
   event: 'organization_membership.created';
-  data: OrganizationMembership;
+  data: OrganizationMembership<TRole>;
 }
 
-export interface OrganizationMembershipCreatedResponse
+export interface OrganizationMembershipCreatedResponse<TRole extends string = string>
   extends EventResponseBase {
   event: 'organization_membership.created';
-  data: OrganizationMembershipResponse;
+  data: OrganizationMembershipResponse<TRole>;
 }
 
-export interface OrganizationMembershipDeleted extends EventBase {
+export interface OrganizationMembershipDeleted<TRole extends string = string> extends EventBase {
   event: 'organization_membership.deleted';
-  data: OrganizationMembership;
+  data: OrganizationMembership<TRole>;
 }
 
-export interface OrganizationMembershipDeletedResponse
+export interface OrganizationMembershipDeletedResponse<TRole extends string = string>
   extends EventResponseBase {
   event: 'organization_membership.deleted';
-  data: OrganizationMembershipResponse;
+  data: OrganizationMembershipResponse<TRole>;
 }
 
-export interface OrganizationMembershipUpdated extends EventBase {
+export interface OrganizationMembershipUpdated<TRole extends string = string> extends EventBase {
   event: 'organization_membership.updated';
-  data: OrganizationMembership;
+  data: OrganizationMembership<TRole>;
 }
 
-export interface OrganizationMembershipUpdatedResponse
+export interface OrganizationMembershipUpdatedResponse<TRole extends string = string>
   extends EventResponseBase {
   event: 'organization_membership.updated';
-  data: OrganizationMembershipResponse;
+  data: OrganizationMembershipResponse<TRole>;
 }
 
 /**
@@ -484,34 +484,34 @@ export interface OrganizationDeletedResponse extends EventResponseBase {
   data: OrganizationResponse;
 }
 
-export interface RoleCreatedEvent extends EventBase {
+export interface RoleCreatedEvent<TRole extends string = string> extends EventBase {
   event: 'role.created';
-  data: RoleEvent;
+  data: RoleEvent<TRole>;
 }
 
-export interface RoleCreatedEventResponse extends EventResponseBase {
+export interface RoleCreatedEventResponse<TRole extends string = string> extends EventResponseBase {
   event: 'role.created';
-  data: RoleEventResponse;
+  data: RoleEventResponse<TRole>;
 }
 
-export interface RoleDeletedEvent extends EventBase {
+export interface RoleDeletedEvent<TRole extends string = string> extends EventBase {
   event: 'role.deleted';
-  data: RoleEvent;
+  data: RoleEvent<TRole>;
 }
 
-export interface RoleDeletedEventResponse extends EventResponseBase {
+export interface RoleDeletedEventResponse<TRole extends string = string> extends EventResponseBase {
   event: 'role.deleted';
-  data: RoleEventResponse;
+  data: RoleEventResponse<TRole>;
 }
 
-export interface RoleUpdatedEvent extends EventBase {
+export interface RoleUpdatedEvent<TRole extends string = string> extends EventBase {
   event: 'role.updated';
-  data: RoleEvent;
+  data: RoleEvent<TRole>;
 }
 
-export interface RoleUpdatedEventResponse extends EventResponseBase {
+export interface RoleUpdatedEventResponse<TRole extends string = string> extends EventResponseBase {
   event: 'role.updated';
-  data: RoleEventResponse;
+  data: RoleEventResponse<TRole>;
 }
 
 export interface SessionCreatedEvent extends EventBase {

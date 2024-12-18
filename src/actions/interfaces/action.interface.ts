@@ -11,12 +11,12 @@ import {
   UserResponse,
 } from '../../user-management/interfaces';
 
-interface AuthenticationActionContext {
+interface AuthenticationActionContext<TRole extends string = string> {
   id: string;
   object: 'authentication_action_context';
   user: User;
   organization?: Organization;
-  organizationMembership?: OrganizationMembership;
+  organizationMembership?: OrganizationMembership<TRole>;
   ipAddress?: string;
   userAgent?: string;
   issuer?: string;

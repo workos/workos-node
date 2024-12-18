@@ -9,6 +9,7 @@ export type DefaultCustomAttributes = Record<string, unknown>;
 export interface DirectoryUser<
   TCustomAttributes extends object = DefaultCustomAttributes,
   TRawAttributes = any,
+  TRole extends string = string,
 > {
   object: 'directory_user';
   id: string;
@@ -27,7 +28,7 @@ export interface DirectoryUser<
   lastName: string | null;
   jobTitle: string | null;
   state: 'active' | 'inactive';
-  role?: RoleResponse;
+  role?: RoleResponse<TRole>;
   createdAt: string;
   updatedAt: string;
 }
@@ -35,6 +36,7 @@ export interface DirectoryUser<
 export interface DirectoryUserResponse<
   TCustomAttributes extends object = DefaultCustomAttributes,
   TRawAttributes = any,
+  TRole extends string = string,
 > {
   object: 'directory_user';
   id: string;
@@ -53,19 +55,23 @@ export interface DirectoryUserResponse<
   last_name: string | null;
   job_title: string | null;
   state: 'active' | 'inactive';
-  role?: RoleResponse;
+  role?: RoleResponse<TRole>;
   created_at: string;
   updated_at: string;
 }
 
 export interface DirectoryUserWithGroups<
   TCustomAttributes extends object = DefaultCustomAttributes,
-> extends DirectoryUser<TCustomAttributes> {
+  TRawAttributes = any, 
+  TRole extends string = string,
+> extends DirectoryUser<TCustomAttributes, TRawAttributes, TRole> {
   groups: DirectoryGroup[];
 }
 
 export interface DirectoryUserWithGroupsResponse<
   TCustomAttributes extends object = DefaultCustomAttributes,
-> extends DirectoryUserResponse<TCustomAttributes> {
+  TRawAttributes = any,
+  TRole extends string = string,
+> extends DirectoryUserResponse<TCustomAttributes, TRawAttributes, TRole> {
   groups: DirectoryGroupResponse[];
 }

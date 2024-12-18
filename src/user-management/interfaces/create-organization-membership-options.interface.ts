@@ -1,11 +1,11 @@
-export interface CreateOrganizationMembershipOptions {
+export interface CreateOrganizationMembershipOptions<TRole extends string = string> {
   organizationId: string;
   userId: string;
-  roleSlug?: string;
+  roleSlug?: TRole;
 }
 
-export interface SerializedCreateOrganizationMembershipOptions {
+export interface SerializedCreateOrganizationMembershipOptions<TRole extends string = string> {
   organization_id: string;
   user_id: string;
-  role_slug?: string;
+  role_slug?: TRole;
 }

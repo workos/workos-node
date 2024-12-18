@@ -1,6 +1,8 @@
 import { Profile, ProfileResponse } from '../interfaces';
 
-export const deserializeProfile = (profile: ProfileResponse): Profile => ({
+export const deserializeProfile = <TRole extends string = string>(
+  profile: ProfileResponse<TRole>,
+): Profile<TRole> => ({
   id: profile.id,
   idpId: profile.idp_id,
   organizationId: profile.organization_id,

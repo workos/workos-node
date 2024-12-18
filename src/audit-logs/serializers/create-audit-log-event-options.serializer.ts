@@ -3,8 +3,10 @@ import {
   SerializedCreateAuditLogEventOptions,
 } from '../interfaces';
 
-export const serializeCreateAuditLogEventOptions = (
-  event: CreateAuditLogEventOptions,
+export const serializeCreateAuditLogEventOptions = <
+  TAuditLogEvent extends CreateAuditLogEventOptions,
+>(
+  event: TAuditLogEvent,
 ): SerializedCreateAuditLogEventOptions => ({
   action: event.action,
   version: event.version,

@@ -4,9 +4,11 @@ import {
   SerializedSendInvitationOptions,
 } from '../interfaces/send-invitation-options.interface';
 
-export const serializeSendInvitationOptions = (
-  options: SendInvitationOptions,
-): SerializedSendInvitationOptions => ({
+export const serializeSendInvitationOptions = <
+  TRole extends string = string,
+>(
+  options: SendInvitationOptions<TRole>,
+): SerializedSendInvitationOptions<TRole> => ({
   email: options.email,
   organization_id: options.organizationId,
   expires_in_days: options.expiresInDays,
