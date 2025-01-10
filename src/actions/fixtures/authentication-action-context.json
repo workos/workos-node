@@ -13,6 +13,7 @@
     },
     "ip_address": "50.141.123.10",
     "user_agent": "Mozilla/5.0",
+    "device_fingerprint": "notafingerprint",
     "issuer": "test",
     "object": "authentication_action_context",
     "organization": {
