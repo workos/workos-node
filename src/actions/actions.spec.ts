@@ -129,6 +129,7 @@ describe('Actions', () => {
         },
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
+        deviceFingerprint: 'notafingerprint',
         issuer: 'test',
         object: 'authentication_action_context',
         organization: {
@@ -175,6 +176,7 @@ describe('Actions', () => {
         },
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
+        deviceFingerprint: 'notafingerprint',
         invitation: expect.objectContaining({
           object: 'invitation',
           id: '01JBVZWH8HJ855YZ5BWHG1WNZN',

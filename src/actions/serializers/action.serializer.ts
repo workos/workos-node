@@ -35,6 +35,7 @@ export const deserializeAction = (
 
         ipAddress: actionPayload.ip_address,
         userAgent: actionPayload.user_agent,
+        deviceFingerprint: actionPayload.device_fingerprint,
       };
     case 'authentication_action_context':
       return {
@@ -51,6 +52,7 @@ export const deserializeAction = (
           : undefined,
         ipAddress: actionPayload.ip_address,
         userAgent: actionPayload.user_agent,
+        deviceFingerprint: actionPayload.device_fingerprint,
         issuer: actionPayload.issuer,
       };
   }
