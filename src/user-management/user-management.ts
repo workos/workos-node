@@ -170,7 +170,9 @@ export class UserManagement {
 
     // Set the JWKS URL. This is used to verify if the JWT is still valid
     this.jwks = clientId
-      ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)))
+      ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)), {
+          cooldownDuration: 1000 * 60 * 5,
+        })
       : undefined;
   }
 
