@@ -1961,7 +1961,7 @@ describe('UserManagement', () => {
         });
 
         expect(url).toBe(
-          'https://api.workos.com/user_management/sessions/logout?session_id=123456&returnTo=https%3A%2F%2Fyour-app.com%2Fsigned-out',
+          'https://api.workos.com/user_management/sessions/logout?session_id=123456&return_to=https%3A%2F%2Fyour-app.com%2Fsigned-out',
         );
       });
     });

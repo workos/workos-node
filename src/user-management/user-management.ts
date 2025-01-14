@@ -1030,7 +1030,7 @@ export class UserManagement {
 
     url.searchParams.set('session_id', sessionId);
     if (returnTo) {
-      url.searchParams.set('returnTo', returnTo);
+      url.searchParams.set('return_to', returnTo);
     }
 
     return url.toString();
