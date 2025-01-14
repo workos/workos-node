@@ -1012,12 +1012,28 @@ export class UserManagement {
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
   }
 
-  getLogoutUrl({ sessionId }: { sessionId: string }): string {
+  getLogoutUrl({
+    sessionId,
+    returnTo,
+  }: {
+    sessionId: string;
+    returnTo?: string;
+  }): string {
     if (!sessionId) {
       throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
     }
 
-    return `${this.workos.baseURL}/user_management/sessions/logout?session_id=${sessionId}`;
+    const url = new URL(
+      '/user_management/sessions/logout',
+      this.workos.baseURL,
+    );
+
+    url.searchParams.set('session_id', sessionId);
+    if (returnTo) {
+      url.searchParams.set('return_to', returnTo);
+    }
+
+    return url.toString();
   }
 
   /**

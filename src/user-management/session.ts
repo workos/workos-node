@@ -198,7 +198,9 @@ export class Session {
    *
    * @returns The URL to redirect the user to for logging out.
    */
-  async getLogoutUrl() {
+  async getLogoutUrl({
+    returnTo,
+  }: { returnTo?: string } = {}): Promise<string> {
     const authenticationResponse = await this.authenticate();
 
     if (!authenticationResponse.authenticated) {
@@ -208,6 +210,7 @@ export class Session {
 
     return this.userManagement.getLogoutUrl({
       sessionId: authenticationResponse.sessionId,
+      returnTo,
     });
   }
 

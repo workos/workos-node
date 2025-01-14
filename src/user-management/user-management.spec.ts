@@ -1950,6 +1950,21 @@ describe('UserManagement', () => {
         'https://api.workos.com/user_management/sessions/logout?session_id=123456',
       );
     });
+
+    describe('when a `returnTo` is given', () => {
+      it('includes a `return_to` in the URL', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getLogoutUrl({
+          sessionId: '123456',
+          returnTo: 'https://your-app.com/signed-out',
+        });
+
+        expect(url).toBe(
+          'https://api.workos.com/user_management/sessions/logout?session_id=123456&return_to=https%3A%2F%2Fyour-app.com%2Fsigned-out',
+        );
+      });
+    });
   });
 
   describe('getLogoutUrlFromSessionCookie', () => {
