@@ -318,5 +318,42 @@ describe('Session', () => {
         'Failed to extract session ID for logout URL: no_session_cookie_provided',
       );
     });
+
+    describe('when a returnTo URL is provided', () => {
+      it('returns a logout URL for the user', async () => {
+        jest
+          .spyOn(jose, 'jwtVerify')
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        const sessionData = await sealData(
+          {
+            accessToken:
+              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const url = await session.getLogoutUrl({
+          returnTo: 'https://example.com/signed-out',
+        });
+
+        expect(url).toBe(
+          'https://api.workos.com/user_management/sessions/logout?session_id=session_123&return_to=https%3A%2F%2Fexample.com%2Fsigned-out',
+        );
+      });
+    });
   });
 });
