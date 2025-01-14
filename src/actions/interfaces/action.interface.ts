@@ -19,6 +19,7 @@ interface AuthenticationActionContext {
   organizationMembership?: OrganizationMembership;
   ipAddress?: string;
   userAgent?: string;
+  deviceFingerprint?: string;
   issuer?: string;
 }
 
@@ -36,6 +37,7 @@ interface UserRegistrationActionContext {
   invitation?: Invitation;
   ipAddress?: string;
   userAgent?: string;
+  deviceFingerprint?: string;
 }
 
 export type ActionContext =
@@ -50,6 +52,7 @@ interface AuthenticationActionPayload {
   organization_membership?: OrganizationMembershipResponse;
   ip_address?: string;
   user_agent?: string;
+  device_fingerprint?: string;
   issuer?: string;
 }
 
@@ -67,6 +70,7 @@ export interface UserRegistrationActionPayload {
   invitation?: InvitationResponse;
   ip_address?: string;
   user_agent?: string;
+  device_fingerprint?: string;
 }
 
 export type ActionPayload =

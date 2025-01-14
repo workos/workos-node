@@ -8,6 +8,7 @@
     },
     "ip_address": "50.141.123.10",
     "user_agent": "Mozilla/5.0",
+    "device_fingerprint": "notafingerprint",
     "object": "user_registration_action_context",
     "invitation": {
         "object": "invitation",
@@ -20,5 +21,5 @@
         "revoked_at": null,
         "organization_id": "01JBW46BTKAA98WZN8826XQ2YP",
         "inviter_user_id": "01JBVZWAEPWAE3YYKBVT0AF81F"
-      }
+    }
 }
