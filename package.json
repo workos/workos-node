@@ -40,6 +40,7 @@
   "dependencies": {
     "iron-session": "~6.3.1",
     "jose": "~5.6.3",
+    "leb": "^1.0.0",
     "pluralize": "8.0.0"
   },
   "devDependencies": {

@@ -15,6 +15,7 @@ import {
   WorkOSResponseError,
 } from './common/interfaces';
 import { DirectorySync } from './directory-sync/directory-sync';
+import { EKM } from './ekm/ekm';
 import { Events } from './events/events';
 import { Organizations } from './organizations/organizations';
 import { OrganizationDomains } from './organization-domains/organization-domains';
@@ -38,19 +39,22 @@ import { Actions } from './actions/actions';
 const VERSION = '7.35.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
+const DEFAULT_EKM_HOSTNAME = 'ekm.workos.com';
 
-const HEADER_AUTHORIZATION = 'Authorization';
-const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
-const HEADER_WARRANT_TOKEN = 'Warrant-Token';
+export const HEADER_AUTHORIZATION = 'Authorization';
+export const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
+export const HEADER_WARRANT_TOKEN = 'Warrant-Token';
 
 export class WorkOS {
   readonly baseURL: string;
   readonly client: HttpClient;
+  readonly ekmClient: HttpClient;
   readonly clientId?: string;
 
   readonly actions: Actions;
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
+  readonly ekm = new EKM(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
@@ -104,6 +108,7 @@ export class WorkOS {
 
     this.webhooks = this.createWebhookClient();
     this.actions = this.createActionsClient();
+    this.ekmClient = this.createEkmClient(options, userAgent);
 
     // Must initialize UserManagement after baseURL is configured
     this.userManagement = new UserManagement(
@@ -120,6 +125,24 @@ export class WorkOS {
 
   createActionsClient() {
     return new Actions(new SubtleCryptoProvider());
+  }
+
+  createEkmClient(options: WorkOSOptions, userAgent: string) {
+    const protocol: string = options.https ? 'https' : 'http';
+    const hostname: string = options.ekmHostname || DEFAULT_EKM_HOSTNAME;
+    let baseURL = `${protocol}://${hostname}`;
+    if (options.ekmPort) {
+      baseURL = baseURL + `:${options.ekmPort}`;
+    }
+
+    return new FetchHttpClient(baseURL, {
+      ...options.config,
+      headers: {
+        ...options.config?.headers,
+        Authorization: `Bearer ${this.key}`,
+        'User-Agent': userAgent,
+      },
+    }) as HttpClient;
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {
@@ -240,7 +263,7 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  private handleHttpError({ path, error }: { path: string; error: unknown }) {
+  handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
