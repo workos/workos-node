@@ -13,6 +13,7 @@ import { WorkOSOptions } from './common/interfaces';
 import { WebIronSessionProvider } from './common/iron-session/web-iron-session-provider';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
+export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';

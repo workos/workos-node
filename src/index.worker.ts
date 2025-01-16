@@ -8,6 +8,7 @@ import { WorkOSOptions } from './index.worker';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
 
+export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
