@@ -33,8 +33,6 @@ jobs:
             --repo-url https://github.com/${{github.repository}}
       - name: Checkout the current branch
         uses: actions/checkout@v4
-        with:
-          clean: false
       - name: Run Coana on the current branch
         run: |
           npx @coana-tech/cli run . \
