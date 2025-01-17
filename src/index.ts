@@ -13,6 +13,7 @@ import { WorkOSOptions } from './common/interfaces';
 import { WebIronSessionProvider } from './common/iron-session/web-iron-session-provider';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
+export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
@@ -27,6 +28,7 @@ export * from './passwordless/interfaces';
 export * from './portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
+export * from './roles/interfaces';
 
 class WorkOSNode extends WorkOS {
   /** @override */
