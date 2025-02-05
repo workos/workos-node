@@ -5,11 +5,17 @@ export interface RoleResponse {
 export interface RoleEvent {
   object: 'role';
   slug: string;
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface RoleEventResponse {
   object: 'role';
   slug: string;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
 }
 
 export interface ListOrganizationRolesResponse {
