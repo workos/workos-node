@@ -350,7 +350,7 @@ describe('Organizations', () => {
     });
   });
 
-  describe('listOrganizationRoles', () => {
+  describe.only('listOrganizationRoles', () => {
     it('returns roles for the organization', async () => {
       fetchOnce(listOrganizationRolesFixture);
 
@@ -366,6 +366,41 @@ describe('Organizations', () => {
 
       expect(object).toEqual('list');
       expect(data).toHaveLength(3);
+      expect(data).toEqual([
+        {
+          object: 'role',
+          id: 'role_01EHQMYV6MBK39QC5PZXHY59C5',
+          name: 'Admin',
+          slug: 'admin',
+          description: null,
+          permissions: ['posts:create', 'posts:delete'],
+          type: 'EnvironmentRole',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'role',
+          id: 'role_01EHQMYV6MBK39QC5PZXHY59C3',
+          name: 'Member',
+          slug: 'member',
+          description: null,
+          permissions: [],
+          type: 'EnvironmentRole',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'role',
+          id: 'role_01EHQMYV6MBK39QC5PZXHY59C3',
+          name: 'OrganizationMember',
+          slug: 'org-member',
+          description: null,
+          permissions: ['posts:read'],
+          type: 'OrganizationRole',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      ]);
     });
   });
 });

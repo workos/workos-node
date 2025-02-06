@@ -29,6 +29,7 @@ export interface OrganizationRoleResponse {
   name: string;
   slug: string;
   description: string | null;
+  permissions: string[];
   type: 'EnvironmentRole' | 'OrganizationRole';
   created_at: string;
   updated_at: string;
@@ -40,6 +41,7 @@ export interface Role {
   name: string;
   slug: string;
   description: string | null;
+  permissions: string[];
   type: 'EnvironmentRole' | 'OrganizationRole';
   createdAt: string;
   updatedAt: string;
