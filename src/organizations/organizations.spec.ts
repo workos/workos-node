@@ -350,7 +350,7 @@ describe('Organizations', () => {
     });
   });
 
-  describe.only('listOrganizationRoles', () => {
+  describe('listOrganizationRoles', () => {
     it('returns roles for the organization', async () => {
       fetchOnce(listOrganizationRolesFixture);
 
