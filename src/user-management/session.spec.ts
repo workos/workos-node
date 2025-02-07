@@ -208,17 +208,26 @@ describe('Session', () => {
 
         expect(response).toEqual({
           authenticated: true,
-          accessToken: undefined,
-          authenticationMethod: undefined,
-          impersonator: undefined,
-          organizationId: undefined,
-          refreshToken: undefined,
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'test',
+          },
+          organizationId: 'org_123',
           sealedSession: expect.any(String),
           session: expect.objectContaining({
             sealedSession: expect.any(String),
             user: expect.objectContaining({
               email: 'test01@example.com',
             }),
+          }),
+          entitlements: undefined,
+          permissions: ['posts:create', 'posts:delete'],
+          role: 'member',
+          sessionId: 'session_123',
+          user: expect.objectContaining({
+            email: 'test01@example.com',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            object: 'user',
           }),
         });
       });
