@@ -1,3 +1,4 @@
+import { AuthenticateWithSessionCookieSuccessResponse } from './authenticate-with-session-cookie.interface';
 import { AuthenticationResponse } from './authentication-response.interface';
 
 export enum RefreshAndSealSessionDataFailureReason {
@@ -18,12 +19,14 @@ export enum RefreshAndSealSessionDataFailureReason {
   ORGANIZATION_NOT_AUTHORIZED = 'organization_not_authorized',
 }
 
-// TODO: These should be renamed since it's possible to have an unsealed session
-type RefreshAndSealSessionDataFailedResponse = {
+type RefreshSessionFailedResponse = {
   authenticated: false;
   reason: RefreshAndSealSessionDataFailureReason;
 };
 
+/**
+ * @deprecated To be removed in a future major version along with `refreshAndSealSessionData`.
+ */
 type RefreshAndSealSessionDataSuccessResponse = {
   authenticated: true;
   session?: AuthenticationResponse;
@@ -31,5 +34,20 @@ type RefreshAndSealSessionDataSuccessResponse = {
 };
 
 export type RefreshAndSealSessionDataResponse =
-  | RefreshAndSealSessionDataFailedResponse
+  | RefreshSessionFailedResponse
   | RefreshAndSealSessionDataSuccessResponse;
+
+type RefreshSessionSuccessResponse = Omit<
+  AuthenticateWithSessionCookieSuccessResponse,
+  // accessToken is available in the session object and with session
+  // helpers isn't necessarily useful to return top level
+  'accessToken'
+> & {
+  authenticated: true;
+  session?: AuthenticationResponse;
+  sealedSession?: string;
+};
+
+export type RefreshSessionResponse =
+  | RefreshSessionFailedResponse
+  | RefreshSessionSuccessResponse;

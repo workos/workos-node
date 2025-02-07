@@ -1,7 +1,6 @@
-import { UserManagement } from './user-management';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
+import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
@@ -9,9 +8,10 @@ import {
   AuthenticateWithSessionCookieSuccessResponse,
   AuthenticationResponse,
   RefreshAndSealSessionDataFailureReason,
-  RefreshAndSealSessionDataResponse,
+  RefreshSessionResponse,
   SessionCookieData,
 } from './interfaces';
+import { UserManagement } from './user-management';
 
 type RefreshOptions = {
   cookiePassword?: string;
@@ -124,9 +124,7 @@ export class Session {
    * @param options.organizationId - The organization ID to use for the new session cookie.
    * @returns An object indicating whether the refresh was successful or not. If successful, it will include the new sealed session data.
    */
-  async refresh(
-    options: RefreshOptions = {},
-  ): Promise<RefreshAndSealSessionDataResponse> {
+  async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
     const session =
       await this.ironSessionProvider.unsealData<SessionCookieData>(
         this.sessionData,
@@ -169,10 +167,27 @@ export class Session {
 
       this.sessionData = authenticationResponse.sealedSession as string;
 
+      const {
+        sid: sessionId,
+        org_id: organizationId,
+        role,
+        permissions,
+        entitlements,
+      } = decodeJwt<AccessToken>(authenticationResponse.accessToken);
+
+      // TODO: Returning `session` here means there's some duplicated data.
+      // Slim down the return type in a future major version.
       return {
         authenticated: true,
         sealedSession: authenticationResponse.sealedSession,
         session: authenticationResponse as AuthenticationResponse,
+        sessionId,
+        organizationId,
+        role,
+        permissions,
+        entitlements,
+        user: session.user,
+        impersonator: session.impersonator,
       };
     } catch (error) {
       if (
