@@ -47,6 +47,7 @@ export interface SerializedCheckBatchOptions {
 export interface CheckResultResponse {
   result: string;
   is_implicit: boolean;
+  warrant_token: string;
   debug_info?: DebugInfoResponse;
 }
 
@@ -79,17 +80,20 @@ export interface DecisionTreeNodeResponse {
 export interface CheckResultInterface {
   result: string;
   isImplicit: boolean;
+  warrantToken: string;
   debugInfo?: DebugInfo;
 }
 
 export class CheckResult implements CheckResultInterface {
   public result: string;
   public isImplicit: boolean;
+  public warrantToken: string;
   public debugInfo?: DebugInfo;
 
   constructor(json: CheckResultResponse) {
     this.result = json.result;
     this.isImplicit = json.is_implicit;
+    this.warrantToken = json.warrant_token;
     this.debugInfo = json.debug_info
       ? {
           processingTime: json.debug_info.processing_time,

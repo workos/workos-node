@@ -20,6 +20,7 @@ describe('FGA', () => {
       fetchOnce({
         result: 'authorized',
         is_implicit: false,
+        warrant_token: 'abc',
       });
       const checkResult = await workos.fga.check({
         checks: [
@@ -40,6 +41,7 @@ describe('FGA', () => {
       expect(checkResult).toMatchObject({
         result: 'authorized',
         isImplicit: false,
+        warrantToken: 'abc',
       });
     });
   });
