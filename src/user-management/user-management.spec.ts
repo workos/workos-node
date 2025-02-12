@@ -54,6 +54,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
+        lastSignInAt: '2023-07-18T02:07:19.911Z',
       });
     });
   });
