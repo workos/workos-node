@@ -6,6 +6,7 @@ export interface User {
   profilePictureUrl: string | null;
   firstName: string | null;
   lastName: string | null;
+  lastSignInAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +19,7 @@ export interface UserResponse {
   profile_picture_url: string | null;
   first_name: string | null;
   last_name: string | null;
+  last_sign_in_at: string | null;
   created_at: string;
   updated_at: string;
 }
