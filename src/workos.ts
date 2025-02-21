@@ -34,6 +34,7 @@ import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
+import { Vault } from './vault/vault';
 
 const VERSION = '7.41.0';
 
@@ -62,6 +63,7 @@ export class WorkOS {
   readonly userManagement: UserManagement;
   readonly fga = new FGA(this);
   readonly widgets = new Widgets(this);
+  readonly vault: Vault;
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -112,6 +114,7 @@ export class WorkOS {
     );
 
     this.client = this.createHttpClient(options, userAgent);
+    this.vault = new Vault(this, userAgent);
   }
 
   createWebhookClient() {
@@ -240,7 +243,7 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  private handleHttpError({ path, error }: { path: string; error: unknown }) {
+  handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
