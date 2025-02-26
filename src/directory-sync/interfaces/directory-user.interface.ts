@@ -19,16 +19,25 @@ export interface DirectoryUser<
   idpId: string;
   firstName: string | null;
   email: string | null;
-  /** @deprecated Will be removed in a future major version. Enable the `emails` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `emails` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   emails: {
     type?: string;
     value?: string;
     primary?: boolean;
   }[];
-  /** @deprecated Will be removed in a future major version. Enable the `username` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `username` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   username: string | null;
   lastName: string | null;
-  /** @deprecated Will be removed in a future major version. Enable the `job_title` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `job_title` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   jobTitle: string | null;
   state: 'active' | 'inactive';
   role?: RoleResponse;
@@ -49,16 +58,25 @@ export interface DirectoryUserResponse<
   idp_id: string;
   first_name: string | null;
   email: string | null;
-  /** @deprecated Will be removed in a future major version. Enable the `emails` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `emails` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   emails: {
     type?: string;
     value?: string;
     primary?: boolean;
   }[];
-  /** @deprecated Will be removed in a future major version. Enable the `username` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `username` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   username: string | null;
   last_name: string | null;
-  /** @deprecated Will be removed in a future major version. Enable the `job_title` custom attribute in dashboard and pull from customAttributes instead. See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details. */
+  /** @deprecated Will be removed in a future major version.
+   * Enable the `job_title` custom attribute in dashboard and pull from customAttributes instead.
+   * See https://workos.com/docs/directory-sync/attributes/custom-attributes/auto-mapped-attributes for details.
+   */
   job_title: string | null;
   state: 'active' | 'inactive';
   role?: RoleResponse;
