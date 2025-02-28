@@ -4,7 +4,6 @@ import { CryptoProvider } from './common/crypto/crypto-provider';
 
 import { HttpClient } from './common/net/http-client';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { NodeHttpClient } from './common/net/node-client';
 
 import { Actions } from './actions/actions';
 import { Webhooks } from './webhooks/webhooks';
@@ -48,7 +47,7 @@ class WorkOSNode extends WorkOS {
     ) {
       return new FetchHttpClient(this.baseURL, opts, options.fetchFn);
     } else {
-      return new NodeHttpClient(this.baseURL, opts);
+      throw new Error('Please upgrade your Node.js version to 18 or higher');
     }
   }
 
