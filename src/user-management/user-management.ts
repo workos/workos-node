@@ -1,5 +1,5 @@
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import { OauthException } from '../common/exceptions/oauth.exception';
+import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -27,8 +27,6 @@ import {
   PasswordReset,
   PasswordResetResponse,
   ResetPasswordOptions,
-  SendMagicAuthCodeOptions,
-  SendPasswordResetEmailOptions,
   SendVerificationEmailOptions,
   SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
@@ -39,8 +37,6 @@ import {
   SerializedCreatePasswordResetOptions,
   SerializedCreateUserOptions,
   SerializedResetPasswordOptions,
-  SerializedSendMagicAuthCodeOptions,
-  SerializedSendPasswordResetEmailOptions,
   SerializedVerifyEmailOptions,
   UpdateUserOptions,
   User,
@@ -86,10 +82,6 @@ import {
   OrganizationMembershipResponse,
 } from './interfaces/organization-membership.interface';
 import {
-  RefreshAndSealSessionDataFailureReason,
-  RefreshAndSealSessionDataResponse,
-} from './interfaces/refresh-and-seal-session-data.interface';
-import {
   RevokeSessionOptions,
   SerializedRevokeSessionOptions,
   serializeRevokeSessionOptions,
@@ -120,8 +112,6 @@ import {
   serializeCreateUserOptions,
   serializeEnrollAuthFactorOptions,
   serializeResetPasswordOptions,
-  serializeSendMagicAuthCodeOptions,
-  serializeSendPasswordResetEmailOptions,
   serializeUpdateUserOptions,
 } from './serializers';
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
@@ -136,7 +126,6 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { Session } from './session';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
@@ -460,84 +449,6 @@ export class UserManagement {
     }
   }
 
-  /**
-   * @deprecated This method is deprecated and will be removed in a future major version.
-   * Please use the new `loadSealedSession` helper and its corresponding methods instead.
-   */
-  async refreshAndSealSessionData({
-    sessionData,
-    organizationId,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<RefreshAndSealSessionDataResponse> {
-    if (!cookiePassword) {
-      throw new Error('Cookie password is required');
-    }
-
-    if (!sessionData) {
-      return {
-        authenticated: false,
-        reason:
-          RefreshAndSealSessionDataFailureReason.NO_SESSION_COOKIE_PROVIDED,
-      };
-    }
-
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
-
-    if (!session.refreshToken || !session.user) {
-      return {
-        authenticated: false,
-        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
-      };
-    }
-
-    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
-      session.accessToken,
-    );
-
-    try {
-      const { sealedSession } = await this.authenticateWithRefreshToken({
-        clientId: this.workos.clientId as string,
-        refreshToken: session.refreshToken,
-        organizationId: organizationId ?? organizationIdFromAccessToken,
-        session: { sealSession: true, cookiePassword },
-      });
-
-      if (!sealedSession) {
-        return {
-          authenticated: false,
-          reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
-        };
-      }
-
-      return {
-        authenticated: true,
-        sealedSession,
-      };
-    } catch (error) {
-      if (
-        error instanceof OauthException &&
-        // TODO: Add additional known errors and remove re-throw
-        (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
-          error.error ===
-            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
-          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
-      ) {
-        return {
-          authenticated: false,
-          reason: error.error,
-        };
-      }
-
-      throw error;
-    }
-  }
-
   private async prepareAuthenticationResponse({
     authenticationResponse,
     session,
@@ -649,17 +560,6 @@ export class UserManagement {
     return deserializeMagicAuth(data);
   }
 
-  /**
-   * @deprecated Please use `createMagicAuth` instead.
-   * This method will be removed in a future major version.
-   */
-  async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
-    await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
-      '/user_management/magic_auth/send',
-      serializeSendMagicAuthCodeOptions(options),
-    );
-  }
-
   async verifyEmail({
     code,
     userId,
@@ -696,18 +596,6 @@ export class UserManagement {
     );
 
     return deserializePasswordReset(data);
-  }
-
-  /**
-   * @deprecated Please use `createPasswordReset` instead. This method will be removed in a future major version.
-   */
-  async sendPasswordResetEmail(
-    payload: SendPasswordResetEmailOptions,
-  ): Promise<void> {
-    await this.workos.post<any, SerializedSendPasswordResetEmailOptions>(
-      '/user_management/password_reset/send',
-      serializeSendPasswordResetEmailOptions(payload),
-    );
   }
 
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
@@ -1034,32 +922,6 @@ export class UserManagement {
     }
 
     return url.toString();
-  }
-
-  /**
-   * @deprecated This method is deprecated and will be removed in a future major version.
-   * Please use the `loadSealedSession` helper and its `getLogoutUrl` method instead.
-   *
-   * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
-   * and uses the session ID to generate the logout URL.
-   *
-   * Use this over `getLogoutUrl` if you'd like to the SDK to handle session cookies for you.
-   */
-  async getLogoutUrlFromSessionCookie({
-    sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<string> {
-    const authenticationResponse = await this.authenticateWithSessionCookie({
-      sessionData,
-      cookiePassword,
-    });
-
-    if (!authenticationResponse.authenticated) {
-      const { reason } = authenticationResponse;
-      throw new Error(`Failed to extract session ID for logout URL: ${reason}`);
-    }
-
-    return this.getLogoutUrl({ sessionId: authenticationResponse.sessionId });
   }
 
   getJwksUrl(clientId: string): string {

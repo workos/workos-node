@@ -25,7 +25,6 @@ describe('Event', () => {
       organizationId: 'org_1234',
       name: 'Connection',
       type: ConnectionType.OktaSAML,
-      connectionType: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
       createdAt: '2020-05-06 04:21:48.649164',
