@@ -60,7 +60,6 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeConnection(event.data),
       };
     case 'dsync.activated':
-    case 'dsync.deactivated':
       return {
         ...eventBase,
         event: event.event,
