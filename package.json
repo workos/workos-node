@@ -9,7 +9,7 @@
     "workos"
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "typings": "lib/index.d.ts",
   "files": [
