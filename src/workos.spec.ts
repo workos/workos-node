@@ -11,7 +11,6 @@ import { WorkOS } from './index';
 import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { NodeHttpClient } from './common/net/node-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
 describe('WorkOS', () => {
@@ -322,11 +321,10 @@ describe('WorkOS', () => {
       globalThis.fetch = fetchFn;
     });
 
-    it('automatically uses the node HTTP client', () => {
-      const workos = new WorkOS('sk_test_key');
-
-      // tslint:disable-next-line
-      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
+    it('throws an error', () => {
+      expect(() => new WorkOS('sk_test_key')).toThrowError(
+        'Please upgrade your Node.js version to 18 or higher',
+      );
     });
 
     it('uses a fetch function if provided', () => {
