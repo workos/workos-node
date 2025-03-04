@@ -8,6 +8,7 @@ export interface UpdateUserOptions {
   password?: string;
   passwordHash?: string;
   passwordHashType?: PasswordHashType;
+  externalId?: string;
 }
 
 export interface SerializedUpdateUserOptions {
@@ -17,4 +18,5 @@ export interface SerializedUpdateUserOptions {
   password?: string;
   password_hash?: string;
   password_hash_type?: PasswordHashType;
+  external_id?: string;
 }

@@ -9,4 +9,5 @@ export const serializeUpdateUserOptions = (
   password: options.password,
   password_hash: options.passwordHash,
   password_hash_type: options.passwordHashType,
+  external_id: options.externalId,
 });
