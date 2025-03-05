@@ -199,6 +199,14 @@ export class UserManagement {
     return deserializeUser(data);
   }
 
+  async getUserByExternalId(externalId: string): Promise<User> {
+    const { data } = await this.workos.get<UserResponse>(
+      `/user_management/users/external_id/${externalId}`,
+    );
+
+    return deserializeUser(data);
+  }
+
   async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<UserResponse, User>(
