@@ -1,17 +1,16 @@
 import { WorkOS } from '../workos';
 import {
-  ChallengeFactorOptions,
   Challenge,
+  ChallengeFactorOptions,
+  ChallengeResponse,
   EnrollFactorOptions,
   Factor,
-  VerifyChallengeOptions,
-  VerifyFactorOptions,
-  VerifyResponse,
   FactorResponse,
-  ChallengeResponse,
-  VerifyResponseResponse,
-  FactorWithSecretsResponse,
   FactorWithSecrets,
+  FactorWithSecretsResponse,
+  VerifyChallengeOptions,
+  VerifyResponse,
+  VerifyResponseResponse,
 } from './interfaces';
 import {
   deserializeChallenge,
@@ -71,13 +70,6 @@ export class Mfa {
     );
 
     return deserializeChallenge(data);
-  }
-
-  /**
-   * @deprecated Please use `verifyChallenge` instead.
-   */
-  async verifyFactor(options: VerifyFactorOptions): Promise<VerifyResponse> {
-    return this.verifyChallenge(options);
   }
 
   async verifyChallenge(
