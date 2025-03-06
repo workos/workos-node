@@ -1,7 +1,7 @@
 import { List, PaginationOptions } from '../interfaces';
 
 export class AutoPaginatable<T> {
-  readonly object: 'list' = 'list';
+  readonly object = 'list' as const;
   readonly options: PaginationOptions;
 
   constructor(
