@@ -11,10 +11,6 @@ export interface Connection {
   id: string;
   organizationId?: string;
   name: string;
-  /**
-   * @deprecated The connectionType parameter has been deprecated. Please use type.
-   */
-  connectionType: ConnectionType;
   state: 'draft' | 'active' | 'inactive' | 'validating';
   domains: ConnectionDomain[];
   type: ConnectionType;
