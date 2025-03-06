@@ -67,7 +67,6 @@ export class SSO {
   getAuthorizationUrl({
     connection,
     clientId,
-    domain,
     domainHint,
     loginHint,
     organization,
@@ -77,22 +76,15 @@ export class SSO {
     redirectUri,
     state,
   }: SSOAuthorizationURLOptions): string {
-    if (!domain && !provider && !connection && !organization) {
+    if (!provider && !connection && !organization) {
       throw new Error(
-        `Incomplete arguments. Need to specify either a 'connection', 'organization', 'domain', or 'provider'.`,
-      );
-    }
-
-    if (domain) {
-      this.workos.emitWarning(
-        'The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.',
+        `Incomplete arguments. Need to specify either a 'connection', 'organization', or 'provider'.`,
       );
     }
 
     const query = toQueryString({
       connection,
       organization,
-      domain,
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
