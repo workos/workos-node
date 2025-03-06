@@ -7,7 +7,6 @@ export const serializeAuditLogExportOptions = (
   options: AuditLogExportOptions,
 ): SerializedAuditLogExportOptions => ({
   actions: options.actions,
-  actors: options.actors,
   actor_names: options.actorNames,
   actor_ids: options.actorIds,
   organization_id: options.organizationId,
