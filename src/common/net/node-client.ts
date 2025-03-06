@@ -328,6 +328,7 @@ export class NodeHttpClientResponse
   _res: http_.IncomingMessage;
 
   constructor(res: http_.IncomingMessage) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     super(res.statusCode, res.headers || {});
     this._res = res;
