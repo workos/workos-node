@@ -225,7 +225,6 @@ describe('AuditLogs', () => {
 
         const options: AuditLogExportOptions = {
           actions: ['foo', 'bar'],
-          actors: ['Jon', 'Smith'],
           actorNames: ['Jon', 'Smith'],
           actorIds: ['user_foo', 'user_bar'],
           organizationId: 'org_123',
