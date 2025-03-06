@@ -33,5 +33,7 @@ export interface SerializedCreateOrganizationOptions {
   domains?: string[];
 }
 
-export interface CreateOrganizationRequestOptions
-  extends Pick<PostOptions, 'idempotencyKey'> {}
+export type CreateOrganizationRequestOptions = Pick<
+  PostOptions,
+  'idempotencyKey'
+>;
