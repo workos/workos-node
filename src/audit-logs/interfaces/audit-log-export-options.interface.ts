@@ -1,9 +1,5 @@
 export interface AuditLogExportOptions {
   actions?: string[];
-  /**
-   * @deprecated Please use `actorNames` instead.
-   */
-  actors?: string[];
   actorNames?: string[];
   actorIds?: string[];
   organizationId: string;
@@ -14,7 +10,6 @@ export interface AuditLogExportOptions {
 
 export interface SerializedAuditLogExportOptions {
   actions?: string[];
-  actors?: string[];
   actor_names?: string[];
   actor_ids?: string[];
   organization_id: string;

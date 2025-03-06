@@ -36,8 +36,6 @@ export * from './refresh-and-seal-session-data.interface';
 export * from './reset-password-options.interface';
 export * from './revoke-session-options.interface';
 export * from './send-invitation-options.interface';
-export * from './send-magic-auth-code-options.interface';
-export * from './send-password-reset-email-options.interface';
 export * from './send-verification-email-options.interface';
 export * from './session.interface';
 export * from './update-organization-membership-options.interface';
