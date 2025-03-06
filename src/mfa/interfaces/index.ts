@@ -6,4 +6,3 @@ export * from './sms.interface';
 export * from './totp.interface';
 export * from './verify-challenge-options';
 export * from './verify-challenge-response';
-export * from './verify-factor-options';
