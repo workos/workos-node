@@ -25,7 +25,7 @@
   "scripts": {
     "clean": "rm -rf lib",
     "build": "tsc -p .",
-    "lint": "tslint -p tsconfig.json -c tslint.json",
+    "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:worker": "jest src/worker.spec.ts",
@@ -40,9 +40,14 @@
     "qs": "6.14.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.21.0",
     "@peculiar/webcrypto": "^1.4.5",
     "@types/jest": "29.5.14",
     "@types/node": "14.18.54",
+    "@typescript-eslint/parser": "^8.25.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-jest": "^28.11.0",
+    "eslint-plugin-n": "^17.15.1",
     "jest": "29.7.0",
     "jest-environment-miniflare": "^2.14.2",
     "jest-fetch-mock": "^3.0.3",
@@ -50,8 +55,8 @@
     "prettier": "2.8.8",
     "supertest": "6.3.3",
     "ts-jest": "29.1.3",
-    "tslint": "6.1.3",
-    "typescript": "5.1.6"
+    "typescript": "5.1.6",
+    "typescript-eslint": "^8.25.0"
   },
   "exports": {
     "types": "./lib/index.d.ts",
