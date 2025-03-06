@@ -9,7 +9,6 @@
  */
 export const unreachable = (
   condition: never,
-  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   message = `Entered unreachable code. Received '${condition}'.`,
 ): never => {
   throw new TypeError(message);
