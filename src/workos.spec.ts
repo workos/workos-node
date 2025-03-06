@@ -394,8 +394,7 @@ describe('WorkOS', () => {
     const fetchFn = globalThis.fetch;
 
     beforeEach(() => {
-      // @ts-ignore
-      delete globalThis.fetch;
+      delete (globalThis as any).fetch;
     });
 
     afterEach(() => {
