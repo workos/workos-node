@@ -59,6 +59,29 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('getUserByExternalId', () => {
+    it('sends a Get User request', async () => {
+      const externalId = 'user_external_id';
+      fetchOnce({ ...userFixture, external_id: externalId });
+
+      const user = await workos.userManagement.getUserByExternalId(externalId);
+      expect(fetchURL()).toContain(
+        `/user_management/users/external_id/${externalId}`,
+      );
+      expect(user).toMatchObject({
+        object: 'user',
+        id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        email: 'test01@example.com',
+        profilePictureUrl: 'https://example.com/profile_picture.jpg',
+        firstName: 'Test 01',
+        lastName: 'User',
+        emailVerified: true,
+        lastSignInAt: '2023-07-18T02:07:19.911Z',
+        externalId,
+      });
+    });
+  });
+
   describe('listUsers', () => {
     it('lists users', async () => {
       fetchOnce(listUsersFixture);
