@@ -7,7 +7,7 @@ import {
   AuthenticateWithSessionCookieFailureReason,
   AuthenticateWithSessionCookieSuccessResponse,
   AuthenticationResponse,
-  RefreshAndSealSessionDataFailureReason,
+  RefreshSessionFailureReason,
   RefreshSessionResponse,
   SessionCookieData,
 } from './interfaces';
@@ -134,7 +134,7 @@ export class CookieSession {
     if (!session.refreshToken || !session.user) {
       return {
         authenticated: false,
-        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
+        reason: RefreshSessionFailureReason.INVALID_SESSION_COOKIE,
       };
     }
 
@@ -193,10 +193,9 @@ export class CookieSession {
       if (
         error instanceof OauthException &&
         // TODO: Add additional known errors and remove re-throw
-        (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
-          error.error ===
-            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
-          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
+        (error.error === RefreshSessionFailureReason.INVALID_GRANT ||
+          error.error === RefreshSessionFailureReason.MFA_ENROLLMENT ||
+          error.error === RefreshSessionFailureReason.SSO_REQUIRED)
       ) {
         return {
           authenticated: false,

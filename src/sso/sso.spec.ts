@@ -56,7 +56,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -86,7 +86,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            provider: 'Google',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -134,7 +134,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -148,7 +148,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
@@ -499,7 +499,7 @@ describe('SSO', () => {
 
         expect(fetchURL()).toContain('/connections/conn_123');
 
-        expect(subject.connectionType).toEqual('OktaSAML');
+        expect(subject.type).toEqual('OktaSAML');
       });
     });
 
