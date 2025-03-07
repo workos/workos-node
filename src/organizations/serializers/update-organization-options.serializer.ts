@@ -11,4 +11,5 @@ export const serializeUpdateOrganizationOptions = (
   domain_data: options.domainData,
   domains: options.domains,
   stripe_customer_id: options.stripeCustomerId,
+  external_id: options.externalId,
 });

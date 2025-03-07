@@ -240,6 +240,26 @@ describe('Organizations', () => {
     });
   });
 
+  describe('getOrganizationByExternalId', () => {
+    it('sends request', async () => {
+      const externalId = 'user_external_id';
+      const apiResponse = {
+        ...getOrganization,
+        external_id: externalId,
+      };
+      fetchOnce(apiResponse);
+
+      const organization =
+        await workos.organizations.getOrganizationByExternalId(externalId);
+
+      expect(fetchURL()).toContain(`/organizations/external_id/${externalId}`);
+      expect(organization).toMatchObject({
+        id: apiResponse.id,
+        externalId: apiResponse.external_id,
+      });
+    });
+  });
+
   describe('deleteOrganization', () => {
     it('sends request to delete an Organization', async () => {
       fetchOnce();
