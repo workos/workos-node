@@ -15,4 +15,5 @@ export const deserializeOrganization = (
     : { stripeCustomerId: organization.stripe_customer_id }),
   createdAt: organization.created_at,
   updatedAt: organization.updated_at,
+  externalId: organization.external_id ?? null,
 });
