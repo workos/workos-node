@@ -12,6 +12,7 @@ export interface Organization {
   stripeCustomerId?: string;
   createdAt: string;
   updatedAt: string;
+  externalId: string | null;
 }
 
 export interface OrganizationResponse {
@@ -23,4 +24,5 @@ export interface OrganizationResponse {
   stripe_customer_id?: string;
   created_at: string;
   updated_at: string;
+  external_id?: string | null;
 }

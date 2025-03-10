@@ -141,6 +141,7 @@ describe('Actions', () => {
           domains: [],
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
+          externalId: null,
         },
         organizationMembership: {
           object: 'organization_membership',
