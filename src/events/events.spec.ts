@@ -129,6 +129,7 @@ describe('Event', () => {
             },
             directoryId: 'dir_123',
             organizationId: 'org_123',
+            email: 'jonsnow@workos.com',
             emails: [
               {
                 primary: true,
@@ -164,6 +165,7 @@ describe('Event', () => {
             },
             directory_id: 'dir_123',
             organization_id: 'org_123',
+            email: 'jonsnow@workos.com',
             emails: [
               {
                 primary: true,

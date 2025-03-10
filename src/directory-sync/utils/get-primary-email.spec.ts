@@ -10,6 +10,7 @@ describe('getPrimaryEmail', () => {
     },
     directoryId: 'dir_123',
     organizationId: 'org_123',
+    email: 'jonsnow@workos.com',
     emails: [
       {
         primary: true,
