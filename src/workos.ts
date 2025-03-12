@@ -63,7 +63,7 @@ export class WorkOS {
   readonly userManagement: UserManagement;
   readonly fga = new FGA(this);
   readonly widgets = new Widgets(this);
-  readonly vault: Vault;
+  readonly vault = new Vault(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -114,7 +114,6 @@ export class WorkOS {
     );
 
     this.client = this.createHttpClient(options, userAgent);
-    this.vault = new Vault(this, userAgent);
   }
 
   createWebhookClient() {
