@@ -23,6 +23,10 @@ export function fetchHeaders() {
   return fetch.mock.calls[0][1]?.headers;
 }
 
+export function fetchMethod() {
+  return fetch.mock.calls[0][1]?.method;
+}
+
 export function fetchBody({ raw = false } = {}) {
   const body = fetch.mock.calls[0][1]?.body;
   if (body instanceof URLSearchParams) {
