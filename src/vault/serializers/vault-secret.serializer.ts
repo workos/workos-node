@@ -11,9 +11,11 @@ import {
   SecretVersion,
   CreateSecretOptions,
   CreateSecretEntity,
+  SecretDigestResponse,
+  SecretDigest,
 } from '../interfaces';
 
-export const deserializeVaultSecretMetadata = (
+export const deserializeSecretMetadata = (
   metadata: ReadSecretMetadataResponse,
 ): SecretMetadata => ({
   context: metadata.context,
@@ -24,27 +26,33 @@ export const deserializeVaultSecretMetadata = (
   updatedAt: new Date(Date.parse(metadata.updated_at)),
 });
 
-export const deserializeVaultSecret = (
-  secret: ReadSecretResponse,
-): VaultSecret => ({
+export const deserializeSecret = (secret: ReadSecretResponse): VaultSecret => ({
   id: secret.id,
   name: secret.name,
   value: secret.value,
-  metadata: deserializeVaultSecretMetadata(secret.metadata),
+  metadata: deserializeSecretMetadata(secret.metadata),
 });
 
-export const deserializeVaultListSecrets = (
+const deserializeSecretDigest = (
+  digest: SecretDigestResponse,
+): SecretDigest => ({
+  id: digest.id,
+  name: digest.name,
+  updatedAt: new Date(Date.parse(digest.updated_at)),
+});
+
+export const deserializeListSecrets = (
   list: ListSecretsResponse,
 ): SecretList => ({
-  secrets: list.data,
+  secrets: list.data.map(deserializeSecretDigest),
   metadata: list.list_metadata,
 });
 
-export const desrializeVaultListSecretVersions = (
+export const desrializeListSecretVersions = (
   list: SecretVersionResponse[],
-): SecretVersion[] => list.map(deserializeVaultSecretVersion);
+): SecretVersion[] => list.map(deserializeSecretVersion);
 
-export const deserializeVaultSecretVersion = (
+const deserializeSecretVersion = (
   version: SecretVersionResponse,
 ): SecretVersion => ({
   createdAt: new Date(Date.parse(version.created_at)),
@@ -52,14 +60,14 @@ export const deserializeVaultSecretVersion = (
   id: version.id,
 });
 
-export const serializeVaultCreateSecretEntity = (
+export const serializeCreateSecretEntity = (
   options: CreateSecretOptions,
 ): CreateSecretEntity => ({
   value: options.value,
   key_context: options.context,
 });
 
-export const serializeVaultUpdateSecretEntity = (
+export const serializeUpdateSecretEntity = (
   options: UpdateSecretOptions,
 ): UpdateSecretEntity => ({
   value: options.value,

@@ -2,6 +2,12 @@ export interface SecretContext {
   [key: string]: any;
 }
 
+export interface SecretDigest {
+  id: string;
+  name: string;
+  updatedAt: Date;
+}
+
 export interface SecretMetadata {
   context: SecretContext;
   environmentId: string;
@@ -30,6 +36,6 @@ export interface SecretListMetadata {
 }
 
 export interface SecretList {
-  secrets: string[];
+  secrets: SecretDigest[];
   metadata: SecretListMetadata;
 }
