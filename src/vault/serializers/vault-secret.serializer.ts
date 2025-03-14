@@ -1,3 +1,4 @@
+import { PaginationOptions } from '../../index.worker';
 import {
   SecretList,
   ListSecretsResponse,
@@ -13,6 +14,7 @@ import {
   CreateSecretEntity,
   SecretDigestResponse,
   SecretDigest,
+  ListSecretsPagination,
 } from '../interfaces';
 
 export const deserializeSecretMetadata = (
@@ -22,8 +24,9 @@ export const deserializeSecretMetadata = (
   environmentId: metadata.environment_id,
   id: metadata.id,
   keyId: metadata.key_id,
-  versionId: metadata.version_id,
   updatedAt: new Date(Date.parse(metadata.updated_at)),
+  updatedBy: metadata.updated_by,
+  versionId: metadata.version_id,
 });
 
 export const deserializeSecret = (secret: ReadSecretResponse): VaultSecret => ({
@@ -41,11 +44,18 @@ const deserializeSecretDigest = (
   updatedAt: new Date(Date.parse(digest.updated_at)),
 });
 
+const deserializeListSecretsPagination = (
+  pagination: ListSecretsPagination,
+): PaginationOptions => ({
+  after: pagination.after ?? undefined,
+  before: pagination.before ?? undefined,
+});
+
 export const deserializeListSecrets = (
   list: ListSecretsResponse,
 ): SecretList => ({
   secrets: list.data.map(deserializeSecretDigest),
-  metadata: list.list_metadata,
+  metadata: deserializeListSecretsPagination(list.list_metadata),
 });
 
 export const desrializeListSecretVersions = (

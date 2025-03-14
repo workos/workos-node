@@ -1,5 +1,3 @@
-import { SecretListMetadata } from "../secret.interface";
-
 export interface ListSecretsOptions {}
 
 export interface SecretDigestResponse {
@@ -8,7 +6,12 @@ export interface SecretDigestResponse {
   updated_at: string;
 }
 
+export interface ListSecretsPagination {
+  after: string | null;
+  before: string | null;
+}
+
 export interface ListSecretsResponse {
   data: SecretDigestResponse[];
-  list_metadata: SecretListMetadata;
+  list_metadata: ListSecretsPagination;
 }
