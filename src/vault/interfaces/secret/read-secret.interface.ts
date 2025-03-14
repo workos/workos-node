@@ -1,4 +1,4 @@
-import { SecretContext } from './secret.interface';
+import { SecretContext, SecretUpdateBy } from '../secret.interface';
 
 export interface ReadSecretOptions {
   name: string;
@@ -10,6 +10,7 @@ export interface ReadSecretMetadataResponse {
   id: string;
   key_id: string;
   updated_at: string;
+  updated_by: SecretUpdateBy;
   version_id: string;
 }
 

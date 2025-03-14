@@ -104,14 +104,14 @@ export class Vault {
     return deserializeDecryptDataKeyResponse(data);
   }
 
-  async localEncrypt(data: string, context: SecretContext): Promise<string> {
+  async encrypt(data: string, context: SecretContext): Promise<string> {
     const { dataKey, encryptedKey: encryptedKeys } = await this.createDataKey({
       context,
     });
     return encrypt(data, dataKey.key, encryptedKeys);
   }
 
-  async localDecrypt(encryptedData: string): Promise<string> {
+  async decrypt(encryptedData: string): Promise<string> {
     const decoded = decode(encryptedData);
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
     return decrypt(decoded, dataKey.key);

@@ -1,3 +1,5 @@
+import { PaginationOptions } from "../../index.worker";
+
 export interface SecretContext {
   [key: string]: any;
 }
@@ -8,12 +10,18 @@ export interface SecretDigest {
   updatedAt: Date;
 }
 
+export interface SecretUpdateBy {
+  id: string;
+  name: string;
+}
+
 export interface SecretMetadata {
   context: SecretContext;
   environmentId: string;
   id: string;
   keyId: string;
   updatedAt: Date;
+  updatedBy: SecretUpdateBy;
   versionId: string;
 }
 
@@ -30,12 +38,7 @@ export interface SecretVersion {
   id: string;
 }
 
-export interface SecretListMetadata {
-  after: string;
-  before: string;
-}
-
 export interface SecretList {
   secrets: SecretDigest[];
-  metadata: SecretListMetadata;
+  metadata: PaginationOptions;
 }

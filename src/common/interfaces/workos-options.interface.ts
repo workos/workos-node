@@ -2,7 +2,6 @@ import { AppInfo } from './app-info.interface';
 
 export interface WorkOSOptions {
   apiHostname?: string;
-  vaultHostname?: string;
   https?: boolean;
   port?: number;
   vaultPort?: number;
