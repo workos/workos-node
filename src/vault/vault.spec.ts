@@ -3,6 +3,7 @@ import { fetchMethod, fetchOnce, fetchURL } from '../common/utils/test-utils';
 
 import { WorkOS } from '../workos';
 import { SecretList, SecretMetadata, VaultSecret } from './interfaces';
+import { ConflictException } from '../common/exceptions/conflict.exception';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -31,7 +32,7 @@ describe('Vault', () => {
         context: { type: 'spore' },
         value: 'Full speed ahead',
       });
-      expect(fetchURL()).toContain(`/vault/v1/kv/${secretName}`);
+      expect(fetchURL()).toContain(`/vault/v1/kv`);
       expect(fetchMethod()).toBe('POST');
       expect(resource).toStrictEqual<SecretMetadata>({
         id: 's1',
@@ -49,40 +50,28 @@ describe('Vault', () => {
       });
     });
 
-    it.skip('returns error if secret exists', async () => {
+    it('returns error if secret exists', async () => {
       const secretName = 'charger';
       fetchOnce(
         {
           error: 'Item already exists',
         },
-        { status: 429 },
+        { status: 409 },
       );
-      const resource = await workos.vault.createSecret({
-        name: secretName,
-        context: { type: 'spore' },
-        value: 'Full speed ahead',
-      });
-      expect(fetchURL()).toContain(`/vault/v1/kv/${secretName}`);
+      await expect(
+        workos.vault.createSecret({
+          name: secretName,
+          context: { type: 'spore' },
+          value: 'Full speed ahead',
+        }),
+      ).rejects.toThrow(ConflictException);
+      expect(fetchURL()).toContain(`/vault/v1/kv`);
       expect(fetchMethod()).toBe('POST');
-      expect(resource).toStrictEqual({
-        id: 's1',
-        context: {
-          type: 'spore',
-        },
-        environmentId: 'xxx',
-        keyId: 'k1',
-        updatedAt: new Date(Date.parse('2029-03-17T04:37:46.748303Z')),
-        updatedBy: {
-          id: 'key_xxx',
-          name: 'Local Test Key',
-        },
-        versionId: 'v1',
-      });
     });
   });
 
   describe('readSecret', () => {
-    it('reads a secret by name', async () => {
+    it('reads a secret by id', async () => {
       const secretName = 'lima';
       const secretId = 'secret1';
       fetchOnce({
@@ -105,9 +94,9 @@ describe('Vault', () => {
         value: 'Pull the lever Gronk',
       });
       const resource = await workos.vault.readSecret({
-        name: secretName,
+        id: secretId,
       });
-      expect(fetchURL()).toContain(`/vault/v1/kv/${secretName}`);
+      expect(fetchURL()).toContain(`/vault/v1/kv/${secretId}`);
       expect(fetchMethod()).toBe('GET');
       expect(resource).toStrictEqual<VaultSecret>({
         id: secretId,
@@ -157,7 +146,7 @@ describe('Vault', () => {
             updatedAt: new Date(Date.parse('2029-03-17T04:37:46.748303Z')),
           },
         ],
-        metadata: {
+        pagination: {
           after: undefined,
           before: 'charger',
         },

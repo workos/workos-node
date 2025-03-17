@@ -1,4 +1,4 @@
-import { SecretContext } from "../secret.interface";
+import { SecretContext } from '../secret.interface';
 
 export interface UpdateSecretEntity {
   value: string;

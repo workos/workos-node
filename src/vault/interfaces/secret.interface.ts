@@ -1,4 +1,4 @@
-import { PaginationOptions } from "../../index.worker";
+import { PaginationOptions } from '../../index.worker';
 
 export interface SecretContext {
   [key: string]: any;
