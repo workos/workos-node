@@ -55,7 +55,7 @@ export const deserializeListSecrets = (
   list: ListSecretsResponse,
 ): SecretList => ({
   secrets: list.data.map(deserializeSecretDigest),
-  metadata: deserializeListSecretsPagination(list.list_metadata),
+  pagination: deserializeListSecretsPagination(list.list_metadata),
 });
 
 export const desrializeListSecretVersions = (
@@ -73,6 +73,7 @@ const deserializeSecretVersion = (
 export const serializeCreateSecretEntity = (
   options: CreateSecretOptions,
 ): CreateSecretEntity => ({
+  name: options.name,
   value: options.value,
   key_context: options.context,
 });

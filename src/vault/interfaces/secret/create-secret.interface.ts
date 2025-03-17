@@ -1,6 +1,7 @@
 import { SecretContext } from '../secret.interface';
 
 export interface CreateSecretEntity {
+  name: string;
   value: string;
   key_context: SecretContext;
 }

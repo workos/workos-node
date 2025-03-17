@@ -1,7 +1,7 @@
 import { SecretContext, SecretUpdateBy } from '../secret.interface';
 
 export interface ReadSecretOptions {
-  name: string;
+  id: string;
 }
 
 export interface ReadSecretMetadataResponse {

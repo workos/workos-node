@@ -1,3 +1,4 @@
+import { PaginationOptions } from '../index.worker';
 import { WorkOS } from '../workos';
 import { decode, decrypt } from './cryptography/decrypt';
 import { encrypt } from './cryptography/encrypt';
@@ -39,15 +40,28 @@ export class Vault {
 
   async createSecret(options: CreateSecretOptions): Promise<SecretMetadata> {
     const { data } = await this.workos.post<ReadSecretMetadataResponse>(
-      `/vault/v1/kv/${options.name}`,
+      `/vault/v1/kv`,
       serializeCreateSecretEntity(options),
     );
     return deserializeSecretMetadata(data);
   }
 
-  // TODO add pagination once supported by API
-  async listSecrets(): Promise<SecretList> {
-    const { data } = await this.workos.get<ListSecretsResponse>(`/vault/v1/kv`);
+  async listSecrets(
+    options?: PaginationOptions | undefined,
+  ): Promise<SecretList> {
+    let url = '/vault/v1/kv';
+    const params: string[] = [];
+    if (options?.after) {
+      params.push(`after=${encodeURIComponent(options.after)}`);
+    }
+    if (options?.limit) {
+      params.push(`limit=${options.limit}`);
+    }
+    if (params.length > 0) {
+      url = `${url}?${params.join('&')}`;
+    }
+
+    const { data } = await this.workos.get<ListSecretsResponse>(url);
     return deserializeListSecrets(data);
   }
 
@@ -55,37 +69,35 @@ export class Vault {
     options: ReadSecretOptions,
   ): Promise<SecretVersion[]> {
     const { data } = await this.workos.get<SecretVersionResponse[]>(
-      `/vault/v1/kv/${encodeURIComponent(options.name)}/versions`,
+      `/vault/v1/kv/${encodeURIComponent(options.id)}/versions`,
     );
     return desrializeListSecretVersions(data);
   }
 
   async readSecret(options: ReadSecretOptions): Promise<VaultSecret> {
     const { data } = await this.workos.get<ReadSecretResponse>(
-      `/vault/v1/kv/${encodeURIComponent(options.name)}`,
+      `/vault/v1/kv/${encodeURIComponent(options.id)}`,
     );
     return deserializeSecret(data);
   }
 
-  async describeSecret(options: ReadSecretOptions): Promise<SecretMetadata> {
-    const { data } = await this.workos.get<ReadSecretMetadataResponse>(
-      `/vault/v1/kv/${encodeURIComponent(options.name)}/metadata`,
+  async describeSecret(options: ReadSecretOptions): Promise<VaultSecret> {
+    const { data } = await this.workos.get<ReadSecretResponse>(
+      `/vault/v1/kv/${encodeURIComponent(options.id)}/metadata`,
     );
-    return deserializeSecretMetadata(data);
+    return deserializeSecret(data);
   }
 
-  async updateSecret(options: UpdateSecretOptions): Promise<SecretMetadata> {
-    const { data } = await this.workos.put<ReadSecretMetadataResponse>(
-      `/vault/v1/kv/${encodeURIComponent(options.name)}`,
+  async updateSecret(options: UpdateSecretOptions): Promise<VaultSecret> {
+    const { data } = await this.workos.put<ReadSecretResponse>(
+      `/vault/v1/kv/${encodeURIComponent(options.id)}`,
       serializeUpdateSecretEntity(options),
     );
-    return deserializeSecretMetadata(data);
+    return deserializeSecret(data);
   }
 
   async deleteSecret(options: DeleteSecretOptions): Promise<void> {
-    return this.workos.delete(
-      `/vault/v1/kv/${encodeURIComponent(options.name)}`,
-    );
+    return this.workos.delete(`/vault/v1/kv/${encodeURIComponent(options.id)}`);
   }
 
   async createDataKey(options: CreateDataKeyOptions): Promise<DataKeyPair> {

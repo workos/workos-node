@@ -1,3 +1,3 @@
 export interface DeleteSecretOptions {
-  name: string;
+  id: string;
 }

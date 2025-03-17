@@ -29,7 +29,7 @@ export interface VaultSecret {
   id: string;
   metadata: SecretMetadata;
   name: string;
-  value: string;
+  value?: string;
 }
 
 export interface SecretVersion {
@@ -40,5 +40,5 @@ export interface SecretVersion {
 
 export interface SecretList {
   secrets: SecretDigest[];
-  metadata: PaginationOptions;
+  pagination: PaginationOptions;
 }
