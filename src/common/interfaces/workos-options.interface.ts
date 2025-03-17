@@ -4,7 +4,6 @@ export interface WorkOSOptions {
   apiHostname?: string;
   https?: boolean;
   port?: number;
-  vaultPort?: number;
   config?: RequestInit;
   appInfo?: AppInfo;
   fetchFn?: typeof fetch;
