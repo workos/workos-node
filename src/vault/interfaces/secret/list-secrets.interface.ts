@@ -1,5 +1,3 @@
-export interface ListSecretsOptions {}
-
 export interface SecretDigestResponse {
   id: string;
   name: string;

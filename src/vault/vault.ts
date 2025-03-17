@@ -10,6 +10,7 @@ import {
   DecryptDataKeyResponse,
   DeleteSecretOptions,
   ListSecretsResponse,
+  ListSecretVersionsResponse,
   ReadSecretMetadataResponse,
   ReadSecretOptions,
   ReadSecretResponse,
@@ -17,7 +18,6 @@ import {
   SecretList,
   SecretMetadata,
   SecretVersion,
-  SecretVersionResponse,
   UpdateSecretOptions,
   VaultSecret,
 } from './interfaces';
@@ -68,7 +68,7 @@ export class Vault {
   async listSecretVersions(
     options: ReadSecretOptions,
   ): Promise<SecretVersion[]> {
-    const { data } = await this.workos.get<SecretVersionResponse[]>(
+    const { data } = await this.workos.get<ListSecretVersionsResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}/versions`,
     );
     return desrializeListSecretVersions(data);
@@ -117,7 +117,7 @@ export class Vault {
   }
 
   async encrypt(data: string, context: SecretContext): Promise<string> {
-    const { dataKey, encryptedKey: encryptedKeys } = await this.createDataKey({
+    const { dataKey, encryptedKeys } = await this.createDataKey({
       context,
     });
     return encrypt(data, dataKey.key, encryptedKeys);

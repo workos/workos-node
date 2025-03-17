@@ -10,7 +10,7 @@ export const deserializeCreateDataKeyResponse = (
     key: key.data_key,
     id: key.id,
   },
-  encryptedKey: key.encryption_keys,
+  encryptedKeys: key.encrypted_keys,
 });
 
 export const deserializeDecryptDataKeyResponse = (

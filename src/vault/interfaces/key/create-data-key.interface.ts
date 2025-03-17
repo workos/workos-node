@@ -7,6 +7,6 @@ export interface CreateDataKeyOptions {
 export interface CreateDataKeyResponse {
   context: SecretContext;
   data_key: string;
-  encryption_keys: string;
+  encrypted_keys: string;
   id: string;
 }

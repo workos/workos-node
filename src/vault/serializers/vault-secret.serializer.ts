@@ -15,6 +15,7 @@ import {
   SecretDigestResponse,
   SecretDigest,
   ListSecretsPagination,
+  ListSecretVersionsResponse,
 } from '../interfaces';
 
 export const deserializeSecretMetadata = (
@@ -59,8 +60,8 @@ export const deserializeListSecrets = (
 });
 
 export const desrializeListSecretVersions = (
-  list: SecretVersionResponse[],
-): SecretVersion[] => list.map(deserializeSecretVersion);
+  list: ListSecretVersionsResponse,
+): SecretVersion[] => list.data.map(deserializeSecretVersion);
 
 const deserializeSecretVersion = (
   version: SecretVersionResponse,
@@ -82,6 +83,5 @@ export const serializeUpdateSecretEntity = (
   options: UpdateSecretOptions,
 ): UpdateSecretEntity => ({
   value: options.value,
-  key_context: options.context,
   version_check: options.versionCheck,
 });
