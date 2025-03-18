@@ -1,7 +1,5 @@
-import { PaginationOptions } from '../../index.worker';
+import { List, ListResponse } from '../../common/interfaces';
 import {
-  SecretList,
-  ListSecretsResponse,
   ReadSecretMetadataResponse,
   ReadSecretResponse,
   UpdateSecretOptions,
@@ -14,7 +12,6 @@ import {
   CreateSecretEntity,
   SecretDigestResponse,
   SecretDigest,
-  ListSecretsPagination,
   ListSecretVersionsResponse,
 } from '../interfaces';
 
@@ -45,18 +42,15 @@ const deserializeSecretDigest = (
   updatedAt: new Date(Date.parse(digest.updated_at)),
 });
 
-const deserializeListSecretsPagination = (
-  pagination: ListSecretsPagination,
-): PaginationOptions => ({
-  after: pagination.after ?? undefined,
-  before: pagination.before ?? undefined,
-});
-
 export const deserializeListSecrets = (
-  list: ListSecretsResponse,
-): SecretList => ({
-  secrets: list.data.map(deserializeSecretDigest),
-  pagination: deserializeListSecretsPagination(list.list_metadata),
+  list: ListResponse<SecretDigestResponse>,
+): List<SecretDigest> => ({
+  object: 'list',
+  data: list.data.map(deserializeSecretDigest),
+  listMetadata: {
+    after: list.list_metadata.after ?? undefined,
+    before: list.list_metadata.before ?? undefined,
+  },
 });
 
 export const desrializeListSecretVersions = (

@@ -6,22 +6,23 @@ import {
   CreateDataKeyOptions,
   CreateDataKeyResponse,
   CreateSecretOptions,
+  DataKey,
+  DataKeyPair,
   DecryptDataKeyOptions,
   DecryptDataKeyResponse,
   DeleteSecretOptions,
-  ListSecretsResponse,
   ListSecretVersionsResponse,
   ReadSecretMetadataResponse,
   ReadSecretOptions,
   ReadSecretResponse,
   SecretContext,
-  SecretList,
+  SecretDigest,
+  SecretDigestResponse,
   SecretMetadata,
   SecretVersion,
   UpdateSecretOptions,
   VaultSecret,
 } from './interfaces';
-import { DataKey, DataKeyPair } from './interfaces/key.interface';
 import {
   deserializeCreateDataKeyResponse,
   deserializeDecryptDataKeyResponse,
@@ -34,6 +35,8 @@ import {
   serializeCreateSecretEntity,
   serializeUpdateSecretEntity,
 } from './serializers/vault-secret.serializer';
+import { List, ListResponse } from '../common/interfaces';
+
 
 export class Vault {
   constructor(private readonly workos: WorkOS) {}
@@ -48,7 +51,7 @@ export class Vault {
 
   async listSecrets(
     options?: PaginationOptions | undefined,
-  ): Promise<SecretList> {
+  ): Promise<List<SecretDigest>> {
     let url = '/vault/v1/kv';
     const params: string[] = [];
     if (options?.after) {
@@ -61,7 +64,7 @@ export class Vault {
       url = `${url}?${params.join('&')}`;
     }
 
-    const { data } = await this.workos.get<ListSecretsResponse>(url);
+    const { data } = await this.workos.get<ListResponse<SecretDigestResponse>>(url);
     return deserializeListSecrets(data);
   }
 

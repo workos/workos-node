@@ -1,5 +1,3 @@
-import { PaginationOptions } from '../../index.worker';
-
 export interface SecretContext {
   [key: string]: any;
 }
@@ -36,9 +34,4 @@ export interface SecretVersion {
   createdAt: Date;
   currentVersion: boolean;
   id: string;
-}
-
-export interface SecretList {
-  secrets: SecretDigest[];
-  pagination: PaginationOptions;
 }

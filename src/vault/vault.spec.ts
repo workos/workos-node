@@ -1,9 +1,9 @@
 import fetch from 'jest-fetch-mock';
 import { fetchMethod, fetchOnce, fetchURL } from '../common/utils/test-utils';
-
 import { WorkOS } from '../workos';
+import { List } from '../common/interfaces';
 import {
-  SecretList,
+  SecretDigest,
   SecretMetadata,
   SecretVersion,
   VaultSecret,
@@ -143,15 +143,16 @@ describe('Vault', () => {
       const resource = await workos.vault.listSecrets();
       expect(fetchURL()).toContain(`/vault/v1/kv`);
       expect(fetchMethod()).toBe('GET');
-      expect(resource).toStrictEqual<SecretList>({
-        secrets: [
+      expect(resource).toStrictEqual<List<SecretDigest>>({
+        object: 'list',
+        data: [
           {
             id: 's1',
             name: 'charger',
             updatedAt: new Date(Date.parse('2029-03-17T04:37:46.748303Z')),
           },
         ],
-        pagination: {
+        listMetadata: {
           after: undefined,
           before: 'charger',
         },

@@ -25,12 +25,12 @@ describe.skip('Vault Live Test', () => {
     do {
       const allSecrets = await workos.vault.listSecrets({ after: before });
 
-      for (const secret of allSecrets.secrets) {
+      for (const secret of allSecrets.data) {
         if (secret.name.startsWith(secretPrefix)) {
           await workos.vault.deleteSecret({ id: secret.id });
         }
       }
-      before = allSecrets.pagination.before;
+      before = allSecrets.listMetadata.before;
       listLimit++;
     } while (listLimit < 100 && before !== undefined);
   });
@@ -227,12 +227,12 @@ describe.skip('Vault Live Test', () => {
           after: before,
         });
 
-        for (const secret of list.secrets) {
+        for (const secret of list.data) {
           if (secret.name.startsWith(listPrefix)) {
             allSecretNames.push(secret.name);
           }
         }
-        before = list.pagination.before;
+        before = list.listMetadata.before;
       } while (before !== undefined);
 
       const missingSecrets = secretNames.filter(
