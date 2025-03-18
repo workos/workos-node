@@ -37,7 +37,6 @@ import {
 } from './serializers/vault-secret.serializer';
 import { List, ListResponse } from '../common/interfaces';
 
-
 export class Vault {
   constructor(private readonly workos: WorkOS) {}
 
@@ -64,7 +63,9 @@ export class Vault {
       url = `${url}?${params.join('&')}`;
     }
 
-    const { data } = await this.workos.get<ListResponse<SecretDigestResponse>>(url);
+    const { data } = await this.workos.get<ListResponse<SecretDigestResponse>>(
+      url,
+    );
     return deserializeListSecrets(data);
   }
 
