@@ -51,20 +51,16 @@ export class Vault {
   async listSecrets(
     options?: PaginationOptions | undefined,
   ): Promise<List<SecretDigest>> {
-    let url = '/vault/v1/kv';
-    const params: string[] = [];
+    const url = new URL('/vault/v1/kv', this.workos.baseURL);
     if (options?.after) {
-      params.push(`after=${encodeURIComponent(options.after)}`);
+      url.searchParams.set('after', options.after);
     }
     if (options?.limit) {
-      params.push(`limit=${options.limit}`);
-    }
-    if (params.length > 0) {
-      url = `${url}?${params.join('&')}`;
+      url.searchParams.set('limit', options.limit.toString());
     }
 
     const { data } = await this.workos.get<ListResponse<SecretDigestResponse>>(
-      url,
+      url.toString(),
     );
     return deserializeListSecrets(data);
   }

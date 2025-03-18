@@ -243,7 +243,7 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  handleHttpError({ path, error }: { path: string; error: unknown }) {
+  private handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
