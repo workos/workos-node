@@ -16,4 +16,5 @@ export const deserializeOrganization = (
   createdAt: organization.created_at,
   updatedAt: organization.updated_at,
   externalId: organization.external_id ?? null,
+  metadata: organization.metadata ?? {},
 });

@@ -187,6 +187,19 @@ describe('Organizations', () => {
           expect(subject.domains).toHaveLength(1);
         });
       });
+
+      it('adds metadata to the request', async () => {
+        fetchOnce(createOrganization, { status: 201 });
+
+        await workos.organizations.createOrganization({
+          name: 'My organization',
+          metadata: { key: 'value' },
+        });
+
+        expect(fetchBody()).toMatchObject({
+          metadata: { key: 'value' },
+        });
+      });
     });
 
     describe('with an invalid payload', () => {
@@ -314,6 +327,19 @@ describe('Organizations', () => {
           expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
           expect(subject.name).toEqual('Test Organization 2');
           expect(subject.domains).toHaveLength(1);
+        });
+      });
+
+      it('adds metadata to the request', async () => {
+        fetchOnce(updateOrganization, { status: 201 });
+
+        await workos.organizations.updateOrganization({
+          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          metadata: { key: 'value' },
+        });
+
+        expect(fetchBody()).toEqual({
+          metadata: { key: 'value' },
         });
       });
     });
