@@ -11,4 +11,5 @@ export const serializeCreateOrganizationOptions = (
   domain_data: options.domainData,
   domains: options.domains,
   external_id: options.externalId,
+  metadata: options.metadata,
 });

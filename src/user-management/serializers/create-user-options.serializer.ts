@@ -11,4 +11,5 @@ export const serializeCreateUserOptions = (
   last_name: options.lastName,
   email_verified: options.emailVerified,
   external_id: options.externalId,
+  metadata: options.metadata,
 });

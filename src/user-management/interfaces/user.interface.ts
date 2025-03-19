@@ -10,6 +10,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   externalId: string | null;
+  metadata: Record<string, string>;
 }
 
 export interface UserResponse {
@@ -24,4 +25,5 @@ export interface UserResponse {
   created_at: string;
   updated_at: string;
   external_id?: string;
+  metadata?: Record<string, string>;
 }
