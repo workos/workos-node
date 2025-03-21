@@ -9,6 +9,8 @@ export interface User {
   lastSignInAt: string | null;
   createdAt: string;
   updatedAt: string;
+  externalId: string | null;
+  metadata: Record<string, string>;
 }
 
 export interface UserResponse {
@@ -22,4 +24,6 @@ export interface UserResponse {
   last_sign_in_at: string | null;
   created_at: string;
   updated_at: string;
+  external_id?: string;
+  metadata?: Record<string, string>;
 }

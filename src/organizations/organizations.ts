@@ -68,6 +68,14 @@ export class Organizations {
     return deserializeOrganization(data);
   }
 
+  async getOrganizationByExternalId(externalId: string): Promise<Organization> {
+    const { data } = await this.workos.get<OrganizationResponse>(
+      `/organizations/external_id/${externalId}`,
+    );
+
+    return deserializeOrganization(data);
+  }
+
   async updateOrganization(
     options: UpdateOrganizationOptions,
   ): Promise<Organization> {

@@ -126,6 +126,8 @@ describe('Actions', () => {
           profilePictureUrl: 'https://example.com/jane.jpg',
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
+          externalId: null,
+          metadata: {},
         },
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
@@ -140,6 +142,8 @@ describe('Actions', () => {
           domains: [],
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
+          externalId: null,
+          metadata: {},
         },
         organizationMembership: {
           object: 'organization_membership',

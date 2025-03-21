@@ -11,4 +11,6 @@ export const deserializeUser = (user: UserResponse): User => ({
   lastSignInAt: user.last_sign_in_at,
   createdAt: user.created_at,
   updatedAt: user.updated_at,
+  externalId: user.external_id ?? null,
+  metadata: user.metadata ?? {},
 });

@@ -39,11 +39,7 @@ export class Session {
     this.cookiePassword = cookiePassword;
     this.sessionData = sessionData;
 
-    const { clientId } = this.userManagement;
-
-    this.jwks = clientId
-      ? createRemoteJWKSet(new URL(userManagement.getJwksUrl(clientId)))
-      : undefined;
+    this.jwks = this.userManagement.jwks;
   }
 
   /**

@@ -155,7 +155,7 @@ const toQueryString = (options: Record<string, string | undefined>): string => {
 };
 
 export class UserManagement {
-  private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
+  private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
   public ironSessionProvider: IronSessionProvider;
 
@@ -167,13 +167,19 @@ export class UserManagement {
 
     this.clientId = clientId;
     this.ironSessionProvider = ironSessionProvider;
+  }
+
+  get jwks(): ReturnType<typeof createRemoteJWKSet> | undefined {
+    if (!this.clientId) {
+      return;
+    }
 
     // Set the JWKS URL. This is used to verify if the JWT is still valid
-    this.jwks = clientId
-      ? createRemoteJWKSet(new URL(this.getJwksUrl(clientId)), {
-          cooldownDuration: 1000 * 60 * 5,
-        })
-      : undefined;
+    this._jwks ??= createRemoteJWKSet(new URL(this.getJwksUrl(this.clientId)), {
+      cooldownDuration: 1000 * 60 * 5,
+    });
+
+    return this._jwks;
   }
 
   /**
@@ -194,6 +200,14 @@ export class UserManagement {
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
       `/user_management/users/${userId}`,
+    );
+
+    return deserializeUser(data);
+  }
+
+  async getUserByExternalId(externalId: string): Promise<User> {
+    const { data } = await this.workos.get<UserResponse>(
+      `/user_management/users/external_id/${externalId}`,
     );
 
     return deserializeUser(data);

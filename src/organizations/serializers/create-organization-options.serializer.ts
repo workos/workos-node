@@ -10,4 +10,6 @@ export const serializeCreateOrganizationOptions = (
   allow_profiles_outside_organization: options.allowProfilesOutsideOrganization,
   domain_data: options.domainData,
   domains: options.domains,
+  external_id: options.externalId,
+  metadata: options.metadata,
 });
