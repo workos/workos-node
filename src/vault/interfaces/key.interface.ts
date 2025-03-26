@@ -1,7 +1,9 @@
-import { SecretContext } from './secret.interface';
+export interface KeyContext {
+  [key: string]: any;
+}
 
 export interface DataKeyPair {
-  context: SecretContext;
+  context: KeyContext;
   dataKey: DataKey;
   encryptedKeys: string;
 }

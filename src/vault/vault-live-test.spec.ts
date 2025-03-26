@@ -7,7 +7,7 @@ import { ConflictException } from '../common/exceptions/conflict.exception';
 
 describe.skip('Vault Live Test', () => {
   let workos: WorkOS;
-  const secretPrefix: string = randomUUID();
+  const objectPrefix: string = randomUUID();
 
   beforeAll(() => {
     disableFetchMocks();
@@ -23,23 +23,23 @@ describe.skip('Vault Live Test', () => {
     let before: string | undefined;
 
     do {
-      const allSecrets = await workos.vault.listSecrets({ after: before });
+      const allObjects = await workos.vault.listObjects({ after: before });
 
-      for (const secret of allSecrets.data) {
-        if (secret.name.startsWith(secretPrefix)) {
-          await workos.vault.deleteSecret({ id: secret.id });
+      for (const object of allObjects.data) {
+        if (object.name.startsWith(objectPrefix)) {
+          await workos.vault.deleteObject({ id: object.id });
         }
       }
-      before = allSecrets.listMetadata.before;
+      before = allObjects.listMetadata.before;
       listLimit++;
     } while (listLimit < 100 && before !== undefined);
   });
 
-  describe('CRUD secrets', () => {
-    it('Creates secrets', async () => {
-      const secretName = `${secretPrefix}-lima`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+  describe('CRUD objects', () => {
+    it('Creates objects', async () => {
+      const objectName = `${objectPrefix}-lima`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Huacaya 27.7 micron',
         context: { fiber: 'Alpalca' },
       });
@@ -59,44 +59,44 @@ describe.skip('Vault Live Test', () => {
         versionId: expect.any(String),
       };
 
-      expect(newSecret).toStrictEqual(expectedMetadata);
+      expect(newObject).toStrictEqual(expectedMetadata);
 
-      const secretValue = await workos.vault.readSecret({ id: newSecret.id });
-      expect(secretValue).toStrictEqual({
-        id: newSecret.id,
-        name: secretName,
+      const objectValue = await workos.vault.readObject({ id: newObject.id });
+      expect(objectValue).toStrictEqual({
+        id: newObject.id,
+        name: objectName,
         value: 'Huacaya 27.7 micron',
         metadata: expectedMetadata,
       });
     });
 
-    it('Fails to create secrets with the same name', async () => {
-      const secretName = `${secretPrefix}-lima`;
-      await workos.vault.createSecret({
-        name: secretName,
+    it('Fails to create objects with the same name', async () => {
+      const objectName = `${objectPrefix}-lima`;
+      await workos.vault.createObject({
+        name: objectName,
         value: 'Huacaya 27.7 micron',
         context: { fiber: 'Alpalca' },
       });
 
       await expect(
-        workos.vault.createSecret({
-          name: secretName,
+        workos.vault.createObject({
+          name: objectName,
           value: 'Huacaya 27.7 micron',
           context: { fiber: 'Alpalca' },
         }),
       ).rejects.toThrow(ConflictException);
     });
 
-    it('Updates secrets', async () => {
-      const secretName = `${secretPrefix}-cusco`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+    it('Updates objects', async () => {
+      const objectName = `${objectPrefix}-cusco`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Tapada 20-30 micron',
         context: { fiber: 'Alpalca' },
       });
 
-      const updatedSecret = await workos.vault.updateSecret({
-        id: newSecret.id,
+      const updatedObject = await workos.vault.updateObject({
+        id: newObject.id,
         value: 'Ccara 30-40 micron',
       });
 
@@ -115,69 +115,69 @@ describe.skip('Vault Live Test', () => {
         versionId: expect.any(String),
       };
 
-      expect(updatedSecret).toStrictEqual({
-        id: newSecret.id,
-        name: secretName,
+      expect(updatedObject).toStrictEqual({
+        id: newObject.id,
+        name: objectName,
         value: undefined,
         metadata: expectedMetadata,
       });
 
-      const secretValue = await workos.vault.readSecret({ id: newSecret.id });
-      expect(secretValue).toStrictEqual({
-        id: newSecret.id,
-        name: secretName,
+      const objectValue = await workos.vault.readObject({ id: newObject.id });
+      expect(objectValue).toStrictEqual({
+        id: newObject.id,
+        name: objectName,
         value: 'Ccara 30-40 micron',
         metadata: expectedMetadata,
       });
     });
 
-    it('Fails to update secrets with wrong version check', async () => {
-      const secretName = `${secretPrefix}-cusco`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+    it('Fails to update objects with wrong version check', async () => {
+      const objectName = `${objectPrefix}-cusco`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Tapada 20-30 micron',
         context: { fiber: 'Alpalca' },
       });
 
-      await workos.vault.updateSecret({
-        id: newSecret.id,
+      await workos.vault.updateObject({
+        id: newObject.id,
         value: 'Ccara 30-40 micron',
       });
 
       await expect(
-        workos.vault.updateSecret({
-          id: newSecret.id,
+        workos.vault.updateObject({
+          id: newObject.id,
           value: 'Ccara 30-40 micron',
-          versionCheck: newSecret.versionId,
+          versionCheck: newObject.versionId,
         }),
       ).rejects.toThrow(ConflictException);
     });
 
-    it('Deletes secrets', async () => {
-      const secretName = `${secretPrefix}-machu`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+    it('Deletes objects', async () => {
+      const objectName = `${objectPrefix}-machu`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Tapada 20-30 micron',
         context: { fiber: 'Alpalca' },
       });
 
-      await workos.vault.deleteSecret({ id: newSecret.id });
+      await workos.vault.deleteObject({ id: newObject.id });
 
       await expect(
-        workos.vault.readSecret({ id: newSecret.id }),
+        workos.vault.readObject({ id: newObject.id }),
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('Describes secrets', async () => {
-      const secretName = `${randomUUID()}-trujillo`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+    it('Describes objects', async () => {
+      const objectName = `${randomUUID()}-trujillo`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Qiviut 11-13 micron',
         context: { fiber: 'Musk Ox' },
       });
 
-      const secretDescription = await workos.vault.describeSecret({
-        id: newSecret.id,
+      const objectDescription = await workos.vault.describeObject({
+        id: newObject.id,
       });
 
       const expectedMetadata = {
@@ -195,90 +195,90 @@ describe.skip('Vault Live Test', () => {
         versionId: expect.any(String),
       };
 
-      expect(secretDescription).toStrictEqual({
-        id: newSecret.id,
-        name: secretName,
+      expect(objectDescription).toStrictEqual({
+        id: newObject.id,
+        name: objectName,
         metadata: expectedMetadata,
         value: undefined,
       });
     });
 
-    it('Lists secrets with pagination', async () => {
-      const secretNames = [];
-      const numSecrets = 6;
-      const listPrefix = `${secretPrefix}-${randomUUID()}`;
+    it('Lists objects with pagination', async () => {
+      const objectNames = [];
+      const numObjects = 6;
+      const listPrefix = `${objectPrefix}-${randomUUID()}`;
 
-      for (let i = 0; i < numSecrets; i++) {
-        const secretName = `${listPrefix}-${i}`;
-        await workos.vault.createSecret({
-          name: secretName,
+      for (let i = 0; i < numObjects; i++) {
+        const objectName = `${listPrefix}-${i}`;
+        await workos.vault.createObject({
+          name: objectName,
           value: 'Qiviut 11-13 micron',
           context: { fiber: 'Musk Ox' },
         });
-        secretNames.push(secretName);
+        objectNames.push(objectName);
       }
 
-      const allSecretNames: string[] = [];
+      const allObjectNames: string[] = [];
       let before: string | undefined;
 
       do {
-        const list = await workos.vault.listSecrets({
+        const list = await workos.vault.listObjects({
           limit: 2,
           after: before,
         });
 
-        for (const secret of list.data) {
-          if (secret.name.startsWith(listPrefix)) {
-            allSecretNames.push(secret.name);
+        for (const object of list.data) {
+          if (object.name.startsWith(listPrefix)) {
+            allObjectNames.push(object.name);
           }
         }
         before = list.listMetadata.before;
       } while (before !== undefined);
 
-      const missingSecrets = secretNames.filter(
-        (name) => !allSecretNames.includes(name),
+      const missingObjects = objectNames.filter(
+        (name) => !allObjectNames.includes(name),
       );
 
-      expect(allSecretNames.length).toEqual(numSecrets);
-      expect(missingSecrets).toStrictEqual([]);
+      expect(allObjectNames.length).toEqual(numObjects);
+      expect(missingObjects).toStrictEqual([]);
     });
 
-    it('Lists secret versions', async () => {
-      const secretName = `${secretPrefix}-arequipa`;
-      const newSecret = await workos.vault.createSecret({
-        name: secretName,
+    it('Lists object versions', async () => {
+      const objectName = `${objectPrefix}-arequipa`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
         value: 'Tapada 20-30 micron',
         context: { fiber: 'Alpalca' },
       });
 
-      const updatedSecret = await workos.vault.updateSecret({
-        id: newSecret.id,
+      const updatedObject = await workos.vault.updateObject({
+        id: newObject.id,
         value: 'Ccara 30-40 micron',
       });
 
-      const versions = await workos.vault.listSecretVersions({
-        id: newSecret.id,
+      const versions = await workos.vault.listObjectVersions({
+        id: newObject.id,
       });
 
       expect(versions.length).toBe(2);
 
       const currentVersion = versions.find((v) => v.currentVersion);
-      expect(currentVersion?.id).toBe(updatedSecret.metadata.versionId);
+      expect(currentVersion?.id).toBe(updatedObject.metadata.versionId);
 
-      const firstVersion = versions.find((v) => v.id === newSecret.versionId);
+      const firstVersion = versions.find((v) => v.id === newObject.versionId);
       expect(firstVersion?.currentVersion).toBe(false);
     });
   });
 
   describe('encrypt and decrypt', () => {
     it('encrypts and decrypts data', async () => {
-      const superSecret = 'hot water freezes faster than cold water';
+      const superObject = 'hot water freezes faster than cold water';
       const keyContext = {
         everything: 'everywhere',
       };
-      const encrypted = await workos.vault.encrypt(superSecret, keyContext);
+      const encrypted = await workos.vault.encrypt(superObject, keyContext);
       const decrypted = await workos.vault.decrypt(encrypted);
-      expect(decrypted).toBe(superSecret);
+      expect(decrypted).toBe(superObject);
     });
   });
 });

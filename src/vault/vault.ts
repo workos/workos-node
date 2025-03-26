@@ -5,52 +5,52 @@ import { encrypt } from './cryptography/encrypt';
 import {
   CreateDataKeyOptions,
   CreateDataKeyResponse,
-  CreateSecretOptions,
+  CreateObjectOptions,
   DataKey,
   DataKeyPair,
   DecryptDataKeyOptions,
   DecryptDataKeyResponse,
-  DeleteSecretOptions,
-  ListSecretVersionsResponse,
-  ReadSecretMetadataResponse,
-  ReadSecretOptions,
-  ReadSecretResponse,
-  SecretContext,
-  SecretDigest,
-  SecretDigestResponse,
-  SecretMetadata,
-  SecretVersion,
-  UpdateSecretOptions,
-  VaultSecret,
+  DeleteObjectOptions,
+  ListObjectVersionsResponse,
+  ReadObjectMetadataResponse,
+  ReadObjectOptions,
+  ReadObjectResponse,
+  KeyContext,
+  ObjectDigest,
+  ObjectDigestResponse,
+  ObjectMetadata,
+  ObjectVersion,
+  UpdateObjectOptions,
+  VaultObject,
 } from './interfaces';
 import {
   deserializeCreateDataKeyResponse,
   deserializeDecryptDataKeyResponse,
 } from './serializers/vault-key.serializer';
 import {
-  deserializeListSecrets,
-  deserializeSecret,
-  deserializeSecretMetadata,
-  desrializeListSecretVersions,
-  serializeCreateSecretEntity,
-  serializeUpdateSecretEntity,
-} from './serializers/vault-secret.serializer';
+  deserializeListObjects,
+  deserializeObject,
+  deserializeObjectMetadata,
+  desrializeListObjectVersions,
+  serializeCreateObjectEntity,
+  serializeUpdateObjectEntity,
+} from './serializers/vault-object.serializer';
 import { List, ListResponse } from '../common/interfaces';
 
 export class Vault {
   constructor(private readonly workos: WorkOS) {}
 
-  async createSecret(options: CreateSecretOptions): Promise<SecretMetadata> {
-    const { data } = await this.workos.post<ReadSecretMetadataResponse>(
+  async createObject(options: CreateObjectOptions): Promise<ObjectMetadata> {
+    const { data } = await this.workos.post<ReadObjectMetadataResponse>(
       `/vault/v1/kv`,
-      serializeCreateSecretEntity(options),
+      serializeCreateObjectEntity(options),
     );
-    return deserializeSecretMetadata(data);
+    return deserializeObjectMetadata(data);
   }
 
-  async listSecrets(
+  async listObjects(
     options?: PaginationOptions | undefined,
-  ): Promise<List<SecretDigest>> {
+  ): Promise<List<ObjectDigest>> {
     const url = new URL('/vault/v1/kv', this.workos.baseURL);
     if (options?.after) {
       url.searchParams.set('after', options.after);
@@ -59,44 +59,44 @@ export class Vault {
       url.searchParams.set('limit', options.limit.toString());
     }
 
-    const { data } = await this.workos.get<ListResponse<SecretDigestResponse>>(
+    const { data } = await this.workos.get<ListResponse<ObjectDigestResponse>>(
       url.toString(),
     );
-    return deserializeListSecrets(data);
+    return deserializeListObjects(data);
   }
 
-  async listSecretVersions(
-    options: ReadSecretOptions,
-  ): Promise<SecretVersion[]> {
-    const { data } = await this.workos.get<ListSecretVersionsResponse>(
+  async listObjectVersions(
+    options: ReadObjectOptions,
+  ): Promise<ObjectVersion[]> {
+    const { data } = await this.workos.get<ListObjectVersionsResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}/versions`,
     );
-    return desrializeListSecretVersions(data);
+    return desrializeListObjectVersions(data);
   }
 
-  async readSecret(options: ReadSecretOptions): Promise<VaultSecret> {
-    const { data } = await this.workos.get<ReadSecretResponse>(
+  async readObject(options: ReadObjectOptions): Promise<VaultObject> {
+    const { data } = await this.workos.get<ReadObjectResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}`,
     );
-    return deserializeSecret(data);
+    return deserializeObject(data);
   }
 
-  async describeSecret(options: ReadSecretOptions): Promise<VaultSecret> {
-    const { data } = await this.workos.get<ReadSecretResponse>(
+  async describeObject(options: ReadObjectOptions): Promise<VaultObject> {
+    const { data } = await this.workos.get<ReadObjectResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}/metadata`,
     );
-    return deserializeSecret(data);
+    return deserializeObject(data);
   }
 
-  async updateSecret(options: UpdateSecretOptions): Promise<VaultSecret> {
-    const { data } = await this.workos.put<ReadSecretResponse>(
+  async updateObject(options: UpdateObjectOptions): Promise<VaultObject> {
+    const { data } = await this.workos.put<ReadObjectResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}`,
-      serializeUpdateSecretEntity(options),
+      serializeUpdateObjectEntity(options),
     );
-    return deserializeSecret(data);
+    return deserializeObject(data);
   }
 
-  async deleteSecret(options: DeleteSecretOptions): Promise<void> {
+  async deleteObject(options: DeleteObjectOptions): Promise<void> {
     return this.workos.delete(`/vault/v1/kv/${encodeURIComponent(options.id)}`);
   }
 
@@ -116,7 +116,7 @@ export class Vault {
     return deserializeDecryptDataKeyResponse(data);
   }
 
-  async encrypt(data: string, context: SecretContext): Promise<string> {
+  async encrypt(data: string, context: KeyContext): Promise<string> {
     const { dataKey, encryptedKeys } = await this.createDataKey({
       context,
     });
@@ -128,4 +128,13 @@ export class Vault {
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
     return decrypt(decoded, dataKey.key);
   }
+
+  // Deprecated methods
+  createSecret = this.createObject;
+  listSecrets = this.listObjects;
+  listSecretVersions = this.listObjectVersions;
+  readSecret = this.readObject;
+  describeSecret = this.describeObject;
+  updateSecret = this.updateObject;
+  deleteSecret = this.deleteObject;
 }
