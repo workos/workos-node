@@ -8,4 +8,3 @@ export * from './object/list-objects.interface';
 export * from './object/read-object.interface';
 export * from './object/update-object.interface';
 export * from './object.interface';
-export * from './secret.interface';
