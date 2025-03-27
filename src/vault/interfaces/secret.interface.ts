@@ -1,37 +1,35 @@
-export interface SecretContext {
-  [key: string]: any;
-}
+import { KeyContext } from './key.interface';
+import {
+  ObjectDigest,
+  ObjectUpdateBy,
+  ObjectMetadata,
+  VaultObject,
+  ObjectVersion,
+} from './object.interface';
 
-export interface SecretDigest {
-  id: string;
-  name: string;
-  updatedAt: Date;
-}
+// tslint:disable:no-empty-interface
 
-export interface SecretUpdateBy {
-  id: string;
-  name: string;
-}
-
-export interface SecretMetadata {
-  context: SecretContext;
-  environmentId: string;
-  id: string;
-  keyId: string;
-  updatedAt: Date;
-  updatedBy: SecretUpdateBy;
-  versionId: string;
-}
-
-export interface VaultSecret {
-  id: string;
-  metadata: SecretMetadata;
-  name: string;
-  value?: string;
-}
-
-export interface SecretVersion {
-  createdAt: Date;
-  currentVersion: boolean;
-  id: string;
-}
+/*
+ * @deprecated Use `KeyContext` instead.
+ */
+export interface SecretContext extends KeyContext {}
+/*
+ * @deprecated Use `ObjectDigest` instead.
+ */
+export interface SecretDigest extends ObjectDigest {}
+/*
+ * @deprecated Use `ObjectUpdateBy` instead.
+ */
+export interface SecretUpdateBy extends ObjectUpdateBy {}
+/*
+ * @deprecated Use `ObjectMetadata` instead.
+ */
+export interface SecretMetadata extends ObjectMetadata {}
+/*
+ * @deprecated Use `VaultObject` instead.
+ */
+export interface VaultSecret extends VaultObject {}
+/*
+ * @deprecated Use `ObjectVersion` instead.
+ */
+export interface SecretVersion extends ObjectVersion {}

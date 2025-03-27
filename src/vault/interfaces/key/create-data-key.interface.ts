@@ -1,11 +1,11 @@
-import { SecretContext } from '../secret.interface';
+import { KeyContext } from '../key.interface';
 
 export interface CreateDataKeyOptions {
-  context: SecretContext;
+  context: KeyContext;
 }
 
 export interface CreateDataKeyResponse {
-  context: SecretContext;
+  context: KeyContext;
   data_key: string;
   encrypted_keys: string;
   id: string;

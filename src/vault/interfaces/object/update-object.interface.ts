@@ -1,9 +1,9 @@
-export interface UpdateSecretEntity {
+export interface UpdateObjectEntity {
   value: string;
   version_check?: string;
 }
 
-export interface UpdateSecretOptions {
+export interface UpdateObjectOptions {
   id: string;
   value: string;
   versionCheck?: string;
