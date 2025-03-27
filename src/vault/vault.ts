@@ -135,33 +135,4 @@ export class Vault {
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
     return decrypt(decoded, dataKey.key, associatedData || '');
   }
-
-  /*
-   * @deprecated Use `createObject` instead.
-   */
-  createSecret = this.createObject;
-  /*
-   * @deprecated Use `listObjects` instead.
-   */
-  listSecrets = this.listObjects;
-  /*
-   * @deprecated Use `listObjectVersions` instead.
-   */
-  listSecretVersions = this.listObjectVersions;
-  /*
-   * @deprecated Use `readObject` instead.
-   */
-  readSecret = this.readObject;
-  /*
-   * @deprecated Use `describeObject` instead.
-   */
-  describeSecret = this.describeObject;
-  /*
-   * @deprecated Use `updateObject` instead.
-   */
-  updateSecret = this.updateObject;
-  /*
-   * @deprecated Use `deleteObject` instead.
-   */
-  deleteSecret = this.deleteObject;
 }
