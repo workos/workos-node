@@ -120,7 +120,7 @@ describe('AutoPaginatable', () => {
     expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 250);
   });
 
-  it('should pass through additional options to api calls', async () => {
+  it('passes through additional options to API calls', async () => {
     const initialData: List<TestObject> = {
       object: 'list',
       data: [{ id: '1' }],
@@ -148,11 +148,15 @@ describe('AutoPaginatable', () => {
     jest.advanceTimersByTimeAsync(1000);
     await resultPromise;
 
-    expect(mockApiCall).toHaveBeenCalledWith(
-      expect.objectContaining({
-        status: 'active',
-        limit: 100,
-      }),
-    );
+    expect(mockApiCall).toHaveBeenNthCalledWith(1, {
+      after: undefined,
+      status: 'active',
+      limit: 100,
+    });
+    expect(mockApiCall).toHaveBeenNthCalledWith(2, {
+      after: 'cursor2',
+      status: 'active',
+      limit: 100,
+    });
   });
 });
