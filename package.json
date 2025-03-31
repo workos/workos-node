@@ -51,7 +51,7 @@
     "@peculiar/webcrypto": "^1.4.5",
     "@types/cookie": "^0.6.0",
     "@types/jest": "29.5.3",
-    "@types/node": "14.18.54",
+    "@types/node": "~18",
     "@types/pluralize": "0.0.30",
     "@typescript-eslint/parser": "^8.25.0",
     "babel-jest": "^29.7.0",
