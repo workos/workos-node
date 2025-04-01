@@ -1,5 +1,4 @@
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -127,6 +126,7 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { Session } from './session';
+import { sealData, unsealData } from 'iron-session';
 
 const toQueryString = (
   options: Record<string, string | string[] | undefined>,
@@ -154,16 +154,11 @@ const toQueryString = (
 export class UserManagement {
   private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
-  public ironSessionProvider: IronSessionProvider;
 
-  constructor(
-    private readonly workos: WorkOS,
-    ironSessionProvider: IronSessionProvider,
-  ) {
+  constructor(private readonly workos: WorkOS) {
     const { clientId } = workos.options;
 
     this.clientId = clientId;
-    this.ironSessionProvider = ironSessionProvider;
   }
 
   get jwks(): ReturnType<typeof createRemoteJWKSet> | undefined {
@@ -415,13 +410,9 @@ export class UserManagement {
       };
     }
 
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+    const session = await unsealData<SessionCookieData>(sessionData, {
+      password: cookiePassword,
+    });
 
     if (!session.accessToken) {
       return {
@@ -514,7 +505,7 @@ export class UserManagement {
       impersonator: authenticationResponse.impersonator,
     };
 
-    return this.ironSessionProvider.sealData(sessionData, {
+    return sealData(sessionData, {
       password: cookiePassword,
     });
   }
@@ -528,12 +519,9 @@ export class UserManagement {
     }
 
     if (sessionData) {
-      return this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+      return unsealData<SessionCookieData>(sessionData, {
+        password: cookiePassword,
+      });
     }
 
     return undefined;
