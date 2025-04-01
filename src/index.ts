@@ -10,8 +10,6 @@ import { Actions } from './actions/actions';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
 import { WorkOSOptions } from './common/interfaces';
-import { WebIronSessionProvider } from './common/iron-session/web-iron-session-provider';
-import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
 export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
@@ -75,11 +73,6 @@ class WorkOSNode extends WorkOS {
   /** @override */
   createActionsClient(): Actions {
     return new Actions(this.getCryptoProvider());
-  }
-
-  /** @override */
-  createIronSessionProvider(): IronSessionProvider {
-    return new WebIronSessionProvider();
   }
 
   /** @override */
