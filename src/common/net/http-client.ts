@@ -12,7 +12,10 @@ export abstract class HttpClient implements HttpClientInterface {
   readonly MINIMUM_SLEEP_TIME_IN_MILLISECONDS = 500;
   readonly RETRY_STATUS_CODES = [500, 502, 504];
 
-  constructor(readonly baseURL: string, readonly options?: RequestInit) {}
+  constructor(
+    readonly baseURL: string,
+    readonly options?: RequestInit,
+  ) {}
 
   /** The HTTP client name used for diagnostics */
   getClientName(): string {

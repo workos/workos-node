@@ -29,7 +29,10 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
   private httpAgent: HttpAgent;
   private httpsAgent: HttpsAgent;
 
-  constructor(readonly baseURL: string, readonly options?: RequestInit) {
+  constructor(
+    readonly baseURL: string,
+    readonly options?: RequestInit,
+  ) {
     super(baseURL, options);
 
     this.httpAgent = new http.Agent({ keepAlive: true });
