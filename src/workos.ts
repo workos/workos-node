@@ -74,7 +74,10 @@ export class WorkOS {
   readonly webhooks: Webhooks;
   readonly widgets = new Widgets(this);
 
-  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
+  constructor(
+    readonly key?: string,
+    readonly options: WorkOSOptions = {},
+  ) {
     if (!key) {
       // process might be undefined in some environments
       this.key =
