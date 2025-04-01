@@ -13,7 +13,7 @@ export const serializeCreateResourceOptions = (
   resource_id: isResourceInterface(options.resource)
     ? options.resource.getResourceId()
     : options.resource.resourceId
-    ? options.resource.resourceId
-    : '',
+      ? options.resource.resourceId
+      : '',
   meta: options.meta,
 });
