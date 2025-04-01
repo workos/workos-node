@@ -1,6 +1,6 @@
+import { sealData, unsealData } from 'iron-session';
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import qs from 'qs';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -155,16 +155,11 @@ const toQueryString = (
 export class UserManagement {
   private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
-  public ironSessionProvider: IronSessionProvider;
 
-  constructor(
-    private readonly workos: WorkOS,
-    ironSessionProvider: IronSessionProvider,
-  ) {
+  constructor(private readonly workos: WorkOS) {
     const { clientId } = workos.options;
 
     this.clientId = clientId;
-    this.ironSessionProvider = ironSessionProvider;
   }
 
   get jwks(): ReturnType<typeof createRemoteJWKSet> | undefined {
@@ -435,13 +430,9 @@ export class UserManagement {
       };
     }
 
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+    const session = await unsealData<SessionCookieData>(sessionData, {
+      password: cookiePassword,
+    });
 
     if (!session.accessToken) {
       return {
@@ -538,7 +529,7 @@ export class UserManagement {
       impersonator: authenticationResponse.impersonator,
     };
 
-    return this.ironSessionProvider.sealData(sessionData, {
+    return sealData(sessionData, {
       password: cookiePassword,
     });
   }
@@ -552,12 +543,9 @@ export class UserManagement {
     }
 
     if (sessionData) {
-      return this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+      return unsealData<SessionCookieData>(sessionData, {
+        password: cookiePassword,
+      });
     }
 
     return undefined;
