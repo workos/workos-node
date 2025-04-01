@@ -35,7 +35,6 @@ import { FeatureFlags } from './feature-flags/feature-flags';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
@@ -118,10 +117,7 @@ export class WorkOS {
     this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
-    this.userManagement = new UserManagement(
-      this,
-      this.createIronSessionProvider(),
-    );
+    this.userManagement = new UserManagement(this);
 
     this.client = this.createHttpClient(options, userAgent);
   }
@@ -148,12 +144,6 @@ export class WorkOS {
         'User-Agent': userAgent,
       },
     }) as HttpClient;
-  }
-
-  createIronSessionProvider(): IronSessionProvider {
-    throw new Error(
-      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
-    );
   }
 
   get version() {

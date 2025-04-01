@@ -1,6 +1,5 @@
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
@@ -12,6 +11,7 @@ import {
   SessionCookieData,
 } from './interfaces';
 import { UserManagement } from './user-management';
+import { unsealData } from 'iron-session';
 
 type RefreshOptions = {
   cookiePassword?: string;
@@ -21,7 +21,6 @@ type RefreshOptions = {
 export class CookieSession {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   private userManagement: UserManagement;
-  private ironSessionProvider: IronSessionProvider;
   private cookiePassword: string;
   private sessionData: string;
 
@@ -35,7 +34,6 @@ export class CookieSession {
     }
 
     this.userManagement = userManagement;
-    this.ironSessionProvider = userManagement.ironSessionProvider;
     this.cookiePassword = cookiePassword;
     this.sessionData = sessionData;
 
@@ -62,12 +60,9 @@ export class CookieSession {
     let session: SessionCookieData;
 
     try {
-      session = await this.ironSessionProvider.unsealData<SessionCookieData>(
-        this.sessionData,
-        {
-          password: this.cookiePassword,
-        },
-      );
+      session = await unsealData<SessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      });
     } catch (e) {
       return {
         authenticated: false,
@@ -126,13 +121,9 @@ export class CookieSession {
    * @returns An object indicating whether the refresh was successful or not. If successful, it will include the new sealed session data.
    */
   async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        this.sessionData,
-        {
-          password: this.cookiePassword,
-        },
-      );
+    const session = await unsealData<SessionCookieData>(this.sessionData, {
+      password: this.cookiePassword,
+    });
 
     if (!session.refreshToken || !session.user) {
       return {
