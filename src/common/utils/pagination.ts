@@ -4,7 +4,7 @@ export class AutoPaginatable<
   ResourceType,
   ParametersType extends PaginationOptions,
 > {
-  readonly object: 'list' = 'list';
+  readonly object = 'list' as const;
   readonly options: ParametersType;
 
   constructor(
