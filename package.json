@@ -65,7 +65,7 @@
     "prettier": "^3.5.3",
     "supertest": "7.1.0",
     "ts-jest": "29.3.1",
-    "typescript": "5.1.6",
+    "typescript": "5.8.2",
     "typescript-eslint": "^8.25.0"
   },
   "exports": {
