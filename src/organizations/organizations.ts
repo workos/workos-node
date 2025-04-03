@@ -30,7 +30,7 @@ export class Organizations {
 
   async listOrganizations(
     options?: ListOrganizationsOptions,
-  ): Promise<AutoPaginatable<Organization>> {
+  ): Promise<AutoPaginatable<Organization, ListOrganizationsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<OrganizationResponse, Organization>(
         this.workos,
