@@ -13,6 +13,7 @@ import {
   ProfileAndTokenResponse,
   ProfileResponse,
   SSOAuthorizationURLOptions,
+  SerializedListConnectionsOptions,
 } from './interfaces';
 import {
   deserializeConnection,
@@ -41,7 +42,7 @@ export class SSO {
 
   async listConnections(
     options?: ListConnectionsOptions,
-  ): Promise<AutoPaginatable<Connection>> {
+  ): Promise<AutoPaginatable<Connection, SerializedListConnectionsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<ConnectionResponse, Connection>(
         this.workos,

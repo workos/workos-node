@@ -37,6 +37,7 @@ import {
   SerializedCreateMagicAuthOptions,
   SerializedCreatePasswordResetOptions,
   SerializedCreateUserOptions,
+  SerializedListUsersOptions,
   SerializedResetPasswordOptions,
   SerializedVerifyEmailOptions,
   UpdateUserOptions,
@@ -76,8 +77,14 @@ import {
   Invitation,
   InvitationResponse,
 } from './interfaces/invitation.interface';
-import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
-import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
+import {
+  ListInvitationsOptions,
+  SerializedListInvitationsOptions,
+} from './interfaces/list-invitations-options.interface';
+import {
+  ListOrganizationMembershipsOptions,
+  SerializedListOrganizationMembershipsOptions,
+} from './interfaces/list-organization-memberships-options.interface';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
@@ -130,6 +137,7 @@ import { serializeSendInvitationOptions } from './serializers/send-invitation-op
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { Session } from './session';
 import { sealData, unsealData } from 'iron-session';
+import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 
 const toQueryString = (
   options: Record<string, string | string[] | undefined>,
@@ -208,7 +216,9 @@ export class UserManagement {
     return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
+  async listUsers(
+    options?: ListUsersOptions,
+  ): Promise<AutoPaginatable<User, SerializedListUsersOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<UserResponse, User>(
         this.workos,
@@ -677,7 +687,7 @@ export class UserManagement {
 
   async listAuthFactors(
     options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<Factor>> {
+  ): Promise<AutoPaginatable<Factor, PaginationOptions>> {
     const { userId, ...restOfOptions } = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
@@ -725,7 +735,15 @@ export class UserManagement {
 
   async listOrganizationMemberships(
     options: ListOrganizationMembershipsOptions,
-  ): Promise<AutoPaginatable<OrganizationMembership>> {
+  ): Promise<
+    AutoPaginatable<
+      OrganizationMembership,
+      SerializedListOrganizationMembershipsOptions
+    >
+  > {
+    const serializedOptions =
+      serializeListOrganizationMembershipsOptions(options);
+
     return new AutoPaginatable(
       await fetchAndDeserialize<
         OrganizationMembershipResponse,
@@ -734,9 +752,7 @@ export class UserManagement {
         this.workos,
         '/user_management/organization_memberships',
         deserializeOrganizationMembership,
-        options
-          ? serializeListOrganizationMembershipsOptions(options)
-          : undefined,
+        serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<
@@ -748,9 +764,7 @@ export class UserManagement {
           deserializeOrganizationMembership,
           params,
         ),
-      options
-        ? serializeListOrganizationMembershipsOptions(options)
-        : undefined,
+      serializedOptions,
     );
   }
 
@@ -831,7 +845,7 @@ export class UserManagement {
 
   async listInvitations(
     options: ListInvitationsOptions,
-  ): Promise<AutoPaginatable<Invitation>> {
+  ): Promise<AutoPaginatable<Invitation, SerializedListInvitationsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<InvitationResponse, Invitation>(
         this.workos,
