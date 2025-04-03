@@ -11,6 +11,7 @@ import {
   ListDirectoriesOptions,
   ListDirectoryGroupsOptions,
   ListDirectoryUsersOptions,
+  SerializedListDirectoriesOptions,
 } from './interfaces';
 import {
   deserializeDirectory,
@@ -25,7 +26,7 @@ export class DirectorySync {
 
   async listDirectories(
     options?: ListDirectoriesOptions,
-  ): Promise<AutoPaginatable<Directory>> {
+  ): Promise<AutoPaginatable<Directory, SerializedListDirectoriesOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<DirectoryResponse, Directory>(
         this.workos,
@@ -58,7 +59,7 @@ export class DirectorySync {
 
   async listGroups(
     options: ListDirectoryGroupsOptions,
-  ): Promise<AutoPaginatable<DirectoryGroup>> {
+  ): Promise<AutoPaginatable<DirectoryGroup, ListDirectoryGroupsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<DirectoryGroupResponse, DirectoryGroup>(
         this.workos,
@@ -79,7 +80,12 @@ export class DirectorySync {
 
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
-  ): Promise<AutoPaginatable<DirectoryUserWithGroups<TCustomAttributes>>> {
+  ): Promise<
+    AutoPaginatable<
+      DirectoryUserWithGroups<TCustomAttributes>,
+      ListDirectoryUsersOptions
+    >
+  > {
     return new AutoPaginatable(
       await fetchAndDeserialize<
         DirectoryUserWithGroupsResponse<TCustomAttributes>,
