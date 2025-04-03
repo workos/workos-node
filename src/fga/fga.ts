@@ -26,6 +26,9 @@ import {
   WarrantTokenResponse,
   BatchWriteResourcesOptions,
   BatchWriteResourcesResponse,
+  SerializedQueryOptions,
+  SerializedListWarrantsOptions,
+  SerializedListResourcesOptions,
 } from './interfaces';
 import {
   deserializeBatchWriteResourcesResponse,
@@ -103,7 +106,7 @@ export class FGA {
 
   async listResources(
     options?: ListResourcesOptions,
-  ): Promise<AutoPaginatable<Resource>> {
+  ): Promise<AutoPaginatable<Resource, SerializedListResourcesOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<ResourceResponse, Resource>(
         this.workos,
@@ -184,7 +187,7 @@ export class FGA {
   async listWarrants(
     options?: ListWarrantsOptions,
     requestOptions?: ListWarrantsRequestOptions,
-  ): Promise<AutoPaginatable<Warrant>> {
+  ): Promise<AutoPaginatable<Warrant, SerializedListWarrantsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<WarrantResponse, Warrant>(
         this.workos,
@@ -208,7 +211,7 @@ export class FGA {
   async query(
     options: QueryOptions,
     requestOptions: QueryRequestOptions = {},
-  ): Promise<AutoPaginatable<QueryResult>> {
+  ): Promise<AutoPaginatable<QueryResult, SerializedQueryOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<QueryResultResponse, QueryResult>(
         this.workos,
