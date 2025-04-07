@@ -358,6 +358,16 @@ export interface PasswordResetCreatedEventResponse extends EventResponseBase {
   data: PasswordResetEventResponse;
 }
 
+export interface PasswordResetSucceededEvent extends EventBase {
+  event: 'password_reset.succeeded';
+  data: PasswordResetEvent;
+}
+
+export interface PasswordResetSucceededEventResponse extends EventResponseBase {
+  event: 'password_reset.succeeded';
+  data: PasswordResetEventResponse;
+}
+
 export interface UserCreatedEvent extends EventBase {
   event: 'user.created';
   data: User;
@@ -575,6 +585,7 @@ export type Event =
   | InvitationCreatedEvent
   | MagicAuthCreatedEvent
   | PasswordResetCreatedEvent
+  | PasswordResetSucceededEvent
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
@@ -622,6 +633,7 @@ export type EventResponse =
   | InvitationCreatedEventResponse
   | MagicAuthCreatedEventResponse
   | PasswordResetCreatedEventResponse
+  | PasswordResetSucceededEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
