@@ -121,6 +121,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeMagicAuthEvent(event.data),
       };
     case 'password_reset.created':
+    case 'password_reset.succeeded':
       return {
         ...eventBase,
         event: event.event,
