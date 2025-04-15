@@ -37,7 +37,7 @@ import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 
-const VERSION = '7.46.0';
+const VERSION = '7.47.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
