@@ -6,6 +6,7 @@ export const deserializeOrganizationDomain = (
   object: organizationDomain.object,
   id: organizationDomain.id,
   domain: organizationDomain.domain,
+  organizationId: organizationDomain.organization_id,
   state: organizationDomain.state,
   verificationToken: organizationDomain.verification_token,
   verificationStrategy: organizationDomain.verification_strategy,
