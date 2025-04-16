@@ -11,5 +11,6 @@ export const deserializeProfile = (profile: ProfileResponse): Profile => ({
   lastName: profile.last_name,
   role: profile.role,
   groups: profile.groups,
+  customAttributes: profile.custom_attributes,
   rawAttributes: profile.raw_attributes,
 });

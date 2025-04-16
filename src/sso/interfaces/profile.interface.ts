@@ -12,6 +12,7 @@ export interface Profile {
   lastName?: string;
   role?: RoleResponse;
   groups?: string[];
+  customAttributes?: Record<string, unknown>;
   rawAttributes?: { [key: string]: any };
 }
 
@@ -26,5 +27,6 @@ export interface ProfileResponse {
   last_name?: string;
   role?: RoleResponse;
   groups?: string[];
+  custom_attributes?: Record<string, unknown>;
   raw_attributes?: { [key: string]: any };
 }
