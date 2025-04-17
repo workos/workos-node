@@ -19,6 +19,7 @@ import {
   serializeListConnectionsOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -110,10 +111,7 @@ export class SSO {
   }
 
   async getProfileAndToken<
-    CustomAttributesType extends Record<string, unknown> = Record<
-      string,
-      unknown
-    >,
+    CustomAttributesType extends UnknownRecord = UnknownRecord,
   >({
     code,
     clientId,
@@ -134,12 +132,7 @@ export class SSO {
     return deserializeProfileAndToken(data);
   }
 
-  async getProfile<
-    CustomAttributesType extends Record<string, unknown> = Record<
-      string,
-      unknown
-    >,
-  >({
+  async getProfile<CustomAttributesType extends UnknownRecord = UnknownRecord>({
     accessToken,
   }: GetProfileOptions): Promise<Profile<CustomAttributesType>> {
     const { data } = await this.workos.get<

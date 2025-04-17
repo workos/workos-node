@@ -1,7 +1,8 @@
+import { UnknownRecord } from '../../common/interfaces/unknown-record.interface';
 import { RoleResponse } from '../../roles/interfaces';
 import { ConnectionType } from './connection-type.enum';
 
-export interface Profile<CustomAttributesType extends Record<string, unknown>> {
+export interface Profile<CustomAttributesType extends UnknownRecord> {
   id: string;
   idpId: string;
   organizationId?: string;
@@ -16,9 +17,7 @@ export interface Profile<CustomAttributesType extends Record<string, unknown>> {
   rawAttributes?: { [key: string]: any };
 }
 
-export interface ProfileResponse<
-  CustomAttributesType extends Record<string, unknown>,
-> {
+export interface ProfileResponse<CustomAttributesType extends UnknownRecord> {
   id: string;
   idp_id: string;
   organization_id?: string;
