@@ -1,11 +1,15 @@
 import { Profile, ProfileResponse } from './profile.interface';
 
-export interface ProfileAndToken {
+export interface ProfileAndToken<
+  CustomAttributesType extends Record<string, unknown>,
+> {
   accessToken: string;
-  profile: Profile;
+  profile: Profile<CustomAttributesType>;
 }
 
-export interface ProfileAndTokenResponse {
+export interface ProfileAndTokenResponse<
+  CustomAttributesType extends Record<string, unknown>,
+> {
   access_token: string;
-  profile: ProfileResponse;
+  profile: ProfileResponse<CustomAttributesType>;
 }

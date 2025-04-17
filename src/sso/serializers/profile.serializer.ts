@@ -1,6 +1,10 @@
 import { Profile, ProfileResponse } from '../interfaces';
 
-export const deserializeProfile = (profile: ProfileResponse): Profile => ({
+export const deserializeProfile = <
+  CustomAttributesType extends Record<string, unknown>,
+>(
+  profile: ProfileResponse<CustomAttributesType>,
+): Profile<CustomAttributesType> => ({
   id: profile.id,
   idpId: profile.idp_id,
   organizationId: profile.organization_id,

@@ -109,10 +109,17 @@ export class SSO {
     return deserializeConnection(data);
   }
 
-  async getProfileAndToken({
+  async getProfileAndToken<
+    CustomAttributesType extends Record<string, unknown> = Record<
+      string,
+      unknown
+    >,
+  >({
     code,
     clientId,
-  }: GetProfileAndTokenOptions): Promise<ProfileAndToken> {
+  }: GetProfileAndTokenOptions): Promise<
+    ProfileAndToken<CustomAttributesType>
+  > {
     const form = new URLSearchParams({
       client_id: clientId,
       client_secret: this.workos.key as string,
@@ -120,16 +127,24 @@ export class SSO {
       code,
     });
 
-    const { data } = await this.workos.post<ProfileAndTokenResponse>(
-      '/sso/token',
-      form,
-    );
+    const { data } = await this.workos.post<
+      ProfileAndTokenResponse<CustomAttributesType>
+    >('/sso/token', form);
 
     return deserializeProfileAndToken(data);
   }
 
-  async getProfile({ accessToken }: GetProfileOptions): Promise<Profile> {
-    const { data } = await this.workos.get<ProfileResponse>('/sso/profile', {
+  async getProfile<
+    CustomAttributesType extends Record<string, unknown> = Record<
+      string,
+      unknown
+    >,
+  >({
+    accessToken,
+  }: GetProfileOptions): Promise<Profile<CustomAttributesType>> {
+    const { data } = await this.workos.get<
+      ProfileResponse<CustomAttributesType>
+    >('/sso/profile', {
       accessToken,
     });
 

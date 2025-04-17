@@ -1,7 +1,7 @@
 import { RoleResponse } from '../../roles/interfaces';
 import { ConnectionType } from './connection-type.enum';
 
-export interface Profile {
+export interface Profile<CustomAttributesType extends Record<string, unknown>> {
   id: string;
   idpId: string;
   organizationId?: string;
@@ -12,11 +12,13 @@ export interface Profile {
   lastName?: string;
   role?: RoleResponse;
   groups?: string[];
-  customAttributes?: Record<string, unknown>;
+  customAttributes?: CustomAttributesType;
   rawAttributes?: { [key: string]: any };
 }
 
-export interface ProfileResponse {
+export interface ProfileResponse<
+  CustomAttributesType extends Record<string, unknown>,
+> {
   id: string;
   idp_id: string;
   organization_id?: string;
@@ -27,6 +29,6 @@ export interface ProfileResponse {
   last_name?: string;
   role?: RoleResponse;
   groups?: string[];
-  custom_attributes?: Record<string, unknown>;
+  custom_attributes?: CustomAttributesType;
   raw_attributes?: { [key: string]: any };
 }
