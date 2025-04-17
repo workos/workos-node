@@ -1,6 +1,9 @@
+import { UnknownRecord } from '../../common/interfaces/unknown-record.interface';
 import { Profile, ProfileResponse } from '../interfaces';
 
-export const deserializeProfile = (profile: ProfileResponse): Profile => ({
+export const deserializeProfile = <CustomAttributesType extends UnknownRecord>(
+  profile: ProfileResponse<CustomAttributesType>,
+): Profile<CustomAttributesType> => ({
   id: profile.id,
   idpId: profile.idp_id,
   organizationId: profile.organization_id,
@@ -11,5 +14,6 @@ export const deserializeProfile = (profile: ProfileResponse): Profile => ({
   lastName: profile.last_name,
   role: profile.role,
   groups: profile.groups,
+  customAttributes: profile.custom_attributes,
   rawAttributes: profile.raw_attributes,
 });

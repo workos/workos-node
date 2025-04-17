@@ -29,6 +29,9 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 {
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
+  "customAttributes": {
+    "license": "professional",
+  },
   "email": "foo@test.com",
   "firstName": "foo",
   "groups": [
@@ -47,6 +50,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
       "Developers",
     ],
     "last_name": "bar",
+    "license": "professional",
   },
   "role": {
     "slug": "admin",
@@ -69,6 +73,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
 {
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
+  "customAttributes": {},
   "email": "foo@test.com",
   "firstName": "foo",
   "groups": undefined,
