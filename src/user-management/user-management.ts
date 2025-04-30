@@ -1007,6 +1007,13 @@ export class UserManagement {
       );
     }
 
+    if (context) {
+      this.workos.emitWarning(
+        `\`context\` is deprecated. We previously required initiate login endpoints to return the
+\`context\` query parameter when getting the authorization URL. This is no longer necessary.`,
+      );
+    }
+
     const query = toQueryString({
       connection_id: connectionId,
       code_challenge: codeChallenge,
