@@ -280,5 +280,24 @@ describe.skip('Vault Live Test', () => {
       const decrypted = await workos.vault.decrypt(encrypted);
       expect(decrypted).toBe(superObject);
     });
+
+    it('authenticates additional data', async () => {
+      const data = 'hot water freezes faster than cold water';
+      const keyContext = { everything: 'everywhere' };
+      const aad = 'seq1';
+      const encrypted = await workos.vault.encrypt(data, keyContext, aad);
+      const decrypted = await workos.vault.decrypt(encrypted, aad);
+      expect(decrypted).toBe(data);
+    });
+
+    it('fails with invalid AD', async () => {
+      const data = 'hot water freezes faster than cold water';
+      const keyContext = { everything: 'everywhere' };
+      const aad = 'seq1';
+      const encrypted = await workos.vault.encrypt(data, keyContext, aad);
+      await expect(() => workos.vault.decrypt(encrypted)).rejects.toThrow(
+        'unable to authenticate data',
+      );
+    });
   });
 });
