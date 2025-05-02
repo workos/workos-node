@@ -9,6 +9,7 @@ export * from './authenticate-with-session-cookie.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-event.interface';
 export * from './authentication-response.interface';
+export * from './authentication-radar-risk-detected-event.interface';
 export * from './create-magic-auth-options.interface';
 export * from './create-organization-membership-options.interface';
 export * from './create-password-reset-options.interface';
