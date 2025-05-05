@@ -116,17 +116,24 @@ export class Vault {
     return deserializeDecryptDataKeyResponse(data);
   }
 
-  async encrypt(data: string, context: KeyContext): Promise<string> {
+  async encrypt(
+    data: string,
+    context: KeyContext,
+    associatedData?: string,
+  ): Promise<string> {
     const { dataKey, encryptedKeys } = await this.createDataKey({
       context,
     });
-    return encrypt(data, dataKey.key, encryptedKeys);
+    return encrypt(data, dataKey.key, encryptedKeys, associatedData || '');
   }
 
-  async decrypt(encryptedData: string): Promise<string> {
+  async decrypt(
+    encryptedData: string,
+    associatedData?: string,
+  ): Promise<string> {
     const decoded = decode(encryptedData);
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
-    return decrypt(decoded, dataKey.key);
+    return decrypt(decoded, dataKey.key, associatedData || '');
   }
 
   /*
