@@ -1,4 +1,5 @@
 import { Actions } from './actions/actions';
+import { CryptoProvider } from './common/crypto/crypto-provider';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { EdgeIronSessionProvider } from './common/iron-session/edge-iron-session-provider';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
@@ -26,6 +27,17 @@ export * from './user-management/interfaces';
 export * from './roles/interfaces';
 
 class WorkOSWorker extends WorkOS {
+  protected readonly cryptoProvider: CryptoProvider;
+
+  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
+    super(key, options);
+    this.cryptoProvider = new SubtleCryptoProvider();
+  }
+
+  getCryptoProvider(): CryptoProvider {
+    return this.cryptoProvider;
+  }
+
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
     return new FetchHttpClient(this.baseURL, {

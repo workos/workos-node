@@ -31,6 +31,21 @@ export * from './user-management/interfaces';
 export * from './roles/interfaces';
 
 class WorkOSNode extends WorkOS {
+  protected readonly cryptoProvider: CryptoProvider;
+
+  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
+    super(key, options);
+    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
+      this.cryptoProvider = new SubtleCryptoProvider();
+    } else {
+      this.cryptoProvider = new NodeCryptoProvider();
+    }
+  }
+
+  getCryptoProvider(): CryptoProvider {
+    return this.cryptoProvider;
+  }
+
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
     const opts = {

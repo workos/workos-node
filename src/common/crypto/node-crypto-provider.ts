@@ -5,6 +5,8 @@ import { CryptoProvider } from './crypto-provider';
  * `CryptoProvider which uses the Node `crypto` package for its computations.
  */
 export class NodeCryptoProvider extends CryptoProvider {
+  private cryptoModule: typeof crypto | undefined;
+
   /** @override */
   computeHMACSignature(payload: string, secret: string): string {
     return crypto
@@ -38,5 +40,76 @@ export class NodeCryptoProvider extends CryptoProvider {
 
     // Perform a constant time comparison
     return crypto.timingSafeEqual(hmacA, hmacB);
+  }
+
+  private async ensureCrypto() {
+    if (!this.cryptoModule) {
+      try {
+        this.cryptoModule = await import('node:crypto');
+      } catch (e) {
+        throw new Error('Node crypto module not available in this environment');
+      }
+    }
+    return this.cryptoModule;
+  }
+
+  async encrypt(
+    plaintext: Uint8Array,
+    key: Uint8Array,
+    iv?: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<{
+    ciphertext: Uint8Array;
+    iv: Uint8Array;
+    tag: Uint8Array;
+  }> {
+    const crypto = await this.ensureCrypto();
+    const actualIv = iv || crypto.randomBytes(32);
+    const cipher = crypto.createCipheriv('aes-256-gcm', key, actualIv);
+
+    if (aad) {
+      cipher.setAAD(Buffer.from(aad));
+    }
+
+    const ciphertext = Buffer.concat([
+      cipher.update(Buffer.from(plaintext)),
+      cipher.final(),
+    ]);
+
+    const tag = cipher.getAuthTag();
+
+    return {
+      ciphertext: new Uint8Array(ciphertext),
+      iv: new Uint8Array(actualIv),
+      tag: new Uint8Array(tag),
+    };
+  }
+
+  async decrypt(
+    ciphertext: Uint8Array,
+    key: Uint8Array,
+    iv: Uint8Array,
+    tag: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<Uint8Array> {
+    const crypto = await this.ensureCrypto();
+    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+    decipher.setAuthTag(Buffer.from(tag));
+
+    if (aad) {
+      decipher.setAAD(Buffer.from(aad));
+    }
+
+    const decrypted = Buffer.concat([
+      decipher.update(Buffer.from(ciphertext)),
+      decipher.final(),
+    ]);
+
+    return new Uint8Array(decrypted);
+  }
+
+  async randomBytes(length: number): Promise<Uint8Array> {
+    const crypto = await this.ensureCrypto();
+    return new Uint8Array(crypto.randomBytes(length));
   }
 }

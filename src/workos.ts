@@ -36,6 +36,8 @@ import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
+import { CryptoProvider } from './common/crypto/crypto-provider';
+import { NodeCryptoProvider } from './common/crypto/NodeCryptoProvider';
 
 const VERSION = '7.50.0';
 
@@ -45,7 +47,7 @@ const HEADER_AUTHORIZATION = 'Authorization';
 const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
 const HEADER_WARRANT_TOKEN = 'Warrant-Token';
 
-export class WorkOS {
+export abstract class WorkOS {
   readonly baseURL: string;
   readonly client: HttpClient;
   readonly clientId?: string;
@@ -65,6 +67,9 @@ export class WorkOS {
   readonly fga = new FGA(this);
   readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
+  protected abstract cryptoProvider: CryptoProvider;
+
+  abstract getCryptoProvider(): CryptoProvider;
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -115,6 +120,13 @@ export class WorkOS {
     );
 
     this.client = this.createHttpClient(options, userAgent);
+  }
+
+  createCryptoProvider(): CryptoProvider {
+    if (crypto?.subtle) {
+      return new SubtleCryptoProvider();
+    }
+    return new NodeCryptoProvider();
   }
 
   createWebhookClient() {

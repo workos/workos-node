@@ -35,4 +35,25 @@ export abstract class CryptoProvider {
    * Cryptographically determine whether two signatures are equal
    */
   abstract secureCompare(stringA: string, stringB: string): Promise<boolean>;
+
+  abstract encrypt(
+    plaintext: Uint8Array,
+    key: Uint8Array,
+    iv?: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<{
+    ciphertext: Uint8Array;
+    iv: Uint8Array;
+    tag: Uint8Array;
+  }>;
+
+  abstract decrypt(
+    ciphertext: Uint8Array,
+    key: Uint8Array,
+    iv: Uint8Array,
+    tag: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<Uint8Array>;
+
+  abstract randomBytes(length: number): Promise<Uint8Array>;
 }

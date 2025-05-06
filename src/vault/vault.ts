@@ -36,9 +36,14 @@ import {
   serializeUpdateObjectEntity,
 } from './serializers/vault-object.serializer';
 import { List, ListResponse } from '../common/interfaces';
+import { CryptoProvider } from '../common/crypto/CryptoProvider';
 
 export class Vault {
-  constructor(private readonly workos: WorkOS) {}
+  private cryptoProvider: CryptoProvider;
+
+  constructor(private readonly workos: WorkOS) {
+    this.cryptoProvider = workos.getCryptoProvider();
+  }
 
   async createObject(options: CreateObjectOptions): Promise<ObjectMetadata> {
     const { data } = await this.workos.post<ReadObjectMetadataResponse>(
@@ -124,7 +129,13 @@ export class Vault {
     const { dataKey, encryptedKeys } = await this.createDataKey({
       context,
     });
-    return encrypt(data, dataKey.key, encryptedKeys, associatedData || '');
+    return encrypt(
+      data,
+      dataKey.key,
+      encryptedKeys,
+      associatedData || '',
+      this.cryptoProvider,
+    );
   }
 
   async decrypt(
@@ -133,7 +144,12 @@ export class Vault {
   ): Promise<string> {
     const decoded = decode(encryptedData);
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
-    return decrypt(decoded, dataKey.key, associatedData || '');
+    return decrypt(
+      decoded,
+      dataKey.key,
+      associatedData || '',
+      this.cryptoProvider,
+    );
   }
 
   /*
