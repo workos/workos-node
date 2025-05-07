@@ -1,15 +1,13 @@
-import { NodeCryptoProvider } from './common/crypto/node-crypto-provider';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
-import { CryptoProvider } from './common/crypto/crypto-provider';
 
-import { HttpClient } from './common/net/http-client';
 import { FetchHttpClient } from './common/net/fetch-client';
+import { HttpClient } from './common/net/http-client';
 import { NodeHttpClient } from './common/net/node-client';
 
 import { Actions } from './actions/actions';
+import { WorkOSOptions } from './common/interfaces';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
-import { WorkOSOptions } from './common/interfaces';
 
 export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
@@ -20,13 +18,13 @@ export * from './directory-sync/interfaces';
 export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
 export * from './fga/interfaces';
-export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
+export * from './organizations/interfaces';
 export * from './passwordless/interfaces';
 export * from './portal/interfaces';
+export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
-export * from './roles/interfaces';
 
 class WorkOSNode extends WorkOS {
   /** @override */
@@ -52,26 +50,13 @@ class WorkOSNode extends WorkOS {
 
   /** @override */
   createWebhookClient(): Webhooks {
-    let cryptoProvider: CryptoProvider;
-
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      cryptoProvider = new SubtleCryptoProvider();
-    } else {
-      cryptoProvider = new NodeCryptoProvider();
-    }
-
+    const cryptoProvider = new SubtleCryptoProvider();
     return new Webhooks(cryptoProvider);
   }
 
   /** @override */
   createActionsClient(): Actions {
-    let cryptoProvider: CryptoProvider;
-
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      cryptoProvider = new SubtleCryptoProvider();
-    } else {
-      cryptoProvider = new NodeCryptoProvider();
-    }
+    const cryptoProvider = new SubtleCryptoProvider();
 
     return new Actions(cryptoProvider);
   }
