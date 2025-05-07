@@ -1,5 +1,5 @@
-import { SignatureProvider } from '../common/crypto/SignatureProvider';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
+import { SignatureProvider } from '../common/crypto/signature-provider';
 import { unreachable } from '../common/utils/unreachable';
 import { ActionContext, ActionPayload } from './interfaces/action.interface';
 import {

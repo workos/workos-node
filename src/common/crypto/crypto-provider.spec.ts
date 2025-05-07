@@ -1,8 +1,8 @@
 import crypto from 'crypto';
-import { NodeCryptoProvider } from './NodeCryptoProvider';
-import { SubtleCryptoProvider } from './SubtleCryptoProvider';
+import { NodeCryptoProvider } from './node-crypto-provider';
+import { SubtleCryptoProvider } from './subtle-crypto-provider';
 import mockWebhook from '../../webhooks/fixtures/webhook.json';
-import { SignatureProvider } from './SignatureProvider';
+import { SignatureProvider } from './signature-provider';
 
 describe('CryptoProvider', () => {
   let payload: any;

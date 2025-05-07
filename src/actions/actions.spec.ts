@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import { WorkOS } from '../workos';
 import mockAuthActionContext from './fixtures/authentication-action-context.json';
 import mockUserRegistrationActionContext from './fixtures/user-registration-action-context.json';
+import { NodeCryptoProvider } from '../common/crypto/node-crypto-provider';
+
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-import { NodeCryptoProvider } from '../common/crypto/NodeCryptoProvider';
 
 describe('Actions', () => {
   let secret: string;
