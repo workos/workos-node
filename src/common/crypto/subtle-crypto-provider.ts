@@ -79,6 +79,100 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
     return equal;
   }
+
+  async encrypt(
+    plaintext: Uint8Array,
+    key: Uint8Array,
+    iv?: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<{
+    ciphertext: Uint8Array;
+    iv: Uint8Array;
+    tag: Uint8Array;
+  }> {
+    const actualIv = iv || crypto.getRandomValues(new Uint8Array(32));
+
+    const cryptoKey = await this.subtleCrypto.importKey(
+      'raw',
+      key,
+      { name: 'AES-GCM' },
+      false,
+      ['encrypt'],
+    );
+
+    const encryptParams: AesGcmParams = {
+      name: 'AES-GCM',
+      iv: actualIv,
+    };
+
+    if (aad) {
+      encryptParams.additionalData = aad;
+    }
+
+    const encryptedData = await this.subtleCrypto.encrypt(
+      encryptParams,
+      cryptoKey,
+      plaintext,
+    );
+
+    const encryptedBytes = new Uint8Array(encryptedData);
+
+    // Extract tag (last 16 bytes)
+    const tagSize = 16;
+    const tagStart = encryptedBytes.length - tagSize;
+    const tag = encryptedBytes.slice(tagStart);
+    const ciphertext = encryptedBytes.slice(0, tagStart);
+
+    return {
+      ciphertext,
+      iv: actualIv,
+      tag,
+    };
+  }
+
+  async decrypt(
+    ciphertext: Uint8Array,
+    key: Uint8Array,
+    iv: Uint8Array,
+    tag: Uint8Array,
+    aad?: Uint8Array,
+  ): Promise<Uint8Array> {
+    // SubtleCrypto expects tag to be appended to ciphertext for AES-GCM
+    const combinedData = new Uint8Array(ciphertext.length + tag.length);
+    combinedData.set(ciphertext, 0);
+    combinedData.set(tag, ciphertext.length);
+
+    const cryptoKey = await this.subtleCrypto.importKey(
+      'raw',
+      key,
+      { name: 'AES-GCM' },
+      false,
+      ['decrypt'],
+    );
+
+    const decryptParams: AesGcmParams = {
+      name: 'AES-GCM',
+      iv,
+    };
+
+    if (aad) {
+      decryptParams.additionalData = aad;
+    }
+
+    const decryptedData = await this.subtleCrypto.decrypt(
+      decryptParams,
+      cryptoKey,
+      combinedData,
+    );
+
+    return new Uint8Array(decryptedData);
+  }
+
+  randomBytes(length: number): Uint8Array {
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    return bytes;
+  }
 }
 
 // Cached mapping of byte to hex representation. We do this once to avoid re-
