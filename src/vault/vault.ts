@@ -2,7 +2,7 @@ import { decodeUInt32, encodeUInt32 } from 'leb';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { List, ListResponse } from '../common/interfaces';
 import { PaginationOptions } from '../index.worker';
-import { WorkOS } from '../workos';
+import type { WorkOS } from '../workos';
 import {
   CreateDataKeyOptions,
   CreateDataKeyResponse,
