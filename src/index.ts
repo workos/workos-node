@@ -54,6 +54,10 @@ class WorkOSNode extends WorkOS {
 
   /** @override */
   createWebhookClient(): Webhooks {
+    return new Webhooks(this.getCryptoProvider());
+  }
+
+  override getCryptoProvider(): CryptoProvider {
     let cryptoProvider: CryptoProvider;
 
     if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
@@ -62,20 +66,12 @@ class WorkOSNode extends WorkOS {
       cryptoProvider = new NodeCryptoProvider();
     }
 
-    return new Webhooks(cryptoProvider);
+    return cryptoProvider;
   }
 
   /** @override */
   createActionsClient(): Actions {
-    let cryptoProvider: CryptoProvider;
-
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      cryptoProvider = new SubtleCryptoProvider();
-    } else {
-      cryptoProvider = new NodeCryptoProvider();
-    }
-
-    return new Actions(cryptoProvider);
+    return new Actions(this.getCryptoProvider());
   }
 
   /** @override */
