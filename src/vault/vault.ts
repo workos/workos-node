@@ -2,6 +2,7 @@ import { decodeUInt32, encodeUInt32 } from 'leb';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { List, ListResponse } from '../common/interfaces';
 import { PaginationOptions } from '../index.worker';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../common/utils/base64';
 import type { WorkOS } from '../workos';
 import {
   CreateDataKeyOptions,
@@ -52,7 +53,7 @@ export class Vault {
   }
 
   private decode(payload: string): Decoded {
-    const inputData = Buffer.from(payload, 'base64');
+    const inputData = base64ToUint8Array(payload);
     // Use 12 bytes for IV (standard for AES-GCM)
     const iv = new Uint8Array(inputData.subarray(0, 12));
     const tag = new Uint8Array(inputData.subarray(12, 28));
@@ -60,7 +61,7 @@ export class Vault {
 
     // Use subarray instead of slice and convert directly to base64
     const keysBuffer = inputData.subarray(nextIndex, nextIndex + keyLen);
-    const keys = Buffer.from(keysBuffer).toString('base64');
+    const keys = uint8ArrayToBase64(keysBuffer);
 
     const ciphertext = new Uint8Array(inputData.subarray(nextIndex + keyLen));
 
@@ -160,19 +161,9 @@ export class Vault {
     // Convert base64 key to Uint8Array
     const encoder = new TextEncoder();
 
-    // Decode the base64 key string to a binary string, then to a Uint8Array
-    const keyBase64Decoded = atob(keyPair.dataKey.key);
-    const key = new Uint8Array(keyBase64Decoded.length);
-    for (let i = 0; i < keyBase64Decoded.length; i++) {
-      key[i] = keyBase64Decoded.charCodeAt(i);
-    }
-
-    // Same for encrypted keys
-    const encKeysBase64Decoded = atob(keyPair.encryptedKeys);
-    const keyBlob = new Uint8Array(encKeysBase64Decoded.length);
-    for (let i = 0; i < encKeysBase64Decoded.length; i++) {
-      keyBlob[i] = encKeysBase64Decoded.charCodeAt(i);
-    }
+    // Use our cross-runtime base64 utility
+    const key = base64ToUint8Array(keyPair.dataKey.key);
+    const keyBlob = base64ToUint8Array(keyPair.encryptedKeys);
 
     const prefixLenBuffer = encodeUInt32(keyBlob.length);
     const aadBuffer = associatedData
@@ -217,9 +208,8 @@ export class Vault {
 
     resultArray.set(ciphertext, offset);
 
-    // Convert to base64
-    const resultBuffer = Buffer.from(resultArray);
-    return resultBuffer.toString('base64');
+    // Convert to base64 using our cross-runtime utility
+    return uint8ArrayToBase64(resultArray);
   }
 
   async decrypt(
@@ -229,12 +219,8 @@ export class Vault {
     const decoded = this.decode(encryptedData);
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
 
-    // Convert base64 key to Uint8Array
-    const keyBase64Decoded = atob(dataKey.key);
-    const key = new Uint8Array(keyBase64Decoded.length);
-    for (let i = 0; i < keyBase64Decoded.length; i++) {
-      key[i] = keyBase64Decoded.charCodeAt(i);
-    }
+    // Convert base64 key to Uint8Array using our cross-runtime utility
+    const key = base64ToUint8Array(dataKey.key);
 
     const encoder = new TextEncoder();
     const aadBuffer = associatedData
