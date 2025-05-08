@@ -3,6 +3,7 @@ import { CryptoProvider } from './crypto-provider';
 
 /**
  * `CryptoProvider which uses the Node `crypto` package for its computations.
+ * @deprecated Use `SubtleCryptoProvider` instead.
  */
 export class NodeCryptoProvider extends CryptoProvider {
   /** @override */
