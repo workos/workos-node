@@ -1,5 +1,4 @@
 import crypto from 'crypto';
-import { NodeCryptoProvider } from './node-crypto-provider';
 import { SubtleCryptoProvider } from './subtle-crypto-provider';
 import mockWebhook from '../../webhooks/fixtures/webhook.json';
 import { SignatureProvider } from './signature-provider';
@@ -24,7 +23,7 @@ describe('CryptoProvider', () => {
 
   describe('when computing HMAC signature', () => {
     it('returns the same for the Node crypto and Web Crypto versions', async () => {
-      const nodeCryptoProvider = new NodeCryptoProvider();
+      const nodeCryptoProvider = new SubtleCryptoProvider();
       const subtleCryptoProvider = new SubtleCryptoProvider();
 
       const stringifiedPayload = JSON.stringify(payload);
@@ -46,7 +45,7 @@ describe('CryptoProvider', () => {
 
   describe('when securely comparing', () => {
     it('returns the same for the Node crypto and Web Crypto versions', async () => {
-      const nodeCryptoProvider = new NodeCryptoProvider();
+      const nodeCryptoProvider = new SubtleCryptoProvider();
       const subtleCryptoProvider = new SubtleCryptoProvider();
       const signatureProvider = new SignatureProvider(subtleCryptoProvider);
 
