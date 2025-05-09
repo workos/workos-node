@@ -1,7 +1,9 @@
+import { decodeUInt32, encodeUInt32 } from 'leb';
+import { CryptoProvider } from '../common/crypto/crypto-provider';
+import { List, ListResponse } from '../common/interfaces';
 import { PaginationOptions } from '../index.worker';
-import { WorkOS } from '../workos';
-import { decode, decrypt } from './cryptography/decrypt';
-import { encrypt } from './cryptography/encrypt';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../common/utils/base64';
+import type { WorkOS } from '../workos';
 import {
   CreateDataKeyOptions,
   CreateDataKeyResponse,
@@ -11,15 +13,15 @@ import {
   DecryptDataKeyOptions,
   DecryptDataKeyResponse,
   DeleteObjectOptions,
-  ListObjectVersionsResponse,
-  ReadObjectMetadataResponse,
-  ReadObjectOptions,
-  ReadObjectResponse,
   KeyContext,
+  ListObjectVersionsResponse,
   ObjectDigest,
   ObjectDigestResponse,
   ObjectMetadata,
   ObjectVersion,
+  ReadObjectMetadataResponse,
+  ReadObjectOptions,
+  ReadObjectResponse,
   UpdateObjectOptions,
   VaultObject,
 } from './interfaces';
@@ -35,10 +37,41 @@ import {
   serializeCreateObjectEntity,
   serializeUpdateObjectEntity,
 } from './serializers/vault-object.serializer';
-import { List, ListResponse } from '../common/interfaces';
+
+interface Decoded {
+  iv: Uint8Array;
+  tag: Uint8Array;
+  keys: string;
+  ciphertext: Uint8Array;
+}
 
 export class Vault {
-  constructor(private readonly workos: WorkOS) {}
+  private cryptoProvider: CryptoProvider;
+
+  constructor(private readonly workos: WorkOS) {
+    this.cryptoProvider = workos.getCryptoProvider();
+  }
+
+  private decode(payload: string): Decoded {
+    const inputData = base64ToUint8Array(payload);
+    // Use 12 bytes for IV (standard for AES-GCM)
+    const iv = new Uint8Array(inputData.subarray(0, 12));
+    const tag = new Uint8Array(inputData.subarray(12, 28));
+    const { value: keyLen, nextIndex } = decodeUInt32(inputData, 28);
+
+    // Use subarray instead of slice and convert directly to base64
+    const keysBuffer = inputData.subarray(nextIndex, nextIndex + keyLen);
+    const keys = uint8ArrayToBase64(keysBuffer);
+
+    const ciphertext = new Uint8Array(inputData.subarray(nextIndex + keyLen));
+
+    return {
+      iv,
+      tag,
+      keys,
+      ciphertext,
+    };
+  }
 
   async createObject(options: CreateObjectOptions): Promise<ObjectMetadata> {
     const { data } = await this.workos.post<ReadObjectMetadataResponse>(
@@ -121,19 +154,88 @@ export class Vault {
     context: KeyContext,
     associatedData?: string,
   ): Promise<string> {
-    const { dataKey, encryptedKeys } = await this.createDataKey({
+    const keyPair = await this.createDataKey({
       context,
     });
-    return encrypt(data, dataKey.key, encryptedKeys, associatedData || '');
+
+    // Convert base64 key to Uint8Array
+    const encoder = new TextEncoder();
+
+    // Use our cross-runtime base64 utility
+    const key = base64ToUint8Array(keyPair.dataKey.key);
+    const keyBlob = base64ToUint8Array(keyPair.encryptedKeys);
+
+    const prefixLenBuffer = encodeUInt32(keyBlob.length);
+    const aadBuffer = associatedData
+      ? encoder.encode(associatedData)
+      : undefined;
+
+    // Use a 12-byte IV for AES-GCM (industry standard)
+    const iv = this.cryptoProvider.randomBytes(12);
+
+    const {
+      ciphertext,
+      iv: resultIv,
+      tag,
+    } = await this.cryptoProvider.encrypt(
+      encoder.encode(data),
+      key,
+      iv,
+      aadBuffer,
+    );
+
+    // Concatenate all parts into a single array
+    const resultArray = new Uint8Array(
+      resultIv.length +
+        tag.length +
+        prefixLenBuffer.length +
+        keyBlob.length +
+        ciphertext.length,
+    );
+
+    let offset = 0;
+    resultArray.set(resultIv, offset);
+    offset += resultIv.length;
+
+    resultArray.set(tag, offset);
+    offset += tag.length;
+
+    resultArray.set(new Uint8Array(prefixLenBuffer), offset);
+    offset += prefixLenBuffer.length;
+
+    resultArray.set(keyBlob, offset);
+    offset += keyBlob.length;
+
+    resultArray.set(ciphertext, offset);
+
+    // Convert to base64 using our cross-runtime utility
+    return uint8ArrayToBase64(resultArray);
   }
 
   async decrypt(
     encryptedData: string,
     associatedData?: string,
   ): Promise<string> {
-    const decoded = decode(encryptedData);
+    const decoded = this.decode(encryptedData);
     const dataKey = await this.decryptDataKey({ keys: decoded.keys });
-    return decrypt(decoded, dataKey.key, associatedData || '');
+
+    // Convert base64 key to Uint8Array using our cross-runtime utility
+    const key = base64ToUint8Array(dataKey.key);
+
+    const encoder = new TextEncoder();
+    const aadBuffer = associatedData
+      ? encoder.encode(associatedData)
+      : undefined;
+
+    const decrypted = await this.cryptoProvider.decrypt(
+      decoded.ciphertext,
+      key,
+      decoded.iv,
+      decoded.tag,
+      aadBuffer,
+    );
+
+    return new TextDecoder().decode(decrypted);
   }
 
   /*

@@ -36,6 +36,7 @@ import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
+import { CryptoProvider } from './common/crypto/crypto-provider';
 
 const VERSION = '7.50.0';
 
@@ -118,11 +119,15 @@ export class WorkOS {
   }
 
   createWebhookClient() {
-    return new Webhooks(new SubtleCryptoProvider());
+    return new Webhooks(this.getCryptoProvider());
   }
 
   createActionsClient() {
-    return new Actions(new SubtleCryptoProvider());
+    return new Actions(this.getCryptoProvider());
+  }
+
+  getCryptoProvider(): CryptoProvider {
+    return new SubtleCryptoProvider();
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {

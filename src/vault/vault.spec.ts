@@ -256,4 +256,57 @@ describe('Vault', () => {
       expect(fetchMethod()).toBe('PUT');
     });
   });
+
+  describe('encrypt and decrypt', () => {
+    it('correctly encrypts and decrypts data', async () => {
+      // Generate a valid 32-byte (256-bit) key for AES-256-GCM
+      const validKey = Buffer.alloc(32).fill('A').toString('base64');
+
+      // Mock createDataKey to return a valid key for testing
+      fetchOnce({
+        data_key: validKey, // Valid 32-byte key for AES-256-GCM
+        encrypted_keys: 'ZW5jcnlwdGVkX2tleXM=', // Base64 encoded "encrypted_keys"
+        id: 'key123',
+        context: { type: 'test' },
+      });
+
+      // Mock decryptDataKey to return same key
+      fetchOnce({
+        data_key: validKey,
+        id: 'key123',
+      });
+
+      const originalText = 'This is a secret message';
+      const context = { type: 'test' };
+      const associatedData = 'additional-auth-data';
+
+      // Encrypt the data
+      const encrypted = await workos.vault.encrypt(
+        originalText,
+        context,
+        associatedData,
+      );
+
+      // Verify encrypt API call
+      expect(fetchURL()).toContain('/vault/v1/keys/data-key');
+      expect(fetchMethod()).toBe('POST');
+
+      // Reset fetch for the decrypt call
+      fetch.resetMocks();
+      fetchOnce({
+        data_key: validKey,
+        id: 'key123',
+      });
+
+      // Decrypt the data
+      const decrypted = await workos.vault.decrypt(encrypted, associatedData);
+
+      // Verify decrypt API call
+      expect(fetchURL()).toContain('/vault/v1/keys/decrypt');
+      expect(fetchMethod()).toBe('POST');
+
+      // Verify the decrypted text matches the original
+      expect(decrypted).toBe(originalText);
+    });
+  });
 });
