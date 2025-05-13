@@ -9,7 +9,7 @@ export interface UpdateUserOptions {
   passwordHash?: string;
   passwordHashType?: PasswordHashType;
   externalId?: string;
-  metadata?: Record<string, string>;
+  metadata?: Record<string, string | null>;
 }
 
 export interface SerializedUpdateUserOptions {
