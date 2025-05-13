@@ -1,4 +1,3 @@
-import { NodeCryptoProvider } from './common/crypto/node-crypto-provider';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 
@@ -59,15 +58,7 @@ class WorkOSNode extends WorkOS {
   }
 
   override getCryptoProvider(): CryptoProvider {
-    let cryptoProvider: CryptoProvider;
-
-    if (typeof crypto !== 'undefined' && typeof crypto.subtle !== 'undefined') {
-      cryptoProvider = new SubtleCryptoProvider();
-    } else {
-      cryptoProvider = new NodeCryptoProvider();
-    }
-
-    return cryptoProvider;
+    return new SubtleCryptoProvider();
   }
 
   /** @override */
