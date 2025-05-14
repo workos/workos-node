@@ -1323,7 +1323,7 @@ describe('UserManagement', () => {
       });
     });
 
-    it('adds metadata to the request', async () => {
+    it('removes metadata from the request', async () => {
       fetchOnce(userFixture);
 
       await workos.userManagement.updateUser({
