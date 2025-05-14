@@ -1,9 +1,22 @@
-# .github/workflows/cross-sdk-sync.yml
+# .github/workflows/cross-sync-sdk.yml
 name: Cross-SDK Translation
 
 on:
   pull_request:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number to translate'
+        required: true
+      debug_mode:
+        description: 'Run in debug mode (true/false)'
+        required: false
+        default: 'false'
+      target_repos:
+        description: 'Comma-separated list of target repos (leave empty for all)'
+        required: false
+        default: ''
 
 jobs:
   translate-to-other-sdks:
@@ -21,9 +34,39 @@ jobs:
         run: |
           cd .github/actions/sdk-sync
           npm install
+          npm run build
+
+      - name: Get PR number
+        id: pr-number
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+            echo "DEBUG_MODE=${{ github.event.inputs.debug_mode }}" >> $GITHUB_ENV
+            echo "TARGET_REPOS=${{ github.event.inputs.target_repos }}" >> $GITHUB_ENV
+          elif [[ -n "${{ github.event.inputs }}" ]]; then
+            # Handle inputs from test-event.json with act
+            echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+            echo "DEBUG_MODE=${{ github.event.inputs.debug_mode }}" >> $GITHUB_ENV 
+            echo "TARGET_REPOS=${{ github.event.inputs.target_repos }}" >> $GITHUB_ENV
+          else
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "DEBUG_MODE=false" >> $GITHUB_ENV
+            echo "TARGET_REPOS=" >> $GITHUB_ENV
+          fi
 
       - name: Run sync action
         uses: ./.github/actions/sdk-sync
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           openai-key: ${{ secrets.OPENAI_KEY }}
+          debug-mode: ${{ env.DEBUG_MODE }}
+          target-repos: ${{ env.TARGET_REPOS }}
+
+      # Disabled artifact upload - debug outputs are kept local
+      # - name: Upload debug artifacts
+      #   if: ${{ env.DEBUG_MODE == 'true' }}
+      #   uses: actions/upload-artifact@v3
+      #   with:
+      #     name: sdk-sync-debug-output
+      #     path: debug-output/
+      #     retention-days: 7

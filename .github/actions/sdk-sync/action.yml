@@ -7,6 +7,14 @@ inputs:
   openai-key:
     description: 'OpenAI API key for code translation'
     required: true
+  debug-mode:
+    description: 'Enable debug mode to preview changes without creating PRs'
+    required: false
+    default: 'false'
+  target-repos:
+    description: 'Comma-separated list of target repos to process (defaults to all)'
+    required: false
+    default: ''
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -4,6 +4,8 @@ import OpenAI from 'openai';
 import * as fs from 'fs';
 import * as path from 'path';
 import simpleGit, { SimpleGit } from 'simple-git';
+import * as child_process from 'child_process';
+import * as os from 'os';
 
 // Type definitions
 interface PRFile {
@@ -45,6 +47,18 @@ interface PRCreationResult {
   }>;
 }
 
+interface DebugFileInfo {
+  sourceFile: string;
+  targetFile: string;
+  isNewFile: boolean;
+  originalContent?: string;
+  translatedContent?: string;
+  diff?: string;
+  notes?: string[];
+  manualSteps?: string[];
+  error?: string;
+}
+
 /**
  * Utility function to estimate token count for OpenAI models
  * This is a rough estimate based on average tokens per character
@@ -59,6 +73,32 @@ async function run(): Promise<void> {
     // Get inputs
     const githubToken = core.getInput('github-token', { required: true });
     const openaiKey = core.getInput('openai-key', { required: true });
+    let debugMode = core.getInput('debug-mode').toLowerCase() === 'true';
+    const targetReposInput = core.getInput('target-repos');
+
+    // Log debug status prominently
+    core.info(
+      `🚨 DEBUG MODE: ${
+        debugMode
+          ? 'ENABLED - NO PRs WILL BE CREATED'
+          : 'DISABLED - PRs WILL BE CREATED'
+      }`,
+    );
+    core.info(`📋 Debug Mode Input Value: "${core.getInput('debug-mode')}"`);
+    core.info(`🔧 Target Repos: ${targetReposInput || 'All repos'}`);
+
+    // Extra safety check - prevent PR creation if anything resembling debug mode is found
+    const forceDebug =
+      core.getInput('debug-mode').toLowerCase().includes('true') ||
+      core.getInput('debug-mode').toLowerCase().includes('yes') ||
+      process.env.DEBUG_MODE === 'true';
+
+    if (forceDebug && !debugMode) {
+      core.warning(
+        'Debug mode string detected but not properly parsed as true. Forcing debug mode ON for safety.',
+      );
+      debugMode = true;
+    }
 
     // Initialize clients
     const octokit = github.getOctokit(githubToken);
@@ -69,10 +109,15 @@ async function run(): Promise<void> {
     // Get context information
     const context = github.context;
     const sourceRepo = context.repo.owner + '/' + context.repo.repo;
-    const prNumber = context.payload.pull_request?.number;
+    let prNumber = context.payload.pull_request?.number;
+
+    // For workflow_dispatch event, try to get PR number from inputs
+    if (!prNumber && context.payload.inputs?.pr_number) {
+      prNumber = parseInt(context.payload.inputs.pr_number, 10);
+    }
 
     if (!prNumber) {
-      throw new Error('This action can only be run on pull request events');
+      throw new Error('No PR number found. This action requires a PR number.');
     }
 
     // Determine source language from repo name
@@ -98,8 +143,119 @@ async function run(): Promise<void> {
       'workos/workos-php',
     ];
 
-    const targetRepos = allRepos.filter((repo) => repo !== sourceRepo);
+    // Use filtered target repos if provided
+    const targetRepos = targetReposInput
+      ? targetReposInput.split(',').map((r) => r.trim())
+      : allRepos.filter((repo) => repo !== sourceRepo);
+
     core.info(`Target repositories: ${targetRepos.join(', ')}`);
+
+    // Set up debug directory if in debug mode
+    // Try multiple locations to make sure we write somewhere accessible
+    const isDocker = fs.existsSync('/.dockerenv');
+
+    // Try multiple possible debug output locations
+    const possibleDebugDirs = [
+      // Mounted volume location specifically for act
+      '/debug-output',
+      // Direct in repo root (most likely to work with act)
+      path.join(process.cwd(), 'sdk-debug-output'),
+      // Home directory
+      path.join(process.env.HOME || '/home/node', 'sdk-debug-output'),
+      // Temp directory
+      path.join('/tmp', 'sdk-debug-output'),
+      // Current directory
+      './sdk-debug-output',
+    ];
+
+    // Force using the mounted volume for output if available
+    let debugDir = '';
+    
+    // First try the mounted volume (highest priority)
+    if (fs.existsSync('/debug-output')) {
+      try {
+        // Test that we can write to it
+        const testFile = '/debug-output/mounted-volume-test.txt';
+        fs.writeFileSync(testFile, 'Successfully wrote to mounted volume');
+        core.info('🎯 Using mounted volume at /debug-output for debug output');
+        debugDir = '/debug-output';
+      } catch (err) {
+        core.warning(`⚠️ Found mounted volume but couldn't write to it: ${err}`);
+      }
+    }
+    
+    // If we couldn't use the mounted volume, try other locations
+    if (!debugDir) {
+      for (const dir of possibleDebugDirs) {
+        try {
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          // Test write a file
+          const testFile = path.join(dir, '.write-test');
+          fs.writeFileSync(testFile, 'test');
+          fs.unlinkSync(testFile);
+  
+          // If we get here, we can write to this directory
+          debugDir = dir;
+          break;
+        } catch (err) {
+          core.info(`⚠️ Could not write to ${dir}: ${err}`);
+          continue;
+        }
+      }
+    }
+
+    if (!debugDir) {
+      core.warning(
+        '⚠️ Could not find a writable debug directory - debug output will be missing',
+      );
+      debugDir = './debug-output'; // Fallback but likely won't work
+    }
+
+    if (debugMode) {
+      core.info(
+        `🐛 DEBUG MODE ENABLED - Running in ${
+          isDocker ? 'Docker' : 'local'
+        } environment`,
+      );
+      core.info(
+        `🐛 Using debug directory: ${debugDir} (absolute: ${path.resolve(
+          debugDir,
+        )})`,
+      );
+
+      // Create marker files in MULTIPLE locations to maximize chances of finding them
+      for (const dir of possibleDebugDirs) {
+        try {
+          if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+          }
+          fs.writeFileSync(
+            path.join(dir, 'DEBUG-LOCATION.txt'),
+            `SDK Debug output created at: ${new Date().toISOString()}\n` +
+              `Source repo: ${sourceRepo}\n` +
+              `PR: #${prNumber}\n` +
+              `Main debug directory: ${debugDir}\n` +
+              `All possible debug dirs: ${possibleDebugDirs.join(', ')}\n`,
+          );
+        } catch (err) {
+          // Ignore - we'll try all locations
+        }
+      }
+
+      // Also create a prominent marker file in the repo root
+      try {
+        fs.writeFileSync(
+          path.join(process.cwd(), 'DEBUG-OUTPUT-LOCATION.txt'),
+          `SDK Debug output created at: ${new Date().toISOString()}\n` +
+            `Main debug directory: ${debugDir}\n` +
+            `All possible debug dirs: ${possibleDebugDirs.join(', ')}\n`,
+        );
+      } catch (err) {
+        // Ignore
+      }
+    }
 
     // Get PR details
     const { data: pullRequest } = await octokit.rest.pulls.get({
@@ -181,9 +337,39 @@ async function run(): Promise<void> {
         `\nTranslating from ${sourceLang} to ${targetLang} for ${targetRepo}`,
       );
 
-      // Create temp dir for target repo
+      // Create appropriate directory for target repo
       const targetDir = path.join(process.cwd(), `${targetLang}-output`);
       fs.mkdirSync(targetDir, { recursive: true });
+
+      // Set up debug directory for this language
+      const debugLangDir = debugMode ? path.join(debugDir, targetLang) : '';
+      if (debugMode) {
+        try {
+          fs.mkdirSync(debugLangDir, { recursive: true });
+          core.info(`🐛 Debug directory for ${targetLang}: ${debugLangDir}`);
+
+          // Create a language-specific marker file directly in the repo root
+          fs.writeFileSync(
+            path.join(process.cwd(), `DEBUG-${targetLang.toUpperCase()}.txt`),
+            `Debug output for ${targetLang} is in: ${debugLangDir}\n` +
+              `Created at: ${new Date().toISOString()}\n`,
+          );
+        } catch (err) {
+          core.warning(
+            `⚠️ Failed to create debug directory for ${targetLang}: ${err}`,
+          );
+        }
+
+        // Create a summary file
+        fs.writeFileSync(
+          path.join(debugLangDir, 'summary.md'),
+          `# Debug Summary: ${sourceLang} → ${targetLang}\n\n` +
+            `PR: #${prNumber} - ${pullRequest.title}\n\n` +
+            `Source Repo: ${sourceRepo}\n` +
+            `Target Repo: ${targetRepo}\n\n` +
+            `Generated: ${new Date().toISOString()}\n\n`,
+        );
+      }
 
       // Clone target repo to get context
       const git: SimpleGit = simpleGit({ baseDir: targetDir });
@@ -192,22 +378,25 @@ async function run(): Promise<void> {
         targetDir,
       );
 
-      // Create a new branch
-      const branchName = `cross-sdk-sync-${prNumber}`;
+      // Only create a branch if not in debug mode
+      if (!debugMode) {
+        // Create a new branch
+        const branchName = `cross-sdk-sync-${prNumber}`;
 
-      // Delete branch if it exists and recreate it
-      try {
-        await git.checkout('main'); // or whatever your default branch is
+        // Delete branch if it exists and recreate it
         try {
-          // Try to delete the local branch if it exists
-          await git.deleteLocalBranch(branchName, true);
-        } catch (err) {
-          // Ignore errors - branch might not exist yet
+          await git.checkout('main'); // or whatever your default branch is
+          try {
+            // Try to delete the local branch if it exists
+            await git.deleteLocalBranch(branchName, true);
+          } catch (err) {
+            // Ignore errors - branch might not exist yet
+          }
+          await git.checkoutLocalBranch(branchName);
+        } catch (error) {
+          core.error(`Error setting up branch: ${error}`);
+          continue;
         }
-        await git.checkoutLocalBranch(branchName);
-      } catch (error) {
-        core.error(`Error setting up branch: ${error}`);
-        continue;
       }
 
       // Get repo structure for context
@@ -225,12 +414,23 @@ async function run(): Promise<void> {
         notes: string[];
       }> = [];
 
+      // For debug mode, collect info about each file
+      const debugInfo: DebugFileInfo[] = [];
+
       // Process each changed file
       let hasChanges = false;
 
       for (const file of filesWithContent) {
         // Skip files that don't need translation
         if (shouldSkipFile(file.filename)) {
+          if (debugMode) {
+            debugInfo.push({
+              sourceFile: file.filename,
+              targetFile: '',
+              isNewFile: false,
+              error: 'Skipped - not a translatable file type',
+            });
+          }
           core.info(`Skipping ${file.filename} - not a translatable file`);
           continue;
         }
@@ -242,6 +442,13 @@ async function run(): Promise<void> {
           sourceLang,
           targetLang,
         );
+
+        // Create debug file info object
+        const fileDebugInfo: DebugFileInfo = {
+          sourceFile: file.filename,
+          targetFile: '',
+          isNewFile: false,
+        };
 
         // Translate file
         const translationResult = await translateFileChanges(
@@ -258,35 +465,132 @@ async function run(): Promise<void> {
           translationResult.translatedCode &&
           translationResult.targetPath
         ) {
+          // Update debug info
+          if (debugMode) {
+            fileDebugInfo.targetFile = translationResult.targetPath;
+            fileDebugInfo.isNewFile = translationResult.isNewFile || false;
+            fileDebugInfo.translatedContent = translationResult.translatedCode;
+            fileDebugInfo.notes = translationResult.notes;
+            fileDebugInfo.manualSteps = translationResult.manualSteps;
+          }
+
           // Ensure the directory exists
           const targetFileDir = path.dirname(
             path.join(targetDir, translationResult.targetPath),
           );
           fs.mkdirSync(targetFileDir, { recursive: true });
 
-          if (translationResult.isNewFile) {
-            // Create a new file
-            fs.writeFileSync(
-              path.join(targetDir, translationResult.targetPath),
-              translationResult.translatedCode,
-            );
-          } else {
-            // Update existing file if it exists, otherwise create it
-            const targetFilePath = path.join(
-              targetDir,
-              translationResult.targetPath,
-            );
-            if (fs.existsSync(targetFilePath)) {
-              // Read the existing file
-              const existingContent = fs.readFileSync(targetFilePath, 'utf8');
+          // Get the full target path
+          const targetFilePath = path.join(
+            targetDir,
+            translationResult.targetPath,
+          );
 
-              // Apply changes (assuming translatedCode contains only the changes)
+          // Check if the file exists before writing
+          const fileExists = fs.existsSync(targetFilePath);
+
+          // In debug mode, store original content and create diff
+          if (debugMode && fileExists) {
+            try {
+              const originalContent = fs.readFileSync(targetFilePath, 'utf8');
+              fileDebugInfo.originalContent = originalContent;
+
+              // Generate a diff
+              fileDebugInfo.diff = await generateDiff(
+                originalContent,
+                translationResult.translatedCode,
+              );
+            } catch (error) {
+              core.warning(`Error generating diff: ${error}`);
+            }
+          }
+
+          // In debug mode, write to debug directory instead of modifying the actual repo
+          if (debugMode) {
+            // Try multiple locations for writing debug output
+            try {
+              const debugFileName = path.basename(translationResult.targetPath);
+
+              // 1. Write to standard debug directory
+              const debugFilePath = path.join(
+                debugLangDir,
+                `${debugFileName}.translated`,
+              );
+              fs.writeFileSync(debugFilePath, translationResult.translatedCode);
+
+              // 2. Also write directly to repo root for maximum visibility
+              fs.writeFileSync(
+                path.join(
+                  process.cwd(),
+                  `DEBUG-${targetLang}-${debugFileName}.txt`,
+                ),
+                translationResult.translatedCode,
+              );
+              
+              // 3. Additionally write to the mounted volume if it exists
+              if (fs.existsSync('/debug-output')) {
+                try {
+                  // Make sure target language dir exists in the mounted volume
+                  const mountedLangDir = path.join('/debug-output', targetLang);
+                  if (!fs.existsSync(mountedLangDir)) {
+                    fs.mkdirSync(mountedLangDir, { recursive: true });
+                  }
+                  
+                  // Write the translated file to the mounted volume
+                  fs.writeFileSync(
+                    path.join(mountedLangDir, `${debugFileName}.translated`),
+                    translationResult.translatedCode,
+                  );
+                  
+                  core.info(`✅ Saved to mounted volume: /debug-output/${targetLang}/${debugFileName}.translated`);
+                } catch (err) {
+                  core.warning(`⚠️ Failed to write to mounted volume: ${err}`);
+                }
+              }
+
+              // If we have original content, write that too for comparison
+              if (fileDebugInfo.originalContent) {
+                fs.writeFileSync(
+                  path.join(debugLangDir, `${debugFileName}.original`),
+                  fileDebugInfo.originalContent,
+                );
+              }
+
+              core.info(
+                `🔍 Debug output for ${debugFileName} saved to:\n- ${debugFilePath}\n- ${path.join(
+                  process.cwd(),
+                  `DEBUG-${targetLang}-${debugFileName}.txt`,
+                )}`,
+              );
+            } catch (err) {
+              // If file write fails, log information to console
+              core.warning(`⚠️ Could not write debug files: ${err}`);
+              core.info(
+                `📋 TRANSLATION PREVIEW for ${translationResult.targetPath}:`,
+              );
+              // Log first 10 lines of content to console
+              const previewLines = translationResult.translatedCode
+                .split('\n')
+                .slice(0, 10);
+              core.info(
+                `${previewLines.join('\n')}${
+                  previewLines.length <
+                  translationResult.translatedCode.split('\n').length
+                    ? '\n[...truncated...]'
+                    : ''
+                }`,
+              );
+            }
+          } else {
+            // In normal mode, actually update the repo
+            if (translationResult.isNewFile || !fileExists) {
+              // Create a new file
               fs.writeFileSync(
                 targetFilePath,
                 translationResult.translatedCode,
               );
             } else {
-              // If the file doesn't exist yet, just create it
+              // Update existing file
               fs.writeFileSync(
                 targetFilePath,
                 translationResult.translatedCode,
@@ -310,19 +614,95 @@ async function run(): Promise<void> {
             reason: translationResult.error || 'Unknown error',
             manualSteps: translationResult.manualSteps,
           });
+
+          // Update debug info
+          if (debugMode) {
+            fileDebugInfo.error = translationResult.error || 'Unknown error';
+            fileDebugInfo.manualSteps = translationResult.manualSteps;
+          }
+        }
+
+        // Add to debug collection
+        if (debugMode) {
+          debugInfo.push(fileDebugInfo);
         }
       }
 
-      // If we made changes, commit and create PR
-      if (hasChanges) {
+      // In debug mode, write summary and debug info
+      if (debugMode) {
+        // Write debug info to JSON file
+        fs.writeFileSync(
+          path.join(debugLangDir, 'debug-info.json'),
+          JSON.stringify(debugInfo, null, 2),
+        );
+
+        // Update summary markdown file
+        let summary = fs.readFileSync(
+          path.join(debugLangDir, 'summary.md'),
+          'utf8',
+        );
+
+        // Add file-by-file summary
+        summary += `## Files Processed\n\n`;
+
+        for (const info of debugInfo) {
+          summary += `### ${info.sourceFile}\n\n`;
+
+          if (info.error) {
+            summary += `**Error:** ${info.error}\n\n`;
+          } else {
+            summary += `**Target:** ${info.targetFile}\n`;
+            summary += `**Action:** ${
+              info.isNewFile ? 'Create new file' : 'Update existing file'
+            }\n\n`;
+
+            if (info.diff) {
+              summary += `**Changes:**\n\`\`\`diff\n${info.diff}\n\`\`\`\n\n`;
+            }
+
+            if (info.notes && info.notes.length > 0) {
+              summary += `**Notes:**\n`;
+              for (const note of info.notes) {
+                summary += `- ${note}\n`;
+              }
+              summary += `\n`;
+            }
+
+            if (info.manualSteps && info.manualSteps.length > 0) {
+              summary += `**Manual Steps:**\n`;
+              for (const step of info.manualSteps) {
+                summary += `- ${step}\n`;
+              }
+              summary += `\n`;
+            }
+          }
+        }
+
+        // Add stats
+        const successCount = debugInfo.filter((i) => !i.error).length;
+        const failureCount = debugInfo.filter((i) => !!i.error).length;
+
+        summary += `## Summary Statistics\n\n`;
+        summary += `- Total files: ${debugInfo.length}\n`;
+        summary += `- Successfully processed: ${successCount}\n`;
+        summary += `- Failed: ${failureCount}\n\n`;
+
+        // Write updated summary
+        fs.writeFileSync(path.join(debugLangDir, 'summary.md'), summary);
+
+        core.info(`Debug output for ${targetLang} saved to ${debugLangDir}`);
+      }
+      // If we made changes and not in debug mode, commit and create PR
+      else if (!debugMode && hasChanges) {
+        core.info(`👉 Creating PR for ${targetRepo} (debug mode is OFF)`);
+
         try {
           // Commit changes
           await git.add('.');
           await git.commit(`Translated from ${sourceLang} PR #${prNumber}`);
 
-          // Force push to replace any existing branch
-          await git.push('origin', branchName, {
-            // '--force': true,
+          // Push to replace any existing branch
+          await git.push('origin', `cross-sdk-sync-${prNumber}`, {
             '--set-upstream': null,
           });
 
@@ -340,7 +720,7 @@ async function run(): Promise<void> {
           const existingPRs = await octokit.rest.pulls.list({
             owner,
             repo,
-            head: `${owner}:${branchName}`,
+            head: `${owner}:cross-sdk-sync-${prNumber}`,
             state: 'open',
           });
 
@@ -365,7 +745,7 @@ async function run(): Promise<void> {
               repo,
               title: `[Cross-SDK Sync] ${pullRequest.title}`,
               body: prDescription,
-              head: branchName,
+              head: `cross-sdk-sync-${prNumber}`,
               base: pullRequest.base.ref, // Use same base branch as original PR
             });
 
@@ -382,203 +762,202 @@ async function run(): Promise<void> {
         core.info(`No changes to commit for ${targetRepo}`);
       }
     }
+
+    if (debugMode) {
+      core.info(`\n🐛 DEBUG MODE COMPLETED`);
+      core.info(`All debug output has been saved to: ${debugDir}`);
+      core.info(`Look for files named DEBUG-*.txt in your repository root.`);
+      core.info(`Review the generated files to see what would be changed.`);
+      core.info(
+        `\n❗❗❗ NO PULL REQUESTS WERE CREATED because debug mode is ON ❗❗❗`,
+      );
+
+      // Write a list of all files generated to make it easier to find them
+      let fileList = '';
+      try {
+        fileList = listAllFiles(debugDir);
+        fs.writeFileSync(path.join(debugDir, 'file-list.txt'), fileList);
+
+        // Also write to repo root for visibility
+        fs.writeFileSync(
+          path.join(process.cwd(), 'DEBUG-FILE-LIST.txt'),
+          fileList,
+        );
+
+        core.info(
+          `\n✅ Full list of debug files written to:\n- ${path.join(
+            debugDir,
+            'file-list.txt',
+          )}\n- ${path.join(process.cwd(), 'DEBUG-FILE-LIST.txt')}`,
+        );
+      } catch (err) {
+        core.warning(`Failed to create file list: ${err}`);
+      }
+
+      // Find all debug files we created in repo root
+      try {
+        const rootFiles = fs
+          .readdirSync(process.cwd())
+          .filter((f) => f.startsWith('DEBUG-'))
+          .map((f) => path.join(process.cwd(), f));
+
+        if (rootFiles.length > 0) {
+          core.info(`\n📍 Debug marker files found in repo root:`);
+          rootFiles.forEach((f) => core.info(`- ${f}`));
+        }
+      } catch (err) {
+        // Ignore
+      }
+    } else {
+      core.info(`\n✅ Processing completed in LIVE MODE`);
+      core.info(`Pull requests were created if needed.`);
+    }
   } catch (error) {
     core.setFailed(error instanceof Error ? error.message : String(error));
   }
 }
 
 /**
- * Get smarter, more focused context for the translation
+ * Generate a diff between two strings
  */
-async function getSmartContext(
-  repoDir: string,
-  sourceFilePath: string,
-  sourceLang: string,
-  targetLang: string,
-  patchContent: string,
-): Promise<RepoContext> {
+async function generateDiff(
+  oldContent: string,
+  newContent: string,
+): Promise<string> {
   try {
-    // Get repo structure in a token-efficient way
-    const fileExtMap: Record<string, string> = {
-      ruby: '.rb',
-      node: '.ts', // or .js
-      python: '.py',
-      php: '.php',
-    };
+    // Create temporary files
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sdk-sync-'));
+    const oldFile = path.join(tempDir, 'old.txt');
+    const newFile = path.join(tempDir, 'new.txt');
 
-    const targetExt = fileExtMap[targetLang] || '';
+    fs.writeFileSync(oldFile, oldContent);
+    fs.writeFileSync(newFile, newContent);
 
-    // Extract key identifiers and patterns from the source file path
-    const pathParts = sourceFilePath.split('/');
-    const baseName = path.basename(
-      sourceFilePath,
-      path.extname(sourceFilePath),
+    // Run diff command
+    const { stdout } = await new Promise<{ stdout: string; stderr: string }>(
+      (resolve, reject) => {
+        child_process.exec(
+          `diff -u ${oldFile} ${newFile} || true`,
+          (error, stdout, stderr) => {
+            if (error && error.code !== 1) {
+              // diff returns 1 if files differ, which is expected
+              reject(error);
+            } else {
+              resolve({ stdout, stderr });
+            }
+          },
+        );
+      },
     );
 
-    // Create a compact list of possible matching patterns
-    const possiblePatterns: string[] = [];
-
-    // Add specific module patterns based on source path
-    if (pathParts.includes('user-management')) {
-      possiblePatterns.push('user[_-]management');
-      possiblePatterns.push('users?[_-]?manage');
-    } else if (pathParts.includes('sso')) {
-      possiblePatterns.push('sso');
-      possiblePatterns.push('single[_-]sign[_-]on');
-    } else if (pathParts.includes('passwordless')) {
-      possiblePatterns.push('passwordless');
-      possiblePatterns.push('magic[_-]link');
-    }
-    // Add more patterns for other modules...
-
-    // Always add the base filename as a pattern
-    possiblePatterns.push(baseName.replace(/[.-]/g, '[_-]'));
-
-    // Extract function names and key identifiers from the patch for better matching
-    const identifierRegex =
-      /(?:class|function|def|module|interface)\s+(\w+)|(?:const|let|var|public|private)\s+(\w+)/g;
-    let match;
-
-    // Extract identifiers from the patch
-    let patchText = patchContent || '';
-    while ((match = identifierRegex.exec(patchText)) !== null) {
-      const identifier = match[1] || match[2];
-      if (identifier) {
-        possiblePatterns.push(identifier);
-      }
+    // Clean up temp files
+    try {
+      fs.unlinkSync(oldFile);
+      fs.unlinkSync(newFile);
+      fs.rmdirSync(tempDir);
+    } catch (e) {
+      // Ignore cleanup errors
     }
 
-    // Get a trimmed list of files to search
-    const files = await getRelevantFiles(repoDir, targetExt, possiblePatterns);
-
-    // Score and select the best matches
-    const scoredFiles = files
-      .map((file) => {
-        let score = 0;
-        const fileLower = file.toLowerCase();
-
-        // Score by pattern matches
-        for (const pattern of possiblePatterns) {
-          if (fileLower.includes(pattern.toLowerCase())) {
-            score += 2;
-          }
-        }
-
-        // Score by path similarity
-        const filePathParts = file.split('/');
-        for (
-          let i = 0;
-          i < Math.min(pathParts.length, filePathParts.length);
-          i++
-        ) {
-          if (pathParts[i].toLowerCase() === filePathParts[i].toLowerCase()) {
-            score += 3;
-          }
-        }
-
-        return { file, score };
-      })
-      .sort((a, b) => b.score - a.score);
-
-    // Get the 2 best matches
-    const bestMatches = scoredFiles.slice(0, 2);
-
-    // Read only the first 5KB of each file to save tokens
-    const contextFiles = await Promise.all(
-      bestMatches.map(async ({ file }) => {
-        try {
-          // Read file, but limit to first 5KB
-          const buffer = Buffer.alloc(5 * 1024);
-          const fd = fs.openSync(path.join(repoDir, file), 'r');
-          fs.readSync(fd, buffer, 0, buffer.length, 0);
-          fs.closeSync(fd);
-
-          const content = buffer.toString('utf8').replace(/\0/g, '');
-
-          return {
-            path: file,
-            content,
-          };
-        } catch (e) {
-          core.warning(`Error reading file ${file}: ${e}`);
-          return {
-            path: file,
-            content: '',
-          };
-        }
-      }),
-    );
-
-    // Generate a compact representation of the repo structure
-    const compactStructure = await getCompactRepoStructure(repoDir, targetExt);
-
-    return {
-      contextFiles: contextFiles.filter((file) => file.content),
-      repoStructure: compactStructure,
-    };
+    return stdout;
   } catch (error) {
-    core.warning('Error getting smart context: ' + error);
-    return { contextFiles: [], repoStructure: '' };
+    return `Error generating diff: ${error}`;
   }
 }
 
-/**
- * Get relevant files based on patterns
- */
-async function getRelevantFiles(
-  repoDir: string,
-  fileExt: string,
-  patterns: string[],
-): Promise<string[]> {
-  return new Promise((resolve, reject) => {
-    const { exec } = require('child_process');
+function shouldSkipFile(filePath: string): boolean {
+  // Skip files like README, LICENSE, etc.
+  const skipPatterns = [
+    /\.md$/i,
+    /LICENSE/i,
+    /\.gitignore/,
+    /\.github\//,
+    /package-lock\.json$/,
+    /Gemfile\.lock$/,
+    /\.DS_Store$/,
+    /yarn\.lock$/,
+    /\.vscode\//,
+    /\.idea\//,
+    /vcr_cassettes\//, // Skip test fixtures
+    /fixtures\//, // Skip test fixtures
+  ];
 
-    // Create a grep pattern from our list
-    const grepPatterns = patterns
-      .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape regex chars
-      .join('|');
-
-    // Find files with the right extension that match our patterns
-    const command = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | xargs grep -l "${grepPatterns}" 2>/dev/null || true`;
-
-    exec(
-      command,
-      { cwd: repoDir, maxBuffer: 1024 * 1024 },
-      (error: any | Error | null, stdout: string) => {
-        if (error && error?.code !== 1) {
-          // grep returns 1 if no matches, which isn't an error for us
-          reject(error);
-        } else {
-          // Get the list of files
-          const files = stdout.trim().split('\n').filter(Boolean);
-          resolve(files);
-        }
-      },
-    );
-  });
+  return skipPatterns.some((pattern) => pattern.test(filePath));
 }
 
 /**
- * Get a compact representation of repo structure
+ * Extract only the changed parts of a patch with minimal context
  */
-async function getCompactRepoStructure(
-  repoDir: string,
-  fileExt: string,
-): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const { exec } = require('child_process');
+function extractRelevantDiffParts(patch: string): string {
+  if (!patch) return '';
 
-    // Get just the directory structure of source files, not their content
-    const command = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | sort`;
+  // Split the patch into hunks
+  const hunks = patch
+    .split(/^@@/m)
+    .slice(1)
+    .map((hunk) => `@@${hunk}`);
 
-    exec(command, { cwd: repoDir }, (error: Error | null, stdout: string) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(stdout);
+  let relevantParts = '';
+
+  // Process each hunk to extract only changed lines with minimal context
+  for (const hunk of hunks) {
+    // Extract the hunk header
+    const headerMatch = hunk.match(/^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/);
+    if (!headerMatch) continue;
+
+    // Extract lines, keeping only changed lines and minimal context
+    const lines = hunk.split('\n').slice(1); // Skip the header line
+
+    // Include 2 lines of context around changes
+    const condensedLines: string[] = [];
+    let changeFound = false;
+    let contextBuffer: string[] = [];
+
+    for (const line of lines) {
+      if (!line) continue;
+
+      // If it's a changed line (added or removed)
+      if (line.startsWith('+') || line.startsWith('-')) {
+        // Add context buffer if we haven't already
+        if (!changeFound && contextBuffer.length > 0) {
+          // Add up to 2 lines of preceding context
+          condensedLines.push(...contextBuffer.slice(-2));
+          contextBuffer = [];
+        }
+
+        changeFound = true;
+        condensedLines.push(line);
       }
-    });
-  });
+      // Context line
+      else if (line.startsWith(' ')) {
+        if (changeFound) {
+          // Add up to 2 lines of following context
+          if (condensedLines.length > 0 && contextBuffer.length < 2) {
+            contextBuffer.push(line);
+          }
+        } else {
+          // Keep track of context before changes
+          contextBuffer.push(line);
+          if (contextBuffer.length > 2) {
+            contextBuffer.shift(); // Keep only 2 lines
+          }
+        }
+      }
+    }
+
+    // Add any remaining context
+    if (changeFound && contextBuffer.length > 0) {
+      condensedLines.push(...contextBuffer);
+    }
+
+    // Add this processed hunk to our result
+    if (condensedLines.length > 0) {
+      relevantParts += `@@ ${headerMatch[0].substring(3)} @@\n`;
+      relevantParts += condensedLines.join('\n') + '\n';
+    }
+  }
+
+  return relevantParts;
 }
 
 /**
@@ -659,107 +1038,11 @@ function getMinimalTargetContext(
   return lines.slice(0, Math.min(50, lines.length)).join('\n');
 }
 
-/**
- * Extracts only the changed parts of a patch with minimal context
- */
-function extractRelevantDiffParts(patch: string): string {
-  if (!patch) return '';
-
-  // Split the patch into hunks
-  const hunks = patch
-    .split(/^@@/m)
-    .slice(1)
-    .map((hunk) => `@@${hunk}`);
-
-  let relevantParts = '';
-
-  // Process each hunk to extract only changed lines with minimal context
-  for (const hunk of hunks) {
-    // Extract the hunk header
-    const headerMatch = hunk.match(/^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/);
-    if (!headerMatch) continue;
-
-    // Extract lines, keeping only changed lines and minimal context
-    const lines = hunk.split('\n').slice(1); // Skip the header line
-
-    // Include 2 lines of context around changes
-    const condensedLines: string[] = [];
-    let changeFound = false;
-    let contextBuffer: string[] = [];
-
-    for (const line of lines) {
-      if (!line) continue;
-
-      // If it's a changed line (added or removed)
-      if (line.startsWith('+') || line.startsWith('-')) {
-        // Add context buffer if we haven't already
-        if (!changeFound && contextBuffer.length > 0) {
-          // Add up to 2 lines of preceding context
-          condensedLines.push(...contextBuffer.slice(-2));
-          contextBuffer = [];
-        }
-
-        changeFound = true;
-        condensedLines.push(line);
-      }
-      // Context line
-      else if (line.startsWith(' ')) {
-        if (changeFound) {
-          // Add up to 2 lines of following context
-          if (condensedLines.length > 0 && contextBuffer.length < 2) {
-            contextBuffer.push(line);
-          }
-        } else {
-          // Keep track of context before changes
-          contextBuffer.push(line);
-          if (contextBuffer.length > 2) {
-            contextBuffer.shift(); // Keep only 2 lines
-          }
-        }
-      }
-    }
-
-    // Add any remaining context
-    if (changeFound && contextBuffer.length > 0) {
-      condensedLines.push(...contextBuffer);
-    }
-
-    // Add this processed hunk to our result
-    if (condensedLines.length > 0) {
-      relevantParts += `@@ ${headerMatch[0].substring(3)} @@\n`;
-      relevantParts += condensedLines.join('\n') + '\n';
-    }
-  }
-
-  return relevantParts;
-}
-
-function shouldSkipFile(filePath: string): boolean {
-  // Skip files like README, LICENSE, etc.
-  const skipPatterns = [
-    /\.md$/i,
-    /LICENSE/i,
-    /\.gitignore/,
-    /\.github\//,
-    /package-lock\.json$/,
-    /Gemfile\.lock$/,
-    /\.DS_Store$/,
-    /yarn\.lock$/,
-    /\.vscode\//,
-    /\.idea\//,
-    /vcr_cassettes\//, // Skip test fixtures
-    /fixtures\//, // Skip test fixtures
-  ];
-
-  return skipPatterns.some((pattern) => pattern.test(filePath));
-}
-
 async function getRepoStructure(repoDir: string): Promise<string> {
   try {
-    const { exec } = require('child_process');
-    return new Promise((resolve, reject) => {
-      exec(
-        `find . -type f -name "*.rb" -o -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.php" | grep -v "test\|spec\|fixture\|vcr" | sort`,
+    return new Promise<string>((resolve, reject) => {
+      child_process.exec(
+        `find . -type f -name "*.rb" -o -name "*.js" -o -name "*.ts" -o -name "*.py" -o -name "*.php" | grep -v "test\\|spec\\|fixture\\|vcr" | sort`,
         { cwd: repoDir },
         (error: Error | null, stdout: string) => {
           if (error) {
@@ -1409,6 +1692,160 @@ ${originalDescription}
   }
 
   return description;
+}
+
+// Add the missing getSmartContext function
+async function getSmartContext(
+  repoDir: string,
+  sourceFilePath: string,
+  sourceLang: string,
+  targetLang: string,
+  patchContent: string,
+): Promise<RepoContext> {
+  try {
+    // Get repo structure
+    const repoStructure = await getRepoStructure(repoDir);
+
+    // Find similar files in target repo for context
+    const fileExtMap: Record<string, string> = {
+      ruby: '.rb',
+      node: '.ts',
+      python: '.py',
+      php: '.php',
+    };
+
+    const targetExt = fileExtMap[targetLang] || '';
+    const contextFiles: Array<{ path: string; content: string }> = [];
+
+    // Extract keywords from source file path
+    const pathParts = sourceFilePath.split('/');
+    const baseName = path.basename(
+      sourceFilePath,
+      path.extname(sourceFilePath),
+    );
+
+    // Create a list of keywords to look for
+    const keywordMatches = [
+      ...pathParts
+        .filter((part) => !part.startsWith('.'))
+        .map((part) => part.replace(/[.-]/g, '_').toLowerCase()),
+      ...baseName.split(/[-._]/),
+      baseName.toLowerCase(),
+    ];
+
+    // Try to find relevant files with similar keywords
+    if (fs.existsSync(repoDir)) {
+      const allFiles = await getRelevantFiles(
+        repoDir,
+        targetExt,
+        keywordMatches,
+      );
+
+      // Score and get top matching files
+      const scoredFiles = allFiles
+        .map((file) => {
+          const fileLower = file.toLowerCase();
+          let score = 0;
+
+          // Score by keyword matches
+          for (const keyword of keywordMatches) {
+            if (fileLower.includes(keyword.toLowerCase())) {
+              score += 2;
+            }
+          }
+
+          // Score by path similarity
+          const filePathParts = file.split('/');
+          for (
+            let i = 0;
+            i < Math.min(pathParts.length, filePathParts.length);
+            i++
+          ) {
+            if (pathParts[i].toLowerCase() === filePathParts[i].toLowerCase()) {
+              score += 3;
+            }
+          }
+
+          return { file, score };
+        })
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 2); // Take just the top 2 matches
+
+      // Get the content of these files
+      for (const { file } of scoredFiles) {
+        try {
+          const content = fs.readFileSync(path.join(repoDir, file), 'utf8');
+          contextFiles.push({
+            path: file,
+            content: content.slice(0, 5000), // Limit content size
+          });
+        } catch (e) {
+          // Skip files we can't read
+        }
+      }
+    }
+
+    return {
+      contextFiles,
+      repoStructure,
+    };
+  } catch (error) {
+    core.warning('Error getting smart context: ' + error);
+    return { contextFiles: [], repoStructure: '' };
+  }
+}
+
+/**
+ * Get relevant files based on patterns
+ */
+async function getRelevantFiles(
+  repoDir: string,
+  fileExt: string,
+  keywords: string[],
+): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    // Create grep pattern from keywords
+    const pattern = keywords
+      .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+
+    const cmd = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | sort`;
+
+    child_process.exec(cmd, { cwd: repoDir }, (error, stdout) => {
+      if (error) {
+        resolve([]);
+      } else {
+        const files = stdout.trim().split('\n').filter(Boolean);
+        resolve(files);
+      }
+    });
+  });
+}
+
+/**
+ * List all files recursively in a directory
+ */
+function listAllFiles(dir: string): string {
+  let fileList = '';
+
+  function walkDir(currentPath: string, indent = '') {
+    const files = fs.readdirSync(currentPath);
+
+    files.forEach((file) => {
+      const filePath = path.join(currentPath, file);
+      const stats = fs.statSync(filePath);
+
+      if (stats.isDirectory()) {
+        fileList += `${indent}📁 ${file}/\n`;
+        walkDir(filePath, indent + '  ');
+      } else {
+        fileList += `${indent}📄 ${file} (${stats.size} bytes)\n`;
+      }
+    });
+  }
+
+  walkDir(dir);
+  return fileList;
 }
 
 // Run the main function

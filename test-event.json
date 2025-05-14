@@ -1,18 +1,9 @@
 {
-  "action": "labeled",
-  "pull_request": {
-    "number": 1273,
-    "head": {
-      "ref": "some-branch-name"
-    },
-    "base": {
-      "ref": "main"
-    },
-    "labels": [
-      {
-        "name": "cross-sdk-sync"
-      }
-    ]
+  "event_type": "workflow_dispatch",
+  "inputs": {
+    "pr_number": "1273",
+    "debug_mode": "true",
+    "target_repos": "workos/workos-ruby,workos/workos-python"
   },
   "repository": {
     "name": "workos-node",
@@ -21,7 +12,13 @@
     },
     "full_name": "workos/workos-node"
   },
-  "label": {
-    "name": "cross-sdk-sync"
+  "pull_request": {
+    "number": 1273,
+    "head": {
+      "ref": "some-branch-name"
+    },
+    "base": {
+      "ref": "main"
+    }
   }
 }
