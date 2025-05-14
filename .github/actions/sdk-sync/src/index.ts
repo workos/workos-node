@@ -45,6 +45,15 @@ interface PRCreationResult {
   }>;
 }
 
+/**
+ * Utility function to estimate token count for OpenAI models
+ * This is a rough estimate based on average tokens per character
+ */
+function estimateTokenCount(text: string): number {
+  // GPT models typically use ~4 characters per token on average
+  return Math.ceil(text.length / 4);
+}
+
 async function run(): Promise<void> {
   try {
     // Get inputs
@@ -378,6 +387,353 @@ async function run(): Promise<void> {
   }
 }
 
+/**
+ * Get smarter, more focused context for the translation
+ */
+async function getSmartContext(
+  repoDir: string,
+  sourceFilePath: string,
+  sourceLang: string,
+  targetLang: string,
+  patchContent: string,
+): Promise<RepoContext> {
+  try {
+    // Get repo structure in a token-efficient way
+    const fileExtMap: Record<string, string> = {
+      ruby: '.rb',
+      node: '.ts', // or .js
+      python: '.py',
+      php: '.php',
+    };
+
+    const targetExt = fileExtMap[targetLang] || '';
+
+    // Extract key identifiers and patterns from the source file path
+    const pathParts = sourceFilePath.split('/');
+    const baseName = path.basename(
+      sourceFilePath,
+      path.extname(sourceFilePath),
+    );
+
+    // Create a compact list of possible matching patterns
+    const possiblePatterns: string[] = [];
+
+    // Add specific module patterns based on source path
+    if (pathParts.includes('user-management')) {
+      possiblePatterns.push('user[_-]management');
+      possiblePatterns.push('users?[_-]?manage');
+    } else if (pathParts.includes('sso')) {
+      possiblePatterns.push('sso');
+      possiblePatterns.push('single[_-]sign[_-]on');
+    } else if (pathParts.includes('passwordless')) {
+      possiblePatterns.push('passwordless');
+      possiblePatterns.push('magic[_-]link');
+    }
+    // Add more patterns for other modules...
+
+    // Always add the base filename as a pattern
+    possiblePatterns.push(baseName.replace(/[.-]/g, '[_-]'));
+
+    // Extract function names and key identifiers from the patch for better matching
+    const identifierRegex =
+      /(?:class|function|def|module|interface)\s+(\w+)|(?:const|let|var|public|private)\s+(\w+)/g;
+    let match;
+
+    // Extract identifiers from the patch
+    let patchText = patchContent || '';
+    while ((match = identifierRegex.exec(patchText)) !== null) {
+      const identifier = match[1] || match[2];
+      if (identifier) {
+        possiblePatterns.push(identifier);
+      }
+    }
+
+    // Get a trimmed list of files to search
+    const files = await getRelevantFiles(repoDir, targetExt, possiblePatterns);
+
+    // Score and select the best matches
+    const scoredFiles = files
+      .map((file) => {
+        let score = 0;
+        const fileLower = file.toLowerCase();
+
+        // Score by pattern matches
+        for (const pattern of possiblePatterns) {
+          if (fileLower.includes(pattern.toLowerCase())) {
+            score += 2;
+          }
+        }
+
+        // Score by path similarity
+        const filePathParts = file.split('/');
+        for (
+          let i = 0;
+          i < Math.min(pathParts.length, filePathParts.length);
+          i++
+        ) {
+          if (pathParts[i].toLowerCase() === filePathParts[i].toLowerCase()) {
+            score += 3;
+          }
+        }
+
+        return { file, score };
+      })
+      .sort((a, b) => b.score - a.score);
+
+    // Get the 2 best matches
+    const bestMatches = scoredFiles.slice(0, 2);
+
+    // Read only the first 5KB of each file to save tokens
+    const contextFiles = await Promise.all(
+      bestMatches.map(async ({ file }) => {
+        try {
+          // Read file, but limit to first 5KB
+          const buffer = Buffer.alloc(5 * 1024);
+          const fd = fs.openSync(path.join(repoDir, file), 'r');
+          fs.readSync(fd, buffer, 0, buffer.length, 0);
+          fs.closeSync(fd);
+
+          const content = buffer.toString('utf8').replace(/\0/g, '');
+
+          return {
+            path: file,
+            content,
+          };
+        } catch (e) {
+          core.warning(`Error reading file ${file}: ${e}`);
+          return {
+            path: file,
+            content: '',
+          };
+        }
+      }),
+    );
+
+    // Generate a compact representation of the repo structure
+    const compactStructure = await getCompactRepoStructure(repoDir, targetExt);
+
+    return {
+      contextFiles: contextFiles.filter((file) => file.content),
+      repoStructure: compactStructure,
+    };
+  } catch (error) {
+    core.warning('Error getting smart context: ' + error);
+    return { contextFiles: [], repoStructure: '' };
+  }
+}
+
+/**
+ * Get relevant files based on patterns
+ */
+async function getRelevantFiles(
+  repoDir: string,
+  fileExt: string,
+  patterns: string[],
+): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    const { exec } = require('child_process');
+
+    // Create a grep pattern from our list
+    const grepPatterns = patterns
+      .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')) // Escape regex chars
+      .join('|');
+
+    // Find files with the right extension that match our patterns
+    const command = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | xargs grep -l "${grepPatterns}" 2>/dev/null || true`;
+
+    exec(
+      command,
+      { cwd: repoDir, maxBuffer: 1024 * 1024 },
+      (error: any | Error | null, stdout: string) => {
+        if (error && error?.code !== 1) {
+          // grep returns 1 if no matches, which isn't an error for us
+          reject(error);
+        } else {
+          // Get the list of files
+          const files = stdout.trim().split('\n').filter(Boolean);
+          resolve(files);
+        }
+      },
+    );
+  });
+}
+
+/**
+ * Get a compact representation of repo structure
+ */
+async function getCompactRepoStructure(
+  repoDir: string,
+  fileExt: string,
+): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const { exec } = require('child_process');
+
+    // Get just the directory structure of source files, not their content
+    const command = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | sort`;
+
+    exec(command, { cwd: repoDir }, (error: Error | null, stdout: string) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
+/**
+ * Extract only the most relevant parts of the target file
+ * based on function/class names in the changed code
+ */
+function getMinimalTargetContext(
+  existingContent: string,
+  patch: string,
+): string {
+  if (!existingContent) return '';
+
+  // Extract function/class names and key identifiers from the patch
+  const identifierRegex =
+    /(?:class|function|def|module|interface)\s+(\w+)|(?:const|let|var|public|private)\s+(\w+)/g;
+  let match;
+  const keyIdentifiers: string[] = [];
+
+  // Extract identifiers from the patch
+  let patchText = patch || '';
+  while ((match = identifierRegex.exec(patchText)) !== null) {
+    const identifier = match[1] || match[2];
+    if (identifier && !keyIdentifiers.includes(identifier)) {
+      keyIdentifiers.push(identifier);
+    }
+  }
+
+  // If no identifiers found, return a small sample
+  if (keyIdentifiers.length === 0) {
+    // Return first 50 lines or less
+    const lines = existingContent.split('\n');
+    return lines.slice(0, Math.min(50, lines.length)).join('\n');
+  }
+
+  // Extract relevant sections from the target file that match identifiers
+  const lines = existingContent.split('\n');
+  const relevantSections: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Check if line contains any key identifier
+    if (keyIdentifiers.some((id) => line.includes(id))) {
+      // Find the start of the block (go backwards for context)
+      let blockStart = i;
+      for (let j = i - 1; j >= Math.max(0, i - 20); j--) {
+        if (/^\s*$/.test(lines[j]) || /^[^\s]/.test(lines[j])) {
+          blockStart = j + 1;
+          break;
+        }
+      }
+
+      // Find the end of the block (go forwards)
+      let blockEnd = i;
+      for (let j = i + 1; j < Math.min(lines.length, i + 50); j++) {
+        blockEnd = j;
+        // Stop at the end of the function/class/block
+        if (/^\s*}/.test(lines[j]) || /^}/.test(lines[j])) {
+          blockEnd = j;
+          break;
+        }
+      }
+
+      // Add this block to relevant sections
+      relevantSections.push(lines.slice(blockStart, blockEnd + 1).join('\n'));
+
+      // Skip to the end of this block
+      i = blockEnd;
+    }
+  }
+
+  // If we found relevant sections, return them
+  if (relevantSections.length > 0) {
+    return relevantSections.join('\n\n');
+  }
+
+  // Fallback to first 50 lines
+  return lines.slice(0, Math.min(50, lines.length)).join('\n');
+}
+
+/**
+ * Extracts only the changed parts of a patch with minimal context
+ */
+function extractRelevantDiffParts(patch: string): string {
+  if (!patch) return '';
+
+  // Split the patch into hunks
+  const hunks = patch
+    .split(/^@@/m)
+    .slice(1)
+    .map((hunk) => `@@${hunk}`);
+
+  let relevantParts = '';
+
+  // Process each hunk to extract only changed lines with minimal context
+  for (const hunk of hunks) {
+    // Extract the hunk header
+    const headerMatch = hunk.match(/^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/);
+    if (!headerMatch) continue;
+
+    // Extract lines, keeping only changed lines and minimal context
+    const lines = hunk.split('\n').slice(1); // Skip the header line
+
+    // Include 2 lines of context around changes
+    const condensedLines: string[] = [];
+    let changeFound = false;
+    let contextBuffer: string[] = [];
+
+    for (const line of lines) {
+      if (!line) continue;
+
+      // If it's a changed line (added or removed)
+      if (line.startsWith('+') || line.startsWith('-')) {
+        // Add context buffer if we haven't already
+        if (!changeFound && contextBuffer.length > 0) {
+          // Add up to 2 lines of preceding context
+          condensedLines.push(...contextBuffer.slice(-2));
+          contextBuffer = [];
+        }
+
+        changeFound = true;
+        condensedLines.push(line);
+      }
+      // Context line
+      else if (line.startsWith(' ')) {
+        if (changeFound) {
+          // Add up to 2 lines of following context
+          if (condensedLines.length > 0 && contextBuffer.length < 2) {
+            contextBuffer.push(line);
+          }
+        } else {
+          // Keep track of context before changes
+          contextBuffer.push(line);
+          if (contextBuffer.length > 2) {
+            contextBuffer.shift(); // Keep only 2 lines
+          }
+        }
+      }
+    }
+
+    // Add any remaining context
+    if (changeFound && contextBuffer.length > 0) {
+      condensedLines.push(...contextBuffer);
+    }
+
+    // Add this processed hunk to our result
+    if (condensedLines.length > 0) {
+      relevantParts += `@@ ${headerMatch[0].substring(3)} @@\n`;
+      relevantParts += condensedLines.join('\n') + '\n';
+    }
+  }
+
+  return relevantParts;
+}
+
 function shouldSkipFile(filePath: string): boolean {
   // Skip files like README, LICENSE, etc.
   const skipPatterns = [
@@ -570,7 +926,6 @@ async function translateFileChanges(
   openai: OpenAI,
   prTitle: string,
 ): Promise<TranslationResult> {
-  const { repoStructure } = repoContext;
   try {
     // Skip empty or deleted files
     if (!file.content || file.status === 'removed') {
@@ -583,35 +938,65 @@ async function translateFileChanges(
 
     core.info(`Translating: ${file.filename}`);
 
-    // First, determine where in the target repo this file should go
+    // Extract only the relevant parts of the diff to save tokens
+    const relevantDiff = extractRelevantDiffParts(file.patch || '');
+
+    // Get smart context focused on what's actually needed
+    const smartContext = await getSmartContext(
+      process.cwd() + `/${targetLang}-output`,
+      file.filename,
+      sourceLang,
+      targetLang,
+      relevantDiff,
+    );
+
+    // Step 1: First determine the target file path with minimal context
+    const fileIdentificationPrompt = `
+I'm trying to find the equivalent file path in a ${targetLang} codebase that corresponds to this ${sourceLang} file: "${
+      file.filename
+    }".
+
+This is a change related to: "${prTitle}"
+
+The diff shows these kinds of changes:
+${relevantDiff.slice(0, 500)}
+
+Here's the structure of the ${targetLang} repository:
+${smartContext.repoStructure}
+
+Which file in the ${targetLang} codebase would need to be modified to implement the equivalent change?
+Respond with ONLY the full path of the target file, without any explanation or additional text.`;
+
+    // Check token count for the file identification step
+    const identificationTokens = estimateTokenCount(fileIdentificationPrompt);
+    if (identificationTokens > 4000) {
+      core.warning(
+        `File identification prompt is too large (${identificationTokens} tokens). Truncating...`,
+      );
+      // Truncate the repository structure part which is likely the largest
+      const truncateAmount = identificationTokens - 3500;
+      const repoStructureChars = smartContext.repoStructure.length;
+      const newRepoStructureLength = Math.max(
+        1000,
+        repoStructureChars - truncateAmount * 4,
+      );
+      smartContext.repoStructure =
+        smartContext.repoStructure.slice(0, newRepoStructureLength) +
+        '\n[Structure truncated to fit token limits]';
+    }
+
     const fileLocationResponse = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
           role: 'system',
           content: `You are an expert software developer helping to translate code changes between different programming language SDKs.
-                    The purpose is to identify the equivalent file in the target language codebase that should be modified to implement the same functionality.
-                    You should determine if the change requires:
-                    1. Modifying an existing file in the target codebase
-                    2. Creating a new file (only if the functionality doesn't exist yet)
-                    
-                    Prefer updating existing files rather than creating new ones when possible.`,
+Your task is to identify the exact file in the target language codebase that should be modified to implement the same functionality.
+Respond with ONLY the file path, nothing else.`,
         },
         {
           role: 'user',
-          content: `This PR titled "${prTitle}" modifies the ${sourceLang} file "${
-            file.filename
-          }".
-
-                    Based on the repository structure below, determine the equivalent path in the ${targetLang} repository that should be modified.
-                    
-                    Patch/diff of the change:
-                    ${file.patch || 'No patch available'}
-                    
-                    Repository structure:
-                    ${repoStructure.slice(0, 2000)}
-                    
-                    Respond with ONLY the full path of the target file, without any additional text or explanation.`,
+          content: fileIdentificationPrompt,
         },
       ],
       temperature: 0.1,
@@ -636,74 +1021,142 @@ async function translateFileChanges(
     let existingContent = '';
     if (targetFileExists) {
       existingContent = fs.readFileSync(fullTargetPath, 'utf8');
+
+      // Get minimal relevant context from the target file
+      existingContent = getMinimalTargetContext(existingContent, relevantDiff);
     }
 
-    // Limit context files to reduce token count
-    const limitedContextFiles = repoContext.contextFiles.slice(0, 2);
+    // Extract only key parts of the source file
+    // If we can get the full patch, use that instead of the source content
+    const sourceContent = file.patch
+      ? relevantDiff
+      : file.content.slice(0, 2000);
+
+    // Limit context files to reduce token count further
+    const limitedContextFiles = smartContext.contextFiles
+      .slice(0, 2)
+      .map((file) => ({
+        path: file.path,
+        // Extract only the first 100 lines or so
+        content: file.content.split('\n').slice(0, 100).join('\n'),
+      }));
+
     const contextDescription = limitedContextFiles
       .map(
         (contextFile) => `
       File: ${contextFile.path}
       
       \`\`\`
-      ${contextFile.content.slice(0, 1500)}
-      ${contextFile.content.length > 1500 ? '... (content truncated)' : ''}
+      ${contextFile.content}
       \`\`\`
       `,
       )
       .join('\n');
 
-    // Now translate the code with appropriate context
+    // Create the translation prompt
+    let translationPrompt = `I'm implementing equivalent changes from a ${sourceLang} PR into ${targetLang}.
+
+PR TITLE: "${prTitle}"
+
+SOURCE FILE: "${file.filename}"
+PATCH/DIFF of changes:
+\`\`\`diff
+${relevantDiff}
+\`\`\`
+
+SOURCE CODE (relevant parts):
+\`\`\`
+${sourceContent}
+\`\`\`
+
+TARGET FILE: "${targetFilePath}"
+${
+  targetFileExists
+    ? `EXISTING TARGET CONTENT (relevant parts):
+\`\`\`
+${existingContent}
+\`\`\``
+    : 'This will be a new file.'
+}
+
+RELEVANT FILES FROM TARGET REPO:
+${contextDescription}
+
+INSTRUCTIONS:
+1. ${
+      targetFileExists
+        ? 'Return the complete updated file with your changes applied - be precise with indentation and whitespace'
+        : 'Create a new file that implements the equivalent functionality'
+    }
+2. Follow the target language conventions and match the style of the existing codebase
+3. ONLY implement changes equivalent to what was changed in the source file
+4. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
+
+Return ONLY the code for the target file, without any explanations or prefixes inline.`;
+
+    // Check token count for translation prompt
+    const translationTokens = estimateTokenCount(translationPrompt);
+    core.info(`Translation prompt token estimate: ${translationTokens}`);
+
+    // If translation prompt is too large, reduce context
+    if (translationTokens > 7000) {
+      core.warning(
+        `Translation prompt is too large (${translationTokens} tokens). Reducing context...`,
+      );
+
+      // Simplify the prompt by removing context files if we have target content
+      let reducedPrompt = translationPrompt;
+
+      if (targetFileExists) {
+        // Remove the context files section first
+        reducedPrompt = reducedPrompt.replace(
+          /RELEVANT FILES FROM TARGET REPO:[\s\S]*?(?=INSTRUCTIONS)/,
+          '',
+        );
+      } else {
+        // Reduce source code section next
+        reducedPrompt = reducedPrompt.replace(
+          /SOURCE CODE \(relevant parts\):[\s\S]*?(?=TARGET FILE)/,
+          `SOURCE CODE: [Too large to include in prompt]\n\n`,
+        );
+      }
+
+      // Recalculate token count
+      const reducedTokens = estimateTokenCount(reducedPrompt);
+      core.info(`Reduced translation prompt token estimate: ${reducedTokens}`);
+
+      // If still too large, use a two-step translation process
+      if (reducedTokens > 7000) {
+        return await twoStepTranslation(
+          file,
+          sourceLang,
+          targetLang,
+          smartContext,
+          targetFilePath,
+          targetFileExists,
+          existingContent,
+          openai,
+          prTitle,
+        );
+      }
+
+      // Use the reduced prompt
+      translationPrompt = reducedPrompt;
+    }
+
+    // Now translate the code with the optimized prompt
     const message = await openai.chat.completions.create({
       model: 'gpt-4',
       messages: [
         {
           role: 'system',
           content: `You are an expert code translator specialized in understanding changes made in one language and implementing equivalent changes in another language.
-                   Your task is to update code in the target language to implement the same functionality as the source language changes.
-                   You should focus on making minimal, focused changes that match the style and conventions of the target codebase.`,
+Your task is to update code in the target language to implement the same functionality as the source language changes.
+You should focus on making minimal, focused changes that match the style and conventions of the target codebase.`,
         },
         {
           role: 'user',
-          content: `I'm implementing equivalent changes from a ${sourceLang} PR into ${targetLang}.
-
-              PR TITLE: "${prTitle}"
-              
-              SOURCE FILE: "${file.filename}"
-              PATCH/DIFF of changes:
-              \`\`\`diff
-              ${file.patch || 'No patch available'}
-              \`\`\`
-              
-              SOURCE CODE (full file):
-              \`\`\`
-              ${file.content}
-              \`\`\`
-              
-              TARGET FILE: "${targetFilePath}"
-              ${
-                targetFileExists
-                  ? `EXISTING TARGET CONTENT:
-              \`\`\`
-              ${existingContent}
-              \`\`\``
-                  : 'This will be a new file.'
-              }
-              
-              RELEVANT FILES FROM TARGET REPO:
-              ${contextDescription}
-              
-              INSTRUCTIONS:
-              1. ${
-                targetFileExists
-                  ? 'Return the complete updated file with your changes applied'
-                  : 'Create a new file that implements the equivalent functionality'
-              }
-              2. Follow the target language's conventions and match the style of the existing codebase
-              3. ONLY implement changes equivalent to what was changed in the source file
-              4. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
-              
-              Return ONLY the code for the target file, without any explanations or prefixes inline.`,
+          content: translationPrompt,
         },
       ],
       temperature: 0.1,
@@ -759,6 +1212,145 @@ async function translateFileChanges(
       targetPath: file.filename,
     };
   }
+}
+
+/**
+ * Fallback function that uses a two-step approach for translation
+ * when the prompt is too large for a single API call
+ */
+async function twoStepTranslation(
+  file: PRFile & { content: string; patch?: string },
+  sourceLang: string,
+  targetLang: string,
+  smartContext: RepoContext,
+  targetFilePath: string,
+  targetFileExists: boolean,
+  existingContent: string,
+  openai: OpenAI,
+  prTitle: string,
+): Promise<TranslationResult> {
+  core.info(`Using two-step translation process for ${file.filename}`);
+
+  // Extract only the relevant parts of the diff
+  const relevantDiff = extractRelevantDiffParts(file.patch || '');
+
+  // Step 1: Understand the changes (what is being changed conceptually)
+  const understandChangesPrompt = `
+Analyze this diff from a ${sourceLang} file and explain the key conceptual changes:
+
+\`\`\`diff
+${relevantDiff}
+\`\`\`
+
+Describe in detail:
+1. What functionality is being modified?
+2. What new parameters, methods, or fields are being added?
+3. What logic changes are being made?
+4. List specific function names, parameter names, and types that would need to be modified in the target language.
+
+Be specific but concise.`;
+
+  const understandingResponse = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      {
+        role: 'system',
+        content: `You are an expert code analyst who can understand the conceptual changes in a code diff.`,
+      },
+      {
+        role: 'user',
+        content: understandChangesPrompt,
+      },
+    ],
+    temperature: 0.1,
+    max_tokens: 1000,
+  });
+
+  const changeAnalysis =
+    understandingResponse.choices[0].message.content?.trim() || '';
+
+  // Step 2: Translate those changes to the target language
+  const translateChangesPrompt = `
+I need to implement these changes in the ${targetLang} file "${targetFilePath}" for a PR titled "${prTitle}".
+
+The conceptual changes to implement are:
+${changeAnalysis}
+
+${
+  targetFileExists
+    ? `Here's the relevant part of the target file that needs to be modified:
+\`\`\`
+${existingContent}
+\`\`\``
+    : 'This will be a new file that needs to be created.'
+}
+
+Now, implement these changes in ${targetLang}, following these guidelines:
+1. Match the coding style of the existing codebase
+2. Be precise with indentation, spacing, and syntax
+3. Only make the necessary changes indicated in the analysis
+4. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
+
+Provide the complete ${targetFileExists ? 'updated' : 'new'} file content:`;
+
+  const translationResponse = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      {
+        role: 'system',
+        content: `You are an expert code translator specialized in implementing code changes in ${targetLang}.`,
+      },
+      {
+        role: 'user',
+        content: translateChangesPrompt,
+      },
+    ],
+    temperature: 0.1,
+    max_tokens: 2000,
+  });
+
+  let responseText =
+    translationResponse.choices[0].message.content?.trim() || '';
+  let translatedCode = responseText;
+  let notes: string[] = [];
+  let manualSteps: string[] = [];
+
+  // Check if there are notes or manual steps
+  const notesMatch = responseText.match(
+    /\{[\s\n]*"(?:notes|manualSteps)"[\s\n]*:[\s\n]*\[[\s\S]*?\][\s\S]*?\}/,
+  );
+  if (notesMatch) {
+    try {
+      // Extract the JSON
+      const jsonStr = notesMatch[0];
+      const parsed = JSON.parse(jsonStr);
+
+      // Store notes and manual steps
+      if (parsed.notes) notes = parsed.notes;
+      if (parsed.manualSteps) manualSteps = parsed.manualSteps;
+
+      // Remove the JSON part from the response
+      translatedCode = responseText.replace(jsonStr, '').trim();
+    } catch (error) {
+      core.warning(`Error parsing notes/steps JSON: ${error}`);
+    }
+  }
+
+  // Clean the code
+  translatedCode = translatedCode
+    .replace(/^TARGET CODE:\s*\n?/i, '')
+    .replace(/```[\w]*\s*\n?/g, '')
+    .replace(/```\s*$/g, '')
+    .trim();
+
+  return {
+    success: true,
+    translatedCode,
+    targetPath: targetFilePath,
+    notes,
+    manualSteps,
+    isNewFile: !targetFileExists,
+  };
 }
 
 function generatePRDescription(
