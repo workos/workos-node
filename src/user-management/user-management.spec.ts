@@ -1322,6 +1322,19 @@ describe('UserManagement', () => {
         metadata: { key: 'value' },
       });
     });
+
+    it('adds metadata to the request', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId,
+        metadata: { key: null },
+      });
+
+      expect(fetchBody()).toMatchObject({
+        metadata: {},
+      });
+    });
   });
 
   describe('enrollAuthFactor', () => {
