@@ -20,5 +20,5 @@ export interface SerializedUpdateUserOptions {
   password_hash?: string;
   password_hash_type?: PasswordHashType;
   external_id?: string;
-  metadata?: Record<string, string>;
+  metadata?: Record<string, string | null>;
 }
