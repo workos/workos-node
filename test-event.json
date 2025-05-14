@@ -1,0 +1,27 @@
+{
+  "action": "labeled",
+  "pull_request": {
+    "number": 1273,
+    "head": {
+      "ref": "some-branch-name"
+    },
+    "base": {
+      "ref": "main"
+    },
+    "labels": [
+      {
+        "name": "cross-sdk-sync"
+      }
+    ]
+  },
+  "repository": {
+    "name": "workos-node",
+    "owner": {
+      "login": "workos"
+    },
+    "full_name": "workos/workos-node"
+  },
+  "label": {
+    "name": "cross-sdk-sync"
+  }
+}

@@ -1,0 +1,12 @@
+name: 'SDK Sync Action'
+description: 'Translate changes between WorkOS SDK repositories'
+inputs:
+  github-token:
+    description: 'GitHub token with access to target repositories'
+    required: true
+  openai-key:
+    description: 'OpenAI API key for code translation'
+    required: true
+runs:
+  using: 'node16'
+  main: 'dist/index.js'

@@ -1,0 +1,29 @@
+# .github/workflows/cross-sdk-sync.yml
+name: Cross-SDK Translation
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  translate-to-other-sdks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "WorkOS Bot"
+          git config --global user.email "bot@workos.com"
+
+      - name: Install dependencies
+        run: |
+          cd .github/actions/sdk-sync
+          npm install
+
+      - name: Run sync action
+        uses: ./.github/actions/sdk-sync
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          openai-key: ${{ secrets.OPENAI_KEY }}

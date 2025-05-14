@@ -1,0 +1,21 @@
+{
+  "name": "sdk-sync-action",
+  "version": "1.0.0",
+  "description": "Cross-SDK translation action",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^5.1.1",
+    "@anthropic-ai/sdk": "^0.11.0",
+    "openai": "^4.98.0",
+    "simple-git": "^3.21.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "typescript": "^5.8.3"
+  }
+}
