@@ -6,9 +6,15 @@ import * as path from 'path';
 import simpleGit, { SimpleGit } from 'simple-git';
 import * as child_process from 'child_process';
 import * as os from 'os';
+import { 
+  analyzePatchForChanges, 
+  applyChangesToFile, 
+  extractPatchChanges 
+} from './patch-utils';
+import { structuredTranslateFileChanges } from './structured-translate';
 
 // Type definitions
-interface PRFile {
+export interface PRFile {
   filename: string;
   status: string;
   sha: string;
@@ -17,7 +23,7 @@ interface PRFile {
   patch?: string; // Add patch field to store diff content
 }
 
-interface RepoContext {
+export interface RepoContext {
   contextFiles: Array<{
     path: string;
     content: string;
@@ -25,7 +31,7 @@ interface RepoContext {
   repoStructure: string;
 }
 
-interface TranslationResult {
+export interface TranslationResult {
   success: boolean;
   translatedCode?: string;
   targetPath?: string;
@@ -450,8 +456,8 @@ async function run(): Promise<void> {
           isNewFile: false,
         };
 
-        // Translate file
-        const translationResult = await translateFileChanges(
+        // Use our new structured translation approach
+        const translationResult = await structuredTranslateFileChanges(
           file,
           sourceLang,
           targetLang,

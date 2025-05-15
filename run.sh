@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 # Force debug mode to be true both in the test event and in the workflow environment
-jq '.inputs.debug_mode = "true"' test-event.json > test-event.tmp.json && mv test-event.tmp.json test-event.json
+# jq '.inputs.debug_mode = "true"' test-event.json > test-event.tmp.json && mv test-event.tmp.json test-event.json
 
 # Create debug directory in the host filesystem
 mkdir -p ./debug-output
 
-# Run with debug mode force-enabled 
+# Run with debug mode force-enabled
 # Pass Docker volume mount through container-options
 act workflow_dispatch \
   -e test-event.json \

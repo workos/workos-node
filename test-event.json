@@ -2,7 +2,7 @@
   "event_type": "workflow_dispatch",
   "inputs": {
     "pr_number": "1273",
-    "debug_mode": "true",
+    "debug_mode": "false",
     "target_repos": "workos/workos-ruby,workos/workos-python"
   },
   "repository": {
