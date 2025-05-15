@@ -38,7 +38,7 @@ import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 
-const VERSION = '7.50.0';
+const VERSION = '7.50.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
