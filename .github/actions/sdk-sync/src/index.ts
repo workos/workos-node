@@ -886,7 +886,7 @@ function shouldSkipFile(filePath: string): boolean {
 }
 
 /**
- * Extract only the changed parts of a patch with minimal context
+ * Extract only the changed parts of a patch with sufficient context
  */
 function extractRelevantDiffParts(patch: string): string {
   if (!patch) return '';
@@ -899,16 +899,16 @@ function extractRelevantDiffParts(patch: string): string {
 
   let relevantParts = '';
 
-  // Process each hunk to extract only changed lines with minimal context
+  // Process each hunk to extract changed lines with adequate context
   for (const hunk of hunks) {
     // Extract the hunk header
     const headerMatch = hunk.match(/^@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/);
     if (!headerMatch) continue;
 
-    // Extract lines, keeping only changed lines and minimal context
+    // Extract lines, keeping all context
     const lines = hunk.split('\n').slice(1); // Skip the header line
 
-    // Include 2 lines of context around changes
+    // Include more lines of context around changes for better understanding
     const condensedLines: string[] = [];
     let changeFound = false;
     let contextBuffer: string[] = [];
@@ -920,8 +920,8 @@ function extractRelevantDiffParts(patch: string): string {
       if (line.startsWith('+') || line.startsWith('-')) {
         // Add context buffer if we haven't already
         if (!changeFound && contextBuffer.length > 0) {
-          // Add up to 2 lines of preceding context
-          condensedLines.push(...contextBuffer.slice(-2));
+          // Add up to 4 lines of preceding context (increased from 2)
+          condensedLines.push(...contextBuffer.slice(-4));
           contextBuffer = [];
         }
 
@@ -931,15 +931,15 @@ function extractRelevantDiffParts(patch: string): string {
       // Context line
       else if (line.startsWith(' ')) {
         if (changeFound) {
-          // Add up to 2 lines of following context
-          if (condensedLines.length > 0 && contextBuffer.length < 2) {
+          // Add up to 4 lines of following context (increased from 2)
+          if (condensedLines.length > 0 && contextBuffer.length < 4) {
             contextBuffer.push(line);
           }
         } else {
           // Keep track of context before changes
           contextBuffer.push(line);
-          if (contextBuffer.length > 2) {
-            contextBuffer.shift(); // Keep only 2 lines
+          if (contextBuffer.length > 4) { // Increased from 2
+            contextBuffer.shift(); // Keep only 4 lines
           }
         }
       }
@@ -972,7 +972,7 @@ function getMinimalTargetContext(
 
   // Extract function/class names and key identifiers from the patch
   const identifierRegex =
-    /(?:class|function|def|module|interface)\s+(\w+)|(?:const|let|var|public|private)\s+(\w+)/g;
+    /(?:class|function|def|module|interface)\s+(\w+)|(?:const|let|var|public|private|protected)\s+(\w+)/g;
   let match;
   const keyIdentifiers: string[] = [];
 
@@ -985,37 +985,65 @@ function getMinimalTargetContext(
     }
   }
 
-  // If no identifiers found, return a small sample
+  // Also look for method names in the patch (common in all languages)
+  const methodRegex = /(?:def|function|fn|method|func)\s+(\w+)|\.(\w+)\s*\(|(\w+):/g;
+  while ((match = methodRegex.exec(patchText)) !== null) {
+    const methodName = match[1] || match[2] || match[3];
+    if (methodName && !keyIdentifiers.includes(methodName)) {
+      keyIdentifiers.push(methodName);
+    }
+  }
+
+  // If no identifiers found, return more of the file for better context
   if (keyIdentifiers.length === 0) {
-    // Return first 50 lines or less
+    // Return first 100 lines or less
     const lines = existingContent.split('\n');
-    return lines.slice(0, Math.min(50, lines.length)).join('\n');
+    return lines.slice(0, Math.min(100, lines.length)).join('\n');
   }
 
   // Extract relevant sections from the target file that match identifiers
   const lines = existingContent.split('\n');
   const relevantSections: string[] = [];
+  
+  // Include the file header (first 20 lines or until first empty line after imports)
+  let headerEndLine = 0;
+  for (let i = 0; i < Math.min(20, lines.length); i++) {
+    if (i > 5 && lines[i].trim() === '' && 
+        !lines[i+1]?.trim().startsWith('import') && 
+        !lines[i+1]?.trim().startsWith('require')) {
+      headerEndLine = i;
+      break;
+    }
+    headerEndLine = i;
+  }
+  
+  // Add header section if it exists
+  if (headerEndLine > 0) {
+    relevantSections.push(lines.slice(0, headerEndLine + 1).join('\n'));
+  }
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
     // Check if line contains any key identifier
     if (keyIdentifiers.some((id) => line.includes(id))) {
-      // Find the start of the block (go backwards for context)
+      // Find the start of the block (go backwards for more context)
       let blockStart = i;
-      for (let j = i - 1; j >= Math.max(0, i - 20); j--) {
+      for (let j = i - 1; j >= Math.max(0, i - 30); j--) {
         if (/^\s*$/.test(lines[j]) || /^[^\s]/.test(lines[j])) {
           blockStart = j + 1;
           break;
         }
       }
 
-      // Find the end of the block (go forwards)
+      // Find the end of the block (go forwards with more context)
       let blockEnd = i;
-      for (let j = i + 1; j < Math.min(lines.length, i + 50); j++) {
+      for (let j = i + 1; j < Math.min(lines.length, i + 70); j++) {
         blockEnd = j;
-        // Stop at the end of the function/class/block
-        if (/^\s*}/.test(lines[j]) || /^}/.test(lines[j])) {
+        // Stop at the end of the function/class/block with proper language detection
+        const line = lines[j];
+        if ((line.trim() === '}' || line.trim() === 'end' || line.match(/^\s*}/) || line.match(/^\s*end$/)) && 
+            j > i + 5) { // Make sure we don't stop too early
           blockEnd = j;
           break;
         }
@@ -1034,8 +1062,8 @@ function getMinimalTargetContext(
     return relevantSections.join('\n\n');
   }
 
-  // Fallback to first 50 lines
-  return lines.slice(0, Math.min(50, lines.length)).join('\n');
+  // Fallback to more of the file for better context
+  return lines.slice(0, Math.min(100, lines.length)).join('\n');
 }
 
 async function getRepoStructure(repoDir: string): Promise<string> {
@@ -1372,8 +1400,14 @@ INSTRUCTIONS:
         : 'Create a new file that implements the equivalent functionality'
     }
 2. Follow the target language conventions and match the style of the existing codebase
-3. ONLY implement changes equivalent to what was changed in the source file
-4. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
+3. CRITICALLY IMPORTANT: Make ONLY the minimal changes necessary to implement what was changed in the source file. Do not refactor or restructure existing code.
+4. Preserve all existing code structure, organization, and documentation unless absolutely necessary to change.
+5. Focus EXACTLY on translating just the changed lines from the diff - don't modify anything else.
+6. If a parameter or field is added in the source, add the equivalent in the target without removing any existing fields.
+7. When adding a parameter to a method in Ruby, add it in the same position as in the source and keep all existing parameters.
+8. When adding a field to a class in Python, add it alongside existing fields without removing any.
+9. NEVER replace an entire class or method definition with just the new fields - that would delete the existing fields.
+10. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
 
 Return ONLY the code for the target file, without any explanations or prefixes inline.`;
 
@@ -1381,26 +1415,28 @@ Return ONLY the code for the target file, without any explanations or prefixes i
     const translationTokens = estimateTokenCount(translationPrompt);
     core.info(`Translation prompt token estimate: ${translationTokens}`);
 
-    // If translation prompt is too large, reduce context
+    // If translation prompt is too large, reduce context but ensure we keep essential parts
     if (translationTokens > 7000) {
       core.warning(
         `Translation prompt is too large (${translationTokens} tokens). Reducing context...`,
       );
 
-      // Simplify the prompt by removing context files if we have target content
+      // Simplify the prompt by optimizing the context provided
       let reducedPrompt = translationPrompt;
 
       if (targetFileExists) {
-        // Remove the context files section first
+        // First try to just reduce the context files section but keep the rest
         reducedPrompt = reducedPrompt.replace(
           /RELEVANT FILES FROM TARGET REPO:[\s\S]*?(?=INSTRUCTIONS)/,
-          '',
+          'RELEVANT FILES FROM TARGET REPO: [Removed to reduce token count]\n\n',
         );
       } else {
-        // Reduce source code section next
+        // If no target file exists, prioritize providing more context from similar files
+        // but reduce the source code
         reducedPrompt = reducedPrompt.replace(
           /SOURCE CODE \(relevant parts\):[\s\S]*?(?=TARGET FILE)/,
-          `SOURCE CODE: [Too large to include in prompt]\n\n`,
+          `SOURCE CODE: [Summarized due to size constraints]\n
+Key points from source:\n- ${file.filename} contains changes shown in the diff above\n\n`,
         );
       }
 
@@ -1408,23 +1444,46 @@ Return ONLY the code for the target file, without any explanations or prefixes i
       const reducedTokens = estimateTokenCount(reducedPrompt);
       core.info(`Reduced translation prompt token estimate: ${reducedTokens}`);
 
-      // If still too large, use a two-step translation process
+      // If still too large, be more aggressive with reductions but still keep the diff
       if (reducedTokens > 7000) {
-        return await twoStepTranslation(
-          file,
-          sourceLang,
-          targetLang,
-          smartContext,
-          targetFilePath,
-          targetFileExists,
-          existingContent,
-          openai,
-          prTitle,
-        );
-      }
+        // Ensure we always keep the diff, which is the most critical part
+        if (targetFileExists && existingContent.length > 2000) {
+          // Reduce the existing content portion but keep the beginning and end
+          // This preserves file structure while reducing tokens
+          const contentLines = existingContent.split('\n');
+          const contentStart = contentLines.slice(0, 20).join('\n');
+          const contentEnd = contentLines.slice(-20).join('\n');
+          
+          reducedPrompt = reducedPrompt.replace(
+            /EXISTING TARGET CONTENT \(relevant parts\):\n```\n[\s\S]*?\n```/,
+            `EXISTING TARGET CONTENT (truncated):\n\`\`\`\n${contentStart}\n\n[... middle content omitted ...]\n\n${contentEnd}\n\`\`\``
+          );
+        }
 
-      // Use the reduced prompt
-      translationPrompt = reducedPrompt;
+        // Recalculate tokens again
+        const furtherReducedTokens = estimateTokenCount(reducedPrompt);
+        
+        // If still too large, use the two-step approach
+        if (furtherReducedTokens > 7000) {
+          return await twoStepTranslation(
+            file,
+            sourceLang,
+            targetLang,
+            smartContext,
+            targetFilePath,
+            targetFileExists,
+            existingContent,
+            openai,
+            prTitle,
+          );
+        }
+        
+        // Use the further reduced prompt
+        translationPrompt = reducedPrompt;
+      } else {
+        // Use the initially reduced prompt
+        translationPrompt = reducedPrompt;
+      }
     }
 
     // Now translate the code with the optimized prompt
@@ -1435,7 +1494,17 @@ Return ONLY the code for the target file, without any explanations or prefixes i
           role: 'system',
           content: `You are an expert code translator specialized in understanding changes made in one language and implementing equivalent changes in another language.
 Your task is to update code in the target language to implement the same functionality as the source language changes.
-You should focus on making minimal, focused changes that match the style and conventions of the target codebase.`,
+You should focus on making minimal, focused changes that match the style and conventions of the target codebase.
+CRITICAL INSTRUCTIONS:
+1. Make ONLY the minimal necessary changes to implement the functionality from the source changes.
+2. DO NOT refactor, restructure, or rewrite existing code unless absolutely necessary.
+3. DO NOT delete or modify existing functionality that isn't directly related to the changes.
+4. NEVER return a stripped-down version of a class or method that only contains the new additions.
+5. When adding a field or parameter, ALWAYS keep ALL existing fields and parameters.
+6. When translating Ruby method parameters, maintain all existing parameters and only add new ones in the right position.
+7. When translating Python class fields, keep all existing fields and add the new ones without removing anything.
+8. Your changes should be surgical, precise, and targeted only to what's in the diff.
+9. If you're unsure about modifying something, preserve ALL the original code and add only what's needed.`,
         },
         {
           role: 'user',
@@ -1530,6 +1599,16 @@ Describe in detail:
 2. What new parameters, methods, or fields are being added?
 3. What logic changes are being made?
 4. List specific function names, parameter names, and types that would need to be modified in the target language.
+5. IMPORTANT: Specify the exact location/scope of each change (e.g., "within the X method", "in the Y class")
+6. For each change, identify if it's an addition, modification, or removal
+7. Be extremely explicit about what needs to be preserved from the original code
+
+CRITICALLY IMPORTANT: 
+- Focus ONLY on the actual changes being made. Do NOT suggest refactors or improvements
+- The goal is to make the MINIMAL necessary changes to match the functionality in the diff
+- Never suggest removing or replacing existing code that isn't explicitly modified in the diff
+- When adding parameters to methods, always ensure ALL existing parameters are preserved
+- When adding fields to classes, all existing fields must be preserved
 
 Be specific but concise.`;
 
@@ -1571,8 +1650,13 @@ ${existingContent}
 Now, implement these changes in ${targetLang}, following these guidelines:
 1. Match the coding style of the existing codebase
 2. Be precise with indentation, spacing, and syntax
-3. Only make the necessary changes indicated in the analysis
-4. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
+3. CRITICALLY IMPORTANT: Make ONLY the minimal changes necessary to implement what was changed in the source file. Do not refactor or restructure existing code.
+4. Preserve all existing code structure, organization, and documentation unless absolutely necessary to change.
+5. DO NOT remove ANY existing code that isn't explicitly changed in the diff.
+6. For Ruby parameter lists: Add the new parameter to the parameter list without removing any existing ones.
+7. For Python classes: Add the new field definition alongside existing fields without removing any fields.
+8. NEVER replace an entire class or method definition with just the new fields - that would delete the existing fields.
+9. If you have important notes or manual steps needed, add them as a JSON object at the end: {"notes": ["note1", "note2"]}
 
 Provide the complete ${targetFileExists ? 'updated' : 'new'} file content:`;
 
@@ -1581,7 +1665,18 @@ Provide the complete ${targetFileExists ? 'updated' : 'new'} file content:`;
     messages: [
       {
         role: 'system',
-        content: `You are an expert code translator specialized in implementing code changes in ${targetLang}.`,
+        content: `You are an expert code translator specialized in implementing code changes in ${targetLang}.
+Your primary goal is to implement the minimal changes needed while preserving the existing code structure.
+CRITICAL INSTRUCTIONS:
+1. Make ONLY the minimal necessary changes to implement the functionality from the source changes.
+2. DO NOT refactor, restructure, or rewrite existing code unless absolutely necessary.
+3. DO NOT delete or modify existing functionality that isn't directly related to the changes.
+4. NEVER return a stripped-down version of a class or method that only contains the new additions.
+5. When adding a field or parameter, ALWAYS keep ALL existing fields and parameters.
+6. When translating Ruby method parameters, maintain all existing parameters and only add new ones in the right position.
+7. When translating Python class fields, keep all existing fields and add the new ones without removing anything.
+8. Your changes should be surgical, precise, and targeted only to what's in the diff.
+9. If you're unsure about modifying something, preserve ALL the original code and add only what's needed.`,
       },
       {
         role: 'user',
@@ -1809,14 +1904,28 @@ async function getRelevantFiles(
       .map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('|');
 
-    const cmd = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr" | sort`;
+    // Exclude test files but include more main code files for better context
+    const cmd = `find . -type f -name "*${fileExt}" | grep -v "test\\|spec\\|fixture\\|vcr\\|example" | sort`;
 
     child_process.exec(cmd, { cwd: repoDir }, (error, stdout) => {
       if (error) {
         resolve([]);
       } else {
+        // Filter and sort files by relevance first
         const files = stdout.trim().split('\n').filter(Boolean);
-        resolve(files);
+        
+        // Sort by path similarity - put lib/src files first as they're likely more relevant
+        const sortedFiles = files.sort((a, b) => {
+          // Prioritize core library files that are more likely to contain core functionality
+          const aIsCore = a.includes('/lib/') || a.includes('/src/');
+          const bIsCore = b.includes('/lib/') || b.includes('/src/');
+          
+          if (aIsCore && !bIsCore) return -1;
+          if (!aIsCore && bIsCore) return 1;
+          return a.localeCompare(b);
+        });
+        
+        resolve(sortedFiles);
       }
     });
   });
