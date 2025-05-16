@@ -3,7 +3,6 @@ import { CryptoProvider } from './common/crypto/crypto-provider';
 
 import { HttpClient } from './common/net/http-client';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { NodeHttpClient } from './common/net/node-client';
 
 import { Actions } from './actions/actions';
 import { Webhooks } from './webhooks/webhooks';
@@ -43,14 +42,7 @@ class WorkOSNode extends WorkOS {
       },
     };
 
-    if (
-      typeof fetch !== 'undefined' ||
-      typeof options.fetchFn !== 'undefined'
-    ) {
-      return new FetchHttpClient(this.baseURL, opts, options.fetchFn);
-    } else {
-      return new NodeHttpClient(this.baseURL, opts);
-    }
+    return new FetchHttpClient(this.baseURL, opts, options.fetchFn);
   }
 
   /** @override */
