@@ -15,7 +15,6 @@
   "engines": {
     "node": ">=18"
   },
-  "typings": "lib/index.d.ts",
   "files": [
     "lib/"
   ],
@@ -28,7 +27,8 @@
   },
   "scripts": {
     "clean": "rm -rf lib",
-    "build": "tsc -p .",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -65,22 +65,38 @@
     "prettier": "^3.5.3",
     "supertest": "7.1.0",
     "ts-jest": "29.3.1",
+    "tsup": "^8.5.0",
     "typescript": "5.8.2",
     "typescript-eslint": "^8.25.0"
   },
+  "main": "./lib/cjs/index.js",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.mts",
   "exports": {
-    "types": "./lib/index.d.ts",
-    "workerd": {
-      "import": "./lib/index.worker.js",
-      "default": "./lib/index.worker.js"
+    ".": {
+      "types": "./lib/index.d.mts",
+      "import": "./lib/index.mjs",
+      "require": "./lib/cjs/index.js"
     },
-    "edge-light": {
-      "import": "./lib/index.worker.js",
-      "default": "./lib/index.worker.js"
-    },
-    "default": {
-      "import": "./lib/index.js",
-      "default": "./lib/index.js"
+    "./worker": {
+      "workerd": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "edge-light": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "browser": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "types": "./lib/index.worker.d.mts",
+      "import": "./lib/index.worker.mjs",
+      "require": "./lib/cjs/index.worker.js"
     }
   }
 }
