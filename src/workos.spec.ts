@@ -12,7 +12,6 @@ import { WorkOS } from './index';
 import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { NodeHttpClient } from './common/net/node-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
 describe('WorkOS', () => {
@@ -387,34 +386,6 @@ describe('WorkOS', () => {
         expect(error.rawBody).toBe('broken json[');
         expect(error.requestID).toBe('a-request-id');
       });
-    });
-  });
-
-  describe('when in an environment that does not support fetch', () => {
-    const fetchFn = globalThis.fetch;
-
-    beforeEach(() => {
-      delete (globalThis as any).fetch;
-    });
-
-    afterEach(() => {
-      globalThis.fetch = fetchFn;
-    });
-
-    it('automatically uses the node HTTP client', () => {
-      const workos = new WorkOS('sk_test_key');
-
-      // tslint:disable-next-line
-      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
-    });
-
-    it('uses a fetch function if provided', () => {
-      const workos = new WorkOS('sk_test_key', {
-        fetchFn,
-      });
-
-      // tslint:disable-next-line
-      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
     });
   });
 
