@@ -19,6 +19,7 @@ import {
   serializeListConnectionsOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -109,10 +110,14 @@ export class SSO {
     return deserializeConnection(data);
   }
 
-  async getProfileAndToken({
+  async getProfileAndToken<
+    CustomAttributesType extends UnknownRecord = UnknownRecord,
+  >({
     code,
     clientId,
-  }: GetProfileAndTokenOptions): Promise<ProfileAndToken> {
+  }: GetProfileAndTokenOptions): Promise<
+    ProfileAndToken<CustomAttributesType>
+  > {
     const form = new URLSearchParams({
       client_id: clientId,
       client_secret: this.workos.key as string,
@@ -120,16 +125,19 @@ export class SSO {
       code,
     });
 
-    const { data } = await this.workos.post<ProfileAndTokenResponse>(
-      '/sso/token',
-      form,
-    );
+    const { data } = await this.workos.post<
+      ProfileAndTokenResponse<CustomAttributesType>
+    >('/sso/token', form);
 
     return deserializeProfileAndToken(data);
   }
 
-  async getProfile({ accessToken }: GetProfileOptions): Promise<Profile> {
-    const { data } = await this.workos.get<ProfileResponse>('/sso/profile', {
+  async getProfile<CustomAttributesType extends UnknownRecord = UnknownRecord>({
+    accessToken,
+  }: GetProfileOptions): Promise<Profile<CustomAttributesType>> {
+    const { data } = await this.workos.get<
+      ProfileResponse<CustomAttributesType>
+    >('/sso/profile', {
       accessToken,
     });
 

@@ -34,8 +34,11 @@ import { FetchHttpClient } from './common/net/fetch-client';
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
+import { Vault } from './vault/vault';
+import { ConflictException } from './common/exceptions/conflict.exception';
+import { CryptoProvider } from './common/crypto/crypto-provider';
 
-const VERSION = '7.41.0';
+const VERSION = '7.50.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -62,6 +65,7 @@ export class WorkOS {
   readonly userManagement: UserManagement;
   readonly fga = new FGA(this);
   readonly widgets = new Widgets(this);
+  readonly vault = new Vault(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
@@ -115,11 +119,15 @@ export class WorkOS {
   }
 
   createWebhookClient() {
-    return new Webhooks(new SubtleCryptoProvider());
+    return new Webhooks(this.getCryptoProvider());
   }
 
   createActionsClient() {
-    return new Actions(new SubtleCryptoProvider());
+    return new Actions(this.getCryptoProvider());
+  }
+
+  getCryptoProvider(): CryptoProvider {
+    return new SubtleCryptoProvider();
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {
@@ -262,6 +270,9 @@ export class WorkOS {
       switch (status) {
         case 401: {
           throw new UnauthorizedException(requestID);
+        }
+        case 409: {
+          throw new ConflictException({ requestID, message, error });
         }
         case 422: {
           throw new UnprocessableEntityException({

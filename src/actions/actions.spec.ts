@@ -2,8 +2,9 @@ import crypto from 'crypto';
 import { WorkOS } from '../workos';
 import mockAuthActionContext from './fixtures/authentication-action-context.json';
 import mockUserRegistrationActionContext from './fixtures/user-registration-action-context.json';
+import { NodeCryptoProvider } from '../common/crypto/node-crypto-provider';
+
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-import { NodeCryptoProvider } from '../common/crypto/NodeCryptoProvider';
 
 describe('Actions', () => {
   let secret: string;
@@ -127,6 +128,7 @@ describe('Actions', () => {
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
           externalId: null,
+          metadata: {},
         },
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
@@ -142,6 +144,7 @@ describe('Actions', () => {
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
           externalId: null,
+          metadata: {},
         },
         organizationMembership: {
           object: 'organization_membership',

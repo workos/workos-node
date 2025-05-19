@@ -144,6 +144,19 @@ describe('UserManagement', () => {
         updatedAt: '2023-07-18T02:07:19.911Z',
       });
     });
+
+    it('adds metadata to the request', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.createUser({
+        email: 'test01@example.com',
+        metadata: { key: 'value' },
+      });
+
+      expect(fetchBody()).toMatchObject({
+        metadata: { key: 'value' },
+      });
+    });
   });
 
   describe('authenticateUserWithMagicAuth', () => {
@@ -1294,6 +1307,32 @@ describe('UserManagement', () => {
           email: 'test01@example.com',
           profilePictureUrl: 'https://example.com/profile_picture.jpg',
         });
+      });
+    });
+
+    it('adds metadata to the request', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId,
+        metadata: { key: 'value' },
+      });
+
+      expect(fetchBody()).toMatchObject({
+        metadata: { key: 'value' },
+      });
+    });
+
+    it('removes metadata from the request', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId,
+        metadata: { key: null },
+      });
+
+      expect(fetchBody()).toMatchObject({
+        metadata: {},
       });
     });
   });

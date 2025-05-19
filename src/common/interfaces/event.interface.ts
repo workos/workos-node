@@ -39,6 +39,10 @@ import {
   OrganizationDomain,
   OrganizationDomainResponse,
 } from '../../organization-domains/interfaces';
+import {
+  AuthenticationRadarRiskDetectedEventData,
+  AuthenticationRadarRiskDetectedEventResponseData,
+} from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
 
 export interface EventBase {
   id: string;
@@ -137,6 +141,17 @@ export interface AuthenticationPasswordSucceededEventResponse
   extends EventResponseBase {
   event: 'authentication.password_succeeded';
   data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationRadarRiskDetectedEvent extends EventBase {
+  event: 'authentication.radar_risk_detected';
+  data: AuthenticationRadarRiskDetectedEventData;
+}
+
+export interface AuthenticationRadarRiskDetectedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.radar_risk_detected';
+  data: AuthenticationRadarRiskDetectedEventResponseData;
 }
 
 export interface AuthenticationSSOFailedEvent extends EventBase {
@@ -358,6 +373,16 @@ export interface PasswordResetCreatedEventResponse extends EventResponseBase {
   data: PasswordResetEventResponse;
 }
 
+export interface PasswordResetSucceededEvent extends EventBase {
+  event: 'password_reset.succeeded';
+  data: PasswordResetEvent;
+}
+
+export interface PasswordResetSucceededEventResponse extends EventResponseBase {
+  event: 'password_reset.succeeded';
+  data: PasswordResetEventResponse;
+}
+
 export interface UserCreatedEvent extends EventBase {
   event: 'user.created';
   data: User;
@@ -557,6 +582,7 @@ export type Event =
   | AuthenticationPasswordSucceededEvent
   | AuthenticationMagicAuthFailedEvent
   | AuthenticationMagicAuthSucceededEvent
+  | AuthenticationRadarRiskDetectedEvent
   | ConnectionActivatedEvent
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
@@ -575,6 +601,7 @@ export type Event =
   | InvitationCreatedEvent
   | MagicAuthCreatedEvent
   | PasswordResetCreatedEvent
+  | PasswordResetSucceededEvent
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
@@ -604,6 +631,7 @@ export type EventResponse =
   | AuthenticationPasswordSucceededEventResponse
   | AuthenticationSSOFailedEventResponse
   | AuthenticationSSOSucceededEventResponse
+  | AuthenticationRadarRiskDetectedEventResponse
   | ConnectionActivatedEventResponse
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
@@ -622,6 +650,7 @@ export type EventResponse =
   | InvitationCreatedEventResponse
   | MagicAuthCreatedEventResponse
   | PasswordResetCreatedEventResponse
+  | PasswordResetSucceededEventResponse
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse

@@ -218,6 +218,10 @@ describe('SSO', () => {
                 first_name: 'foo',
                 last_name: 'bar',
                 groups: ['Admins', 'Developers'],
+                license: 'professional',
+              },
+              custom_attributes: {
+                license: 'professional',
               },
             },
           });
@@ -258,6 +262,7 @@ describe('SSO', () => {
                 first_name: 'foo',
                 last_name: 'bar',
               },
+              custom_attributes: {},
             },
           });
 
@@ -298,6 +303,7 @@ describe('SSO', () => {
             last_name: 'bar',
             groups: ['Admins', 'Developers'],
           },
+          custom_attributes: {},
         });
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');

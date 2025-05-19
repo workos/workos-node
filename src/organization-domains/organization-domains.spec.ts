@@ -23,6 +23,7 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HCZRAP3TPQ0X0DKJHR32TATG');
       expect(subject.domain).toEqual('workos.com');
+      expect(subject.organizationId).toEqual('org_01JR8C1EHCRPV4B4XP4W2B9X1M');
       expect(subject.state).toEqual(OrganizationDomainState.Verified);
       expect(subject.verificationToken).toBeNull();
       expect(subject.verificationStrategy).toEqual('manual');
@@ -40,6 +41,7 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
+      expect(subject.organizationId).toEqual('org_01JR8C1EHCRPV4B4XP4W2B9X1M');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
       expect(subject.verificationStrategy).toEqual('dns');
@@ -59,6 +61,7 @@ describe('OrganizationDomains', () => {
       );
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
+      expect(subject.organizationId).toEqual('org_01JR8C1EHCRPV4B4XP4W2B9X1M');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
       expect(subject.verificationStrategy).toEqual('dns');
@@ -82,6 +85,7 @@ describe('OrganizationDomains', () => {
 
       expect(subject.id).toEqual('org_domain_01HD50K7EPWCMNPGMKXKKE14XT');
       expect(subject.domain).toEqual('workos.com');
+      expect(subject.organizationId).toEqual('org_01JR8C1EHCRPV4B4XP4W2B9X1M');
       expect(subject.state).toEqual(OrganizationDomainState.Pending);
       expect(subject.verificationToken).toEqual('F06PGMsZIO0shrveGWuGxgCj7');
       expect(subject.verificationStrategy).toEqual('dns');

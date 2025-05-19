@@ -21,6 +21,7 @@ import { deserializeOrganizationMembership } from '../../user-management/seriali
 import { deserializeRoleEvent } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
+import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-management/serializers/authentication-radar-risk-event-serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -43,6 +44,12 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeAuthenticationEvent(event.data),
+      };
+    case 'authentication.radar_risk_detected':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAuthenticationRadarRiskDetectedEvent(event.data),
       };
     case 'connection.activated':
     case 'connection.deactivated':
@@ -121,6 +128,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeMagicAuthEvent(event.data),
       };
     case 'password_reset.created':
+    case 'password_reset.succeeded':
       return {
         ...eventBase,
         event: event.event,

@@ -21,7 +21,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/7.41.0/fetch",
+  "User-Agent": "workos-node/7.50.1/fetch",
 }
 `;
 
@@ -29,6 +29,9 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 {
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
+  "customAttributes": {
+    "license": "professional",
+  },
   "email": "foo@test.com",
   "firstName": "foo",
   "groups": [
@@ -47,6 +50,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
       "Developers",
     ],
     "last_name": "bar",
+    "license": "professional",
   },
   "role": {
     "slug": "admin",
@@ -61,7 +65,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/7.41.0/fetch",
+  "User-Agent": "workos-node/7.50.1/fetch",
 }
 `;
 
@@ -69,6 +73,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
 {
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
+  "customAttributes": {},
   "email": "foo@test.com",
   "firstName": "foo",
   "groups": undefined,

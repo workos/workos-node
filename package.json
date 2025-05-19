@@ -1,5 +1,5 @@
 {
-  "version": "7.41.0",
+  "version": "7.50.1",
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
@@ -40,6 +40,7 @@
   "dependencies": {
     "iron-session": "~6.3.1",
     "jose": "~5.6.3",
+    "leb": "^1.0.0",
     "pluralize": "8.0.0"
   },
   "devDependencies": {
