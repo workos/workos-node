@@ -2,6 +2,7 @@ import { PasswordHashType } from './password-hash-type.interface';
 
 export interface UpdateUserOptions {
   userId: string;
+  email?: string;
   firstName?: string;
   lastName?: string;
   emailVerified?: boolean;
@@ -13,6 +14,7 @@ export interface UpdateUserOptions {
 }
 
 export interface SerializedUpdateUserOptions {
+  email?: string;
   first_name?: string;
   last_name?: string;
   email_verified?: boolean;
