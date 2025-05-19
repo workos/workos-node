@@ -3,6 +3,7 @@ import { PolicyContext, SerializedSubject, Subject } from './warrant.interface';
 import { CheckOp } from './check-op.enum';
 import { PostOptions } from '../../common/interfaces';
 import { deserializeDecisionTreeNode } from '../serializers/check-options.serializer';
+import { Warning } from './warning.interface';
 
 const CHECK_RESULT_AUTHORIZED = 'authorized';
 
@@ -49,6 +50,7 @@ export interface CheckResultResponse {
   is_implicit: boolean;
   warrant_token: string;
   debug_info?: DebugInfoResponse;
+  warnings?: Warning[];
 }
 
 export interface DebugInfo {
@@ -82,6 +84,7 @@ export interface CheckResultInterface {
   isImplicit: boolean;
   warrantToken: string;
   debugInfo?: DebugInfo;
+  warnings?: Warning[];
 }
 
 export class CheckResult implements CheckResultInterface {
@@ -89,6 +92,7 @@ export class CheckResult implements CheckResultInterface {
   public isImplicit: boolean;
   public warrantToken: string;
   public debugInfo?: DebugInfo;
+  public warnings?: Warning[];
 
   constructor(json: CheckResultResponse) {
     this.result = json.result;
@@ -102,6 +106,7 @@ export class CheckResult implements CheckResultInterface {
           ),
         }
       : undefined;
+    this.warnings = json.warnings;
   }
 
   isAuthorized(): boolean {
