@@ -2,45 +2,81 @@
  * Cross-runtime environment variable helper
  */
 
-// Declare global types for runtime environments
-declare global {
-  // Deno namespace declaration
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Deno {
-    export const env: {
-      get(key: string): string | undefined;
-    };
+type Runtime =
+  | 'node'
+  | 'deno'
+  | 'bun'
+  | 'cloudflare'
+  | 'fastly'
+  | 'edge-light'
+  | 'other';
+
+let detectedRuntime: Runtime | null = null;
+
+/**
+ * Detect the current runtime environment.
+ * This function checks for various runtime environments such as Node.js, Deno, Bun, Cloudflare Workers, Fastly, and Edge Light.
+ * It returns a string representing the detected runtime and caches the result for future calls.
+ * @returns The detected runtime environment as a string.
+ */
+export function detectRuntime(): Runtime {
+  if (detectedRuntime) {
+    return detectedRuntime;
   }
 
-  // Extend globalThis for Cloudflare Workers
-  interface GlobalThis {
-    env?: Record<string, string>;
-    [key: string]: any;
+  const global = globalThis as any;
+
+  if (typeof process !== 'undefined' && process.release?.name === 'node') {
+    detectedRuntime = 'node';
+  } else if (typeof global.Deno !== 'undefined') {
+    detectedRuntime = 'deno';
+  } else if (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent?.includes('Bun')
+  ) {
+    detectedRuntime = 'bun';
+  } else if (
+    typeof navigator !== 'undefined' &&
+    navigator.userAgent?.includes('Cloudflare')
+  ) {
+    detectedRuntime = 'cloudflare';
+  } else if (typeof global !== 'undefined' && 'fastly' in global) {
+    detectedRuntime = 'fastly';
+  } else if (typeof global !== 'undefined' && 'EdgeRuntime' in global) {
+    detectedRuntime = 'edge-light';
+  } else {
+    detectedRuntime = 'other';
   }
+
+  return detectedRuntime;
 }
 
 function getEnvironmentVariable(key: string): string | undefined {
-  // Node.js
-  if (typeof process !== 'undefined' && process.env) {
-    return process.env[key];
-  }
+  const runtime = detectRuntime();
+  const global = globalThis as any;
 
-  // Deno
-  if (typeof (globalThis as any).Deno !== 'undefined') {
-    return (globalThis as any).Deno.env.get(key);
-  }
+  try {
+    switch (runtime) {
+      case 'node':
+      case 'bun':
+      case 'edge-light':
+        return process.env[key];
 
-  // Cloudflare Workers (via global env object)
-  if (typeof globalThis !== 'undefined' && (globalThis as any).env) {
-    return (globalThis as any).env[key];
-  }
+      case 'deno':
+        return global.Deno.env.get(key);
 
-  // Cloudflare Workers (direct global access)
-  if (typeof globalThis !== 'undefined' && key in globalThis) {
-    return (globalThis as any)[key];
-  }
+      case 'cloudflare':
+        return global.env?.[key] ?? global[key];
 
-  return undefined;
+      case 'fastly':
+        return global[key];
+
+      default:
+        return process?.env?.[key] ?? global.env?.[key] ?? global[key];
+    }
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -55,4 +91,3 @@ export function getEnv<T = string>(
 ): string | T | undefined {
   return getEnvironmentVariable(key) ?? defaultValue;
 }
-
