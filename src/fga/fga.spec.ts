@@ -44,6 +44,57 @@ describe('FGA', () => {
         warrantToken: 'abc',
       });
     });
+
+    it('deserializes warnings in check response', async () => {
+      fetchOnce({
+        result: 'authorized',
+        is_implicit: false,
+        warrant_token: 'abc',
+        warnings: [
+          {
+            code: 'missing_context_keys',
+            message: 'Missing required context keys',
+            keys: ['tenant_id', 'region'],
+          },
+          {
+            code: 'some_other_warning',
+            message: 'Some other warning message',
+          },
+        ],
+      });
+      const checkResult = await workos.fga.check({
+        checks: [
+          {
+            resource: {
+              resourceType: 'role',
+              resourceId: 'admin',
+            },
+            relation: 'member',
+            subject: {
+              resourceType: 'user',
+              resourceId: 'user_123',
+            },
+          },
+        ],
+      });
+      expect(fetchURL()).toContain('/fga/v1/check');
+      expect(checkResult).toMatchObject({
+        result: 'authorized',
+        isImplicit: false,
+        warrantToken: 'abc',
+        warnings: [
+          {
+            code: 'missing_context_keys',
+            message: 'Missing required context keys',
+            keys: ['tenant_id', 'region'],
+          },
+          {
+            code: 'some_other_warning',
+            message: 'Some other warning message',
+          },
+        ],
+      });
+    });
   });
 
   describe('createResource', () => {
@@ -614,6 +665,101 @@ describe('FGA', () => {
             },
           },
           isImplicit: false,
+        },
+      ]);
+    });
+
+    it('deserializes warnings in query response', async () => {
+      fetchOnce({
+        data: [
+          {
+            resource_type: 'role',
+            resource_id: 'admin',
+            warrant: {
+              resource_type: 'role',
+              resource_id: 'admin',
+              relation: 'member',
+              subject: {
+                resource_type: 'user',
+                resource_id: 'user_123',
+              },
+            },
+            is_implicit: false,
+          },
+          {
+            resource_type: 'role',
+            resource_id: 'manager',
+            warrant: {
+              resource_type: 'role',
+              resource_id: 'manager',
+              relation: 'member',
+              subject: {
+                resource_type: 'user',
+                resource_id: 'user_123',
+              },
+            },
+            is_implicit: true,
+          },
+        ],
+        list_metadata: {
+          before: null,
+          after: null,
+        },
+        warnings: [
+          {
+            code: 'missing_context_keys',
+            message: 'Missing required context keys',
+            keys: ['tenant_id'],
+          },
+          {
+            code: 'some_other_warning',
+            message: 'Some other warning message',
+          },
+        ],
+      });
+      const result = await workos.fga.query({
+        q: 'select role where user:user_123 is member',
+      });
+      expect(fetchURL()).toContain('/fga/v1/query');
+      expect(result.data).toMatchObject([
+        {
+          resourceType: 'role',
+          resourceId: 'admin',
+          warrant: {
+            resourceType: 'role',
+            resourceId: 'admin',
+            relation: 'member',
+            subject: {
+              resourceType: 'user',
+              resourceId: 'user_123',
+            },
+          },
+          isImplicit: false,
+        },
+        {
+          resourceType: 'role',
+          resourceId: 'manager',
+          warrant: {
+            resourceType: 'role',
+            resourceId: 'manager',
+            relation: 'member',
+            subject: {
+              resourceType: 'user',
+              resourceId: 'user_123',
+            },
+          },
+          isImplicit: true,
+        },
+      ]);
+      expect(result.warnings).toMatchObject([
+        {
+          code: 'missing_context_keys',
+          message: 'Missing required context keys',
+          keys: ['tenant_id'],
+        },
+        {
+          code: 'some_other_warning',
+          message: 'Some other warning message',
         },
       ]);
     });

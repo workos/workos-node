@@ -5,7 +5,7 @@ export class AutoPaginatable<T> {
   readonly options: PaginationOptions;
 
   constructor(
-    private list: List<T>,
+    protected list: List<T>,
     private apiCall: (params: PaginationOptions) => Promise<List<T>>,
     options?: PaginationOptions,
   ) {
