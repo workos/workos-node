@@ -10,3 +10,4 @@ export * from './resource.serializer';
 export * from './warrant-token.serializer';
 export * from './warrant.serializer';
 export * from './write-warrant-options.serializer';
+export * from './list.serializer';

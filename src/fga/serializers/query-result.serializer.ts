@@ -1,8 +1,4 @@
-import {
-  QueryResult,
-  QueryResultResponse,
-  QueryResultList,
-} from '../interfaces';
+import { QueryResult, QueryResultResponse } from '../interfaces';
 import { Warning } from '../interfaces/warning.interface';
 import { ListResponse } from '../../common/interfaces';
 
@@ -29,13 +25,4 @@ export const deserializeQueryResult = (
   },
   isImplicit: queryResult.is_implicit,
   meta: queryResult.meta,
-});
-
-export const deserializeQueryResultList = (
-  response: QueryResultListResponse,
-): QueryResultList => ({
-  object: 'list',
-  data: response.data.map(deserializeQueryResult),
-  listMetadata: response.list_metadata,
-  warnings: response.warnings,
 });

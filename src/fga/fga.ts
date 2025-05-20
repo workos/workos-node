@@ -14,6 +14,7 @@ import {
   QueryOptions,
   QueryRequestOptions,
   QueryResult,
+  QueryResultResponse,
   ResourceInterface,
   ResourceOptions,
   ResourceResponse,
@@ -31,6 +32,7 @@ import {
   deserializeResource,
   deserializeWarrant,
   deserializeWarrantToken,
+  deserializeQueryResult,
   serializeBatchWriteResourcesOptions,
   serializeCheckBatchOptions,
   serializeCheckOptions,
@@ -44,7 +46,7 @@ import { isResourceInterface } from './utils/interface-check';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FgaPaginatable } from './utils/fga-paginatable';
-import { fetchAndDeserializeQuery } from './utils/fetch-and-deserialize-query';
+import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
 
 export class FGA {
   constructor(private readonly workos: WorkOS) {}
@@ -210,16 +212,18 @@ export class FGA {
     requestOptions: QueryRequestOptions = {},
   ): Promise<FgaPaginatable<QueryResult>> {
     return new FgaPaginatable<QueryResult>(
-      await fetchAndDeserializeQuery(
+      await fetchAndDeserializeFGAList<QueryResultResponse, QueryResult>(
         this.workos,
         '/fga/v1/query',
+        deserializeQueryResult,
         serializeQueryOptions(options),
         requestOptions,
       ),
       (params) =>
-        fetchAndDeserializeQuery(
+        fetchAndDeserializeFGAList<QueryResultResponse, QueryResult>(
           this.workos,
           '/fga/v1/query',
+          deserializeQueryResult,
           params,
           requestOptions,
         ),
