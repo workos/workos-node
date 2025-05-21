@@ -16,9 +16,3 @@ export interface UserManagementAuthorizationURLOptions {
   state?: string;
   screenHint?: 'sign-up' | 'sign-in';
 }
-
-/**
- * @deprecated Use UserManagementAuthorizationURLOptions instead
- */
-export interface AuthorizationURLOptions
-  extends UserManagementAuthorizationURLOptions {}
