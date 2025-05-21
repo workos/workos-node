@@ -17,4 +17,5 @@ export interface SSOAuthorizationURLOptions {
 /**
  * @deprecated Use SSOAuthorizationURLOptions instead
  */
+// tslint:disable-next-line:no-empty-interface
 export interface AuthorizationURLOptions extends SSOAuthorizationURLOptions {}
