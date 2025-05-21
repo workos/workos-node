@@ -233,11 +233,18 @@ export class UserManagement {
     );
   }
 
-  async createUser(payload: CreateUserOptions, requestOptions: CreateUserRequestOptions = {}): Promise<User> {
+  async createUser(
+    payload: CreateUserOptions,
+    requestOptions: CreateUserRequestOptions = {},
+  ): Promise<User> {
     const { data } = await this.workos.post<
       UserResponse,
       SerializedCreateUserOptions
-    >('/user_management/users', serializeCreateUserOptions(payload), requestOptions);
+    >(
+      '/user_management/users',
+      serializeCreateUserOptions(payload),
+      requestOptions,
+    );
 
     return deserializeUser(data);
   }
