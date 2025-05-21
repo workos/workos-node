@@ -1,3 +1,4 @@
+import { PostOptions } from '@workos-inc/node';
 import { PasswordHashType } from './password-hash-type.interface';
 
 export interface CreateUserOptions {
@@ -23,3 +24,6 @@ export interface SerializedCreateUserOptions {
   external_id?: string;
   metadata?: Record<string, string>;
 }
+
+export interface CreateUserRequestOptions
+  extends Pick<PostOptions, 'idempotencyKey'> {}

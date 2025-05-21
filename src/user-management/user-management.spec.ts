@@ -4,6 +4,7 @@ import {
   fetchOnce,
   fetchSearchParams,
   fetchURL,
+  fetchHeaders,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import deactivateOrganizationMembershipsFixture from './fixtures/deactivate-organization-membership.json';
@@ -122,6 +123,36 @@ describe('UserManagement', () => {
   });
 
   describe('createUser', () => {
+    describe('with an idempotency key', () => {
+      it('includes an idempotency key with request', async () => {
+        fetchOnce(userFixture);
+
+        await workos.userManagement.createUser(
+          {
+            email: 'test01@example.com',
+            password: 'extra-secure',
+            firstName: 'Test 01',
+            lastName: 'User',
+            emailVerified: true,
+          },
+          {
+            idempotencyKey: 'the-idempotency-key',
+          },
+        );
+
+        expect(fetchHeaders()).toMatchObject({
+          'Idempotency-Key': 'the-idempotency-key',
+        });
+        expect(fetchBody()).toEqual({
+          email: 'test01@example.com',
+          password: 'extra-secure',
+          first_name: 'Test 01',
+          last_name: 'User',
+          email_verified: true,
+        });
+      });
+    });
+
     it('sends a Create User request', async () => {
       fetchOnce(userFixture);
       const user = await workos.userManagement.createUser({

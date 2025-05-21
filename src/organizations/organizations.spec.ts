@@ -134,7 +134,7 @@ describe('Organizations', () => {
           },
           {
             idempotencyKey: 'the-idempotency-key',
-          },
+          }
         );
 
         expect(fetchHeaders()).toMatchObject({
