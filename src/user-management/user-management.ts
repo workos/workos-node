@@ -4,6 +4,7 @@ import qs from 'qs';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
+import { getEnv } from '../common/utils/env';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
 import { deserializeChallenge } from '../mfa/serializers';
 import {
@@ -425,7 +426,7 @@ export class UserManagement {
 
   async authenticateWithSessionCookie({
     sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+    cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
   }: AuthenticateWithSessionCookieOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
@@ -554,7 +555,7 @@ export class UserManagement {
 
   async getSessionFromCookie({
     sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+    cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
   }: SessionHandlerOptions): Promise<SessionCookieData | undefined> {
     if (!cookiePassword) {
       throw new Error('Cookie password is required');
