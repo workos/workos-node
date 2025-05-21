@@ -1,4 +1,4 @@
-export interface AuthorizationURLOptions {
+export interface UserManagementAuthorizationURLOptions {
   clientId: string;
   codeChallenge?: string;
   codeChallengeMethod?: 'S256';
@@ -16,3 +16,9 @@ export interface AuthorizationURLOptions {
   state?: string;
   screenHint?: 'sign-up' | 'sign-in';
 }
+
+/**
+ * @deprecated Use UserManagementAuthorizationURLOptions instead
+ */
+export interface AuthorizationURLOptions
+  extends UserManagementAuthorizationURLOptions {}
