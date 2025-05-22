@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
+import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
@@ -63,7 +64,7 @@ import {
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
-import { AuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import { UserManagementAuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
 import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
@@ -136,7 +137,6 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { Session } from './session';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
@@ -994,7 +994,7 @@ export class UserManagement {
     redirectUri,
     state,
     screenHint,
-  }: AuthorizationURLOptions): string {
+  }: UserManagementAuthorizationURLOptions): string {
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,

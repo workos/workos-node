@@ -1,4 +1,4 @@
-export interface AuthorizationURLOptions {
+export interface UserManagementAuthorizationURLOptions {
   clientId: string;
   codeChallenge?: string;
   codeChallengeMethod?: 'S256';
