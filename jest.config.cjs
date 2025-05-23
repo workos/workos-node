@@ -12,9 +12,6 @@ module.exports = {
     '^.+\\.m?js$': '<rootDir>/jest-transform-esm.cjs',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(iron-session|uncrypto|cookie-es)/).+\\.m?js$',
+    'node_modules/(?!(iron-session|uncrypto|cookie-es|@noble|@scure|jose)/)',
   ],
-  moduleNameMapper: {
-    '^jose': require.resolve('jose'),
-  },
 };
