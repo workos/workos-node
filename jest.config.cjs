@@ -9,7 +9,7 @@ module.exports = {
   setupFilesAfterEnv: ['./setup-jest.ts'],
   transform: {
     '^.+\\.ts?$': 'ts-jest',
-    '^.+\\.m?js$': '<rootDir>/jest-transform-esm.js',
+    '^.+\\.m?js$': '<rootDir>/jest-transform-esm.cjs',
   },
   transformIgnorePatterns: [
     '/node_modules/(?!(iron-session|uncrypto|cookie-es)/).+\\.m?js$',

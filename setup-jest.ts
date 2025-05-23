@@ -1,5 +1,9 @@
 import { enableFetchMocks } from 'jest-fetch-mock';
+import { webcrypto } from 'crypto';
 
 enableFetchMocks();
 
-// Node 18+ has global crypto available, no polyfill needed
+// Make Node's crypto.webcrypto available as global.crypto for tests
+if (!global.crypto) {
+  global.crypto = webcrypto as unknown as Crypto;
+}
