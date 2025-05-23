@@ -26,6 +26,8 @@ export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
 
+console.log('\n\nYOU ARE RUNNING THE ESM v8 NODE SDK VERSION OF WORKOS\n\n');
+
 class WorkOSNode extends WorkOS {
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {

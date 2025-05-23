@@ -11,10 +11,30 @@ export class SubtleCryptoProvider extends CryptoProvider {
   constructor(subtleCrypto?: SubtleCrypto) {
     super();
 
-    // If no subtle crypto is interface, default to the global namespace. This
-    // is to allow custom interfaces (eg. using the Node webcrypto interface in
-    // tests).
-    this.subtleCrypto = subtleCrypto || crypto.subtle;
+    // If no subtle crypto interface is provided, try to get it from the global crypto object
+    // This handles both browser environments (global crypto) and Node.js (require('crypto'))
+    if (subtleCrypto) {
+      this.subtleCrypto = subtleCrypto;
+    } else {
+      // Check if crypto is available in global scope
+      this.subtleCrypto = this.getGlobalSubtleCrypto();
+    }
+  }
+  
+  private getGlobalSubtleCrypto(): SubtleCrypto {
+    // Check for global crypto object (browser/edge environments)
+    if (typeof globalThis !== 'undefined' && 
+        typeof globalThis.crypto !== 'undefined' && 
+        typeof globalThis.crypto.subtle !== 'undefined') {
+      return globalThis.crypto.subtle;
+    }
+    
+    // If we get here and no SubtleCrypto is available, throw a more helpful error
+    throw new Error(
+      'No SubtleCrypto implementation available. In Node.js environments, you may need to ' +
+      'pass your own implementation. In browser/edge environments, the global crypto.subtle ' +
+      'API should be available.'
+    );
   }
 
   computeHMACSignature(_payload: string, _secret: string): string {
@@ -70,12 +90,12 @@ export class SubtleCryptoProvider extends CryptoProvider {
     }
 
     const algorithm = { name: 'HMAC', hash: 'SHA-256' };
-    const key = (await crypto.subtle.generateKey(algorithm, false, [
+    const key = (await this.subtleCrypto.generateKey(algorithm, false, [
       'sign',
       'verify',
     ])) as CryptoKey;
-    const hmac = await crypto.subtle.sign(algorithm, key, bufferA);
-    const equal = await crypto.subtle.verify(algorithm, key, hmac, bufferB);
+    const hmac = await this.subtleCrypto.sign(algorithm, key, bufferA);
+    const equal = await this.subtleCrypto.verify(algorithm, key, hmac, bufferB);
 
     return equal;
   }
@@ -90,7 +110,7 @@ export class SubtleCryptoProvider extends CryptoProvider {
     iv: Uint8Array;
     tag: Uint8Array;
   }> {
-    const actualIv = iv || crypto.getRandomValues(new Uint8Array(32));
+    const actualIv = iv || this.randomBytes(32);
 
     const cryptoKey = await this.subtleCrypto.importKey(
       'raw',
@@ -170,8 +190,20 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
   randomBytes(length: number): Uint8Array {
     const bytes = new Uint8Array(length);
-    crypto.getRandomValues(bytes);
-    return bytes;
+    
+    // Use globalThis.crypto for getRandomValues if available
+    if (typeof globalThis !== 'undefined' && 
+        typeof globalThis.crypto !== 'undefined' && 
+        typeof globalThis.crypto.getRandomValues === 'function') {
+      globalThis.crypto.getRandomValues(bytes);
+      return bytes;
+    }
+    
+    // If we get here and no secure random implementation is available, throw an error
+    throw new Error(
+      'No secure random number generator available. In browser/edge environments, ' +
+      'crypto.getRandomValues should be available.'
+    );
   }
 }
 

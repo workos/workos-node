@@ -14,6 +14,12 @@ export default defineConfig([
     target: 'es2022',
     platform: 'neutral',
     noExternal: [/.*/], // Bundle all dependencies for runtime compatibility
+    esbuildOptions(options) {
+      // Use worker-compatible versions of modules for edge runtime
+      options.mainFields = ['browser', 'module', 'main']
+      options.conditions = ['worker', 'browser', 'import', 'default']
+      options.platform = 'browser' // This ensures proper polyfills for edge runtime
+    },
   },
   // CJS build for Node.js backward compatibility  
   {

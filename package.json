@@ -74,6 +74,31 @@
   "types": "./lib/index.d.mts",
   "exports": {
     ".": {
+      "workerd": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "worker": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "edge-light": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "browser": {
+        "types": "./lib/index.worker.d.mts",
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/cjs/index.worker.js"
+      },
+      "node": {
+        "types": "./lib/index.d.mts",
+        "import": "./lib/index.mjs",
+        "require": "./lib/cjs/index.js"
+      },
       "types": "./lib/index.d.mts",
       "import": "./lib/index.mjs",
       "require": "./lib/cjs/index.js"
