@@ -6,6 +6,7 @@ export interface OrganizationMembership {
   object: 'organization_membership';
   id: string;
   organizationId: string;
+  organizationName: string;
   status: OrganizationMembershipStatus;
   userId: string;
   createdAt: string;
@@ -17,6 +18,7 @@ export interface OrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
   organization_id: string;
+  organization_name: string;
   status: OrganizationMembershipStatus;
   user_id: string;
   created_at: string;

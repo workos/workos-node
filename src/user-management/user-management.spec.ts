@@ -1511,6 +1511,7 @@ describe('UserManagement', () => {
           {
             object: 'organization_membership',
             organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            organizationName: 'Example Organization',
             userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             status: 'active',
           },
