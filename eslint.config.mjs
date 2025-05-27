@@ -34,6 +34,19 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.cjs'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        module: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        exports: 'readonly',
+        process: 'readonly',
+      },
+    },
+  },
+  {
     files: tests,
     extends: [jestPlugin.configs['flat/recommended']],
     rules: {
@@ -43,6 +56,7 @@ export default tseslint.config(
       'jest/no-disabled-tests': 'off',
       'jest/no-conditional-expect': 'off',
       'jest/valid-expect': 'off',
+      'jest/expect-expect': 'off',
     },
   },
 );
