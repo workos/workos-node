@@ -873,6 +873,16 @@ describe('UserManagement', () => {
   });
 
   describe('authenticateWithSessionCookie', () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+      process.env = { ...OLD_ENV };
+      delete process.env.WORKOS_COOKIE_PASSWORD;
+    });
+
+    afterEach(() => {
+      process.env = OLD_ENV;
+    });
     beforeEach(() => {
       // Mock createRemoteJWKSet
       jest
@@ -1031,6 +1041,16 @@ describe('UserManagement', () => {
   });
 
   describe('getSessionFromCookie', () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+      process.env = { ...OLD_ENV };
+      delete process.env.WORKOS_COOKIE_PASSWORD;
+    });
+
+    afterEach(() => {
+      process.env = OLD_ENV;
+    });
     it('throws an error when the cookie password is undefined', async () => {
       await expect(
         workos.userManagement.getSessionFromCookie({
