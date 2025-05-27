@@ -1,3 +1,4 @@
+/* eslint-env node */
 module.exports = {
   clearMocks: true,
   resetMocks: true,
@@ -9,12 +10,9 @@ module.exports = {
   setupFilesAfterEnv: ['./setup-jest.ts'],
   transform: {
     '^.+\\.ts?$': 'ts-jest',
-    '^.+\\.m?js$': '<rootDir>/jest-transform-esm.js',
+    '^.+\\.m?js$': '<rootDir>/jest-transform-esm.cjs',
   },
   transformIgnorePatterns: [
-    '/node_modules/(?!(iron-session|uncrypto|cookie-es)/).+\\.m?js$',
+    'node_modules/(?!(iron-session|uncrypto|cookie-es|@noble|@scure|jose)/)',
   ],
-  moduleNameMapper: {
-    '^jose': require.resolve('jose'),
-  },
 };
