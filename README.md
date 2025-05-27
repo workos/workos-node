@@ -11,14 +11,14 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 
 ## Requirements
 
-Node 16 or higher.
+Node 18 or higher.
 
 ## Installation
 
 Install the package with:
 
 ```
-npm i @workos-inc/node
+npm install @workos-inc/node
 ```
 
 ## Configuration
