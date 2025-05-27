@@ -1,7 +1,8 @@
+import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
-  AuthorizationURLOptions,
   Connection,
   ConnectionResponse,
   GetProfileAndTokenOptions,
@@ -11,6 +12,7 @@ import {
   ProfileAndToken,
   ProfileAndTokenResponse,
   ProfileResponse,
+  SSOAuthorizationURLOptions,
 } from './interfaces';
 import {
   deserializeConnection,
@@ -18,8 +20,6 @@ import {
   deserializeProfileAndToken,
   serializeListConnectionsOptions,
 } from './serializers';
-import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 
 const toQueryString = (options: Record<string, string | undefined>): string => {
   const searchParams = new URLSearchParams();
@@ -73,7 +73,7 @@ export class SSO {
     provider,
     redirectUri,
     state,
-  }: AuthorizationURLOptions): string {
+  }: SSOAuthorizationURLOptions): string {
     if (!domain && !provider && !connection && !organization) {
       throw new Error(
         `Incomplete arguments. Need to specify either a 'connection', 'organization', 'domain', or 'provider'.`,
