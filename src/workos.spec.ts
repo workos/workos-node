@@ -32,6 +32,7 @@ describe('WorkOS', () => {
 
     describe('when no API key is provided', () => {
       it('throws a NoApiKeyFoundException error', async () => {
+        delete process.env.WORKOS_API_KEY;
         expect(() => new WorkOS()).toThrowError(NoApiKeyProvidedException);
       });
     });
