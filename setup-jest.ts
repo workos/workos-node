@@ -1,9 +1,9 @@
 import { enableFetchMocks } from 'jest-fetch-mock';
-import { Crypto } from '@peculiar/webcrypto';
+import { webcrypto } from 'crypto';
 
 enableFetchMocks();
 
-// Assign Node's Crypto to global.crypto if it is not already present
+// Make Node's crypto.webcrypto available as global.crypto for tests
 if (!global.crypto) {
-  global.crypto = new Crypto();
+  global.crypto = webcrypto as unknown as Crypto;
 }
