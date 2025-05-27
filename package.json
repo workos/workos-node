@@ -11,9 +11,13 @@
   "engines": {
     "node": ">=18"
   },
-  "typings": "lib/index.d.ts",
+  "type": "module",
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "files": [
-    "lib/"
+    "lib/",
+    "package.json"
   ],
   "repository": {
     "type": "git",
@@ -24,7 +28,8 @@
   },
   "scripts": {
     "clean": "rm -rf lib",
-    "build": "tsc -p .",
+    "build": "tsup",
+    "build:watch": "tsup --watch",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -45,7 +50,6 @@
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
     "@eslint/js": "^9.21.0",
-    "@peculiar/webcrypto": "^1.4.5",
     "@types/cookie": "^0.6.0",
     "@types/jest": "^29.5.14",
     "@types/node": "~18",
@@ -62,22 +66,31 @@
     "prettier": "^3.5.3",
     "supertest": "7.1.0",
     "ts-jest": "29.3.1",
+    "tsup": "^8.5.0",
     "typescript": "5.8.2",
     "typescript-eslint": "^8.25.0"
   },
   "exports": {
-    "types": "./lib/index.d.ts",
-    "workerd": {
-      "import": "./lib/index.worker.js",
-      "default": "./lib/index.worker.js"
-    },
-    "edge-light": {
-      "import": "./lib/index.worker.js",
-      "default": "./lib/index.worker.js"
-    },
-    "default": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "workerd": {
+        "import": "./lib/index.worker.js",
+        "require": "./lib/index.worker.cjs"
+      },
+      "edge-light": {
+        "import": "./lib/index.worker.js",
+        "require": "./lib/index.worker.cjs"
+      },
       "import": "./lib/index.js",
+      "require": "./lib/index.cjs",
       "default": "./lib/index.js"
-    }
+    },
+    "./worker": {
+      "types": "./lib/index.worker.d.ts",
+      "import": "./lib/index.worker.js",
+      "require": "./lib/index.worker.cjs",
+      "default": "./lib/index.worker.js"
+    },
+    "./package.json": "./package.json"
   }
 }
