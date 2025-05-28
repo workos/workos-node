@@ -139,14 +139,22 @@ import { serializeUpdateOrganizationMembershipOptions } from './serializers/upda
 import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { Session } from './session';
 
-const toQueryString = (options: Record<string, string | undefined>): string => {
+const toQueryString = (
+  options: Record<string, string | string[] | undefined>,
+): string => {
   const searchParams = new URLSearchParams();
   const keys = Object.keys(options).sort();
 
   for (const key of keys) {
     const value = options[key];
 
-    if (value) {
+    if (Array.isArray(value)) {
+      value.forEach((item) => {
+        searchParams.append(key, item);
+      });
+    }
+
+    if (typeof value === 'string') {
       searchParams.append(key, value);
     }
   }
@@ -991,6 +999,7 @@ export class UserManagement {
     loginHint,
     organizationId,
     provider,
+    providerScopes,
     redirectUri,
     state,
     screenHint,
@@ -1023,6 +1032,7 @@ export class UserManagement {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
+      provider_scopes: providerScopes,
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: 'code',

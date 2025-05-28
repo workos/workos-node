@@ -1903,6 +1903,24 @@ describe('UserManagement', () => {
 
         expect(url).toMatchSnapshot();
       });
+
+      describe('with providerScopes', () => {
+        it('generates an authorize url that includes the specified scopes', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.userManagement.getAuthorizationUrl({
+            provider: 'Google',
+            providerScopes: [
+              'https://www.googleapis.com/auth/calendar',
+              'https://www.googleapis.com/auth/admin.directory.group',
+            ],
+            clientId: 'proj_123',
+            redirectUri: 'example.com/auth/workos/callback',
+          });
+
+          expect(url).toMatchSnapshot();
+        });
+      });
     });
 
     describe('with a connectionId', () => {
@@ -1916,6 +1934,21 @@ describe('UserManagement', () => {
         });
 
         expect(url).toMatchSnapshot();
+      });
+
+      describe('with providerScopes', () => {
+        it('generates an authorize url that includes the specified scopes', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.userManagement.getAuthorizationUrl({
+            connectionId: 'connection_123',
+            providerScopes: ['read_api', 'read_repository'],
+            clientId: 'proj_123',
+            redirectUri: 'example.com/auth/workos/callback',
+          });
+
+          expect(url).toMatchSnapshot();
+        });
       });
     });
 
