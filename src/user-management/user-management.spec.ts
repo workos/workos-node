@@ -1868,7 +1868,7 @@ describe('UserManagement', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         const url = workos.userManagement.getAuthorizationUrl({
-          provider: 'Google',
+          provider: 'GoogleOAuth',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
         });
@@ -1896,7 +1896,7 @@ describe('UserManagement', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
         const url = workos.userManagement.getAuthorizationUrl({
-          provider: 'Google',
+          provider: 'GoogleOAuth',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
         });
@@ -1909,7 +1909,7 @@ describe('UserManagement', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.userManagement.getAuthorizationUrl({
-            provider: 'Google',
+            provider: 'GoogleOAuth',
             providerScopes: [
               'https://www.googleapis.com/auth/calendar',
               'https://www.googleapis.com/auth/admin.directory.group',
