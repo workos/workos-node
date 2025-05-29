@@ -12,6 +12,7 @@ export interface UserManagementAuthorizationURLOptions {
   domainHint?: string;
   loginHint?: string;
   provider?: string;
+  providerScopes?: string[];
   redirectUri: string;
   state?: string;
   screenHint?: 'sign-up' | 'sign-in';
