@@ -150,7 +150,7 @@ npm run prepare
 # that uses the local path to the action
 ```
 
-Additionally, this can be tested using [`act`](https://github.com/nektos/act);
+Additionally, this can be tested using [`act`](https://github.com/nektos/act):
 ```bash
 #!/usr/bin/env bash
 
@@ -174,6 +174,35 @@ act workflow_dispatch \
 # 2. Split the translation process into smaller steps
 # 3. Build a better mapping between repositories
 # 4. Would you like me to help with implementing any specific part of this solution?
+```
+
+A test event looks like this:
+
+```json
+{
+  "event_type": "workflow_dispatch",
+  "inputs": {
+    "pr_number": "1273",
+    "debug_mode": "false",
+    "target_repos": "workos/workos-ruby,workos/workos-python"
+  },
+  "repository": {
+    "name": "workos-node",
+    "owner": {
+      "login": "workos"
+    },
+    "full_name": "workos/workos-node"
+  },
+  "pull_request": {
+    "number": 1273,
+    "head": {
+      "ref": "some-branch-name"
+    },
+    "base": {
+      "ref": "main"
+    }
+  }
+}
 ```
 
 ## Translation Examples
