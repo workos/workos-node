@@ -18,6 +18,7 @@ export * from './create-user-options.interface';
 export * from './email-verification.interface';
 export * from './enroll-auth-factor.interface';
 export * from './factor.interface';
+export * from './identity.interface';
 export * from './impersonator.interface';
 export * from './invitation.interface';
 export * from './list-auth-factors-options.interface';
