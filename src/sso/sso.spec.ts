@@ -306,8 +306,8 @@ describe('SSO', () => {
           const normalizedHeaders = {
             ...headers,
             'User-Agent': headers['User-Agent']
-              .replace(/workos-node\/[^\s\/]+/, 'workos-node/VERSION')
-              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)')
+              .replace(/workos-node\/[^\s/]+/, 'workos-node/VERSION')
+              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)'),
           };
           expect(normalizedHeaders).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
@@ -353,8 +353,8 @@ describe('SSO', () => {
           const normalizedHeaders = {
             ...headers,
             'User-Agent': headers['User-Agent']
-              .replace(/workos-node\/[^\s\/]+/, 'workos-node/VERSION')
-              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)')
+              .replace(/workos-node\/[^\s/]+/, 'workos-node/VERSION')
+              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)'),
           };
           expect(normalizedHeaders).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
