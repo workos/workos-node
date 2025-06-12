@@ -11,6 +11,7 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "target": "es6",
+    "noImplicitAny": true,
     "module": "commonjs",
     "declaration": true,
     "outDir": "lib",
@@ -20,3 +21,4 @@
   },
   "include": ["src"]
 }
+
