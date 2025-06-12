@@ -42,7 +42,7 @@ import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 
-const VERSION = '8.0.0-beta.1';
+const VERSION = '8.0.0-beta.2';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
