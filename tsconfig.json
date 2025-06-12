@@ -5,18 +5,19 @@
     "alwaysStrict": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "resolveJsonModule": true,
-    "target": "es6",
-    "module": "commonjs",
+    "target": "es2022",
+    "module": "esnext",
     "declaration": true,
     "outDir": "lib",
     "strict": true,
     "lib": ["dom", "es2022"],
-    "types": ["jest", "jest-environment-miniflare/globals"]
+    "types": ["jest", "jest-environment-miniflare/globals"],
+    "noImplicitAny": true
   },
   "include": ["src"]
 }
