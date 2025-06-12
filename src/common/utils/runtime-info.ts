@@ -1,5 +1,24 @@
 import { detectRuntime } from './env';
 
+// Extend globalThis to include runtime-specific globals
+declare global {
+  // eslint-disable-next-line no-var
+  var Deno:
+    | {
+        version: {
+          deno: string;
+        };
+      }
+    | undefined;
+
+  // eslint-disable-next-line no-var
+  var Bun:
+    | {
+        version: string;
+      }
+    | undefined;
+}
+
 export interface RuntimeInfo {
   name: string;
   version?: string;
@@ -23,12 +42,11 @@ export function getRuntimeInfo(): RuntimeInfo {
 
       case 'deno':
         // Deno.version.deno returns just version number (e.g., "1.36.4")
-        version = (globalThis as any).Deno?.version?.deno;
+        version = globalThis.Deno?.version?.deno;
         break;
 
       case 'bun':
-        version =
-          (globalThis as any).Bun?.version || extractBunVersionFromUserAgent();
+        version = globalThis.Bun?.version || extractBunVersionFromUserAgent();
         break;
 
       // These environments typically don't expose version info
