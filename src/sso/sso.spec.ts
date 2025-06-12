@@ -302,7 +302,12 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+          const headers = fetchHeaders() as Record<string, string>;
+          const normalizedHeaders = {
+            ...headers,
+            'User-Agent': headers['User-Agent'].replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)')
+          };
+          expect(normalizedHeaders).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -342,7 +347,12 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+          const headers = fetchHeaders() as Record<string, string>;
+          const normalizedHeaders = {
+            ...headers,
+            'User-Agent': headers['User-Agent'].replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)')
+          };
+          expect(normalizedHeaders).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
