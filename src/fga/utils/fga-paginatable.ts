@@ -3,7 +3,10 @@ import { FGAList } from '../interfaces/list.interface';
 import { Warning } from '../interfaces/warning.interface';
 import { PaginationOptions } from '../../common/interfaces';
 
-export class FgaPaginatable<T, P extends PaginationOptions = PaginationOptions> extends AutoPaginatable<T, P> {
+export class FgaPaginatable<
+  T,
+  P extends PaginationOptions = PaginationOptions,
+> extends AutoPaginatable<T, P> {
   protected override list: FGAList<T>;
 
   constructor(
