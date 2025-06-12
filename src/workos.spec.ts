@@ -14,6 +14,13 @@ import { RateLimitExceededException } from './common/exceptions/rate-limit-excee
 import { FetchHttpClient } from './common/net/fetch-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
+jest.mock('./common/utils/runtime-info', () => ({
+  getRuntimeInfo: () => ({
+    name: 'node',
+    version: 'v18.20.7',
+  }),
+}));
+
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
 
@@ -114,7 +121,7 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', {});
 
         expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch fooApp: 1.0.0`,
+          'User-Agent': `workos-node/${packageJson.version}/fetch (node/v18.20.7) fooApp: 1.0.0`,
         });
       });
     });
@@ -132,7 +139,7 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', {});
 
         expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+          'User-Agent': `workos-node/${packageJson.version}/fetch (node/v18.20.7)`,
         });
       });
     });
@@ -150,7 +157,7 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', {});
 
         expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch`,
+          'User-Agent': `workos-node/${packageJson.version}/fetch (node/v18.20.7)`,
         });
       });
     });

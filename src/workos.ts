@@ -114,16 +114,12 @@ export class WorkOS {
   private createUserAgent(options: WorkOSOptions): string {
     let userAgent: string = `workos-node/${VERSION}`;
 
+    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
+    userAgent += ` (${runtimeName}${runtimeVersion ? `/${runtimeVersion}` : ''})`;
+
     if (options.appInfo) {
       const { name, version } = options.appInfo;
       userAgent += ` ${name}: ${version}`;
-    }
-
-    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
-    userAgent += ` ${runtimeName}`;
-
-    if (runtimeVersion) {
-      userAgent += `/${runtimeVersion}`;
     }
 
     return userAgent;

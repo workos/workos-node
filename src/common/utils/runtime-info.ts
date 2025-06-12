@@ -27,7 +27,8 @@ export function getRuntimeInfo(): RuntimeInfo {
         break;
 
       case 'bun':
-        version = globalThis.Bun?.version || extractBunVersionFromUserAgent();
+        version =
+          (globalThis as any).Bun?.version || extractBunVersionFromUserAgent();
         break;
 
       // These environments typically don't expose version info
