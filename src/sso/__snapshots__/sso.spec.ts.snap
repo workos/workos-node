@@ -23,7 +23,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/8.0.0-beta.1/fetch",
+  "User-Agent": "workos-node/8.0.0-beta.2/fetch",
 }
 `;
 
@@ -67,11 +67,9 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-<<<<<<< HEAD
   "User-Agent": "workos-node/7.69.1/fetch",
-=======
   "User-Agent": "workos-node/8.0.0-beta.1/fetch",
->>>>>>> 9791f97 (v8.0.0-beta.1)
+  "User-Agent": "workos-node/8.0.0-beta.2/fetch",
 }
 `;
 
