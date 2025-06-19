@@ -161,6 +161,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeRoleEvent(event.data),
       };
     case 'session.created':
+    case 'session.revoked':
       return {
         ...eventBase,
         event: event.event,
