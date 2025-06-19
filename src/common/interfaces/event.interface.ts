@@ -674,6 +674,7 @@ export type EventResponse =
   | RoleDeletedEventResponse
   | RoleUpdatedEventResponse
   | SessionCreatedEventResponse
+  | SessionRevokedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
   | OrganizationDeletedResponse
