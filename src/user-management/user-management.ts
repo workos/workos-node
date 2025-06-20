@@ -455,6 +455,7 @@ export class UserManagement {
       role,
       permissions,
       entitlements,
+      feature_flags: featureFlags,
     } = decodeJwt<AccessToken>(session.accessToken);
 
     return {
@@ -465,6 +466,7 @@ export class UserManagement {
       user: session.user,
       permissions,
       entitlements,
+      featureFlags,
       accessToken: session.accessToken,
     };
   }
