@@ -97,6 +97,7 @@ export class Session {
       role,
       permissions,
       entitlements,
+      feature_flags: featureFlags,
     } = decodeJwt<AccessToken>(session.accessToken);
 
     return {
@@ -106,6 +107,7 @@ export class Session {
       role,
       permissions,
       entitlements,
+      featureFlags,
       user: session.user,
       impersonator: session.impersonator,
       accessToken: session.accessToken,
@@ -169,6 +171,7 @@ export class Session {
         role,
         permissions,
         entitlements,
+        feature_flags: featureFlags,
       } = decodeJwt<AccessToken>(authenticationResponse.accessToken);
 
       // TODO: Returning `session` here means there's some duplicated data.
@@ -182,6 +185,7 @@ export class Session {
         role,
         permissions,
         entitlements,
+        featureFlags,
         user: session.user,
         impersonator: session.impersonator,
       };
