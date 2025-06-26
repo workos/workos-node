@@ -465,6 +465,104 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('authenticateWithCodeAndVerifier', () => {
+    it('sends a token authentication request with required code_verifier', async () => {
+      fetchOnce({ user: userFixture });
+      const resp = await workos.userManagement.authenticateWithCodeAndVerifier({
+        clientId: 'proj_whatever',
+        code: 'auth_code_123',
+        codeVerifier: 'required_code_verifier',
+      });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        code: 'auth_code_123',
+        code_verifier: 'required_code_verifier',
+        grant_type: 'authorization_code',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+
+    it('sends a token authentication request with invitation token', async () => {
+      fetchOnce({ user: userFixture });
+      const resp = await workos.userManagement.authenticateWithCodeAndVerifier({
+        clientId: 'proj_whatever',
+        code: 'auth_code_123',
+        codeVerifier: 'required_code_verifier',
+        invitationToken: 'invitation_123',
+      });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        code: 'auth_code_123',
+        code_verifier: 'required_code_verifier',
+        invitation_token: 'invitation_123',
+        grant_type: 'authorization_code',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithCodeAndVerifier({
+              clientId: 'proj_whatever',
+              code: 'auth_code_123',
+              codeVerifier: 'required_code_verifier',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response = await workos.userManagement.authenticateWithCodeAndVerifier({
+            clientId: 'proj_whatever',
+            code: 'auth_code_123',
+            codeVerifier: 'required_code_verifier',
+            session: { sealSession: true, cookiePassword },
+          });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: expect.any(String),
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
+  });
+
   describe('authenticateWithRefreshToken', () => {
     it('sends a refresh_token authentication request', async () => {
       fetchOnce({

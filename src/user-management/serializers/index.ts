@@ -1,4 +1,5 @@
 export * from './authenticate-with-code-options.serializer';
+export * from './authenticate-with-code-and-verifier-options.serializer';
 export * from './authenticate-with-magic-auth-options.serializer';
 export * from './authenticate-with-password-options.serializer';
 export * from './authenticate-with-refresh-token.options.serializer';
