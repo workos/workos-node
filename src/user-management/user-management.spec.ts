@@ -540,12 +540,13 @@ describe('UserManagement', () => {
         it('returns the sealed session data', async () => {
           const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
-          const response = await workos.userManagement.authenticateWithCodeAndVerifier({
-            clientId: 'proj_whatever',
-            code: 'auth_code_123',
-            codeVerifier: 'required_code_verifier',
-            session: { sealSession: true, cookiePassword },
-          });
+          const response =
+            await workos.userManagement.authenticateWithCodeAndVerifier({
+              clientId: 'proj_whatever',
+              code: 'auth_code_123',
+              codeVerifier: 'required_code_verifier',
+              session: { sealSession: true, cookiePassword },
+            });
 
           expect(response).toEqual({
             sealedSession: expect.any(String),

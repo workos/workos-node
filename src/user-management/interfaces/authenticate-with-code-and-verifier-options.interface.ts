@@ -21,4 +21,3 @@ export interface SerializedAuthenticateWithCodeAndVerifierOptions
   code: string;
   invitation_token?: string;
 }
-
