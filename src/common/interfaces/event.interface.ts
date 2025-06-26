@@ -549,6 +549,16 @@ export interface SessionCreatedEventResponse extends EventResponseBase {
   data: SessionResponse;
 }
 
+export interface SessionRevokedEvent extends EventBase {
+  event: 'session.revoked';
+  data: Session;
+}
+
+export interface SessionRevokedEventResponse extends EventResponseBase {
+  event: 'session.revoked';
+  data: SessionResponse;
+}
+
 export interface OrganizationDomainVerifiedEvent extends EventBase {
   event: 'organization_domain.verified';
   data: OrganizationDomain;
@@ -614,6 +624,7 @@ export type Event =
   | RoleDeletedEvent
   | RoleUpdatedEvent
   | SessionCreatedEvent
+  | SessionRevokedEvent
   | OrganizationCreatedEvent
   | OrganizationUpdatedEvent
   | OrganizationDeletedEvent
@@ -663,6 +674,7 @@ export type EventResponse =
   | RoleDeletedEventResponse
   | RoleUpdatedEventResponse
   | SessionCreatedEventResponse
+  | SessionRevokedEventResponse
   | OrganizationCreatedResponse
   | OrganizationUpdatedResponse
   | OrganizationDeletedResponse
