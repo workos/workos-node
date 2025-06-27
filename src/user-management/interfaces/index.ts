@@ -1,4 +1,5 @@
 export * from './authenticate-with-code-options.interface';
+export * from './authenticate-with-code-and-verifier-options.interface';
 export * from './authenticate-with-email-verification-options.interface';
 export * from './authenticate-with-magic-auth-options.interface';
 export * from './authenticate-with-options-base.interface';

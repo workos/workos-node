@@ -16,3 +16,9 @@ export interface SerializedAuthenticateWithOptionsBase {
   ip_address?: string;
   user_agent?: string;
 }
+
+export interface SerializedAuthenticateWithPKCEBase {
+  client_id: string;
+  ip_address?: string;
+  user_agent?: string;
+}

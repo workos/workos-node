@@ -8,6 +8,7 @@ import { deserializeChallenge } from '../mfa/serializers';
 import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeOptions,
+  AuthenticateWithCodeAndVerifierOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
   AuthenticateWithRefreshTokenOptions,
@@ -32,6 +33,7 @@ import {
   SendPasswordResetEmailOptions,
   SendVerificationEmailOptions,
   SerializedAuthenticateWithCodeOptions,
+  SerializedAuthenticateWithCodeAndVerifierOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
@@ -112,6 +114,7 @@ import {
   deserializePasswordReset,
   deserializeUser,
   serializeAuthenticateWithCodeOptions,
+  serializeAuthenticateWithCodeAndVerifierOptions,
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithRefreshTokenOptions,
@@ -307,6 +310,25 @@ export class UserManagement {
         ...remainingPayload,
         clientSecret: this.workos.key,
       }),
+    );
+
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
+  }
+
+  async authenticateWithCodeAndVerifier(
+    payload: AuthenticateWithCodeAndVerifierOptions,
+  ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      SerializedAuthenticateWithCodeAndVerifierOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithCodeAndVerifierOptions(remainingPayload),
     );
 
     return this.prepareAuthenticationResponse({
