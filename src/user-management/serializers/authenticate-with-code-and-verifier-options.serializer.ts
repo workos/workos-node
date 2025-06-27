@@ -1,12 +1,10 @@
 import {
-  AuthenticateUserWithPKCECredentials,
   AuthenticateWithCodeAndVerifierOptions,
   SerializedAuthenticateWithCodeAndVerifierOptions,
 } from '../interfaces';
 
 export const serializeAuthenticateWithCodeAndVerifierOptions = (
-  options: AuthenticateWithCodeAndVerifierOptions &
-    AuthenticateUserWithPKCECredentials,
+  options: AuthenticateWithCodeAndVerifierOptions,
 ): SerializedAuthenticateWithCodeAndVerifierOptions => ({
   grant_type: 'authorization_code',
   client_id: options.clientId,

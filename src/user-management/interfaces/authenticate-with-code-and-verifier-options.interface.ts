@@ -10,10 +10,6 @@ export interface AuthenticateWithCodeAndVerifierOptions
   invitationToken?: string;
 }
 
-export interface AuthenticateUserWithPKCECredentials {
-  clientId: string;
-}
-
 export interface SerializedAuthenticateWithCodeAndVerifierOptions
   extends SerializedAuthenticateWithPKCEBase {
   grant_type: 'authorization_code';
