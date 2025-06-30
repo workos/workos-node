@@ -21,6 +21,8 @@ export interface OrganizationDomain {
   state: OrganizationDomainState;
   verificationToken?: string;
   verificationStrategy: OrganizationDomainVerificationStrategy;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface OrganizationDomainResponse {
@@ -31,4 +33,6 @@ export interface OrganizationDomainResponse {
   state: OrganizationDomainState;
   verification_token?: string;
   verification_strategy: OrganizationDomainVerificationStrategy;
+  created_at: string;
+  updated_at: string;
 }
