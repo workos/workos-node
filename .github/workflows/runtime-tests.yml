@@ -80,7 +80,7 @@ jobs:
           node -e "import('./lib/esm/index.js').then(m => console.log('✅ Node ESM:', m.WorkOS.name))"
 
           # Deno
-          deno run --allow-read -e "import('./lib/esm/index.js').then(m => console.log('✅ Deno:', m.WorkOS.name))"
+          deno eval "import('./lib/esm/index.js').then(m => console.log('✅ Deno:', m.WorkOS.name))"
 
           # Bun
           bun -e "console.log('✅ Bun:', require('./lib/cjs/index.cjs').WorkOS.name)"
