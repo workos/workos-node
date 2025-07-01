@@ -84,7 +84,7 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/esm/index.d.ts",
+      "types": "./lib/index.d.ts",
       "workerd": {
         "import": "./lib/esm/index.worker.js",
         "require": "./lib/cjs/index.worker.cjs"
@@ -93,12 +93,24 @@
         "import": "./lib/esm/index.worker.js",
         "require": "./lib/cjs/index.worker.cjs"
       },
+      "deno": "./lib/esm/index.js",
+      "bun": {
+        "import": "./lib/esm/index.js",
+        "require": "./lib/cjs/index.cjs"
+      },
+      "node": {
+        "import": "./lib/esm/index.js",
+        "require": "./lib/cjs/index.cjs"
+      },
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.cjs",
       "default": "./lib/esm/index.js"
     },
     "./worker": {
-      "types": "./lib/esm/index.worker.d.ts",
+      "types": {
+        "require": "./lib/cjs/index.worker.d.cts",
+        "import": "./lib/esm/index.worker.d.ts"
+      },
       "import": "./lib/esm/index.worker.js",
       "require": "./lib/cjs/index.worker.cjs",
       "default": "./lib/esm/index.worker.js"

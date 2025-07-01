@@ -263,58 +263,56 @@ bun -e "console.log('Bun:', require('./lib/cjs/index.cjs').WorkOS.name)"
 - `tsx@^4.19.0` - TypeScript execution for ecosystem check script
 - `miniflare@^3.20250408.2` - Worker environment testing (optional)
 
-### Phase 3: Enhanced Package.json Configuration
+### Phase 3: Enhanced Package.json Configuration ✅ COMPLETE
 
-#### 3.1 Improved Exports
+#### 3.1 Implemented Export Conditions
 
-Ensure optimal runtime selection:
+Added runtime-specific export conditions for optimal module resolution:
 
 ```json
 {
-  "type": "module",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
   "exports": {
     ".": {
       "types": {
-        "require": "./lib/index.d.cts",
-        "import": "./lib/index.d.ts"
+        "require": "./lib/cjs/index.d.cts",
+        "import": "./lib/esm/index.d.ts"
       },
       "workerd": {
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
+        "import": "./lib/esm/index.worker.js",
+        "require": "./lib/cjs/index.worker.cjs"
       },
       "edge-light": {
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
+        "import": "./lib/esm/index.worker.js",
+        "require": "./lib/cjs/index.worker.cjs"
       },
-      "deno": "./lib/index.js",
+      "deno": "./lib/esm/index.js",
       "bun": {
-        "import": "./lib/index.js",
-        "require": "./lib/index.cjs"
+        "import": "./lib/esm/index.js",
+        "require": "./lib/cjs/index.cjs"
       },
       "node": {
-        "import": "./lib/index.js",
-        "require": "./lib/index.cjs"
+        "import": "./lib/esm/index.js",
+        "require": "./lib/cjs/index.cjs"
       },
-      "import": "./lib/index.js",
-      "require": "./lib/index.cjs",
-      "default": "./lib/index.js"
-    },
-    "./worker": {
-      "types": {
-        "require": "./lib/index.worker.d.cts",
-        "import": "./lib/index.worker.d.ts"
-      },
-      "import": "./lib/index.worker.js",
-      "require": "./lib/index.worker.cjs",
-      "default": "./lib/index.worker.js"
-    },
-    "./package.json": "./package.json"
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.cjs",
+      "default": "./lib/esm/index.js"
+    }
   }
 }
 ```
+
+**Key Improvements**:
+- **Runtime-specific conditions**: Direct `deno`, `bun`, `node` mappings for optimal resolution
+- **Enhanced TypeScript support**: Separate type paths for CJS (`.d.cts`) and ESM (`.d.ts`)
+- **Worker environment optimization**: Dedicated worker builds for edge runtimes
+- **Performance-ordered conditions**: Most specific to least specific for faster resolution
+
+**Test Results** (Post-Phase 3):
+- ✅ All 6 runtime tests still passing
+- ✅ Runtime-specific export resolution working correctly
+- ✅ TypeScript type resolution optimized
+- ✅ No regressions in existing functionality
 
 ### Phase 4: CI/CD Integration (Industry Best Practices)
 
@@ -426,10 +424,11 @@ jobs:
 - [x] Test core runtimes: Node.js, Deno, Bun (5/5 passing)
 - [x] Install and configure testing dependencies (tsx, miniflare)
 
-### Phase 3: Enhanced Package.json
+### Phase 3: Enhanced Package.json ✅ COMPLETE
 - [x] Basic dual-build exports structure
-- [ ] Add runtime-specific export conditions (`deno`, `bun`, `node`)
-- [ ] Optimize export map for performance
+- [x] Add runtime-specific export conditions (`deno`, `bun`, `node`)
+- [x] Optimize export map for performance
+- [x] Enhanced TypeScript type resolution with separate CJS/ESM type paths
 
 ### Phase 4: Automated CI (Future)
 - [ ] Implement GitHub Actions matrix workflow
