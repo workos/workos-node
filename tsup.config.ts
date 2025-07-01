@@ -53,11 +53,17 @@ export default defineConfig([
     target: 'es2022',
     sourcemap: true,
     clean: false, // Don't clean, keep ESM files
-    dts: false, // Only generate types once (in ESM build)
+    dts: { 
+      resolve: true,
+      compilerOptions: {
+        lib: ['dom', 'es2022'],
+        types: ['node'],
+      },
+    },
     bundle: false,
     external: ['iron-session', 'jose', 'leb', 'pluralize'],
     outExtension() {
-      return { js: '.cjs' };
+      return { js: '.cjs', dts: '.d.cts' };
     },
     esbuildOptions(options) {
       options.keepNames = true;

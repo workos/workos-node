@@ -80,7 +80,10 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
+      "types": {
+        "require": "./lib/cjs/index.d.cts",
+        "import": "./lib/esm/index.d.ts"
+      },
       "workerd": {
         "import": "./lib/esm/index.worker.js",
         "require": "./lib/cjs/index.worker.cjs"
