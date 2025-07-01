@@ -16,9 +16,9 @@
     "node": ">=18"
   },
   "type": "module",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./lib/cjs/index.cjs",
+  "module": "./lib/esm/index.js",
+  "types": "./lib/esm/index.d.ts",
   "files": [
     "lib/",
     "package.json"
@@ -54,14 +54,17 @@
     "@babel/preset-typescript": "^7.27.0",
     "@eslint/js": "^9.21.0",
     "@types/cookie": "^0.6.0",
+    "@types/glob": "^8.1.0",
     "@types/jest": "^29.5.14",
     "@types/node": "~18",
     "@types/pluralize": "0.0.33",
     "@typescript-eslint/parser": "^8.25.0",
     "babel-jest": "^29.7.0",
+    "esbuild-fix-imports-plugin": "^1.0.21",
     "eslint": "^9.21.0",
     "eslint-plugin-jest": "^28.11.0",
     "eslint-plugin-n": "^17.15.1",
+    "glob": "^11.0.3",
     "jest": "29.7.0",
     "jest-environment-miniflare": "^2.14.2",
     "jest-fetch-mock": "^3.0.3",
@@ -75,24 +78,24 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
+      "types": "./lib/esm/index.d.ts",
       "workerd": {
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
+        "import": "./lib/esm/index.worker.js",
+        "require": "./lib/cjs/index.worker.cjs"
       },
       "edge-light": {
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
+        "import": "./lib/esm/index.worker.js",
+        "require": "./lib/cjs/index.worker.cjs"
       },
-      "import": "./lib/index.js",
-      "require": "./lib/index.cjs",
-      "default": "./lib/index.js"
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.cjs",
+      "default": "./lib/esm/index.js"
     },
     "./worker": {
-      "types": "./lib/index.worker.d.ts",
-      "import": "./lib/index.worker.js",
-      "require": "./lib/index.worker.cjs",
-      "default": "./lib/index.worker.js"
+      "types": "./lib/esm/index.worker.d.ts",
+      "import": "./lib/esm/index.worker.js",
+      "require": "./lib/cjs/index.worker.cjs",
+      "default": "./lib/esm/index.worker.js"
     },
     "./package.json": "./package.json"
   }
