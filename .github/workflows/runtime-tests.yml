@@ -3,60 +3,7 @@ name: Runtime Compatibility Tests
 on: [push, pull_request]
 
 jobs:
-  runtimes:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [18, 20]
-        include:
-          - runner: deno
-          - runner: bun
-
-    steps:
-      - uses: actions/checkout@v4
-
-      # Setup Node.js for matrix versions
-      - if: matrix.runner != 'deno' && matrix.runner != 'bun'
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-
-      # Setup Deno
-      - if: matrix.runner == 'deno'
-        uses: denoland/setup-deno@v2
-        with:
-          deno-version: v1.x
-
-      # Setup Bun
-      - if: matrix.runner == 'bun'
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: npm run build
-
-      # Run runtime-specific tests
-      - name: Test Node.js
-        if: matrix.runner != 'deno' && matrix.runner != 'bun'
-        run: npm run test:node
-
-      - name: Test Deno
-        if: matrix.runner == 'deno'
-        run: npm run test:deno
-
-      - name: Test Bun
-        if: matrix.runner == 'bun'
-        run: npm run test:bun
-
-      - name: Test Edge/Workers
-        if: matrix.runner != 'deno' && matrix.runner != 'bun'
-        run: npm run test:edge
-
-  # Fail-fast smoke tests (similar to OpenAI's ecosystem-tests)
-  smoke-tests:
+  runtime-compatibility:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -73,15 +20,6 @@ jobs:
           npm install
           npm run build
 
-      - name: Quick compatibility check
-        run: |
-          # Node.js
-          node -e "console.log('✅ Node CJS:', require('./lib/cjs/index.cjs').WorkOS.name)"
-          node -e "import('./lib/esm/index.js').then(m => console.log('✅ Node ESM:', m.WorkOS.name))"
-
-          # Deno
-          deno eval "import('./lib/esm/index.js').then(m => console.log('✅ Deno:', m.WorkOS.name))"
-
-          # Bun
-          bun -e "console.log('✅ Bun:', require('./lib/cjs/index.cjs').WorkOS.name)"
+      - name: Runtime compatibility check
+        run: npm run check:runtimes
 

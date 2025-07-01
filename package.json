@@ -37,11 +37,7 @@
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:worker": "jest src/worker.spec.ts",
     "check:runtimes": "tsx scripts/ecosystem-check.ts",
-    "test:node": "node -e \"console.log('CJS:', require('./lib/cjs/index.cjs').WorkOS.name)\" && node -e \"import('./lib/esm/index.js').then(m => console.log('ESM:', m.WorkOS.name))\"",
-    "test:deno": "deno eval \"import('./lib/esm/index.js').then(m => console.log('Deno:', m.WorkOS.name))\"",
-    "test:bun": "bun -e \"console.log('Bun:', require('./lib/cjs/index.cjs').WorkOS.name)\"",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "npm run build"
