@@ -1,6 +1,6 @@
 // scripts/ecosystem-check.ts
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -51,32 +51,6 @@ const tests: Record<string, { cmd: string; args: string[] }> = {
   },
 };
 
-// Worker test using simple import check
-const workerTest = {
-  cmd: 'node',
-  args: [
-    '-e',
-    `
-try {
-  // Test if the worker build exists and can be imported
-  import("${libEsm}/index.worker.js").then(m => {
-    if (m.WorkOS) {
-      console.log('✅ Worker: WorkOS import successful');
-    } else {
-      throw new Error('WorkOS not found in worker build');
-    }
-  }).catch(err => {
-    console.log('❌ Worker test failed:', err.message);
-    process.exit(1);
-  });
-} catch (error) {
-  console.log('❌ Worker test failed:', error.message);
-  process.exit(1);
-}
-    `,
-  ],
-};
-
 let allOK = true;
 let ranTests = 0;
 
@@ -103,22 +77,56 @@ for (const [name, { cmd, args }] of Object.entries(tests)) {
   }
 }
 
-// Try worker test if miniflare is available
-console.log(`\nTesting worker.........`);
-const workerResult = spawnSync(workerTest.cmd, workerTest.args, {
-  stdio: ['inherit', 'pipe', 'pipe'],
+// Test Cloudflare Worker environment using miniflare
+process.stdout.write(`Testing worker      ... `);
+
+// 1. Check if miniflare is available
+const miniflareCheck = spawnSync('npx', ['miniflare', '--version'], {
+  stdio: 'ignore', // We don't need to see the version output
   encoding: 'utf8',
 });
 
-if (workerResult.status === 0) {
-  ranTests++;
-  console.log(`✅ Passed`);
+if (miniflareCheck.status !== 0) {
+  console.log(`⚠️  Skipped (miniflare not found or failed to execute)`);
 } else {
-  console.log(`⚠️  Skipped (miniflare test failed)`);
-  if (workerResult.stderr) {
-    console.log(`   Error: ${workerResult.stderr.trim()}`);
+  // 2. Create the temporary worker script
+  const workerScriptPath = join(tmp, 'worker-test.js');
+  const safeLibEsmPath = libEsm.replace(/\\/g, '\\\\'); // For Windows compatibility
+
+  const workerScriptContent = `
+import { WorkOS } from '${safeLibEsmPath}/index.js';
+
+if (WorkOS && WorkOS.name === 'WorkOS') {
+  console.log('✅ Worker (miniflare): SDK imported successfully.');
+} else {
+  console.error('❌ Worker (miniflare): SDK import failed or WorkOS class is incorrect.');
+  process.exit(1);
+}
+`;
+
+  writeFileSync(workerScriptPath, workerScriptContent);
+
+  // 3. Execute the worker script with miniflare
+  const { status, stderr } = spawnSync(
+    'npx',
+    ['miniflare', '--modules', workerScriptPath],
+    {
+      stdio: ['inherit', 'pipe', 'pipe'],
+      encoding: 'utf8',
+    },
+  );
+
+  // 4. Process the result
+  if (status !== 0) {
+    allOK = false;
+    console.error(`❌ Failed`);
+    if (stderr) {
+      console.error(`   Error: ${stderr.trim()}`);
+    }
+  } else {
+    ranTests++;
+    console.log(`✅ Passed`);
   }
-  // Don't fail overall test for worker issues
 }
 
 // Cleanup
