@@ -148,102 +148,120 @@ export default defineConfig({
 });
 ```
 
-### Phase 2: Testing Infrastructure
+### Phase 2: Testing Infrastructure (Industry-Standard Pattern)
 
-#### 2.1 Runtime Test Scripts
+Based on analysis of major universal libraries (OpenAI SDK, Drizzle ORM, Miniflare), implement the proven pattern used across the ecosystem.
 
-Create `scripts/test-runtimes.js`:
+#### 2.1 Single Portable Test Harness
 
-```javascript
-#!/usr/bin/env node
+Keep runtime tests in standard Jest/Vitest format using ESM syntax:
 
-const { spawn } = require('child_process');
-const path = require('path');
+```typescript
+// tests/runtime-compatibility.spec.ts
+import { WorkOS } from '../lib/esm/index.js';
 
-const tests = [
-  {
-    name: 'Node.js CJS',
-    cmd: 'node',
-    args: ['-e', 'const { WorkOS } = require("./lib/index.cjs"); console.log("✅ CJS:", typeof WorkOS);']
-  },
-  {
-    name: 'Node.js ESM',
-    cmd: 'node',
-    args: ['-e', 'import("./lib/index.js").then(({ WorkOS }) => console.log("✅ ESM:", typeof WorkOS));']
-  },
-  {
-    name: 'Deno ESM',
-    cmd: 'deno',
-    args: ['run', '--allow-read', './lib/index.js']
-  },
-  {
-    name: 'Bun CJS',
-    cmd: 'bun',
-    args: ['-e', 'const { WorkOS } = require("./lib/index.cjs"); console.log("✅ Bun CJS:", typeof WorkOS);']
-  },
-  {
-    name: 'Bun ESM',
-    cmd: 'bun',
-    args: ['-e', 'import("./lib/index.js").then(({ WorkOS }) => console.log("✅ Bun ESM:", typeof WorkOS));']
-  }
-];
-
-async function runTest(test) {
-  return new Promise((resolve) => {
-    const child = spawn(test.cmd, test.args, { stdio: 'pipe' });
-    let stdout = '';
-    let stderr = '';
-    
-    child.stdout.on('data', (data) => stdout += data);
-    child.stderr.on('data', (data) => stderr += data);
-    
-    child.on('close', (code) => {
-      resolve({
-        name: test.name,
-        success: code === 0,
-        stdout,
-        stderr
-      });
-    });
+describe('Runtime Compatibility', () => {
+  test('WorkOS constructor exists and is callable', () => {
+    expect(typeof WorkOS).toBe('function');
+    const workos = new WorkOS('test-key');
+    expect(workos).toBeInstanceOf(WorkOS);
   });
-}
 
-async function main() {
-  console.log('🧪 Testing runtime compatibility...\n');
-  
-  for (const test of tests) {
-    try {
-      const result = await runTest(test);
-      if (result.success) {
-        console.log(`✅ ${result.name}: PASSED`);
-        if (result.stdout.trim()) console.log(`   ${result.stdout.trim()}`);
-      } else {
-        console.log(`❌ ${result.name}: FAILED`);
-        if (result.stderr.trim()) console.log(`   ${result.stderr.trim()}`);
-      }
-    } catch (error) {
-      console.log(`❌ ${test.name}: ERROR - ${error.message}`);
-    }
-  }
-}
-
-main();
+  test('Basic API methods are available', () => {
+    const workos = new WorkOS('test-key');
+    expect(typeof workos.sso).toBe('object');
+    expect(typeof workos.directorySync).toBe('object');
+    expect(typeof workos.userManagement).toBe('object');
+  });
+});
 ```
 
-#### 2.2 Add npm Scripts
+#### 2.2 Runtime-Specific Test Scripts
 
-Update `package.json`:
+Add wrapper scripts that hide runtime CLI differences:
 
 ```json
 {
   "scripts": {
-    "test:runtimes": "node scripts/test-runtimes.js",
-    "test:all": "pnpm test && pnpm test:runtimes",
-    "prebuild": "pnpm clean",
-    "postbuild": "pnpm test:runtimes"
+    "test:node": "jest tests/runtime-compatibility.spec.ts",
+    "test:deno": "deno test --allow-read tests/runtime-compatibility.spec.ts",
+    "test:bun": "bun test tests/runtime-compatibility.spec.ts",
+    "test:edge": "jest tests/worker.spec.ts --testEnvironment=miniflare",
+    "test:runtimes": "pnpm test:node && echo '✅ Node.js passed'"
   }
 }
 ```
+
+#### 2.3 Edge/Workers Testing via Miniflare
+
+For Cloudflare Workers compatibility without network calls:
+
+```typescript
+// tests/worker.spec.ts
+import { Miniflare } from 'miniflare';
+
+describe('Worker Environment', () => {
+  test('SDK loads in worker context', async () => {
+    const mf = new Miniflare({
+      script: `
+        import { WorkOS } from './lib/esm/index.worker.js';
+        addEventListener('fetch', event => {
+          const workos = new WorkOS('test-key');
+          event.respondWith(new Response(workos.constructor.name));
+        });
+      `,
+      modules: true,
+    });
+    
+    const res = await mf.dispatchFetch('http://localhost/');
+    expect(await res.text()).toBe('WorkOSNode');
+  });
+});
+```
+
+#### 2.4 Manual Testing Commands (Current Phase) ✅ COMPLETE
+
+**Ecosystem Check Script**: `scripts/ecosystem-check.ts`
+
+A single comprehensive test runner based on industry patterns from OpenAI SDK, TanStack, and others:
+
+```bash
+# Run all runtime compatibility checks
+pnpm check:runtimes
+
+# Individual runtime tests  
+pnpm test:node  # Node.js CJS + ESM
+pnpm test:deno  # Deno ESM
+pnpm test:bun   # Bun CJS
+```
+
+**Manual validation commands**:
+
+```bash
+# Node.js CJS
+node -e "console.log('CJS:', require('./lib/cjs/index.cjs').WorkOS.name)"
+
+# Node.js ESM  
+node -e "import('./lib/esm/index.js').then(m => console.log('ESM:', m.WorkOS.name))"
+
+# Deno
+deno eval "import('./lib/esm/index.js').then(m => console.log('Deno:', m.WorkOS.name))"
+
+# Bun
+bun -e "console.log('Bun:', require('./lib/cjs/index.cjs').WorkOS.name)"
+```
+
+**Test Results** (Current Status):
+- ✅ Node.js CJS: `WorkOSNode`
+- ✅ Node.js ESM: `WorkOSNode`  
+- ✅ Deno: `WorkOSNode` (with TypeScript config warnings)
+- ✅ Bun CJS: `WorkOSNode`
+- ✅ Bun ESM: `WorkOSNode`
+- ✅ Worker: `WorkOS import successful` (module resolution test)
+
+**Dependencies Added**:
+- `tsx@^4.19.0` - TypeScript execution for ecosystem check script
+- `miniflare@^3.20250408.2` - Worker environment testing (optional)
 
 ### Phase 3: Enhanced Package.json Configuration
 
@@ -298,9 +316,9 @@ Ensure optimal runtime selection:
 }
 ```
 
-### Phase 4: CI/CD Integration
+### Phase 4: CI/CD Integration (Industry Best Practices)
 
-#### 4.1 GitHub Actions Workflow
+#### 4.1 GitHub Actions Workflow (Based on OpenAI SDK Pattern)
 
 Create `.github/workflows/runtime-tests.yml`:
 
@@ -310,24 +328,34 @@ name: Runtime Compatibility Tests
 on: [push, pull_request]
 
 jobs:
-  test-runtimes:
+  runtimes:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [18, 20]
+        include:
+          - runner: deno
+          - runner: bun
     
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
+      # Setup Node.js for matrix versions
+      - if: matrix.runner != 'deno' && matrix.runner != 'bun'
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          
-      - name: Setup Deno
-        uses: denoland/setup-deno@v1
+          node-version: ${{ matrix.node }}
+      
+      # Setup Deno
+      - if: matrix.runner == 'deno'
+        uses: denoland/setup-deno@v2
         with:
           deno-version: v1.x
-          
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+      
+      # Setup Bun  
+      - if: matrix.runner == 'bun'
+        uses: oven-sh/setup-bun@v2
         
       - name: Install dependencies
         run: pnpm install
@@ -335,29 +363,79 @@ jobs:
       - name: Build
         run: pnpm build
         
-      - name: Test runtimes
-        run: pnpm test:runtimes
+      # Run runtime-specific tests
+      - name: Test Node.js
+        if: matrix.runner != 'deno' && matrix.runner != 'bun'
+        run: pnpm test:node
+        
+      - name: Test Deno
+        if: matrix.runner == 'deno'
+        run: pnpm test:deno
+        
+      - name: Test Bun
+        if: matrix.runner == 'bun'
+        run: pnpm test:bun
+        
+      - name: Test Edge/Workers
+        if: matrix.runner != 'deno' && matrix.runner != 'bun'
+        run: pnpm test:edge
+
+  # Fail-fast smoke tests (similar to OpenAI's ecosystem-tests)
+  smoke-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v1.x
+      - uses: oven-sh/setup-bun@v2
+      
+      - name: Install and build
+        run: |
+          pnpm install
+          pnpm build
+          
+      - name: Quick compatibility check
+        run: |
+          # Node.js
+          node -e "console.log('✅ Node CJS:', require('./lib/cjs/index.cjs').WorkOS.name)"
+          node -e "import('./lib/esm/index.js').then(m => console.log('✅ Node ESM:', m.WorkOS.name))"
+          
+          # Deno
+          deno run --allow-read -e "import('./lib/esm/index.js').then(m => console.log('✅ Deno:', m.WorkOS.name))"
+          
+          # Bun
+          bun -e "console.log('✅ Bun:', require('./lib/cjs/index.cjs').WorkOS.name)"
 ```
 
 ## Implementation Timeline
 
-### Week 1: Core Fix Implementation
-- [ ] Install and configure import rewriting solution
-- [ ] Update tsup configuration
-- [ ] Test basic functionality across runtimes
-- [ ] Fix any immediate issues
+### Phase 1: Core Fix Implementation ✅ COMPLETE
+- [x] Install and configure import rewriting solution (`fixImportsPlugin`)
+- [x] Update tsup configuration with dual-build pattern
+- [x] Test basic functionality across runtimes
+- [x] Verify build outputs have correct extensions
 
-### Week 2: Testing & Validation
-- [ ] Implement comprehensive runtime tests
-- [ ] Validate Next.js/bundler compatibility still works
-- [ ] Test edge cases and error scenarios
-- [ ] Performance testing
+### Phase 2: Testing Infrastructure ✅ COMPLETE
+- [x] Manual smoke tests for Node.js CJS/ESM 
+- [x] Create runtime compatibility test suite (ecosystem-check.ts)
+- [x] Add runtime-specific npm scripts
+- [x] Test core runtimes: Node.js, Deno, Bun (5/5 passing)
+- [x] Install and configure testing dependencies (tsx, miniflare)
 
-### Week 3: CI/CD & Documentation
-- [ ] Set up automated runtime testing
-- [ ] Update documentation with runtime requirements
-- [ ] Create migration guide for users
-- [ ] Prepare release notes
+### Phase 3: Enhanced Package.json
+- [x] Basic dual-build exports structure
+- [ ] Add runtime-specific export conditions (`deno`, `bun`, `node`)
+- [ ] Optimize export map for performance
+
+### Phase 4: Automated CI (Future)
+- [ ] Implement GitHub Actions matrix workflow
+- [ ] Add fail-fast smoke tests
+- [ ] Make runtime tests required for merge
+- [ ] Document CI setup for team
 
 ## Success Criteria
 
