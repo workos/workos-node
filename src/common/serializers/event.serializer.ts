@@ -177,6 +177,9 @@ export const deserializeEvent = (event: EventResponse): Event => {
       };
     case 'organization_domain.verified':
     case 'organization_domain.verification_failed':
+    case 'organization_domain.created':
+    case 'organization_domain.updated':
+    case 'organization_domain.deleted':
       return {
         ...eventBase,
         event: event.event,

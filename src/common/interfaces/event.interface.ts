@@ -581,6 +581,39 @@ export interface OrganizationDomainVerificationFailedEventResponse
   data: OrganizationDomainResponse;
 }
 
+export interface OrganizationDomainCreatedEvent extends EventBase {
+  event: 'organization_domain.created';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainCreatedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.created';
+  data: OrganizationDomainResponse;
+}
+
+export interface OrganizationDomainUpdatedEvent extends EventBase {
+  event: 'organization_domain.updated';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainUpdatedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.updated';
+  data: OrganizationDomainResponse;
+}
+
+export interface OrganizationDomainDeletedEvent extends EventBase {
+  event: 'organization_domain.deleted';
+  data: OrganizationDomain;
+}
+
+export interface OrganizationDomainDeletedEventResponse
+  extends EventResponseBase {
+  event: 'organization_domain.deleted';
+  data: OrganizationDomainResponse;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -629,7 +662,10 @@ export type Event =
   | OrganizationUpdatedEvent
   | OrganizationDeletedEvent
   | OrganizationDomainVerifiedEvent
-  | OrganizationDomainVerificationFailedEvent;
+  | OrganizationDomainVerificationFailedEvent
+  | OrganizationDomainCreatedEvent
+  | OrganizationDomainUpdatedEvent
+  | OrganizationDomainDeletedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -679,6 +715,9 @@ export type EventResponse =
   | OrganizationUpdatedResponse
   | OrganizationDeletedResponse
   | OrganizationDomainVerifiedEventResponse
-  | OrganizationDomainVerificationFailedEventResponse;
+  | OrganizationDomainVerificationFailedEventResponse
+  | OrganizationDomainCreatedEventResponse
+  | OrganizationDomainUpdatedEventResponse
+  | OrganizationDomainDeletedEventResponse;
 
 export type EventName = Event['event'];
