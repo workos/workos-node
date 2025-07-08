@@ -2133,6 +2133,39 @@ describe('UserManagement', () => {
         );
       });
     });
+
+    describe('with prompt', () => {
+      it('generates an authorize url with the provided prompt', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          prompt: 'login',
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toMatchInlineSnapshot(
+          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&prompt=login&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
+        );
+      });
+
+      it('generates an authorize url with consent prompt', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          prompt: 'consent',
+          provider: 'GoogleOAuth',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+        });
+
+        expect(url).toMatchInlineSnapshot(
+          `"https://api.workos.com/user_management/authorize?client_id=proj_123&prompt=consent&provider=GoogleOAuth&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code"`,
+        );
+      });
+    });
   });
 
   describe('getLogoutUrl', () => {

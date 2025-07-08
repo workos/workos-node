@@ -13,6 +13,7 @@ export interface UserManagementAuthorizationURLOptions {
   loginHint?: string;
   provider?: string;
   providerScopes?: string[];
+  prompt?: string;
   redirectUri: string;
   state?: string;
   screenHint?: 'sign-up' | 'sign-in';
