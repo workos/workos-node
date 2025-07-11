@@ -68,7 +68,10 @@ export class WorkOS {
   readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
 
-  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
+  constructor(
+    readonly key?: string,
+    readonly options: WorkOSOptions = {},
+  ) {
     if (!key) {
       // process might be undefined in some environments
       this.key =
