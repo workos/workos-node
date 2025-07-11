@@ -8,9 +8,3 @@ export interface SSOAuthorizationURLOptions {
   redirectUri: string;
   state?: string;
 }
-
-/**
- * @deprecated Use SSOAuthorizationURLOptions instead
- */
-// tslint:disable-next-line:no-empty-interface
-export interface AuthorizationURLOptions extends SSOAuthorizationURLOptions {}
