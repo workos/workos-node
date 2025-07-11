@@ -30,7 +30,7 @@ export class Webhooks {
     secret,
     tolerance = 180000,
   }: {
-    payload: unknown;
+    payload: Record<string, unknown>;
     sigHeader: string;
     secret: string;
     tolerance?: number;
@@ -38,7 +38,7 @@ export class Webhooks {
     const options = { payload, sigHeader, secret, tolerance };
     await this.verifyHeader(options);
 
-    const webhookPayload = payload as EventResponse;
+    const webhookPayload = payload as unknown as EventResponse;
 
     return deserializeEvent(webhookPayload);
   }
