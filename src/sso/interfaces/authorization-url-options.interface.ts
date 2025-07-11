@@ -10,9 +10,3 @@ export interface SSOAuthorizationURLOptions {
   redirectUri: string;
   state?: string;
 }
-
-/**
- * @deprecated Use SSOAuthorizationURLOptions instead
- */
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface AuthorizationURLOptions extends SSOAuthorizationURLOptions {}
