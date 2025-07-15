@@ -144,7 +144,10 @@ import { serializeUpdateOrganizationMembershipOptions } from './serializers/upda
 import { Session } from './session';
 
 const toQueryString = (
-  options: Record<string, string | string[] | undefined>,
+  options: Record<
+    string,
+    string | string[] | Record<string, string | boolean | number> | undefined
+  >,
 ): string => {
   return qs.stringify(options, {
     arrayFormat: 'repeat',
@@ -1013,6 +1016,7 @@ export class UserManagement {
     loginHint,
     organizationId,
     provider,
+    providerQueryParams,
     providerScopes,
     prompt,
     redirectUri,
@@ -1047,6 +1051,7 @@ export class UserManagement {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
+      provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
       prompt,
       client_id: clientId,

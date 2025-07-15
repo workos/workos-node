@@ -12,6 +12,7 @@ export interface UserManagementAuthorizationURLOptions {
   domainHint?: string;
   loginHint?: string;
   provider?: string;
+  providerQueryParams?: Record<string, string | boolean | number>;
   providerScopes?: string[];
   prompt?: string;
   redirectUri: string;
