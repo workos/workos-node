@@ -2021,6 +2021,24 @@ describe('UserManagement', () => {
 
           expect(url).toMatchSnapshot();
         });
+
+        describe('with providerQueryParams', () => {
+          it('generates an authorize url that includes the specified query params', () => {
+            const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+            const url = workos.userManagement.getAuthorizationUrl({
+              provider: 'GoogleOAuth',
+              clientId: 'proj_123',
+              redirectUri: 'example.com/auth/workos/callback',
+              providerQueryParams: {
+                foo: 'bar',
+                baz: 123,
+                bool: true,
+              },
+            });
+            expect(url).toMatchSnapshot();
+          });
+        });
       });
     });
 

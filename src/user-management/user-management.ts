@@ -1,4 +1,5 @@
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
+import qs from 'qs';
 import { OauthException } from '../common/exceptions/oauth.exception';
 import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
@@ -143,26 +144,18 @@ import { serializeUpdateOrganizationMembershipOptions } from './serializers/upda
 import { Session } from './session';
 
 const toQueryString = (
-  options: Record<string, string | string[] | undefined>,
+  options: Record<
+    string,
+    string | string[] | Record<string, string | boolean | number> | undefined
+  >,
 ): string => {
-  const searchParams = new URLSearchParams();
-  const keys = Object.keys(options).sort();
-
-  for (const key of keys) {
-    const value = options[key];
-
-    if (Array.isArray(value)) {
-      value.forEach((item) => {
-        searchParams.append(key, item);
-      });
-    }
-
-    if (typeof value === 'string') {
-      searchParams.append(key, value);
-    }
-  }
-
-  return searchParams.toString();
+  return qs.stringify(options, {
+    arrayFormat: 'repeat',
+    // sorts the keys alphabetically to maintain backwards compatibility
+    sort: (a, b) => a.localeCompare(b),
+    // encodes space as + instead of %20 to maintain backwards compatibility
+    format: 'RFC1738',
+  });
 };
 
 export class UserManagement {
@@ -1023,6 +1016,7 @@ export class UserManagement {
     loginHint,
     organizationId,
     provider,
+    providerQueryParams,
     providerScopes,
     prompt,
     redirectUri,
@@ -1057,6 +1051,7 @@ export class UserManagement {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
+      provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
       prompt,
       client_id: clientId,
