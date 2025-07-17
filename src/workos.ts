@@ -72,7 +72,6 @@ export class WorkOS {
     readonly options: WorkOSOptions = {},
   ) {
     if (!key) {
-      // process might be undefined in some environments
       this.key = getEnv('WORKOS_API_KEY');
 
       if (!this.key) {
