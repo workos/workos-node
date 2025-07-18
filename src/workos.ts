@@ -280,9 +280,9 @@ export class WorkOS {
       const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
       const rawBody = await (res.getRawResponse() as Response).text();
       const rawResponse = res.getRawResponse() as Response;
-const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
-const rawBody = await rawResponse.text();
-throw new ParseError(error.message, rawBody, requestID);
+      const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
+      const rawBody = await rawResponse.text();
+      throw new ParseError(error.message, rawBody, requestID);
     }
   }
 
