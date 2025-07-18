@@ -7,6 +7,7 @@ import {
   NotFoundException,
   OauthException,
 } from './common/exceptions';
+import { ParseError } from './common/exceptions/parse-error';
 import { WorkOS } from './index';
 import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
@@ -306,6 +307,85 @@ describe('WorkOS', () => {
         await workos.post('/somewhere', null);
 
         expect(fetchBody({ raw: true })).toBe('');
+      });
+    });
+
+    describe('when the api responds with invalid JSON', () => {
+      it('throws a ParseError', async () => {
+        const mockResponse = {
+          ok: true,
+          status: 200,
+          headers: new Headers({
+            'X-Request-ID': 'a-request-id',
+            'content-type': 'application/json',
+          }),
+          text: () => Promise.resolve('invalid json{'),
+          json: () => Promise.reject(new SyntaxError('Invalid JSON')),
+        };
+
+        fetch.mockResolvedValueOnce(mockResponse as any);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const error = await workos.post('/path', {}).catch((e) => e);
+
+        expect(error).toBeInstanceOf(ParseError);
+        expect(error.rawBody).toBe('invalid json{');
+        expect(error.requestID).toBe('a-request-id');
+      });
+    });
+  });
+
+  describe('get', () => {
+    describe('when the api responds with invalid JSON', () => {
+      it('throws a ParseError', async () => {
+        const mockResponse = {
+          ok: true,
+          status: 200,
+          headers: new Headers({
+            'X-Request-ID': 'a-request-id',
+            'content-type': 'application/json',
+          }),
+          text: () => Promise.resolve('malformed json}'),
+          json: () => Promise.reject(new SyntaxError('Invalid JSON')),
+        };
+
+        fetch.mockResolvedValueOnce(mockResponse as any);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const error = await workos.get('/path').catch((e) => e);
+
+        expect(error).toBeInstanceOf(ParseError);
+        expect(error.rawBody).toBe('malformed json}');
+        expect(error.requestID).toBe('a-request-id');
+      });
+    });
+  });
+
+  describe('put', () => {
+    describe('when the api responds with invalid JSON', () => {
+      it('throws a ParseError', async () => {
+        const mockResponse = {
+          ok: true,
+          status: 200,
+          headers: new Headers({
+            'X-Request-ID': 'a-request-id',
+            'content-type': 'application/json',
+          }),
+          text: () => Promise.resolve('broken json['),
+          json: () => Promise.reject(new SyntaxError('Invalid JSON')),
+        };
+
+        fetch.mockResolvedValueOnce(mockResponse as any);
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const error = await workos.put('/path', {}).catch((e) => e);
+
+        expect(error).toBeInstanceOf(ParseError);
+        expect(error.rawBody).toBe('broken json[');
+        expect(error.requestID).toBe('a-request-id');
       });
     });
   });

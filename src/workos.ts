@@ -9,6 +9,7 @@ import {
 } from './common/exceptions';
 import {
   GetOptions,
+  HttpClientResponseInterface,
   PostOptions,
   PutOptions,
   WorkOSOptions,
@@ -37,6 +38,7 @@ import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
+import { ParseError } from './common/exceptions/parse-error';
 
 const VERSION = '7.60.0';
 
@@ -166,16 +168,22 @@ export class WorkOS {
       requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
+    let res: HttpClientResponseInterface;
+
     try {
-      const res = await this.client.post<Entity>(path, entity, {
+      res = await this.client.post<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
-
-      return { data: await res.toJSON() };
     } catch (error) {
       this.handleHttpError({ path, error });
+      throw error;
+    }
 
+    try {
+      return { data: await res.toJSON() };
+    } catch (error) {
+      await this.handleParseError(error, res);
       throw error;
     }
   }
@@ -194,15 +202,22 @@ export class WorkOS {
       requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
+    let res: HttpClientResponseInterface;
     try {
-      const res = await this.client.get(path, {
+      res = await this.client.get(path, {
         params: options.query,
         headers: requestHeaders,
       });
-      return { data: await res.toJSON() };
     } catch (error) {
       this.handleHttpError({ path, error });
 
+      throw error;
+    }
+
+    try {
+      return { data: await res.toJSON() };
+    } catch (error) {
+      await this.handleParseError(error, res);
       throw error;
     }
   }
@@ -218,15 +233,23 @@ export class WorkOS {
       requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
+    let res: HttpClientResponseInterface;
+
     try {
-      const res = await this.client.put<Entity>(path, entity, {
+      res = await this.client.put<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });
-      return { data: await res.toJSON() };
     } catch (error) {
       this.handleHttpError({ path, error });
 
+      throw error;
+    }
+
+    try {
+      return { data: await res.toJSON() };
+    } catch (error) {
+      await this.handleParseError(error, res);
       throw error;
     }
   }
@@ -246,6 +269,18 @@ export class WorkOS {
   emitWarning(warning: string) {
     // tslint:disable-next-line:no-console
     console.warn(`WorkOS: ${warning}`);
+  }
+
+  private async handleParseError(
+    error: unknown,
+    res: HttpClientResponseInterface,
+  ) {
+    if (error instanceof SyntaxError) {
+      const rawResponse = res.getRawResponse() as Response;
+      const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
+      const rawBody = await rawResponse.text();
+      throw new ParseError(error.message, rawBody, requestID);
+    }
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
