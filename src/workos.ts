@@ -39,6 +39,7 @@ import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
+import { getEnv } from './common/utils/env';
 
 const VERSION = '8.0.0-beta.2';
 
@@ -70,16 +71,9 @@ export class WorkOS {
   readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
 
-  constructor(
-    readonly key?: string,
-    readonly options: WorkOSOptions = {},
-  ) {
+  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
-      // process might be undefined in some environments
-      this.key =
-        typeof process !== 'undefined'
-          ? process?.env.WORKOS_API_KEY
-          : undefined;
+      this.key = getEnv('WORKOS_API_KEY');
 
       if (!this.key) {
         throw new NoApiKeyProvidedException();
@@ -91,8 +85,8 @@ export class WorkOS {
     }
 
     this.clientId = this.options.clientId;
-    if (!this.clientId && typeof process !== 'undefined') {
-      this.clientId = process?.env.WORKOS_CLIENT_ID;
+    if (!this.clientId) {
+      this.clientId = getEnv('WORKOS_CLIENT_ID');
     }
 
     const protocol: string = this.options.https ? 'https' : 'http';
