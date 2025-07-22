@@ -24,6 +24,7 @@ import {
   EmailVerificationResponse,
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
+  ListSessionsOptions,
   ListUsersOptions,
   MagicAuth,
   MagicAuthResponse,
@@ -46,6 +47,8 @@ import {
   SerializedSendMagicAuthCodeOptions,
   SerializedSendPasswordResetEmailOptions,
   SerializedVerifyEmailOptions,
+  UserSession,
+  UserSessionResponse,
   UpdateUserOptions,
   User,
   UserResponse,
@@ -113,6 +116,7 @@ import {
   deserializeFactorWithSecrets,
   deserializeMagicAuth,
   deserializePasswordReset,
+  deserializeSession,
   deserializeUser,
   serializeAuthenticateWithCodeOptions,
   serializeAuthenticateWithCodeAndVerifierOptions,
@@ -124,6 +128,7 @@ import {
   serializeCreatePasswordResetOptions,
   serializeCreateUserOptions,
   serializeEnrollAuthFactorOptions,
+  serializeListSessionsOptions,
   serializeResetPasswordOptions,
   serializeSendMagicAuthCodeOptions,
   serializeSendPasswordResetEmailOptions,
@@ -811,6 +816,28 @@ export class UserManagement {
           params,
         ),
       restOfOptions,
+    );
+  }
+
+  async listSessions(
+    userId: string,
+    options?: ListSessionsOptions,
+  ): Promise<AutoPaginatable<UserSession>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<UserSessionResponse, UserSession>(
+        this.workos,
+        `/user_management/users/${userId}/sessions`,
+        deserializeSession,
+        options ? serializeListSessionsOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<UserSessionResponse, UserSession>(
+          this.workos,
+          `/user_management/users/${userId}/sessions`,
+          deserializeSession,
+          params,
+        ),
+      options ? serializeListSessionsOptions(options) : undefined,
     );
   }
 

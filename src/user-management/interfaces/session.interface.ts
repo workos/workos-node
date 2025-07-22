@@ -1,6 +1,19 @@
 import { Impersonator } from './impersonator.interface';
 
-export interface Session {
+export type AuthMethod =
+  | 'external_auth'
+  | 'impersonation'
+  | 'magic_code'
+  | 'migrated_session'
+  | 'oauth'
+  | 'passkey'
+  | 'password'
+  | 'sso'
+  | 'unknown';
+
+export type SessionStatus = 'active' | 'expired' | 'revoked';
+
+export interface UserSession {
   object: 'session';
   id: string;
   userId: string;
@@ -8,9 +21,15 @@ export interface Session {
   userAgent: string | null;
   organizationId?: string;
   impersonator?: Impersonator;
+  authMethod: AuthMethod;
+  status: SessionStatus;
+  expiresAt: string;
+  endedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface SessionResponse {
+export interface UserSessionResponse {
   object: 'session';
   id: string;
   user_id: string;
@@ -18,4 +37,10 @@ export interface SessionResponse {
   user_agent: string | null;
   organization_id?: string;
   impersonator?: Impersonator;
+  auth_method: AuthMethod;
+  status: SessionStatus;
+  expires_at: string;
+  ended_at: string | null;
+  created_at: string;
+  updated_at: string;
 }

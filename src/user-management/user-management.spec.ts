@@ -12,6 +12,7 @@ import invitationFixture from './fixtures/invitation.json';
 import listFactorFixture from './fixtures/list-factors.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
+import listSessionsFixture from './fixtures/list-sessions.json';
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
@@ -1527,6 +1528,40 @@ describe('UserManagement', () => {
               issuer: 'WorkOS',
               user: 'some_user',
             },
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+  });
+
+  describe('listSessions', () => {
+    it('sends a listSessions request', async () => {
+      fetchOnce(listSessionsFixture);
+
+      const resp = await workos.userManagement.listSessions(userId);
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}/sessions`);
+
+      expect(resp).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'session',
+            id: 'session_01K0T5TNC755C7FGRQFJRS4QK5',
+            userId: 'user_01K0T5T62NBSETXQD3NVGEA2RN',
+            userAgent:
+              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+            ipAddress: '192.168.65.1',
+            authMethod: 'oauth',
+            status: 'active',
+            expiresAt: '2026-07-22T22:59:48.743Z',
+            endedAt: null,
+            createdAt: '2025-07-23T04:59:48.738Z',
+            updatedAt: '2025-07-23T04:59:48.738Z',
           },
         ],
         listMetadata: {
