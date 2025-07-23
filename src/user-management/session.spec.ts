@@ -1,5 +1,5 @@
 import { WorkOS } from '../workos';
-import { Session } from './session';
+import { CookieSession } from './session';
 import * as jose from 'jose';
 import { sealData } from 'iron-session';
 import userFixture from './fixtures/user.json';
@@ -33,7 +33,7 @@ describe('Session', () => {
         cookiePassword: 'cookiePassword',
       });
 
-      expect(session).toBeInstanceOf(Session);
+      expect(session).toBeInstanceOf(CookieSession);
     });
   });
 

@@ -24,6 +24,7 @@ import {
   EmailVerificationResponse,
   EnrollAuthFactorOptions,
   ListAuthFactorsOptions,
+  ListSessionsOptions,
   ListUsersOptions,
   MagicAuth,
   MagicAuthResponse,
@@ -46,6 +47,8 @@ import {
   SerializedSendMagicAuthCodeOptions,
   SerializedSendPasswordResetEmailOptions,
   SerializedVerifyEmailOptions,
+  Session,
+  SessionResponse,
   UpdateUserOptions,
   User,
   UserResponse,
@@ -113,6 +116,7 @@ import {
   deserializeFactorWithSecrets,
   deserializeMagicAuth,
   deserializePasswordReset,
+  deserializeSession,
   deserializeUser,
   serializeAuthenticateWithCodeOptions,
   serializeAuthenticateWithCodeAndVerifierOptions,
@@ -124,6 +128,7 @@ import {
   serializeCreatePasswordResetOptions,
   serializeCreateUserOptions,
   serializeEnrollAuthFactorOptions,
+  serializeListSessionsOptions,
   serializeResetPasswordOptions,
   serializeSendMagicAuthCodeOptions,
   serializeSendPasswordResetEmailOptions,
@@ -141,7 +146,7 @@ import { serializeListUsersOptions } from './serializers/list-users-options.seri
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
-import { Session } from './session';
+import { CookieSession } from './session';
 
 const toQueryString = (
   options: Record<
@@ -197,8 +202,8 @@ export class UserManagement {
   loadSealedSession(options: {
     sessionData: string;
     cookiePassword: string;
-  }): Session {
-    return new Session(this, options.sessionData, options.cookiePassword);
+  }): CookieSession {
+    return new CookieSession(this, options.sessionData, options.cookiePassword);
   }
 
   async getUser(userId: string): Promise<User> {
@@ -811,6 +816,28 @@ export class UserManagement {
           params,
         ),
       restOfOptions,
+    );
+  }
+
+  async listSessions(
+    userId: string,
+    options?: ListSessionsOptions,
+  ): Promise<AutoPaginatable<Session>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SessionResponse, Session>(
+        this.workos,
+        `/user_management/users/${userId}/sessions`,
+        deserializeSession,
+        options ? serializeListSessionsOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<SessionResponse, Session>(
+          this.workos,
+          `/user_management/users/${userId}/sessions`,
+          deserializeSession,
+          params,
+        ),
+      options ? serializeListSessionsOptions(options) : undefined,
     );
   }
 

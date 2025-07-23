@@ -8,4 +8,10 @@ export const deserializeSession = (session: SessionResponse): Session => ({
   userAgent: session.user_agent,
   organizationId: session.organization_id,
   impersonator: session.impersonator,
+  authMethod: session.auth_method,
+  status: session.status,
+  expiresAt: session.expires_at,
+  endedAt: session.ended_at,
+  createdAt: session.created_at,
+  updatedAt: session.updated_at,
 });

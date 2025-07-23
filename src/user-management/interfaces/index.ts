@@ -25,6 +25,7 @@ export * from './invitation.interface';
 export * from './list-auth-factors-options.interface';
 export * from './list-invitations-options.interface';
 export * from './list-organization-memberships-options.interface';
+export * from './list-sessions-options.interface';
 export * from './list-users-options.interface';
 export * from './magic-auth.interface';
 export * from './oauth-tokens.interface';
