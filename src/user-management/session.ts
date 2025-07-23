@@ -18,7 +18,7 @@ type RefreshOptions = {
   organizationId?: string;
 };
 
-export class Session {
+export class CookieSession {
   private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   private userManagement: UserManagement;
   private ironSessionProvider: IronSessionProvider;

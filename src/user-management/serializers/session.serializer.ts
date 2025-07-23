@@ -1,8 +1,6 @@
-import { UserSession, UserSessionResponse } from '../interfaces';
+import { Session, SessionResponse } from '../interfaces';
 
-export const deserializeSession = (
-  session: UserSessionResponse,
-): UserSession => ({
+export const deserializeSession = (session: SessionResponse): Session => ({
   object: 'session',
   id: session.id,
   userId: session.user_id,

@@ -22,8 +22,8 @@ import {
   MagicAuthEventResponse,
   PasswordResetEvent,
   PasswordResetEventResponse,
-  UserSession,
-  UserSessionResponse,
+  Session,
+  SessionResponse,
   User,
   UserResponse,
 } from '../../user-management/interfaces';
@@ -541,22 +541,22 @@ export interface RoleUpdatedEventResponse extends EventResponseBase {
 
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
-  data: UserSession;
+  data: Session;
 }
 
 export interface SessionCreatedEventResponse extends EventResponseBase {
   event: 'session.created';
-  data: UserSessionResponse;
+  data: SessionResponse;
 }
 
 export interface SessionRevokedEvent extends EventBase {
   event: 'session.revoked';
-  data: UserSession;
+  data: Session;
 }
 
 export interface SessionRevokedEventResponse extends EventResponseBase {
   event: 'session.revoked';
-  data: UserSessionResponse;
+  data: SessionResponse;
 }
 
 export interface OrganizationDomainVerifiedEvent extends EventBase {

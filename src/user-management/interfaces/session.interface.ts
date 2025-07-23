@@ -13,7 +13,7 @@ export type AuthMethod =
 
 export type SessionStatus = 'active' | 'expired' | 'revoked';
 
-export interface UserSession {
+export interface Session {
   object: 'session';
   id: string;
   userId: string;
@@ -29,7 +29,7 @@ export interface UserSession {
   updatedAt: string;
 }
 
-export interface UserSessionResponse {
+export interface SessionResponse {
   object: 'session';
   id: string;
   user_id: string;
