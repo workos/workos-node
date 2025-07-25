@@ -185,7 +185,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       const requestID = res.headers.get('X-Request-ID') ?? '';
       const rawBody = await res.text();
 
-      let responseJson: any = undefined;
+      let responseJson: any;
 
       try {
         responseJson = JSON.parse(rawBody);
