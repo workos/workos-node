@@ -6,6 +6,7 @@ import {
   ResponseHeaders,
 } from '../interfaces/http-client.interface';
 import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
+import { ParseError } from '../exceptions/parse-error';
 
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
@@ -181,16 +182,34 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     });
 
     if (!res.ok) {
+      const requestID = res.headers.get('X-Request-ID') ?? '';
+      const rawBody = await res.text();
+
+      let responseJson: any = undefined;
+
+      try {
+        responseJson = JSON.parse(rawBody);
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          throw new ParseError({
+            message: error.message,
+            rawBody,
+            requestID,
+            rawStatus: res.status,
+          });
+        }
+        throw error;
+      }
+
       throw new HttpClientError({
         message: res.statusText,
         response: {
           status: res.status,
           headers: res.headers,
-          data: await res.json(),
+          data: responseJson,
         },
       });
     }
-
     return new FetchHttpClientResponse(res);
   }
 
