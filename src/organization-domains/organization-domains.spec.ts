@@ -91,4 +91,18 @@ describe('OrganizationDomains', () => {
       expect(subject.verificationStrategy).toEqual('dns');
     });
   });
+
+  describe('deleteOrganizationDomain', () => {
+    it('deletes an Organization Domain', async () => {
+      fetchOnce();
+
+      await workos.organizationDomains.deleteOrganizationDomain(
+        'org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
+      );
+
+      expect(fetchURL()).toContain(
+        '/organization_domains/org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
+      );
+    });
+  });
 });
