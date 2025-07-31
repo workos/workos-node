@@ -38,7 +38,7 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
-  async deleteOrganizationDomain(id: string): Promise<void> {
+  async delete(id: string): Promise<void> {
     await this.workos.delete(`/organization_domains/${id}`);
   }
 }
