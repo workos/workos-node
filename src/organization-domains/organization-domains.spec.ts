@@ -92,11 +92,11 @@ describe('OrganizationDomains', () => {
     });
   });
 
-  describe('deleteOrganizationDomain', () => {
+  describe('delete', () => {
     it('deletes an Organization Domain', async () => {
       fetchOnce();
 
-      await workos.organizationDomains.deleteOrganizationDomain(
+      await workos.organizationDomains.delete(
         'org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
       );
 
