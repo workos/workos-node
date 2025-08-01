@@ -9,15 +9,23 @@ import {
   UpdateOrganizationOptions,
 } from './interfaces';
 import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from './interfaces/feature-flag.interface';
+import {
   deserializeOrganization,
   serializeCreateOrganizationOptions,
   serializeUpdateOrganizationOptions,
 } from './serializers';
 
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { List, ListResponse } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { ListOrganizationRolesResponse, RoleList } from '../roles/interfaces';
 import { deserializeRole } from '../roles/serializers/role.serializer';
 import { ListOrganizationRolesOptions } from './interfaces/list-organization-roles-options.interface';
+import { ListOrganizationFeatureFlagsOptions } from './interfaces/list-organization-feature-flags-options.interface';
+import { deserializeFeatureFlag } from './serializers/feature-flag.serializer';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -103,5 +111,17 @@ export class Organizations {
       object: 'list',
       data: response.data.map((role) => deserializeRole(role)),
     };
+  }
+
+  async listOrganizationFeatureFlags(
+    options: ListOrganizationFeatureFlagsOptions,
+  ): Promise<List<FeatureFlag>> {
+    const { organizationId } = options;
+
+    const { data } = await this.workos.get<ListResponse<FeatureFlagResponse>>(
+      `/organizations/${organizationId}/feature_flags`,
+    );
+
+    return deserializeList(data, deserializeFeatureFlag);
   }
 }
