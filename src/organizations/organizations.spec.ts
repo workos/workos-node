@@ -455,11 +455,10 @@ describe('Organizations', () => {
     it('returns feature flags for the organization', async () => {
       fetchOnce(listOrganizationFeatureFlagsFixture);
 
-      const { data, object, listMetadata } = await workos.organizations.listOrganizationFeatureFlags(
-        {
+      const { data, object, listMetadata } =
+        await workos.organizations.listOrganizationFeatureFlags({
           organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-        },
-      );
+        });
 
       expect(fetchURL()).toContain(
         '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
