@@ -8,7 +8,10 @@ import {
   OrganizationResponse,
   UpdateOrganizationOptions,
 } from './interfaces';
-import { FeatureFlag, FeatureFlagResponse } from './interfaces/feature-flag.interface';
+import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from './interfaces/feature-flag.interface';
 import {
   deserializeOrganization,
   serializeCreateOrganizationOptions,
