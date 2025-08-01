@@ -13,6 +13,7 @@ import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import listOrganizationRolesFixture from './fixtures/list-organization-roles.json';
+import listOrganizationFeatureFlagsFixture from './fixtures/list-organization-feature-flags.json';
 import updateOrganization from './fixtures/update-organization.json';
 import setStripeCustomerId from './fixtures/set-stripe-customer-id.json';
 import setStripeCustomerIdDisabled from './fixtures/set-stripe-customer-id-disabled.json';
@@ -443,6 +444,55 @@ describe('Organizations', () => {
           description: null,
           permissions: ['posts:read'],
           type: 'OrganizationRole',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      ]);
+    });
+  });
+
+  describe('listOrganizationFeatureFlags', () => {
+    it('returns feature flags for the organization', async () => {
+      fetchOnce(listOrganizationFeatureFlagsFixture);
+
+      const { data, object, listMetadata } = await workos.organizations.listOrganizationFeatureFlags(
+        {
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+      );
+
+      expect(object).toEqual('list');
+      expect(listMetadata).toEqual({});
+      expect(data).toHaveLength(3);
+      expect(data).toEqual([
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C5',
+          name: 'Advanced Dashboard',
+          slug: 'advanced-dashboard',
+          description: 'Enable advanced dashboard features',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C6',
+          name: 'Beta Features',
+          slug: 'beta-features',
+          description: null,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C7',
+          name: 'Premium Support',
+          slug: 'premium-support',
+          description: 'Access to premium support features',
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },
