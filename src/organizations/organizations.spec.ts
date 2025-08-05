@@ -497,5 +497,74 @@ describe('Organizations', () => {
         },
       ]);
     });
+
+    describe('with the before option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listOrganizationFeatureFlagsFixture);
+
+        const { data } =
+          await workos.organizations.listOrganizationFeatureFlags({
+            organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            before: 'flag_before_id',
+          });
+
+        expect(fetchSearchParams()).toEqual({
+          before: 'flag_before_id',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+        );
+
+        expect(data).toHaveLength(3);
+      });
+    });
+
+    describe('with the after option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listOrganizationFeatureFlagsFixture);
+
+        const { data } =
+          await workos.organizations.listOrganizationFeatureFlags({
+            organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            after: 'flag_after_id',
+          });
+
+        expect(fetchSearchParams()).toEqual({
+          after: 'flag_after_id',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+        );
+
+        expect(data).toHaveLength(3);
+      });
+    });
+
+    describe('with the limit option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listOrganizationFeatureFlagsFixture);
+
+        const { data } =
+          await workos.organizations.listOrganizationFeatureFlags({
+            organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            limit: 10,
+          });
+
+        expect(fetchSearchParams()).toEqual({
+          limit: '10',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+        );
+
+        expect(data).toHaveLength(3);
+      });
+    });
   });
 });
