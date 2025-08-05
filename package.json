@@ -1,5 +1,5 @@
 {
-  "version": "8.0.0-beta.2",
+  "version": "8.0.0-beta.3",
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
@@ -73,7 +73,7 @@
     "ts-jest": "29.3.1",
     "tsup": "^8.5.0",
     "tsx": "^4.19.0",
-    "typescript": "5.8.2",
+    "typescript": "5.9.2",
     "typescript-eslint": "^8.25.0"
   },
   "exports": {
