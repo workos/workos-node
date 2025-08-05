@@ -94,7 +94,7 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
     const cryptoKey = await this.subtleCrypto.importKey(
       'raw',
-      key,
+      key as BufferSource,
       { name: 'AES-GCM' },
       false,
       ['encrypt'],
@@ -102,17 +102,17 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
     const encryptParams: AesGcmParams = {
       name: 'AES-GCM',
-      iv: actualIv,
+      iv: actualIv as BufferSource,
     };
 
     if (aad) {
-      encryptParams.additionalData = aad;
+      encryptParams.additionalData = aad as BufferSource;
     }
 
     const encryptedData = await this.subtleCrypto.encrypt(
       encryptParams,
       cryptoKey,
-      plaintext,
+      plaintext as BufferSource,
     );
 
     const encryptedBytes = new Uint8Array(encryptedData);
@@ -144,7 +144,7 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
     const cryptoKey = await this.subtleCrypto.importKey(
       'raw',
-      key,
+      key as BufferSource,
       { name: 'AES-GCM' },
       false,
       ['decrypt'],
@@ -152,11 +152,11 @@ export class SubtleCryptoProvider extends CryptoProvider {
 
     const decryptParams: AesGcmParams = {
       name: 'AES-GCM',
-      iv,
+      iv: iv as BufferSource,
     };
 
     if (aad) {
-      decryptParams.additionalData = aad;
+      decryptParams.additionalData = aad as BufferSource;
     }
 
     const decryptedData = await this.subtleCrypto.decrypt(
