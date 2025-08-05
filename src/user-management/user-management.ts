@@ -42,6 +42,7 @@ import {
   SerializedCreateMagicAuthOptions,
   SerializedCreatePasswordResetOptions,
   SerializedCreateUserOptions,
+  SerializedListSessionsOptions,
   SerializedListUsersOptions,
   SerializedResetPasswordOptions,
   SerializedVerifyEmailOptions,
@@ -709,7 +710,7 @@ export class UserManagement {
   async listSessions(
     userId: string,
     options?: ListSessionsOptions,
-  ): Promise<AutoPaginatable<Session>> {
+  ): Promise<AutoPaginatable<Session, SerializedListSessionsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<SessionResponse, Session>(
         this.workos,
