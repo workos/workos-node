@@ -33,7 +33,7 @@ export class AutoPaginatable<T> {
 
     if (result.listMetadata.after) {
       // Delay of 4rps to respect list users rate limits
-      await new Promise((resolve) => setTimeout(resolve, 250));
+      await new Promise((resolve) => setTimeout(resolve, 350));
       yield* this.generatePages({ after: result.listMetadata.after });
     }
   }
