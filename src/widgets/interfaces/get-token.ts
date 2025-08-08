@@ -1,14 +1,14 @@
-export type WidgetScope = 'widgets:users-table:manage';
+export type WidgetScope = 'widgets:users-table:manage' | 'widgets:sso:manage';
 
 export interface GetTokenOptions {
   organizationId: string;
-  userId: string;
+  userId?: string;
   scopes?: [WidgetScope];
 }
 
 export interface SerializedGetTokenOptions {
   organization_id: string;
-  user_id: string;
+  user_id?: string;
   scopes?: [WidgetScope];
 }
 
