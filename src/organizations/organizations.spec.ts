@@ -461,7 +461,7 @@ describe('Organizations', () => {
         });
 
       expect(fetchURL()).toContain(
-        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature-flags',
       );
 
       expect(object).toEqual('list');
@@ -514,7 +514,7 @@ describe('Organizations', () => {
         });
 
         expect(fetchURL()).toContain(
-          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature-flags',
         );
 
         expect(data).toHaveLength(3);
@@ -537,7 +537,7 @@ describe('Organizations', () => {
         });
 
         expect(fetchURL()).toContain(
-          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature-flags',
         );
 
         expect(data).toHaveLength(3);
@@ -560,7 +560,7 @@ describe('Organizations', () => {
         });
 
         expect(fetchURL()).toContain(
-          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature_flags',
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/feature-flags',
         );
 
         expect(data).toHaveLength(3);

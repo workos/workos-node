@@ -119,14 +119,14 @@ export class Organizations {
     return new AutoPaginatable(
       await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
         this.workos,
-        `/organizations/${organizationId}/feature_flags`,
+        `/organizations/${organizationId}/feature-flags`,
         deserializeFeatureFlag,
         paginationOptions,
       ),
       (params) =>
         fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
           this.workos,
-          `/organizations/${organizationId}/feature_flags`,
+          `/organizations/${organizationId}/feature-flags`,
           deserializeFeatureFlag,
           params,
         ),
