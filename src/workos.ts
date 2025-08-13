@@ -40,7 +40,7 @@ import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 
-const VERSION = '7.61.0';
+const VERSION = '7.66.1';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -278,8 +278,14 @@ export class WorkOS {
     if (error instanceof SyntaxError) {
       const rawResponse = res.getRawResponse() as Response;
       const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
+      const rawStatus = rawResponse.status;
       const rawBody = await rawResponse.text();
-      throw new ParseError(error.message, rawBody, requestID);
+      throw new ParseError({
+        message: error.message,
+        rawBody,
+        rawStatus,
+        requestID,
+      });
     }
   }
 

@@ -1,6 +1,7 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchURL } from '../../common/utils/test-utils';
 import { FetchHttpClient } from './fetch-client';
+import { ParseError } from '../exceptions/parse-error';
 
 const fetchClient = new FetchHttpClient('https://test.workos.com', {
   headers: {
@@ -222,6 +223,84 @@ describe('Fetch client', () => {
       expect(mockFetchRequest).toHaveBeenCalledTimes(2);
       expect(mockSleep).toHaveBeenCalledTimes(1);
       expect(await response.toJSON()).toEqual({ data: 'response' });
+    });
+  });
+
+  describe('error handling', () => {
+    it('should throw ParseError when response body is not valid JSON on non-200 status', async () => {
+      // Mock a 500 response with invalid JSON (like an HTML error page)
+      fetch.mockResponseOnce(
+        '<html><body>Internal Server Error</body></html>',
+        {
+          status: 500,
+          statusText: 'Internal Server Error',
+          headers: {
+            'X-Request-ID': 'test-request-123',
+            'Content-Type': 'text/html',
+          },
+        },
+      );
+
+      await expect(fetchClient.get('/users', {})).rejects.toThrow(ParseError);
+
+      try {
+        await fetchClient.get('/users', {});
+      } catch (error) {
+        expect(error).toBeInstanceOf(ParseError);
+        const parseError = error as ParseError;
+        expect(parseError.message).toContain('Unexpected token');
+        expect(parseError.rawBody).toBe(
+          '<html><body>Internal Server Error</body></html>',
+        );
+        expect(parseError.requestID).toBe('test-request-123');
+        expect(parseError.rawStatus).toBe(500);
+      }
+    });
+
+    it('should throw ParseError for non-FGA endpoints with invalid JSON response', async () => {
+      // Test with a non-FGA endpoint to ensure the error handling works for regular requests too
+      fetch.mockResponseOnce('Not JSON content', {
+        status: 400,
+        statusText: 'Bad Request',
+        headers: {
+          'X-Request-ID': 'bad-request-456',
+          'Content-Type': 'text/plain',
+        },
+      });
+
+      await expect(
+        fetchClient.post('/organizations', { name: 'Test' }, {}),
+      ).rejects.toThrow(ParseError);
+
+      try {
+        await fetchClient.post('/organizations', { name: 'Test' }, {});
+      } catch (error) {
+        expect(error).toBeInstanceOf(ParseError);
+        const parseError = error as ParseError;
+        expect(parseError.rawBody).toBe('Not JSON content');
+        expect(parseError.requestID).toBe('bad-request-456');
+        expect(parseError.rawStatus).toBe(400);
+      }
+    });
+
+    it('should throw ParseError when X-Request-ID header is missing', async () => {
+      fetch.mockResponseOnce('Invalid JSON Response', {
+        status: 422,
+        statusText: 'Unprocessable Entity',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      try {
+        await fetchClient.put('/users/123', { name: 'Updated' }, {});
+      } catch (error) {
+        expect(error).toBeInstanceOf(ParseError);
+        const parseError = error as ParseError;
+        expect(parseError.rawBody).toBe('Invalid JSON Response');
+        expect(parseError.requestID).toBe(''); // Should default to empty string when header is missing
+        expect(parseError.rawStatus).toBe(422);
+      }
     });
   });
 });

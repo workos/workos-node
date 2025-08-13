@@ -9,6 +9,10 @@ import {
   UpdateOrganizationOptions,
 } from './interfaces';
 import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from './interfaces/feature-flag.interface';
+import {
   deserializeOrganization,
   serializeCreateOrganizationOptions,
   serializeUpdateOrganizationOptions,
@@ -18,6 +22,8 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { ListOrganizationRolesResponse, RoleList } from '../roles/interfaces';
 import { deserializeRole } from '../roles/serializers/role.serializer';
 import { ListOrganizationRolesOptions } from './interfaces/list-organization-roles-options.interface';
+import { ListOrganizationFeatureFlagsOptions } from './interfaces/list-organization-feature-flags-options.interface';
+import { deserializeFeatureFlag } from './serializers/feature-flag.serializer';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -103,5 +109,28 @@ export class Organizations {
       object: 'list',
       data: response.data.map((role) => deserializeRole(role)),
     };
+  }
+
+  async listOrganizationFeatureFlags(
+    options: ListOrganizationFeatureFlagsOptions,
+  ): Promise<AutoPaginatable<FeatureFlag>> {
+    const { organizationId, ...paginationOptions } = options;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+        this.workos,
+        `/organizations/${organizationId}/feature-flags`,
+        deserializeFeatureFlag,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+          this.workos,
+          `/organizations/${organizationId}/feature-flags`,
+          deserializeFeatureFlag,
+          params,
+        ),
+      paginationOptions,
+    );
   }
 }
