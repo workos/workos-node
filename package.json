@@ -1,5 +1,5 @@
 {
-  "version": "7.66.1",
+  "version": "7.67.0",
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
@@ -8,9 +8,6 @@
   "keywords": [
     "workos"
   ],
-  "volta": {
-    "yarn": "1.22.19"
-  },
   "engines": {
     "node": ">=16"
   },
