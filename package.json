@@ -31,7 +31,7 @@
     "test:worker": "jest src/worker.spec.ts",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepublishOnly": "yarn run build"
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "iron-session": "~6.3.1",
