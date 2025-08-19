@@ -75,10 +75,7 @@ export class WorkOS {
   readonly webhooks: Webhooks;
   readonly widgets = new Widgets(this);
 
-  constructor(
-    readonly key?: string,
-    readonly options: WorkOSOptions = {},
-  ) {
+  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
       this.key = getEnv('WORKOS_API_KEY');
 
