@@ -115,7 +115,9 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeEmailVerificationEvent(event.data),
       };
+    case 'invitation.accepted':
     case 'invitation.created':
+    case 'invitation.revoked':
       return {
         ...eventBase,
         event: event.event,
