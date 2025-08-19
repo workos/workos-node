@@ -36,8 +36,8 @@ const serializeCheckWarrantOptions = (
     resource_id: isResourceInterface(warrant.resource)
       ? warrant.resource.getResourceId()
       : warrant.resource.resourceId
-        ? warrant.resource.resourceId
-        : '',
+      ? warrant.resource.resourceId
+      : '',
     relation: warrant.relation,
     subject: isSubject(warrant.subject)
       ? {

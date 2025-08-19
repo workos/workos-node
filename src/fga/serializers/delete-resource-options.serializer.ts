@@ -13,6 +13,6 @@ export const serializeDeleteResourceOptions = (
   resource_id: isResourceInterface(options)
     ? options.getResourceId()
     : options.resourceId
-      ? options.resourceId
-      : '',
+    ? options.resourceId
+    : '',
 });
