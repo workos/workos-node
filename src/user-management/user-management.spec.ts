@@ -1205,9 +1205,8 @@ describe('UserManagement', () => {
   describe('getPasswordReset', () => {
     it('sends a Get PaswordReset request', async () => {
       fetchOnce(passwordResetFixture);
-      const passwordReset = await workos.userManagement.getPasswordReset(
-        passwordResetId,
-      );
+      const passwordReset =
+        await workos.userManagement.getPasswordReset(passwordResetId);
       expect(fetchURL()).toContain(
         `/user_management/password_reset/${passwordResetId}`,
       );
@@ -1695,9 +1694,8 @@ describe('UserManagement', () => {
   describe('getInvitation', () => {
     it('sends a Get Invitation request', async () => {
       fetchOnce(invitationFixture);
-      const invitation = await workos.userManagement.getInvitation(
-        invitationId,
-      );
+      const invitation =
+        await workos.userManagement.getInvitation(invitationId);
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}`,
       );
@@ -1711,9 +1709,8 @@ describe('UserManagement', () => {
   describe('findInvitationByToken', () => {
     it('sends a find invitation by token request', async () => {
       fetchOnce(invitationFixture);
-      const invitation = await workos.userManagement.findInvitationByToken(
-        invitationToken,
-      );
+      const invitation =
+        await workos.userManagement.findInvitationByToken(invitationToken);
       expect(fetchURL()).toContain(
         `/user_management/invitations/by_token/${invitationToken}`,
       );
@@ -1812,9 +1809,8 @@ describe('UserManagement', () => {
         accepted_user_id: 'user_01HGK4K4PXNSG85RNNV0GXYP5W',
       });
 
-      const response = await workos.userManagement.acceptInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.acceptInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/accept`,
@@ -1833,9 +1829,8 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response = await workos.userManagement.revokeInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.revokeInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/revoke`,

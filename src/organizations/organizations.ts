@@ -113,7 +113,9 @@ export class Organizations {
 
   async listOrganizationFeatureFlags(
     options: ListOrganizationFeatureFlagsOptions,
-  ): Promise<AutoPaginatable<FeatureFlag>> {
+  ): Promise<
+    AutoPaginatable<FeatureFlag, ListOrganizationFeatureFlagsOptions>
+  > {
     const { organizationId, ...paginationOptions } = options;
 
     return new AutoPaginatable(
@@ -130,7 +132,7 @@ export class Organizations {
           deserializeFeatureFlag,
           params,
         ),
-      paginationOptions,
+      options,
     );
   }
 }
