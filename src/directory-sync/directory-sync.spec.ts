@@ -469,8 +469,9 @@ describe('DirectorySync', () => {
       it(`requests a Directory User`, async () => {
         fetchOnce(userWithRoleResponse);
 
-        const subject =
-          await workos.directorySync.getUser('directory_user_456');
+        const subject = await workos.directorySync.getUser(
+          'directory_user_456',
+        );
 
         expect(subject).toEqual(userWithRole);
       });
