@@ -18,7 +18,7 @@ Node 16 or higher.
 Install the package with:
 
 ```
-yarn add @workos-inc/node
+npm i @workos-inc/node
 ```
 
 ## Configuration
