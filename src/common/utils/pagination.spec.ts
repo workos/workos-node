@@ -64,7 +64,7 @@ describe('AutoPaginatable', () => {
     const resultPromise = paginatable.autoPagination();
 
     // Fast-forward through setTimeout calls
-    jest.advanceTimersByTimeAsync(250);
+    await jest.advanceTimersByTimeAsync(350);
 
     const result = await resultPromise;
 
@@ -114,10 +114,10 @@ describe('AutoPaginatable', () => {
 
     const resultPromise = paginatable.autoPagination();
 
-    jest.advanceTimersByTimeAsync(250);
+    await jest.advanceTimersByTimeAsync(700); // 350ms * 2 for two pages
     await resultPromise;
 
-    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 250);
+    expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 350);
   });
 
   it('passes through additional options to API calls', async () => {
