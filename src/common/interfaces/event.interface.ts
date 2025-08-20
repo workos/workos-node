@@ -343,13 +343,32 @@ export interface EmailVerificationCreatedEventResponse
   data: EmailVerificationEventResponse;
 }
 
+export interface InvitationAcceptedEvent extends EventBase {
+  event: 'invitation.accepted';
+  data: InvitationEvent;
+}
 export interface InvitationCreatedEvent extends EventBase {
   event: 'invitation.created';
   data: InvitationEvent;
 }
 
+export interface InvitationRevokedEvent extends EventBase {
+  event: 'invitation.revoked';
+  data: InvitationEvent;
+}
+
+export interface InvitationAcceptedEventResponse extends EventResponseBase {
+  event: 'invitation.accepted';
+  data: InvitationEventResponse;
+}
+
 export interface InvitationCreatedEventResponse extends EventResponseBase {
   event: 'invitation.created';
+  data: InvitationEventResponse;
+}
+
+export interface InvitationRevokedEventResponse extends EventResponseBase {
+  event: 'invitation.revoked';
   data: InvitationEventResponse;
 }
 
@@ -641,7 +660,9 @@ export type Event =
   | DsyncUserUpdatedEvent
   | DsyncUserDeletedEvent
   | EmailVerificationCreatedEvent
+  | InvitationAcceptedEvent
   | InvitationCreatedEvent
+  | InvitationRevokedEvent
   | MagicAuthCreatedEvent
   | PasswordResetCreatedEvent
   | PasswordResetSucceededEvent
@@ -694,7 +715,9 @@ export type EventResponse =
   | DsyncUserUpdatedEventResponse
   | DsyncUserDeletedEventResponse
   | EmailVerificationCreatedEventResponse
+  | InvitationAcceptedEventResponse
   | InvitationCreatedEventResponse
+  | InvitationRevokedEventResponse
   | MagicAuthCreatedEventResponse
   | PasswordResetCreatedEventResponse
   | PasswordResetSucceededEventResponse
