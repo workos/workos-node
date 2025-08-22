@@ -71,6 +71,7 @@ export class SSO {
     loginHint,
     organization,
     provider,
+    providerScopes,
     redirectUri,
     state,
   }: SSOAuthorizationURLOptions): string {
@@ -93,6 +94,7 @@ export class SSO {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
+      provider_scopes: providerScopes?.join(' '),
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: 'code',
