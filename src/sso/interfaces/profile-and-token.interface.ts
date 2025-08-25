@@ -1,5 +1,8 @@
 import { UnknownRecord } from '../../common/interfaces/unknown-record.interface';
-import { OauthTokens, OauthTokensResponse } from '../../user-management/interfaces/oauth-tokens.interface';
+import {
+  OauthTokens,
+  OauthTokensResponse,
+} from '../../user-management/interfaces/oauth-tokens.interface';
 import { Profile, ProfileResponse } from './profile.interface';
 
 export interface ProfileAndToken<CustomAttributesType extends UnknownRecord> {

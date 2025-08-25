@@ -347,10 +347,11 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const { accessToken, profile, oauthTokens } = await workos.sso.getProfileAndToken({
-            code: 'authorization_code',
-            clientId: 'proj_123',
-          });
+          const { accessToken, profile, oauthTokens } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+            });
 
           expect(fetch.mock.calls.length).toEqual(1);
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
@@ -390,10 +391,11 @@ describe('SSO', () => {
           });
 
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-          const { accessToken, profile, oauthTokens } = await workos.sso.getProfileAndToken({
-            code: 'authorization_code',
-            clientId: 'proj_123',
-          });
+          const { accessToken, profile, oauthTokens } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+            });
 
           expect(fetch.mock.calls.length).toEqual(1);
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
