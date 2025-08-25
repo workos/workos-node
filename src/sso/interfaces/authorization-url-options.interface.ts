@@ -10,6 +10,7 @@ export interface SSOAuthorizationURLOptions {
   domainHint?: string;
   loginHint?: string;
   provider?: string;
+  providerQueryParams?: Record<string, string | boolean | number>;
   providerScopes?: string[];
   redirectUri: string;
   state?: string;

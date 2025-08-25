@@ -205,9 +205,7 @@ describe('SSO', () => {
             redirectUri: 'example.com/sso/workos/callback',
           });
 
-          expect(url).toMatchInlineSnapshot(
-            `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&provider_scopes=profile+email+calendar&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`,
-          );
+          expect(url).toMatchSnapshot();
         });
 
         it('handles empty provider scopes array', () => {
@@ -216,6 +214,42 @@ describe('SSO', () => {
           const url = workos.sso.getAuthorizationUrl({
             provider: 'Google',
             providerScopes: [],
+            clientId: 'proj_123',
+            redirectUri: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`,
+          );
+        });
+      });
+
+      describe('with providerQueryParams', () => {
+        it('generates an authorize url with the provided provider query params', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationUrl({
+            provider: 'Google',
+            providerQueryParams: {
+              custom_param: 'custom_value',
+              another_param: 123,
+              bool_param: true,
+            },
+            clientId: 'proj_123',
+            redirectUri: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&provider_query_params%5Banother_param%5D=123&provider_query_params%5Bbool_param%5D=true&provider_query_params%5Bcustom_param%5D=custom_value&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`,
+          );
+        });
+
+        it('handles empty provider query params', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationUrl({
+            provider: 'Google',
+            providerQueryParams: {},
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
