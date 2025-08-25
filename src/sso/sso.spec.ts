@@ -193,6 +193,38 @@ describe('SSO', () => {
           );
         });
       });
+
+      describe('with providerScopes', () => {
+        it('generates an authorize url with the provided provider scopes', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationUrl({
+            provider: 'Google',
+            providerScopes: ['profile', 'email', 'calendar'],
+            clientId: 'proj_123',
+            redirectUri: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&provider_scopes=profile+email+calendar&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`,
+          );
+        });
+
+        it('handles empty provider scopes array', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationUrl({
+            provider: 'Google',
+            providerScopes: [],
+            clientId: 'proj_123',
+            redirectUri: 'example.com/sso/workos/callback',
+          });
+
+          expect(url).toMatchInlineSnapshot(
+            `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`,
+          );
+        });
+      });
     });
 
     describe('getProfileAndToken', () => {
@@ -278,6 +310,97 @@ describe('SSO', () => {
           expect(fetchHeaders()).toMatchSnapshot();
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
+        });
+      });
+
+      describe('with oauth tokens in the response', () => {
+        it('returns the oauth tokens from the profile and token response', async () => {
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              role: {
+                slug: 'admin',
+              },
+              groups: ['Admins', 'Developers'],
+              raw_attributes: {
+                email: 'foo@test.com',
+                first_name: 'foo',
+                last_name: 'bar',
+                groups: ['Admins', 'Developers'],
+              },
+              custom_attributes: {},
+            },
+            oauth_tokens: {
+              access_token: 'oauth_access_token',
+              refresh_token: 'oauth_refresh_token',
+              expires_at: 1640995200,
+              scopes: ['profile', 'email'],
+            },
+          });
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+          const { accessToken, profile, oauthTokens } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+            });
+
+          expect(fetch.mock.calls.length).toEqual(1);
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
+          expect(profile).toBeDefined();
+          expect(oauthTokens).toEqual({
+            accessToken: 'oauth_access_token',
+            refreshToken: 'oauth_refresh_token',
+            expiresAt: 1640995200,
+            scopes: ['profile', 'email'],
+          });
+        });
+      });
+
+      describe('without oauth tokens in the response', () => {
+        it('returns undefined for oauth tokens when not present in response', async () => {
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              role: {
+                slug: 'admin',
+              },
+              raw_attributes: {
+                email: 'foo@test.com',
+                first_name: 'foo',
+                last_name: 'bar',
+              },
+              custom_attributes: {},
+            },
+          });
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+          const { accessToken, profile, oauthTokens } =
+            await workos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+            });
+
+          expect(fetch.mock.calls.length).toEqual(1);
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
+          expect(profile).toBeDefined();
+          expect(oauthTokens).toBeUndefined();
         });
       });
     });
