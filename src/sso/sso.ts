@@ -1,3 +1,4 @@
+import qs from 'qs';
 import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -21,19 +22,19 @@ import {
   serializeListConnectionsOptions,
 } from './serializers';
 
-const toQueryString = (options: Record<string, string | undefined>): string => {
-  const searchParams = new URLSearchParams();
-  const keys = Object.keys(options).sort();
-
-  for (const key of keys) {
-    const value = options[key];
-
-    if (value) {
-      searchParams.append(key, value);
-    }
-  }
-
-  return searchParams.toString();
+const toQueryString = (
+  options: Record<
+    string,
+    string | string[] | Record<string, string | boolean | number> | undefined
+  >,
+): string => {
+  return qs.stringify(options, {
+    arrayFormat: 'repeat',
+    // sorts the keys alphabetically to maintain backwards compatibility
+    sort: (a, b) => a.localeCompare(b),
+    // encodes space as + instead of %20 to maintain backwards compatibility
+    format: 'RFC1738',
+  });
 };
 
 export class SSO {
@@ -71,6 +72,7 @@ export class SSO {
     loginHint,
     organization,
     provider,
+    providerQueryParams,
     providerScopes,
     redirectUri,
     state,
@@ -94,7 +96,8 @@ export class SSO {
       domain_hint: domainHint,
       login_hint: loginHint,
       provider,
-      provider_scopes: providerScopes?.join(' '),
+      provider_query_params: providerQueryParams,
+      provider_scopes: providerScopes,
       client_id: clientId,
       redirect_uri: redirectUri,
       response_type: 'code',
