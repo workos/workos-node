@@ -6,13 +6,13 @@ export type WidgetScope =
 export interface GetTokenOptions {
   organizationId: string;
   userId?: string;
-  scopes?: [WidgetScope];
+  scopes?: WidgetScope[];
 }
 
 export interface SerializedGetTokenOptions {
   organization_id: string;
   user_id?: string;
-  scopes?: [WidgetScope];
+  scopes?: WidgetScope[];
 }
 
 export const serializeGetTokenOptions = (
