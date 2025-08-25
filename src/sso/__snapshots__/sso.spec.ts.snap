@@ -12,6 +12,8 @@ exports[`SSO SSO getAuthorizationUrl with no custom api hostname generates an au
 
 exports[`SSO SSO getAuthorizationUrl with no domain or provider throws an error for incomplete arguments 1`] = `"Incomplete arguments. Need to specify either a 'connection', 'organization', 'domain', or 'provider'."`;
 
+exports[`SSO SSO getAuthorizationUrl with providerScopes generates an authorize url with the provided provider scopes 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=Google&provider_scopes=profile&provider_scopes=email&provider_scopes=calendar&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
+
 exports[`SSO SSO getAuthorizationUrl with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&domain=lyft.com&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state"`;
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
@@ -21,7 +23,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/7.69.0/fetch",
+  "User-Agent": "workos-node/7.69.1/fetch",
 }
 `;
 
@@ -65,7 +67,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "Accept": "application/json, text/plain, */*",
   "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
   "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/7.69.0/fetch",
+  "User-Agent": "workos-node/7.69.1/fetch",
 }
 `;
 
