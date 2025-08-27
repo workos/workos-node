@@ -135,6 +135,7 @@ export class WorkOS {
   createHttpClient(options: WorkOSOptions, userAgent: string) {
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
+      timeout: options.timeout,
       headers: {
         ...options.config?.headers,
         Authorization: `Bearer ${this.key}`,
