@@ -171,7 +171,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     const requestBody = body || (methodHasPayload ? '' : undefined);
 
-    const { 'User-Agent': userAgent } = (this.options?.headers || {}) as RequestHeaders;
+    const { 'User-Agent': userAgent } = (this.options?.headers ||
+      {}) as RequestHeaders;
 
     // Create AbortController for timeout if configured
     let abortController: AbortController | undefined;
@@ -194,7 +195,9 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           'Content-Type': 'application/json',
           ...this.options?.headers,
           ...headers,
-          'User-Agent': this.addClientToUserAgent((userAgent || 'workos-node').toString()),
+          'User-Agent': this.addClientToUserAgent(
+            (userAgent || 'workos-node').toString(),
+          ),
         },
         body: requestBody,
         signal: abortController?.signal,

@@ -312,7 +312,11 @@ describe('FetchHttpClient with timeout', () => {
 
   beforeEach(() => {
     mockFetch = jest.fn();
-    client = new FetchHttpClient('https://api.example.com', { timeout: 100 }, mockFetch);
+    client = new FetchHttpClient(
+      'https://api.example.com',
+      { timeout: 100 },
+      mockFetch,
+    );
   });
 
   it('should timeout requests that take too long', async () => {
@@ -330,9 +334,9 @@ describe('FetchHttpClient with timeout', () => {
       });
     });
 
-    await expect(
-      client.post('/test', { data: 'test' }, {})
-    ).rejects.toThrow(HttpClientError);
+    await expect(client.post('/test', { data: 'test' }, {})).rejects.toThrow(
+      HttpClientError,
+    );
 
     // Reset the mock for the second test
     mockFetch.mockClear();
@@ -350,13 +354,13 @@ describe('FetchHttpClient with timeout', () => {
     });
 
     await expect(
-      client.post('/test', { data: 'test' }, {})
+      client.post('/test', { data: 'test' }, {}),
     ).rejects.toMatchObject({
       message: 'Request timeout after 100ms',
       response: {
         status: 408,
-        data: { error: 'Request timeout' }
-      }
+        data: { error: 'Request timeout' },
+      },
     });
   });
 
@@ -376,8 +380,12 @@ describe('FetchHttpClient with timeout', () => {
   });
 
   it('should work without timeout configured', async () => {
-    const clientWithoutTimeout = new FetchHttpClient('https://api.example.com', {}, mockFetch);
-    
+    const clientWithoutTimeout = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+
     const mockResponse = {
       ok: true,
       status: 200,
@@ -388,7 +396,11 @@ describe('FetchHttpClient with timeout', () => {
 
     mockFetch.mockResolvedValue(mockResponse);
 
-    const result = await clientWithoutTimeout.post('/test', { data: 'test' }, {});
+    const result = await clientWithoutTimeout.post(
+      '/test',
+      { data: 'test' },
+      {},
+    );
     expect(result).toBeDefined();
   });
-}); 
+});
