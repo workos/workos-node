@@ -12,6 +12,7 @@ interface FetchHttpClientOptions extends RequestInit {
   timeout?: number;
 }
 
+const DEFAULT_FETCH_TIMEOUT = 60_000; // 60 seconds
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
 
@@ -178,14 +179,12 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     let abortController: AbortController | undefined;
     let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
-    // Access timeout from the options
-    const timeout = this.options?.timeout;
-    if (timeout) {
-      abortController = new AbortController();
-      timeoutId = setTimeout(() => {
-        abortController?.abort();
-      }, timeout);
-    }
+    // Access timeout from the options with default of 60 seconds
+    const timeout = this.options?.timeout ?? DEFAULT_FETCH_TIMEOUT; // Default 60 seconds
+    abortController = new AbortController();
+    timeoutId = setTimeout(() => {
+      abortController?.abort();
+    }, timeout);
 
     try {
       const res = await this._fetchFn(url, {
