@@ -35,6 +35,7 @@ class WorkOSNode extends WorkOS {
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
     const opts = {
       ...options.config,
+      timeout: options.timeout, // Pass through the timeout option
       headers: {
         ...options.config?.headers,
         Authorization: `Bearer ${this.key}`,

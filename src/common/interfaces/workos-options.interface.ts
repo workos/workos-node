@@ -8,4 +8,5 @@ export interface WorkOSOptions {
   appInfo?: AppInfo;
   fetchFn?: typeof fetch;
   clientId?: string;
+  timeout?: number; // Timeout in milliseconds
 }

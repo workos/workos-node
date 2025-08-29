@@ -1,6 +1,7 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchURL } from '../../common/utils/test-utils';
 import { FetchHttpClient } from './fetch-client';
+import { HttpClientError } from './http-client';
 import { ParseError } from '../exceptions/parse-error';
 
 const fetchClient = new FetchHttpClient('https://test.workos.com', {
@@ -302,5 +303,104 @@ describe('Fetch client', () => {
         expect(parseError.rawStatus).toBe(422);
       }
     });
+  });
+});
+
+describe('FetchHttpClient with timeout', () => {
+  let client: FetchHttpClient;
+  let mockFetch: jest.Mock;
+
+  beforeEach(() => {
+    mockFetch = jest.fn();
+    client = new FetchHttpClient(
+      'https://api.example.com',
+      { timeout: 100 },
+      mockFetch,
+    );
+  });
+
+  it('should timeout requests that take too long', async () => {
+    // Mock a fetch that respects AbortController
+    mockFetch.mockImplementation((_, options) => {
+      return new Promise((_, reject) => {
+        if (options.signal) {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }
+        // Never resolve - let the timeout trigger
+      });
+    });
+
+    await expect(client.post('/test', { data: 'test' }, {})).rejects.toThrow(
+      HttpClientError,
+    );
+
+    // Reset the mock for the second test
+    mockFetch.mockClear();
+    mockFetch.mockImplementation((_, options) => {
+      return new Promise((_, reject) => {
+        if (options.signal) {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }
+        // Never resolve - let the timeout trigger
+      });
+    });
+
+    await expect(
+      client.post('/test', { data: 'test' }, {}),
+    ).rejects.toMatchObject({
+      message: 'Request timeout after 100ms',
+      response: {
+        status: 408,
+        data: { error: 'Request timeout' },
+      },
+    });
+  });
+
+  it('should not timeout requests that complete quickly', async () => {
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      headers: new Map(),
+      json: () => Promise.resolve({ success: true }),
+      text: () => Promise.resolve('{"success": true}'),
+    };
+
+    mockFetch.mockResolvedValue(mockResponse);
+
+    const result = await client.post('/test', { data: 'test' }, {});
+    expect(result).toBeDefined();
+  });
+
+  it('should work without timeout configured', async () => {
+    const clientWithoutTimeout = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+
+    const mockResponse = {
+      ok: true,
+      status: 200,
+      headers: new Map(),
+      json: () => Promise.resolve({ success: true }),
+      text: () => Promise.resolve('{"success": true}'),
+    };
+
+    mockFetch.mockResolvedValue(mockResponse);
+
+    const result = await clientWithoutTimeout.post(
+      '/test',
+      { data: 'test' },
+      {},
+    );
+    expect(result).toBeDefined();
   });
 });
