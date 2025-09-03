@@ -1,6 +1,6 @@
 import { sealData, unsealData } from 'iron-session';
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import qs from 'qs';
+import * as publicUserManagement from '../public/user-management';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -146,21 +146,6 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { CookieSession } from './session';
-
-const toQueryString = (
-  options: Record<
-    string,
-    string | string[] | Record<string, string | boolean | number> | undefined
-  >,
-): string => {
-  return qs.stringify(options, {
-    arrayFormat: 'repeat',
-    // sorts the keys alphabetically to maintain backwards compatibility
-    sort: (a, b) => a.localeCompare(b),
-    // encodes space as + instead of %20 to maintain backwards compatibility
-    format: 'RFC1738',
-  });
-};
 
 export class UserManagement {
   private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
@@ -925,93 +910,24 @@ export class UserManagement {
     );
   }
 
-  getAuthorizationUrl({
-    connectionId,
-    codeChallenge,
-    codeChallengeMethod,
-    context,
-    clientId,
-    domainHint,
-    loginHint,
-    organizationId,
-    provider,
-    providerQueryParams,
-    providerScopes,
-    prompt,
-    redirectUri,
-    state,
-    screenHint,
-  }: UserManagementAuthorizationURLOptions): string {
-    if (!provider && !connectionId && !organizationId) {
-      throw new TypeError(
-        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
-      );
-    }
-
-    if (provider !== 'authkit' && screenHint) {
-      throw new TypeError(
-        `'screenHint' is only supported for 'authkit' provider`,
-      );
-    }
-
-    if (context) {
-      this.workos.emitWarning(
-        `\`context\` is deprecated. We previously required initiate login endpoints to return the
-\`context\` query parameter when getting the authorization URL. This is no longer necessary.`,
-      );
-    }
-
-    const query = toQueryString({
-      connection_id: connectionId,
-      code_challenge: codeChallenge,
-      code_challenge_method: codeChallengeMethod,
-      context,
-      organization_id: organizationId,
-      domain_hint: domainHint,
-      login_hint: loginHint,
-      provider,
-      provider_query_params: providerQueryParams,
-      provider_scopes: providerScopes,
-      prompt,
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      response_type: 'code',
-      state,
-      screen_hint: screenHint,
+  getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
+    // Delegate to public implementation
+    return publicUserManagement.getAuthorizationUrl({
+      ...options,
+      baseURL: this.workos.baseURL,
     });
-
-    return `${this.workos.baseURL}/user_management/authorize?${query}`;
   }
 
-  getLogoutUrl({
-    sessionId,
-    returnTo,
-  }: {
-    sessionId: string;
-    returnTo?: string;
-  }): string {
-    if (!sessionId) {
-      throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
-    }
-
-    const url = new URL(
-      '/user_management/sessions/logout',
-      this.workos.baseURL,
-    );
-
-    url.searchParams.set('session_id', sessionId);
-    if (returnTo) {
-      url.searchParams.set('return_to', returnTo);
-    }
-
-    return url.toString();
+  getLogoutUrl(options: publicUserManagement.LogoutURLOptions): string {
+    // Delegate to public implementation
+    return publicUserManagement.getLogoutUrl({
+      ...options,
+      baseURL: this.workos.baseURL,
+    });
   }
 
   getJwksUrl(clientId: string): string {
-    if (!clientId) {
-      throw TypeError('clientId must be a valid clientId');
-    }
-
-    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
+    // Delegate to public implementation
+    return publicUserManagement.getJwksUrl(clientId, this.workos.baseURL);
   }
 }
