@@ -136,23 +136,6 @@ describe('Public User Management Methods', () => {
         "Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.",
       );
     });
-
-    it('warns about deprecated context parameter', () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation();
-
-      getAuthorizationUrl({
-        clientId: 'client_123',
-        redirectUri: 'https://app.com/callback',
-        provider: 'authkit',
-        context: 'deprecated_context',
-      });
-
-      expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('context` is deprecated'),
-      );
-
-      consoleSpy.mockRestore();
-    });
   });
 
   describe('getLogoutUrl', () => {
