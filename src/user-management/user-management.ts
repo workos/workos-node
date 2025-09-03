@@ -1,6 +1,6 @@
 import { sealData, unsealData } from 'iron-session';
 import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import * as publicUserManagement from '../public/user-management';
+import * as clientUserManagement from '../client/user-management';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -911,23 +911,23 @@ export class UserManagement {
   }
 
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
-    // Delegate to public implementation
-    return publicUserManagement.getAuthorizationUrl({
+    // Delegate to client implementation
+    return clientUserManagement.getAuthorizationUrl({
       ...options,
       baseURL: this.workos.baseURL,
     });
   }
 
-  getLogoutUrl(options: publicUserManagement.LogoutURLOptions): string {
-    // Delegate to public implementation
-    return publicUserManagement.getLogoutUrl({
+  getLogoutUrl(options: clientUserManagement.LogoutURLOptions): string {
+    // Delegate to client implementation
+    return clientUserManagement.getLogoutUrl({
       ...options,
       baseURL: this.workos.baseURL,
     });
   }
 
   getJwksUrl(clientId: string): string {
-    // Delegate to public implementation
-    return publicUserManagement.getJwksUrl(clientId, this.workos.baseURL);
+    // Delegate to client implementation
+    return clientUserManagement.getJwksUrl(clientId, this.workos.baseURL);
   }
 }

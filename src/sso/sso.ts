@@ -1,4 +1,4 @@
-import * as publicSSO from '../public/sso';
+import * as clientSSO from '../client/sso';
 import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -51,8 +51,8 @@ export class SSO {
   }
 
   getAuthorizationUrl(options: SSOAuthorizationURLOptions): string {
-    // Delegate to public implementation
-    return publicSSO.getAuthorizationUrl({
+    // Delegate to client implementation
+    return clientSSO.getAuthorizationUrl({
       ...options,
       baseURL: this.workos.baseURL,
     });

@@ -15,7 +15,7 @@ export interface SSOAuthorizationURLOptions {
 
 /**
  * Generates the authorization URL for SSO authentication.
- * This method is safe to use in browser environments as it doesn't require an API key.
+ * Does not require an API key, suitable for OAuth client operations.
  *
  * @param options - SSO authorization URL options
  * @returns The authorization URL as a string

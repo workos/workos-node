@@ -1,6 +1,6 @@
 import { toQueryString } from './utils';
 
-// Re-export necessary interfaces for public use
+// Re-export necessary interfaces for client use
 export interface AuthorizationURLOptions {
   clientId: string;
   codeChallenge?: string;
@@ -29,8 +29,8 @@ export interface LogoutURLOptions {
 }
 
 /**
- * Generates the authorization URL for user authentication.
- * This method is safe to use in browser environments as it doesn't require an API key.
+ * Generates the authorization URL for OAuth client authentication.
+ * Suitable for PKCE flows and other OAuth client operations that don't require an API key.
  *
  * @param options - Authorization URL options
  * @returns The authorization URL as a string
@@ -128,7 +128,7 @@ export function getLogoutUrl(
 
 /**
  * Gets the JWKS (JSON Web Key Set) URL for a given client ID.
- * This method is safe to use in browser environments as it doesn't require an API key.
+ * Does not require an API key, returns the public JWKS endpoint.
  *
  * @param clientId - The WorkOS client ID
  * @param baseURL - Optional base URL for the API (defaults to https://api.workos.com)
@@ -140,7 +140,7 @@ export function getJwksUrl(
   baseURL = 'https://api.workos.com',
 ): string {
   if (!clientId) {
-    throw TypeError('clientId must be a valid clientId');
+    throw new TypeError('clientId must be a valid clientId');
   }
 
   return `${baseURL}/sso/jwks/${clientId}`;

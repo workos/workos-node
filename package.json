@@ -103,14 +103,14 @@
       "require": "./lib/cjs/index.cjs",
       "default": "./lib/esm/index.js"
     },
-    "./public": {
+    "./client": {
       "types": {
-        "require": "./lib/cjs/index.public.d.cts",
-        "import": "./lib/esm/index.public.d.ts"
+        "require": "./lib/cjs/index.client.d.cts",
+        "import": "./lib/esm/index.client.d.ts"
       },
-      "import": "./lib/esm/index.public.js",
-      "require": "./lib/cjs/index.public.cjs",
-      "default": "./lib/esm/index.public.js"
+      "import": "./lib/esm/index.client.js",
+      "require": "./lib/cjs/index.client.cjs",
+      "default": "./lib/esm/index.client.js"
     },
     "./worker": {
       "types": {

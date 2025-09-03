@@ -1,11 +1,12 @@
 /**
- * Public methods that can be safely used in without an API key.
+ * Client methods that can be used without a WorkOS API key.
+ * These are OAuth client operations suitable for PKCE flows.
  */
 
-// User Management public methods and types
+// User Management client methods and types
 export * as userManagement from './user-management';
 
-// SSO public methods and types
+// SSO client methods and types
 export * as sso from './sso';
 
 // Re-export specific types for convenience
