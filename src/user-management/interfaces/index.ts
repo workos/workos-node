@@ -44,6 +44,3 @@ export * from './update-user-options.interface';
 export * from './update-user-password-options.interface';
 export * from './user.interface';
 export * from './verify-email-options.interface';
-
-export * from './refresh-and-seal-session-data.interface';
-export * from './authenticate-with-session-cookie.interface';
