@@ -9,4 +9,5 @@ export const serializeCreateOrganizationMembershipOptions = (
   organization_id: options.organizationId,
   user_id: options.userId,
   role_slug: options.roleSlug,
+  role_slugs: options.roleSlugs,
 });

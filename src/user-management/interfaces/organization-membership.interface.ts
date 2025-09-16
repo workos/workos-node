@@ -12,6 +12,7 @@ export interface OrganizationMembership {
   createdAt: string;
   updatedAt: string;
   role: RoleResponse;
+  roles?: RoleResponse[];
 }
 
 export interface OrganizationMembershipResponse {
@@ -24,4 +25,5 @@ export interface OrganizationMembershipResponse {
   created_at: string;
   updated_at: string;
   role: RoleResponse;
+  roles?: RoleResponse[];
 }
