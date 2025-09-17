@@ -7,4 +7,5 @@ export const serializeUpdateOrganizationMembershipOptions = (
   options: UpdateOrganizationMembershipOptions,
 ): SerializedUpdateOrganizationMembershipOptions => ({
   role_slug: options.roleSlug,
+  role_slugs: options.roleSlugs,
 });
