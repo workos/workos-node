@@ -11,6 +11,7 @@ export interface AccessToken {
   sid: string;
   org_id?: string;
   role?: string;
+  roles?: string[];
   permissions?: string[];
   entitlements?: string[];
   feature_flags?: string[];
@@ -37,6 +38,7 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   sessionId: string;
   organizationId?: string;
   role?: string;
+  roles?: string[];
   permissions?: string[];
   entitlements?: string[];
   featureFlags?: string[];
