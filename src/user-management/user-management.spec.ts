@@ -1028,6 +1028,49 @@ describe('UserManagement', () => {
         accessToken,
       });
     });
+
+    it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
+      jest
+        .spyOn(jose, 'jwtVerify')
+        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const accessToken =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iLCJtZW1iZXIiXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl0sImVudGl0bGVtZW50cyI6WyJhdWRpdC1sb2dzIl0sImZlYXR1cmVfZmxhZ3MiOlsiZGFyay1tb2RlIiwiYmV0YS1mZWF0dXJlcyJdLCJ1c2VyIjp7Im9iamVjdCI6InVzZXIiLCJpZCI6InVzZXJfMDFINUpRRFY3UjdBVEVZWkRFRzBXNVBSWVMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifX0.hsMptIB7PmbF5pxxtgTtCdUyOAhA11ZIAP-JY5zU5fE';
+
+      const sessionData = await sealData(
+        {
+          accessToken,
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      await expect(
+        workos.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        }),
+      ).resolves.toEqual({
+        authenticated: true,
+        sessionId: 'session_123',
+        organizationId: 'org_123',
+        role: 'admin',
+        roles: ['admin', 'member'],
+        permissions: ['posts:create', 'posts:delete'],
+        entitlements: ['audit-logs'],
+        featureFlags: ['dark-mode', 'beta-features'],
+        user: expect.objectContaining({
+          email: 'test@example.com',
+        }),
+        accessToken,
+      });
+    });
   });
 
   describe('refreshAndSealSessionData', () => {
