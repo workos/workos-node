@@ -283,6 +283,53 @@ describe('Session', () => {
 
         expect(resp.authenticated).toBe(true);
       });
+
+      it('rotates refresh tokens when refreshing session', async () => {
+        const originalRefreshToken = 'original_refresh_token_123';
+        const newRefreshToken = 'new_refresh_token_456';
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        // Mock the API to return a new refresh token
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken: newRefreshToken, // Different from original
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        // Create initial session with original refresh token
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: originalRefreshToken,
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        // Verify we got a new sealed session (which proves the refresh token was rotated)
+        expect(response.sealedSession).toBeDefined();
+        expect(response.sealedSession).not.toBe(sessionData);
+      });
     });
   });
 
