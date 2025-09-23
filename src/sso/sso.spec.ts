@@ -70,6 +70,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const urlFn = () =>
+            // @ts-expect-error Testing runtime validation with invalid input
             workos.sso.getAuthorizationUrl({
               clientId: 'proj_123',
               redirectUri: 'example.com/sso/workos/callback',
