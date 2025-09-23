@@ -102,6 +102,7 @@ describe('Public SSO Methods', () => {
 
     it('throws error when no provider, connection, or organization specified', () => {
       expect(() => {
+        // @ts-expect-error Testing runtime validation with invalid input
         getAuthorizationUrl({
           clientId: 'client_123',
           redirectUri: 'https://app.com/callback',

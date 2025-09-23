@@ -1,17 +1,10 @@
 import { toQueryString } from './utils';
+import type { SSOAuthorizationURLOptions as BaseSSOAuthorizationURLOptions } from '../sso/interfaces';
 
-export interface SSOAuthorizationURLOptions {
-  clientId: string;
-  connection?: string;
-  organization?: string;
-  domainHint?: string;
-  loginHint?: string;
-  provider?: string;
-  providerQueryParams?: Record<string, string | boolean | number>;
-  providerScopes?: string[];
-  redirectUri: string;
-  state?: string;
-}
+// Extend the base options to include baseURL for internal use
+export type SSOAuthorizationURLOptions = BaseSSOAuthorizationURLOptions & {
+  baseURL?: string;
+};
 
 /**
  * Generates the authorization URL for SSO authentication.
@@ -22,7 +15,7 @@ export interface SSOAuthorizationURLOptions {
  * @throws Error if required arguments are missing
  */
 export function getAuthorizationUrl(
-  options: SSOAuthorizationURLOptions & { baseURL?: string },
+  options: SSOAuthorizationURLOptions,
 ): string {
   const {
     connection,
