@@ -1,7 +1,7 @@
 import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
 
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ListSessionsOptions extends PaginationOptions {}
 
-// tslint:disable-next-line:no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface SerializedListSessionsOptions extends PaginationOptions {}
