@@ -105,6 +105,15 @@
       "require": "./lib/cjs/index.cjs",
       "default": "./lib/esm/index.js"
     },
+    "./client": {
+      "types": {
+        "require": "./lib/cjs/index.client.d.cts",
+        "import": "./lib/esm/index.client.d.ts"
+      },
+      "import": "./lib/esm/index.client.js",
+      "require": "./lib/cjs/index.client.cjs",
+      "default": "./lib/esm/index.client.js"
+    },
     "./worker": {
       "types": {
         "require": "./lib/cjs/index.worker.d.cts",
