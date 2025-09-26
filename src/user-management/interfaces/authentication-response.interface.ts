@@ -10,6 +10,7 @@ type AuthenticationMethod =
   | 'GitHubOAuth'
   | 'GoogleOAuth'
   | 'MicrosoftOAuth'
+  | 'SalesforceOAuth'
   | 'MagicAuth'
   | 'Impersonation';
 

@@ -28,6 +28,7 @@ export enum ConnectionType {
   PingFederateSAML = 'PingFederateSAML',
   PingOneSAML = 'PingOneSAML',
   RipplingSAML = 'RipplingSAML',
+  SalesforceOAuth = 'SalesforceOAuth',
   SalesforceSAML = 'SalesforceSAML',
   ShibbolethGenericSAML = 'ShibbolethGenericSAML',
   ShibbolethSAML = 'ShibbolethSAML',
