@@ -40,7 +40,7 @@ import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
 
-const VERSION = '8.0.0-beta.3';
+const VERSION = '8.0.0-beta.4';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
