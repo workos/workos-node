@@ -7,6 +7,7 @@ export interface User {
   firstName: string | null;
   lastName: string | null;
   lastSignInAt: string | null;
+  locale: string | null;
   createdAt: string;
   updatedAt: string;
   externalId: string | null;
@@ -22,6 +23,7 @@ export interface UserResponse {
   first_name: string | null;
   last_name: string | null;
   last_sign_in_at: string | null;
+  locale: string | null;
   created_at: string;
   updated_at: string;
   external_id?: string;

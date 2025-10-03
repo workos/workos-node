@@ -9,6 +9,7 @@ export const deserializeUser = (user: UserResponse): User => ({
   profilePictureUrl: user.profile_picture_url,
   lastName: user.last_name,
   lastSignInAt: user.last_sign_in_at,
+  locale: user.locale,
   createdAt: user.created_at,
   updatedAt: user.updated_at,
   externalId: user.external_id ?? null,

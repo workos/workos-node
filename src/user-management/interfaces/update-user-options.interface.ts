@@ -10,6 +10,7 @@ export interface UpdateUserOptions {
   passwordHash?: string;
   passwordHashType?: PasswordHashType;
   externalId?: string;
+  locale?: string;
   metadata?: Record<string, string | null>;
 }
 
@@ -22,5 +23,6 @@ export interface SerializedUpdateUserOptions {
   password_hash?: string;
   password_hash_type?: PasswordHashType;
   external_id?: string;
+  locale?: string;
   metadata?: Record<string, string | null>;
 }
