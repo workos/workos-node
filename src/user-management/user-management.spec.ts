@@ -1485,13 +1485,18 @@ describe('UserManagement', () => {
     it('updates user locale', async () => {
       fetchOnce(userFixture);
 
-      await workos.userManagement.updateUser({
+      const resp = await workos.userManagement.updateUser({
         userId,
         locale: 'en-US',
       });
 
       expect(fetchURL()).toContain(`/user_management/users/${userId}`);
       expect(fetchBody()).toEqual({
+        locale: 'en-US',
+      });
+
+      expect(resp).toMatchObject({
+        id: userId,
         locale: 'en-US',
       });
     });
