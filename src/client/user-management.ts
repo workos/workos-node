@@ -6,11 +6,6 @@ export interface AuthorizationURLOptions {
   codeChallenge?: string;
   codeChallengeMethod?: 'S256';
   connectionId?: string;
-  /**
-   *  @deprecated We previously required initiate login endpoints to return the `context`
-   *  query parameter when getting the authorization URL. This is no longer necessary.
-   */
-  context?: string;
   organizationId?: string;
   domainHint?: string;
   loginHint?: string;
@@ -43,7 +38,6 @@ export function getAuthorizationUrl(
     connectionId,
     codeChallenge,
     codeChallengeMethod,
-    context,
     clientId,
     domainHint,
     loginHint,
@@ -70,18 +64,10 @@ export function getAuthorizationUrl(
     );
   }
 
-  if (context) {
-    console.warn(
-      `WorkOS: \`context\` is deprecated. We previously required initiate login endpoints to return the
-\`context\` query parameter when getting the authorization URL. This is no longer necessary.`,
-    );
-  }
-
   const query = toQueryString({
     connection_id: connectionId,
     code_challenge: codeChallenge,
     code_challenge_method: codeChallengeMethod,
-    context,
     organization_id: organizationId,
     domain_hint: domainHint,
     login_hint: loginHint,

@@ -13,7 +13,6 @@ export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
-export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
 export * from './fga/interfaces';
 export * from './organizations/interfaces';
