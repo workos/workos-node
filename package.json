@@ -36,7 +36,8 @@
     "check:runtimes": "tsx scripts/ecosystem-check.ts",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "iron-session": "^8.0.4",
