@@ -25,19 +25,10 @@ describe('Webhooks', () => {
     expectation = {
       id: 'directory_user_01FAEAJCR3ZBZ30D8BD1924TVG',
       state: 'active',
-      emails: [
-        {
-          type: 'work',
-          value: 'blair@foo-corp.com',
-          primary: true,
-        },
-      ],
       idpId: '00u1e8mutl6wlH3lL4x7',
       object: 'directory_user',
-      username: 'blair@foo-corp.com',
       lastName: 'Lunchford',
       firstName: 'Blair',
-      jobTitle: 'Software Engineer',
       directoryId: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
       createdAt: '2021-06-25T19:07:33.155Z',
       updatedAt: '2021-06-25T19:07:33.155Z',
@@ -50,20 +41,12 @@ describe('Webhooks', () => {
         },
         title: 'Software Engineer',
         active: true,
-        emails: [
-          {
-            type: 'work',
-            value: 'blair@foo-corp.com',
-            primary: true,
-          },
-        ],
         groups: [],
         locale: 'en-US',
         schemas: [
           'urn:ietf:params:scim:schemas:core:2.0:User',
           'urn:ietf:params:scim:schemas:extension:enterprise:2.0:User',
         ],
-        userName: 'blair@foo-corp.com',
         addresses: [
           {
             region: 'CA',
