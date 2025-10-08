@@ -22,6 +22,12 @@ import identityFixture from './fixtures/identity.json';
 import * as jose from 'jose';
 import { sealData } from 'iron-session';
 
+jest.mock('jose', () => ({
+  ...jest.requireActual('jose'),
+  jwtVerify: jest.fn(),
+  createRemoteJWKSet: jest.fn(),
+}));
+
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -885,15 +891,13 @@ describe('UserManagement', () => {
     });
     beforeEach(() => {
       // Mock createRemoteJWKSet
-      jest
-        .spyOn(jose, 'createRemoteJWKSet')
-        .mockImplementation(
+      jest.mocked(jose.createRemoteJWKSet).mockImplementation(
           (_url: URL, _options?: jose.RemoteJWKSetOptions) => {
             // This function simulates the token verification process
             const verifyFunction = (
               _protectedHeader: jose.JWSHeaderParameters,
               _token: jose.FlattenedJWSInput,
-            ): Promise<jose.KeyLike> => {
+            ): Promise<any> => {
               return Promise.resolve({
                 type: 'public',
               });
@@ -971,7 +975,7 @@ describe('UserManagement', () => {
     });
 
     it('returns authenticated = false when the JWT is invalid', async () => {
-      jest.spyOn(jose, 'jwtVerify').mockImplementationOnce(() => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
         throw new Error('Invalid JWT');
       });
 
@@ -998,8 +1002,7 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
-      jest
-        .spyOn(jose, 'jwtVerify')
+      jest.mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1040,8 +1043,7 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
-      jest
-        .spyOn(jose, 'jwtVerify')
+      jest.mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';

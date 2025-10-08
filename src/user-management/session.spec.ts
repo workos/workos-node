@@ -6,6 +6,11 @@ import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
 
+jest.mock('jose', () => ({
+  ...jest.requireActual('jose'),
+  jwtVerify: jest.fn(),
+}));
+
 describe('Session', () => {
   let workos: WorkOS;
 
@@ -66,7 +71,7 @@ describe('Session', () => {
     });
 
     it('returns a failed response if the accessToken is not a valid JWT', async () => {
-      jest.spyOn(jose, 'jwtVerify').mockImplementation(() => {
+      jest.mocked(jose.jwtVerify).mockImplementation(() => {
         throw new Error('Invalid JWT');
       });
 
@@ -99,8 +104,7 @@ describe('Session', () => {
     });
 
     it('returns a successful response if the sessionData is valid', async () => {
-      jest
-        .spyOn(jose, 'jwtVerify')
+      jest.mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -247,7 +251,7 @@ describe('Session', () => {
         });
 
         jest
-          .spyOn(jose, 'jwtVerify')
+          .mocked(jose.jwtVerify)
           .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -335,8 +339,7 @@ describe('Session', () => {
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
-      jest
-        .spyOn(jose, 'jwtVerify')
+      jest.mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -381,7 +384,7 @@ describe('Session', () => {
     describe('when a returnTo URL is provided', () => {
       it('returns a logout URL for the user', async () => {
         jest
-          .spyOn(jose, 'jwtVerify')
+          .mocked(jose.jwtVerify)
           .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
