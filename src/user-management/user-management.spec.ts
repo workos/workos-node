@@ -56,6 +56,7 @@ describe('UserManagement', () => {
         lastName: 'User',
         emailVerified: true,
         lastSignInAt: '2023-07-18T02:07:19.911Z',
+        locale: 'en-US',
       });
     });
   });
@@ -78,6 +79,7 @@ describe('UserManagement', () => {
         lastName: 'User',
         emailVerified: true,
         lastSignInAt: '2023-07-18T02:07:19.911Z',
+        locale: 'en-US',
         externalId,
       });
     });
@@ -1477,6 +1479,25 @@ describe('UserManagement', () => {
 
       expect(fetchBody()).toMatchObject({
         metadata: {},
+      });
+    });
+
+    it('updates user locale', async () => {
+      fetchOnce(userFixture);
+
+      const resp = await workos.userManagement.updateUser({
+        userId,
+        locale: 'en-US',
+      });
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}`);
+      expect(fetchBody()).toEqual({
+        locale: 'en-US',
+      });
+
+      expect(resp).toMatchObject({
+        id: userId,
+        locale: 'en-US',
       });
     });
   });

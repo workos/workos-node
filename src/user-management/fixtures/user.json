@@ -9,5 +9,6 @@
   "email_verified": true,
   "profile_picture_url": "https://example.com/profile_picture.jpg",
   "last_sign_in_at": "2023-07-18T02:07:19.911Z",
+  "locale": "en-US",
   "metadata": { "key": "value" }
 }
