@@ -2198,7 +2198,7 @@ describe('UserManagement', () => {
 
       expect(() => {
         workos.userManagement.getJwksUrl('');
-      }).toThrowError(TypeError);
+      }).toThrow(TypeError);
     });
   });
 });

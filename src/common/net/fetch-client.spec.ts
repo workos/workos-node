@@ -180,9 +180,9 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      await expect(
-        fetchClient.get('/fga/v1/resources', {}),
-      ).rejects.toThrowError('Gateway Timeout');
+      await expect(fetchClient.get('/fga/v1/resources', {})).rejects.toThrow(
+        'Gateway Timeout',
+      );
 
       expect(mockShouldRetryRequest).toHaveBeenCalledTimes(4);
       expect(mockSleep).toHaveBeenCalledTimes(3);
@@ -200,9 +200,9 @@ describe('Fetch client', () => {
         'shouldRetryRequest',
       );
 
-      await expect(
-        fetchClient.get('/fga/v1/resources', {}),
-      ).rejects.toThrowError('Bad Request');
+      await expect(fetchClient.get('/fga/v1/resources', {})).rejects.toThrow(
+        'Bad Request',
+      );
 
       expect(mockShouldRetryRequest).toHaveBeenCalledTimes(1);
     });
