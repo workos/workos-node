@@ -11,7 +11,7 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 
 ## Requirements
 
-Node 18 or higher.
+Node 20 or higher.
 
 ## Installation
 
