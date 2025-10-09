@@ -281,9 +281,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('invalid apikey');
 
-        await expect(
-          workos.auditLogs.createExport(options),
-        ).rejects.toThrow(UnauthorizedException);
+        await expect(workos.auditLogs.createExport(options)).rejects.toThrow(
+          UnauthorizedException,
+        );
       });
     });
   });

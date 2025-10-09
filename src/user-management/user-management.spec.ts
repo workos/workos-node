@@ -891,7 +891,9 @@ describe('UserManagement', () => {
     });
     beforeEach(() => {
       // Mock createRemoteJWKSet
-      jest.mocked(jose.createRemoteJWKSet).mockImplementation(
+      jest
+        .mocked(jose.createRemoteJWKSet)
+        .mockImplementation(
           (_url: URL, _options?: jose.RemoteJWKSetOptions) => {
             // This function simulates the token verification process
             const verifyFunction = (
@@ -1002,7 +1004,8 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
-      jest.mocked(jose.jwtVerify)
+      jest
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1043,7 +1046,8 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
-      jest.mocked(jose.jwtVerify)
+      jest
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';

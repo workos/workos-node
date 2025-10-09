@@ -104,7 +104,8 @@ describe('Session', () => {
     });
 
     it('returns a successful response if the sessionData is valid', async () => {
-      jest.mocked(jose.jwtVerify)
+      jest
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -339,7 +340,8 @@ describe('Session', () => {
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
-      jest.mocked(jose.jwtVerify)
+      jest
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
