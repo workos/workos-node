@@ -11,7 +11,7 @@ import {
 import {
   FeatureFlag,
   FeatureFlagResponse,
-} from './interfaces/feature-flag.interface';
+} from '../feature-flags/interfaces/feature-flag.interface';
 import {
   deserializeOrganization,
   serializeCreateOrganizationOptions,
@@ -23,7 +23,7 @@ import { ListOrganizationRolesResponse, RoleList } from '../roles/interfaces';
 import { deserializeRole } from '../roles/serializers/role.serializer';
 import { ListOrganizationRolesOptions } from './interfaces/list-organization-roles-options.interface';
 import { ListOrganizationFeatureFlagsOptions } from './interfaces/list-organization-feature-flags-options.interface';
-import { deserializeFeatureFlag } from './serializers/feature-flag.serializer';
+import { deserializeFeatureFlag } from '../feature-flags/serializers/feature-flag.serializer';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
