@@ -13,6 +13,7 @@ import listFactorFixture from './fixtures/list-factors.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import listSessionsFixture from './fixtures/list-sessions.json';
+import listUserFeatureFlagsFixture from './fixtures/list-user-feature-flags.json';
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
@@ -1598,6 +1599,118 @@ describe('UserManagement', () => {
           before: null,
           after: null,
         },
+      });
+    });
+  });
+
+  describe('listUserFeatureFlags', () => {
+    it('returns feature flags for the user', async () => {
+      fetchOnce(listUserFeatureFlagsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.userManagement.listUserFeatureFlags({ userId });
+
+      expect(fetchURL()).toContain(
+        `/user_management/users/${userId}/feature-flags`,
+      );
+
+      expect(object).toEqual('list');
+      expect(listMetadata).toEqual({});
+      expect(data).toHaveLength(3);
+      expect(data).toEqual([
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C5',
+          name: 'Advanced Dashboard',
+          slug: 'advanced-dashboard',
+          description: 'Enable advanced dashboard features',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C6',
+          name: 'Beta Features',
+          slug: 'beta-features',
+          description: null,
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+        {
+          object: 'feature_flag',
+          id: 'flag_01EHQMYV6MBK39QC5PZXHY59C7',
+          name: 'Premium Support',
+          slug: 'premium-support',
+          description: 'Access to premium support features',
+          createdAt: '2024-01-01T00:00:00.000Z',
+          updatedAt: '2024-01-01T00:00:00.000Z',
+        },
+      ]);
+    });
+
+    describe('with the before option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listUserFeatureFlagsFixture);
+
+        const { data } = await workos.userManagement.listUserFeatureFlags({
+          userId,
+          before: 'flag_before_id',
+        });
+
+        expect(fetchSearchParams()).toEqual({
+          before: 'flag_before_id',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          `/user_management/users/${userId}/feature-flags`,
+        );
+
+        expect(data).toHaveLength(3);
+      });
+    });
+
+    describe('with the after option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listUserFeatureFlagsFixture);
+
+        const { data } = await workos.userManagement.listUserFeatureFlags({
+          userId,
+          after: 'flag_after_id',
+        });
+
+        expect(fetchSearchParams()).toEqual({
+          after: 'flag_after_id',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          `/user_management/users/${userId}/feature-flags`,
+        );
+
+        expect(data).toHaveLength(3);
+      });
+    });
+
+    describe('with the limit option', () => {
+      it('forms the proper request to the API', async () => {
+        fetchOnce(listUserFeatureFlagsFixture);
+
+        const { data } = await workos.userManagement.listUserFeatureFlags({
+          userId,
+          limit: 3,
+        });
+
+        expect(fetchSearchParams()).toEqual({
+          limit: '3',
+          order: 'desc',
+        });
+
+        expect(fetchURL()).toContain(
+          `/user_management/users/${userId}/feature-flags`,
+        );
+
+        expect(data).toHaveLength(3);
       });
     });
   });

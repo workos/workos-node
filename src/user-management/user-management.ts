@@ -6,6 +6,11 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
 import { deserializeChallenge } from '../mfa/serializers';
+import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from '../feature-flags/interfaces/feature-flag.interface';
+import { deserializeFeatureFlag } from '../feature-flags/serializers/feature-flag.serializer';
 import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeOptions,
@@ -26,6 +31,7 @@ import {
   ListAuthFactorsOptions,
   ListSessionsOptions,
   ListUsersOptions,
+  ListUserFeatureFlagsOptions,
   MagicAuth,
   MagicAuthResponse,
   PasswordReset,
@@ -818,6 +824,29 @@ export class UserManagement {
           params,
         ),
       restOfOptions,
+    );
+  }
+
+  async listUserFeatureFlags(
+    options: ListUserFeatureFlagsOptions,
+  ): Promise<AutoPaginatable<FeatureFlag>> {
+    const { userId, ...paginationOptions } = options;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+        this.workos,
+        `/user_management/users/${userId}/feature-flags`,
+        deserializeFeatureFlag,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+          this.workos,
+          `/user_management/users/${userId}/feature-flags`,
+          deserializeFeatureFlag,
+          params,
+        ),
+      paginationOptions,
     );
   }
 
