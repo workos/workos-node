@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`UserManagement getAuthorizationUrl with a code_challenge and code_challenge_method generates an authorize url 1`] = `"https://api.workos.com/user_management/authorize?client_id=proj_123&code_challenge=code_challenge_value&code_challenge_method=S256&provider=authkit&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code"`;
 
