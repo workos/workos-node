@@ -1,4 +1,4 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
 exports[`SSO SSO getAuthorizationUrl with a connection generates an authorize url with the connection 1`] = `"https://api.workos.dev/sso/authorize?client_id=proj_123&connection=connection_123&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code"`;
 

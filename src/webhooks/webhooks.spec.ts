@@ -99,9 +99,9 @@ describe('Webhooks', () => {
         const sigHeader = '';
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
 
@@ -110,9 +110,9 @@ describe('Webhooks', () => {
         const sigHeader = `t=${timestamp}, v1=`;
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
 
@@ -121,9 +121,9 @@ describe('Webhooks', () => {
         const sigHeader = `t=${timestamp}, v1=99999`;
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
 
@@ -133,9 +133,9 @@ describe('Webhooks', () => {
         payload = 'invalid';
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
 
@@ -145,9 +145,9 @@ describe('Webhooks', () => {
         secret = 'invalid';
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
 
@@ -156,9 +156,9 @@ describe('Webhooks', () => {
         const sigHeader = `t=9999, v1=${signatureHash}`;
         const options = { payload, sigHeader, secret };
 
-        await expect(
-          workos.webhooks.constructEvent(options),
-        ).rejects.toThrowError(SignatureVerificationException);
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
       });
     });
   });
