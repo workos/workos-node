@@ -202,7 +202,7 @@ describe('Organizations', () => {
             ],
             name: 'Test Organization',
           }),
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           'An Organization with the domain example.com already exists.',
         );
         expect(fetchBody()).toEqual({
@@ -354,7 +354,7 @@ describe('Organizations', () => {
               organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
               stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
             }),
-          ).rejects.toThrowError(
+          ).rejects.toThrow(
             'stripe_customer_id is not enabled for this environment',
           );
 
