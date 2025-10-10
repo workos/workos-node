@@ -17,7 +17,6 @@ import {
   serializeCreateAuditLogEventOptions,
   serializeCreateAuditLogSchemaOptions,
 } from './serializers';
-import { FetchError } from '../common/utils/fetch-error';
 
 const event: CreateAuditLogEventOptions = {
   action: 'document.updated',
@@ -174,18 +173,14 @@ describe('AuditLogs', () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
 
         workosSpy.mockImplementationOnce(() => {
-          throw new FetchError({
-            message:
-              'Could not authorize the request. Maybe your API key is invalid?',
-            response: { status: 401, headers: new Headers(), data: {} },
-          });
+          throw new UnauthorizedException('a-request-id');
         });
 
         const workos = new WorkOS('invalid apikey');
 
         await expect(
           workos.auditLogs.createEvent('org_123', event),
-        ).rejects.toThrowError(new UnauthorizedException('a-request-id'));
+        ).rejects.toThrow(UnauthorizedException);
       });
     });
 
@@ -487,18 +482,14 @@ describe('AuditLogs', () => {
         };
 
         workosSpy.mockImplementationOnce(() => {
-          throw new FetchError({
-            message:
-              'Could not authorize the request. Maybe your API key is invalid?',
-            response: { status: 401, headers: new Headers(), data: {} },
-          });
+          throw new UnauthorizedException('a-request-id');
         });
 
         const workos = new WorkOS('invalid apikey');
 
-        await expect(
-          workos.auditLogs.createExport(options),
-        ).rejects.toThrowError(new UnauthorizedException('a-request-id'));
+        await expect(workos.auditLogs.createExport(options)).rejects.toThrow(
+          UnauthorizedException,
+        );
       });
     });
   });
@@ -549,18 +540,14 @@ describe('AuditLogs', () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
 
         workosSpy.mockImplementationOnce(() => {
-          throw new FetchError({
-            message:
-              'Could not authorize the request. Maybe your API key is invalid?',
-            response: { status: 401, headers: new Headers(), data: {} },
-          });
+          throw new UnauthorizedException('a-request-id');
         });
 
         const workos = new WorkOS('invalid apikey');
 
         await expect(
           workos.auditLogs.getExport('audit_log_export_1234'),
-        ).rejects.toThrowError(new UnauthorizedException('a-request-id'));
+        ).rejects.toThrow(UnauthorizedException);
 
         expect(workosSpy).toHaveBeenCalledWith(
           `/audit_logs/exports/audit_log_export_1234`,
