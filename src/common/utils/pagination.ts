@@ -2,7 +2,7 @@ import { List, PaginationOptions } from '../interfaces';
 
 export class AutoPaginatable<
   ResourceType,
-  ParametersType extends PaginationOptions,
+  ParametersType extends PaginationOptions = PaginationOptions,
 > {
   readonly object = 'list' as const;
   readonly options: ParametersType;
