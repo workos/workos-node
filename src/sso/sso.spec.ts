@@ -302,14 +302,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
+
           const headers = fetchHeaders() as Record<string, string>;
-          const normalizedHeaders = {
-            ...headers,
-            'User-Agent': headers['User-Agent']
-              .replace(/workos-node\/[^\s/]+/, 'workos-node/VERSION')
-              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)'),
-          };
-          expect(normalizedHeaders).toMatchSnapshot();
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -349,14 +354,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
+
           const headers = fetchHeaders() as Record<string, string>;
-          const normalizedHeaders = {
-            ...headers,
-            'User-Agent': headers['User-Agent']
-              .replace(/workos-node\/[^\s/]+/, 'workos-node/VERSION')
-              .replace(/\(node\/v[\d.]+\)/, '(node/v18.0.0)'),
-          };
-          expect(normalizedHeaders).toMatchSnapshot();
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });

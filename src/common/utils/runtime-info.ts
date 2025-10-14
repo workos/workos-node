@@ -2,7 +2,6 @@ import { detectRuntime } from './env';
 
 // Extend globalThis to include runtime-specific globals
 declare global {
-  // eslint-disable-next-line no-var
   var Deno:
     | {
         version: {
@@ -11,7 +10,6 @@ declare global {
       }
     | undefined;
 
-  // eslint-disable-next-line no-var
   var Bun:
     | {
         version: string;
