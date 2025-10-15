@@ -20,15 +20,6 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 2`] = `
 {
-  "Accept": "application/json, text/plain, */*",
-  "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
-  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/8.0.0-beta.4/fetch",
-}
-`;
-
-exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 3`] = `
-{
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
   "customAttributes": {
@@ -63,15 +54,6 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
 
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 2`] = `
-{
-  "Accept": "application/json, text/plain, */*",
-  "Authorization": "Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU",
-  "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-  "User-Agent": "workos-node/8.0.0-beta.4/fetch",
-}
-`;
-
-exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 3`] = `
 {
   "connectionId": "conn_123",
   "connectionType": "OktaSAML",
