@@ -40,6 +40,7 @@ import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
+import { getRuntimeInfo } from './common/utils/runtime-info';
 
 const VERSION = '8.0.0-beta.4';
 
@@ -101,21 +102,29 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    let userAgent: string = `workos-node/${VERSION}`;
-
-    if (options.appInfo) {
-      const { name, version }: { name: string; version: string } =
-        options.appInfo;
-      userAgent += ` ${name}: ${version}`;
-    }
-
     this.webhooks = this.createWebhookClient();
     this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
     this.userManagement = new UserManagement(this);
 
+    const userAgent = this.createUserAgent(options);
+
     this.client = this.createHttpClient(options, userAgent);
+  }
+
+  private createUserAgent(options: WorkOSOptions): string {
+    let userAgent: string = `workos-node/${VERSION}`;
+
+    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
+    userAgent += ` (${runtimeName}${runtimeVersion ? `/${runtimeVersion}` : ''})`;
+
+    if (options.appInfo) {
+      const { name, version } = options.appInfo;
+      userAgent += ` ${name}: ${version}`;
+    }
+
+    return userAgent;
   }
 
   createWebhookClient() {
