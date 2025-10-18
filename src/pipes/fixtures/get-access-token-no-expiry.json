@@ -1,0 +1,6 @@
+{
+  "accessToken": "test_access_token_456",
+  "expiresAt": null,
+  "scopes": ["read:data"],
+  "missingScopes": ["write:data"]
+}

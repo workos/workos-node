@@ -1,0 +1,6 @@
+{
+  "accessToken": "test_access_token_123",
+  "expiresAt": "2025-10-18T12:00:00.000Z",
+  "scopes": ["read:users", "write:users"],
+  "missingScopes": []
+}
