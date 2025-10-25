@@ -65,6 +65,10 @@
       "import": "./lib/index.worker.js",
       "default": "./lib/index.worker.js"
     },
+    "convex": {
+      "import": "./lib/index.worker.js",
+      "default": "./lib/index.worker.js"
+    },
     "default": {
       "import": "./lib/index.js",
       "default": "./lib/index.js"
