@@ -15,6 +15,7 @@ import {
   WorkOSOptions,
   WorkOSResponseError,
 } from './common/interfaces';
+import { ApiKeys } from './api-keys/api-keys';
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Events } from './events/events';
 import { Organizations } from './organizations/organizations';
@@ -54,6 +55,7 @@ export class WorkOS {
   readonly clientId?: string;
 
   readonly actions: Actions;
+  readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
   readonly organizations = new Organizations(this);
