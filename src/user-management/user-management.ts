@@ -1,5 +1,4 @@
 import { sealData, unsealData } from 'iron-session';
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import * as clientUserManagement from '../client/user-management';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
@@ -152,9 +151,12 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { CookieSession } from './session';
+import { getJose } from '../utils/jose';
 
 export class UserManagement {
-  private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
+  private _jwks:
+    | ReturnType<typeof import('jose').createRemoteJWKSet>
+    | undefined;
   public clientId: string | undefined;
 
   constructor(private readonly workos: WorkOS) {
@@ -163,7 +165,10 @@ export class UserManagement {
     this.clientId = clientId;
   }
 
-  get jwks(): ReturnType<typeof createRemoteJWKSet> | undefined {
+  async getJWKS(): Promise<
+    ReturnType<typeof import('jose').createRemoteJWKSet> | undefined
+  > {
+    const { createRemoteJWKSet } = await getJose();
     if (!this.clientId) {
       return;
     }
@@ -421,9 +426,13 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
-    if (!this.jwks) {
+    const jwks = await this.getJWKS();
+
+    if (!jwks) {
       throw new Error('Must provide clientId to initialize JWKS');
     }
+
+    const { decodeJwt } = await getJose();
 
     if (!sessionData) {
       return {
@@ -477,12 +486,14 @@ export class UserManagement {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    if (!this.jwks) {
+    const jwks = await this.getJWKS();
+    const { jwtVerify } = await getJose();
+    if (!jwks) {
       throw new Error('Must provide clientId to initialize JWKS');
     }
 
     try {
-      await jwtVerify(accessToken, this.jwks);
+      await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
       return false;
@@ -519,6 +530,8 @@ export class UserManagement {
     if (!cookiePassword) {
       throw new Error('Cookie password is required');
     }
+
+    const { decodeJwt } = await getJose();
 
     const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
       authenticationResponse.accessToken,
