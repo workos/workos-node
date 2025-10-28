@@ -175,14 +175,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     const { 'User-Agent': userAgent } = (this.options?.headers ||
       {}) as RequestHeaders;
 
-    // Create AbortController for timeout if configured
-    let abortController: AbortController | undefined;
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
     // Access timeout from the options with default of 60 seconds
     const timeout = this.options?.timeout ?? DEFAULT_FETCH_TIMEOUT; // Default 60 seconds
-    abortController = new AbortController();
-    timeoutId = setTimeout(() => {
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => {
       abortController?.abort();
     }, timeout);
 

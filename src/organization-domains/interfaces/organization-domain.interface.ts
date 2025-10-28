@@ -1,8 +1,4 @@
 export enum OrganizationDomainState {
-  /**
-   * @deprecated
-   */
-  LegacyVerified = 'legacy_verified',
   Verified = 'verified',
   Pending = 'pending',
   Failed = 'failed',

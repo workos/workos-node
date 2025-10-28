@@ -6,15 +6,6 @@ export interface CreateOrganizationOptions {
   domainData?: DomainData[];
   externalId?: string | null;
   metadata?: Record<string, string>;
-
-  /**
-   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
-   */
-  allowProfilesOutsideOrganization?: boolean;
-  /**
-   * @deprecated Use `domain_data` instead.
-   */
-  domains?: string[];
 }
 
 export interface SerializedCreateOrganizationOptions {
@@ -22,16 +13,9 @@ export interface SerializedCreateOrganizationOptions {
   domain_data?: DomainData[];
   external_id?: string | null;
   metadata?: Record<string, string>;
-
-  /**
-   * @deprecated If you need to allow sign-ins from any email domain, contact support@workos.com.
-   */
-  allow_profiles_outside_organization?: boolean;
-  /**
-   * @deprecated Use `domain_data` instead.
-   */
-  domains?: string[];
 }
 
-export interface CreateOrganizationRequestOptions
-  extends Pick<PostOptions, 'idempotencyKey'> {}
+export type CreateOrganizationRequestOptions = Pick<
+  PostOptions,
+  'idempotencyKey'
+>;
