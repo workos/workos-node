@@ -1,4 +1,3 @@
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
 import {
   AccessToken,
@@ -12,6 +11,7 @@ import {
 } from './interfaces';
 import { UserManagement } from './user-management';
 import { unsealData } from 'iron-session';
+import { getJose } from '../utils/jose';
 
 type RefreshOptions = {
   cookiePassword?: string;
@@ -19,7 +19,6 @@ type RefreshOptions = {
 };
 
 export class CookieSession {
-  private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   private userManagement: UserManagement;
   private cookiePassword: string;
   private sessionData: string;
@@ -36,8 +35,6 @@ export class CookieSession {
     this.userManagement = userManagement;
     this.cookiePassword = cookiePassword;
     this.sessionData = sessionData;
-
-    this.jwks = this.userManagement.jwks;
   }
 
   /**
@@ -86,6 +83,8 @@ export class CookieSession {
       };
     }
 
+    const { decodeJwt } = await getJose();
+
     const {
       sid: sessionId,
       org_id: organizationId,
@@ -121,6 +120,7 @@ export class CookieSession {
    * @returns An object indicating whether the refresh was successful or not. If successful, it will include the new sealed session data.
    */
   async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
+    const { decodeJwt } = await getJose();
     const session = await unsealData<SessionCookieData>(this.sessionData, {
       password: this.cookiePassword,
     });
@@ -226,14 +226,16 @@ export class CookieSession {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    if (!this.jwks) {
+    const { jwtVerify } = await getJose();
+    const jwks = await this.userManagement.getJWKS();
+    if (!jwks) {
       throw new Error(
         'Missing client ID. Did you provide it when initializing WorkOS?',
       );
     }
 
     try {
-      await jwtVerify(accessToken, this.jwks);
+      await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
       return false;
