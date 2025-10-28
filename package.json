@@ -9,7 +9,7 @@
     "workos"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=20.15.0"
   },
   "type": "module",
   "main": "./lib/cjs/index.cjs",
