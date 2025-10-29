@@ -82,6 +82,62 @@ describe('Fetch client', () => {
       expect(await response.toJSON()).toEqual({ data: 'response' });
     });
 
+    it('get for Vault path should call fetchRequestWithRetry and return response', async () => {
+      fetchOnce({ data: 'response' });
+      const mockFetchRequestWithRetry = jest.spyOn(
+        FetchHttpClient.prototype as any,
+        'fetchRequestWithRetry',
+      );
+
+      const response = await fetchClient.get('/vault/v1/kv', {});
+
+      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
+      expect(fetchURL()).toBe('https://test.workos.com/vault/v1/kv');
+      expect(await response.toJSON()).toEqual({ data: 'response' });
+    });
+
+    it('post for Vault path should call fetchRequestWithRetry and return response', async () => {
+      fetchOnce({ data: 'response' });
+      const mockFetchRequestWithRetry = jest.spyOn(
+        FetchHttpClient.prototype as any,
+        'fetchRequestWithRetry',
+      );
+
+      const response = await fetchClient.post('/vault/v1/kv', {}, {});
+
+      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
+      expect(fetchURL()).toBe('https://test.workos.com/vault/v1/kv');
+      expect(await response.toJSON()).toEqual({ data: 'response' });
+    });
+
+    it('put for Vault path should call fetchRequestWithRetry and return response', async () => {
+      fetchOnce({ data: 'response' });
+      const mockFetchRequestWithRetry = jest.spyOn(
+        FetchHttpClient.prototype as any,
+        'fetchRequestWithRetry',
+      );
+
+      const response = await fetchClient.put('/vault/v1/kv/secret', {}, {});
+
+      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
+      expect(fetchURL()).toBe('https://test.workos.com/vault/v1/kv/secret');
+      expect(await response.toJSON()).toEqual({ data: 'response' });
+    });
+
+    it('delete for Vault path should call fetchRequestWithRetry and return response', async () => {
+      fetchOnce({ data: 'response' });
+      const mockFetchRequestWithRetry = jest.spyOn(
+        FetchHttpClient.prototype as any,
+        'fetchRequestWithRetry',
+      );
+
+      const response = await fetchClient.delete('/vault/v1/kv/secret', {});
+
+      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
+      expect(fetchURL()).toBe('https://test.workos.com/vault/v1/kv/secret');
+      expect(await response.toJSON()).toEqual({ data: 'response' });
+    });
+
     it('should retry request on 500 status code', async () => {
       fetchOnce(
         {},

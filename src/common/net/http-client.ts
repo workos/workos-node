@@ -10,7 +10,7 @@ export abstract class HttpClient implements HttpClientInterface {
   readonly MAX_RETRY_ATTEMPTS = 3;
   readonly BACKOFF_MULTIPLIER = 1.5;
   readonly MINIMUM_SLEEP_TIME_IN_MILLISECONDS = 500;
-  readonly RETRY_STATUS_CODES = [500, 502, 504];
+  readonly RETRY_STATUS_CODES = [408, 500, 502, 504];
 
   constructor(readonly baseURL: string, readonly options?: RequestInit) {}
 
@@ -86,6 +86,10 @@ export abstract class HttpClient implements HttpClientInterface {
     }
 
     return JSON.stringify(entity);
+  }
+
+  static isPathRetryable(path: string): boolean {
+    return path.startsWith('/fga/') || path.startsWith('/vault/');
   }
 
   private getSleepTimeInMilliseconds(retryAttempt: number): number {
