@@ -62,7 +62,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (path.startsWith('/fga/')) {
+    if (HttpClient.isPathRetryable(path)) {
       return await this.nodeRequestWithRetry(
         resourceURL,
         'GET',
@@ -85,7 +85,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (path.startsWith('/fga/')) {
+    if (HttpClient.isPathRetryable(path)) {
       return await this.nodeRequestWithRetry(
         resourceURL,
         'POST',
@@ -119,7 +119,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (path.startsWith('/fga/')) {
+    if (HttpClient.isPathRetryable(path)) {
       return await this.nodeRequestWithRetry(
         resourceURL,
         'PUT',
@@ -152,7 +152,7 @@ export class NodeHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (path.startsWith('/fga/')) {
+    if (HttpClient.isPathRetryable(path)) {
       return await this.nodeRequestWithRetry(
         resourceURL,
         'DELETE',

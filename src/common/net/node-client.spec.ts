@@ -78,6 +78,66 @@ describe('Node client', () => {
     expect(await response.toJSON()).toEqual({ data: 'response' });
   });
 
+  it('get for Vault path should call nodeRequestWithRetry and return response', async () => {
+    nock('https://test.workos.com')
+      .get('/vault/v1/kv')
+      .reply(200, { data: 'response' });
+    const mockNodeRequestWithRetry = jest.spyOn(
+      NodeHttpClient.prototype as any,
+      'nodeRequestWithRetry',
+    );
+
+    const response = await nodeClient.get('/vault/v1/kv', {});
+
+    expect(mockNodeRequestWithRetry).toHaveBeenCalledTimes(1);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('post for Vault path should call nodeRequestWithRetry and return response', async () => {
+    nock('https://test.workos.com')
+      .post('/vault/v1/kv')
+      .reply(200, { data: 'response' });
+    const mockNodeRequestWithRetry = jest.spyOn(
+      NodeHttpClient.prototype as any,
+      'nodeRequestWithRetry',
+    );
+
+    const response = await nodeClient.post('/vault/v1/kv', {}, {});
+
+    expect(mockNodeRequestWithRetry).toHaveBeenCalledTimes(1);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('put for Vault path should call nodeRequestWithRetry and return response', async () => {
+    nock('https://test.workos.com')
+      .put('/vault/v1/kv/secret')
+      .reply(200, { data: 'response' });
+    const mockNodeRequestWithRetry = jest.spyOn(
+      NodeHttpClient.prototype as any,
+      'nodeRequestWithRetry',
+    );
+
+    const response = await nodeClient.put('/vault/v1/kv/secret', {}, {});
+
+    expect(mockNodeRequestWithRetry).toHaveBeenCalledTimes(1);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('delete for Vault path should call nodeRequestWithRetry and return response', async () => {
+    nock('https://test.workos.com')
+      .delete('/vault/v1/kv/secret')
+      .reply(200, { data: 'response' });
+    const mockNodeRequestWithRetry = jest.spyOn(
+      NodeHttpClient.prototype as any,
+      'nodeRequestWithRetry',
+    );
+
+    const response = await nodeClient.delete('/vault/v1/kv/secret', {});
+
+    expect(mockNodeRequestWithRetry).toHaveBeenCalledTimes(1);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
   it('should retry request on 500 status code', async () => {
     nock('https://test.workos.com')
       .get('/fga/v1/resources')
