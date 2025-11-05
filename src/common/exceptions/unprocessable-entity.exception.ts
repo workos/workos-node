@@ -1,5 +1,3 @@
-import pluralize from 'pluralize';
-
 import { UnprocessableEntityError } from '../interfaces';
 import { RequestException } from '../interfaces/request-exception.interface';
 
@@ -37,7 +35,7 @@ export class UnprocessableEntityException
     }
 
     if (errors) {
-      const requirement: string = pluralize('requirement', errors.length);
+      const requirement = errors.length === 1 ? 'requirement' : 'requirements';
 
       this.message = `The following ${requirement} must be met:\n`;
 
