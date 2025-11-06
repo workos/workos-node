@@ -1,23 +1,32 @@
-export interface SSOAuthorizationURLOptions {
+interface SSOAuthorizationURLBase {
   clientId: string;
-  connection?: string;
-  organization?: string;
-
-  /**
-   * @deprecated Please use `organization` instead.
-   */
-  domain?: string;
   domainHint?: string;
   loginHint?: string;
-  provider?: string;
   providerQueryParams?: Record<string, string | boolean | number>;
   providerScopes?: string[];
   redirectUri: string;
   state?: string;
 }
 
-/**
- * @deprecated Use SSOAuthorizationURLOptions instead
- */
-// tslint:disable-next-line:no-empty-interface
-export interface AuthorizationURLOptions extends SSOAuthorizationURLOptions {}
+interface SSOWithConnection extends SSOAuthorizationURLBase {
+  connection: string;
+  organization?: never;
+  provider?: never;
+}
+
+interface SSOWithOrganization extends SSOAuthorizationURLBase {
+  organization: string;
+  connection?: never;
+  provider?: never;
+}
+
+interface SSOWithProvider extends SSOAuthorizationURLBase {
+  provider: string;
+  connection?: never;
+  organization?: never;
+}
+
+export type SSOAuthorizationURLOptions =
+  | SSOWithConnection
+  | SSOWithOrganization
+  | SSOWithProvider;

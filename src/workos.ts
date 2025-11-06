@@ -33,15 +33,16 @@ import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
+import { getEnv } from './common/utils/env';
+import { getRuntimeInfo } from './common/utils/runtime-info';
 
-const VERSION = '7.72.2';
+const VERSION = '8.0.0-rc.3';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -71,13 +72,12 @@ export class WorkOS {
   readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
 
-  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
+  constructor(
+    readonly key?: string,
+    readonly options: WorkOSOptions = {},
+  ) {
     if (!key) {
-      // process might be undefined in some environments
-      this.key =
-        typeof process !== 'undefined'
-          ? process?.env.WORKOS_API_KEY
-          : undefined;
+      this.key = getEnv('WORKOS_API_KEY');
 
       if (!this.key) {
         throw new NoApiKeyProvidedException();
@@ -89,8 +89,8 @@ export class WorkOS {
     }
 
     this.clientId = this.options.clientId;
-    if (!this.clientId && typeof process !== 'undefined') {
-      this.clientId = process?.env.WORKOS_CLIENT_ID;
+    if (!this.clientId) {
+      this.clientId = getEnv('WORKOS_CLIENT_ID');
     }
 
     const protocol: string = this.options.https ? 'https' : 'http';
@@ -102,24 +102,29 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    let userAgent: string = `workos-node/${VERSION}`;
-
-    if (options.appInfo) {
-      const { name, version }: { name: string; version: string } =
-        options.appInfo;
-      userAgent += ` ${name}: ${version}`;
-    }
-
     this.webhooks = this.createWebhookClient();
     this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
-    this.userManagement = new UserManagement(
-      this,
-      this.createIronSessionProvider(),
-    );
+    this.userManagement = new UserManagement(this);
+
+    const userAgent = this.createUserAgent(options);
 
     this.client = this.createHttpClient(options, userAgent);
+  }
+
+  private createUserAgent(options: WorkOSOptions): string {
+    let userAgent: string = `workos-node/${VERSION}`;
+
+    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
+    userAgent += ` (${runtimeName}${runtimeVersion ? `/${runtimeVersion}` : ''})`;
+
+    if (options.appInfo) {
+      const { name, version } = options.appInfo;
+      userAgent += ` ${name}: ${version}`;
+    }
+
+    return userAgent;
   }
 
   createWebhookClient() {
@@ -144,12 +149,6 @@ export class WorkOS {
         'User-Agent': userAgent,
       },
     }) as HttpClient;
-  }
-
-  createIronSessionProvider(): IronSessionProvider {
-    throw new Error(
-      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
-    );
   }
 
   get version() {
