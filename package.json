@@ -34,7 +34,6 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "check:runtimes": "tsx scripts/ecosystem-check.ts",
-    "check:runtimes:full": "tsx scripts/ecosystem-check-enhanced.ts",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "npm run build",
