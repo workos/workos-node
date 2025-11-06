@@ -34,6 +34,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "check:runtimes": "tsx scripts/ecosystem-check.ts",
+    "check:runtimes:full": "tsx scripts/ecosystem-check-enhanced.ts",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "npm run build",
@@ -41,8 +42,7 @@
   },
   "dependencies": {
     "iron-session": "^8.0.4",
-    "jose": "~6.1.0",
-    "qs": "6.14.0"
+    "jose": "~6.1.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
