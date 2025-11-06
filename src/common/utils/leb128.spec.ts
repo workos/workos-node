@@ -77,7 +77,9 @@ describe('leb128', () => {
       });
 
       test('throws for numbers > MAX_UINT32', () => {
-        expect(() => encodeUInt32(4294967296)).toThrow('Value must not exceed 4294967295');
+        expect(() => encodeUInt32(4294967296)).toThrow(
+          'Value must not exceed 4294967295',
+        );
       });
 
       test('throws for non-integers', () => {
@@ -85,11 +87,15 @@ describe('leb128', () => {
       });
 
       test('throws for NaN', () => {
-        expect(() => encodeUInt32(NaN)).toThrow('Value must be a finite number');
+        expect(() => encodeUInt32(NaN)).toThrow(
+          'Value must be a finite number',
+        );
       });
 
       test('throws for Infinity', () => {
-        expect(() => encodeUInt32(Infinity)).toThrow('Value must be a finite number');
+        expect(() => encodeUInt32(Infinity)).toThrow(
+          'Value must be a finite number',
+        );
       });
     });
   });
@@ -205,12 +211,16 @@ describe('leb128', () => {
     describe('invalid inputs', () => {
       test('throws for offset beyond buffer bounds', () => {
         const data = new Uint8Array([0x2a]);
-        expect(() => decodeUInt32(data, 5)).toThrow('Offset 5 is out of bounds');
+        expect(() => decodeUInt32(data, 5)).toThrow(
+          'Offset 5 is out of bounds',
+        );
       });
 
       test('throws for negative offset', () => {
         const data = new Uint8Array([0x2a]);
-        expect(() => decodeUInt32(data, -1)).toThrow('Offset -1 is out of bounds');
+        expect(() => decodeUInt32(data, -1)).toThrow(
+          'Offset -1 is out of bounds',
+        );
       });
 
       test('throws for truncated encoding (incomplete byte sequence)', () => {
@@ -228,7 +238,9 @@ describe('leb128', () => {
       test('throws for encoding that exceeds uint32 range', () => {
         // 6 bytes with continuation bits (should never happen for uint32)
         const data = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x01]);
-        expect(() => decodeUInt32(data)).toThrow('LEB128 sequence exceeds maximum length for uint32');
+        expect(() => decodeUInt32(data)).toThrow(
+          'LEB128 sequence exceeds maximum length for uint32',
+        );
       });
     });
   });
