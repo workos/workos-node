@@ -1,4 +1,4 @@
-import { toQueryString } from './utils';
+import { toQueryString } from '../common/utils/query-string';
 import type { SSOAuthorizationURLOptions as BaseSSOAuthorizationURLOptions } from '../sso/interfaces';
 
 // Extend the base options to include baseURL for internal use
