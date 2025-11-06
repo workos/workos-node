@@ -1,4 +1,4 @@
-import { toQueryString } from './utils';
+import { toQueryString } from '../common/utils/query-string';
 
 // Re-export necessary interfaces for client use
 export interface AuthorizationURLOptions {
