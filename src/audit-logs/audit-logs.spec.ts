@@ -97,7 +97,7 @@ describe('AuditLogs', () => {
     });
 
     describe('without an idempotency key', () => {
-      it('auto-generates a UUID v4 idempotency key', async () => {
+      it('auto-generates an idempotency key with workos-node prefix', async () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
 
         workosSpy.mockResolvedValueOnce(
@@ -118,7 +118,7 @@ describe('AuditLogs', () => {
             organization_id: 'org_123',
           },
           expect.objectContaining({
-            idempotencyKey: expect.stringMatching(/\S/),
+            idempotencyKey: expect.stringMatching(/^workos-node-/),
           }),
         );
       });
@@ -163,8 +163,8 @@ describe('AuditLogs', () => {
             organization_id: 'org_123',
           },
           expect.objectContaining({
-            idempotencyKey: expect.stringMatching(/\S/),
-          }),
+            idempotencyKey: expect.stringMatching(/^workos-node\S*/),
+          })
         );
       });
     });
@@ -367,6 +367,7 @@ describe('AuditLogs', () => {
         idempotencyKeys.forEach((key) => {
           expect(key).toBeDefined();
           expect(key).toMatch(/\S/);
+          expect(key.startsWith('workos-node-')).toBe(true);
         });
 
         // All keys should be the same

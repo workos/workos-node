@@ -34,7 +34,7 @@ export class AuditLogs {
     // Auto-generate idempotency key if not provided
     const optionsWithIdempotency: CreateAuditLogEventRequestOptions = {
       ...options,
-      idempotencyKey: options.idempotencyKey || randomUUID(),
+      idempotencyKey: options.idempotencyKey || `workos-node-${randomUUID()}`,
     };
 
     await this.workos.post(
