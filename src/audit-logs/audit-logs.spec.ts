@@ -96,6 +96,52 @@ describe('AuditLogs', () => {
       });
     });
 
+    describe('without an idempotency key', () => {
+      it('auto-generates an idempotency key with workos-node prefix', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        workosSpy.mockResolvedValueOnce(
+          mockWorkOsResponse(201, { success: true }),
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        // Verify that an idempotency key was auto-generated
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/events',
+          {
+            event: serializeCreateAuditLogEventOptions(event),
+            organization_id: 'org_123',
+          },
+          expect.objectContaining({
+            idempotencyKey: expect.stringMatching(/^workos-node\S*/),
+          }),
+        );
+      });
+
+      it('generates different idempotency keys for different requests', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
+
+        workosSpy.mockResolvedValue(mockWorkOsResponse(201, { success: true }));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.createEvent('org_123', event);
+        await workos.auditLogs.createEvent('org_123', event);
+
+        const firstCallKey = workosSpy.mock.calls[0][2]?.idempotencyKey;
+        const secondCallKey = workosSpy.mock.calls[1][2]?.idempotencyKey;
+
+        expect(firstCallKey).toBeDefined();
+        expect(secondCallKey).toBeDefined();
+        expect(firstCallKey).not.toBe(secondCallKey);
+      });
+    });
+
     describe('when the api responds with a 200', () => {
       it('returns void', async () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'post');
@@ -116,7 +162,9 @@ describe('AuditLogs', () => {
             event: serializeCreateAuditLogEventOptions(event),
             organization_id: 'org_123',
           },
-          {},
+          expect.objectContaining({
+            idempotencyKey: expect.stringMatching(/^workos-node\S*/),
+          }),
         );
       });
     });
@@ -168,6 +216,164 @@ describe('AuditLogs', () => {
           workos.auditLogs.createEvent('org_123', event),
         ).rejects.toThrow(BadRequestException);
       });
+    });
+
+    describe('retry behavior', () => {
+      beforeEach(() => {
+        fetch.resetMocks();
+        jest.clearAllMocks();
+      });
+
+      it('retries on 500 status code and eventually succeeds', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+      });
+
+      it('retries on 502 status code and eventually succeeds', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Bad Gateway' }), { status: 502 }],
+          [JSON.stringify({ error: 'Bad Gateway' }), { status: 502 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+      });
+
+      it('retries on 504 status code and eventually succeeds', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Gateway Timeout' }), { status: 504 }],
+          [JSON.stringify({ error: 'Gateway Timeout' }), { status: 504 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+      });
+
+      it('retries on 408 status code and eventually succeeds', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Request Timeout' }), { status: 408 }],
+          [JSON.stringify({ error: 'Request Timeout' }), { status: 408 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+      });
+
+      it('succeeds on the last retry attempt (4th attempt)', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).resolves.toBeUndefined();
+
+        expect(fetch).toHaveBeenCalledTimes(4);
+      }, 10000);
+
+      it('retries a maximum of 3 times (4 total attempts)', async () => {
+        fetch.mockResponse(JSON.stringify({ error: 'Internal Server Error' }), {
+          status: 500,
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.auditLogs.createEvent('org_123', event),
+        ).rejects.toThrow();
+
+        // 1 initial attempt + 3 retries = 4 total attempts
+        expect(fetch).toHaveBeenCalledTimes(4);
+      }, 10000);
+
+      it('uses the same idempotency key across all retry attempts', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.createEvent('org_123', event, {
+          idempotencyKey: 'test-idempotency-key',
+        });
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+
+        // Verify all requests have the same idempotency key in headers
+        const calls = fetch.mock.calls;
+        for (const call of calls) {
+          const headers = call[1]?.headers as Record<string, string>;
+          expect(headers['Idempotency-Key']).toBe('test-idempotency-key');
+        }
+      }, 10000);
+
+      it('maintains auto-generated idempotency key across retry attempts', async () => {
+        fetch.mockResponses(
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ error: 'Internal Server Error' }), { status: 500 }],
+          [JSON.stringify({ success: true }), { status: 201 }],
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.createEvent('org_123', event);
+
+        expect(fetch).toHaveBeenCalledTimes(3);
+
+        // Verify all requests have the same auto-generated idempotency key
+        const calls = fetch.mock.calls;
+        const idempotencyKeys = calls.map(
+          (call) =>
+            (call[1]?.headers as Record<string, string>)['Idempotency-Key'],
+        );
+
+        // All keys should be defined
+        idempotencyKeys.forEach((key) => {
+          expect(key).toBeDefined();
+          expect(key).toMatch(/\S/);
+          expect(key.startsWith('workos-node-')).toBe(true);
+        });
+
+        // All keys should be the same
+        expect(idempotencyKeys[0]).toBe(idempotencyKeys[1]);
+        expect(idempotencyKeys[1]).toBe(idempotencyKeys[2]);
+      }, 10000);
     });
   });
 
