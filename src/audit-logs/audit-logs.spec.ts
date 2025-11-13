@@ -118,7 +118,7 @@ describe('AuditLogs', () => {
             organization_id: 'org_123',
           },
           expect.objectContaining({
-            idempotencyKey: expect.stringMatching(/^workos-node-/),
+            idempotencyKey: expect.stringMatching(/^workos-node\S*/),
           }),
         );
       });
@@ -164,7 +164,7 @@ describe('AuditLogs', () => {
           },
           expect.objectContaining({
             idempotencyKey: expect.stringMatching(/^workos-node\S*/),
-          })
+          }),
         );
       });
     });
