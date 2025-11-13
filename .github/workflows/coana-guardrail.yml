@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - name: Checkout the ${{github.base_ref}} branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{github.base_ref}} # checkout the base branch (usually master/main).
 
@@ -44,7 +44,7 @@ jobs:
         run: sudo chown -R $USER:$USER .
 
       - name: Checkout the current branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           clean: true
 
