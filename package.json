@@ -97,8 +97,8 @@
         "require": "./lib/cjs/index.cjs"
       },
       "convex": {
-        "import": "./lib/index.worker.js",
-        "default": "./lib/index.worker.js"
+        "import": "./lib/esm/index.worker.js",
+        "default": "./lib/cjs/index.worker.cjs"
       },
       "import": "./lib/esm/index.js",
       "require": "./lib/cjs/index.cjs",
