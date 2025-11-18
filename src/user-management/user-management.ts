@@ -1057,6 +1057,15 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
+  async resendInvitation(invitationId: string): Promise<Invitation> {
+    const { data } = await this.workos.post<InvitationResponse, any>(
+      `/user_management/invitations/${invitationId}/resend`,
+      null,
+    );
+
+    return deserializeInvitation(data);
+  }
+
   async revokeSession(payload: RevokeSessionOptions): Promise<void> {
     await this.workos.post<void, SerializedRevokeSessionOptions>(
       '/user_management/sessions/revoke',

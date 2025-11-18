@@ -2128,6 +2128,85 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('resendInvitation', () => {
+    it('send a Resend Invitation request', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(invitationFixture);
+
+      const response = await workos.userManagement.resendInvitation(
+        invitationId,
+      );
+
+      expect(fetchURL()).toContain(
+        `/user_management/invitations/${invitationId}/resend`,
+      );
+      expect(response).toMatchObject({
+        object: 'invitation',
+        email: 'dane@workos.com',
+      });
+    });
+
+    it('throws an error when invitation is not found (404)', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(
+        {
+          message: 'Invitation not found',
+          code: 'not_found',
+        },
+        { status: 404 },
+      );
+
+      await expect(
+        workos.userManagement.resendInvitation(invitationId),
+      ).rejects.toThrow();
+    });
+
+    it('throws an error when invitation is expired (400)', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(
+        {
+          message: 'Invite has expired.',
+          code: 'invite_expired',
+        },
+        { status: 400 },
+      );
+
+      await expect(
+        workos.userManagement.resendInvitation(invitationId),
+      ).rejects.toThrow();
+    });
+
+    it('throws an error when invitation is revoked (400)', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(
+        {
+          message: 'Invite has been revoked.',
+          code: 'invite_revoked',
+        },
+        { status: 400 },
+      );
+
+      await expect(
+        workos.userManagement.resendInvitation(invitationId),
+      ).rejects.toThrow();
+    });
+
+    it('throws an error when invitation is accepted (400)', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(
+        {
+          message: 'Invite has already been accepted.',
+          code: 'invite_accepted',
+        },
+        { status: 400 },
+      );
+
+      await expect(
+        workos.userManagement.resendInvitation(invitationId),
+      ).rejects.toThrow();
+    });
+  });
+
   describe('revokeSession', () => {
     it('sends a Revoke Session request', async () => {
       const sessionId = 'session_12345';
