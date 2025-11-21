@@ -121,6 +121,28 @@ export interface AuthenticationOAuthSucceededEventResponse
   data: AuthenticationEventResponse;
 }
 
+export interface AuthenticationPasskeyFailedEvent extends EventBase {
+  event: 'authentication.passkey_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationPasskeyFailedEventResponse
+  extends EventResponseBase {
+  event: 'authentication.passkey_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationPasskeySucceededEvent extends EventBase {
+  event: 'authentication.passkey_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationPasskeySucceededEventResponse
+  extends EventResponseBase {
+  event: 'authentication.passkey_succeeded';
+  data: AuthenticationEventResponse;
+}
+
 export interface AuthenticationPasswordFailedEvent extends EventBase {
   event: 'authentication.password_failed';
   data: AuthenticationEvent;
@@ -640,6 +662,8 @@ export type Event =
   | AuthenticationOAuthSucceededEvent
   | AuthenticationSSOFailedEvent
   | AuthenticationSSOSucceededEvent
+  | AuthenticationPasskeyFailedEvent
+  | AuthenticationPasskeySucceededEvent
   | AuthenticationPasswordFailedEvent
   | AuthenticationPasswordSucceededEvent
   | AuthenticationMagicAuthFailedEvent
@@ -695,6 +719,8 @@ export type EventResponse =
   | AuthenticationMfaSucceededEventResponse
   | AuthenticationOAuthFailedEventResponse
   | AuthenticationOAuthSucceededEventResponse
+  | AuthenticationPasskeyFailedEventResponse
+  | AuthenticationPasskeySucceededEventResponse
   | AuthenticationPasswordFailedEventResponse
   | AuthenticationPasswordSucceededEventResponse
   | AuthenticationSSOFailedEventResponse
