@@ -29,6 +29,7 @@ export * from './portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
+export * from './feature-flags/interfaces';
 
 class WorkOSNode extends WorkOS {
   /** @override */
