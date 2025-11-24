@@ -2039,9 +2039,8 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response = await workos.userManagement.resendInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.resendInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/resend`,
