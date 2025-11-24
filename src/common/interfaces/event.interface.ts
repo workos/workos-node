@@ -238,16 +238,6 @@ export interface DsyncActivatedEventResponse extends EventResponseBase {
   data: EventDirectoryResponse;
 }
 
-export interface DsyncDeactivatedEvent extends EventBase {
-  event: 'dsync.deactivated';
-  data: EventDirectory;
-}
-
-export interface DsyncDeactivatedEventResponse extends EventResponseBase {
-  event: 'dsync.deactivated';
-  data: EventDirectoryResponse;
-}
-
 export interface DsyncDeletedEvent extends EventBase {
   event: 'dsync.deleted';
   data: Omit<EventDirectory, 'domains' | 'externalKey'>;
@@ -454,22 +444,6 @@ export interface UserDeletedEventResponse extends EventResponseBase {
   data: UserResponse;
 }
 
-/**
- * @deprecated Use OrganizationMembershipCreated instead. Will be removed in a future major version.
- */
-export interface OrganizationMembershipAdded extends EventBase {
-  event: 'organization_membership.added';
-  data: OrganizationMembership;
-}
-
-/**
- * @deprecated Use OrganizationMembershipCreatedResponse instead. Will be removed in a future major version.
- */
-export interface OrganizationMembershipAddedResponse extends EventResponseBase {
-  event: 'organization_membership.added';
-  data: OrganizationMembershipResponse;
-}
-
 export interface OrganizationMembershipCreated extends EventBase {
   event: 'organization_membership.created';
   data: OrganizationMembership;
@@ -500,23 +474,6 @@ export interface OrganizationMembershipUpdated extends EventBase {
 export interface OrganizationMembershipUpdatedResponse
   extends EventResponseBase {
   event: 'organization_membership.updated';
-  data: OrganizationMembershipResponse;
-}
-
-/**
- * @deprecated Use OrganizationMembershipDeleted instead. Will be removed in a future major version.
- */
-export interface OrganizationMembershipRemoved extends EventBase {
-  event: 'organization_membership.removed';
-  data: OrganizationMembership;
-}
-
-/**
- * @deprecated Use OrganizationMembershipDeletedResponse instead. Will be removed in a future major version.
- */
-export interface OrganizationMembershipRemovedResponse
-  extends EventResponseBase {
-  event: 'organization_membership.removed';
   data: OrganizationMembershipResponse;
 }
 
@@ -673,7 +630,6 @@ export type Event =
   | ConnectionDeactivatedEvent
   | ConnectionDeletedEvent
   | DsyncActivatedEvent
-  | DsyncDeactivatedEvent
   | DsyncDeletedEvent
   | DsyncGroupCreatedEvent
   | DsyncGroupUpdatedEvent
@@ -693,11 +649,9 @@ export type Event =
   | UserCreatedEvent
   | UserUpdatedEvent
   | UserDeletedEvent
-  | OrganizationMembershipAdded
   | OrganizationMembershipCreated
   | OrganizationMembershipDeleted
   | OrganizationMembershipUpdated
-  | OrganizationMembershipRemoved
   | RoleCreatedEvent
   | RoleDeletedEvent
   | RoleUpdatedEvent
@@ -730,7 +684,6 @@ export type EventResponse =
   | ConnectionDeactivatedEventResponse
   | ConnectionDeletedEventResponse
   | DsyncActivatedEventResponse
-  | DsyncDeactivatedEventResponse
   | DsyncDeletedEventResponse
   | DsyncGroupCreatedEventResponse
   | DsyncGroupUpdatedEventResponse
@@ -750,11 +703,9 @@ export type EventResponse =
   | UserCreatedEventResponse
   | UserUpdatedEventResponse
   | UserDeletedEventResponse
-  | OrganizationMembershipAddedResponse
   | OrganizationMembershipCreatedResponse
   | OrganizationMembershipDeletedResponse
   | OrganizationMembershipUpdatedResponse
-  | OrganizationMembershipRemovedResponse
   | RoleCreatedEventResponse
   | RoleDeletedEventResponse
   | RoleUpdatedEventResponse

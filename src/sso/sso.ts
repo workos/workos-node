@@ -1,4 +1,4 @@
-import qs from 'qs';
+import * as clientSSO from '../client/sso';
 import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -14,6 +14,7 @@ import {
   ProfileAndTokenResponse,
   ProfileResponse,
   SSOAuthorizationURLOptions,
+  SerializedListConnectionsOptions,
 } from './interfaces';
 import {
   deserializeConnection,
@@ -22,27 +23,12 @@ import {
   serializeListConnectionsOptions,
 } from './serializers';
 
-const toQueryString = (
-  options: Record<
-    string,
-    string | string[] | Record<string, string | boolean | number> | undefined
-  >,
-): string => {
-  return qs.stringify(options, {
-    arrayFormat: 'repeat',
-    // sorts the keys alphabetically to maintain backwards compatibility
-    sort: (a, b) => a.localeCompare(b),
-    // encodes space as + instead of %20 to maintain backwards compatibility
-    format: 'RFC1738',
-  });
-};
-
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
 
   async listConnections(
     options?: ListConnectionsOptions,
-  ): Promise<AutoPaginatable<Connection>> {
+  ): Promise<AutoPaginatable<Connection, SerializedListConnectionsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<ConnectionResponse, Connection>(
         this.workos,
@@ -64,47 +50,12 @@ export class SSO {
     await this.workos.delete(`/connections/${id}`);
   }
 
-  getAuthorizationUrl({
-    connection,
-    clientId,
-    domain,
-    domainHint,
-    loginHint,
-    organization,
-    provider,
-    providerQueryParams,
-    providerScopes,
-    redirectUri,
-    state,
-  }: SSOAuthorizationURLOptions): string {
-    if (!domain && !provider && !connection && !organization) {
-      throw new Error(
-        `Incomplete arguments. Need to specify either a 'connection', 'organization', 'domain', or 'provider'.`,
-      );
-    }
-
-    if (domain) {
-      this.workos.emitWarning(
-        'The `domain` parameter for `getAuthorizationURL` is deprecated. Please use `organization` instead.',
-      );
-    }
-
-    const query = toQueryString({
-      connection,
-      organization,
-      domain,
-      domain_hint: domainHint,
-      login_hint: loginHint,
-      provider,
-      provider_query_params: providerQueryParams,
-      provider_scopes: providerScopes,
-      client_id: clientId,
-      redirect_uri: redirectUri,
-      response_type: 'code',
-      state,
+  getAuthorizationUrl(options: SSOAuthorizationURLOptions): string {
+    // Delegate to client implementation
+    return clientSSO.getAuthorizationUrl({
+      ...options,
+      baseURL: this.workos.baseURL,
     });
-
-    return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
   async getConnection(id: string): Promise<Connection> {

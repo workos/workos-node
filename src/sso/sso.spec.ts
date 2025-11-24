@@ -56,7 +56,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -70,6 +70,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const urlFn = () =>
+            // @ts-expect-error Testing runtime validation with invalid input
             workos.sso.getAuthorizationUrl({
               clientId: 'proj_123',
               redirectUri: 'example.com/sso/workos/callback',
@@ -86,7 +87,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            provider: 'Google',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -134,7 +135,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -148,7 +149,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
@@ -301,7 +302,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+
+          const headers = fetchHeaders() as Record<string, string>;
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -341,7 +354,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+
+          const headers = fetchHeaders() as Record<string, string>;
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -499,7 +524,7 @@ describe('SSO', () => {
 
         expect(fetchURL()).toContain('/connections/conn_123');
 
-        expect(subject.connectionType).toEqual('OktaSAML');
+        expect(subject.type).toEqual('OktaSAML');
       });
     });
 

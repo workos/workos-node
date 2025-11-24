@@ -23,6 +23,12 @@ import identityFixture from './fixtures/identity.json';
 import * as jose from 'jose';
 import { sealData } from 'iron-session';
 
+jest.mock('jose', () => ({
+  ...jest.requireActual('jose'),
+  jwtVerify: jest.fn(),
+  createRemoteJWKSet: jest.fn(),
+}));
+
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -876,17 +882,27 @@ describe('UserManagement', () => {
   });
 
   describe('authenticateWithSessionCookie', () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+      process.env = { ...OLD_ENV };
+      delete process.env.WORKOS_COOKIE_PASSWORD;
+    });
+
+    afterEach(() => {
+      process.env = OLD_ENV;
+    });
     beforeEach(() => {
       // Mock createRemoteJWKSet
       jest
-        .spyOn(jose, 'createRemoteJWKSet')
+        .mocked(jose.createRemoteJWKSet)
         .mockImplementation(
           (_url: URL, _options?: jose.RemoteJWKSetOptions) => {
             // This function simulates the token verification process
             const verifyFunction = (
               _protectedHeader: jose.JWSHeaderParameters,
               _token: jose.FlattenedJWSInput,
-            ): Promise<jose.KeyLike> => {
+            ): Promise<any> => {
               return Promise.resolve({
                 type: 'public',
               });
@@ -964,7 +980,7 @@ describe('UserManagement', () => {
     });
 
     it('returns authenticated = false when the JWT is invalid', async () => {
-      jest.spyOn(jose, 'jwtVerify').mockImplementationOnce(() => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
         throw new Error('Invalid JWT');
       });
 
@@ -992,7 +1008,7 @@ describe('UserManagement', () => {
 
     it('returns the JWT claims when provided a valid JWT', async () => {
       jest
-        .spyOn(jose, 'jwtVerify')
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1034,7 +1050,7 @@ describe('UserManagement', () => {
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
       jest
-        .spyOn(jose, 'jwtVerify')
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1076,101 +1092,17 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('refreshAndSealSessionData', () => {
-    it('throws an error when the cookie password is undefined', async () => {
-      await expect(
-        workos.userManagement.refreshAndSealSessionData({
-          sessionData: 'session_cookie',
-        }),
-      ).rejects.toThrow('Cookie password is required');
-    });
-
-    it('returns authenticated = false when the session cookie is empty', async () => {
-      await expect(
-        workos.userManagement.refreshAndSealSessionData({
-          sessionData: '',
-          cookiePassword: 'secret',
-        }),
-      ).resolves.toEqual({
-        authenticated: false,
-        reason: 'no_session_cookie_provided',
-      });
-    });
-
-    it('returns authenticated = false when session cookie is invalid', async () => {
-      await expect(
-        workos.userManagement.refreshAndSealSessionData({
-          sessionData: 'thisisacookie',
-          cookiePassword: 'secret',
-        }),
-      ).resolves.toEqual({
-        authenticated: false,
-        reason: 'invalid_session_cookie',
-      });
-    });
-
-    it('returns authenticated = false when session cookie cannot be unsealed', async () => {
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionData = await sealData(
-        {
-          accessToken: 'abc123',
-          refreshToken: 'def456',
-          user: {
-            object: 'user',
-            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-            email: 'test@example.com',
-          },
-        },
-        { password: cookiePassword },
-      );
-
-      await expect(
-        workos.userManagement.refreshAndSealSessionData({
-          sessionData,
-          cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
-        }),
-      ).resolves.toEqual({
-        authenticated: false,
-        reason: 'invalid_session_cookie',
-      });
-    });
-
-    it('returns the sealed refreshed session cookie when provided a valid existing session cookie', async () => {
-      fetchOnce({
-        user: userFixture,
-        access_token:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        refresh_token: 'refresh_token',
-      });
-
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionData = await sealData(
-        {
-          accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          refreshToken: 'def456',
-          user: {
-            object: 'user',
-            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-            email: 'test@example.com',
-          },
-        },
-        { password: cookiePassword },
-      );
-
-      await expect(
-        workos.userManagement.refreshAndSealSessionData({
-          sessionData,
-          cookiePassword,
-        }),
-      ).resolves.toEqual({
-        sealedSession: expect.any(String),
-        authenticated: true,
-      });
-    });
-  });
-
   describe('getSessionFromCookie', () => {
+    const OLD_ENV = process.env;
+
+    beforeEach(() => {
+      process.env = { ...OLD_ENV };
+      delete process.env.WORKOS_COOKIE_PASSWORD;
+    });
+
+    afterEach(() => {
+      process.env = OLD_ENV;
+    });
     it('throws an error when the cookie password is undefined', async () => {
       await expect(
         workos.userManagement.getSessionFromCookie({
@@ -1322,28 +1254,11 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('sendMagicAuthCode', () => {
-    it('sends a Send Magic Auth Code request', async () => {
-      fetchOnce();
-
-      const response = await workos.userManagement.sendMagicAuthCode({
-        email: 'bob.loblaw@example.com',
-      });
-
-      expect(fetchURL()).toContain('/user_management/magic_auth/send');
-      expect(fetchBody()).toEqual({
-        email: 'bob.loblaw@example.com',
-      });
-      expect(response).toBeUndefined();
-    });
-  });
-
   describe('getPasswordReset', () => {
     it('sends a Get PaswordReset request', async () => {
       fetchOnce(passwordResetFixture);
-      const passwordReset = await workos.userManagement.getPasswordReset(
-        passwordResetId,
-      );
+      const passwordReset =
+        await workos.userManagement.getPasswordReset(passwordResetId);
       expect(fetchURL()).toContain(
         `/user_management/password_reset/${passwordResetId}`,
       );
@@ -1382,20 +1297,6 @@ describe('UserManagement', () => {
         expiresAt: '2023-07-18T02:07:19.911Z',
         createdAt: '2023-07-18T02:07:19.911Z',
       });
-    });
-  });
-
-  describe('sendPasswordResetEmail', () => {
-    it('sends a Send Password Reset Email request', async () => {
-      fetchOnce();
-      const resp = await workos.userManagement.sendPasswordResetEmail({
-        email: 'test01@example.com',
-        passwordResetUrl: 'https://example.com/forgot-password',
-      });
-
-      expect(fetchURL()).toContain(`/user_management/password_reset/send`);
-
-      expect(resp).toBeUndefined();
     });
   });
 
@@ -1976,9 +1877,8 @@ describe('UserManagement', () => {
   describe('getInvitation', () => {
     it('sends a Get Invitation request', async () => {
       fetchOnce(invitationFixture);
-      const invitation = await workos.userManagement.getInvitation(
-        invitationId,
-      );
+      const invitation =
+        await workos.userManagement.getInvitation(invitationId);
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}`,
       );
@@ -1992,9 +1892,8 @@ describe('UserManagement', () => {
   describe('findInvitationByToken', () => {
     it('sends a find invitation by token request', async () => {
       fetchOnce(invitationFixture);
-      const invitation = await workos.userManagement.findInvitationByToken(
-        invitationToken,
-      );
+      const invitation =
+        await workos.userManagement.findInvitationByToken(invitationToken);
       expect(fetchURL()).toContain(
         `/user_management/invitations/by_token/${invitationToken}`,
       );
@@ -2093,9 +1992,8 @@ describe('UserManagement', () => {
         accepted_user_id: 'user_01HGK4K4PXNSG85RNNV0GXYP5W',
       });
 
-      const response = await workos.userManagement.acceptInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.acceptInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/accept`,
@@ -2114,9 +2012,8 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response = await workos.userManagement.revokeInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.revokeInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/revoke`,
@@ -2133,9 +2030,8 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response = await workos.userManagement.resendInvitation(
-        invitationId,
-      );
+      const response =
+        await workos.userManagement.resendInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/resend`,
@@ -2506,157 +2402,6 @@ describe('UserManagement', () => {
     });
   });
 
-  describe('getLogoutUrlFromSessionCookie', () => {
-    beforeEach(() => {
-      // Mock createRemoteJWKSet
-      jest
-        .spyOn(jose, 'createRemoteJWKSet')
-        .mockImplementation(
-          (_url: URL, _options?: jose.RemoteJWKSetOptions) => {
-            // This function simulates the token verification process
-            const verifyFunction = (
-              _protectedHeader: jose.JWSHeaderParameters,
-              _token: jose.FlattenedJWSInput,
-            ): Promise<jose.KeyLike> => {
-              return Promise.resolve({
-                type: 'public',
-              });
-            };
-
-            // Return an object that includes the verify function and the additional expected properties
-            return {
-              __call__: verifyFunction,
-              coolingDown: false,
-              fresh: false,
-              reloading: false,
-              reload: jest.fn().mockResolvedValue(undefined),
-              jwks: () => undefined,
-            } as unknown as ReturnType<typeof jose.createRemoteJWKSet>;
-          },
-        );
-    });
-
-    it('throws an error when the cookie password is undefined', async () => {
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData: 'session_cookie',
-        }),
-      ).rejects.toThrow('Cookie password is required');
-    });
-
-    it('returns authenticated = false when the session cookie is empty', async () => {
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData: '',
-          cookiePassword: 'secret',
-        }),
-      ).rejects.toThrowError(
-        new Error(
-          'Failed to extract session ID for logout URL: no_session_cookie_provided',
-        ),
-      );
-    });
-
-    it('returns authenticated = false when session cookie is invalid', async () => {
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData: 'thisisacookie',
-          cookiePassword: 'secret',
-        }),
-      ).rejects.toThrowError(
-        new Error(
-          'Failed to extract session ID for logout URL: invalid_session_cookie',
-        ),
-      );
-    });
-
-    it('returns authenticated = false when session cookie cannot be unsealed', async () => {
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionData = await sealData(
-        {
-          accessToken: 'abc123',
-          refreshToken: 'def456',
-          user: {
-            object: 'user',
-            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-            email: 'test@example.com',
-          },
-        },
-        { password: cookiePassword },
-      );
-
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData,
-          cookiePassword: 'secretpasswordwhichisalsolongbutnottherightone',
-        }),
-      ).rejects.toThrowError(
-        new Error(
-          'Failed to extract session ID for logout URL: invalid_session_cookie',
-        ),
-      );
-    });
-
-    it('returns authenticated = false when the JWT is invalid', async () => {
-      jest.spyOn(jose, 'jwtVerify').mockImplementationOnce(() => {
-        throw new Error('Invalid JWT');
-      });
-
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionData = await sealData(
-        {
-          accessToken: 'abc123',
-          refreshToken: 'def456',
-          user: {
-            object: 'user',
-            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-            email: 'test@example.com',
-          },
-        },
-        { password: cookiePassword },
-      );
-
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData,
-          cookiePassword,
-        }),
-      ).rejects.toThrowError(
-        new Error('Failed to extract session ID for logout URL: invalid_jwt'),
-      );
-    });
-
-    it('returns the logout URL for the session when provided a valid JWT', async () => {
-      jest
-        .spyOn(jose, 'jwtVerify')
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
-
-      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
-      const sessionData = await sealData(
-        {
-          accessToken:
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-          refreshToken: 'def456',
-          user: {
-            object: 'user',
-            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-            email: 'test@example.com',
-          },
-        },
-        { password: cookiePassword },
-      );
-
-      await expect(
-        workos.userManagement.getLogoutUrlFromSessionCookie({
-          sessionData,
-          cookiePassword,
-        }),
-      ).resolves.toEqual(
-        `https://api.workos.test/user_management/sessions/logout?session_id=session_123`,
-      );
-    });
-  });
-
   describe('getJwksUrl', () => {
     it('returns the jwks url', () => {
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -2671,7 +2416,7 @@ describe('UserManagement', () => {
 
       expect(() => {
         workos.userManagement.getJwksUrl('');
-      }).toThrowError(TypeError);
+      }).toThrow(TypeError);
     });
   });
 });
