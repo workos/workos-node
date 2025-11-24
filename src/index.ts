@@ -21,15 +21,16 @@ export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
+export * from './feature-flags/interfaces';
 export * from './fga/interfaces';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
 export * from './passwordless/interfaces';
 export * from './portal/interfaces';
+export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
-export * from './roles/interfaces';
-export * from './feature-flags/interfaces';
+export * from './vault/interfaces';
 
 class WorkOSNode extends WorkOS {
   /** @override */
