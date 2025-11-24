@@ -35,7 +35,7 @@ export class AuditLogs {
       ...options,
       idempotencyKey:
         options.idempotencyKey ||
-        `workos-node-${this.workos.getCryptoProvider().randomUUID()}`,
+        `workos-node-${globalThis.crypto.randomUUID()}`,
     };
 
     await this.workos.post(
