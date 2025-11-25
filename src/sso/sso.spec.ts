@@ -278,6 +278,7 @@ describe('SSO', () => {
               role: {
                 slug: 'admin',
               },
+              roles: [{ slug: 'admin' }],
               groups: ['Admins', 'Developers'],
               raw_attributes: {
                 email: 'foo@test.com',
@@ -323,6 +324,7 @@ describe('SSO', () => {
               role: {
                 slug: 'admin',
               },
+              roles: [{ slug: 'admin' }],
               raw_attributes: {
                 email: 'foo@test.com',
                 first_name: 'foo',
@@ -363,6 +365,7 @@ describe('SSO', () => {
               role: {
                 slug: 'admin',
               },
+              roles: [{ slug: 'admin' }],
               groups: ['Admins', 'Developers'],
               raw_attributes: {
                 email: 'foo@test.com',
@@ -415,6 +418,7 @@ describe('SSO', () => {
               role: {
                 slug: 'admin',
               },
+              roles: [{ slug: 'admin' }],
               raw_attributes: {
                 email: 'foo@test.com',
                 first_name: 'foo',
@@ -453,6 +457,7 @@ describe('SSO', () => {
           role: {
             slug: 'admin',
           },
+          roles: [{ slug: 'admin' }],
           groups: ['Admins', 'Developers'],
           raw_attributes: {
             email: 'foo@test.com',

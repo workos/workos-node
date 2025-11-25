@@ -13,6 +13,7 @@ export const deserializeProfile = <CustomAttributesType extends UnknownRecord>(
   firstName: profile.first_name,
   lastName: profile.last_name,
   role: profile.role,
+  roles: profile.roles,
   groups: profile.groups,
   customAttributes: profile.custom_attributes,
   rawAttributes: profile.raw_attributes,

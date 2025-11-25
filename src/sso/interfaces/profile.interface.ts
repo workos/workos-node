@@ -12,6 +12,7 @@ export interface Profile<CustomAttributesType extends UnknownRecord> {
   firstName?: string;
   lastName?: string;
   role?: RoleResponse;
+  roles?: RoleResponse[];
   groups?: string[];
   customAttributes?: CustomAttributesType;
   rawAttributes?: { [key: string]: any };
@@ -27,6 +28,7 @@ export interface ProfileResponse<CustomAttributesType extends UnknownRecord> {
   first_name?: string;
   last_name?: string;
   role?: RoleResponse;
+  roles?: RoleResponse[];
   groups?: string[];
   custom_attributes?: CustomAttributesType;
   raw_attributes?: { [key: string]: any };

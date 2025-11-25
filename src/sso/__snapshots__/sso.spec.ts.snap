@@ -57,6 +57,11 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "role": {
     "slug": "admin",
   },
+  "roles": [
+    {
+      "slug": "admin",
+    },
+  ],
 }
 `;
 
@@ -91,5 +96,10 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "role": {
     "slug": "admin",
   },
+  "roles": [
+    {
+      "slug": "admin",
+    },
+  ],
 }
 `;
