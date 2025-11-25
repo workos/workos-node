@@ -128,7 +128,7 @@ describe('DirectorySync', () => {
     updated_at: '2021-12-13 12:15:45.531847',
   };
 
-  const userWithRole: DirectoryUserWithGroups = {
+  const userWithRoles: DirectoryUserWithGroups = {
     object: 'directory_user',
     id: 'directory_user_456',
     customAttributes: {
@@ -153,6 +153,7 @@ describe('DirectorySync', () => {
     state: 'active',
     username: 'jonsnow',
     role: { slug: 'super_admin' },
+    roles: [{ slug: 'super_admin' }],
     createdAt: '2021-10-27 15:21:50.640959',
     updatedAt: '2021-12-13 12:15:45.531847',
   };
@@ -182,6 +183,7 @@ describe('DirectorySync', () => {
     state: 'active',
     username: 'jonsnow',
     role: { slug: 'super_admin' },
+    roles: [{ slug: 'super_admin' }],
     created_at: '2021-10-27 15:21:50.640959',
     updated_at: '2021-12-13 12:15:45.531847',
   };
@@ -465,7 +467,7 @@ describe('DirectorySync', () => {
       expect(subject).toEqual(userWithGroup);
     });
 
-    describe('with a Role', () => {
+    describe('with roles', () => {
       it(`requests a Directory User`, async () => {
         fetchOnce(userWithRoleResponse);
 
@@ -473,7 +475,7 @@ describe('DirectorySync', () => {
           'directory_user_456',
         );
 
-        expect(subject).toEqual(userWithRole);
+        expect(subject).toEqual(userWithRoles);
       });
     });
   });
