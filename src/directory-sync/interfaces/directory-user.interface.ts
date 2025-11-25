@@ -41,6 +41,7 @@ export interface DirectoryUser<
   jobTitle: string | null;
   state: 'active' | 'inactive';
   role?: RoleResponse;
+  roles?: RoleResponse[];
   createdAt: string;
   updatedAt: string;
 }
@@ -80,6 +81,7 @@ export interface DirectoryUserResponse<
   job_title: string | null;
   state: 'active' | 'inactive';
   role?: RoleResponse;
+  roles?: RoleResponse[];
   created_at: string;
   updated_at: string;
 }
