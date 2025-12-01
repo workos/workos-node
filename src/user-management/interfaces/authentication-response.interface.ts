@@ -7,11 +7,16 @@ type AuthenticationMethod =
   | 'Password'
   | 'Passkey'
   | 'AppleOAuth'
+  | 'BitbucketOAuth'
   | 'GitHubOAuth'
+  | 'GitLabOAuth'
   | 'GoogleOAuth'
+  | 'LinkedInOAuth'
   | 'MicrosoftOAuth'
   | 'SalesforceOAuth'
+  | 'VercelOAuth'
   | 'MagicAuth'
+  | 'CrossAppAuth'
   | 'Impersonation';
 
 export interface AuthenticationResponse {
