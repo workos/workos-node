@@ -82,4 +82,11 @@ export abstract class CryptoProvider {
    * @returns A Uint8Array containing the random bytes
    */
   abstract randomBytes(length: number): Uint8Array;
+
+  /**
+   * Generates a random UUID v4 string.
+   *
+   * @returns A UUID v4 string in the format xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
+   */
+  abstract randomUUID(): string;
 }
