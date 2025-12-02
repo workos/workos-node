@@ -217,6 +217,11 @@ describe('AuditLogs', () => {
       beforeEach(() => {
         fetch.resetMocks();
         jest.clearAllMocks();
+        jest.useFakeTimers();
+      });
+
+      afterEach(() => {
+        jest.useRealTimers();
       });
 
       it('retries on 500 status code and eventually succeeds', async () => {
@@ -228,9 +233,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).resolves.toBeUndefined();
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await expect(promise).resolves.toBeUndefined();
 
         expect(fetch).toHaveBeenCalledTimes(3);
       });
@@ -244,9 +249,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).resolves.toBeUndefined();
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await expect(promise).resolves.toBeUndefined();
 
         expect(fetch).toHaveBeenCalledTimes(3);
       });
@@ -260,9 +265,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).resolves.toBeUndefined();
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await expect(promise).resolves.toBeUndefined();
 
         expect(fetch).toHaveBeenCalledTimes(3);
       });
@@ -276,9 +281,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).resolves.toBeUndefined();
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await expect(promise).resolves.toBeUndefined();
 
         expect(fetch).toHaveBeenCalledTimes(3);
       });
@@ -293,12 +298,12 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).resolves.toBeUndefined();
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await expect(promise).resolves.toBeUndefined();
 
         expect(fetch).toHaveBeenCalledTimes(4);
-      }, 10000);
+      });
 
       it('retries a maximum of 3 times (4 total attempts)', async () => {
         fetch.mockResponse(JSON.stringify({ error: 'Internal Server Error' }), {
@@ -307,13 +312,17 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await expect(
-          workos.auditLogs.createEvent('org_123', event),
-        ).rejects.toThrow();
+        const promise = workos.auditLogs
+          .createEvent('org_123', event)
+          .catch((e) => e);
+        await jest.runAllTimersAsync();
+        const result = await promise;
+
+        expect(result).toBeInstanceOf(Error);
 
         // 1 initial attempt + 3 retries = 4 total attempts
         expect(fetch).toHaveBeenCalledTimes(4);
-      }, 10000);
+      });
 
       it('uses the same idempotency key across all retry attempts', async () => {
         fetch.mockResponses(
@@ -324,9 +333,11 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await workos.auditLogs.createEvent('org_123', event, {
+        const promise = workos.auditLogs.createEvent('org_123', event, {
           idempotencyKey: 'test-idempotency-key',
         });
+        await jest.runAllTimersAsync();
+        await promise;
 
         expect(fetch).toHaveBeenCalledTimes(3);
 
@@ -336,7 +347,7 @@ describe('AuditLogs', () => {
           const headers = call[1]?.headers as Record<string, string>;
           expect(headers['Idempotency-Key']).toBe('test-idempotency-key');
         }
-      }, 10000);
+      });
 
       it('maintains auto-generated idempotency key across retry attempts', async () => {
         fetch.mockResponses(
@@ -347,7 +358,9 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await workos.auditLogs.createEvent('org_123', event);
+        const promise = workos.auditLogs.createEvent('org_123', event);
+        await jest.runAllTimersAsync();
+        await promise;
 
         expect(fetch).toHaveBeenCalledTimes(3);
 
@@ -368,7 +381,7 @@ describe('AuditLogs', () => {
         // All keys should be the same
         expect(idempotencyKeys[0]).toBe(idempotencyKeys[1]);
         expect(idempotencyKeys[1]).toBe(idempotencyKeys[2]);
-      }, 10000);
+      });
     });
   });
 
