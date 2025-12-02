@@ -65,4 +65,52 @@ describe('CryptoProvider', () => {
       );
     });
   });
+
+  describe('when generating UUIDs', () => {
+    const UUID_V4_REGEX =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+    it('generates valid UUID v4 format for NodeCryptoProvider', () => {
+      const nodeCryptoProvider = new NodeCryptoProvider();
+      const uuid = nodeCryptoProvider.randomUUID();
+
+      expect(uuid).toMatch(UUID_V4_REGEX);
+    });
+
+    it('generates valid UUID v4 format for SubtleCryptoProvider', () => {
+      const subtleCryptoProvider = new SubtleCryptoProvider();
+      const uuid = subtleCryptoProvider.randomUUID();
+
+      expect(uuid).toMatch(UUID_V4_REGEX);
+    });
+
+    it('generates unique UUIDs', () => {
+      const nodeCryptoProvider = new NodeCryptoProvider();
+      const subtleCryptoProvider = new SubtleCryptoProvider();
+
+      const uuids = new Set([
+        nodeCryptoProvider.randomUUID(),
+        nodeCryptoProvider.randomUUID(),
+        subtleCryptoProvider.randomUUID(),
+        subtleCryptoProvider.randomUUID(),
+      ]);
+
+      expect(uuids.size).toBe(4);
+    });
+
+    it('SubtleCryptoProvider falls back when crypto.randomUUID is unavailable', () => {
+      const originalRandomUUID = globalThis.crypto.randomUUID;
+      // @ts-ignore - intentionally removing for test
+      delete globalThis.crypto.randomUUID;
+
+      try {
+        const subtleCryptoProvider = new SubtleCryptoProvider();
+        const uuid = subtleCryptoProvider.randomUUID();
+
+        expect(uuid).toMatch(UUID_V4_REGEX);
+      } finally {
+        globalThis.crypto.randomUUID = originalRandomUUID;
+      }
+    });
+  });
 });

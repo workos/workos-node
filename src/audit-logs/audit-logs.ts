@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import { WorkOS } from '../workos';
 import {
   CreateAuditLogEventOptions,
@@ -34,7 +33,9 @@ export class AuditLogs {
     // Auto-generate idempotency key if not provided
     const optionsWithIdempotency: CreateAuditLogEventRequestOptions = {
       ...options,
-      idempotencyKey: options.idempotencyKey || `workos-node-${randomUUID()}`,
+      idempotencyKey:
+        options.idempotencyKey ||
+        `workos-node-${this.workos.getCryptoProvider().randomUUID()}`,
     };
 
     await this.workos.post(

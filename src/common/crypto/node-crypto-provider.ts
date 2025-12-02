@@ -96,4 +96,8 @@ export class NodeCryptoProvider extends CryptoProvider {
   randomBytes(length: number): Uint8Array {
     return new Uint8Array(crypto.randomBytes(length));
   }
+
+  randomUUID(): string {
+    return crypto.randomUUID();
+  }
 }
