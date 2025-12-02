@@ -63,7 +63,7 @@
     "jest-fetch-mock": "^3.0.3",
     "miniflare": "^4.20251004.0",
     "nock": "^14.0.10",
-    "prettier": "^3.5.3",
+    "prettier": "^3.7.3",
     "supertest": "^7.1.4",
     "ts-jest": "29.4.4",
     "tsup": "^8.5.0",

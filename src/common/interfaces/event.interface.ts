@@ -54,14 +54,12 @@ interface EventResponseBase {
   created_at: string;
 }
 
-export interface AuthenticationEmailVerificationSucceededEvent
-  extends EventBase {
+export interface AuthenticationEmailVerificationSucceededEvent extends EventBase {
   event: 'authentication.email_verification_succeeded';
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationEmailVerificationSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationEmailVerificationSucceededEventResponse extends EventResponseBase {
   event: 'authentication.email_verification_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -71,8 +69,7 @@ export interface AuthenticationMagicAuthFailedEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationMagicAuthFailedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationMagicAuthFailedEventResponse extends EventResponseBase {
   event: 'authentication.magic_auth_failed';
   data: AuthenticationEventResponse;
 }
@@ -82,8 +79,7 @@ export interface AuthenticationMagicAuthSucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationMagicAuthSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationMagicAuthSucceededEventResponse extends EventResponseBase {
   event: 'authentication.magic_auth_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -93,8 +89,7 @@ export interface AuthenticationMfaSucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationMfaSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationMfaSucceededEventResponse extends EventResponseBase {
   event: 'authentication.mfa_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -104,8 +99,7 @@ export interface AuthenticationOAuthFailedEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationOAuthFailedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationOAuthFailedEventResponse extends EventResponseBase {
   event: 'authentication.oauth_failed';
   data: AuthenticationEventResponse;
 }
@@ -115,8 +109,7 @@ export interface AuthenticationOAuthSucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationOAuthSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationOAuthSucceededEventResponse extends EventResponseBase {
   event: 'authentication.oauth_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -126,8 +119,7 @@ export interface AuthenticationPasskeyFailedEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationPasskeyFailedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationPasskeyFailedEventResponse extends EventResponseBase {
   event: 'authentication.passkey_failed';
   data: AuthenticationEventResponse;
 }
@@ -137,8 +129,7 @@ export interface AuthenticationPasskeySucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationPasskeySucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationPasskeySucceededEventResponse extends EventResponseBase {
   event: 'authentication.passkey_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -148,8 +139,7 @@ export interface AuthenticationPasswordFailedEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationPasswordFailedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationPasswordFailedEventResponse extends EventResponseBase {
   event: 'authentication.password_failed';
   data: AuthenticationEventResponse;
 }
@@ -159,8 +149,7 @@ export interface AuthenticationPasswordSucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationPasswordSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationPasswordSucceededEventResponse extends EventResponseBase {
   event: 'authentication.password_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -170,8 +159,7 @@ export interface AuthenticationRadarRiskDetectedEvent extends EventBase {
   data: AuthenticationRadarRiskDetectedEventData;
 }
 
-export interface AuthenticationRadarRiskDetectedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationRadarRiskDetectedEventResponse extends EventResponseBase {
   event: 'authentication.radar_risk_detected';
   data: AuthenticationRadarRiskDetectedEventResponseData;
 }
@@ -181,8 +169,7 @@ export interface AuthenticationSSOFailedEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationSSOFailedEventResponse
-  extends EventResponseBase {
+export interface AuthenticationSSOFailedEventResponse extends EventResponseBase {
   event: 'authentication.sso_failed';
   data: AuthenticationEventResponse;
 }
@@ -192,8 +179,7 @@ export interface AuthenticationSSOSucceededEvent extends EventBase {
   data: AuthenticationEvent;
 }
 
-export interface AuthenticationSSOSucceededEventResponse
-  extends EventResponseBase {
+export interface AuthenticationSSOSucceededEventResponse extends EventResponseBase {
   event: 'authentication.sso_succeeded';
   data: AuthenticationEventResponse;
 }
@@ -349,8 +335,7 @@ export interface EmailVerificationCreatedEvent extends EventBase {
   data: EmailVerificationEvent;
 }
 
-export interface EmailVerificationCreatedEventResponse
-  extends EventResponseBase {
+export interface EmailVerificationCreatedEventResponse extends EventResponseBase {
   event: 'email_verification.created';
   data: EmailVerificationEventResponse;
 }
@@ -449,8 +434,7 @@ export interface OrganizationMembershipCreated extends EventBase {
   data: OrganizationMembership;
 }
 
-export interface OrganizationMembershipCreatedResponse
-  extends EventResponseBase {
+export interface OrganizationMembershipCreatedResponse extends EventResponseBase {
   event: 'organization_membership.created';
   data: OrganizationMembershipResponse;
 }
@@ -460,8 +444,7 @@ export interface OrganizationMembershipDeleted extends EventBase {
   data: OrganizationMembership;
 }
 
-export interface OrganizationMembershipDeletedResponse
-  extends EventResponseBase {
+export interface OrganizationMembershipDeletedResponse extends EventResponseBase {
   event: 'organization_membership.deleted';
   data: OrganizationMembershipResponse;
 }
@@ -471,8 +454,7 @@ export interface OrganizationMembershipUpdated extends EventBase {
   data: OrganizationMembership;
 }
 
-export interface OrganizationMembershipUpdatedResponse
-  extends EventResponseBase {
+export interface OrganizationMembershipUpdatedResponse extends EventResponseBase {
   event: 'organization_membership.updated';
   data: OrganizationMembershipResponse;
 }
@@ -562,8 +544,7 @@ export interface OrganizationDomainVerifiedEvent extends EventBase {
   data: OrganizationDomain;
 }
 
-export interface OrganizationDomainVerifiedEventResponse
-  extends EventResponseBase {
+export interface OrganizationDomainVerifiedEventResponse extends EventResponseBase {
   event: 'organization_domain.verified';
   data: OrganizationDomainResponse;
 }
@@ -573,8 +554,7 @@ export interface OrganizationDomainVerificationFailedEvent extends EventBase {
   data: OrganizationDomain;
 }
 
-export interface OrganizationDomainVerificationFailedEventResponse
-  extends EventResponseBase {
+export interface OrganizationDomainVerificationFailedEventResponse extends EventResponseBase {
   event: 'organization_domain.verification_failed';
   data: OrganizationDomainResponse;
 }
@@ -584,8 +564,7 @@ export interface OrganizationDomainCreatedEvent extends EventBase {
   data: OrganizationDomain;
 }
 
-export interface OrganizationDomainCreatedEventResponse
-  extends EventResponseBase {
+export interface OrganizationDomainCreatedEventResponse extends EventResponseBase {
   event: 'organization_domain.created';
   data: OrganizationDomainResponse;
 }
@@ -595,8 +574,7 @@ export interface OrganizationDomainUpdatedEvent extends EventBase {
   data: OrganizationDomain;
 }
 
-export interface OrganizationDomainUpdatedEventResponse
-  extends EventResponseBase {
+export interface OrganizationDomainUpdatedEventResponse extends EventResponseBase {
   event: 'organization_domain.updated';
   data: OrganizationDomainResponse;
 }
@@ -606,8 +584,7 @@ export interface OrganizationDomainDeletedEvent extends EventBase {
   data: OrganizationDomain;
 }
 
-export interface OrganizationDomainDeletedEventResponse
-  extends EventResponseBase {
+export interface OrganizationDomainDeletedEventResponse extends EventResponseBase {
   event: 'organization_domain.deleted';
   data: OrganizationDomainResponse;
 }
