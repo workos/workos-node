@@ -29,6 +29,7 @@ export const deserializeDirectoryUser = <
   jobTitle: directoryUser.job_title,
   state: directoryUser.state,
   role: directoryUser.role,
+  roles: directoryUser.roles,
   createdAt: directoryUser.created_at,
   updatedAt: directoryUser.updated_at,
 });
@@ -60,6 +61,7 @@ export const deserializeUpdatedEventDirectoryUser = (
   jobTitle: directoryUser.job_title,
   state: directoryUser.state,
   role: directoryUser.role,
+  roles: directoryUser.roles,
   createdAt: directoryUser.created_at,
   updatedAt: directoryUser.updated_at,
   previousAttributes: directoryUser.previous_attributes,
