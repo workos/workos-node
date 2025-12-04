@@ -151,7 +151,7 @@ describe('Portal', () => {
             organization: 'bogus-id',
             returnUrl: 'https://www.example.com',
           }),
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           'Could not find an organization with the id, bogus-id.',
         );
         expect(fetchBody()).toEqual({
@@ -175,7 +175,7 @@ describe('Portal', () => {
             organization: 'bogus-id',
             returnUrl: 'https://www.example.com',
           }),
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           'Could not find an organization with the id, bogus-id.',
         );
         expect(fetchBody()).toEqual({
