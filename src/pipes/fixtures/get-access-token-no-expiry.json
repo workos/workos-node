@@ -1,0 +1,10 @@
+{
+  "active": true,
+  "access_token": {
+    "object": "access_token",
+    "access_token": "test_access_token_456",
+    "expires_at": null,
+    "scopes": ["read:data"],
+    "missing_scopes": ["write:data"]
+  }
+}
