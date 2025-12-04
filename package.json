@@ -12,9 +12,9 @@
     "node": ">=20.15.0"
   },
   "type": "module",
-  "main": "./lib/cjs/index.cjs",
-  "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "files": [
     "lib/",
     "package.json"
@@ -28,12 +28,13 @@
   },
   "scripts": {
     "clean": "rm -rf lib",
-    "build": "tsup",
-    "build:watch": "tsup --watch",
+    "build": "tsdown",
+    "build:watch": "tsdown --watch",
     "lint": "eslint",
     "test": "jest",
     "test:watch": "jest --watch",
     "check:runtimes": "tsx scripts/ecosystem-check.ts",
+    "check:types": "attw --pack . --ignore-rules no-resolution",
     "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "prepublishOnly": "npm run build",
@@ -55,7 +56,6 @@
     "@types/qs": "^6.14.0",
     "@typescript-eslint/parser": "^8.46.0",
     "babel-jest": "^30.2.0",
-    "esbuild-fix-imports-plugin": "^1.0.21",
     "eslint": "^9.37.0",
     "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-n": "^17.23.1",
@@ -68,59 +68,69 @@
     "prettier": "^3.5.3",
     "supertest": "^7.1.4",
     "ts-jest": "29.4.4",
-    "tsup": "^8.5.0",
+    "tsdown": "^0.17.0",
     "tsx": "^4.20.6",
     "typescript": "5.9.3",
-    "typescript-eslint": "^8.46.0"
+    "typescript-eslint": "^8.46.0",
+    "@arethetypeswrong/cli": "^0.18.2"
   },
   "exports": {
     ".": {
-      "types": {
-        "require": "./lib/cjs/index.d.cts",
-        "import": "./lib/esm/index.d.ts"
-      },
       "workerd": {
-        "import": "./lib/esm/index.worker.js",
-        "require": "./lib/cjs/index.worker.cjs"
+        "types": "./lib/index.worker.d.ts",
+        "import": "./lib/index.worker.js",
+        "require": "./lib/index.worker.cjs"
       },
       "edge-light": {
-        "import": "./lib/esm/index.worker.js",
-        "require": "./lib/cjs/index.worker.cjs"
+        "types": "./lib/index.worker.d.ts",
+        "import": "./lib/index.worker.js",
+        "require": "./lib/index.worker.cjs"
       },
-      "deno": "./lib/esm/index.js",
+      "deno": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
       "bun": {
-        "import": "./lib/esm/index.js",
-        "require": "./lib/cjs/index.cjs"
-      },
-      "node": {
-        "import": "./lib/esm/index.js",
-        "require": "./lib/cjs/index.cjs"
+        "types": "./lib/index.d.ts",
+        "import": "./lib/index.js",
+        "require": "./lib/index.cjs"
       },
       "convex": {
-        "import": "./lib/esm/index.worker.js",
-        "default": "./lib/cjs/index.worker.cjs"
+        "types": "./lib/index.worker.d.ts",
+        "import": "./lib/index.worker.js",
+        "default": "./lib/index.worker.cjs"
       },
-      "import": "./lib/esm/index.js",
-      "require": "./lib/cjs/index.cjs",
-      "default": "./lib/esm/index.js"
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
+      },
+      "default": "./lib/index.js"
     },
     "./client": {
-      "types": {
-        "require": "./lib/cjs/index.client.d.cts",
-        "import": "./lib/esm/index.client.d.ts"
+      "import": {
+        "types": "./lib/index.client.d.ts",
+        "default": "./lib/index.client.js"
       },
-      "import": "./lib/esm/index.client.js",
-      "require": "./lib/cjs/index.client.cjs",
-      "default": "./lib/esm/index.client.js"
+      "require": {
+        "types": "./lib/index.client.d.cts",
+        "default": "./lib/index.client.cjs"
+      },
+      "default": "./lib/index.client.js"
     },
     "./worker": {
-      "types": {
-        "require": "./lib/cjs/index.worker.d.cts",
-        "import": "./lib/esm/index.worker.d.ts"
+      "import": {
+        "types": "./lib/index.worker.d.ts",
+        "default": "./lib/index.worker.js"
       },
-      "import": "./lib/esm/index.worker.js",
-      "require": "./lib/cjs/index.worker.cjs",
-      "default": "./lib/esm/index.worker.js"
+      "require": {
+        "types": "./lib/index.worker.d.cts",
+        "default": "./lib/index.worker.cjs"
+      },
+      "default": "./lib/index.worker.js"
     },
     "./package.json": "./package.json"
   }
