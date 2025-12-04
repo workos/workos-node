@@ -8,8 +8,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const root = join(__dirname, '..');
-const libCjs = join(root, 'lib/cjs');
-const libEsm = join(root, 'lib/esm');
+const lib = join(root, 'lib');
 const tmp = mkdtempSync(join(os.tmpdir(), 'workos-test-'));
 
 // Map of "runtime label" → { cmd, args }
@@ -18,35 +17,35 @@ const tests: Record<string, { cmd: string; args: string[] }> = {
     cmd: 'node',
     args: [
       '-e',
-      `console.log('✅ Node CJS:', require("${libCjs}/index.cjs").WorkOS.name)`,
+      `console.log('✅ Node CJS:', require("${lib}/index.cjs").WorkOS.name)`,
     ],
   },
   'node-esm': {
     cmd: 'node',
     args: [
       '-e',
-      `import("${libEsm}/index.js").then(m => console.log('✅ Node ESM:', m.WorkOS.name))`,
+      `import("${lib}/index.js").then(m => console.log('✅ Node ESM:', m.WorkOS.name))`,
     ],
   },
   deno: {
     cmd: 'deno',
     args: [
       'eval',
-      `import("${libEsm}/index.js").then(m => console.log('✅ Deno:', m.WorkOS.name))`,
+      `import("${lib}/index.js").then(m => console.log('✅ Deno:', m.WorkOS.name))`,
     ],
   },
   'bun-cjs': {
     cmd: 'bun',
     args: [
       '-e',
-      `console.log('✅ Bun CJS:', require("${libCjs}/index.cjs").WorkOS.name)`,
+      `console.log('✅ Bun CJS:', require("${lib}/index.cjs").WorkOS.name)`,
     ],
   },
   'bun-esm': {
     cmd: 'bun',
     args: [
       '-e',
-      `import("${libEsm}/index.js").then(m => console.log('✅ Bun ESM:', m.WorkOS.name))`,
+      `import("${lib}/index.js").then(m => console.log('✅ Bun ESM:', m.WorkOS.name))`,
     ],
   },
 };
@@ -91,10 +90,10 @@ if (miniflareCheck.status !== 0) {
 } else {
   // 2. Create the temporary worker script
   const workerScriptPath = join(tmp, 'worker-test.js');
-  const safeLibEsmPath = libEsm.replace(/\\/g, '\\\\'); // For Windows compatibility
+  const safeLibPath = lib.replace(/\\/g, '\\\\'); // For Windows compatibility
 
   const workerScriptContent = `
-import { WorkOS } from '${safeLibEsmPath}/index.js';
+import { WorkOS } from '${safeLibPath}/index.worker.js';
 
 if (WorkOS && WorkOS.name === 'WorkOS') {
   console.log('✅ Worker (miniflare): SDK imported successfully.');
