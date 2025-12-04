@@ -31,7 +31,7 @@ export default defineConfig([
     outDir: 'lib/cjs',
     target: 'es2022',
     sourcemap: true,
-    clean: false,
+    clean: true,
     dts: false,
     unbundle: true,
     outExtensions() {
@@ -41,14 +41,15 @@ export default defineConfig([
   // Types only
   {
     entry,
+    clean: true,
     format: 'esm',
     outDir: 'lib/types',
     dts: {
-      only: true,
+      emitDtsOnly: true,
     },
     unbundle: true,
     outExtensions() {
-      return { js: '.js', dts: '.d.ts' };
+      return { dts: '.d.ts' };
     },
   },
 ]);
