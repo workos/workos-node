@@ -14,7 +14,7 @@
   "type": "module",
   "main": "./lib/cjs/index.cjs",
   "module": "./lib/esm/index.js",
-  "types": "./lib/esm/index.d.ts",
+  "types": "./lib/types/index.d.ts",
   "files": [
     "lib/",
     "package.json"
@@ -75,10 +75,7 @@
   },
   "exports": {
     ".": {
-      "types": {
-        "require": "./lib/cjs/index.d.cts",
-        "import": "./lib/esm/index.d.ts"
-      },
+      "types": "./lib/types/index.d.ts",
       "workerd": {
         "import": "./lib/esm/index.worker.js",
         "require": "./lib/cjs/index.worker.cjs"
@@ -105,19 +102,13 @@
       "default": "./lib/esm/index.js"
     },
     "./client": {
-      "types": {
-        "require": "./lib/cjs/index.client.d.cts",
-        "import": "./lib/esm/index.client.d.ts"
-      },
+      "types": "./lib/types/index.client.d.ts",
       "import": "./lib/esm/index.client.js",
       "require": "./lib/cjs/index.client.cjs",
       "default": "./lib/esm/index.client.js"
     },
     "./worker": {
-      "types": {
-        "require": "./lib/cjs/index.worker.d.cts",
-        "import": "./lib/esm/index.worker.d.ts"
-      },
+      "types": "./lib/types/index.worker.d.ts",
       "import": "./lib/esm/index.worker.js",
       "require": "./lib/cjs/index.worker.cjs",
       "default": "./lib/esm/index.worker.js"

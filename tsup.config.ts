@@ -1,30 +1,40 @@
 import { defineConfig } from 'tsup';
 import { fixImportsPlugin } from 'esbuild-fix-imports-plugin';
 
+const entry = [
+  'src/**/*.ts',
+  '!src/**/*.spec.ts',
+  '!src/**/*.test.ts',
+  '!src/**/fixtures/**',
+  '!src/**/*.d.ts',
+  '!src/**/test-utils.ts',
+];
+
 export default defineConfig([
-  // ESM build
+  // Types only
   {
-    entry: [
-      'src/**/*.ts',
-      '!src/**/*.spec.ts',
-      '!src/**/*.test.ts',
-      '!src/**/fixtures/**',
-      '!src/**/*.d.ts',
-      '!src/**/test-utils.ts',
-    ],
+    entry,
+    format: 'esm',
+    outDir: 'lib/types',
+    dts: {
+      only: true, // Only emit declarations, no JS
+      compilerOptions: {
+        lib: ['dom', 'es2022'],
+        types: ['node'],
+      },
+    },
+    bundle: false,
+  },
+  // ESM build - no types
+  {
+    entry,
     format: 'esm',
     outDir: 'lib/esm',
     splitting: false,
     target: 'es2022',
     sourcemap: true,
     clean: true,
-    dts: {
-      resolve: true,
-      compilerOptions: {
-        lib: ['dom', 'es2022'],
-        types: ['node'],
-      },
-    },
+    dts: false,
     bundle: false,
     outExtension() {
       return { js: '.js' };
@@ -34,32 +44,19 @@ export default defineConfig([
     },
     esbuildPlugins: [fixImportsPlugin()],
   },
-  // CJS build
+  // CJS build - no types
   {
-    entry: [
-      'src/**/*.ts',
-      '!src/**/*.spec.ts',
-      '!src/**/*.test.ts',
-      '!src/**/fixtures/**',
-      '!src/**/*.d.ts',
-      '!src/**/test-utils.ts',
-    ],
+    entry,
     format: 'cjs',
     outDir: 'lib/cjs',
     splitting: false,
     target: 'es2022',
     sourcemap: true,
-    clean: false, // Don't clean, keep ESM files
-    dts: {
-      resolve: true,
-      compilerOptions: {
-        lib: ['dom', 'es2022'],
-        types: ['node'],
-      },
-    },
+    clean: false,
+    dts: false,
     bundle: false,
     outExtension() {
-      return { js: '.cjs', dts: '.d.cts' };
+      return { js: '.cjs' };
     },
     esbuildOptions(options) {
       options.keepNames = true;
