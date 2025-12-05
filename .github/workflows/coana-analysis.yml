@@ -20,7 +20,7 @@ jobs:
 
       - name: Run Coana CLI
         id: coana-cli
-        uses: docker://coana/coana:latest@sha256:74144ed0fc9d7da87dcd45ccd12458cc7c25ad23e47eebd7ceb4860ed396d63e
+        uses: docker://coana/coana:latest@sha256:b5fdc21ea446917039c8f995e6ceec8518f45a3db1a01ec8deddc707124e2e17
         with:
           args: |
             coana run . \
