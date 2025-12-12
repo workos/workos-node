@@ -9,6 +9,7 @@ export interface CreateUserOptions {
   lastName?: string;
   emailVerified?: boolean;
   externalId?: string;
+  locale?: string;
   metadata?: Record<string, string>;
 }
 
@@ -21,5 +22,6 @@ export interface SerializedCreateUserOptions {
   last_name?: string;
   email_verified?: boolean;
   external_id?: string;
+  locale?: string;
   metadata?: Record<string, string>;
 }
