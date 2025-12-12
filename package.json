@@ -41,7 +41,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "iron-session": "^8.0.4",
+    "iron-webcrypto": "^1.2.1",
     "jose": "~6.1.0"
   },
   "devDependencies": {
