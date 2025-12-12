@@ -4,13 +4,6 @@ import {
   defaults,
 } from 'iron-webcrypto';
 
-// Extract the precise Crypto type that iron-webcrypto expects
-type IronCrypto = Parameters<typeof ironSeal>[0];
-
-// Cast globalThis.crypto to iron-webcrypto's expected type
-// Runtime-safe: DOM Crypto is fully compatible with iron-webcrypto's _Crypto
-const ironCrypto: IronCrypto = globalThis.crypto as unknown as IronCrypto;
-
 const VERSION_DELIMITER = '~';
 const CURRENT_MAJOR_VERSION = 2;
 
@@ -56,9 +49,10 @@ export async function sealData(
     secret: password,
   };
 
-  const seal = await ironSeal(ironCrypto, data, passwordObj, {
+  const seal = await ironSeal(data, passwordObj, {
     ...defaults,
     ttl: ttl * 1000, // Convert seconds to milliseconds
+    encode: JSON.stringify, // Preserve v1 lenient serialization
   });
 
   // Add the version delimiter exactly like iron-session does
@@ -86,7 +80,7 @@ export async function unsealData<T = unknown>(
   let data: unknown;
   try {
     data =
-      (await ironUnseal(ironCrypto, sealWithoutVersion, passwordMap, {
+      (await ironUnseal(sealWithoutVersion, passwordMap, {
         ...defaults,
         ttl: ttl * 1000,
       })) ?? {};
