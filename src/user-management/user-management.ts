@@ -10,7 +10,7 @@ import {
   FeatureFlag,
   FeatureFlagResponse,
 } from '../feature-flags/interfaces/feature-flag.interface';
-import { deserializeFeatureFlag } from '../feature-flags/serializers/feature-flag.serializer';
+import { deserializeFeatureFlag } from '../feature-flags/serializers';
 import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeOptions,
