@@ -482,7 +482,7 @@ describe('Organizations', () => {
           id: 'flag_01EHQMYV6MBK39QC5PZXHY59C6',
           name: 'Beta Features',
           slug: 'beta-features',
-          description: null,
+          description: '',
           createdAt: '2024-01-01T00:00:00.000Z',
           updatedAt: '2024-01-01T00:00:00.000Z',
         },

@@ -3,7 +3,7 @@ export interface FeatureFlag {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  description: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,7 +13,7 @@ export interface FeatureFlagResponse {
   id: string;
   name: string;
   slug: string;
-  description?: string;
+  description: string;
   created_at: string;
   updated_at: string;
 }
