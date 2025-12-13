@@ -4,6 +4,9 @@ export interface FeatureFlag {
   name: string;
   slug: string;
   description: string;
+  tags: string[];
+  enabled: boolean;
+  defaultValue: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -14,6 +17,9 @@ export interface FeatureFlagResponse {
   name: string;
   slug: string;
   description: string;
+  tags: string[];
+  enabled: boolean;
+  default_value: boolean;
   created_at: string;
   updated_at: string;
 }
