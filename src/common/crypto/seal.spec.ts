@@ -127,7 +127,9 @@ describe('seal', () => {
       const sealed = await sealData(data, { password });
 
       // Verify the format matches iron-session's expected output
-      expect(sealed).toMatch(/^Fe26\.2\*1\*[^*]+\*[^*]+\*[^*]+\*\*[^*]+\*[^*]+~2$/);
+      expect(sealed).toMatch(
+        /^Fe26\.2\*1\*[^*]+\*[^*]+\*[^*]+\*\*[^*]+\*[^*]+~2$/,
+      );
 
       const unsealed = await unsealData<typeof data>(sealed, { password });
       expect(unsealed).toEqual(data);
