@@ -64,7 +64,7 @@ export async function unsealData<T = unknown>(
   } catch (error) {
     if (
       error instanceof Error &&
-      /^(Expired seal|Bad hmac value|Cannot find password|Incorrect number of sealed components)/.test(
+      /^(Expired seal|Bad hmac value|Cannot find password|Incorrect number of sealed components|Wrong mac prefix)/.test(
         error.message,
       )
     ) {
