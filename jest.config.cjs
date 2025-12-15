@@ -13,6 +13,6 @@ module.exports = {
     '^.+\\.m?js$': '<rootDir>/jest-transform-esm.cjs',
   },
   transformIgnorePatterns: [
-    'node_modules/(?!(iron-session|uncrypto|cookie-es|@noble|@scure|jose)/)',
+    'node_modules/(?!(iron-webcrypto|uint8array-extras|@noble|@scure|jose)/)',
   ],
 };

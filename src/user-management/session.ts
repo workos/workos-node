@@ -10,7 +10,7 @@ import {
   SessionCookieData,
 } from './interfaces';
 import { UserManagement } from './user-management';
-import { unsealData } from 'iron-session';
+import { unsealData } from '../common/crypto/seal';
 import { getJose } from '../utils/jose';
 
 type RefreshOptions = {
