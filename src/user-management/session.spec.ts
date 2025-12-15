@@ -1,7 +1,7 @@
 import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
-import { sealData } from 'iron-session';
+import { sealData } from '../common/crypto/seal';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';

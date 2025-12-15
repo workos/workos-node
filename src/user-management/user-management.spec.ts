@@ -21,7 +21,7 @@ import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
 import identityFixture from './fixtures/identity.json';
 import * as jose from 'jose';
-import { sealData } from 'iron-session';
+import { sealData } from '../common/crypto/seal';
 
 jest.mock('jose', () => ({
   ...jest.requireActual('jose'),
