@@ -496,6 +496,7 @@ export class UserManagement {
       entitlements,
       featureFlags,
       accessToken: session.accessToken,
+      authenticationMethod: session.authenticationMethod,
     };
   }
 
@@ -630,6 +631,7 @@ export class UserManagement {
       user: authenticationResponse.user,
       accessToken: authenticationResponse.accessToken,
       refreshToken: authenticationResponse.refreshToken,
+      authenticationMethod: authenticationResponse.authenticationMethod,
       impersonator: authenticationResponse.impersonator,
     };
 
