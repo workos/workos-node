@@ -41,10 +41,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "iron-session": "^8.0.4",
+    "iron-webcrypto": "^2.0.0",
     "jose": "~6.1.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
     "@babel/plugin-transform-modules-commonjs": "^7.26.3",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
@@ -71,8 +72,7 @@
     "tsdown": "^0.17.0",
     "tsx": "^4.20.6",
     "typescript": "5.9.3",
-    "typescript-eslint": "^8.46.0",
-    "@arethetypeswrong/cli": "^0.18.2"
+    "typescript-eslint": "^8.46.0"
   },
   "exports": {
     ".": {

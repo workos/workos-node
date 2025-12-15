@@ -1,4 +1,4 @@
-import { sealData, unsealData } from 'iron-session';
+import { sealData, unsealData } from '../common/crypto/seal';
 import * as clientUserManagement from '../client/user-management';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
