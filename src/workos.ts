@@ -30,6 +30,7 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { FGA } from './fga/fga';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
+import { FeatureFlags } from './feature-flags/feature-flags';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
@@ -59,19 +60,20 @@ export class WorkOS {
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly directorySync = new DirectorySync(this);
+  readonly events = new Events(this);
+  readonly featureFlags = new FeatureFlags(this);
+  readonly fga = new FGA(this);
+  readonly mfa = new Mfa(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
   readonly pipes = new Pipes(this);
   readonly portal = new Portal(this);
   readonly sso = new SSO(this);
-  readonly webhooks: Webhooks;
-  readonly mfa = new Mfa(this);
-  readonly events = new Events(this);
   readonly userManagement: UserManagement;
-  readonly fga = new FGA(this);
-  readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
+  readonly webhooks: Webhooks;
+  readonly widgets = new Widgets(this);
 
   constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
     if (!key) {
