@@ -11,13 +11,6 @@ describe('seal', () => {
       expect(sealed).toContain('~2');
       expect(sealed.startsWith('Fe26.2*')).toBe(true);
     });
-
-    it('seals with TTL', async () => {
-      const data = { foo: 'bar' };
-      const sealed = await sealData(data, { password, ttl: 3600 });
-
-      expect(sealed).toContain('~2');
-    });
   });
 
   describe('unsealData', () => {
@@ -38,20 +31,6 @@ describe('seal', () => {
       const sealed = await sealData(data, { password });
       const unsealed = await unsealData<typeof data>(sealed, { password });
 
-      expect(unsealed).toEqual(data);
-    });
-
-    it('handles seals with TTL (expiration embedded in seal)', async () => {
-      const data = { foo: 'bar' };
-      // Seal with TTL - expiration timestamp is embedded in the seal
-      const sealed = await sealData(data, { password, ttl: 3600 });
-
-      // Verify expiration field is present (5th component, non-empty)
-      const parts = sealed.split('~')[0].split('*');
-      expect(parts[5]).toMatch(/^\d+$/); // Non-empty expiration timestamp
-
-      // Should unseal successfully within TTL window
-      const unsealed = await unsealData(sealed, { password });
       expect(unsealed).toEqual(data);
     });
 

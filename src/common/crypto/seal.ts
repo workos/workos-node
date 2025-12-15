@@ -9,12 +9,10 @@ const CURRENT_MAJOR_VERSION = 2;
 
 interface SealOptions {
   password: string;
-  ttl?: number;
 }
 
 interface UnsealOptions {
   password: string;
-  ttl?: number;
 }
 
 function parseSeal(seal: string): {
@@ -30,7 +28,7 @@ function parseSeal(seal: string): {
 
 export async function sealData(
   data: unknown,
-  { password, ttl = 0 }: SealOptions,
+  { password }: SealOptions,
 ): Promise<string> {
   const passwordObj = {
     id: '1',
@@ -39,7 +37,7 @@ export async function sealData(
 
   const seal = await ironSeal(data, passwordObj, {
     ...defaults,
-    ttl: ttl * 1000,
+    ttl: 0,
     encode: JSON.stringify,
   });
 
@@ -48,7 +46,7 @@ export async function sealData(
 
 export async function unsealData<T = unknown>(
   encryptedData: string,
-  { password, ttl = 0 }: UnsealOptions,
+  { password }: UnsealOptions,
 ): Promise<T> {
   const { sealWithoutVersion, tokenVersion } = parseSeal(encryptedData);
 
@@ -59,7 +57,7 @@ export async function unsealData<T = unknown>(
     data =
       (await ironUnseal(sealWithoutVersion, passwordMap, {
         ...defaults,
-        ttl: ttl * 1000,
+        ttl: 0,
       })) ?? {};
   } catch (error) {
     if (
