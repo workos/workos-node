@@ -19,7 +19,12 @@ export interface AccessToken {
 
 export type SessionCookieData = Pick<
   AuthenticationResponse,
-  'accessToken' | 'impersonator' | 'organizationId' | 'refreshToken' | 'user'
+  | 'accessToken'
+  | 'authenticationMethod'
+  | 'impersonator'
+  | 'organizationId'
+  | 'refreshToken'
+  | 'user'
 >;
 
 export enum AuthenticateWithSessionCookieFailureReason {
@@ -35,6 +40,8 @@ export type AuthenticateWithSessionCookieFailedResponse = {
 
 export type AuthenticateWithSessionCookieSuccessResponse = {
   authenticated: true;
+  accessToken: string;
+  authenticationMethod: AuthenticationResponse['authenticationMethod'];
   sessionId: string;
   organizationId?: string;
   role?: string;
@@ -44,5 +51,4 @@ export type AuthenticateWithSessionCookieSuccessResponse = {
   featureFlags?: string[];
   user: User;
   impersonator?: Impersonator;
-  accessToken: string;
 };

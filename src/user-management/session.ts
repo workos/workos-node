@@ -111,6 +111,7 @@ export class CookieSession {
       entitlements,
       featureFlags,
       user: session.user,
+      authenticationMethod: session.authenticationMethod,
       impersonator: session.impersonator,
       accessToken: session.accessToken,
     };
@@ -183,6 +184,7 @@ export class CookieSession {
         authenticated: true,
         sealedSession: authenticationResponse.sealedSession,
         session: authenticationResponse as AuthenticationResponse,
+        authenticationMethod: authenticationResponse.authenticationMethod,
         sessionId,
         organizationId,
         role,
