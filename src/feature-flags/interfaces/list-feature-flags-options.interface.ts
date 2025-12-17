@@ -1,3 +1,3 @@
 import { PaginationOptions } from '../../common/interfaces';
 
-export interface ListFeatureFlagsOptions extends PaginationOptions {}
+export type ListFeatureFlagsOptions = PaginationOptions;
