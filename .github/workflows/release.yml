@@ -15,11 +15,14 @@ jobs:
   test:
     name: Publish to NPM
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
@@ -32,15 +35,11 @@ jobs:
 
       - name: Publish
         if: ${{ !github.event.release.prerelease }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          npm publish --tag latest --access=public
+          npm publish --tag latest --access=public --provenance
 
       - name: Publish Pre-Release
         if: ${{ github.event.release.prerelease }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           # Tags may come prefixed with "v" which we want to remove before putting
           # it as the version of this deploy. E.g. this will turn "v7.5.0-beta" to "7.5.0-beta"
@@ -51,4 +50,4 @@ jobs:
           echo "Deploying with package.json"
           cat package.json
 
-          npm publish --tag next --access=public
+          npm publish --tag next --access=public --provenance
