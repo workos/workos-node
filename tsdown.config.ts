@@ -16,6 +16,8 @@ export default defineConfig({
   clean: true,
   dts: true,
   unbundle: true,
+  // bundle ESM-only deps for CJS compatibility
+  noExternal: ['iron-webcrypto', 'uint8array-extras'],
   outExtensions({ format }) {
     return {
       js: format === 'cjs' ? '.cjs' : '.js',
