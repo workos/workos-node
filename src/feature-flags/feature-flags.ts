@@ -1,9 +1,11 @@
 import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
+  AddFlagTargetOptions,
   FeatureFlag,
   FeatureFlagResponse,
   ListFeatureFlagsOptions,
+  RemoveFlagTargetOptions,
 } from './interfaces';
 import { deserializeFeatureFlag } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
@@ -58,11 +60,13 @@ export class FeatureFlags {
     return deserializeFeatureFlag(data);
   }
 
-  async addFlagTarget(slug: string, targetId: string): Promise<void> {
+  async addFlagTarget(options: AddFlagTargetOptions): Promise<void> {
+    const { slug, targetId } = options;
     await this.workos.post(`/feature-flags/${slug}/targets/${targetId}`, {});
   }
 
-  async removeFlagTarget(slug: string, targetId: string): Promise<void> {
+  async removeFlagTarget(options: RemoveFlagTargetOptions): Promise<void> {
+    const { slug, targetId } = options;
     await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
   }
 }

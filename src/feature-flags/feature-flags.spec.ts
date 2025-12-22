@@ -161,10 +161,10 @@ describe('FeatureFlags', () => {
     it('adds a target to a feature flag', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.featureFlags.addFlagTarget(
-        'advanced-dashboard',
-        'user_01EHQMYV6MBK39QC5PZXHY59C5',
-      );
+      await workos.featureFlags.addFlagTarget({
+        slug: 'advanced-dashboard',
+        targetId: 'user_01EHQMYV6MBK39QC5PZXHY59C5',
+      });
 
       expect(fetchURL()).toContain(
         '/feature-flags/advanced-dashboard/targets/user_01EHQMYV6MBK39QC5PZXHY59C5',
@@ -175,10 +175,10 @@ describe('FeatureFlags', () => {
     it('adds an organization target to a feature flag', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.featureFlags.addFlagTarget(
-        'advanced-dashboard',
-        'org_01EHQMYV6MBK39QC5PZXHY59C5',
-      );
+      await workos.featureFlags.addFlagTarget({
+        slug: 'advanced-dashboard',
+        targetId: 'org_01EHQMYV6MBK39QC5PZXHY59C5',
+      });
 
       expect(fetchURL()).toContain(
         '/feature-flags/advanced-dashboard/targets/org_01EHQMYV6MBK39QC5PZXHY59C5',
@@ -191,10 +191,10 @@ describe('FeatureFlags', () => {
     it('removes a target from a feature flag', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.featureFlags.removeFlagTarget(
-        'advanced-dashboard',
-        'user_01EHQMYV6MBK39QC5PZXHY59C5',
-      );
+      await workos.featureFlags.removeFlagTarget({
+        slug: 'advanced-dashboard',
+        targetId: 'user_01EHQMYV6MBK39QC5PZXHY59C5',
+      });
 
       expect(fetchURL()).toContain(
         '/feature-flags/advanced-dashboard/targets/user_01EHQMYV6MBK39QC5PZXHY59C5',
@@ -205,10 +205,10 @@ describe('FeatureFlags', () => {
     it('removes an organization target from a feature flag', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.featureFlags.removeFlagTarget(
-        'advanced-dashboard',
-        'org_01EHQMYV6MBK39QC5PZXHY59C5',
-      );
+      await workos.featureFlags.removeFlagTarget({
+        slug: 'advanced-dashboard',
+        targetId: 'org_01EHQMYV6MBK39QC5PZXHY59C5',
+      });
 
       expect(fetchURL()).toContain(
         '/feature-flags/advanced-dashboard/targets/org_01EHQMYV6MBK39QC5PZXHY59C5',
