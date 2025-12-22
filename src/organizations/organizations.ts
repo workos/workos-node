@@ -30,7 +30,7 @@ export class Organizations {
 
   async listOrganizations(
     options?: ListOrganizationsOptions,
-  ): Promise<AutoPaginatable<Organization>> {
+  ): Promise<AutoPaginatable<Organization, ListOrganizationsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<OrganizationResponse, Organization>(
         this.workos,
@@ -113,7 +113,9 @@ export class Organizations {
 
   async listOrganizationFeatureFlags(
     options: ListOrganizationFeatureFlagsOptions,
-  ): Promise<AutoPaginatable<FeatureFlag>> {
+  ): Promise<
+    AutoPaginatable<FeatureFlag, ListOrganizationFeatureFlagsOptions>
+  > {
     const { organizationId, ...paginationOptions } = options;
 
     return new AutoPaginatable(
@@ -130,7 +132,7 @@ export class Organizations {
           deserializeFeatureFlag,
           params,
         ),
-      paginationOptions,
+      options,
     );
   }
 }

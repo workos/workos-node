@@ -1,17 +1,17 @@
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
 import { OauthException } from '../common/exceptions/oauth.exception';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
 import {
   AccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
   AuthenticateWithSessionCookieSuccessResponse,
   AuthenticationResponse,
-  RefreshAndSealSessionDataFailureReason,
+  RefreshSessionFailureReason,
   RefreshSessionResponse,
   SessionCookieData,
 } from './interfaces';
 import { UserManagement } from './user-management';
+import { unsealData } from '../common/crypto/seal';
+import { getJose } from '../utils/jose';
 
 type RefreshOptions = {
   cookiePassword?: string;
@@ -19,9 +19,7 @@ type RefreshOptions = {
 };
 
 export class CookieSession {
-  private jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
   private userManagement: UserManagement;
-  private ironSessionProvider: IronSessionProvider;
   private cookiePassword: string;
   private sessionData: string;
 
@@ -35,11 +33,8 @@ export class CookieSession {
     }
 
     this.userManagement = userManagement;
-    this.ironSessionProvider = userManagement.ironSessionProvider;
     this.cookiePassword = cookiePassword;
     this.sessionData = sessionData;
-
-    this.jwks = this.userManagement.jwks;
   }
 
   /**
@@ -62,12 +57,9 @@ export class CookieSession {
     let session: SessionCookieData;
 
     try {
-      session = await this.ironSessionProvider.unsealData<SessionCookieData>(
-        this.sessionData,
-        {
-          password: this.cookiePassword,
-        },
-      );
+      session = await unsealData<SessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      });
     } catch (e) {
       return {
         authenticated: false,
@@ -90,6 +82,8 @@ export class CookieSession {
         reason: AuthenticateWithSessionCookieFailureReason.INVALID_JWT,
       };
     }
+
+    const { decodeJwt } = await getJose();
 
     const {
       sid: sessionId,
@@ -126,18 +120,15 @@ export class CookieSession {
    * @returns An object indicating whether the refresh was successful or not. If successful, it will include the new sealed session data.
    */
   async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        this.sessionData,
-        {
-          password: this.cookiePassword,
-        },
-      );
+    const { decodeJwt } = await getJose();
+    const session = await unsealData<SessionCookieData>(this.sessionData, {
+      password: this.cookiePassword,
+    });
 
     if (!session.refreshToken || !session.user) {
       return {
         authenticated: false,
-        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
+        reason: RefreshSessionFailureReason.INVALID_SESSION_COOKIE,
       };
     }
 
@@ -199,10 +190,9 @@ export class CookieSession {
       if (
         error instanceof OauthException &&
         // TODO: Add additional known errors and remove re-throw
-        (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
-          error.error ===
-            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
-          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
+        (error.error === RefreshSessionFailureReason.INVALID_GRANT ||
+          error.error === RefreshSessionFailureReason.MFA_ENROLLMENT ||
+          error.error === RefreshSessionFailureReason.SSO_REQUIRED)
       ) {
         return {
           authenticated: false,
@@ -236,14 +226,16 @@ export class CookieSession {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    if (!this.jwks) {
+    const { jwtVerify } = await getJose();
+    const jwks = await this.userManagement.getJWKS();
+    if (!jwks) {
       throw new Error(
         'Missing client ID. Did you provide it when initializing WorkOS?',
       );
     }
 
     try {
-      await jwtVerify(accessToken, this.jwks);
+      await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
       return false;
