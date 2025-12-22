@@ -38,5 +38,8 @@
       "updated_at": "2024-01-01T00:00:00.000Z"
     }
   ],
-  "list_metadata": {}
+  "list_metadata": {
+    "before": null,
+    "after": "flag_01EHQMYV6MBK39QC5PZXHY59C7"
+  }
 }
