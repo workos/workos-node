@@ -1,0 +1,12 @@
+{
+  "object": "feature_flag",
+  "id": "flag_01EHQMYV6MBK39QC5PZXHY59C5",
+  "name": "Advanced Dashboard",
+  "slug": "advanced-dashboard",
+  "description": "Enable advanced dashboard features",
+  "tags": ["ui"],
+  "enabled": true,
+  "default_value": false,
+  "created_at": "2024-01-01T00:00:00.000Z",
+  "updated_at": "2024-01-01T00:00:00.000Z"
+}
