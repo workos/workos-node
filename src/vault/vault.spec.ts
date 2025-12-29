@@ -125,6 +125,32 @@ describe('Vault', () => {
     });
   });
 
+  describe('readObjectByName', () => {
+    it('reads an object by name', async () => {
+      const objectName = 'lima';
+      const objectId = 'secret1';
+      fetchOnce({
+        id: objectId,
+        metadata: {
+          id: objectId,
+          context: { emporer: 'groove' },
+          environment_id: 'environment_d',
+          key_id: 'key1',
+          updated_at: '2025-03-11T02:18:54.250931Z',
+          updated_by: { id: 'key_xxx', name: 'Local Test Key' },
+          version_id: 'version1',
+        },
+        name: objectName,
+        value: 'Pull the lever Gronk',
+      });
+      const resource = await workos.vault.readObjectByName(objectName);
+      expect(fetchURL()).toContain(`/vault/v1/kv/name/${objectName}`);
+      expect(fetchMethod()).toBe('GET');
+      expect(resource.name).toBe(objectName);
+      expect(resource.id).toBe(objectId);
+    });
+  });
+
   describe('listSecrets', () => {
     it('gets a paginated list of secrets', async () => {
       fetchOnce({
