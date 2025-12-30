@@ -3,7 +3,7 @@
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
-  "homepage": "https://github.com/workos-inc/workos-node",
+  "homepage": "https://github.com/workos/workos-node",
   "license": "MIT",
   "keywords": [
     "workos"
@@ -17,10 +17,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/workos-inc/workos-node"
+    "url": "git+https://github.com/workos/workos-node.git"
   },
   "bugs": {
-    "url": "https://github.com/workos-inc/workos-node/issues"
+    "url": "https://github.com/workos/workos-node/issues"
   },
   "scripts": {
     "clean": "rm -rf lib",
