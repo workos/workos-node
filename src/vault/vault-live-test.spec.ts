@@ -70,6 +70,38 @@ describe.skip('Vault Live Test', () => {
       });
     });
 
+    it('Reads objects by name', async () => {
+      const objectName = `${objectPrefix}-nazca`;
+      const newObject = await workos.vault.createObject({
+        name: objectName,
+        value: 'Suri 10-15 micron',
+        context: { fiber: 'Alpalca' },
+      });
+
+      const expectedMetadata = {
+        id: expect.any(String),
+        context: {
+          fiber: 'Alpalca',
+        },
+        environmentId: expect.any(String),
+        keyId: expect.any(String),
+        updatedAt: expect.any(Date),
+        updatedBy: {
+          id: expect.any(String),
+          name: expect.any(String),
+        },
+        versionId: expect.any(String),
+      };
+
+      const objectValue = await workos.vault.readObjectByName(objectName);
+      expect(objectValue).toStrictEqual({
+        id: newObject.id,
+        name: objectName,
+        value: 'Suri 10-15 micron',
+        metadata: expectedMetadata,
+      });
+    });
+
     it('Fails to create objects with the same name', async () => {
       const objectName = `${objectPrefix}-lima`;
       await workos.vault.createObject({
@@ -173,7 +205,7 @@ describe.skip('Vault Live Test', () => {
       const newObject = await workos.vault.createObject({
         name: objectName,
         value: 'Qiviut 11-13 micron',
-        context: { fiber: 'Musk Ox' },
+        context: { fiber: 'MuskOx' },
       });
 
       const objectDescription = await workos.vault.describeObject({
@@ -183,7 +215,7 @@ describe.skip('Vault Live Test', () => {
       const expectedMetadata = {
         id: expect.any(String),
         context: {
-          fiber: 'Musk Ox',
+          fiber: 'MuskOx',
         },
         environmentId: expect.any(String),
         keyId: expect.any(String),
@@ -213,7 +245,7 @@ describe.skip('Vault Live Test', () => {
         await workos.vault.createObject({
           name: objectName,
           value: 'Qiviut 11-13 micron',
-          context: { fiber: 'Musk Ox' },
+          context: { fiber: 'MuskOx' },
         });
         objectNames.push(objectName);
       }
@@ -296,7 +328,7 @@ describe.skip('Vault Live Test', () => {
       const aad = 'seq1';
       const encrypted = await workos.vault.encrypt(data, keyContext, aad);
       await expect(() => workos.vault.decrypt(encrypted)).rejects.toThrow(
-        'unable to authenticate data',
+        'The operation failed for an operation-specific reason',
       );
     });
   });

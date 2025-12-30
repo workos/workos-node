@@ -114,6 +114,13 @@ export class Vault {
     return deserializeObject(data);
   }
 
+  async readObjectByName(name: string): Promise<VaultObject> {
+    const { data } = await this.workos.get<ReadObjectResponse>(
+      `/vault/v1/kv/name/${encodeURIComponent(name)}`,
+    );
+    return deserializeObject(data);
+  }
+
   async describeObject(options: ReadObjectOptions): Promise<VaultObject> {
     const { data } = await this.workos.get<ReadObjectResponse>(
       `/vault/v1/kv/${encodeURIComponent(options.id)}/metadata`,
