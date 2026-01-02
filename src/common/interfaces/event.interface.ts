@@ -379,6 +379,11 @@ export interface InvitationRevokedEvent extends EventBase {
   data: InvitationEvent;
 }
 
+export interface InvitationResentEvent extends EventBase {
+  event: 'invitation.resent';
+  data: InvitationEvent;
+}
+
 export interface InvitationAcceptedEventResponse extends EventResponseBase {
   event: 'invitation.accepted';
   data: InvitationEventResponse;
@@ -391,6 +396,11 @@ export interface InvitationCreatedEventResponse extends EventResponseBase {
 
 export interface InvitationRevokedEventResponse extends EventResponseBase {
   event: 'invitation.revoked';
+  data: InvitationEventResponse;
+}
+
+export interface InvitationResentEventResponse extends EventResponseBase {
+  event: 'invitation.resent';
   data: InvitationEventResponse;
 }
 
@@ -687,6 +697,7 @@ export type Event =
   | InvitationAcceptedEvent
   | InvitationCreatedEvent
   | InvitationRevokedEvent
+  | InvitationResentEvent
   | MagicAuthCreatedEvent
   | PasswordResetCreatedEvent
   | PasswordResetSucceededEvent
@@ -744,6 +755,7 @@ export type EventResponse =
   | InvitationAcceptedEventResponse
   | InvitationCreatedEventResponse
   | InvitationRevokedEventResponse
+  | InvitationResentEventResponse
   | MagicAuthCreatedEventResponse
   | PasswordResetCreatedEventResponse
   | PasswordResetSucceededEventResponse
