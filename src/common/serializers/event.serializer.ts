@@ -120,6 +120,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
     case 'invitation.accepted':
     case 'invitation.created':
     case 'invitation.revoked':
+    case 'invitation.resent':
       return {
         ...eventBase,
         event: event.event,
