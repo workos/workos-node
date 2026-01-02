@@ -1,5 +1,5 @@
 {
-  "version": "7.79.2",
+  "version": "7.79.3",
   "name": "@workos-inc/node",
   "author": "WorkOS",
   "description": "A Node wrapper for the WorkOS API",
