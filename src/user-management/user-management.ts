@@ -18,7 +18,6 @@ import {
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
   AuthenticateWithRefreshTokenOptions,
-  AuthenticateWithRefreshTokenPKCEOptions,
   AuthenticateWithSessionOptions,
   AuthenticateWithTotpOptions,
   AuthenticationResponse,
@@ -332,46 +331,29 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Refresh an access token using a refresh token.
+   * Automatically detects public client mode - if no API key is configured,
+   * omits client_secret from the request.
+   */
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
     const { session, ...remainingPayload } = payload;
+    const isPublicClient = !this.workos.key;
+
+    const body = isPublicClient
+      ? serializeAuthenticateWithRefreshTokenPKCEOptions(remainingPayload)
+      : serializeAuthenticateWithRefreshTokenOptions({
+          ...remainingPayload,
+          clientSecret: this.workos.key,
+        });
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      SerializedAuthenticateWithRefreshTokenOptions
-    >(
-      '/user_management/authenticate',
-      serializeAuthenticateWithRefreshTokenOptions({
-        ...remainingPayload,
-        clientSecret: this.workos.key,
-      }),
-    );
-
-    return this.prepareAuthenticationResponse({
-      authenticationResponse: deserializeAuthenticationResponse(data),
-      session,
-    });
-  }
-
-  /**
-   * Refresh an access token using a refresh token (PKCE flow).
-   * This method does not require an API key, making it suitable for
-   * public clients (browser/mobile apps) using the PKCE flow.
-   */
-  async authenticateWithRefreshTokenPKCE(
-    payload: AuthenticateWithRefreshTokenPKCEOptions,
-  ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
-
-    const { data } = await this.workos.post<
-      AuthenticationResponseResponse,
-      SerializedAuthenticateWithRefreshTokenPKCEOptions
-    >(
-      '/user_management/authenticate',
-      serializeAuthenticateWithRefreshTokenPKCEOptions(remainingPayload),
-      { skipApiKeyCheck: true },
-    );
+      | SerializedAuthenticateWithRefreshTokenOptions
+      | SerializedAuthenticateWithRefreshTokenPKCEOptions
+    >('/user_management/authenticate', body, { skipApiKeyCheck: isPublicClient });
 
     return this.prepareAuthenticationResponse({
       authenticationResponse: deserializeAuthenticationResponse(data),

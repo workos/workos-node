@@ -46,7 +46,7 @@ describe('WorkOS', () => {
       });
     });
 
-    describe('when only clientId is provided (PKCE mode)', () => {
+    describe('when only clientId is provided (public client mode)', () => {
       it('initializes successfully without API key', async () => {
         delete process.env.WORKOS_API_KEY;
         const workos = new WorkOS({ clientId: 'client_123' });
@@ -202,7 +202,7 @@ describe('WorkOS', () => {
       expect(() => workos.requireApiKey('someMethod')).not.toThrow();
     });
 
-    it('throws ApiKeyRequiredException when no API key (PKCE mode)', () => {
+    it('throws ApiKeyRequiredException when no API key (public client mode)', () => {
       delete process.env.WORKOS_API_KEY;
       const workos = new WorkOS({ clientId: 'client_123' });
       expect(() => workos.requireApiKey('listOrganizations')).toThrow(
@@ -220,7 +220,7 @@ describe('WorkOS', () => {
   });
 
   describe('post', () => {
-    describe('when no API key is provided (PKCE mode)', () => {
+    describe('when no API key is provided (public client mode)', () => {
       it('throws ApiKeyRequiredException', async () => {
         delete process.env.WORKOS_API_KEY;
         const workos = new WorkOS({ clientId: 'client_123' });
@@ -399,7 +399,7 @@ describe('WorkOS', () => {
   });
 
   describe('get', () => {
-    describe('when no API key is provided (PKCE mode)', () => {
+    describe('when no API key is provided (public client mode)', () => {
       it('throws ApiKeyRequiredException', async () => {
         delete process.env.WORKOS_API_KEY;
         const workos = new WorkOS({ clientId: 'client_123' });

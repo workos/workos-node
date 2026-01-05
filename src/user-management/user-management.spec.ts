@@ -646,52 +646,67 @@ describe('UserManagement', () => {
         });
       });
     });
-  });
 
-  describe('authenticateWithRefreshTokenPKCE', () => {
-    it('sends a refresh_token authentication request without client_secret', async () => {
-      fetchOnce({
-        user: userFixture,
-        access_token: 'access_token',
-        refresh_token: 'refreshToken2',
-      });
-      const resp = await workos.userManagement.authenticateWithRefreshTokenPKCE({
-        clientId: 'client_123',
-        refreshToken: 'refresh_token1',
+    describe('in public client mode (no API key)', () => {
+      let publicWorkos: WorkOS;
+      let originalApiKey: string | undefined;
+
+      beforeEach(() => {
+        originalApiKey = process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_API_KEY;
+        publicWorkos = new WorkOS({ clientId: 'client_123' });
       });
 
-      expect(fetchURL()).toContain('/user_management/authenticate');
-      expect(fetchBody()).toEqual({
-        client_id: 'client_123',
-        refresh_token: 'refresh_token1',
-        grant_type: 'refresh_token',
-      });
-      // Verify client_secret is NOT sent
-      expect(fetchBody()).not.toHaveProperty('client_secret');
-
-      expect(resp).toMatchObject({
-        accessToken: 'access_token',
-        refreshToken: 'refreshToken2',
-      });
-    });
-
-    it('includes organization_id when provided', async () => {
-      fetchOnce({
-        user: userFixture,
-        access_token: 'access_token',
-        refresh_token: 'refreshToken2',
-      });
-      await workos.userManagement.authenticateWithRefreshTokenPKCE({
-        clientId: 'client_123',
-        refreshToken: 'refresh_token1',
-        organizationId: 'org_123',
+      afterEach(() => {
+        if (originalApiKey) {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        }
       });
 
-      expect(fetchBody()).toEqual({
-        client_id: 'client_123',
-        refresh_token: 'refresh_token1',
-        grant_type: 'refresh_token',
-        organization_id: 'org_123',
+      it('omits client_secret from request', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+        const resp =
+          await publicWorkos.userManagement.authenticateWithRefreshToken({
+            clientId: 'client_123',
+            refreshToken: 'refresh_token1',
+          });
+
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'client_123',
+          refresh_token: 'refresh_token1',
+          grant_type: 'refresh_token',
+        });
+        expect(fetchBody()).not.toHaveProperty('client_secret');
+
+        expect(resp).toMatchObject({
+          accessToken: 'access_token',
+          refreshToken: 'refreshToken2',
+        });
+      });
+
+      it('includes organization_id when provided', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+        await publicWorkos.userManagement.authenticateWithRefreshToken({
+          clientId: 'client_123',
+          refreshToken: 'refresh_token1',
+          organizationId: 'org_123',
+        });
+
+        expect(fetchBody()).toEqual({
+          client_id: 'client_123',
+          refresh_token: 'refresh_token1',
+          grant_type: 'refresh_token',
+          organization_id: 'org_123',
+        });
       });
     });
   });
