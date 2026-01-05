@@ -1,9 +1,9 @@
 import { sealData, unsealData } from '../common/crypto/seal';
-import * as clientUserManagement from '../client/user-management';
 import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
+import { toQueryString } from '../common/utils/query-string';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
 import { deserializeChallenge } from '../mfa/serializers';
 import {
@@ -32,6 +32,7 @@ import {
   ListSessionsOptions,
   ListUsersOptions,
   ListUserFeatureFlagsOptions,
+  LogoutURLOptions,
   MagicAuth,
   MagicAuthResponse,
   PasswordReset,
@@ -967,23 +968,81 @@ export class UserManagement {
   }
 
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
-    // Delegate to client implementation
-    return clientUserManagement.getAuthorizationUrl({
-      ...options,
-      baseURL: this.workos.baseURL,
+    const {
+      connectionId,
+      codeChallenge,
+      codeChallengeMethod,
+      clientId,
+      domainHint,
+      loginHint,
+      organizationId,
+      provider,
+      providerQueryParams,
+      providerScopes,
+      prompt,
+      redirectUri,
+      state,
+      screenHint,
+    } = options;
+
+    if (!provider && !connectionId && !organizationId) {
+      throw new TypeError(
+        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    }
+
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
+      );
+    }
+
+    const query = toQueryString({
+      connection_id: connectionId,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
+      organization_id: organizationId,
+      domain_hint: domainHint,
+      login_hint: loginHint,
+      provider,
+      provider_query_params: providerQueryParams,
+      provider_scopes: providerScopes,
+      prompt,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state,
+      screen_hint: screenHint,
     });
+
+    return `${this.workos.baseURL}/user_management/authorize?${query}`;
   }
 
-  getLogoutUrl(options: clientUserManagement.LogoutURLOptions): string {
-    // Delegate to client implementation
-    return clientUserManagement.getLogoutUrl({
-      ...options,
-      baseURL: this.workos.baseURL,
-    });
+  getLogoutUrl(options: LogoutURLOptions): string {
+    const { sessionId, returnTo } = options;
+
+    if (!sessionId) {
+      throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
+    }
+
+    const url = new URL(
+      '/user_management/sessions/logout',
+      this.workos.baseURL,
+    );
+
+    url.searchParams.set('session_id', sessionId);
+    if (returnTo) {
+      url.searchParams.set('return_to', returnTo);
+    }
+
+    return url.toString();
   }
 
   getJwksUrl(clientId: string): string {
-    // Delegate to client implementation
-    return clientUserManagement.getJwksUrl(clientId, this.workos.baseURL);
+    if (!clientId) {
+      throw new TypeError('clientId must be a valid clientId');
+    }
+
+    return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
 }

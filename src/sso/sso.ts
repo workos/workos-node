@@ -1,7 +1,7 @@
-import * as clientSSO from '../client/sso';
 import { UnknownRecord } from '../common/interfaces/unknown-record.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
+import { toQueryString } from '../common/utils/query-string';
 import { WorkOS } from '../workos';
 import {
   Connection,
@@ -51,11 +51,40 @@ export class SSO {
   }
 
   getAuthorizationUrl(options: SSOAuthorizationURLOptions): string {
-    // Delegate to client implementation
-    return clientSSO.getAuthorizationUrl({
-      ...options,
-      baseURL: this.workos.baseURL,
+    const {
+      connection,
+      clientId,
+      domainHint,
+      loginHint,
+      organization,
+      provider,
+      providerQueryParams,
+      providerScopes,
+      redirectUri,
+      state,
+    } = options;
+
+    if (!provider && !connection && !organization) {
+      throw new Error(
+        `Incomplete arguments. Need to specify either a 'connection', 'organization', or 'provider'.`,
+      );
+    }
+
+    const query = toQueryString({
+      connection,
+      organization,
+      domain_hint: domainHint,
+      login_hint: loginHint,
+      provider,
+      provider_query_params: providerQueryParams,
+      provider_scopes: providerScopes,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state,
     });
+
+    return `${this.workos.baseURL}/sso/authorize?${query}`;
   }
 
   async getConnection(id: string): Promise<Connection> {

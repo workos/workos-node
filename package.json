@@ -110,17 +110,6 @@
       },
       "default": "./lib/index.js"
     },
-    "./client": {
-      "import": {
-        "types": "./lib/index.client.d.ts",
-        "default": "./lib/index.client.js"
-      },
-      "require": {
-        "types": "./lib/index.client.d.cts",
-        "default": "./lib/index.client.cjs"
-      },
-      "default": "./lib/index.client.js"
-    },
     "./worker": {
       "import": {
         "types": "./lib/index.worker.d.ts",

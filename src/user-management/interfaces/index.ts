@@ -28,6 +28,7 @@ export * from './list-organization-memberships-options.interface';
 export * from './list-sessions-options.interface';
 export * from './list-user-feature-flags-options.interface';
 export * from './list-users-options.interface';
+export * from './logout-url-options.interface';
 export * from './magic-auth.interface';
 export * from './oauth-tokens.interface';
 export * from './organization-membership.interface';
