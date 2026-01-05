@@ -1097,7 +1097,10 @@ describe('UserManagement', () => {
 
     it('returns authenticated = false when the JWT is invalid', async () => {
       jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
-        throw new Error('Invalid JWT');
+        // Simulate a jose JWT validation error with the expected code property
+        const error = new Error('Invalid JWT');
+        (error as Error & { code: string }).code = 'ERR_JWT_INVALID';
+        throw error;
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1120,6 +1123,34 @@ describe('UserManagement', () => {
           cookiePassword,
         }),
       ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
+    });
+
+    it('rethrows non-JWT errors (e.g., network failures)', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        // Simulate a network error (no jose error code)
+        throw new Error('Network error: JWKS fetch failed');
+      });
+
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const sessionData = await sealData(
+        {
+          accessToken: 'abc123',
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      await expect(
+        workos.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        }),
+      ).rejects.toThrow('Network error: JWKS fetch failed');
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {

@@ -238,7 +238,17 @@ export class CookieSession {
       await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
-      return false;
+      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
+      // Network errors, crypto failures, etc. should propagate
+      if (
+        e instanceof Error &&
+        'code' in e &&
+        typeof e.code === 'string' &&
+        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
+      ) {
+        return false;
+      }
+      throw e;
     }
   }
 }

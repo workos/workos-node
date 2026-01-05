@@ -28,13 +28,27 @@ export class PKCE {
       );
     }
 
+    // RFC 7636 unreserved characters: [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"
     const charset =
       'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-    const randomValues = new Uint8Array(length);
-    crypto.getRandomValues(randomValues);
-    return Array.from(randomValues, (v) => charset[v % charset.length]).join(
-      '',
-    );
+
+    // Use rejection sampling to avoid modulo bias
+    // With 66 charset chars, reject bytes >= 198 (66 * 3) to ensure uniform distribution
+    // Bytes 0-197 map evenly to charset indices 0-65 (3 times each)
+    const threshold = 198;
+    const result: string[] = [];
+
+    while (result.length < length) {
+      const randomBytes = new Uint8Array(length - result.length);
+      crypto.getRandomValues(randomBytes);
+      for (const byte of randomBytes) {
+        if (byte < threshold && result.length < length) {
+          result.push(charset[byte % charset.length]);
+        }
+      }
+    }
+
+    return result.join('');
   }
 
   /**
