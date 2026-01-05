@@ -98,7 +98,6 @@ export class WorkOS {
     keyOrOptions?: string | WorkOSOptions,
     maybeOptions?: WorkOSOptions,
   ) {
-    // Normalize arguments: support both new WorkOS('key', opts) and new WorkOS(opts)
     if (typeof keyOrOptions === 'object') {
       this.key = undefined;
       this.options = keyOrOptions;
@@ -107,25 +106,21 @@ export class WorkOS {
       this.options = maybeOptions ?? {};
     }
 
-    // Try to get key from env if not provided
     if (!this.key) {
       this.key = getEnv('WORKOS_API_KEY');
     }
 
-    // Track whether we have an API key
     this.hasApiKey = !!this.key;
 
     if (this.options.https === undefined) {
       this.options.https = true;
     }
 
-    // Get clientId from options or env
     this.clientId = this.options.clientId;
     if (!this.clientId) {
       this.clientId = getEnv('WORKOS_CLIENT_ID');
     }
 
-    // Require either API key OR clientId (at least one)
     if (!this.hasApiKey && !this.clientId) {
       throw new Error(
         'WorkOS requires either an API key or a clientId. ' +
@@ -143,7 +138,6 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    // Initialize PKCE utilities
     this.pkce = new PKCE();
 
     this.webhooks = this.createWebhookClient();
@@ -188,7 +182,6 @@ export class WorkOS {
       'User-Agent': userAgent,
     };
 
-    // Merge config headers if they exist and are a plain object
     const configHeaders = options.config?.headers;
     if (
       configHeaders &&
@@ -199,7 +192,6 @@ export class WorkOS {
       Object.assign(headers, configHeaders);
     }
 
-    // Only add Authorization if we have an API key
     if (this.key) {
       headers['Authorization'] = `Bearer ${this.key}`;
     }
