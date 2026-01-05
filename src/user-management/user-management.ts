@@ -18,6 +18,7 @@ import {
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
   AuthenticateWithRefreshTokenOptions,
+  AuthenticateWithRefreshTokenPKCEOptions,
   AuthenticateWithSessionOptions,
   AuthenticateWithTotpOptions,
   AuthenticationResponse,
@@ -44,6 +45,7 @@ import {
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
+  SerializedAuthenticateWithRefreshTokenPKCEOptions,
   SerializedAuthenticateWithTotpOptions,
   SerializedCreateMagicAuthOptions,
   SerializedCreatePasswordResetOptions,
@@ -130,6 +132,7 @@ import {
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithRefreshTokenOptions,
+  serializeAuthenticateWithRefreshTokenPKCEOptions,
   serializeAuthenticateWithTotpOptions,
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
@@ -343,6 +346,31 @@ export class UserManagement {
         ...remainingPayload,
         clientSecret: this.workos.key,
       }),
+    );
+
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
+  }
+
+  /**
+   * Refresh an access token using a refresh token (PKCE flow).
+   * This method does not require an API key, making it suitable for
+   * public clients (browser/mobile apps) using the PKCE flow.
+   */
+  async authenticateWithRefreshTokenPKCE(
+    payload: AuthenticateWithRefreshTokenPKCEOptions,
+  ): Promise<AuthenticationResponse> {
+    const { session, ...remainingPayload } = payload;
+
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      SerializedAuthenticateWithRefreshTokenPKCEOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithRefreshTokenPKCEOptions(remainingPayload),
+      { skipApiKeyCheck: true },
     );
 
     return this.prepareAuthenticationResponse({
