@@ -14,8 +14,9 @@ export class PKCE {
   /**
    * Generate a cryptographically random code verifier.
    *
-   * The verifier uses unreserved URI characters per RFC 7636:
-   * [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"
+   * Uses base64url encoding of random bytes, which is the approach used in
+   * RFC 7636 Appendix B. Base64url characters are a subset of the unreserved
+   * URI characters allowed by the spec.
    *
    * @param length - Length of verifier (43-128, default 43)
    * @returns RFC 7636 compliant code verifier
@@ -28,27 +29,13 @@ export class PKCE {
       );
     }
 
-    // RFC 7636 unreserved characters: [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"
-    const charset =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    // Generate random bytes and base64url encode them
+    // base64 produces 4 chars per 3 bytes, so we need ceil(length * 3/4) bytes
+    const byteLength = Math.ceil((length * 3) / 4);
+    const randomBytes = new Uint8Array(byteLength);
+    crypto.getRandomValues(randomBytes);
 
-    // Use rejection sampling to avoid modulo bias
-    // With 66 charset chars, reject bytes >= 198 (66 * 3) to ensure uniform distribution
-    // Bytes 0-197 map evenly to charset indices 0-65 (3 times each)
-    const threshold = 198;
-    const result: string[] = [];
-
-    while (result.length < length) {
-      const randomBytes = new Uint8Array(length - result.length);
-      crypto.getRandomValues(randomBytes);
-      for (const byte of randomBytes) {
-        if (byte < threshold && result.length < length) {
-          result.push(charset[byte % charset.length]);
-        }
-      }
-    }
-
-    return result.join('');
+    return this.base64UrlEncode(randomBytes).slice(0, length);
   }
 
   /**
