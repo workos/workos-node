@@ -1,6 +1,6 @@
 import {
   AuthenticateWithOptionsBase,
-  SerializedAuthenticateWithPKCEBase,
+  SerializedAuthenticatePublicClientBase,
 } from './authenticate-with-options-base.interface';
 
 export interface AuthenticateWithCodeAndVerifierOptions
@@ -11,7 +11,7 @@ export interface AuthenticateWithCodeAndVerifierOptions
 }
 
 export interface SerializedAuthenticateWithCodeAndVerifierOptions
-  extends SerializedAuthenticateWithPKCEBase {
+  extends SerializedAuthenticatePublicClientBase {
   grant_type: 'authorization_code';
   code_verifier: string;
   code: string;

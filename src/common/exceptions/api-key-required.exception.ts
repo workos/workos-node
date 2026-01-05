@@ -6,8 +6,8 @@ export class ApiKeyRequiredException extends Error {
   constructor(path: string) {
     super(
       `API key required for "${path}". ` +
-        `Initialize WorkOS with an API key (new WorkOS("sk_...")), ` +
-        `or use PKCE-compatible methods for public clients.`,
+        `For server-side apps, initialize with: new WorkOS("sk_..."). ` +
+        `For browser/mobile/CLI apps, use authenticateWithCodeAndVerifier() and authenticateWithRefreshToken() which work without an API key.`,
     );
     this.path = path;
   }

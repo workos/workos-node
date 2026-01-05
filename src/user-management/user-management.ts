@@ -44,7 +44,7 @@ import {
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
-  SerializedAuthenticateWithRefreshTokenPKCEOptions,
+  SerializedAuthenticateWithRefreshTokenPublicClientOptions,
   SerializedAuthenticateWithTotpOptions,
   SerializedCreateMagicAuthOptions,
   SerializedCreatePasswordResetOptions,
@@ -131,7 +131,7 @@ import {
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithRefreshTokenOptions,
-  serializeAuthenticateWithRefreshTokenPKCEOptions,
+  serializeAuthenticateWithRefreshTokenPublicClientOptions,
   serializeAuthenticateWithTotpOptions,
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
@@ -343,7 +343,7 @@ export class UserManagement {
     const isPublicClient = !this.workos.key;
 
     const body = isPublicClient
-      ? serializeAuthenticateWithRefreshTokenPKCEOptions(remainingPayload)
+      ? serializeAuthenticateWithRefreshTokenPublicClientOptions(remainingPayload)
       : serializeAuthenticateWithRefreshTokenOptions({
           ...remainingPayload,
           clientSecret: this.workos.key,
@@ -352,7 +352,7 @@ export class UserManagement {
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       | SerializedAuthenticateWithRefreshTokenOptions
-      | SerializedAuthenticateWithRefreshTokenPKCEOptions
+      | SerializedAuthenticateWithRefreshTokenPublicClientOptions
     >('/user_management/authenticate', body, { skipApiKeyCheck: isPublicClient });
 
     return this.prepareAuthenticationResponse({

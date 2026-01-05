@@ -17,7 +17,8 @@ export interface SerializedAuthenticateWithOptionsBase {
   user_agent?: string;
 }
 
-export interface SerializedAuthenticateWithPKCEBase {
+/** Base for serialized auth options that don't require client_secret (public clients) */
+export interface SerializedAuthenticatePublicClientBase {
   client_id: string;
   ip_address?: string;
   user_agent?: string;

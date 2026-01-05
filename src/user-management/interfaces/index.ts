@@ -6,7 +6,7 @@ export * from './authenticate-with-options-base.interface';
 export * from './authenticate-with-organization-selection.interface';
 export * from './authenticate-with-password-options.interface';
 export * from './authenticate-with-refresh-token-options.interface';
-export * from './authenticate-with-refresh-token-pkce-options.interface';
+export * from './authenticate-with-refresh-token-public-client-options.interface';
 export * from './authenticate-with-session-cookie.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-event.interface';
