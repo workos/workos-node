@@ -534,6 +534,15 @@ export class UserManagement {
     session?: AuthenticateWithSessionOptions;
   }): Promise<AuthenticationResponse> {
     if (session?.sealSession) {
+      // Session sealing requires a server-side secret - fail fast for public clients
+      if (!this.workos.key) {
+        throw new Error(
+          'Session sealing requires server-side usage with an API key. ' +
+            'Public clients should store tokens directly ' +
+            '(e.g., secure storage on mobile, keychain on desktop).',
+        );
+      }
+
       return {
         ...authenticationResponse,
         sealedSession: await this.sealSessionDataFromAuthenticationResponse({

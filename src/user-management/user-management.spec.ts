@@ -571,6 +571,41 @@ describe('UserManagement', () => {
           });
         });
       });
+
+      describe('in public client mode (no API key)', () => {
+        let publicWorkos: WorkOS;
+        let originalApiKey: string | undefined;
+
+        beforeEach(() => {
+          originalApiKey = process.env.WORKOS_API_KEY;
+          delete process.env.WORKOS_API_KEY;
+          publicWorkos = new WorkOS({ clientId: 'client_123' });
+        });
+
+        afterEach(() => {
+          if (originalApiKey) {
+            process.env.WORKOS_API_KEY = originalApiKey;
+          }
+        });
+
+        it('throws error when session sealing is requested', async () => {
+          fetchOnce({
+            user: userFixture,
+            access_token: 'access_token',
+          });
+
+          await expect(
+            publicWorkos.userManagement.authenticateWithCodeAndVerifier({
+              clientId: 'client_123',
+              code: 'auth_code_123',
+              codeVerifier: 'required_code_verifier',
+              session: { sealSession: true, cookiePassword: 'secret' },
+            }),
+          ).rejects.toThrow(
+            'Session sealing requires server-side usage with an API key',
+          );
+        });
+      });
     });
   });
 
@@ -707,6 +742,24 @@ describe('UserManagement', () => {
           grant_type: 'refresh_token',
           organization_id: 'org_123',
         });
+      });
+
+      it('throws error when session sealing is requested', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+
+        await expect(
+          publicWorkos.userManagement.authenticateWithRefreshToken({
+            clientId: 'client_123',
+            refreshToken: 'refresh_token1',
+            session: { sealSession: true, cookiePassword: 'secret' },
+          }),
+        ).rejects.toThrow(
+          'Session sealing requires server-side usage with an API key',
+        );
       });
     });
   });
