@@ -94,7 +94,10 @@ export class WorkOS {
    * // PKCE/public client (no API key)
    * const workos = new WorkOS({ clientId: 'client_...' });
    */
-  constructor(keyOrOptions?: string | WorkOSOptions, maybeOptions?: WorkOSOptions) {
+  constructor(
+    keyOrOptions?: string | WorkOSOptions,
+    maybeOptions?: WorkOSOptions,
+  ) {
     // Normalize arguments: support both new WorkOS('key', opts) and new WorkOS(opts)
     if (typeof keyOrOptions === 'object') {
       this.key = undefined;

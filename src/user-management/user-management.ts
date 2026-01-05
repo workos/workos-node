@@ -311,6 +311,15 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Exchange an authorization code for tokens using PKCE (public client flow).
+   * Use this instead of authenticateWithCode() when the client cannot securely
+   * store a client_secret (browser, mobile, CLI, desktop apps).
+   *
+   * @param payload.clientId - Your WorkOS client ID
+   * @param payload.code - The authorization code from the OAuth callback
+   * @param payload.codeVerifier - The PKCE code verifier used to generate the code challenge
+   */
   async authenticateWithCodeAndVerifier(
     payload: AuthenticateWithCodeAndVerifierOptions,
   ): Promise<AuthenticationResponse> {
@@ -343,7 +352,9 @@ export class UserManagement {
     const isPublicClient = !this.workos.key;
 
     const body = isPublicClient
-      ? serializeAuthenticateWithRefreshTokenPublicClientOptions(remainingPayload)
+      ? serializeAuthenticateWithRefreshTokenPublicClientOptions(
+          remainingPayload,
+        )
       : serializeAuthenticateWithRefreshTokenOptions({
           ...remainingPayload,
           clientSecret: this.workos.key,
@@ -353,7 +364,9 @@ export class UserManagement {
       AuthenticationResponseResponse,
       | SerializedAuthenticateWithRefreshTokenOptions
       | SerializedAuthenticateWithRefreshTokenPublicClientOptions
-    >('/user_management/authenticate', body, { skipApiKeyCheck: isPublicClient });
+    >('/user_management/authenticate', body, {
+      skipApiKeyCheck: isPublicClient,
+    });
 
     return this.prepareAuthenticationResponse({
       authenticationResponse: deserializeAuthenticationResponse(data),
@@ -977,6 +990,15 @@ export class UserManagement {
     );
   }
 
+  /**
+   * Generate an OAuth 2.0 authorization URL.
+   *
+   * For public clients (browser, mobile, CLI), include PKCE parameters:
+   * - codeChallenge: Base64url-encoded SHA256 hash of the code verifier
+   * - codeChallengeMethod: Use 'S256' (recommended)
+   *
+   * Generate these using workos.pkce.generateChallenge().
+   */
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
     const {
       connectionId,
