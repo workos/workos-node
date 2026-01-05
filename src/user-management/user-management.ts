@@ -319,6 +319,7 @@ export class UserManagement {
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithCodeAndVerifierOptions(remainingPayload),
+      { skipApiKeyCheck: true },
     );
 
     return this.prepareAuthenticationResponse({

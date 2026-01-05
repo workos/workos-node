@@ -1,14 +1,14 @@
 export class ApiKeyRequiredException extends Error {
   readonly status = 403;
   readonly name = 'ApiKeyRequiredException';
-  readonly methodName: string;
+  readonly path: string;
 
-  constructor(methodName: string) {
+  constructor(path: string) {
     super(
-      `The method "${methodName}" requires an API key. ` +
-        `Initialize WorkOS with your API key (new WorkOS("sk_...")), ` +
-        `or use PKCE methods like authenticateWithCodeAndVerifier() for public clients.`,
+      `API key required for "${path}". ` +
+        `Initialize WorkOS with an API key (new WorkOS("sk_...")), ` +
+        `or use PKCE-compatible methods for public clients.`,
     );
-    this.methodName = methodName;
+    this.path = path;
   }
 }

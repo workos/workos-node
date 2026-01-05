@@ -210,16 +210,37 @@ describe('WorkOS', () => {
       );
     });
 
-    it('includes method name in error message', () => {
+    it('includes path in error message', () => {
       delete process.env.WORKOS_API_KEY;
       const workos = new WorkOS({ clientId: 'client_123' });
-      expect(() => workos.requireApiKey('listOrganizations')).toThrow(
-        'The method "listOrganizations" requires an API key',
+      expect(() => workos.requireApiKey('/organizations')).toThrow(
+        'API key required for "/organizations"',
       );
     });
   });
 
   describe('post', () => {
+    describe('when no API key is provided (PKCE mode)', () => {
+      it('throws ApiKeyRequiredException', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(workos.post('/path', {})).rejects.toThrow(
+          ApiKeyRequiredException,
+        );
+      });
+
+      it('allows bypass with skipApiKeyCheck option', async () => {
+        delete process.env.WORKOS_API_KEY;
+        fetchOnce('{}');
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(
+          workos.post('/path', {}, { skipApiKeyCheck: true }),
+        ).resolves.toBeDefined();
+      });
+    });
+
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
         const message = 'Not Found';
@@ -378,6 +399,17 @@ describe('WorkOS', () => {
   });
 
   describe('get', () => {
+    describe('when no API key is provided (PKCE mode)', () => {
+      it('throws ApiKeyRequiredException', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(workos.get('/path')).rejects.toThrow(
+          ApiKeyRequiredException,
+        );
+      });
+    });
+
     describe('when the api responds with invalid JSON', () => {
       it('throws a ParseError', async () => {
         const mockResponse = {

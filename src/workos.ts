@@ -228,6 +228,10 @@ export class WorkOS {
     entity: Entity,
     options: PostOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
@@ -262,6 +266,10 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.accessToken) {
@@ -297,6 +305,10 @@ export class WorkOS {
     entity: Entity,
     options: PutOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
@@ -325,6 +337,8 @@ export class WorkOS {
   }
 
   async delete(path: string, query?: any): Promise<void> {
+    this.requireApiKey(path);
+
     try {
       await this.client.delete(path, {
         params: query,
