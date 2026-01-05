@@ -103,6 +103,8 @@ export class SSO {
   }: GetProfileAndTokenOptions): Promise<
     ProfileAndToken<CustomAttributesType>
   > {
+    this.workos.requireApiKey('sso.getProfileAndToken');
+
     const form = new URLSearchParams({
       client_id: clientId,
       client_secret: this.workos.key as string,

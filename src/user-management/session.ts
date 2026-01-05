@@ -56,17 +56,11 @@ export class CookieSession {
 
     let session: SessionCookieData;
 
-    try {
-      session = await unsealData<SessionCookieData>(this.sessionData, {
-        password: this.cookiePassword,
-      });
-    } catch (e) {
-      return {
-        authenticated: false,
-        reason:
-          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
-      };
-    }
+    // unsealData returns {} for known seal errors (expired, bad hmac, etc.)
+    // Unknown errors propagate - don't catch them as "invalid session"
+    session = await unsealData<SessionCookieData>(this.sessionData, {
+      password: this.cookiePassword,
+    });
 
     if (!session.accessToken) {
       return {
