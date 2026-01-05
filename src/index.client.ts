@@ -15,5 +15,5 @@ export type {
 
 export type { SSOAuthorizationURLOptions } from './client/sso';
 
-// Note: If you need authenticateWithCodeAndVerifier, use the full WorkOS SDK
-// as it requires server-side API key authentication
+// Export PKCE utilities for code verifier/challenge generation
+export * from './pkce';

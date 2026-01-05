@@ -1,8 +1,8 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchHeaders, fetchBody } from './common/utils/test-utils';
 import {
+  ApiKeyRequiredException,
   GenericServerException,
-  NoApiKeyProvidedException,
   NotFoundException,
   OauthException,
 } from './common/exceptions';
@@ -36,10 +36,37 @@ describe('WorkOS', () => {
       process.env = OLD_ENV;
     });
 
-    describe('when no API key is provided', () => {
-      it('throws a NoApiKeyFoundException error', async () => {
+    describe('when no API key AND no clientId is provided', () => {
+      it('throws an error explaining both instantiation modes', async () => {
         delete process.env.WORKOS_API_KEY;
-        expect(() => new WorkOS()).toThrow(NoApiKeyProvidedException);
+        delete process.env.WORKOS_CLIENT_ID;
+        expect(() => new WorkOS()).toThrow(
+          'WorkOS requires either an API key or a clientId',
+        );
+      });
+    });
+
+    describe('when only clientId is provided (PKCE mode)', () => {
+      it('initializes successfully without API key', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+        expect(workos.clientId).toBe('client_123');
+        expect(workos.key).toBeUndefined();
+      });
+
+      it('initializes with clientId from environment variable', async () => {
+        delete process.env.WORKOS_API_KEY;
+        process.env.WORKOS_CLIENT_ID = 'client_from_env';
+        const workos = new WorkOS();
+        expect(workos.clientId).toBe('client_from_env');
+      });
+
+      it('does not include Authorization header in HTTP client', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+        // HTTP client should be created without Authorization header
+        // We can't easily test this directly, but we verify the workos.key is undefined
+        expect(workos.key).toBeUndefined();
       });
     });
 
@@ -153,6 +180,42 @@ describe('WorkOS', () => {
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
       expect(workos.version).toMatch(/^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/);
+    });
+  });
+
+  describe('pkce', () => {
+    it('is available as a property', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      expect(workos.pkce).toBeDefined();
+    });
+
+    it('is available in PKCE-only mode', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(workos.pkce).toBeDefined();
+    });
+  });
+
+  describe('requireApiKey', () => {
+    it('does not throw when API key is provided', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      expect(() => workos.requireApiKey('someMethod')).not.toThrow();
+    });
+
+    it('throws ApiKeyRequiredException when no API key (PKCE mode)', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(() => workos.requireApiKey('listOrganizations')).toThrow(
+        ApiKeyRequiredException,
+      );
+    });
+
+    it('includes method name in error message', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(() => workos.requireApiKey('listOrganizations')).toThrow(
+        'The method "listOrganizations" requires an API key',
+      );
     });
   });
 

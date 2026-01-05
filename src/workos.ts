@@ -1,12 +1,13 @@
 import {
+  ApiKeyRequiredException,
   GenericServerException,
-  NoApiKeyProvidedException,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
   OauthException,
   RateLimitExceededException,
 } from './common/exceptions';
+import { PKCE } from './pkce';
 import {
   GetOptions,
   HttpClientResponseInterface,
@@ -55,6 +56,11 @@ export class WorkOS {
   readonly baseURL: string;
   readonly client: HttpClient;
   readonly clientId?: string;
+  readonly key?: string;
+  readonly options: WorkOSOptions;
+  readonly pkce: PKCE;
+
+  private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
   readonly apiKeys = new ApiKeys(this);
@@ -74,25 +80,55 @@ export class WorkOS {
   readonly widgets = new Widgets(this);
   readonly vault = new Vault(this);
 
-  constructor(
-    readonly key?: string,
-    readonly options: WorkOSOptions = {},
-  ) {
-    if (!key) {
-      this.key = getEnv('WORKOS_API_KEY');
-
-      if (!this.key) {
-        throw new NoApiKeyProvidedException();
-      }
+  /**
+   * Create a new WorkOS client.
+   *
+   * @param keyOrOptions - API key string, or options object for PKCE/public clients
+   * @param maybeOptions - Options when first argument is API key
+   *
+   * @example
+   * // Server-side with API key
+   * const workos = new WorkOS('sk_...');
+   *
+   * @example
+   * // PKCE/public client (no API key)
+   * const workos = new WorkOS({ clientId: 'client_...' });
+   */
+  constructor(keyOrOptions?: string | WorkOSOptions, maybeOptions?: WorkOSOptions) {
+    // Normalize arguments: support both new WorkOS('key', opts) and new WorkOS(opts)
+    if (typeof keyOrOptions === 'object') {
+      this.key = undefined;
+      this.options = keyOrOptions;
+    } else {
+      this.key = keyOrOptions;
+      this.options = maybeOptions ?? {};
     }
+
+    // Try to get key from env if not provided
+    if (!this.key) {
+      this.key = getEnv('WORKOS_API_KEY');
+    }
+
+    // Track whether we have an API key
+    this.hasApiKey = !!this.key;
 
     if (this.options.https === undefined) {
       this.options.https = true;
     }
 
+    // Get clientId from options or env
     this.clientId = this.options.clientId;
     if (!this.clientId) {
       this.clientId = getEnv('WORKOS_CLIENT_ID');
+    }
+
+    // Require either API key OR clientId (at least one)
+    if (!this.hasApiKey && !this.clientId) {
+      throw new Error(
+        'WorkOS requires either an API key or a clientId. ' +
+          'For server-side: new WorkOS("sk_..."). ' +
+          'For PKCE/public clients: new WorkOS({ clientId: "client_..." })',
+      );
     }
 
     const protocol: string = this.options.https ? 'https' : 'http';
@@ -104,15 +140,18 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
+    // Initialize PKCE utilities
+    this.pkce = new PKCE();
+
     this.webhooks = this.createWebhookClient();
     this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
     this.userManagement = new UserManagement(this);
 
-    const userAgent = this.createUserAgent(options);
+    const userAgent = this.createUserAgent(this.options);
 
-    this.client = this.createHttpClient(options, userAgent);
+    this.client = this.createHttpClient(this.options, userAgent);
   }
 
   private createUserAgent(options: WorkOSOptions): string {
@@ -142,19 +181,46 @@ export class WorkOS {
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {
+    const headers: Record<string, string> = {
+      'User-Agent': userAgent,
+    };
+
+    // Merge config headers if they exist and are a plain object
+    const configHeaders = options.config?.headers;
+    if (
+      configHeaders &&
+      typeof configHeaders === 'object' &&
+      !Array.isArray(configHeaders) &&
+      !(configHeaders instanceof Headers)
+    ) {
+      Object.assign(headers, configHeaders);
+    }
+
+    // Only add Authorization if we have an API key
+    if (this.key) {
+      headers['Authorization'] = `Bearer ${this.key}`;
+    }
+
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
       timeout: options.timeout,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
-      },
+      headers,
     }) as HttpClient;
   }
 
   get version() {
     return VERSION;
+  }
+
+  /**
+   * Require API key for methods that need it.
+   * @param methodName - Name of the method requiring API key (for error message)
+   * @throws ApiKeyRequiredException if no API key was provided
+   */
+  requireApiKey(methodName: string): void {
+    if (!this.hasApiKey) {
+      throw new ApiKeyRequiredException(methodName);
+    }
   }
 
   async post<Result = any, Entity = any>(

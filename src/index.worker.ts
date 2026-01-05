@@ -22,17 +22,34 @@ export * from './portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
+export * from './pkce';
 
 class WorkOSWorker extends WorkOS {
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
+    const headers: Record<string, string> = {
+      'User-Agent': userAgent,
+    };
+
+    // Merge config headers if they exist and are a plain object
+    const configHeaders = options.config?.headers;
+    if (
+      configHeaders &&
+      typeof configHeaders === 'object' &&
+      !Array.isArray(configHeaders) &&
+      !(configHeaders instanceof Headers)
+    ) {
+      Object.assign(headers, configHeaders);
+    }
+
+    // Only add Authorization if we have an API key
+    if (this.key) {
+      headers['Authorization'] = `Bearer ${this.key}`;
+    }
+
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
-      },
+      headers,
     });
   }
 
