@@ -306,11 +306,9 @@ export class UserManagement {
   ): Promise<AuthenticationResponse> {
     const { session, codeVerifier, ...remainingPayload } = payload;
 
-    // Determine authentication mode based on what's available
     const usePublicClientFlow = !!codeVerifier;
     const hasApiKey = !!this.workos.key;
 
-    // Validate that we have either codeVerifier OR apiKey
     if (!usePublicClientFlow && !hasApiKey) {
       throw new Error(
         'authenticateWithCode requires either a codeVerifier (for public clients) ' +
@@ -326,7 +324,6 @@ export class UserManagement {
       serializeAuthenticateWithCodeOptions({
         ...remainingPayload,
         codeVerifier,
-        // Only include clientSecret for confidential client flow
         clientSecret: usePublicClientFlow ? undefined : this.workos.key,
       }),
       { skipApiKeyCheck: usePublicClientFlow },
@@ -571,7 +568,6 @@ export class UserManagement {
     session?: AuthenticateWithSessionOptions;
   }): Promise<AuthenticationResponse> {
     if (session?.sealSession) {
-      // Session sealing requires a server-side secret - fail fast for public clients
       if (!this.workos.key) {
         throw new Error(
           'Session sealing requires server-side usage with an API key. ' +

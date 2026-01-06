@@ -35,7 +35,6 @@ class WorkOSNode extends WorkOS {
       'User-Agent': userAgent,
     };
 
-    // Merge config headers if they exist and are a plain object
     const configHeaders = options.config?.headers;
     if (
       configHeaders &&
@@ -46,7 +45,6 @@ class WorkOSNode extends WorkOS {
       Object.assign(headers, configHeaders);
     }
 
-    // Only add Authorization if we have an API key
     if (this.key) {
       headers['Authorization'] = `Bearer ${this.key}`;
     }
