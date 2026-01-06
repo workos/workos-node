@@ -46,13 +46,22 @@ import { WorkOS } from '@workos-inc/node';
 
 const workos = new WorkOS({ clientId: 'client_...' }); // No API key needed
 
-// These methods work without an API key:
-// - workos.userManagement.getAuthorizationUrl() with PKCE
-// - workos.userManagement.authenticateWithCodeAndVerifier()
-// - workos.userManagement.authenticateWithRefreshToken()
+// Generate auth URL with automatic PKCE
+const { url, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
+  provider: 'authkit',
+  redirectUri: 'myapp://callback',
+  clientId: 'client_...',
+});
+
+// After user authenticates, exchange code for tokens
+const { accessToken, refreshToken } = await workos.userManagement.authenticateWithCode({
+  code: authorizationCode,
+  codeVerifier,
+  clientId: 'client_...',
+});
 ```
 
-Use PKCE (Proof Key for Code Exchange) for secure auth code exchange. See the [AuthKit documentation](https://workos.com/docs/authkit) for details.
+See the [AuthKit documentation](https://workos.com/docs/authkit) for details on PKCE authentication.
 
 ## SDK Versioning
 
