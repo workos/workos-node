@@ -26,7 +26,7 @@ export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './vault/interfaces';
-export * from './pkce';
+export * from './pkce/pkce';
 
 class WorkOSNode extends WorkOS {
   /** @override */

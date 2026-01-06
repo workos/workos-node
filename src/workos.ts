@@ -7,7 +7,7 @@ import {
   OauthException,
   RateLimitExceededException,
 } from './common/exceptions';
-import { PKCE } from './pkce';
+import { PKCE } from './pkce/pkce';
 import {
   GetOptions,
   HttpClientResponseInterface,
