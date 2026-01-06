@@ -14,6 +14,7 @@ import { WebIronSessionProvider } from './common/iron-session/web-iron-session-p
 import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 
 export * from './actions/interfaces';
+export * from './api-keys/interfaces';
 export * from './audit-logs/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';

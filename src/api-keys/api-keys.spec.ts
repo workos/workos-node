@@ -51,4 +51,16 @@ describe('ApiKeys', () => {
       expect(response).toEqual({ apiKey: null });
     });
   });
+
+  describe('deleteApiKey', () => {
+    it('sends a delete request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.apiKeys.deleteApiKey('api_key_01H5JQDV7R7ATEYZDEG0W5PRYS');
+
+      expect(fetchURL()).toContain(
+        '/api_keys/api_key_01H5JQDV7R7ATEYZDEG0W5PRYS',
+      );
+    });
+  });
 });

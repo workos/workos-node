@@ -19,4 +19,8 @@ export class ApiKeys {
 
     return deserializeValidateApiKeyResponse(data);
   }
+
+  async deleteApiKey(id: string): Promise<void> {
+    await this.workos.delete(`/api_keys/${id}`);
+  }
 }

@@ -24,6 +24,20 @@ import { deserializeRole } from '../roles/serializers/role.serializer';
 import { ListOrganizationRolesOptions } from './interfaces/list-organization-roles-options.interface';
 import { ListOrganizationFeatureFlagsOptions } from './interfaces/list-organization-feature-flags-options.interface';
 import { deserializeFeatureFlag } from '../feature-flags/serializers';
+import {
+  ApiKey,
+  SerializedApiKey,
+  ListOrganizationApiKeysOptions,
+  CreateOrganizationApiKeyOptions,
+  CreateOrganizationApiKeyRequestOptions,
+  CreatedApiKey,
+  SerializedCreatedApiKey,
+} from '../api-keys/interfaces';
+import {
+  deserializeApiKey,
+  serializeCreateOrganizationApiKeyOptions,
+  deserializeCreatedApiKey,
+} from '../api-keys/serializers';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -132,5 +146,43 @@ export class Organizations {
         ),
       paginationOptions,
     );
+  }
+
+  async listOrganizationApiKeys(
+    options: ListOrganizationApiKeysOptions,
+  ): Promise<AutoPaginatable<ApiKey>> {
+    const { organizationId, ...paginationOptions } = options;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SerializedApiKey, ApiKey>(
+        this.workos,
+        `/organizations/${organizationId}/api_keys`,
+        deserializeApiKey,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<SerializedApiKey, ApiKey>(
+          this.workos,
+          `/organizations/${organizationId}/api_keys`,
+          deserializeApiKey,
+          params,
+        ),
+      paginationOptions,
+    );
+  }
+
+  async createOrganizationApiKey(
+    options: CreateOrganizationApiKeyOptions,
+    requestOptions: CreateOrganizationApiKeyRequestOptions = {},
+  ): Promise<CreatedApiKey> {
+    const { organizationId } = options;
+
+    const { data } = await this.workos.post<SerializedCreatedApiKey>(
+      `/organizations/${organizationId}/api_keys`,
+      serializeCreateOrganizationApiKeyOptions(options),
+      requestOptions,
+    );
+
+    return deserializeCreatedApiKey(data);
   }
 }
