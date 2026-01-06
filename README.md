@@ -63,6 +63,28 @@ const { accessToken, refreshToken } = await workos.userManagement.authenticateWi
 
 See the [AuthKit documentation](https://workos.com/docs/authkit) for details on PKCE authentication.
 
+### PKCE with Confidential Clients
+
+Server-side apps can also use PKCE alongside the client secret for defense in depth (recommended by OAuth 2.1):
+
+```ts
+const workos = new WorkOS('sk_...'); // With API key
+
+// Use PKCE even with API key for additional security
+const { url, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
+  provider: 'authkit',
+  redirectUri: 'https://example.com/callback',
+  clientId: 'client_...',
+});
+
+// Both client_secret AND code_verifier will be sent
+const { accessToken } = await workos.userManagement.authenticateWithCode({
+  code: authorizationCode,
+  codeVerifier,
+  clientId: 'client_...',
+});
+```
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.

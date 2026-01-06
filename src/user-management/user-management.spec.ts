@@ -330,8 +330,48 @@ describe('UserManagement', () => {
       });
     });
 
-    describe('public client mode (with codeVerifier)', () => {
+    describe('public client mode (with codeVerifier, no API key)', () => {
+      let publicWorkos: WorkOS;
+      let originalApiKey: string | undefined;
+
+      beforeEach(() => {
+        originalApiKey = process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_API_KEY;
+        publicWorkos = new WorkOS({ clientId: 'proj_123' });
+      });
+
+      afterEach(() => {
+        if (originalApiKey) {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        }
+      });
+
       it('sends a token authentication request with code_verifier and no client_secret', async () => {
+        fetchOnce({ user: userFixture });
+        const resp = await publicWorkos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+          codeVerifier: 'code_verifier_value',
+        });
+
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'proj_whatever',
+          code: 'or this',
+          code_verifier: 'code_verifier_value',
+          grant_type: 'authorization_code',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
+      });
+    });
+
+    describe('confidential client with PKCE (API key + codeVerifier)', () => {
+      it('sends both client_secret and code_verifier for defense in depth', async () => {
         fetchOnce({ user: userFixture });
         const resp = await workos.userManagement.authenticateWithCode({
           clientId: 'proj_whatever',
@@ -342,6 +382,7 @@ describe('UserManagement', () => {
         expect(fetchURL()).toContain('/user_management/authenticate');
         expect(fetchBody()).toEqual({
           client_id: 'proj_whatever',
+          client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
           code: 'or this',
           code_verifier: 'code_verifier_value',
           grant_type: 'authorization_code',

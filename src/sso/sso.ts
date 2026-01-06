@@ -181,6 +181,10 @@ export class SSO {
    * Auto-detects public vs confidential client mode:
    * - If codeVerifier is provided: Uses PKCE flow (public client)
    * - If no codeVerifier: Uses client_secret from API key (confidential client)
+   * - If both: Uses both client_secret AND codeVerifier (confidential client with PKCE)
+   *
+   * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
+   * in depth and provides additional CSRF protection on the authorization flow.
    *
    * @throws Error if neither codeVerifier nor API key is available
    */
@@ -201,10 +205,10 @@ export class SSO {
       );
     }
 
-    const usePublicClientFlow = !!codeVerifier;
     const hasApiKey = !!this.workos.key;
+    const hasPKCE = !!codeVerifier;
 
-    if (!usePublicClientFlow && !hasApiKey) {
+    if (!hasPKCE && !hasApiKey) {
       throw new TypeError(
         'getProfileAndToken requires either a codeVerifier (for public clients) ' +
           'or an API key configured on the WorkOS instance (for confidential clients).',
@@ -217,15 +221,18 @@ export class SSO {
       code,
     });
 
-    if (usePublicClientFlow) {
+    // Support PKCE with confidential clients (OAuth 2.1 best practice)
+    // Both can be sent together for defense in depth
+    if (hasPKCE) {
       form.set('code_verifier', codeVerifier);
-    } else {
+    }
+    if (hasApiKey) {
       form.set('client_secret', this.workos.key as string);
     }
 
     const { data } = await this.workos.post<
       ProfileAndTokenResponse<CustomAttributesType>
-    >('/sso/token', form, { skipApiKeyCheck: usePublicClientFlow });
+    >('/sso/token', form, { skipApiKeyCheck: !hasApiKey });
 
     return deserializeProfileAndToken(data);
   }
