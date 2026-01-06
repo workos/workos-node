@@ -76,7 +76,10 @@ import {
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
-import { UserManagementAuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import {
+  PKCEAuthorizationURLResult,
+  UserManagementAuthorizationURLOptions,
+} from './interfaces/authorization-url-options.interface';
 import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
@@ -289,10 +292,31 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Exchange an authorization code for tokens.
+   *
+   * Auto-detects public vs confidential client mode:
+   * - If codeVerifier is provided: Uses PKCE flow (public client)
+   * - If no codeVerifier: Uses client_secret from API key (confidential client)
+   *
+   * @throws Error if neither codeVerifier nor API key is available
+   */
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, codeVerifier, ...remainingPayload } = payload;
+
+    // Determine authentication mode based on what's available
+    const usePublicClientFlow = !!codeVerifier;
+    const hasApiKey = !!this.workos.key;
+
+    // Validate that we have either codeVerifier OR apiKey
+    if (!usePublicClientFlow && !hasApiKey) {
+      throw new Error(
+        'authenticateWithCode requires either a codeVerifier (for public clients) ' +
+          'or an API key configured on the WorkOS instance (for confidential clients).',
+      );
+    }
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -301,8 +325,11 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithCodeOptions({
         ...remainingPayload,
-        clientSecret: this.workos.key,
+        codeVerifier,
+        // Only include clientSecret for confidential client flow
+        clientSecret: usePublicClientFlow ? undefined : this.workos.key,
       }),
+      { skipApiKeyCheck: usePublicClientFlow },
     );
 
     return this.prepareAuthenticationResponse({
@@ -1013,10 +1040,11 @@ export class UserManagement {
    * Generate an OAuth 2.0 authorization URL.
    *
    * For public clients (browser, mobile, CLI), include PKCE parameters:
-   * - codeChallenge: Base64url-encoded SHA256 hash of the code verifier
-   * - codeChallengeMethod: Use 'S256' (recommended)
+   * - Generate PKCE using workos.pkce.generate()
+   * - Pass codeChallenge and codeChallengeMethod here
+   * - Store codeVerifier and pass to authenticateWithCode() later
    *
-   * Generate these using workos.pkce.generateChallenge().
+   * Or use getAuthorizationUrlWithPKCE() which handles PKCE automatically.
    */
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
     const {
@@ -1067,6 +1095,93 @@ export class UserManagement {
     });
 
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
+  }
+
+  /**
+   * Generate an OAuth 2.0 authorization URL with automatic PKCE.
+   *
+   * This method generates PKCE parameters internally and returns them along with
+   * the authorization URL. Use this for public clients (CLI apps, Electron, mobile)
+   * that cannot securely store a client secret.
+   *
+   * @returns Object containing url, state, and codeVerifier
+   *
+   * @example
+   * ```typescript
+   * const { url, state, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
+   *   provider: 'authkit',
+   *   clientId: 'client_123',
+   *   redirectUri: 'myapp://callback',
+   * });
+   *
+   * // Store state and codeVerifier securely, then redirect user to url
+   * // After callback, exchange the code:
+   * const response = await workos.userManagement.authenticateWithCode({
+   *   code: authorizationCode,
+   *   codeVerifier,
+   *   clientId: 'client_123',
+   * });
+   * ```
+   */
+  async getAuthorizationUrlWithPKCE(
+    options: Omit<
+      UserManagementAuthorizationURLOptions,
+      'codeChallenge' | 'codeChallengeMethod' | 'state'
+    >,
+  ): Promise<PKCEAuthorizationURLResult> {
+    const {
+      clientId,
+      connectionId,
+      domainHint,
+      loginHint,
+      organizationId,
+      provider,
+      providerQueryParams,
+      providerScopes,
+      prompt,
+      redirectUri,
+      screenHint,
+    } = options;
+
+    if (!provider && !connectionId && !organizationId) {
+      throw new TypeError(
+        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    }
+
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
+      );
+    }
+
+    // Generate PKCE parameters
+    const pkce = await this.workos.pkce.generate();
+
+    // Generate secure random state
+    const state = this.workos.pkce.generateCodeVerifier(43);
+
+    const query = toQueryString({
+      connection_id: connectionId,
+      code_challenge: pkce.codeChallenge,
+      code_challenge_method: 'S256',
+      organization_id: organizationId,
+      domain_hint: domainHint,
+      login_hint: loginHint,
+      provider,
+      provider_query_params: providerQueryParams,
+      provider_scopes: providerScopes,
+      prompt,
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state,
+      screen_hint: screenHint,
+    });
+
+    const url = `${this.workos.baseURL}/user_management/authorize?${query}`;
+
+    return { url, state, codeVerifier: pkce.codeVerifier };
   }
 
   getLogoutUrl(options: LogoutURLOptions): string {
