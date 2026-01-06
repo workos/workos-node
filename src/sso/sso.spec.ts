@@ -562,7 +562,9 @@ describe('SSO', () => {
 
           const body = fetchBody();
           expect(body).toContain('code_verifier=test_code_verifier_value');
-          expect(body).toContain('client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+          expect(body).toContain(
+            'client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
         });
       });
 
