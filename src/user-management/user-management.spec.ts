@@ -2326,7 +2326,9 @@ describe('UserManagement', () => {
           state: 'test-state',
         });
 
-        expect(url).toContain('https://api.workos.com/user_management/authorize');
+        expect(url).toContain(
+          'https://api.workos.com/user_management/authorize',
+        );
       });
     });
 
@@ -2457,7 +2459,9 @@ describe('UserManagement', () => {
           state: 'test-state',
         });
 
-        expect(url).toContain('https://api.workos.dev/user_management/authorize');
+        expect(url).toContain(
+          'https://api.workos.dev/user_management/authorize',
+        );
       });
     });
 
