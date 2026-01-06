@@ -68,7 +68,7 @@ export class SSO {
     } = options;
 
     if (!provider && !connection && !organization) {
-      throw new Error(
+      throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connection', 'organization', or 'provider'.`,
       );
     }
@@ -193,11 +193,19 @@ export class SSO {
   }: GetProfileAndTokenOptions): Promise<
     ProfileAndToken<CustomAttributesType>
   > {
+    // Validate codeVerifier is not an empty string (common mistake)
+    if (codeVerifier !== undefined && codeVerifier.trim() === '') {
+      throw new TypeError(
+        'codeVerifier cannot be an empty string. ' +
+          'Generate a valid PKCE pair using workos.pkce.generate().',
+      );
+    }
+
     const usePublicClientFlow = !!codeVerifier;
     const hasApiKey = !!this.workos.key;
 
     if (!usePublicClientFlow && !hasApiKey) {
-      throw new Error(
+      throw new TypeError(
         'getProfileAndToken requires either a codeVerifier (for public clients) ' +
           'or an API key configured on the WorkOS instance (for confidential clients).',
       );

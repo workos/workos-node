@@ -1,12 +1,13 @@
-interface SSOAuthorizationURLBase {
+/**
+ * PKCE fields must be provided together or not at all.
+ * Use workos.pkce.generate() to create a valid pair.
+ */
+type PKCEFields =
+  | { codeChallenge?: never; codeChallengeMethod?: never }
+  | { codeChallenge: string; codeChallengeMethod: 'S256' };
+
+interface SSOAuthorizationURLBaseFields {
   clientId: string;
-  /**
-   * PKCE code challenge for public clients.
-   * Generate using workos.pkce.generate() and pass the codeChallenge here.
-   */
-  codeChallenge?: string;
-  /** PKCE code challenge method. Use 'S256' (recommended). */
-  codeChallengeMethod?: 'S256';
   domainHint?: string;
   loginHint?: string;
   providerQueryParams?: Record<string, string | boolean | number>;
@@ -31,23 +32,26 @@ export interface SSOPKCEAuthorizationURLResult {
   codeVerifier: string;
 }
 
-interface SSOWithConnection extends SSOAuthorizationURLBase {
-  connection: string;
-  organization?: never;
-  provider?: never;
-}
+type SSOWithConnection = SSOAuthorizationURLBaseFields &
+  PKCEFields & {
+    connection: string;
+    organization?: never;
+    provider?: never;
+  };
 
-interface SSOWithOrganization extends SSOAuthorizationURLBase {
-  organization: string;
-  connection?: never;
-  provider?: never;
-}
+type SSOWithOrganization = SSOAuthorizationURLBaseFields &
+  PKCEFields & {
+    organization: string;
+    connection?: never;
+    provider?: never;
+  };
 
-interface SSOWithProvider extends SSOAuthorizationURLBase {
-  provider: string;
-  connection?: never;
-  organization?: never;
-}
+type SSOWithProvider = SSOAuthorizationURLBaseFields &
+  PKCEFields & {
+    provider: string;
+    connection?: never;
+    organization?: never;
+  };
 
 export type SSOAuthorizationURLOptions =
   | SSOWithConnection

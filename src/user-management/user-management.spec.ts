@@ -382,6 +382,32 @@ describe('UserManagement', () => {
             'or an API key configured on the WorkOS instance (for confidential clients).',
         );
       });
+
+      it('throws error when codeVerifier is an empty string', async () => {
+        await expect(
+          publicWorkos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'some_code',
+            codeVerifier: '',
+          }),
+        ).rejects.toThrow(
+          'codeVerifier cannot be an empty string. ' +
+            'Generate a valid PKCE pair using workos.pkce.generate().',
+        );
+      });
+
+      it('throws error when codeVerifier is whitespace only', async () => {
+        await expect(
+          publicWorkos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'some_code',
+            codeVerifier: '   ',
+          }),
+        ).rejects.toThrow(
+          'codeVerifier cannot be an empty string. ' +
+            'Generate a valid PKCE pair using workos.pkce.generate().',
+        );
+      });
     });
 
     it('deserializes authentication_method', async () => {

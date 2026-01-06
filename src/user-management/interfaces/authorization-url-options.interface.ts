@@ -1,12 +1,13 @@
-export interface UserManagementAuthorizationURLOptions {
+/**
+ * PKCE fields must be provided together or not at all.
+ * Use workos.pkce.generate() to create a valid pair.
+ */
+type PKCEFields =
+  | { codeChallenge?: never; codeChallengeMethod?: never }
+  | { codeChallenge: string; codeChallengeMethod: 'S256' };
+
+interface UserManagementAuthorizationURLBaseOptions {
   clientId: string;
-  /**
-   * PKCE code challenge for public clients.
-   * Generate using workos.pkce.generate() and pass the codeChallenge here.
-   */
-  codeChallenge?: string;
-  /** PKCE code challenge method. Use 'S256' (recommended). */
-  codeChallengeMethod?: 'S256';
   connectionId?: string;
   organizationId?: string;
   domainHint?: string;
@@ -19,6 +20,9 @@ export interface UserManagementAuthorizationURLOptions {
   state?: string;
   screenHint?: 'sign-up' | 'sign-in';
 }
+
+export type UserManagementAuthorizationURLOptions =
+  UserManagementAuthorizationURLBaseOptions & PKCEFields;
 
 /**
  * Result of getAuthorizationUrlWithPKCE() containing the URL,
