@@ -36,4 +36,6 @@ export interface SerializedAuthenticatePublicClientBase {
  * const serialize = (options: WithResolvedClientId<SomeOptions>) => ...
  * ```
  */
-export type WithResolvedClientId<T> = Omit<T, 'clientId'> & { clientId: string };
+export type WithResolvedClientId<T> = Omit<T, 'clientId'> & {
+  clientId: string;
+};
