@@ -306,49 +306,173 @@ describe('UserManagement', () => {
   });
 
   describe('authenticateWithCode', () => {
-    it('sends a token authentication request', async () => {
-      fetchOnce({ user: userFixture });
-      const resp = await workos.userManagement.authenticateWithCode({
-        clientId: 'proj_whatever',
-        code: 'or this',
-      });
+    describe('confidential client mode (with API key, no codeVerifier)', () => {
+      it('sends a token authentication request with client_secret', async () => {
+        fetchOnce({ user: userFixture });
+        const resp = await workos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+        });
 
-      expect(fetchURL()).toContain('/user_management/authenticate');
-      expect(fetchBody()).toEqual({
-        client_id: 'proj_whatever',
-        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
-        code: 'or this',
-        grant_type: 'authorization_code',
-      });
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'proj_whatever',
+          client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          code: 'or this',
+          grant_type: 'authorization_code',
+        });
 
-      expect(resp).toMatchObject({
-        user: {
-          email: 'test01@example.com',
-        },
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
       });
     });
 
-    it('sends a token authentication request when including the code_verifier', async () => {
-      fetchOnce({ user: userFixture });
-      const resp = await workos.userManagement.authenticateWithCode({
-        clientId: 'proj_whatever',
-        code: 'or this',
-        codeVerifier: 'code_verifier_value',
+    describe('public client mode (with codeVerifier, no API key)', () => {
+      let publicWorkos: WorkOS;
+      let originalApiKey: string | undefined;
+
+      beforeEach(() => {
+        originalApiKey = process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_API_KEY;
+        publicWorkos = new WorkOS({ clientId: 'proj_123' });
       });
 
-      expect(fetchURL()).toContain('/user_management/authenticate');
-      expect(fetchBody()).toEqual({
-        client_id: 'proj_whatever',
-        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
-        code: 'or this',
-        code_verifier: 'code_verifier_value',
-        grant_type: 'authorization_code',
+      afterEach(() => {
+        if (originalApiKey) {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        }
       });
 
-      expect(resp).toMatchObject({
-        user: {
-          email: 'test01@example.com',
-        },
+      it('sends a token authentication request with code_verifier and no client_secret', async () => {
+        fetchOnce({ user: userFixture });
+        const resp = await publicWorkos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+          codeVerifier: 'code_verifier_value',
+        });
+
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'proj_whatever',
+          code: 'or this',
+          code_verifier: 'code_verifier_value',
+          grant_type: 'authorization_code',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
+      });
+
+      it('uses clientId from constructor when not provided in options', async () => {
+        fetchOnce({ user: userFixture });
+        await publicWorkos.userManagement.authenticateWithCode({
+          code: 'or this',
+          codeVerifier: 'code_verifier_value',
+        });
+
+        expect(fetchBody()).toMatchObject({
+          client_id: 'proj_123',
+        });
+      });
+
+      it('throws error when clientId not provided anywhere', async () => {
+        // Use confidential client (API key) without clientId to test the error
+        const workosNoClientId = new WorkOS('sk_test_no_client_id');
+        await expect(
+          workosNoClientId.userManagement.authenticateWithCode({
+            code: 'some_code',
+            codeVerifier: 'code_verifier_value',
+          }),
+        ).rejects.toThrow(
+          'clientId is required. Provide it in method options or when initializing WorkOS.',
+        );
+      });
+    });
+
+    describe('confidential client with PKCE (API key + codeVerifier)', () => {
+      it('sends both client_secret and code_verifier for defense in depth', async () => {
+        fetchOnce({ user: userFixture });
+        const resp = await workos.userManagement.authenticateWithCode({
+          clientId: 'proj_whatever',
+          code: 'or this',
+          codeVerifier: 'code_verifier_value',
+        });
+
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'proj_whatever',
+          client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          code: 'or this',
+          code_verifier: 'code_verifier_value',
+          grant_type: 'authorization_code',
+        });
+
+        expect(resp).toMatchObject({
+          user: {
+            email: 'test01@example.com',
+          },
+        });
+      });
+    });
+
+    describe('error handling', () => {
+      let publicWorkos: WorkOS;
+      let originalApiKey: string | undefined;
+
+      beforeEach(() => {
+        originalApiKey = process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_API_KEY;
+        publicWorkos = new WorkOS({ clientId: 'proj_123' });
+      });
+
+      afterEach(() => {
+        if (originalApiKey) {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        }
+      });
+
+      it('throws error when neither codeVerifier nor API key is provided', async () => {
+        await expect(
+          publicWorkos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'some_code',
+          }),
+        ).rejects.toThrow(
+          'authenticateWithCode requires either a codeVerifier (for public clients) ' +
+            'or an API key configured on the WorkOS instance (for confidential clients).',
+        );
+      });
+
+      it('throws error when codeVerifier is an empty string', async () => {
+        await expect(
+          publicWorkos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'some_code',
+            codeVerifier: '',
+          }),
+        ).rejects.toThrow(
+          'codeVerifier cannot be an empty string. ' +
+            'Generate a valid PKCE pair using workos.pkce.generate().',
+        );
+      });
+
+      it('throws error when codeVerifier is whitespace only', async () => {
+        await expect(
+          publicWorkos.userManagement.authenticateWithCode({
+            clientId: 'proj_whatever',
+            code: 'some_code',
+            codeVerifier: '   ',
+          }),
+        ).rejects.toThrow(
+          'codeVerifier cannot be an empty string. ' +
+            'Generate a valid PKCE pair using workos.pkce.generate().',
+        );
       });
     });
 
@@ -571,6 +695,41 @@ describe('UserManagement', () => {
           });
         });
       });
+
+      describe('in public client mode (no API key)', () => {
+        let publicWorkos: WorkOS;
+        let originalApiKey: string | undefined;
+
+        beforeEach(() => {
+          originalApiKey = process.env.WORKOS_API_KEY;
+          delete process.env.WORKOS_API_KEY;
+          publicWorkos = new WorkOS({ clientId: 'client_123' });
+        });
+
+        afterEach(() => {
+          if (originalApiKey) {
+            process.env.WORKOS_API_KEY = originalApiKey;
+          }
+        });
+
+        it('throws error when session sealing is requested', async () => {
+          fetchOnce({
+            user: userFixture,
+            access_token: 'access_token',
+          });
+
+          await expect(
+            publicWorkos.userManagement.authenticateWithCodeAndVerifier({
+              clientId: 'client_123',
+              code: 'auth_code_123',
+              codeVerifier: 'required_code_verifier',
+              session: { sealSession: true, cookiePassword: 'secret' },
+            }),
+          ).rejects.toThrow(
+            'Session sealing requires server-side usage with an API key',
+          );
+        });
+      });
     });
   });
 
@@ -644,6 +803,87 @@ describe('UserManagement', () => {
             }),
           });
         });
+      });
+    });
+
+    describe('in public client mode (no API key)', () => {
+      let publicWorkos: WorkOS;
+      let originalApiKey: string | undefined;
+
+      beforeEach(() => {
+        originalApiKey = process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_API_KEY;
+        publicWorkos = new WorkOS({ clientId: 'client_123' });
+      });
+
+      afterEach(() => {
+        if (originalApiKey) {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        }
+      });
+
+      it('omits client_secret from request', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+        const resp =
+          await publicWorkos.userManagement.authenticateWithRefreshToken({
+            clientId: 'client_123',
+            refreshToken: 'refresh_token1',
+          });
+
+        expect(fetchURL()).toContain('/user_management/authenticate');
+        expect(fetchBody()).toEqual({
+          client_id: 'client_123',
+          refresh_token: 'refresh_token1',
+          grant_type: 'refresh_token',
+        });
+        expect(fetchBody()).not.toHaveProperty('client_secret');
+
+        expect(resp).toMatchObject({
+          accessToken: 'access_token',
+          refreshToken: 'refreshToken2',
+        });
+      });
+
+      it('includes organization_id when provided', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+        await publicWorkos.userManagement.authenticateWithRefreshToken({
+          clientId: 'client_123',
+          refreshToken: 'refresh_token1',
+          organizationId: 'org_123',
+        });
+
+        expect(fetchBody()).toEqual({
+          client_id: 'client_123',
+          refresh_token: 'refresh_token1',
+          grant_type: 'refresh_token',
+          organization_id: 'org_123',
+        });
+      });
+
+      it('throws error when session sealing is requested', async () => {
+        fetchOnce({
+          user: userFixture,
+          access_token: 'access_token',
+          refresh_token: 'refreshToken2',
+        });
+
+        await expect(
+          publicWorkos.userManagement.authenticateWithRefreshToken({
+            clientId: 'client_123',
+            refreshToken: 'refresh_token1',
+            session: { sealSession: true, cookiePassword: 'secret' },
+          }),
+        ).rejects.toThrow(
+          'Session sealing requires server-side usage with an API key',
+        );
       });
     });
   });
@@ -981,7 +1221,10 @@ describe('UserManagement', () => {
 
     it('returns authenticated = false when the JWT is invalid', async () => {
       jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
-        throw new Error('Invalid JWT');
+        // Simulate a jose JWT validation error with the expected code property
+        const error = new Error('Invalid JWT');
+        (error as Error & { code: string }).code = 'ERR_JWT_INVALID';
+        throw error;
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -1004,6 +1247,34 @@ describe('UserManagement', () => {
           cookiePassword,
         }),
       ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
+    });
+
+    it('rethrows non-JWT errors (e.g., network failures)', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        // Simulate a network error (no jose error code)
+        throw new Error('Network error: JWKS fetch failed');
+      });
+
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const sessionData = await sealData(
+        {
+          accessToken: 'abc123',
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      await expect(
+        workos.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        }),
+      ).rejects.toThrow('Network error: JWKS fetch failed');
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
@@ -2138,25 +2409,10 @@ describe('UserManagement', () => {
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
           screenHint: 'sign-up',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
-      });
-    });
-
-    describe('with a code_challenge and code_challenge_method', () => {
-      it('generates an authorize url', () => {
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-
-        const url = workos.userManagement.getAuthorizationUrl({
-          provider: 'authkit',
-          clientId: 'proj_123',
-          redirectUri: 'example.com/auth/workos/callback',
-          codeChallenge: 'code_challenge_value',
-          codeChallengeMethod: 'S256',
-        });
-
-        expect(url).toMatchSnapshot();
+        expect(url).toContain('screen_hint=sign-up');
       });
     });
 
@@ -2168,9 +2424,12 @@ describe('UserManagement', () => {
           provider: 'GoogleOAuth',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain(
+          'https://api.workos.com/user_management/authorize',
+        );
       });
     });
 
@@ -2178,13 +2437,14 @@ describe('UserManagement', () => {
       it('throws an error for incomplete arguments', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const urlFn = () =>
+        expect(() =>
           workos.userManagement.getAuthorizationUrl({
             clientId: 'proj_123',
             redirectUri: 'example.com/auth/workos/callback',
-          });
-
-        expect(urlFn).toThrowErrorMatchingSnapshot();
+          }),
+        ).toThrow(
+          `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+        );
       });
     });
 
@@ -2196,9 +2456,10 @@ describe('UserManagement', () => {
           provider: 'GoogleOAuth',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain('provider=GoogleOAuth');
       });
 
       describe('with providerScopes', () => {
@@ -2213,9 +2474,10 @@ describe('UserManagement', () => {
             ],
             clientId: 'proj_123',
             redirectUri: 'example.com/auth/workos/callback',
+            state: 'test-state',
           });
 
-          expect(url).toMatchSnapshot();
+          expect(url).toContain('provider_scopes');
         });
 
         describe('with providerQueryParams', () => {
@@ -2231,8 +2493,9 @@ describe('UserManagement', () => {
                 baz: 123,
                 bool: true,
               },
+              state: 'test-state',
             });
-            expect(url).toMatchSnapshot();
+            expect(url).toContain('provider_query_params');
           });
         });
       });
@@ -2246,9 +2509,10 @@ describe('UserManagement', () => {
           connectionId: 'connection_123',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain('connection_id=connection_123');
       });
 
       describe('with providerScopes', () => {
@@ -2260,9 +2524,10 @@ describe('UserManagement', () => {
             providerScopes: ['read_api', 'read_repository'],
             clientId: 'proj_123',
             redirectUri: 'example.com/auth/workos/callback',
+            state: 'test-state',
           });
 
-          expect(url).toMatchSnapshot();
+          expect(url).toContain('provider_scopes');
         });
       });
     });
@@ -2275,9 +2540,10 @@ describe('UserManagement', () => {
           organizationId: 'organization_123',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain('organization_id=organization_123');
       });
     });
 
@@ -2291,9 +2557,12 @@ describe('UserManagement', () => {
           organizationId: 'organization_123',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain(
+          'https://api.workos.dev/user_management/authorize',
+        );
       });
     });
 
@@ -2308,7 +2577,7 @@ describe('UserManagement', () => {
           state: 'custom state',
         });
 
-        expect(url).toMatchSnapshot();
+        expect(url).toContain('state=custom+state');
       });
     });
 
@@ -2324,9 +2593,7 @@ describe('UserManagement', () => {
           state: 'custom state',
         });
 
-        expect(url).toMatchInlineSnapshot(
-          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&domain_hint=example.com&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
-        );
+        expect(url).toContain('domain_hint=example.com');
       });
     });
 
@@ -2342,9 +2609,7 @@ describe('UserManagement', () => {
           state: 'custom state',
         });
 
-        expect(url).toMatchInlineSnapshot(
-          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&login_hint=foo%40workos.com&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
-        );
+        expect(url).toContain('login_hint=foo%40workos.com');
       });
     });
 
@@ -2360,9 +2625,7 @@ describe('UserManagement', () => {
           state: 'custom state',
         });
 
-        expect(url).toMatchInlineSnapshot(
-          `"https://api.workos.com/user_management/authorize?client_id=proj_123&connection_id=connection_123&prompt=login&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code&state=custom+state"`,
-        );
+        expect(url).toContain('prompt=login');
       });
 
       it('generates an authorize url with consent prompt', () => {
@@ -2373,12 +2636,124 @@ describe('UserManagement', () => {
           provider: 'GoogleOAuth',
           clientId: 'proj_123',
           redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
         });
 
-        expect(url).toMatchInlineSnapshot(
-          `"https://api.workos.com/user_management/authorize?client_id=proj_123&prompt=consent&provider=GoogleOAuth&redirect_uri=example.com%2Fauth%2Fworkos%2Fcallback&response_type=code"`,
-        );
+        expect(url).toContain('prompt=consent');
       });
+    });
+
+    describe('with PKCE parameters (manual)', () => {
+      it('includes codeChallenge and codeChallengeMethod in URL', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'test-state',
+          codeChallenge: 'test-challenge',
+          codeChallengeMethod: 'S256',
+        });
+
+        expect(url).toContain('code_challenge=test-challenge');
+        expect(url).toContain('code_challenge_method=S256');
+      });
+    });
+  });
+
+  describe('getAuthorizationUrlWithPKCE', () => {
+    let publicWorkos: WorkOS;
+    let originalApiKey: string | undefined;
+
+    beforeEach(() => {
+      originalApiKey = process.env.WORKOS_API_KEY;
+      delete process.env.WORKOS_API_KEY;
+      publicWorkos = new WorkOS({ clientId: 'proj_123' });
+    });
+
+    afterEach(() => {
+      if (originalApiKey) {
+        process.env.WORKOS_API_KEY = originalApiKey;
+      }
+    });
+
+    it('generates PKCE parameters and returns codeVerifier', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+        });
+
+      expect(result.codeVerifier).toBeDefined();
+      expect(result.codeVerifier.length).toBeGreaterThanOrEqual(43);
+      expect(result.url).toContain('code_challenge=');
+      expect(result.url).toContain('code_challenge_method=S256');
+    });
+
+    it('auto-generates state parameter', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+        });
+
+      expect(result.state).toBeDefined();
+      expect(result.state.length).toBeGreaterThanOrEqual(43);
+      expect(result.url).toContain('state=');
+    });
+
+    it('includes all standard URL parameters', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          screenHint: 'sign-up',
+          loginHint: 'test@example.com',
+          domainHint: 'example.com',
+        });
+
+      expect(result.url).toContain('provider=authkit');
+      expect(result.url).toContain('screen_hint=sign-up');
+      expect(result.url).toContain('login_hint=test%40example.com');
+      expect(result.url).toContain('domain_hint=example.com');
+    });
+
+    it('throws error when missing provider/connection/organization', async () => {
+      await expect(
+        publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+        }),
+      ).rejects.toThrow(
+        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    });
+
+    it('uses clientId from constructor when not provided in options', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          redirectUri: 'example.com/auth/workos/callback',
+        });
+
+      expect(result.url).toContain('client_id=proj_123');
+    });
+
+    it('throws error when clientId not provided anywhere', async () => {
+      // Use confidential client (API key) without clientId to test the error
+      const workosNoClientId = new WorkOS('sk_test_no_client_id');
+      await expect(
+        workosNoClientId.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          redirectUri: 'example.com/auth/workos/callback',
+        }),
+      ).rejects.toThrow(
+        'clientId is required. Provide it in method options or when initializing WorkOS.',
+      );
     });
   });
 

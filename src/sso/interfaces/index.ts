@@ -6,3 +6,4 @@ export * from './get-profile-and-token-options.interface';
 export * from './list-connections-options.interface';
 export * from './profile-and-token.interface';
 export * from './profile.interface';
+export type { SSOPKCEAuthorizationURLResult } from './authorization-url-options.interface';
