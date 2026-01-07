@@ -43,6 +43,7 @@ import {
   AuthenticationRadarRiskDetectedEventData,
   AuthenticationRadarRiskDetectedEventResponseData,
 } from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
+import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 
 export interface EventBase {
   id: string;
@@ -665,6 +666,26 @@ export interface OrganizationDomainDeletedEventResponse
   data: OrganizationDomainResponse;
 }
 
+export interface ApiKeyCreatedEvent extends EventBase {
+  event: 'api_key.created';
+  data: ApiKey;
+}
+
+export interface ApiKeyCreatedEventResponse extends EventResponseBase {
+  event: 'api_key.created';
+  data: SerializedApiKey;
+}
+
+export interface ApiKeyDeletedEvent extends EventBase {
+  event: 'api_key.deleted';
+  data: ApiKey;
+}
+
+export interface ApiKeyDeletedEventResponse extends EventResponseBase {
+  event: 'api_key.deleted';
+  data: SerializedApiKey;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -721,7 +742,9 @@ export type Event =
   | OrganizationDomainVerificationFailedEvent
   | OrganizationDomainCreatedEvent
   | OrganizationDomainUpdatedEvent
-  | OrganizationDomainDeletedEvent;
+  | OrganizationDomainDeletedEvent
+  | ApiKeyCreatedEvent
+  | ApiKeyDeletedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -779,6 +802,8 @@ export type EventResponse =
   | OrganizationDomainVerificationFailedEventResponse
   | OrganizationDomainCreatedEventResponse
   | OrganizationDomainUpdatedEventResponse
-  | OrganizationDomainDeletedEventResponse;
+  | OrganizationDomainDeletedEventResponse
+  | ApiKeyCreatedEventResponse
+  | ApiKeyDeletedEventResponse;
 
 export type EventName = Event['event'];
