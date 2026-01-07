@@ -27,18 +27,34 @@ export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './vault/interfaces';
+export * from './pkce/pkce';
 
 class WorkOSNode extends WorkOS {
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
+    const headers: Record<string, string> = {};
+
+    const configHeaders = options.config?.headers;
+    if (configHeaders) {
+      if (configHeaders instanceof Headers) {
+        configHeaders.forEach((v, k) => (headers[k] = v));
+      } else if (Array.isArray(configHeaders)) {
+        configHeaders.forEach(([k, v]) => (headers[k] = v));
+      } else {
+        Object.assign(headers, configHeaders);
+      }
+    }
+
+    headers['User-Agent'] = userAgent;
+
+    if (this.key) {
+      headers['Authorization'] = `Bearer ${this.key}`;
+    }
+
     const opts = {
       ...options.config,
-      timeout: options.timeout, // Pass through the timeout option
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
-      },
+      timeout: options.timeout,
+      headers,
     };
 
     return new FetchHttpClient(this.baseURL, opts, options.fetchFn);
