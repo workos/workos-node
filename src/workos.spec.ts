@@ -85,6 +85,26 @@ describe('WorkOS', () => {
       });
     });
 
+    describe('when API key is provided via options object', () => {
+      it('initializes with apiKey in options', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        });
+        expect(workos.key).toBe('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      });
+
+      it('allows both apiKey and clientId in options', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          clientId: 'client_123',
+        });
+        expect(workos.key).toBe('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        expect(workos.clientId).toBe('client_123');
+      });
+    });
+
     describe('with https option', () => {
       it('sets baseURL', () => {
         const workos = new WorkOS('foo', { https: false });

@@ -83,12 +83,16 @@ export class WorkOS {
   /**
    * Create a new WorkOS client.
    *
-   * @param keyOrOptions - API key string, or options object for PKCE/public clients
+   * @param keyOrOptions - API key string, or options object
    * @param maybeOptions - Options when first argument is API key
    *
    * @example
-   * // Server-side with API key
+   * // Server-side with API key (string)
    * const workos = new WorkOS('sk_...');
+   *
+   * @example
+   * // Server-side with API key (object)
+   * const workos = new WorkOS({ apiKey: 'sk_...', clientId: 'client_...' });
    *
    * @example
    * // PKCE/public client (no API key)
@@ -99,7 +103,7 @@ export class WorkOS {
     maybeOptions?: WorkOSOptions,
   ) {
     if (typeof keyOrOptions === 'object') {
-      this.key = undefined;
+      this.key = keyOrOptions.apiKey;
       this.options = keyOrOptions;
     } else {
       this.key = keyOrOptions;
@@ -124,7 +128,7 @@ export class WorkOS {
     if (!this.hasApiKey && !this.clientId) {
       throw new Error(
         'WorkOS requires either an API key or a clientId. ' +
-          'For server-side: new WorkOS("sk_..."). ' +
+          'For server-side: new WorkOS("sk_...") or new WorkOS({ apiKey: "sk_..." }). ' +
           'For PKCE/public clients: new WorkOS({ clientId: "client_..." })',
       );
     }
