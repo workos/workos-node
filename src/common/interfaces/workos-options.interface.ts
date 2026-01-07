@@ -1,6 +1,7 @@
 import { AppInfo } from './app-info.interface';
 
 export interface WorkOSOptions {
+  apiKey?: string;
   apiHostname?: string;
   https?: boolean;
   port?: number;

@@ -3,6 +3,7 @@ export * from './authenticate-with-code-and-verifier-options.serializer';
 export * from './authenticate-with-magic-auth-options.serializer';
 export * from './authenticate-with-password-options.serializer';
 export * from './authenticate-with-refresh-token.options.serializer';
+export * from './authenticate-with-refresh-token-public-client-options.serializer';
 export * from './authenticate-with-totp-options.serializer';
 export * from './authentication-event.serializer';
 export * from './authentication-response.serializer';

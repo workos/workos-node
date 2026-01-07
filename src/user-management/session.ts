@@ -54,19 +54,11 @@ export class CookieSession {
       };
     }
 
-    let session: SessionCookieData;
-
-    try {
-      session = await unsealData<SessionCookieData>(this.sessionData, {
-        password: this.cookiePassword,
-      });
-    } catch (e) {
-      return {
-        authenticated: false,
-        reason:
-          AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE,
-      };
-    }
+    // unsealData returns {} for known seal errors (expired, bad hmac, etc.)
+    // Unknown errors propagate - don't catch them as "invalid session"
+    const session = await unsealData<SessionCookieData>(this.sessionData, {
+      password: this.cookiePassword,
+    });
 
     if (!session.accessToken) {
       return {
@@ -238,7 +230,17 @@ export class CookieSession {
       await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
-      return false;
+      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
+      // Network errors, crypto failures, etc. should propagate
+      if (
+        e instanceof Error &&
+        'code' in e &&
+        typeof e.code === 'string' &&
+        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
+      ) {
+        return false;
+      }
+      throw e;
     }
   }
 }

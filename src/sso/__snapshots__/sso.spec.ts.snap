@@ -16,7 +16,7 @@ exports[`SSO SSO getAuthorizationUrl with providerScopes generates an authorize 
 
 exports[`SSO SSO getAuthorizationUrl with state generates an authorize url with the provided state 1`] = `"https://api.workos.com/sso/authorize?client_id=proj_123&provider=GoogleOAuth&redirect_uri=example.com%2Fsso%2Fworkos%2Fcallback&response_type=code&state=custom+state"`;
 
-exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&grant_type=authorization_code&code=authorization_code&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU"`;
 
 exports[`SSO SSO getProfileAndToken with all information provided sends a request to the WorkOS api for a profile 2`] = `
 {
@@ -56,7 +56,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
 }
 `;
 
-exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU&grant_type=authorization_code&code=authorization_code"`;
+exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 1`] = `"client_id=proj_123&grant_type=authorization_code&code=authorization_code&client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU"`;
 
 exports[`SSO SSO getProfileAndToken without a groups attribute sends a request to the WorkOS api for a profile 2`] = `
 {

@@ -72,7 +72,10 @@ describe('Session', () => {
 
     it('returns a failed response if the accessToken is not a valid JWT', async () => {
       jest.mocked(jose.jwtVerify).mockImplementation(() => {
-        throw new Error('Invalid JWT');
+        // Simulate a jose JWT validation error with the expected code property
+        const error = new Error('Invalid JWT');
+        (error as Error & { code: string }).code = 'ERR_JWT_INVALID';
+        throw error;
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';

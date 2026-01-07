@@ -3,9 +3,10 @@ import {
   AuthenticateWithEmailVerificationOptions,
   SerializedAuthenticateWithEmailVerificationOptions,
 } from '../interfaces/authenticate-with-email-verification-options.interface';
+import { WithResolvedClientId } from '../interfaces';
 
 export const serializeAuthenticateWithEmailVerificationOptions = (
-  options: AuthenticateWithEmailVerificationOptions &
+  options: WithResolvedClientId<AuthenticateWithEmailVerificationOptions> &
     AuthenticateUserWithEmailVerificationCredentials,
 ): SerializedAuthenticateWithEmailVerificationOptions => ({
   grant_type: 'urn:workos:oauth:grant-type:email-verification:code',
