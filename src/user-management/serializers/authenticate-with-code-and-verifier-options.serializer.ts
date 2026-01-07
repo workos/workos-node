@@ -1,10 +1,11 @@
 import {
   AuthenticateWithCodeAndVerifierOptions,
   SerializedAuthenticateWithCodeAndVerifierOptions,
+  WithResolvedClientId,
 } from '../interfaces';
 
 export const serializeAuthenticateWithCodeAndVerifierOptions = (
-  options: AuthenticateWithCodeAndVerifierOptions,
+  options: WithResolvedClientId<AuthenticateWithCodeAndVerifierOptions>,
 ): SerializedAuthenticateWithCodeAndVerifierOptions => ({
   grant_type: 'authorization_code',
   client_id: options.clientId,

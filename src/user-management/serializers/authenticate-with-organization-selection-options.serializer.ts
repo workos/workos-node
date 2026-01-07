@@ -3,9 +3,10 @@ import {
   AuthenticateWithOrganizationSelectionOptions,
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from '../interfaces/authenticate-with-organization-selection.interface';
+import { WithResolvedClientId } from '../interfaces';
 
 export const serializeAuthenticateWithOrganizationSelectionOptions = (
-  options: AuthenticateWithOrganizationSelectionOptions &
+  options: WithResolvedClientId<AuthenticateWithOrganizationSelectionOptions> &
     AuthenticateUserWithOrganizationSelectionCredentials,
 ): SerializedAuthenticateWithOrganizationSelectionOptions => ({
   grant_type: 'urn:workos:oauth:grant-type:organization-selection',

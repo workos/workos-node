@@ -1,10 +1,11 @@
 import {
   AuthenticateWithRefreshTokenPublicClientOptions,
   SerializedAuthenticateWithRefreshTokenPublicClientOptions,
+  WithResolvedClientId,
 } from '../interfaces';
 
 export const serializeAuthenticateWithRefreshTokenPublicClientOptions = (
-  options: AuthenticateWithRefreshTokenPublicClientOptions,
+  options: WithResolvedClientId<AuthenticateWithRefreshTokenPublicClientOptions>,
 ): SerializedAuthenticateWithRefreshTokenPublicClientOptions => ({
   grant_type: 'refresh_token',
   client_id: options.clientId,

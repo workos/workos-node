@@ -2,10 +2,11 @@ import {
   AuthenticateUserWithCodeCredentials,
   AuthenticateWithRefreshTokenOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
+  WithResolvedClientId,
 } from '../interfaces';
 
 export const serializeAuthenticateWithRefreshTokenOptions = (
-  options: AuthenticateWithRefreshTokenOptions &
+  options: WithResolvedClientId<AuthenticateWithRefreshTokenOptions> &
     AuthenticateUserWithCodeCredentials,
 ): SerializedAuthenticateWithRefreshTokenOptions => ({
   grant_type: 'refresh_token',

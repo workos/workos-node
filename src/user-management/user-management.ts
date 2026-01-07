@@ -171,6 +171,20 @@ export class UserManagement {
     this.clientId = clientId;
   }
 
+  /**
+   * Resolve clientId from method options or fall back to constructor-provided value.
+   * @throws TypeError if clientId is not available from either source
+   */
+  private resolveClientId(clientId?: string): string {
+    const resolved = clientId ?? this.clientId;
+    if (!resolved) {
+      throw new TypeError(
+        'clientId is required. Provide it in method options or when initializing WorkOS.',
+      );
+    }
+    return resolved;
+  }
+
   async getJWKS(): Promise<
     ReturnType<typeof import('jose').createRemoteJWKSet> | undefined
   > {
@@ -251,7 +265,8 @@ export class UserManagement {
   async authenticateWithMagicAuth(
     payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -260,6 +275,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithMagicAuthOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -273,7 +289,8 @@ export class UserManagement {
   async authenticateWithPassword(
     payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -282,6 +299,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithPasswordOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -308,7 +326,8 @@ export class UserManagement {
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, codeVerifier, ...remainingPayload } = payload;
+    const { session, clientId, codeVerifier, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     // Validate codeVerifier is not an empty string (common mistake)
     if (codeVerifier !== undefined && codeVerifier.trim() === '') {
@@ -335,6 +354,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithCodeOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         codeVerifier,
         clientSecret: hasApiKey ? this.workos.key : undefined,
       }),
@@ -359,14 +379,18 @@ export class UserManagement {
   async authenticateWithCodeAndVerifier(
     payload: AuthenticateWithCodeAndVerifierOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithCodeAndVerifierOptions
     >(
       '/user_management/authenticate',
-      serializeAuthenticateWithCodeAndVerifierOptions(remainingPayload),
+      serializeAuthenticateWithCodeAndVerifierOptions({
+        ...remainingPayload,
+        clientId: resolvedClientId,
+      }),
       { skipApiKeyCheck: true },
     );
 
@@ -384,15 +408,18 @@ export class UserManagement {
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
     const isPublicClient = !this.workos.key;
 
     const body = isPublicClient
-      ? serializeAuthenticateWithRefreshTokenPublicClientOptions(
-          remainingPayload,
-        )
+      ? serializeAuthenticateWithRefreshTokenPublicClientOptions({
+          ...remainingPayload,
+          clientId: resolvedClientId,
+        })
       : serializeAuthenticateWithRefreshTokenOptions({
           ...remainingPayload,
+          clientId: resolvedClientId,
           clientSecret: this.workos.key,
         });
 
@@ -413,7 +440,8 @@ export class UserManagement {
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -422,6 +450,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithTotpOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -435,7 +464,8 @@ export class UserManagement {
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -444,6 +474,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithEmailVerificationOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -457,7 +488,8 @@ export class UserManagement {
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -466,6 +498,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithOrganizationSelectionOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -1071,6 +1104,7 @@ export class UserManagement {
       state,
       screenHint,
     } = options;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
@@ -1095,7 +1129,7 @@ export class UserManagement {
       provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
       prompt,
-      client_id: clientId,
+      client_id: resolvedClientId,
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
@@ -1150,6 +1184,7 @@ export class UserManagement {
       redirectUri,
       screenHint,
     } = options;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
@@ -1180,7 +1215,7 @@ export class UserManagement {
       provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
       prompt,
-      client_id: clientId,
+      client_id: resolvedClientId,
       redirect_uri: redirectUri,
       response_type: 'code',
       state,

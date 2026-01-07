@@ -368,6 +368,31 @@ describe('UserManagement', () => {
           },
         });
       });
+
+      it('uses clientId from constructor when not provided in options', async () => {
+        fetchOnce({ user: userFixture });
+        await publicWorkos.userManagement.authenticateWithCode({
+          code: 'or this',
+          codeVerifier: 'code_verifier_value',
+        });
+
+        expect(fetchBody()).toMatchObject({
+          client_id: 'proj_123',
+        });
+      });
+
+      it('throws error when clientId not provided anywhere', async () => {
+        // Use confidential client (API key) without clientId to test the error
+        const workosNoClientId = new WorkOS('sk_test_no_client_id');
+        await expect(
+          workosNoClientId.userManagement.authenticateWithCode({
+            code: 'some_code',
+            codeVerifier: 'code_verifier_value',
+          }),
+        ).rejects.toThrow(
+          'clientId is required. Provide it in method options or when initializing WorkOS.',
+        );
+      });
     });
 
     describe('confidential client with PKCE (API key + codeVerifier)', () => {
@@ -2696,6 +2721,29 @@ describe('UserManagement', () => {
         }),
       ).rejects.toThrow(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    });
+
+    it('uses clientId from constructor when not provided in options', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          redirectUri: 'example.com/auth/workos/callback',
+        });
+
+      expect(result.url).toContain('client_id=proj_123');
+    });
+
+    it('throws error when clientId not provided anywhere', async () => {
+      // Use confidential client (API key) without clientId to test the error
+      const workosNoClientId = new WorkOS('sk_test_no_client_id');
+      await expect(
+        workosNoClientId.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          redirectUri: 'example.com/auth/workos/callback',
+        }),
+      ).rejects.toThrow(
+        'clientId is required. Provide it in method options or when initializing WorkOS.',
       );
     });
   });
