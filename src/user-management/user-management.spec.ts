@@ -2484,6 +2484,19 @@ describe('UserManagement', () => {
         );
       });
     });
+    it('does not include undefined values in the query string', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const url = workos.userManagement.getAuthorizationUrl({
+        provider: 'authkit',
+        clientId: 'proj_123',
+        redirectUri: 'https://example.com/auth/workos/callback',
+        state: undefined,
+        screenHint: undefined,
+      });
+
+      expect(url).toMatchSnapshot();
+    });
   });
 
   describe('getLogoutUrl', () => {
