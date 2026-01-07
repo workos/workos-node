@@ -31,19 +31,20 @@ export * from './pkce/pkce';
 class WorkOSNode extends WorkOS {
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
-    const headers: Record<string, string> = {
-      'User-Agent': userAgent,
-    };
+    const headers: Record<string, string> = {};
 
     const configHeaders = options.config?.headers;
-    if (
-      configHeaders &&
-      typeof configHeaders === 'object' &&
-      !Array.isArray(configHeaders) &&
-      !(configHeaders instanceof Headers)
-    ) {
-      Object.assign(headers, configHeaders);
+    if (configHeaders) {
+      if (configHeaders instanceof Headers) {
+        configHeaders.forEach((v, k) => (headers[k] = v));
+      } else if (Array.isArray(configHeaders)) {
+        configHeaders.forEach(([k, v]) => (headers[k] = v));
+      } else {
+        Object.assign(headers, configHeaders);
+      }
     }
+
+    headers['User-Agent'] = userAgent;
 
     if (this.key) {
       headers['Authorization'] = `Bearer ${this.key}`;
