@@ -52,7 +52,7 @@ export class Vault {
     this.cryptoProvider = workos.getCryptoProvider();
   }
 
-  private decode(payload: string): Decoded {
+  async decode(payload: string): Promise<Decoded> {
     const inputData = base64ToUint8Array(payload);
     // Use 12 bytes for IV (standard for AES-GCM)
     const iv = new Uint8Array(inputData.subarray(0, 12));
@@ -160,10 +160,13 @@ export class Vault {
     data: string,
     context: KeyContext,
     associatedData?: string,
+    keyPair?: DataKeyPair,
   ): Promise<string> {
-    const keyPair = await this.createDataKey({
-      context,
-    });
+    if (keyPair === undefined) {
+      keyPair = await this.createDataKey({
+        context,
+      });
+    }
 
     // Convert base64 key to Uint8Array
     const encoder = new TextEncoder();
@@ -220,11 +223,18 @@ export class Vault {
   }
 
   async decrypt(
-    encryptedData: string,
+    encryptedData: string | Decoded,
     associatedData?: string,
+    dataKey?: DataKey,
   ): Promise<string> {
-    const decoded = this.decode(encryptedData);
-    const dataKey = await this.decryptDataKey({ keys: decoded.keys });
+    const decoded =
+      typeof encryptedData === 'string'
+        ? await this.decode(encryptedData)
+        : encryptedData;
+
+    if (dataKey === undefined) {
+      dataKey = await this.decryptDataKey({ keys: decoded.keys });
+    }
 
     // Convert base64 key to Uint8Array using our cross-runtime utility
     const key = base64ToUint8Array(dataKey.key);
