@@ -47,19 +47,24 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS({ clientId: 'client_...' }); // No API key needed
 
 // Generate auth URL with automatic PKCE
-const { url, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
-  provider: 'authkit',
-  redirectUri: 'myapp://callback',
-  clientId: 'client_...',
-});
+const { url, codeVerifier } =
+  await workos.userManagement.getAuthorizationUrlWithPKCE({
+    provider: 'authkit',
+    redirectUri: 'myapp://callback',
+    clientId: 'client_...',
+  });
 
 // After user authenticates, exchange code for tokens
-const { accessToken, refreshToken } = await workos.userManagement.authenticateWithCode({
-  code: authorizationCode,
-  codeVerifier,
-  clientId: 'client_...',
-});
+const { accessToken, refreshToken } =
+  await workos.userManagement.authenticateWithCode({
+    code: authorizationCode,
+    codeVerifier,
+    clientId: 'client_...',
+  });
 ```
+
+> [!IMPORTANT]
+> Store `codeVerifier` securely on-device between generating the auth URL and handling the callback. For mobile apps, use platform secure storage (iOS Keychain, Android Keystore). For CLI apps, consider OS credential storage. The verifier must survive app restarts during the auth flow.
 
 See the [AuthKit documentation](https://workos.com/docs/authkit) for details on PKCE authentication.
 
@@ -71,11 +76,12 @@ Server-side apps can also use PKCE alongside the client secret for defense in de
 const workos = new WorkOS('sk_...'); // With API key
 
 // Use PKCE even with API key for additional security
-const { url, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
-  provider: 'authkit',
-  redirectUri: 'https://example.com/callback',
-  clientId: 'client_...',
-});
+const { url, codeVerifier } =
+  await workos.userManagement.getAuthorizationUrlWithPKCE({
+    provider: 'authkit',
+    redirectUri: 'https://example.com/callback',
+    clientId: 'client_...',
+  });
 
 // Both client_secret AND code_verifier will be sent
 const { accessToken } = await workos.userManagement.authenticateWithCode({
