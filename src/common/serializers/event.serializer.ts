@@ -22,6 +22,7 @@ import { deserializeRoleEvent } from '../../user-management/serializers/role.ser
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
 import { Event, EventBase, EventResponse } from '../interfaces';
 import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-management/serializers/authentication-radar-risk-event-serializer';
+import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -189,6 +190,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeOrganizationDomain(event.data),
+      };
+    case 'api_key.created':
+    case 'api_key.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeApiKey(event.data),
       };
   }
 };
