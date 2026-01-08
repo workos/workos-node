@@ -1,4 +1,4 @@
-import type { WorkOS } from './workos';
+import { WorkOS } from './workos';
 import type { UserManagement } from './user-management/user-management';
 import type { SSO } from './sso/sso';
 import type { PKCE } from './pkce/pkce';
@@ -104,8 +104,5 @@ export function createWorkOS(
   keyOrOptions: string | PublicClientOptions | ConfidentialClientOptions,
   maybeOptions?: WorkOSOptions,
 ): PublicWorkOS | WorkOS {
-  // Dynamic import to avoid circular dependency
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { WorkOS } = require('./workos');
-  return new WorkOS(keyOrOptions, maybeOptions);
+  return new WorkOS(keyOrOptions as string | WorkOSOptions, maybeOptions);
 }
