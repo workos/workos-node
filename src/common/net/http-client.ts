@@ -114,9 +114,7 @@ export abstract class HttpClient implements HttpClientInterface {
 }
 
 // tslint:disable-next-line
-export abstract class HttpClientResponse
-  implements HttpClientResponseInterface
-{
+export abstract class HttpClientResponse implements HttpClientResponseInterface {
   _statusCode: number;
   _headers: ResponseHeaders;
 

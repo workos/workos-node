@@ -2,8 +2,7 @@ import { QueryResult, QueryResultResponse } from '../interfaces';
 import { Warning } from '../interfaces/warning.interface';
 import { ListResponse } from '../../common/interfaces';
 
-export interface QueryResultListResponse
-  extends ListResponse<QueryResultResponse> {
+export interface QueryResultListResponse extends ListResponse<QueryResultResponse> {
   warnings?: Warning[];
 }
 
