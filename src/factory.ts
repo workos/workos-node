@@ -11,6 +11,7 @@ import type { WorkOSOptions } from './common/interfaces';
 type PublicUserManagementMethods =
   | 'getAuthorizationUrl'
   | 'getAuthorizationUrlWithPKCE'
+  | 'authenticateWithCode'
   | 'authenticateWithCodeAndVerifier'
   | 'authenticateWithRefreshToken'
   | 'getLogoutUrl'
@@ -19,7 +20,10 @@ type PublicUserManagementMethods =
 /**
  * SSO method names available without API key.
  */
-type PublicSSOMethods = 'getAuthorizationUrl' | 'getAuthorizationUrlWithPKCE';
+type PublicSSOMethods =
+  | 'getAuthorizationUrl'
+  | 'getAuthorizationUrlWithPKCE'
+  | 'getProfileAndToken';
 
 /**
  * Subset of UserManagement methods available without an API key.
