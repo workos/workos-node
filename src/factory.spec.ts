@@ -86,22 +86,6 @@ describe('createWorkOS', () => {
     });
   });
 
-  describe('with string apiKey', () => {
-    it('returns a WorkOS instance', () => {
-      const workos = createWorkOS('sk_test_123');
-
-      expect(workos.key).toBe('sk_test_123');
-      expect(workos.baseURL).toBeDefined();
-    });
-
-    it('accepts additional options', () => {
-      const workos = createWorkOS('sk_test_123', { clientId: 'client_123' });
-
-      expect(workos.key).toBe('sk_test_123');
-      expect(workos.clientId).toBe('client_123');
-    });
-  });
-
   /**
    * Type-level tests - these verify compile-time behavior.
    * If these compile, the types are working correctly.
@@ -161,6 +145,37 @@ describe('createWorkOS', () => {
       // And full userManagement with all methods
       expect(typeof workos.userManagement.listUsers).toBe('function');
       expect(typeof workos.userManagement.createUser).toBe('function');
+    });
+
+    it('PublicWorkOS does not expose confidential methods', () => {
+      const workos = createWorkOS({ clientId: 'client_123' });
+
+      // These should cause TypeScript errors - proving type narrowing works
+      // @ts-expect-error - listUsers not available on PublicWorkOS
+      void workos.userManagement.listUsers;
+      // @ts-expect-error - createUser not available on PublicWorkOS
+      void workos.userManagement.createUser;
+      // @ts-expect-error - organizations not available on PublicWorkOS
+      void workos.organizations;
+      // @ts-expect-error - directorySync not available on PublicWorkOS
+      void workos.directorySync;
+      // @ts-expect-error - auditLogs not available on PublicWorkOS
+      void workos.auditLogs;
+    });
+
+    it('ignores WORKOS_API_KEY env var for type safety', () => {
+      process.env.WORKOS_API_KEY = 'sk_from_env';
+
+      // Factory should return PublicWorkOS based on explicit options, not env
+      const workos = createWorkOS({ clientId: 'client_123' });
+
+      // Type is PublicWorkOS, so these should error
+      // @ts-expect-error - organizations not available on PublicWorkOS
+      void workos.organizations;
+
+      // Runtime: the underlying WorkOS may have picked up the env var,
+      // but the TYPE is what matters for compile-time safety
+      expect(workos.clientId).toBe('client_123');
     });
   });
 });

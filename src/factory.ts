@@ -55,6 +55,7 @@ export interface PublicWorkOS {
  */
 export interface PublicClientOptions extends Omit<WorkOSOptions, 'apiKey'> {
   clientId: string;
+  /** Discriminant: ensures TypeScript selects PublicWorkOS overload when apiKey is absent */
   apiKey?: never;
 }
 
@@ -88,17 +89,11 @@ export interface ConfidentialClientOptions extends WorkOSOptions {
  *   clientId: 'client_123'
  * });
  * await workos.userManagement.listUsers(); // OK
- *
- * @example
- * // Confidential client with string API key
- * const workos = createWorkOS('sk_...');
  */
 export function createWorkOS(options: PublicClientOptions): PublicWorkOS;
 export function createWorkOS(options: ConfidentialClientOptions): WorkOS;
-export function createWorkOS(apiKey: string, options?: WorkOSOptions): WorkOS;
 export function createWorkOS(
-  keyOrOptions: string | PublicClientOptions | ConfidentialClientOptions,
-  maybeOptions?: WorkOSOptions,
+  options: PublicClientOptions | ConfidentialClientOptions,
 ): PublicWorkOS | WorkOS {
-  return new WorkOS(keyOrOptions as string | WorkOSOptions, maybeOptions);
+  return new WorkOS(options);
 }
