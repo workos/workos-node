@@ -23,6 +23,14 @@ export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
 export * from './pkce/pkce';
+export {
+  createWorkOS,
+  type PublicWorkOS,
+  type PublicUserManagement,
+  type PublicSSO,
+  type PublicClientOptions,
+  type ConfidentialClientOptions,
+} from './factory';
 
 class WorkOSWorker extends WorkOS {
   /** @override */
