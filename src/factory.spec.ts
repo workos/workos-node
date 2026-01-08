@@ -58,18 +58,6 @@ describe('createWorkOS', () => {
       expect(typeof workos.sso.getAuthorizationUrl).toBe('function');
       expect(typeof workos.sso.getAuthorizationUrlWithPKCE).toBe('function');
     });
-
-    it('has access to webhooks', () => {
-      const workos = createWorkOS({ clientId: 'client_123' });
-
-      expect(workos.webhooks).toBeDefined();
-    });
-
-    it('has access to actions', () => {
-      const workos = createWorkOS({ clientId: 'client_123' });
-
-      expect(workos.actions).toBeDefined();
-    });
   });
 
   describe('with apiKey (confidential client)', () => {

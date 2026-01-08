@@ -2,8 +2,6 @@ import { WorkOS } from './workos';
 import type { UserManagement } from './user-management/user-management';
 import type { SSO } from './sso/sso';
 import type { PKCE } from './pkce/pkce';
-import type { Webhooks } from './webhooks/webhooks';
-import type { Actions } from './actions/actions';
 import type { WorkOSOptions } from './common/interfaces';
 
 /**
@@ -48,8 +46,6 @@ export interface PublicWorkOS {
   readonly baseURL: string;
   readonly clientId: string;
   readonly pkce: PKCE;
-  readonly webhooks: Webhooks;
-  readonly actions: Actions;
   readonly userManagement: PublicUserManagement;
   readonly sso: PublicSSO;
 }
