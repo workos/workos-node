@@ -1,3 +1,4 @@
+export * from './api-key-required.exception';
 export * from './generic-server.exception';
 export * from './bad-request.exception';
 export * from './no-api-key-provided.exception';

@@ -132,7 +132,9 @@ describe('Organizations', () => {
 
         await workos.organizations.createOrganization(
           {
-            domains: ['example.com'],
+            domainData: [
+              { domain: 'example.com', state: DomainDataState.Verified },
+            ],
             name: 'Test Organization',
           },
           {
@@ -144,32 +146,15 @@ describe('Organizations', () => {
           'Idempotency-Key': 'the-idempotency-key',
         });
         expect(fetchBody()).toEqual({
-          domains: ['example.com'],
+          domain_data: [
+            { domain: 'example.com', state: DomainDataState.Verified },
+          ],
           name: 'Test Organization',
         });
       });
     });
 
     describe('with a valid payload', () => {
-      describe('with `domains`', () => {
-        it('creates an organization', async () => {
-          fetchOnce(createOrganization, { status: 201 });
-
-          const subject = await workos.organizations.createOrganization({
-            domains: ['example.com'],
-            name: 'Test Organization',
-          });
-
-          expect(fetchBody()).toEqual({
-            domains: ['example.com'],
-            name: 'Test Organization',
-          });
-          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
-          expect(subject.name).toEqual('Test Organization');
-          expect(subject.domains).toHaveLength(1);
-        });
-      });
-
       describe('with `domain_data`', () => {
         it('creates an organization', async () => {
           fetchOnce(createOrganization, { status: 201 });
@@ -214,14 +199,18 @@ describe('Organizations', () => {
 
         await expect(
           workos.organizations.createOrganization({
-            domains: ['example.com'],
+            domainData: [
+              { domain: 'example.com', state: DomainDataState.Verified },
+            ],
             name: 'Test Organization',
           }),
-        ).rejects.toThrowError(
+        ).rejects.toThrow(
           'An Organization with the domain example.com already exists.',
         );
         expect(fetchBody()).toEqual({
-          domains: ['example.com'],
+          domain_data: [
+            { domain: 'example.com', state: DomainDataState.Verified },
+          ],
           name: 'Test Organization',
         });
       });
@@ -293,26 +282,6 @@ describe('Organizations', () => {
 
   describe('updateOrganization', () => {
     describe('with a valid payload', () => {
-      describe('with `domains', () => {
-        it('updates an organization', async () => {
-          fetchOnce(updateOrganization, { status: 201 });
-
-          const subject = await workos.organizations.updateOrganization({
-            organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-            domains: ['example.com'],
-            name: 'Test Organization 2',
-          });
-
-          expect(fetchBody()).toEqual({
-            domains: ['example.com'],
-            name: 'Test Organization 2',
-          });
-          expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
-          expect(subject.name).toEqual('Test Organization 2');
-          expect(subject.domains).toHaveLength(1);
-        });
-      });
-
       describe('with `domain_data`', () => {
         it('updates an organization', async () => {
           fetchOnce(updateOrganization, { status: 201 });
@@ -387,7 +356,7 @@ describe('Organizations', () => {
               organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
               stripeCustomerId: 'cus_MX8J9nfK4lP2Yw',
             }),
-          ).rejects.toThrowError(
+          ).rejects.toThrow(
             'stripe_customer_id is not enabled for this environment',
           );
 

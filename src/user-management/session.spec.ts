@@ -1,10 +1,15 @@
 import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
-import { sealData } from 'iron-session';
+import { sealData } from '../common/crypto/seal';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
+
+jest.mock('jose', () => ({
+  ...jest.requireActual('jose'),
+  jwtVerify: jest.fn(),
+}));
 
 describe('Session', () => {
   let workos: WorkOS;
@@ -66,8 +71,11 @@ describe('Session', () => {
     });
 
     it('returns a failed response if the accessToken is not a valid JWT', async () => {
-      jest.spyOn(jose, 'jwtVerify').mockImplementation(() => {
-        throw new Error('Invalid JWT');
+      jest.mocked(jose.jwtVerify).mockImplementation(() => {
+        // Simulate a jose JWT validation error with the expected code property
+        const error = new Error('Invalid JWT');
+        (error as Error & { code: string }).code = 'ERR_JWT_INVALID';
+        throw error;
       });
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -100,7 +108,7 @@ describe('Session', () => {
 
     it('returns a successful response if the sessionData is valid', async () => {
       jest
-        .spyOn(jose, 'jwtVerify')
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -247,7 +255,7 @@ describe('Session', () => {
         });
 
         jest
-          .spyOn(jose, 'jwtVerify')
+          .mocked(jose.jwtVerify)
           .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -283,13 +291,60 @@ describe('Session', () => {
 
         expect(resp.authenticated).toBe(true);
       });
+
+      it('rotates refresh tokens when refreshing session', async () => {
+        const originalRefreshToken = 'original_refresh_token_123';
+        const newRefreshToken = 'new_refresh_token_456';
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+
+        // Mock the API to return a new refresh token
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken: newRefreshToken, // Different from original
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        // Create initial session with original refresh token
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: originalRefreshToken,
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        // Verify we got a new sealed session (which proves the refresh token was rotated)
+        expect(response.sealedSession).toBeDefined();
+        expect(response.sealedSession).not.toBe(sessionData);
+      });
     });
   });
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
       jest
-        .spyOn(jose, 'jwtVerify')
+        .mocked(jose.jwtVerify)
         .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -334,7 +389,7 @@ describe('Session', () => {
     describe('when a returnTo URL is provided', () => {
       it('returns a logout URL for the user', async () => {
         jest
-          .spyOn(jose, 'jwtVerify')
+          .mocked(jose.jwtVerify)
           .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';

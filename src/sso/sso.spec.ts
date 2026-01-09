@@ -56,7 +56,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -70,6 +70,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const urlFn = () =>
+            // @ts-expect-error Testing runtime validation with invalid input
             workos.sso.getAuthorizationUrl({
               clientId: 'proj_123',
               redirectUri: 'example.com/sso/workos/callback',
@@ -86,7 +87,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            provider: 'Google',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -134,7 +135,7 @@ describe('SSO', () => {
           });
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
           });
@@ -148,7 +149,7 @@ describe('SSO', () => {
           const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
           const url = workos.sso.getAuthorizationUrl({
-            domain: 'lyft.com',
+            provider: 'GoogleOAuth',
             clientId: 'proj_123',
             redirectUri: 'example.com/sso/workos/callback',
             state: 'custom state',
@@ -259,6 +260,72 @@ describe('SSO', () => {
           );
         });
       });
+
+      describe('with PKCE parameters', () => {
+        it('includes codeChallenge and codeChallengeMethod in URL', () => {
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+          const url = workos.sso.getAuthorizationUrl({
+            connection: 'conn_123',
+            clientId: 'proj_123',
+            redirectUri: 'myapp://callback',
+            codeChallenge: 'test-challenge',
+            codeChallengeMethod: 'S256',
+          });
+
+          expect(url).toContain('code_challenge=test-challenge');
+          expect(url).toContain('code_challenge_method=S256');
+        });
+      });
+    });
+
+    describe('getAuthorizationUrlWithPKCE', () => {
+      it('generates PKCE parameters and returns codeVerifier', async () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.sso.getAuthorizationUrlWithPKCE({
+          connection: 'conn_123',
+          clientId: 'proj_123',
+          redirectUri: 'myapp://callback',
+        });
+
+        expect(result.codeVerifier).toBeDefined();
+        expect(result.codeVerifier.length).toBeGreaterThanOrEqual(43);
+        expect(result.url).toContain('code_challenge=');
+        expect(result.url).toContain('code_challenge_method=S256');
+        expect(result.state).toBeDefined();
+        expect(result.state.length).toBeGreaterThanOrEqual(43);
+      });
+
+      it('includes all provided options in the URL', async () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.sso.getAuthorizationUrlWithPKCE({
+          connection: 'conn_123',
+          clientId: 'proj_123',
+          redirectUri: 'myapp://callback',
+          domainHint: 'example.com',
+          loginHint: 'user@example.com',
+        });
+
+        expect(result.url).toContain('connection=conn_123');
+        expect(result.url).toContain('client_id=proj_123');
+        expect(result.url).toContain('domain_hint=example.com');
+        expect(result.url).toContain('login_hint=user%40example.com');
+      });
+
+      it('throws error when no connection, organization, or provider is specified', async () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(
+          workos.sso.getAuthorizationUrlWithPKCE({
+            clientId: 'proj_123',
+            redirectUri: 'myapp://callback',
+          } as Parameters<typeof workos.sso.getAuthorizationUrlWithPKCE>[0]),
+        ).rejects.toThrow(
+          `Incomplete arguments. Need to specify either a 'connection', 'organization', or 'provider'.`,
+        );
+      });
     });
 
     describe('getProfileAndToken', () => {
@@ -302,7 +369,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+
+          const headers = fetchHeaders() as Record<string, string>;
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -343,7 +422,19 @@ describe('SSO', () => {
           expect(fetch.mock.calls.length).toEqual(1);
 
           expect(fetchBody()).toMatchSnapshot();
-          expect(fetchHeaders()).toMatchSnapshot();
+
+          const headers = fetchHeaders() as Record<string, string>;
+          expect(headers['Accept']).toBe('application/json, text/plain, */*');
+          expect(headers['Authorization']).toBe(
+            'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+          expect(headers['Content-Type']).toBe(
+            'application/x-www-form-urlencoded;charset=utf-8',
+          );
+          expect(headers['User-Agent']).toMatch(
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          );
+
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
           expect(profile).toMatchSnapshot();
         });
@@ -441,6 +532,125 @@ describe('SSO', () => {
           expect(oauthTokens).toBeUndefined();
         });
       });
+
+      describe('confidential client with PKCE (API key + codeVerifier)', () => {
+        it('sends both client_secret and code_verifier for defense in depth', async () => {
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              role: { slug: 'admin' },
+              roles: [{ slug: 'admin' }],
+              raw_attributes: {},
+              custom_attributes: {},
+            },
+          });
+
+          const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+          await workos.sso.getProfileAndToken({
+            code: 'authorization_code',
+            clientId: 'proj_123',
+            codeVerifier: 'test_code_verifier_value',
+          });
+
+          const body = fetchBody();
+          expect(body).toContain('code_verifier=test_code_verifier_value');
+          expect(body).toContain(
+            'client_secret=sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          );
+        });
+      });
+
+      describe('public client mode (codeVerifier without API key)', () => {
+        let publicWorkos: WorkOS;
+        let originalApiKey: string | undefined;
+
+        beforeEach(() => {
+          originalApiKey = process.env.WORKOS_API_KEY;
+          delete process.env.WORKOS_API_KEY;
+          publicWorkos = new WorkOS({ clientId: 'proj_123' });
+        });
+
+        afterEach(() => {
+          process.env.WORKOS_API_KEY = originalApiKey;
+        });
+
+        it('sends code_verifier without client_secret', async () => {
+          fetchOnce({
+            access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
+            profile: {
+              id: 'prof_123',
+              idp_id: '123',
+              organization_id: 'org_123',
+              connection_id: 'conn_123',
+              connection_type: 'OktaSAML',
+              email: 'foo@test.com',
+              first_name: 'foo',
+              last_name: 'bar',
+              role: { slug: 'admin' },
+              roles: [{ slug: 'admin' }],
+              raw_attributes: {},
+              custom_attributes: {},
+            },
+          });
+
+          const { accessToken } = await publicWorkos.sso.getProfileAndToken({
+            code: 'authorization_code',
+            clientId: 'proj_123',
+            codeVerifier: 'test_code_verifier_value',
+          });
+
+          expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
+          const body = fetchBody();
+          expect(body).toContain('code_verifier=test_code_verifier_value');
+          expect(body).not.toContain('client_secret');
+        });
+
+        it('throws error when neither codeVerifier nor API key is provided', async () => {
+          await expect(
+            publicWorkos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+            }),
+          ).rejects.toThrow(
+            'getProfileAndToken requires either a codeVerifier (for public clients) ' +
+              'or an API key configured on the WorkOS instance (for confidential clients).',
+          );
+        });
+
+        it('throws error when codeVerifier is an empty string', async () => {
+          await expect(
+            publicWorkos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+              codeVerifier: '',
+            }),
+          ).rejects.toThrow(
+            'codeVerifier cannot be an empty string. ' +
+              'Generate a valid PKCE pair using workos.pkce.generate().',
+          );
+        });
+
+        it('throws error when codeVerifier is whitespace only', async () => {
+          await expect(
+            publicWorkos.sso.getProfileAndToken({
+              code: 'authorization_code',
+              clientId: 'proj_123',
+              codeVerifier: '   ',
+            }),
+          ).rejects.toThrow(
+            'codeVerifier cannot be an empty string. ' +
+              'Generate a valid PKCE pair using workos.pkce.generate().',
+          );
+        });
+      });
     });
 
     describe('getProfile', () => {
@@ -504,7 +714,7 @@ describe('SSO', () => {
 
         expect(fetchURL()).toContain('/connections/conn_123');
 
-        expect(subject.connectionType).toEqual('OktaSAML');
+        expect(subject.type).toEqual('OktaSAML');
       });
     });
 

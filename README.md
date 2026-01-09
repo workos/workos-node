@@ -11,14 +11,14 @@ See the [API Reference](https://workos.com/docs/reference/client-libraries) for 
 
 ## Requirements
 
-Node 16 or higher.
+Node 20 or higher.
 
 ## Installation
 
 Install the package with:
 
 ```
-npm i @workos-inc/node
+npm install @workos-inc/node
 ```
 
 ## Configuration
@@ -35,6 +35,60 @@ Or, you can set it on your own before your application starts:
 import { WorkOS } from '@workos-inc/node';
 
 const workos = new WorkOS('sk_1234');
+```
+
+## Public Client Mode (Browser/Mobile/CLI)
+
+For apps that can't securely store secrets, initialize with just a client ID:
+
+```ts
+import { WorkOS } from '@workos-inc/node';
+
+const workos = new WorkOS({ clientId: 'client_...' }); // No API key needed
+
+// Generate auth URL with automatic PKCE
+const { url, codeVerifier } =
+  await workos.userManagement.getAuthorizationUrlWithPKCE({
+    provider: 'authkit',
+    redirectUri: 'myapp://callback',
+    clientId: 'client_...',
+  });
+
+// After user authenticates, exchange code for tokens
+const { accessToken, refreshToken } =
+  await workos.userManagement.authenticateWithCode({
+    code: authorizationCode,
+    codeVerifier,
+    clientId: 'client_...',
+  });
+```
+
+> [!IMPORTANT]
+> Store `codeVerifier` securely on-device between generating the auth URL and handling the callback. For mobile apps, use platform secure storage (iOS Keychain, Android Keystore). For CLI apps, consider OS credential storage. The verifier must survive app restarts during the auth flow.
+
+See the [AuthKit documentation](https://workos.com/docs/authkit) for details on PKCE authentication.
+
+### PKCE with Confidential Clients
+
+Server-side apps can also use PKCE alongside the client secret for defense in depth (recommended by OAuth 2.1):
+
+```ts
+const workos = new WorkOS('sk_...'); // With API key
+
+// Use PKCE even with API key for additional security
+const { url, codeVerifier } =
+  await workos.userManagement.getAuthorizationUrlWithPKCE({
+    provider: 'authkit',
+    redirectUri: 'https://example.com/callback',
+    clientId: 'client_...',
+  });
+
+// Both client_secret AND code_verifier will be sent
+const { accessToken } = await workos.userManagement.authenticateWithCode({
+  code: authorizationCode,
+  codeVerifier,
+  clientId: 'client_...',
+});
 ```
 
 ## SDK Versioning

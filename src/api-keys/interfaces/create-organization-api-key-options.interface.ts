@@ -11,5 +11,8 @@ export interface SerializedCreateOrganizationApiKeyOptions {
   permissions?: string[];
 }
 
-export interface CreateOrganizationApiKeyRequestOptions
-  extends Pick<PostOptions, 'idempotencyKey'> {}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface CreateOrganizationApiKeyRequestOptions extends Pick<
+  PostOptions,
+  'idempotencyKey'
+> {}
