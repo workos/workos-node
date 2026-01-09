@@ -48,7 +48,7 @@ import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 export interface EventBase {
   id: string;
   createdAt: string;
-  context?: Record<string, unknown>;
+  context: Record<string, unknown> | undefined;
 }
 
 interface EventResponseBase {
