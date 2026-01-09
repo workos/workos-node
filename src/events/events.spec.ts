@@ -18,6 +18,9 @@ describe('Event', () => {
   const event: Event = {
     id: 'event_01234ABCD',
     createdAt: '2020-05-06 04:21:48.649164',
+    context: {
+      client_id: 'client_01234ABCD',
+    },
     event: 'connection.activated',
     data: {
       object: 'connection',
@@ -36,6 +39,9 @@ describe('Event', () => {
   const eventResponse: EventResponse = {
     id: 'event_01234ABCD',
     created_at: '2020-05-06 04:21:48.649164',
+    context: {
+      client_id: 'client_01234ABCD',
+    },
     event: 'connection.activated',
     data: {
       object: 'connection',
@@ -120,6 +126,7 @@ describe('Event', () => {
         const directoryUserUpdated: DsyncUserUpdatedEvent = {
           id: 'event_01234ABCD',
           createdAt: '2020-05-06 04:21:48.649164',
+          context: undefined,
           event: 'dsync.user.updated',
           data: {
             object: 'directory_user',

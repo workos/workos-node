@@ -28,6 +28,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
     id: event.id,
     createdAt: event.created_at,
+    context: event.context,
   };
 
   switch (event.event) {
