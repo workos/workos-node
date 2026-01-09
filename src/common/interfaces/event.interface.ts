@@ -48,11 +48,13 @@ import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 export interface EventBase {
   id: string;
   createdAt: string;
+  context?: Record<string, string>;
 }
 
 interface EventResponseBase {
   id: string;
   created_at: string;
+  context?: Record<string, string>;
 }
 
 export interface AuthenticationEmailVerificationSucceededEvent
