@@ -51,7 +51,7 @@
     "supertest": "6.3.3",
     "ts-jest": "29.1.3",
     "tslint": "6.1.3",
-    "typescript": "5.1.6"
+    "typescript": "5.9.3"
   },
   "exports": {
     "types": "./lib/index.d.ts",
