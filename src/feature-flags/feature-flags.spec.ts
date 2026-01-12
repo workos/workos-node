@@ -109,9 +109,8 @@ describe('FeatureFlags', () => {
     it('requests a feature flag by slug', async () => {
       fetchOnce(getFeatureFlagFixture);
 
-      const subject = await workos.featureFlags.getFeatureFlag(
-        'advanced-dashboard',
-      );
+      const subject =
+        await workos.featureFlags.getFeatureFlag('advanced-dashboard');
 
       expect(fetchURL()).toContain('/feature-flags/advanced-dashboard');
       expect(subject).toEqual({
@@ -133,9 +132,8 @@ describe('FeatureFlags', () => {
     it('enables a feature flag by slug', async () => {
       fetchOnce(enableFeatureFlagFixture);
 
-      const subject = await workos.featureFlags.enableFeatureFlag(
-        'advanced-dashboard',
-      );
+      const subject =
+        await workos.featureFlags.enableFeatureFlag('advanced-dashboard');
 
       expect(fetchURL()).toContain('/feature-flags/advanced-dashboard/enable');
       expect(fetchMethod()).toBe('PUT');
@@ -147,9 +145,8 @@ describe('FeatureFlags', () => {
     it('disables a feature flag by slug', async () => {
       fetchOnce(disableFeatureFlagFixture);
 
-      const subject = await workos.featureFlags.disableFeatureFlag(
-        'advanced-dashboard',
-      );
+      const subject =
+        await workos.featureFlags.disableFeatureFlag('advanced-dashboard');
 
       expect(fetchURL()).toContain('/feature-flags/advanced-dashboard/disable');
       expect(fetchMethod()).toBe('PUT');

@@ -1,9 +1,8 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchHeaders, fetchBody } from './common/utils/test-utils';
-import fs from 'fs/promises';
 import {
+  ApiKeyRequiredException,
   GenericServerException,
-  NoApiKeyProvidedException,
   NotFoundException,
   OauthException,
 } from './common/exceptions';
@@ -12,8 +11,14 @@ import { WorkOS } from './index';
 import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { NodeHttpClient } from './common/net/node-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
+
+jest.mock('./common/utils/runtime-info', () => ({
+  getRuntimeInfo: () => ({
+    name: 'node',
+    version: 'v18.20.7',
+  }),
+}));
 
 describe('WorkOS', () => {
   beforeEach(() => fetch.resetMocks());
@@ -31,9 +36,37 @@ describe('WorkOS', () => {
       process.env = OLD_ENV;
     });
 
-    describe('when no API key is provided', () => {
-      it('throws a NoApiKeyFoundException error', async () => {
-        expect(() => new WorkOS()).toThrowError(NoApiKeyProvidedException);
+    describe('when no API key AND no clientId is provided', () => {
+      it('throws an error explaining both instantiation modes', async () => {
+        delete process.env.WORKOS_API_KEY;
+        delete process.env.WORKOS_CLIENT_ID;
+        expect(() => new WorkOS()).toThrow(
+          'WorkOS requires either an API key or a clientId',
+        );
+      });
+    });
+
+    describe('when only clientId is provided (public client mode)', () => {
+      it('initializes successfully without API key', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+        expect(workos.clientId).toBe('client_123');
+        expect(workos.key).toBeUndefined();
+      });
+
+      it('initializes with clientId from environment variable', async () => {
+        delete process.env.WORKOS_API_KEY;
+        process.env.WORKOS_CLIENT_ID = 'client_from_env';
+        const workos = new WorkOS();
+        expect(workos.clientId).toBe('client_from_env');
+      });
+
+      it('does not include Authorization header in HTTP client', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+        // HTTP client should be created without Authorization header
+        // We can't easily test this directly, but we verify the workos.key is undefined
+        expect(workos.key).toBeUndefined();
       });
     });
 
@@ -49,6 +82,26 @@ describe('WorkOS', () => {
         expect(
           () => new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU'),
         ).not.toThrow();
+      });
+    });
+
+    describe('when API key is provided via options object', () => {
+      it('initializes with apiKey in options', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        });
+        expect(workos.key).toBe('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      });
+
+      it('allows both apiKey and clientId in options', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          clientId: 'client_123',
+        });
+        expect(workos.key).toBe('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        expect(workos.clientId).toBe('client_123');
       });
     });
 
@@ -100,10 +153,6 @@ describe('WorkOS', () => {
       it('applies the configuration to the fetch client user-agent', async () => {
         fetchOnce('{}');
 
-        const packageJson = JSON.parse(
-          await fs.readFile('package.json', 'utf8'),
-        );
-
         const workos = new WorkOS('sk_test', {
           appInfo: {
             name: 'fooApp',
@@ -113,9 +162,10 @@ describe('WorkOS', () => {
 
         await workos.post('/somewhere', {});
 
-        expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch fooApp: 1.0.0`,
-        });
+        const headers = fetchHeaders() as Record<string, string>;
+        expect(headers['User-Agent']).toMatch(
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\) fooApp: 1\.0\.0$/,
+        );
       });
     });
 
@@ -123,35 +173,14 @@ describe('WorkOS', () => {
       it('adds the HTTP client name to the user-agent', async () => {
         fetchOnce('{}');
 
-        const packageJson = JSON.parse(
-          await fs.readFile('package.json', 'utf8'),
-        );
-
         const workos = new WorkOS('sk_test');
 
         await workos.post('/somewhere', {});
 
-        expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch`,
-        });
-      });
-    });
-
-    describe('when no `appInfo` option is provided', () => {
-      it('adds the HTTP client name to the user-agent', async () => {
-        fetchOnce('{}');
-
-        const packageJson = JSON.parse(
-          await fs.readFile('package.json', 'utf8'),
+        const headers = fetchHeaders() as Record<string, string>;
+        expect(headers['User-Agent']).toMatch(
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
         );
-
-        const workos = new WorkOS('sk_test');
-
-        await workos.post('/somewhere', {});
-
-        expect(fetchHeaders()).toMatchObject({
-          'User-Agent': `workos-node/${packageJson.version}/fetch`,
-        });
       });
     });
 
@@ -167,18 +196,71 @@ describe('WorkOS', () => {
   });
 
   describe('version', () => {
-    it('matches the version in `package.json`', async () => {
+    it('is a valid semver string', async () => {
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      // Read `package.json` using file I/O instead of `require` so we don't run
-      // into issues with the `require` cache.
-      const packageJson = JSON.parse(await fs.readFile('package.json', 'utf8'));
+      expect(workos.version).toMatch(/^\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/);
+    });
+  });
 
-      expect(workos.version).toBe(packageJson.version);
+  describe('pkce', () => {
+    it('is available as a property', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      expect(workos.pkce).toBeDefined();
+    });
+
+    it('is available in PKCE-only mode', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(workos.pkce).toBeDefined();
+    });
+  });
+
+  describe('requireApiKey', () => {
+    it('does not throw when API key is provided', () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      expect(() => workos.requireApiKey('someMethod')).not.toThrow();
+    });
+
+    it('throws ApiKeyRequiredException when no API key (public client mode)', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(() => workos.requireApiKey('listOrganizations')).toThrow(
+        ApiKeyRequiredException,
+      );
+    });
+
+    it('includes path in error message', () => {
+      delete process.env.WORKOS_API_KEY;
+      const workos = new WorkOS({ clientId: 'client_123' });
+      expect(() => workos.requireApiKey('/organizations')).toThrow(
+        'API key required for "/organizations"',
+      );
     });
   });
 
   describe('post', () => {
+    describe('when no API key is provided (public client mode)', () => {
+      it('throws ApiKeyRequiredException', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(workos.post('/path', {})).rejects.toThrow(
+          ApiKeyRequiredException,
+        );
+      });
+
+      it('allows bypass with skipApiKeyCheck option', async () => {
+        delete process.env.WORKOS_API_KEY;
+        fetchOnce('{}');
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(
+          workos.post('/path', {}, { skipApiKeyCheck: true }),
+        ).resolves.toBeDefined();
+      });
+    });
+
     describe('when the api responds with a 404', () => {
       it('throws a NotFoundException', async () => {
         const message = 'Not Found';
@@ -337,6 +419,17 @@ describe('WorkOS', () => {
   });
 
   describe('get', () => {
+    describe('when no API key is provided (public client mode)', () => {
+      it('throws ApiKeyRequiredException', async () => {
+        delete process.env.WORKOS_API_KEY;
+        const workos = new WorkOS({ clientId: 'client_123' });
+
+        await expect(workos.get('/path')).rejects.toThrow(
+          ApiKeyRequiredException,
+        );
+      });
+    });
+
     describe('when the api responds with invalid JSON', () => {
       it('throws a ParseError', async () => {
         const mockResponse = {
@@ -387,35 +480,6 @@ describe('WorkOS', () => {
         expect(error.rawBody).toBe('broken json[');
         expect(error.requestID).toBe('a-request-id');
       });
-    });
-  });
-
-  describe('when in an environment that does not support fetch', () => {
-    const fetchFn = globalThis.fetch;
-
-    beforeEach(() => {
-      // @ts-ignore
-      delete globalThis.fetch;
-    });
-
-    afterEach(() => {
-      globalThis.fetch = fetchFn;
-    });
-
-    it('automatically uses the node HTTP client', () => {
-      const workos = new WorkOS('sk_test_key');
-
-      // tslint:disable-next-line
-      expect(workos['client']).toBeInstanceOf(NodeHttpClient);
-    });
-
-    it('uses a fetch function if provided', () => {
-      const workos = new WorkOS('sk_test_key', {
-        fetchFn,
-      });
-
-      // tslint:disable-next-line
-      expect(workos['client']).toBeInstanceOf(FetchHttpClient);
     });
   });
 

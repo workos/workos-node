@@ -1,8 +1,6 @@
 import { Actions } from './actions/actions';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
-import { EdgeIronSessionProvider } from './common/iron-session/edge-iron-session-provider';
-import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { HttpClient } from './common/net/http-client';
 import { WorkOSOptions } from './index.worker';
@@ -15,7 +13,6 @@ export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
-export * from './directory-sync/utils/get-primary-email';
 export * from './events/interfaces';
 export * from './fga/interfaces';
 export * from './organizations/interfaces';
@@ -25,17 +22,40 @@ export * from './portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
+export * from './pkce/pkce';
+export {
+  createWorkOS,
+  type PublicWorkOS,
+  type PublicUserManagement,
+  type PublicSSO,
+  type PublicClientOptions,
+  type ConfidentialClientOptions,
+} from './factory';
 
 class WorkOSWorker extends WorkOS {
   /** @override */
   createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
+    const headers: Record<string, string> = {
+      'User-Agent': userAgent,
+    };
+
+    const configHeaders = options.config?.headers;
+    if (
+      configHeaders &&
+      typeof configHeaders === 'object' &&
+      !Array.isArray(configHeaders) &&
+      !(configHeaders instanceof Headers)
+    ) {
+      Object.assign(headers, configHeaders);
+    }
+
+    if (this.key) {
+      headers['Authorization'] = `Bearer ${this.key}`;
+    }
+
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
-      },
+      headers,
     });
   }
 
@@ -55,11 +75,6 @@ class WorkOSWorker extends WorkOS {
     const cryptoProvider = new SubtleCryptoProvider();
 
     return new Actions(cryptoProvider);
-  }
-
-  /** @override */
-  createIronSessionProvider(): IronSessionProvider {
-    return new EdgeIronSessionProvider();
   }
 
   /** @override */

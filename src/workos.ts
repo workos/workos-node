@@ -1,12 +1,13 @@
 import {
+  ApiKeyRequiredException,
   GenericServerException,
-  NoApiKeyProvidedException,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
   OauthException,
   RateLimitExceededException,
 } from './common/exceptions';
+import { PKCE } from './pkce/pkce';
 import {
   GetOptions,
   HttpClientResponseInterface,
@@ -35,15 +36,16 @@ import { FeatureFlags } from './feature-flags/feature-flags';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
-import { IronSessionProvider } from './common/iron-session/iron-session-provider';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
+import { getEnv } from './common/utils/env';
+import { getRuntimeInfo } from './common/utils/runtime-info';
 
-const VERSION = '7.82.0';
+const VERSION = '8.0.0-rc.10';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -55,6 +57,11 @@ export class WorkOS {
   readonly baseURL: string;
   readonly client: HttpClient;
   readonly clientId?: string;
+  readonly key?: string;
+  readonly options: WorkOSOptions;
+  readonly pkce: PKCE;
+
+  private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
   readonly apiKeys = new ApiKeys(this);
@@ -75,26 +82,57 @@ export class WorkOS {
   readonly webhooks: Webhooks;
   readonly widgets = new Widgets(this);
 
-  constructor(readonly key?: string, readonly options: WorkOSOptions = {}) {
-    if (!key) {
-      // process might be undefined in some environments
-      this.key =
-        typeof process !== 'undefined'
-          ? process?.env.WORKOS_API_KEY
-          : undefined;
-
-      if (!this.key) {
-        throw new NoApiKeyProvidedException();
-      }
+  /**
+   * Create a new WorkOS client.
+   *
+   * @param keyOrOptions - API key string, or options object
+   * @param maybeOptions - Options when first argument is API key
+   *
+   * @example
+   * // Server-side with API key (string)
+   * const workos = new WorkOS('sk_...');
+   *
+   * @example
+   * // Server-side with API key (object)
+   * const workos = new WorkOS({ apiKey: 'sk_...', clientId: 'client_...' });
+   *
+   * @example
+   * // PKCE/public client (no API key)
+   * const workos = new WorkOS({ clientId: 'client_...' });
+   */
+  constructor(
+    keyOrOptions?: string | WorkOSOptions,
+    maybeOptions?: WorkOSOptions,
+  ) {
+    if (typeof keyOrOptions === 'object') {
+      this.key = keyOrOptions.apiKey;
+      this.options = keyOrOptions;
+    } else {
+      this.key = keyOrOptions;
+      this.options = maybeOptions ?? {};
     }
+
+    if (!this.key) {
+      this.key = getEnv('WORKOS_API_KEY');
+    }
+
+    this.hasApiKey = !!this.key;
 
     if (this.options.https === undefined) {
       this.options.https = true;
     }
 
     this.clientId = this.options.clientId;
-    if (!this.clientId && typeof process !== 'undefined') {
-      this.clientId = process?.env.WORKOS_CLIENT_ID;
+    if (!this.clientId) {
+      this.clientId = getEnv('WORKOS_CLIENT_ID');
+    }
+
+    if (!this.hasApiKey && !this.clientId) {
+      throw new Error(
+        'WorkOS requires either an API key or a clientId. ' +
+          'For server-side: new WorkOS("sk_...") or new WorkOS({ apiKey: "sk_..." }). ' +
+          'For PKCE/public clients: new WorkOS({ clientId: "client_..." })',
+      );
     }
 
     const protocol: string = this.options.https ? 'https' : 'http';
@@ -106,24 +144,31 @@ export class WorkOS {
       this.baseURL = this.baseURL + `:${port}`;
     }
 
-    let userAgent: string = `workos-node/${VERSION}`;
-
-    if (options.appInfo) {
-      const { name, version }: { name: string; version: string } =
-        options.appInfo;
-      userAgent += ` ${name}: ${version}`;
-    }
+    this.pkce = new PKCE();
 
     this.webhooks = this.createWebhookClient();
     this.actions = this.createActionsClient();
 
     // Must initialize UserManagement after baseURL is configured
-    this.userManagement = new UserManagement(
-      this,
-      this.createIronSessionProvider(),
-    );
+    this.userManagement = new UserManagement(this);
 
-    this.client = this.createHttpClient(options, userAgent);
+    const userAgent = this.createUserAgent(this.options);
+
+    this.client = this.createHttpClient(this.options, userAgent);
+  }
+
+  private createUserAgent(options: WorkOSOptions): string {
+    let userAgent: string = `workos-node/${VERSION}`;
+
+    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
+    userAgent += ` (${runtimeName}${runtimeVersion ? `/${runtimeVersion}` : ''})`;
+
+    if (options.appInfo) {
+      const { name, version } = options.appInfo;
+      userAgent += ` ${name}: ${version}`;
+    }
+
+    return userAgent;
   }
 
   createWebhookClient() {
@@ -139,25 +184,44 @@ export class WorkOS {
   }
 
   createHttpClient(options: WorkOSOptions, userAgent: string) {
+    const headers: Record<string, string> = {
+      'User-Agent': userAgent,
+    };
+
+    const configHeaders = options.config?.headers;
+    if (
+      configHeaders &&
+      typeof configHeaders === 'object' &&
+      !Array.isArray(configHeaders) &&
+      !(configHeaders instanceof Headers)
+    ) {
+      Object.assign(headers, configHeaders);
+    }
+
+    if (this.key) {
+      headers['Authorization'] = `Bearer ${this.key}`;
+    }
+
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
       timeout: options.timeout,
-      headers: {
-        ...options.config?.headers,
-        Authorization: `Bearer ${this.key}`,
-        'User-Agent': userAgent,
-      },
+      headers,
     }) as HttpClient;
-  }
-
-  createIronSessionProvider(): IronSessionProvider {
-    throw new Error(
-      'IronSessionProvider not implemented. Use WorkOSNode or WorkOSWorker instead.',
-    );
   }
 
   get version() {
     return VERSION;
+  }
+
+  /**
+   * Require API key for methods that need it.
+   * @param methodName - Name of the method requiring API key (for error message)
+   * @throws ApiKeyRequiredException if no API key was provided
+   */
+  requireApiKey(methodName: string): void {
+    if (!this.hasApiKey) {
+      throw new ApiKeyRequiredException(methodName);
+    }
   }
 
   async post<Result = any, Entity = any>(
@@ -165,6 +229,10 @@ export class WorkOS {
     entity: Entity,
     options: PostOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
@@ -199,6 +267,10 @@ export class WorkOS {
     path: string,
     options: GetOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.accessToken) {
@@ -234,6 +306,10 @@ export class WorkOS {
     entity: Entity,
     options: PutOptions = {},
   ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
     const requestHeaders: Record<string, string> = {};
 
     if (options.idempotencyKey) {
@@ -262,6 +338,8 @@ export class WorkOS {
   }
 
   async delete(path: string, query?: any): Promise<void> {
+    this.requireApiKey(path);
+
     try {
       await this.client.delete(path, {
         params: query,

@@ -1,20 +1,21 @@
 import { List, PaginationOptions } from '../interfaces';
 
-export class AutoPaginatable<T> {
-  readonly object: 'list' = 'list';
-  readonly options: PaginationOptions;
+export class AutoPaginatable<
+  ResourceType,
+  ParametersType extends PaginationOptions = PaginationOptions,
+> {
+  readonly object = 'list' as const;
+  readonly options: ParametersType;
 
   constructor(
-    protected list: List<T>,
-    private apiCall: (params: PaginationOptions) => Promise<List<T>>,
-    options?: PaginationOptions,
+    protected list: List<ResourceType>,
+    private apiCall: (params: PaginationOptions) => Promise<List<ResourceType>>,
+    options?: ParametersType,
   ) {
-    this.options = {
-      ...options,
-    };
+    this.options = options ?? ({} as ParametersType);
   }
 
-  get data(): T[] {
+  get data(): ResourceType[] {
     return this.list.data;
   }
 
@@ -22,7 +23,9 @@ export class AutoPaginatable<T> {
     return this.list.listMetadata;
   }
 
-  private async *generatePages(params: PaginationOptions): AsyncGenerator<T[]> {
+  private async *generatePages(
+    params: PaginationOptions,
+  ): AsyncGenerator<ResourceType[]> {
     const result = await this.apiCall({
       ...this.options,
       limit: 100,
@@ -42,12 +45,12 @@ export class AutoPaginatable<T> {
    * Automatically paginates over the list of results, returning the complete data set.
    * Returns the first result if `options.limit` is passed to the first request.
    */
-  async autoPagination(): Promise<T[]> {
+  async autoPagination(): Promise<ResourceType[]> {
     if (this.options.limit) {
       return this.data;
     }
 
-    const results: T[] = [];
+    const results: ResourceType[] = [];
 
     for await (const page of this.generatePages({
       after: this.options.after,

@@ -1,9 +1,9 @@
-import { createRemoteJWKSet, decodeJwt, jwtVerify } from 'jose';
-import qs from 'qs';
-import { OauthException } from '../common/exceptions/oauth.exception';
-import { IronSessionProvider } from '../common/iron-session/iron-session-provider';
+import { sealData, unsealData } from '../common/crypto/seal';
+import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
+import { getEnv } from '../common/utils/env';
+import { toQueryString } from '../common/utils/query-string';
 import { Challenge, ChallengeResponse } from '../mfa/interfaces';
 import { deserializeChallenge } from '../mfa/serializers';
 import {
@@ -13,8 +13,8 @@ import {
 import { deserializeFeatureFlag } from '../feature-flags/serializers';
 import { WorkOS } from '../workos';
 import {
-  AuthenticateWithCodeOptions,
   AuthenticateWithCodeAndVerifierOptions,
+  AuthenticateWithCodeOptions,
   AuthenticateWithMagicAuthOptions,
   AuthenticateWithPasswordOptions,
   AuthenticateWithRefreshTokenOptions,
@@ -32,26 +32,26 @@ import {
   ListSessionsOptions,
   ListUsersOptions,
   ListUserFeatureFlagsOptions,
+  LogoutURLOptions,
   MagicAuth,
   MagicAuthResponse,
   PasswordReset,
   PasswordResetResponse,
   ResetPasswordOptions,
-  SendMagicAuthCodeOptions,
-  SendPasswordResetEmailOptions,
   SendVerificationEmailOptions,
-  SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithCodeAndVerifierOptions,
+  SerializedAuthenticateWithCodeOptions,
   SerializedAuthenticateWithMagicAuthOptions,
   SerializedAuthenticateWithPasswordOptions,
   SerializedAuthenticateWithRefreshTokenOptions,
+  SerializedAuthenticateWithRefreshTokenPublicClientOptions,
   SerializedAuthenticateWithTotpOptions,
   SerializedCreateMagicAuthOptions,
   SerializedCreatePasswordResetOptions,
   SerializedCreateUserOptions,
+  SerializedListSessionsOptions,
+  SerializedListUsersOptions,
   SerializedResetPasswordOptions,
-  SerializedSendMagicAuthCodeOptions,
-  SerializedSendPasswordResetEmailOptions,
   SerializedVerifyEmailOptions,
   Session,
   SessionResponse,
@@ -76,7 +76,10 @@ import {
   AuthenticateWithSessionCookieSuccessResponse,
   SessionCookieData,
 } from './interfaces/authenticate-with-session-cookie.interface';
-import { UserManagementAuthorizationURLOptions } from './interfaces/authorization-url-options.interface';
+import {
+  PKCEAuthorizationURLResult,
+  UserManagementAuthorizationURLOptions,
+} from './interfaces/authorization-url-options.interface';
 import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
@@ -92,16 +95,18 @@ import {
   Invitation,
   InvitationResponse,
 } from './interfaces/invitation.interface';
-import { ListInvitationsOptions } from './interfaces/list-invitations-options.interface';
-import { ListOrganizationMembershipsOptions } from './interfaces/list-organization-memberships-options.interface';
+import {
+  ListInvitationsOptions,
+  SerializedListInvitationsOptions,
+} from './interfaces/list-invitations-options.interface';
+import {
+  ListOrganizationMembershipsOptions,
+  SerializedListOrganizationMembershipsOptions,
+} from './interfaces/list-organization-memberships-options.interface';
 import {
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from './interfaces/organization-membership.interface';
-import {
-  RefreshAndSealSessionDataFailureReason,
-  RefreshAndSealSessionDataResponse,
-} from './interfaces/refresh-and-seal-session-data.interface';
 import {
   RevokeSessionOptions,
   SerializedRevokeSessionOptions,
@@ -124,11 +129,12 @@ import {
   deserializePasswordReset,
   deserializeSession,
   deserializeUser,
-  serializeAuthenticateWithCodeOptions,
   serializeAuthenticateWithCodeAndVerifierOptions,
+  serializeAuthenticateWithCodeOptions,
   serializeAuthenticateWithMagicAuthOptions,
   serializeAuthenticateWithPasswordOptions,
   serializeAuthenticateWithRefreshTokenOptions,
+  serializeAuthenticateWithRefreshTokenPublicClientOptions,
   serializeAuthenticateWithTotpOptions,
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
@@ -136,8 +142,6 @@ import {
   serializeEnrollAuthFactorOptions,
   serializeListSessionsOptions,
   serializeResetPasswordOptions,
-  serializeSendMagicAuthCodeOptions,
-  serializeSendPasswordResetEmailOptions,
   serializeUpdateUserOptions,
 } from './serializers';
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
@@ -153,38 +157,38 @@ import { deserializeOrganizationMembership } from './serializers/organization-me
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { CookieSession } from './session';
-
-const toQueryString = (
-  options: Record<
-    string,
-    string | string[] | Record<string, string | boolean | number> | undefined
-  >,
-): string => {
-  return qs.stringify(options, {
-    arrayFormat: 'repeat',
-    // sorts the keys alphabetically to maintain backwards compatibility
-    sort: (a, b) => a.localeCompare(b),
-    // encodes space as + instead of %20 to maintain backwards compatibility
-    format: 'RFC1738',
-  });
-};
+import { getJose } from '../utils/jose';
 
 export class UserManagement {
-  private _jwks: ReturnType<typeof createRemoteJWKSet> | undefined;
+  private _jwks:
+    | ReturnType<typeof import('jose').createRemoteJWKSet>
+    | undefined;
   public clientId: string | undefined;
-  public ironSessionProvider: IronSessionProvider;
 
-  constructor(
-    private readonly workos: WorkOS,
-    ironSessionProvider: IronSessionProvider,
-  ) {
+  constructor(private readonly workos: WorkOS) {
     const { clientId } = workos.options;
 
     this.clientId = clientId;
-    this.ironSessionProvider = ironSessionProvider;
   }
 
-  get jwks(): ReturnType<typeof createRemoteJWKSet> | undefined {
+  /**
+   * Resolve clientId from method options or fall back to constructor-provided value.
+   * @throws TypeError if clientId is not available from either source
+   */
+  private resolveClientId(clientId?: string): string {
+    const resolved = clientId ?? this.clientId;
+    if (!resolved) {
+      throw new TypeError(
+        'clientId is required. Provide it in method options or when initializing WorkOS.',
+      );
+    }
+    return resolved;
+  }
+
+  async getJWKS(): Promise<
+    ReturnType<typeof import('jose').createRemoteJWKSet> | undefined
+  > {
+    const { createRemoteJWKSet } = await getJose();
     if (!this.clientId) {
       return;
     }
@@ -228,7 +232,9 @@ export class UserManagement {
     return deserializeUser(data);
   }
 
-  async listUsers(options?: ListUsersOptions): Promise<AutoPaginatable<User>> {
+  async listUsers(
+    options?: ListUsersOptions,
+  ): Promise<AutoPaginatable<User, SerializedListUsersOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<UserResponse, User>(
         this.workos,
@@ -259,7 +265,8 @@ export class UserManagement {
   async authenticateWithMagicAuth(
     payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -268,6 +275,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithMagicAuthOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -281,7 +289,8 @@ export class UserManagement {
   async authenticateWithPassword(
     payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -290,6 +299,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithPasswordOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -300,10 +310,42 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Exchange an authorization code for tokens.
+   *
+   * Auto-detects public vs confidential client mode:
+   * - If codeVerifier is provided: Uses PKCE flow (public client)
+   * - If no codeVerifier: Uses client_secret from API key (confidential client)
+   * - If both: Uses both client_secret AND codeVerifier (confidential client with PKCE)
+   *
+   * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
+   * in depth and provides additional CSRF protection on the authorization flow.
+   *
+   * @throws Error if neither codeVerifier nor API key is available
+   */
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, codeVerifier, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
+
+    // Validate codeVerifier is not an empty string (common mistake)
+    if (codeVerifier !== undefined && codeVerifier.trim() === '') {
+      throw new TypeError(
+        'codeVerifier cannot be an empty string. ' +
+          'Generate a valid PKCE pair using workos.pkce.generate().',
+      );
+    }
+
+    const hasApiKey = !!this.workos.key;
+    const hasPKCE = !!codeVerifier;
+
+    if (!hasPKCE && !hasApiKey) {
+      throw new TypeError(
+        'authenticateWithCode requires either a codeVerifier (for public clients) ' +
+          'or an API key configured on the WorkOS instance (for confidential clients).',
+      );
+    }
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -312,8 +354,11 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithCodeOptions({
         ...remainingPayload,
-        clientSecret: this.workos.key,
+        clientId: resolvedClientId,
+        codeVerifier,
+        clientSecret: hasApiKey ? this.workos.key : undefined,
       }),
+      { skipApiKeyCheck: !hasApiKey },
     );
 
     return this.prepareAuthenticationResponse({
@@ -322,17 +367,31 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Exchange an authorization code for tokens using PKCE (public client flow).
+   * Use this instead of authenticateWithCode() when the client cannot securely
+   * store a client_secret (browser, mobile, CLI, desktop apps).
+   *
+   * @param payload.clientId - Your WorkOS client ID
+   * @param payload.code - The authorization code from the OAuth callback
+   * @param payload.codeVerifier - The PKCE code verifier used to generate the code challenge
+   */
   async authenticateWithCodeAndVerifier(
     payload: AuthenticateWithCodeAndVerifierOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
       SerializedAuthenticateWithCodeAndVerifierOptions
     >(
       '/user_management/authenticate',
-      serializeAuthenticateWithCodeAndVerifierOptions(remainingPayload),
+      serializeAuthenticateWithCodeAndVerifierOptions({
+        ...remainingPayload,
+        clientId: resolvedClientId,
+      }),
+      { skipApiKeyCheck: true },
     );
 
     return this.prepareAuthenticationResponse({
@@ -341,21 +400,36 @@ export class UserManagement {
     });
   }
 
+  /**
+   * Refresh an access token using a refresh token.
+   * Automatically detects public client mode - if no API key is configured,
+   * omits client_secret from the request.
+   */
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
+    const isPublicClient = !this.workos.key;
+
+    const body = isPublicClient
+      ? serializeAuthenticateWithRefreshTokenPublicClientOptions({
+          ...remainingPayload,
+          clientId: resolvedClientId,
+        })
+      : serializeAuthenticateWithRefreshTokenOptions({
+          ...remainingPayload,
+          clientId: resolvedClientId,
+          clientSecret: this.workos.key,
+        });
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
-      SerializedAuthenticateWithRefreshTokenOptions
-    >(
-      '/user_management/authenticate',
-      serializeAuthenticateWithRefreshTokenOptions({
-        ...remainingPayload,
-        clientSecret: this.workos.key,
-      }),
-    );
+      | SerializedAuthenticateWithRefreshTokenOptions
+      | SerializedAuthenticateWithRefreshTokenPublicClientOptions
+    >('/user_management/authenticate', body, {
+      skipApiKeyCheck: isPublicClient,
+    });
 
     return this.prepareAuthenticationResponse({
       authenticationResponse: deserializeAuthenticationResponse(data),
@@ -366,7 +440,8 @@ export class UserManagement {
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -375,6 +450,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithTotpOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -388,7 +464,8 @@ export class UserManagement {
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -397,6 +474,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithEmailVerificationOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -410,7 +488,8 @@ export class UserManagement {
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
-    const { session, ...remainingPayload } = payload;
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
 
     const { data } = await this.workos.post<
       AuthenticationResponseResponse,
@@ -419,6 +498,7 @@ export class UserManagement {
       '/user_management/authenticate',
       serializeAuthenticateWithOrganizationSelectionOptions({
         ...remainingPayload,
+        clientId: resolvedClientId,
         clientSecret: this.workos.key,
       }),
     );
@@ -431,7 +511,7 @@ export class UserManagement {
 
   async authenticateWithSessionCookie({
     sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+    cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
   }: AuthenticateWithSessionCookieOptions): Promise<
     | AuthenticateWithSessionCookieSuccessResponse
     | AuthenticateWithSessionCookieFailedResponse
@@ -440,9 +520,13 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
-    if (!this.jwks) {
+    const jwks = await this.getJWKS();
+
+    if (!jwks) {
       throw new Error('Must provide clientId to initialize JWKS');
     }
+
+    const { decodeJwt } = await getJose();
 
     if (!sessionData) {
       return {
@@ -452,13 +536,9 @@ export class UserManagement {
       };
     }
 
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+    const session = await unsealData<SessionCookieData>(sessionData, {
+      password: cookiePassword,
+    });
 
     if (!session.accessToken) {
       return {
@@ -501,93 +581,27 @@ export class UserManagement {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    if (!this.jwks) {
+    const jwks = await this.getJWKS();
+    const { jwtVerify } = await getJose();
+    if (!jwks) {
       throw new Error('Must provide clientId to initialize JWKS');
     }
 
     try {
-      await jwtVerify(accessToken, this.jwks);
+      await jwtVerify(accessToken, jwks);
       return true;
     } catch (e) {
-      return false;
-    }
-  }
-
-  /**
-   * @deprecated This method is deprecated and will be removed in a future major version.
-   * Please use the new `loadSealedSession` helper and its corresponding methods instead.
-   */
-  async refreshAndSealSessionData({
-    sessionData,
-    organizationId,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<RefreshAndSealSessionDataResponse> {
-    if (!cookiePassword) {
-      throw new Error('Cookie password is required');
-    }
-
-    if (!sessionData) {
-      return {
-        authenticated: false,
-        reason:
-          RefreshAndSealSessionDataFailureReason.NO_SESSION_COOKIE_PROVIDED,
-      };
-    }
-
-    const session =
-      await this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
-
-    if (!session.refreshToken || !session.user) {
-      return {
-        authenticated: false,
-        reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
-      };
-    }
-
-    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
-      session.accessToken,
-    );
-
-    try {
-      const { sealedSession } = await this.authenticateWithRefreshToken({
-        clientId: this.workos.clientId as string,
-        refreshToken: session.refreshToken,
-        organizationId: organizationId ?? organizationIdFromAccessToken,
-        session: { sealSession: true, cookiePassword },
-      });
-
-      if (!sealedSession) {
-        return {
-          authenticated: false,
-          reason: RefreshAndSealSessionDataFailureReason.INVALID_SESSION_COOKIE,
-        };
-      }
-
-      return {
-        authenticated: true,
-        sealedSession,
-      };
-    } catch (error) {
+      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
+      // Network errors, crypto failures, etc. should propagate
       if (
-        error instanceof OauthException &&
-        // TODO: Add additional known errors and remove re-throw
-        (error.error === RefreshAndSealSessionDataFailureReason.INVALID_GRANT ||
-          error.error ===
-            RefreshAndSealSessionDataFailureReason.MFA_ENROLLMENT ||
-          error.error === RefreshAndSealSessionDataFailureReason.SSO_REQUIRED)
+        e instanceof Error &&
+        'code' in e &&
+        typeof e.code === 'string' &&
+        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
       ) {
-        return {
-          authenticated: false,
-          reason: error.error,
-        };
+        return false;
       }
-
-      throw error;
+      throw e;
     }
   }
 
@@ -599,6 +613,14 @@ export class UserManagement {
     session?: AuthenticateWithSessionOptions;
   }): Promise<AuthenticationResponse> {
     if (session?.sealSession) {
+      if (!this.workos.key) {
+        throw new Error(
+          'Session sealing requires server-side usage with an API key. ' +
+            'Public clients should store tokens directly ' +
+            '(e.g., secure storage on mobile, keychain on desktop).',
+        );
+      }
+
       return {
         ...authenticationResponse,
         sealedSession: await this.sealSessionDataFromAuthenticationResponse({
@@ -622,6 +644,8 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
+    const { decodeJwt } = await getJose();
+
     const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
       authenticationResponse.accessToken,
     );
@@ -635,26 +659,23 @@ export class UserManagement {
       impersonator: authenticationResponse.impersonator,
     };
 
-    return this.ironSessionProvider.sealData(sessionData, {
+    return sealData(sessionData, {
       password: cookiePassword,
     });
   }
 
   async getSessionFromCookie({
     sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
+    cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
   }: SessionHandlerOptions): Promise<SessionCookieData | undefined> {
     if (!cookiePassword) {
       throw new Error('Cookie password is required');
     }
 
     if (sessionData) {
-      return this.ironSessionProvider.unsealData<SessionCookieData>(
-        sessionData,
-        {
-          password: cookiePassword,
-        },
-      );
+      return unsealData<SessionCookieData>(sessionData, {
+        password: cookiePassword,
+      });
     }
 
     return undefined;
@@ -703,17 +724,6 @@ export class UserManagement {
     return deserializeMagicAuth(data);
   }
 
-  /**
-   * @deprecated Please use `createMagicAuth` instead.
-   * This method will be removed in a future major version.
-   */
-  async sendMagicAuthCode(options: SendMagicAuthCodeOptions): Promise<void> {
-    await this.workos.post<any, SerializedSendMagicAuthCodeOptions>(
-      '/user_management/magic_auth/send',
-      serializeSendMagicAuthCodeOptions(options),
-    );
-  }
-
   async verifyEmail({
     code,
     userId,
@@ -750,18 +760,6 @@ export class UserManagement {
     );
 
     return deserializePasswordReset(data);
-  }
-
-  /**
-   * @deprecated Please use `createPasswordReset` instead. This method will be removed in a future major version.
-   */
-  async sendPasswordResetEmail(
-    payload: SendPasswordResetEmailOptions,
-  ): Promise<void> {
-    await this.workos.post<any, SerializedSendPasswordResetEmailOptions>(
-      '/user_management/password_reset/send',
-      serializeSendPasswordResetEmailOptions(payload),
-    );
   }
 
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
@@ -809,7 +807,7 @@ export class UserManagement {
 
   async listAuthFactors(
     options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<Factor>> {
+  ): Promise<AutoPaginatable<Factor, PaginationOptions>> {
     const { userId, ...restOfOptions } = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<FactorResponse, Factor>(
@@ -855,7 +853,7 @@ export class UserManagement {
   async listSessions(
     userId: string,
     options?: ListSessionsOptions,
-  ): Promise<AutoPaginatable<Session>> {
+  ): Promise<AutoPaginatable<Session, SerializedListSessionsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<SessionResponse, Session>(
         this.workos,
@@ -902,7 +900,15 @@ export class UserManagement {
 
   async listOrganizationMemberships(
     options: ListOrganizationMembershipsOptions,
-  ): Promise<AutoPaginatable<OrganizationMembership>> {
+  ): Promise<
+    AutoPaginatable<
+      OrganizationMembership,
+      SerializedListOrganizationMembershipsOptions
+    >
+  > {
+    const serializedOptions =
+      serializeListOrganizationMembershipsOptions(options);
+
     return new AutoPaginatable(
       await fetchAndDeserialize<
         OrganizationMembershipResponse,
@@ -911,9 +917,7 @@ export class UserManagement {
         this.workos,
         '/user_management/organization_memberships',
         deserializeOrganizationMembership,
-        options
-          ? serializeListOrganizationMembershipsOptions(options)
-          : undefined,
+        serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<
@@ -925,9 +929,7 @@ export class UserManagement {
           deserializeOrganizationMembership,
           params,
         ),
-      options
-        ? serializeListOrganizationMembershipsOptions(options)
-        : undefined,
+      serializedOptions,
     );
   }
 
@@ -1008,7 +1010,7 @@ export class UserManagement {
 
   async listInvitations(
     options: ListInvitationsOptions,
-  ): Promise<AutoPaginatable<Invitation>> {
+  ): Promise<AutoPaginatable<Invitation, SerializedListInvitationsOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<InvitationResponse, Invitation>(
         this.workos,
@@ -1075,23 +1077,35 @@ export class UserManagement {
     );
   }
 
-  getAuthorizationUrl({
-    connectionId,
-    codeChallenge,
-    codeChallengeMethod,
-    context,
-    clientId,
-    domainHint,
-    loginHint,
-    organizationId,
-    provider,
-    providerQueryParams,
-    providerScopes,
-    prompt,
-    redirectUri,
-    state,
-    screenHint,
-  }: UserManagementAuthorizationURLOptions): string {
+  /**
+   * Generate an OAuth 2.0 authorization URL.
+   *
+   * For public clients (browser, mobile, CLI), include PKCE parameters:
+   * - Generate PKCE using workos.pkce.generate()
+   * - Pass codeChallenge and codeChallengeMethod here
+   * - Store codeVerifier and pass to authenticateWithCode() later
+   *
+   * Or use getAuthorizationUrlWithPKCE() which handles PKCE automatically.
+   */
+  getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
+    const {
+      connectionId,
+      codeChallenge,
+      codeChallengeMethod,
+      clientId,
+      domainHint,
+      loginHint,
+      organizationId,
+      provider,
+      providerQueryParams,
+      providerScopes,
+      prompt,
+      redirectUri,
+      state,
+      screenHint,
+    } = options;
+    const resolvedClientId = this.resolveClientId(clientId);
+
     if (!provider && !connectionId && !organizationId) {
       throw new TypeError(
         `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
@@ -1104,18 +1118,10 @@ export class UserManagement {
       );
     }
 
-    if (context) {
-      this.workos.emitWarning(
-        `\`context\` is deprecated. We previously required initiate login endpoints to return the
-\`context\` query parameter when getting the authorization URL. This is no longer necessary.`,
-      );
-    }
-
     const query = toQueryString({
       connection_id: connectionId,
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
-      context,
       organization_id: organizationId,
       domain_hint: domainHint,
       login_hint: loginHint,
@@ -1123,7 +1129,7 @@ export class UserManagement {
       provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
       prompt,
-      client_id: clientId,
+      client_id: resolvedClientId,
       redirect_uri: redirectUri,
       response_type: 'code',
       state,
@@ -1133,13 +1139,97 @@ export class UserManagement {
     return `${this.workos.baseURL}/user_management/authorize?${query}`;
   }
 
-  getLogoutUrl({
-    sessionId,
-    returnTo,
-  }: {
-    sessionId: string;
-    returnTo?: string;
-  }): string {
+  /**
+   * Generate an OAuth 2.0 authorization URL with automatic PKCE.
+   *
+   * This method generates PKCE parameters internally and returns them along with
+   * the authorization URL. Use this for public clients (CLI apps, Electron, mobile)
+   * that cannot securely store a client secret.
+   *
+   * @returns Object containing url, state, and codeVerifier
+   *
+   * @example
+   * ```typescript
+   * const { url, state, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
+   *   provider: 'authkit',
+   *   clientId: 'client_123',
+   *   redirectUri: 'myapp://callback',
+   * });
+   *
+   * // Store state and codeVerifier securely, then redirect user to url
+   * // After callback, exchange the code:
+   * const response = await workos.userManagement.authenticateWithCode({
+   *   code: authorizationCode,
+   *   codeVerifier,
+   *   clientId: 'client_123',
+   * });
+   * ```
+   */
+  async getAuthorizationUrlWithPKCE(
+    options: Omit<
+      UserManagementAuthorizationURLOptions,
+      'codeChallenge' | 'codeChallengeMethod' | 'state'
+    >,
+  ): Promise<PKCEAuthorizationURLResult> {
+    const {
+      clientId,
+      connectionId,
+      domainHint,
+      loginHint,
+      organizationId,
+      provider,
+      providerQueryParams,
+      providerScopes,
+      prompt,
+      redirectUri,
+      screenHint,
+    } = options;
+    const resolvedClientId = this.resolveClientId(clientId);
+
+    if (!provider && !connectionId && !organizationId) {
+      throw new TypeError(
+        `Incomplete arguments. Need to specify either a 'connectionId', 'organizationId', or 'provider'.`,
+      );
+    }
+
+    if (provider !== 'authkit' && screenHint) {
+      throw new TypeError(
+        `'screenHint' is only supported for 'authkit' provider`,
+      );
+    }
+
+    // Generate PKCE parameters
+    const pkce = await this.workos.pkce.generate();
+
+    // Generate secure random state
+    const state = this.workos.pkce.generateCodeVerifier(43);
+
+    const query = toQueryString({
+      connection_id: connectionId,
+      code_challenge: pkce.codeChallenge,
+      code_challenge_method: 'S256',
+      organization_id: organizationId,
+      domain_hint: domainHint,
+      login_hint: loginHint,
+      provider,
+      provider_query_params: providerQueryParams,
+      provider_scopes: providerScopes,
+      prompt,
+      client_id: resolvedClientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      state,
+      screen_hint: screenHint,
+    });
+
+    const url = `${this.workos.baseURL}/user_management/authorize?${query}`;
+
+    return { url, state, codeVerifier: pkce.codeVerifier };
+  }
+
+  getLogoutUrl(options: LogoutURLOptions): string {
+    const { sessionId, returnTo } = options;
+
     if (!sessionId) {
       throw new TypeError(`Incomplete arguments. Need to specify 'sessionId'.`);
     }
@@ -1157,35 +1247,9 @@ export class UserManagement {
     return url.toString();
   }
 
-  /**
-   * @deprecated This method is deprecated and will be removed in a future major version.
-   * Please use the `loadSealedSession` helper and its `getLogoutUrl` method instead.
-   *
-   * getLogoutUrlFromSessionCookie takes in session cookie data, unseals the cookie, decodes the JWT claims,
-   * and uses the session ID to generate the logout URL.
-   *
-   * Use this over `getLogoutUrl` if you'd like to the SDK to handle session cookies for you.
-   */
-  async getLogoutUrlFromSessionCookie({
-    sessionData,
-    cookiePassword = process.env.WORKOS_COOKIE_PASSWORD,
-  }: SessionHandlerOptions): Promise<string> {
-    const authenticationResponse = await this.authenticateWithSessionCookie({
-      sessionData,
-      cookiePassword,
-    });
-
-    if (!authenticationResponse.authenticated) {
-      const { reason } = authenticationResponse;
-      throw new Error(`Failed to extract session ID for logout URL: ${reason}`);
-    }
-
-    return this.getLogoutUrl({ sessionId: authenticationResponse.sessionId });
-  }
-
   getJwksUrl(clientId: string): string {
     if (!clientId) {
-      throw TypeError('clientId must be a valid clientId');
+      throw new TypeError('clientId must be a valid clientId');
     }
 
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;

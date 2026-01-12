@@ -3,15 +3,19 @@ import { FGAList } from '../interfaces/list.interface';
 import { Warning } from '../interfaces/warning.interface';
 import { PaginationOptions } from '../../common/interfaces';
 
-export class FgaPaginatable<T> extends AutoPaginatable<T> {
-  protected override list!: FGAList<T>;
+export class FgaPaginatable<
+  T,
+  P extends PaginationOptions = PaginationOptions,
+> extends AutoPaginatable<T, P> {
+  protected override list: FGAList<T>;
 
   constructor(
     list: FGAList<T>,
     apiCall: (params: PaginationOptions) => Promise<FGAList<T>>,
-    options?: PaginationOptions,
+    options?: P,
   ) {
     super(list, apiCall, options);
+    this.list = list;
   }
 
   get warnings(): Warning[] | undefined {
