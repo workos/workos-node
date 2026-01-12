@@ -76,12 +76,14 @@ import { WorkOS } from '@workos-inc/node/worker';
 If you're doing deep imports or have custom bundler configs, you may need adjustments. The internal file structure has changed to support dual builds.
 
 **Before (v7):**
+
 ```typescript
 // ❌ Deep imports no longer work
 import { NodeHttpClient } from '@workos-inc/node/lib/common/net/node-client';
 ```
 
 **After (v8):**
+
 ```typescript
 // ✅ Use the public API
 import { WorkOS } from '@workos-inc/node';
@@ -111,19 +113,21 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS({ clientId: 'client_123' });
 
 // Generate authorization URL with PKCE
-const { url, state, codeVerifier } = await workos.userManagement.getAuthorizationUrlWithPKCE({
-  redirectUri: 'myapp://callback',
-  provider: 'authkit',
-});
+const { url, state, codeVerifier } =
+  await workos.userManagement.getAuthorizationUrlWithPKCE({
+    redirectUri: 'myapp://callback',
+    provider: 'authkit',
+  });
 
 // Store codeVerifier securely (in-memory, secure storage, etc.)
 // Redirect user to url...
 
 // After user authenticates and you receive the code:
-const { accessToken, refreshToken, user } = await workos.userManagement.authenticateWithCode({
-  code: authCode,
-  codeVerifier, // Use the codeVerifier from earlier
-});
+const { accessToken, refreshToken, user } =
+  await workos.userManagement.authenticateWithCode({
+    code: authCode,
+    codeVerifier, // Use the codeVerifier from earlier
+  });
 ```
 
 **Option 2: Manual PKCE**
@@ -184,6 +188,7 @@ serverClient.userManagement.listUsers(); // ✅ Works
 ```
 
 **When to use:**
+
 - Use `createWorkOS()` for type safety when building public vs server apps
 - Use `new WorkOS()` if you don't need compile-time enforcement
 
@@ -198,21 +203,23 @@ serverClient.userManagement.listUsers(); // ✅ Works
 User fields are now in `customAttributes` to better match the API structure.
 
 **Before (v7):**
+
 ```typescript
 const user = await workos.directorySync.getUser({ user: 'directory_user_123' });
 
-console.log(user.emails);    // Primary email
-console.log(user.username);  // Username
-console.log(user.jobTitle);  // Job title
+console.log(user.emails); // Primary email
+console.log(user.username); // Username
+console.log(user.jobTitle); // Job title
 ```
 
 **After (v8):**
+
 ```typescript
 const user = await workos.directorySync.getUser({ user: 'directory_user_123' });
 
-console.log(user.customAttributes?.emails);    // Array of emails
-console.log(user.customAttributes?.username);  // Username
-console.log(user.customAttributes?.jobTitle);  // Job title
+console.log(user.customAttributes?.emails); // Array of emails
+console.log(user.customAttributes?.username); // Username
+console.log(user.customAttributes?.jobTitle); // Job title
 ```
 
 #### getPrimaryEmail() utility removed
@@ -220,6 +227,7 @@ console.log(user.customAttributes?.jobTitle);  // Job title
 The `getPrimaryEmail()` helper function has been removed.
 
 **Before (v7):**
+
 ```typescript
 import { getPrimaryEmail } from '@workos-inc/node';
 
@@ -227,6 +235,7 @@ const email = getPrimaryEmail(user);
 ```
 
 **After (v8):**
+
 ```typescript
 // Option 1: Access directly
 const primaryEmail = user.customAttributes?.emails?.[0];
@@ -246,30 +255,35 @@ Several methods have been removed. They were deprecated in v6 and v7.
 **sendMagicAuthCode() removed**
 
 **Before (v7):**
+
 ```typescript
 await workos.sendMagicAuthCode({ email: 'user@example.com' });
 ```
 
 **After (v8):**
+
 ```typescript
-await workos.userManagement.sendMagicCode({ email: 'user@example.com' });
+await workos.userManagement.createMagicAuth({ email: 'user@example.com' });
 ```
 
 **sendPasswordResetEmail() removed**
 
 **Before (v7):**
+
 ```typescript
 await workos.sendPasswordResetEmail({ email: 'user@example.com' });
 ```
 
 **After (v8):**
+
 ```typescript
-await workos.userManagement.sendPasswordResetEmail({ email: 'user@example.com' });
+await workos.userManagement.createPasswordReset({ email: 'user@example.com' });
 ```
 
 **refreshAndSealSessionData() removed**
 
 **Before (v7):**
+
 ```typescript
 const session = await workos.userManagement.refreshAndSealSessionData({
   sessionData: encryptedSession,
@@ -278,19 +292,16 @@ const session = await workos.userManagement.refreshAndSealSessionData({
 ```
 
 **After (v8):**
+
 ```typescript
-// Use the new session helper methods
-import { refreshSession, sealSession } from '@workos-inc/node';
-
-const refreshedSession = await refreshSession({
-  sessionData: session,
-  organizationId: 'org_123',
-});
-
-const sealed = await sealSession({
-  sessionData: refreshedSession,
+// Use loadSealedSession to get a CookieSession, then call refresh()
+const session = workos.userManagement.loadSealedSession({
+  sessionData: encryptedSession,
   cookiePassword: 'secret',
 });
+
+const result = await session.refresh({ organizationId: 'org_123' });
+// result.sealedSession contains the new sealed session data
 ```
 
 #### AuthorizationURLOptions: context field removed
@@ -298,6 +309,7 @@ const sealed = await sealSession({
 The `context` field is no longer supported.
 
 **Before (v7):**
+
 ```typescript
 const url = workos.userManagement.getAuthorizationUrl({
   provider: 'authkit',
@@ -307,6 +319,7 @@ const url = workos.userManagement.getAuthorizationUrl({
 ```
 
 **After (v8):**
+
 ```typescript
 const url = workos.userManagement.getAuthorizationUrl({
   provider: 'authkit',
@@ -321,12 +334,14 @@ const url = workos.userManagement.getAuthorizationUrl({
 You can no longer call `listOrganizationMemberships()` without parameters.
 
 **Before (v7):**
+
 ```typescript
 // ❌ No longer works
 const memberships = await workos.userManagement.listOrganizationMemberships();
 ```
 
 **After (v8):**
+
 ```typescript
 // ✅ Specify userId OR organizationId
 const memberships = await workos.userManagement.listOrganizationMemberships({
@@ -346,6 +361,7 @@ const memberships = await workos.userManagement.listOrganizationMemberships({
 Options are now a **discriminated union**. You must specify exactly one of: `connection`, `organization`, or `provider`.
 
 **Before (v7):**
+
 ```typescript
 // TypeScript allowed this, but it was ambiguous
 const url = workos.sso.getAuthorizationUrl({
@@ -356,6 +372,7 @@ const url = workos.sso.getAuthorizationUrl({
 ```
 
 **After (v8):**
+
 ```typescript
 // ✅ Specify exactly one
 const url = workos.sso.getAuthorizationUrl({
@@ -376,6 +393,7 @@ const url = workos.sso.getAuthorizationUrl({
 The deprecated `domain` field has been removed.
 
 **Before (v7):**
+
 ```typescript
 const url = workos.sso.getAuthorizationUrl({
   domain: 'example.com', // ❌ Removed
@@ -384,6 +402,7 @@ const url = workos.sso.getAuthorizationUrl({
 ```
 
 **After (v8):**
+
 ```typescript
 const url = workos.sso.getAuthorizationUrl({
   organization: 'org_123', // Use organization instead
@@ -398,17 +417,19 @@ const url = workos.sso.getAuthorizationUrl({
 Use `verifyChallenge()` instead (same functionality).
 
 **Before (v7):**
+
 ```typescript
 const result = await workos.mfa.verifyFactor({
-  authenticationFactorId: 'auth_factor_123',
+  authenticationChallengeId: 'auth_challenge_123',
   code: '123456',
 });
 ```
 
 **After (v8):**
+
 ```typescript
 const result = await workos.mfa.verifyChallenge({
-  authenticationFactorId: 'auth_factor_123',
+  authenticationChallengeId: 'auth_challenge_123',
   code: '123456',
 });
 ```
@@ -420,6 +441,7 @@ const result = await workos.mfa.verifyChallenge({
 **allowProfilesOutsideOrganization removed**
 
 **Before (v7):**
+
 ```typescript
 await workos.organizations.createOrganization({
   name: 'Acme Corp',
@@ -428,6 +450,7 @@ await workos.organizations.createOrganization({
 ```
 
 **After (v8):**
+
 ```typescript
 await workos.organizations.createOrganization({
   name: 'Acme Corp',
@@ -438,6 +461,7 @@ await workos.organizations.createOrganization({
 **domains field removed (use domainData instead)**
 
 **Before (v7):**
+
 ```typescript
 await workos.organizations.createOrganization({
   name: 'Acme Corp',
@@ -446,6 +470,7 @@ await workos.organizations.createOrganization({
 ```
 
 **After (v8):**
+
 ```typescript
 await workos.organizations.createOrganization({
   name: 'Acme Corp',
@@ -458,15 +483,19 @@ await workos.organizations.createOrganization({
 `LegacyVerified` removed from enum.
 
 **Before (v7):**
+
 ```typescript
-if (domain.state === 'legacy_verified') { // ❌ No longer exists
+if (domain.state === 'legacy_verified') {
+  // ❌ No longer exists
   // ...
 }
 ```
 
 **After (v8):**
+
 ```typescript
-if (domain.state === 'verified') { // ✅ Use 'verified'
+if (domain.state === 'verified') {
+  // ✅ Use 'verified'
   // ...
 }
 ```
@@ -478,7 +507,7 @@ if (domain.state === 'verified') { // ✅ Use 'verified'
 All `*Secret` methods removed. Use `*Object` methods instead.
 
 | Removed (v7)           | Use Instead (v8)       |
-|------------------------|------------------------|
+| ---------------------- | ---------------------- |
 | `createSecret()`       | `createObject()`       |
 | `listSecrets()`        | `listObjects()`        |
 | `listSecretVersions()` | `listObjectVersions()` |
@@ -488,6 +517,7 @@ All `*Secret` methods removed. Use `*Object` methods instead.
 | `deleteSecret()`       | `deleteObject()`       |
 
 **Before (v7):**
+
 ```typescript
 const secret = await workos.vault.createSecret({
   name: 'api-key',
@@ -496,6 +526,7 @@ const secret = await workos.vault.createSecret({
 ```
 
 **After (v8):**
+
 ```typescript
 const object = await workos.vault.createObject({
   name: 'api-key',
@@ -510,6 +541,7 @@ const object = await workos.vault.createObject({
 **dsync.deactivated removed**
 
 **Before (v7):**
+
 ```typescript
 if (event.event === 'dsync.deactivated') {
   // Handle deactivated event
@@ -517,8 +549,10 @@ if (event.event === 'dsync.deactivated') {
 ```
 
 **After (v8):**
+
 ```typescript
-if (event.event === 'dsync.deleted') { // ✅ Use dsync.deleted
+if (event.event === 'dsync.deleted') {
+  // ✅ Use dsync.deleted
   // Handle deleted event
 }
 ```
@@ -543,6 +577,7 @@ Internal classes like `NodeHttpClient`, `NodeCryptoProvider`, and iron-session p
 ### Build System Migration
 
 We migrated from `tsc` to `tsdown` for faster builds and better runtime compatibility. This doesn't affect usage but results in:
+
 - Smaller bundle sizes
 - Better tree-shaking
 - Improved compatibility with edge runtimes
