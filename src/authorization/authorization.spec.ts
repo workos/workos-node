@@ -246,12 +246,14 @@ describe('Authorization', () => {
     it('creates an organization role', async () => {
       fetchOnce(organizationRoleFixture, { status: 201 });
 
-      const role = await workos.authorization.createOrganizationRole({
-        organizationId: testOrgId,
-        slug: 'org-admin',
-        name: 'Org Admin',
-        description: 'Organization administrator',
-      });
+      const role = await workos.authorization.createOrganizationRole(
+        testOrgId,
+        {
+          slug: 'org-admin',
+          name: 'Org Admin',
+          description: 'Organization administrator',
+        },
+      );
 
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/roles`,
@@ -272,20 +274,23 @@ describe('Authorization', () => {
   });
 
   describe('listOrganizationRoles', () => {
-    it('returns organization roles', async () => {
+    it('returns both environment and organization roles', async () => {
       fetchOnce(listOrganizationRolesFixture);
 
-      const { data, object } = await workos.authorization.listOrganizationRoles(
-        { organizationId: testOrgId },
-      );
+      const { data, object } =
+        await workos.authorization.listOrganizationRoles(testOrgId);
 
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/roles`,
       );
       expect(object).toEqual('list');
-      expect(data).toHaveLength(2);
+      expect(data).toHaveLength(3);
       expect(data).toEqual(
         expect.arrayContaining([
+          expect.objectContaining({
+            slug: 'admin',
+            type: 'EnvironmentRole',
+          }),
           expect.objectContaining({
             slug: 'org-admin',
             type: 'OrganizationRole',
@@ -301,8 +306,7 @@ describe('Authorization', () => {
     it('passes expand parameter', async () => {
       fetchOnce(listOrganizationRolesFixture);
 
-      await workos.authorization.listOrganizationRoles({
-        organizationId: testOrgId,
+      await workos.authorization.listOrganizationRoles(testOrgId, {
         expand: 'permissions',
       });
 

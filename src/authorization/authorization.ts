@@ -1,5 +1,11 @@
 import { WorkOS } from '../workos';
 import {
+  Role,
+  RoleList,
+  OrganizationRoleResponse,
+  ListOrganizationRolesResponse,
+} from '../roles/interfaces';
+import {
   EnvironmentRole,
   EnvironmentRoleResponse,
   EnvironmentRoleList,
@@ -8,9 +14,6 @@ import {
   UpdateEnvironmentRoleOptions,
   ListEnvironmentRolesOptions,
   OrganizationRole,
-  OrganizationRoleResponse,
-  OrganizationRoleList,
-  OrganizationRoleListResponse,
   CreateOrganizationRoleOptions,
   UpdateOrganizationRoleOptions,
   ListOrganizationRolesOptions,
@@ -19,6 +22,7 @@ import {
   deserializeEnvironmentRole,
   serializeCreateEnvironmentRoleOptions,
   serializeUpdateEnvironmentRoleOptions,
+  deserializeRole,
   deserializeOrganizationRole,
   serializeCreateOrganizationRoleOptions,
   serializeUpdateOrganizationRoleOptions,
@@ -95,9 +99,9 @@ export class Authorization {
   // === Organization Roles ===
 
   async createOrganizationRole(
+    organizationId: string,
     options: CreateOrganizationRoleOptions,
   ): Promise<OrganizationRole> {
-    const { organizationId, ...payload } = options;
     const { data } = await this.workos.post<OrganizationRoleResponse>(
       `/authorization/organizations/${organizationId}/roles`,
       serializeCreateOrganizationRoleOptions(options),
@@ -106,27 +110,27 @@ export class Authorization {
   }
 
   async listOrganizationRoles(
-    options: ListOrganizationRolesOptions,
-  ): Promise<OrganizationRoleList> {
-    const { organizationId, ...query } = options;
-    const { data } = await this.workos.get<OrganizationRoleListResponse>(
+    organizationId: string,
+    options?: ListOrganizationRolesOptions,
+  ): Promise<RoleList> {
+    const { data } = await this.workos.get<ListOrganizationRolesResponse>(
       `/authorization/organizations/${organizationId}/roles`,
-      { query },
+      { query: options },
     );
     return {
       object: 'list',
-      data: data.data.map(deserializeOrganizationRole),
+      data: data.data.map(deserializeRole),
     };
   }
 
   async getOrganizationRole(
     organizationId: string,
     slug: string,
-  ): Promise<OrganizationRole> {
+  ): Promise<Role> {
     const { data } = await this.workos.get<OrganizationRoleResponse>(
       `/authorization/organizations/${organizationId}/roles/${slug}`,
     );
-    return deserializeOrganizationRole(data);
+    return deserializeRole(data);
   }
 
   async updateOrganizationRole(
