@@ -1,0 +1,11 @@
+{
+  "object": "role",
+  "id": "role_01HXYZ123ABC456DEF789GHI",
+  "name": "Admin",
+  "slug": "admin",
+  "description": "Full administrative access",
+  "permissions": ["users:read", "users:write", "settings:manage"],
+  "type": "EnvironmentRole",
+  "created_at": "2024-01-15T09:30:00.000Z",
+  "updated_at": "2024-01-15T09:30:00.000Z"
+}
