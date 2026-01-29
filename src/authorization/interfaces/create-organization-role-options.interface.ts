@@ -1,5 +1,4 @@
 export interface CreateOrganizationRoleOptions {
-  organizationId: string;
   slug: string;
   name: string;
   description?: string;
