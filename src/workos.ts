@@ -11,6 +11,7 @@ import { PKCE } from './pkce/pkce';
 import {
   GetOptions,
   HttpClientResponseInterface,
+  PatchOptions,
   PostOptions,
   PutOptions,
   WorkOSOptions,
@@ -38,6 +39,7 @@ import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
+import { Authorization } from './authorization/authorization';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
@@ -66,6 +68,7 @@ export class WorkOS {
   readonly actions: Actions;
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
+  readonly authorization = new Authorization(this);
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
@@ -320,6 +323,42 @@ export class WorkOS {
 
     try {
       res = await this.client.put<Entity>(path, entity, {
+        params: options.query,
+        headers: requestHeaders,
+      });
+    } catch (error) {
+      this.handleHttpError({ path, error });
+
+      throw error;
+    }
+
+    try {
+      return { data: await res.toJSON() };
+    } catch (error) {
+      await this.handleParseError(error, res);
+      throw error;
+    }
+  }
+
+  async patch<Result = any, Entity = any>(
+    path: string,
+    entity: Entity,
+    options: PatchOptions = {},
+  ): Promise<{ data: Result }> {
+    if (!options.skipApiKeyCheck) {
+      this.requireApiKey(path);
+    }
+
+    const requestHeaders: Record<string, string> = {};
+
+    if (options.idempotencyKey) {
+      requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
+    }
+
+    let res: HttpClientResponseInterface;
+
+    try {
+      res = await this.client.patch<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
       });

@@ -39,6 +39,12 @@ export abstract class HttpClient implements HttpClientInterface {
     options: RequestOptions,
   ): Promise<HttpClientResponseInterface>;
 
+  abstract patch<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
+
   abstract delete(
     path: string,
     options: RequestOptions,

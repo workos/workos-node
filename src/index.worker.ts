@@ -9,6 +9,7 @@ import { WorkOS } from './workos';
 
 export * from './actions/interfaces';
 export * from './audit-logs/interfaces';
+export * from './authorization/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';

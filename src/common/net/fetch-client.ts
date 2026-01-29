@@ -131,6 +131,40 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     }
   }
 
+  async patch<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
+    const resourceURL = HttpClient.getResourceURL(
+      this.baseURL,
+      path,
+      options.params,
+    );
+
+    if (HttpClient.isPathRetryable(path)) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'PATCH',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'PATCH',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
+  }
+
   async delete(
     path: string,
     options: RequestOptions,
