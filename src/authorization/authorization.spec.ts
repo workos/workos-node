@@ -96,7 +96,7 @@ describe('Authorization', () => {
       fetchOnce(listEnvironmentRolesFixture);
 
       await workos.authorization.listEnvironmentRoles({
-        expand: ['permissions'],
+        expand: 'permissions',
       });
 
       expect(fetchSearchParams()).toEqual({

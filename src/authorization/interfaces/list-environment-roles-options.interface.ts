@@ -1,3 +1,3 @@
 export interface ListEnvironmentRolesOptions {
-  expand?: ('permissions')[];
+  expand?: 'permissions';
 }
