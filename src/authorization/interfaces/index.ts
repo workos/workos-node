@@ -2,3 +2,7 @@ export * from './environment-role.interface';
 export * from './create-environment-role-options.interface';
 export * from './update-environment-role-options.interface';
 export * from './list-environment-roles-options.interface';
+export * from './organization-role.interface';
+export * from './create-organization-role-options.interface';
+export * from './update-organization-role-options.interface';
+export * from './list-organization-roles-options.interface';
