@@ -39,7 +39,11 @@ describe('Authorization', () => {
         type: 'EnvironmentRole',
       });
       expect(role.permissions).toEqual(
-        expect.arrayContaining(['users:read', 'users:write', 'settings:manage']),
+        expect.arrayContaining([
+          'users:read',
+          'users:write',
+          'settings:manage',
+        ]),
       );
     });
 
