@@ -4,3 +4,6 @@ export * from './update-environment-role-options.serializer';
 export * from './organization-role.serializer';
 export * from './create-organization-role-options.serializer';
 export * from './update-organization-role-options.serializer';
+export * from './permission.serializer';
+export * from './create-permission-options.serializer';
+export * from './update-permission-options.serializer';
