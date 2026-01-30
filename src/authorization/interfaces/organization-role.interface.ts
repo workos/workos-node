@@ -1,7 +1,3 @@
-/**
- * A role scoped to a specific organization.
- * Distinct from EnvironmentRole which applies environment-wide.
- */
 export interface OrganizationRole {
   object: 'role';
   id: string;
