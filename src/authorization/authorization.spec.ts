@@ -240,8 +240,6 @@ describe('Authorization', () => {
     });
   });
 
-  // === Organization Roles ===
-
   describe('createOrganizationRole', () => {
     it('creates an organization role', async () => {
       fetchOnce(organizationRoleFixture, { status: 201 });
