@@ -33,8 +33,6 @@ import {
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
 
-  // === Environment Roles ===
-
   async createEnvironmentRole(
     options: CreateEnvironmentRoleOptions,
   ): Promise<EnvironmentRole> {
@@ -97,8 +95,6 @@ export class Authorization {
     );
     return deserializeEnvironmentRole(data);
   }
-
-  // === Organization Roles ===
 
   async createOrganizationRole(
     organizationId: string,
