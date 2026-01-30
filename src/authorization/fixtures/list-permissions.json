@@ -1,0 +1,29 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "permission",
+      "id": "perm_01HXYZ123ABC456DEF789GHI",
+      "slug": "users:read",
+      "name": "Read Users",
+      "description": "Allows reading user data",
+      "system": false,
+      "created_at": "2024-01-15T08:00:00.000Z",
+      "updated_at": "2024-01-15T08:00:00.000Z"
+    },
+    {
+      "object": "permission",
+      "id": "perm_01HXYZ123ABC456DEF789GHJ",
+      "slug": "users:write",
+      "name": "Write Users",
+      "description": null,
+      "system": true,
+      "created_at": "2024-01-15T09:00:00.000Z",
+      "updated_at": "2024-01-15T09:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": "perm_01HXYZ123ABC456DEF789GHJ"
+  }
+}

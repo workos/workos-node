@@ -1,0 +1,10 @@
+{
+  "object": "permission",
+  "id": "perm_01HXYZ123ABC456DEF789GHI",
+  "slug": "users:read",
+  "name": "Read Users",
+  "description": "Allows reading user data",
+  "system": false,
+  "created_at": "2024-01-15T08:00:00.000Z",
+  "updated_at": "2024-01-15T08:00:00.000Z"
+}

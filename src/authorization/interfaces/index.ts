@@ -6,3 +6,7 @@ export * from './organization-role.interface';
 export * from './create-organization-role-options.interface';
 export * from './update-organization-role-options.interface';
 export * from './list-organization-roles-options.interface';
+export * from './permission.interface';
+export * from './create-permission-options.interface';
+export * from './update-permission-options.interface';
+export * from './list-permissions-options.interface';
