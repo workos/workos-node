@@ -41,7 +41,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@workos-inc/node": "^8.0.0",
     "iron-webcrypto": "^2.0.0",
     "jose": "~6.1.0"
   },
