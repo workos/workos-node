@@ -47,29 +47,20 @@ const schema: CreateAuditLogSchemaOptions = {
   action: 'user.logged_in',
   actor: {
     metadata: {
-      type: 'object',
-      properties: {
-        actor_id: { type: 'string' },
-      },
+      actor_id: 'string',
     },
   },
   targets: [
     {
       type: 'user',
       metadata: {
-        type: 'object',
-        properties: {
-          user_id: { type: 'string' },
-        },
+        user_id: 'string',
       },
     },
   ],
   metadata: {
-    type: 'object',
-    properties: {
-      foo: { type: 'number' },
-      baz: { type: 'boolean' },
-    },
+    foo: 'number',
+    baz: 'boolean',
   },
 };
 
@@ -587,6 +578,29 @@ describe('AuditLogs', () => {
 
         const time = new Date().toISOString();
 
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: {
+            foo: 'number',
+            baz: 'boolean',
+          },
+          createdAt: time,
+        };
+
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
@@ -596,7 +610,9 @@ describe('AuditLogs', () => {
               metadata: {
                 type: 'object',
                 properties: {
-                  user_id: { type: 'string' },
+                  user_id: {
+                    type: 'string',
+                  },
                 },
               },
             },
@@ -605,27 +621,24 @@ describe('AuditLogs', () => {
             metadata: {
               type: 'object',
               properties: {
-                actor_id: { type: 'string' },
+                actor_id: {
+                  type: 'string',
+                },
               },
             },
           },
           metadata: {
             type: 'object',
             properties: {
-              foo: { type: 'number' },
-              baz: { type: 'boolean' },
+              foo: {
+                type: 'number',
+              },
+              baz: {
+                type: 'boolean',
+              },
             },
           },
           created_at: time,
-        };
-
-        const createSchemaResult: AuditLogSchema = {
-          object: 'audit_log_schema',
-          version: 1,
-          targets: createSchemaResponse.targets,
-          actor: createSchemaResponse.actor,
-          metadata: createSchemaResponse.metadata,
-          createdAt: time,
         };
 
         workosSpy.mockResolvedValueOnce(
@@ -654,6 +667,26 @@ describe('AuditLogs', () => {
 
         const time = new Date().toISOString();
 
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: undefined,
+          createdAt: time,
+        };
+
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
@@ -663,7 +696,9 @@ describe('AuditLogs', () => {
               metadata: {
                 type: 'object',
                 properties: {
-                  user_id: { type: 'string' },
+                  user_id: {
+                    type: 'string',
+                  },
                 },
               },
             },
@@ -672,20 +707,13 @@ describe('AuditLogs', () => {
             metadata: {
               type: 'object',
               properties: {
-                actor_id: { type: 'string' },
+                actor_id: {
+                  type: 'string',
+                },
               },
             },
           },
           created_at: time,
-        };
-
-        const createSchemaResult: AuditLogSchema = {
-          object: 'audit_log_schema',
-          version: 1,
-          targets: createSchemaResponse.targets,
-          actor: createSchemaResponse.actor,
-          metadata: undefined,
-          createdAt: time,
         };
 
         workosSpy.mockResolvedValueOnce(
@@ -712,6 +740,29 @@ describe('AuditLogs', () => {
 
         const time = new Date().toISOString();
 
+        const createSchemaResult: AuditLogSchema = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: {
+            foo: 'number',
+            baz: 'boolean',
+          },
+          createdAt: time,
+        };
+
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
@@ -721,7 +772,9 @@ describe('AuditLogs', () => {
               metadata: {
                 type: 'object',
                 properties: {
-                  user_id: { type: 'string' },
+                  user_id: {
+                    type: 'string',
+                  },
                 },
               },
             },
@@ -730,27 +783,24 @@ describe('AuditLogs', () => {
             metadata: {
               type: 'object',
               properties: {
-                actor_id: { type: 'string' },
+                actor_id: {
+                  type: 'string',
+                },
               },
             },
           },
           metadata: {
             type: 'object',
             properties: {
-              foo: { type: 'number' },
-              baz: { type: 'boolean' },
+              foo: {
+                type: 'number',
+              },
+              baz: {
+                type: 'boolean',
+              },
             },
           },
           created_at: time,
-        };
-
-        const createSchemaResult: AuditLogSchema = {
-          object: 'audit_log_schema',
-          version: 1,
-          targets: createSchemaResponse.targets,
-          actor: createSchemaResponse.actor,
-          metadata: createSchemaResponse.metadata,
-          createdAt: time,
         };
 
         workosSpy.mockResolvedValueOnce(
@@ -856,9 +906,22 @@ describe('AuditLogs', () => {
         expect(result.data[0]).toEqual({
           object: 'audit_log_schema',
           version: 1,
-          targets: schemaResponse.targets,
-          actor: schemaResponse.actor,
-          metadata: schemaResponse.metadata,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                user_id: 'string',
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              actor_id: 'string',
+            },
+          },
+          metadata: {
+            foo: 'number',
+          },
           createdAt: time,
         });
 
