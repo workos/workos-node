@@ -1,11 +1,16 @@
 import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
+  AuditLogConfiguration,
+  AuditLogConfigurationResponse,
+  AuditLogRetention,
+  AuditLogRetentionResponse,
   CreateOrganizationOptions,
   CreateOrganizationRequestOptions,
   ListOrganizationsOptions,
   Organization,
   OrganizationResponse,
+  SetAuditLogRetentionOptions,
   UpdateOrganizationOptions,
 } from './interfaces';
 import {
@@ -13,6 +18,8 @@ import {
   FeatureFlagResponse,
 } from '../feature-flags/interfaces/feature-flag.interface';
 import {
+  deserializeAuditLogConfiguration,
+  deserializeAuditLogRetention,
   deserializeOrganization,
   serializeCreateOrganizationOptions,
   serializeUpdateOrganizationOptions,
@@ -186,5 +193,57 @@ export class Organizations {
     );
 
     return deserializeCreatedApiKey(data);
+  }
+
+  /**
+   * Gets the audit log retention period for an organization.
+   *
+   * @param organizationId - The ID of the organization
+   * @returns The audit log retention configuration
+   */
+  async getAuditLogRetention(
+    organizationId: string,
+  ): Promise<AuditLogRetention> {
+    const { data } = await this.workos.get<AuditLogRetentionResponse>(
+      `/organizations/${organizationId}/audit_logs_retention`,
+    );
+
+    return deserializeAuditLogRetention(data);
+  }
+
+  /**
+   * Sets the audit log retention period for an organization.
+   *
+   * @param options - Options including organizationId and retentionPeriodInDays (30 or 365)
+   * @returns The updated audit log retention configuration
+   */
+  async setAuditLogRetention(
+    options: SetAuditLogRetentionOptions,
+  ): Promise<AuditLogRetention> {
+    const { organizationId, retentionPeriodInDays } = options;
+
+    const { data } = await this.workos.put<AuditLogRetentionResponse>(
+      `/organizations/${organizationId}/audit_logs_retention`,
+      { retention_period_in_days: retentionPeriodInDays },
+    );
+
+    return deserializeAuditLogRetention(data);
+  }
+
+  /**
+   * Gets the complete audit log configuration for an organization.
+   * Includes retention period, state, and optional log stream configuration.
+   *
+   * @param organizationId - The ID of the organization
+   * @returns The complete audit log configuration
+   */
+  async getAuditLogConfiguration(
+    organizationId: string,
+  ): Promise<AuditLogConfiguration> {
+    const { data } = await this.workos.get<AuditLogConfigurationResponse>(
+      `/organizations/${organizationId}/audit_log_configuration`,
+    );
+
+    return deserializeAuditLogConfiguration(data);
   }
 }

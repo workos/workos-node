@@ -1,6 +1,7 @@
 import fetch from 'jest-fetch-mock';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
+import { ListResponse } from '../common/interfaces';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
 import { WorkOS } from '../workos';
 import {
@@ -841,6 +842,126 @@ describe('AuditLogs', () => {
         await expect(workos.auditLogs.createSchema(schema)).rejects.toThrow(
           BadRequestException,
         );
+      });
+    });
+  });
+
+  describe('listSchemas', () => {
+    describe('when the api responds with a 200', () => {
+      it('returns a paginated list of schemas', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const time = new Date().toISOString();
+
+        const schemaResponse: CreateAuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                type: 'object',
+                properties: {
+                  user_id: { type: 'string' },
+                },
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              type: 'object',
+              properties: {
+                actor_id: { type: 'string' },
+              },
+            },
+          },
+          metadata: {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          created_at: time,
+        };
+
+        const listResponse: ListResponse<CreateAuditLogSchemaResponse> = {
+          object: 'list',
+          data: [schemaResponse],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.auditLogs.listSchemas({
+          action: 'user.logged_in',
+        });
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0]).toEqual({
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [{ type: 'user', metadata: { user_id: 'string' } }],
+          actor: { metadata: { actor_id: 'string' } },
+          metadata: { foo: 'number' },
+          createdAt: time,
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          { query: { order: 'desc' } },
+        );
+      });
+    });
+
+    describe('with pagination options', () => {
+      it('passes pagination parameters to the API', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const listResponse: ListResponse<CreateAuditLogSchemaResponse> = {
+          object: 'list',
+          data: [],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.listSchemas({
+          action: 'user.logged_in',
+          limit: 10,
+          after: 'cursor_123',
+          order: 'asc',
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          { query: { limit: 10, after: 'cursor_123', order: 'asc' } },
+        );
+      });
+    });
+
+    describe('when the api responds with a 401', () => {
+      it('throws an UnauthorizedException', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        workosSpy.mockImplementationOnce(() => {
+          throw new UnauthorizedException('a-request-id');
+        });
+
+        const workos = new WorkOS('invalid apikey');
+
+        await expect(
+          workos.auditLogs.listSchemas({ action: 'user.logged_in' }),
+        ).rejects.toThrow(UnauthorizedException);
       });
     });
   });
