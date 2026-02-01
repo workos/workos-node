@@ -1,70 +1,61 @@
 import { PostOptions } from '../../common/interfaces';
 
-export type AuditLogSchemaMetadata =
-  | Record<string, { type: 'string' | 'boolean' | 'number' }>
-  | undefined;
+/**
+ * JSON Schema definition for metadata fields.
+ * This is the raw JSON schema format expected by the API.
+ */
+export type JsonSchemaDefinition = Record<string, unknown>;
 
+/**
+ * Audit log schema returned by the API.
+ */
 export interface AuditLogSchema {
   object: 'audit_log_schema';
   version: number;
-  targets: AuditLogTargetSchema[];
-  actor: AuditLogActorSchema;
-  metadata: Record<string, string | boolean | number> | undefined;
+  targets: AuditLogSchemaTarget[];
+  actor?: AuditLogSchemaActor;
+  metadata?: JsonSchemaDefinition;
   createdAt: string;
 }
 
-export interface AuditLogActorSchema {
-  metadata: Record<string, string | boolean | number>;
+export interface AuditLogSchemaActor {
+  metadata: JsonSchemaDefinition;
 }
 
-export interface AuditLogTargetSchema {
+export interface AuditLogSchemaTarget {
   type: string;
-  metadata?: Record<string, string | boolean | number> | undefined;
+  metadata?: JsonSchemaDefinition;
 }
 
+/**
+ * Options for creating an audit log schema.
+ * Metadata fields accept raw JSON schema definitions.
+ */
 export interface CreateAuditLogSchemaOptions {
   action: string;
-  targets: AuditLogTargetSchema[];
-  actor?: AuditLogActorSchema;
-  metadata?: Record<string, string | boolean | number>;
+  targets: AuditLogSchemaTarget[];
+  actor?: AuditLogSchemaActor;
+  metadata?: JsonSchemaDefinition;
 }
 
-interface SerializedAuditLogTargetSchema {
-  type: string;
-  metadata?: {
-    type: 'object';
-    properties: AuditLogSchemaMetadata;
-  };
-}
-
+/**
+ * Serialized request body sent to the API.
+ */
 export interface SerializedCreateAuditLogSchemaOptions {
-  targets: SerializedAuditLogTargetSchema[];
-  actor?: {
-    metadata: {
-      type: 'object';
-      properties: AuditLogSchemaMetadata;
-    };
-  };
-  metadata?: {
-    type: 'object';
-    properties: AuditLogSchemaMetadata;
-  };
+  targets: AuditLogSchemaTarget[];
+  actor?: AuditLogSchemaActor;
+  metadata?: JsonSchemaDefinition;
 }
 
+/**
+ * API response for creating an audit log schema.
+ */
 export interface CreateAuditLogSchemaResponse {
   object: 'audit_log_schema';
   version: number;
-  targets: SerializedAuditLogTargetSchema[];
-  actor: {
-    metadata: {
-      type: 'object';
-      properties: AuditLogSchemaMetadata;
-    };
-  };
-  metadata?: {
-    type: 'object';
-    properties: AuditLogSchemaMetadata;
-  };
+  targets: AuditLogSchemaTarget[];
+  actor?: AuditLogSchemaActor;
+  metadata?: JsonSchemaDefinition;
   created_at: string;
 }
 

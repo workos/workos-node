@@ -3,11 +3,8 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
-  AuditLogAction,
-  AuditLogActionResponse,
   CreateAuditLogEventOptions,
   CreateAuditLogEventRequestOptions,
-  ListActionsOptions,
   ListSchemasOptions,
 } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
@@ -22,12 +19,16 @@ import {
   CreateAuditLogSchemaResponse,
 } from './interfaces/create-audit-log-schema-options.interface';
 import {
-  deserializeAuditLogAction,
+  ListAuditLogSchemaItemResponse,
+  ListedAuditLogSchema,
+} from './interfaces/list-audit-log-schemas.interface';
+import {
   deserializeAuditLogExport,
+  deserializeAuditLogSchema,
+  deserializeListedAuditLogSchema,
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
   serializeCreateAuditLogSchemaOptions,
-  deserializeAuditLogSchema,
 } from './serializers';
 
 export class AuditLogs {
@@ -94,51 +95,25 @@ export class AuditLogs {
    */
   async listSchemas(
     options: ListSchemasOptions,
-  ): Promise<AutoPaginatable<AuditLogSchema, ListSchemasOptions>> {
+  ): Promise<AutoPaginatable<ListedAuditLogSchema, ListSchemasOptions>> {
     const { action, ...paginationOptions } = options;
     const endpoint = `/audit_logs/actions/${action}/schemas`;
 
     return new AutoPaginatable(
-      await fetchAndDeserialize<CreateAuditLogSchemaResponse, AuditLogSchema>(
+      await fetchAndDeserialize<
+        ListAuditLogSchemaItemResponse,
+        ListedAuditLogSchema
+      >(
         this.workos,
         endpoint,
-        deserializeAuditLogSchema,
+        deserializeListedAuditLogSchema,
         paginationOptions,
       ),
       (params: PaginationOptions) =>
-        fetchAndDeserialize<CreateAuditLogSchemaResponse, AuditLogSchema>(
-          this.workos,
-          endpoint,
-          deserializeAuditLogSchema,
-          params,
-        ),
-      options,
-    );
-  }
-
-  /**
-   * Lists all audit log actions in the current environment.
-   *
-   * @param options - Optional pagination parameters
-   * @returns A paginated list of audit log actions
-   */
-  async listActions(
-    options?: ListActionsOptions,
-  ): Promise<AutoPaginatable<AuditLogAction, ListActionsOptions>> {
-    return new AutoPaginatable(
-      await fetchAndDeserialize<AuditLogActionResponse, AuditLogAction>(
-        this.workos,
-        '/audit_logs/actions',
-        deserializeAuditLogAction,
-        options,
-      ),
-      (params: PaginationOptions) =>
-        fetchAndDeserialize<AuditLogActionResponse, AuditLogAction>(
-          this.workos,
-          '/audit_logs/actions',
-          deserializeAuditLogAction,
-          params,
-        ),
+        fetchAndDeserialize<
+          ListAuditLogSchemaItemResponse,
+          ListedAuditLogSchema
+        >(this.workos, endpoint, deserializeListedAuditLogSchema, params),
       options,
     );
   }

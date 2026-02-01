@@ -1,5 +1,3 @@
-export * from './audit-log-configuration.interface';
-export * from './audit-log-retention.interface';
 export * from './create-organization-options.interface';
 export * from './domain-data.interface';
 export * from './list-organization-feature-flags-options.interface';
