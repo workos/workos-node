@@ -5,6 +5,7 @@ import { ListResponse } from '../common/interfaces';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
 import { WorkOS } from '../workos';
 import {
+  AuditLogActionResponse,
   AuditLogExport,
   AuditLogExportOptions,
   AuditLogExportResponse,
@@ -962,6 +963,99 @@ describe('AuditLogs', () => {
         await expect(
           workos.auditLogs.listSchemas({ action: 'user.logged_in' }),
         ).rejects.toThrow(UnauthorizedException);
+      });
+    });
+  });
+
+  describe('listActions', () => {
+    describe('when the api responds with a 200', () => {
+      it('returns a paginated list of actions', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const actionResponse: AuditLogActionResponse = {
+          object: 'audit_log_action',
+          name: 'user.logged_in',
+        };
+
+        const listResponse: ListResponse<AuditLogActionResponse> = {
+          object: 'list',
+          data: [
+            actionResponse,
+            { object: 'audit_log_action', name: 'user.signed_out' },
+          ],
+          list_metadata: {
+            before: undefined,
+            after: 'cursor_next',
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.auditLogs.listActions();
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0]).toEqual({
+          object: 'audit_log_action',
+          name: 'user.logged_in',
+        });
+        expect(result.data[1]).toEqual({
+          object: 'audit_log_action',
+          name: 'user.signed_out',
+        });
+        expect(result.listMetadata).toMatchObject({
+          after: 'cursor_next',
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith('/audit_logs/actions', {
+          query: { order: 'desc' },
+        });
+      });
+    });
+
+    describe('with pagination options', () => {
+      it('passes pagination parameters to the API', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const listResponse: ListResponse<AuditLogActionResponse> = {
+          object: 'list',
+          data: [],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.listActions({
+          limit: 5,
+          after: 'cursor_abc',
+          order: 'asc',
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith('/audit_logs/actions', {
+          query: { limit: 5, after: 'cursor_abc', order: 'asc' },
+        });
+      });
+    });
+
+    describe('when the api responds with a 401', () => {
+      it('throws an UnauthorizedException', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        workosSpy.mockImplementationOnce(() => {
+          throw new UnauthorizedException('a-request-id');
+        });
+
+        const workos = new WorkOS('invalid apikey');
+
+        await expect(workos.auditLogs.listActions()).rejects.toThrow(
+          UnauthorizedException,
+        );
       });
     });
   });
