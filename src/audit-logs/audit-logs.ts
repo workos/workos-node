@@ -19,7 +19,7 @@ import {
 import {
   CreateAuditLogSchemaResponse,
   CreateAuditLogSchemaRequestOptions,
-  CreateAuditLogSchemaOptions
+  CreateAuditLogSchemaOptions,
 } from './interfaces/create-audit-log-schema-options.interface';
 import {
   deserializeAuditLogExport,
