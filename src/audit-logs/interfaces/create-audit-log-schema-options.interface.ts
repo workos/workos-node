@@ -1,7 +1,6 @@
 import { PostOptions } from '../../common/interfaces';
 
-// Re-export common types for backward compatibility
-export {
+export type {
   AuditLogSchema,
   AuditLogSchemaResponse,
   AuditLogSchemaMetadata,
@@ -16,9 +15,6 @@ import type {
   AuditLogTargetSchema,
 } from './audit-log-schema.interface';
 
-/**
- * Options for creating a new audit log schema.
- */
 export interface CreateAuditLogSchemaOptions {
   action: string;
   targets: AuditLogTargetSchema[];
@@ -34,9 +30,6 @@ interface SerializedAuditLogTargetSchema {
   };
 }
 
-/**
- * Serialized format for creating audit log schema (sent to API).
- */
 export interface SerializedCreateAuditLogSchemaOptions {
   targets: SerializedAuditLogTargetSchema[];
   actor?: {
