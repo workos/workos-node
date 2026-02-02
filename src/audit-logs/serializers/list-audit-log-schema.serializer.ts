@@ -23,21 +23,21 @@ function deserializeMetadata(metadata?: {
 }
 
 export const deserializeListedAuditLogSchema = (
-  schema: ListAuditLogSchemaItemResponse,
+  auditLogSchema: ListAuditLogSchemaItemResponse,
 ): ListedAuditLogSchema => ({
-  object: schema.object,
-  version: schema.version,
-  targets: schema.targets.map((target) => ({
+  object: auditLogSchema.object,
+  version: auditLogSchema.version,
+  targets: auditLogSchema.targets.map((target) => ({
     type: target.type,
     metadata: target.metadata
       ? deserializeMetadata(target.metadata)
       : undefined,
   })),
-  actor: schema.actor
+  actor: auditLogSchema.actor
     ? {
-        metadata: deserializeMetadata(schema.actor.metadata) ?? {},
+        metadata: deserializeMetadata(auditLogSchema.actor.metadata) ?? {},
       }
     : undefined,
-  metadata: deserializeMetadata(schema.metadata),
-  createdAt: schema.created_at,
+  metadata: deserializeMetadata(auditLogSchema.metadata),
+  createdAt: auditLogSchema.created_at,
 });

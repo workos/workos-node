@@ -87,12 +87,6 @@ export class AuditLogs {
     return deserializeAuditLogSchema(data);
   }
 
-  /**
-   * Lists all schemas for a specific audit log action.
-   *
-   * @param options - Options including the action identifier and pagination parameters
-   * @returns A paginated list of audit log schemas
-   */
   async listSchemas(
     options: ListSchemasOptions,
   ): Promise<AutoPaginatable<ListedAuditLogSchema, ListSchemasOptions>> {
