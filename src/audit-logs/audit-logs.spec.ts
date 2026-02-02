@@ -903,6 +903,7 @@ describe('AuditLogs', () => {
         });
 
         expect(result.data).toHaveLength(1);
+        // Metadata is passed through in raw JSON Schema format
         expect(result.data[0]).toEqual({
           object: 'audit_log_schema',
           version: 1,
@@ -910,17 +911,26 @@ describe('AuditLogs', () => {
             {
               type: 'user',
               metadata: {
-                user_id: 'string',
+                type: 'object',
+                properties: {
+                  user_id: { type: 'string' },
+                },
               },
             },
           ],
           actor: {
             metadata: {
-              actor_id: 'string',
+              type: 'object',
+              properties: {
+                actor_id: { type: 'string' },
+              },
             },
           },
           metadata: {
-            foo: 'number',
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
           },
           createdAt: time,
         });
@@ -1077,7 +1087,13 @@ describe('AuditLogs', () => {
         expect(result.data).toHaveLength(2);
         expect(result.data[0].version).toBe(2);
         expect(result.data[1].version).toBe(1);
-        expect(result.data[1].metadata).toEqual({ ip_address: 'string' });
+        // Metadata is passed through in raw JSON Schema format
+        expect(result.data[1].metadata).toEqual({
+          type: 'object',
+          properties: {
+            ip_address: { type: 'string' },
+          },
+        });
         expect(result.listMetadata.before).toBe('cursor_before');
         expect(result.listMetadata.after).toBe('cursor_after');
       });

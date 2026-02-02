@@ -3,25 +3,11 @@ import {
   ListedAuditLogSchema,
 } from '../interfaces';
 
-function deserializeMetadata(metadata?: {
-  type: 'object';
-  properties?: Record<string, { type: string | number | boolean }>;
-}): Record<string, string | number | boolean> | undefined {
-  if (!metadata || !metadata.properties) {
-    return undefined;
-  }
-
-  const deserializedMetadata: Record<string, string | number | boolean> = {};
-
-  Object.keys(metadata.properties).forEach((key) => {
-    if (metadata.properties) {
-      deserializedMetadata[key] = metadata.properties[key].type;
-    }
-  });
-
-  return deserializedMetadata;
-}
-
+/**
+ * Deserializes an audit log schema from the list schemas API response.
+ * Converts snake_case fields to camelCase while preserving metadata
+ * in its raw JSON Schema format.
+ */
 export const deserializeListedAuditLogSchema = (
   auditLogSchema: ListAuditLogSchemaItemResponse,
 ): ListedAuditLogSchema => ({
@@ -29,15 +15,9 @@ export const deserializeListedAuditLogSchema = (
   version: auditLogSchema.version,
   targets: auditLogSchema.targets.map((target) => ({
     type: target.type,
-    metadata: target.metadata
-      ? deserializeMetadata(target.metadata)
-      : undefined,
+    metadata: target.metadata,
   })),
-  actor: auditLogSchema.actor
-    ? {
-        metadata: deserializeMetadata(auditLogSchema.actor.metadata) ?? {},
-      }
-    : undefined,
-  metadata: deserializeMetadata(auditLogSchema.metadata),
+  actor: auditLogSchema.actor,
+  metadata: auditLogSchema.metadata,
   createdAt: auditLogSchema.created_at,
 });
