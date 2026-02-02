@@ -1,3 +1,8 @@
+import {
+  EnvironmentRole,
+  OrganizationRole,
+} from '../../authorization/interfaces';
+
 export interface RoleResponse {
   slug: string;
 }
@@ -35,17 +40,7 @@ export interface OrganizationRoleResponse {
   updated_at: string;
 }
 
-export interface Role {
-  object: 'role';
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  permissions: string[];
-  type: 'EnvironmentRole' | 'OrganizationRole';
-  createdAt: string;
-  updatedAt: string;
-}
+export type Role = EnvironmentRole | OrganizationRole;
 
 export interface RoleList {
   object: 'list';
