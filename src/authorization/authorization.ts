@@ -7,6 +7,8 @@ import {
   CreateEnvironmentRoleOptions,
   UpdateEnvironmentRoleOptions,
   ListEnvironmentRolesOptions,
+  SetEnvironmentRolePermissionsOptions,
+  AddEnvironmentRolePermissionOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -60,22 +62,22 @@ export class Authorization {
 
   async setEnvironmentRolePermissions(
     slug: string,
-    permissions: string[],
+    options: SetEnvironmentRolePermissionsOptions,
   ): Promise<EnvironmentRole> {
     const { data } = await this.workos.put<EnvironmentRoleResponse>(
       `/authorization/roles/${slug}/permissions`,
-      { permissions },
+      { permissions: options.permissions },
     );
     return deserializeEnvironmentRole(data);
   }
 
   async addEnvironmentRolePermission(
     slug: string,
-    permissionSlug: string,
+    options: AddEnvironmentRolePermissionOptions,
   ): Promise<EnvironmentRole> {
     const { data } = await this.workos.post<EnvironmentRoleResponse>(
       `/authorization/roles/${slug}/permissions`,
-      { slug: permissionSlug },
+      { slug: options.permissionSlug },
     );
     return deserializeEnvironmentRole(data);
   }

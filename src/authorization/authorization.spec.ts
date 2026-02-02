@@ -180,7 +180,7 @@ describe('Authorization', () => {
 
       const role = await workos.authorization.setEnvironmentRolePermissions(
         'admin',
-        ['users:read', 'users:write'],
+        { permissions: ['users:read', 'users:write'] },
       );
 
       expect(fetchURL()).toContain('/authorization/roles/admin/permissions');
@@ -199,7 +199,7 @@ describe('Authorization', () => {
 
       const role = await workos.authorization.setEnvironmentRolePermissions(
         'admin',
-        [],
+        { permissions: [] },
       );
 
       expect(fetchBody()).toEqual({
@@ -224,7 +224,7 @@ describe('Authorization', () => {
 
       const role = await workos.authorization.addEnvironmentRolePermission(
         'admin',
-        'billing:read',
+        { permissionSlug: 'billing:read' },
       );
 
       expect(fetchURL()).toContain('/authorization/roles/admin/permissions');
