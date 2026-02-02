@@ -389,7 +389,7 @@ describe('Authorization', () => {
       const role = await workos.authorization.setOrganizationRolePermissions(
         testOrgId,
         'org-admin',
-        ['org:read', 'org:write'],
+        { permissions: ['org:read', 'org:write'] },
       );
 
       expect(fetchURL()).toContain(
@@ -415,7 +415,7 @@ describe('Authorization', () => {
       const role = await workos.authorization.addOrganizationRolePermission(
         testOrgId,
         'org-admin',
-        'billing:read',
+        { permissionSlug: 'billing:read' },
       );
 
       expect(fetchURL()).toContain(
@@ -437,7 +437,7 @@ describe('Authorization', () => {
       await workos.authorization.removeOrganizationRolePermission(
         testOrgId,
         'org-admin',
-        'members:invite',
+        { permissionSlug: 'members:invite' },
       );
 
       expect(fetchURL()).toContain(

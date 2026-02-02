@@ -19,6 +19,9 @@ import {
   CreateOrganizationRoleOptions,
   UpdateOrganizationRoleOptions,
   ListOrganizationRolesOptions,
+  SetOrganizationRolePermissionsOptions,
+  AddOrganizationRolePermissionOptions,
+  RemoveOrganizationRolePermissionOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -155,11 +158,11 @@ export class Authorization {
   async setOrganizationRolePermissions(
     organizationId: string,
     slug: string,
-    permissions: string[],
+    options: SetOrganizationRolePermissionsOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.put<OrganizationRoleResponse>(
       `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
-      { permissions },
+      { permissions: options.permissions },
     );
     return deserializeOrganizationRole(data);
   }
@@ -167,11 +170,11 @@ export class Authorization {
   async addOrganizationRolePermission(
     organizationId: string,
     slug: string,
-    permissionSlug: string,
+    options: AddOrganizationRolePermissionOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.post<OrganizationRoleResponse>(
       `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
-      { slug: permissionSlug },
+      { slug: options.permissionSlug },
     );
     return deserializeOrganizationRole(data);
   }
@@ -179,10 +182,10 @@ export class Authorization {
   async removeOrganizationRolePermission(
     organizationId: string,
     slug: string,
-    permissionSlug: string,
+    options: RemoveOrganizationRolePermissionOptions,
   ): Promise<void> {
     await this.workos.delete(
-      `/authorization/organizations/${organizationId}/roles/${slug}/permissions/${permissionSlug}`,
+      `/authorization/organizations/${organizationId}/roles/${slug}/permissions/${options.permissionSlug}`,
     );
   }
 }

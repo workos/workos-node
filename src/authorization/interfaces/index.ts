@@ -8,3 +8,6 @@ export * from './organization-role.interface';
 export * from './create-organization-role-options.interface';
 export * from './update-organization-role-options.interface';
 export * from './list-organization-roles-options.interface';
+export * from './set-organization-role-permissions-options.interface';
+export * from './add-organization-role-permission-options.interface';
+export * from './remove-organization-role-permission-options.interface';
