@@ -8,8 +8,8 @@ export interface AuditLogSchema {
   object: 'audit_log_schema';
   version: number;
   targets: AuditLogTargetSchema[];
-  actor: AuditLogActorSchema;
-  metadata: Record<string, string | boolean | number> | undefined;
+  actor?: AuditLogActorSchema;
+  metadata?: Record<string, string | boolean | number>;
   createdAt: string;
 }
 
@@ -51,11 +51,11 @@ export interface SerializedCreateAuditLogSchemaOptions {
   };
 }
 
-export interface CreateAuditLogSchemaResponse {
+export interface AuditLogSchemaResponse {
   object: 'audit_log_schema';
   version: number;
   targets: SerializedAuditLogTargetSchema[];
-  actor: {
+  actor?: {
     metadata: {
       type: 'object';
       properties: AuditLogSchemaMetadata;
@@ -67,6 +67,9 @@ export interface CreateAuditLogSchemaResponse {
   };
   created_at: string;
 }
+
+/** @deprecated Use AuditLogSchemaResponse instead */
+export type CreateAuditLogSchemaResponse = AuditLogSchemaResponse;
 
 export type CreateAuditLogSchemaRequestOptions = Pick<
   PostOptions,

@@ -14,18 +14,13 @@ import {
 } from './interfaces/audit-log-export.interface';
 import {
   AuditLogSchema,
+  AuditLogSchemaResponse,
   CreateAuditLogSchemaOptions,
   CreateAuditLogSchemaRequestOptions,
-  CreateAuditLogSchemaResponse,
-} from './interfaces/create-audit-log-schema-options.interface';
-import {
-  ListAuditLogSchemaItemResponse,
-  ListedAuditLogSchema,
-} from './interfaces/list-audit-log-schemas.interface';
+} from './interfaces/audit-log-schema.interface';
 import {
   deserializeAuditLogExport,
   deserializeAuditLogSchema,
-  deserializeListedAuditLogSchema,
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
   serializeCreateAuditLogSchemaOptions,
@@ -78,7 +73,7 @@ export class AuditLogs {
     schema: CreateAuditLogSchemaOptions,
     options: CreateAuditLogSchemaRequestOptions = {},
   ): Promise<AuditLogSchema> {
-    const { data } = await this.workos.post<CreateAuditLogSchemaResponse>(
+    const { data } = await this.workos.post<AuditLogSchemaResponse>(
       `/audit_logs/actions/${schema.action}/schemas`,
       serializeCreateAuditLogSchemaOptions(schema),
       options,
@@ -89,25 +84,24 @@ export class AuditLogs {
 
   async listSchemas(
     options: ListSchemasOptions,
-  ): Promise<AutoPaginatable<ListedAuditLogSchema, ListSchemasOptions>> {
+  ): Promise<AutoPaginatable<AuditLogSchema, ListSchemasOptions>> {
     const { action, ...paginationOptions } = options;
     const endpoint = `/audit_logs/actions/${action}/schemas`;
 
     return new AutoPaginatable(
-      await fetchAndDeserialize<
-        ListAuditLogSchemaItemResponse,
-        ListedAuditLogSchema
-      >(
+      await fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(
         this.workos,
         endpoint,
-        deserializeListedAuditLogSchema,
+        deserializeAuditLogSchema,
         paginationOptions,
       ),
       (params: PaginationOptions) =>
-        fetchAndDeserialize<
-          ListAuditLogSchemaItemResponse,
-          ListedAuditLogSchema
-        >(this.workos, endpoint, deserializeListedAuditLogSchema, params),
+        fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(
+          this.workos,
+          endpoint,
+          deserializeAuditLogSchema,
+          params,
+        ),
       options,
     );
   }

@@ -1,4 +1,4 @@
-import { AuditLogSchema, CreateAuditLogSchemaResponse } from '../interfaces';
+import { AuditLogSchema, AuditLogSchemaResponse } from '../interfaces';
 
 function deserializeMetadata(metadata: {
   properties?: Record<string, { type: string | number | boolean }>;
@@ -19,21 +19,19 @@ function deserializeMetadata(metadata: {
 }
 
 export const deserializeAuditLogSchema = (
-  auditLogSchema: CreateAuditLogSchemaResponse,
+  auditLogSchema: AuditLogSchemaResponse,
 ): AuditLogSchema => ({
   object: auditLogSchema.object,
   version: auditLogSchema.version,
-  targets: auditLogSchema.targets.map((target) => {
-    return {
-      type: target.type,
-      metadata: target.metadata
-        ? deserializeMetadata(target.metadata)
-        : undefined,
-    };
-  }),
-  actor: {
-    metadata: deserializeMetadata(auditLogSchema.actor?.metadata),
-  },
+  targets: auditLogSchema.targets.map((target) => ({
+    type: target.type,
+    metadata: target.metadata
+      ? deserializeMetadata(target.metadata)
+      : undefined,
+  })),
+  actor: auditLogSchema.actor
+    ? { metadata: deserializeMetadata(auditLogSchema.actor.metadata) }
+    : undefined,
   metadata: auditLogSchema.metadata
     ? deserializeMetadata(auditLogSchema.metadata)
     : undefined,
