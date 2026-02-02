@@ -68,9 +68,6 @@ export interface AuditLogSchemaResponse {
   created_at: string;
 }
 
-/** @deprecated Use AuditLogSchemaResponse instead */
-export type CreateAuditLogSchemaResponse = AuditLogSchemaResponse;
-
 export type CreateAuditLogSchemaRequestOptions = Pick<
   PostOptions,
   'idempotencyKey'

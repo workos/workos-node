@@ -12,7 +12,6 @@ import {
   AuditLogSchemaResponse,
   CreateAuditLogEventOptions,
   CreateAuditLogSchemaOptions,
-  CreateAuditLogSchemaResponse,
 } from './interfaces';
 import {
   serializeAuditLogExportOptions,
@@ -601,7 +600,7 @@ describe('AuditLogs', () => {
           createdAt: time,
         };
 
-        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+        const createSchemaResponse: AuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
           targets: [
@@ -687,7 +686,7 @@ describe('AuditLogs', () => {
           createdAt: time,
         };
 
-        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+        const createSchemaResponse: AuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
           targets: [
@@ -763,7 +762,7 @@ describe('AuditLogs', () => {
           createdAt: time,
         };
 
-        const createSchemaResponse: CreateAuditLogSchemaResponse = {
+        const createSchemaResponse: AuditLogSchemaResponse = {
           object: 'audit_log_schema',
           version: 1,
           targets: [
