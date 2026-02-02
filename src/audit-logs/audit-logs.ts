@@ -15,9 +15,12 @@ import {
 import {
   AuditLogSchema,
   AuditLogSchemaResponse,
-  CreateAuditLogSchemaOptions,
-  CreateAuditLogSchemaRequestOptions,
 } from './interfaces/audit-log-schema.interface';
+import {
+  CreateAuditLogSchemaResponse,
+  CreateAuditLogSchemaRequestOptions,
+  CreateAuditLogSchemaOptions
+} from './interfaces/create-audit-log-schema-options.interface';
 import {
   deserializeAuditLogExport,
   deserializeAuditLogSchema,
@@ -73,7 +76,7 @@ export class AuditLogs {
     schema: CreateAuditLogSchemaOptions,
     options: CreateAuditLogSchemaRequestOptions = {},
   ): Promise<AuditLogSchema> {
-    const { data } = await this.workos.post<AuditLogSchemaResponse>(
+    const { data } = await this.workos.post<CreateAuditLogSchemaResponse>(
       `/audit_logs/actions/${schema.action}/schemas`,
       serializeCreateAuditLogSchemaOptions(schema),
       options,
