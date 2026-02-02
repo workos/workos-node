@@ -8,8 +8,8 @@ export interface AuditLogSchema {
   object: 'audit_log_schema';
   version: number;
   targets: AuditLogTargetSchema[];
-  actor?: AuditLogActorSchema;
-  metadata?: Record<string, string | boolean | number>;
+  actor: AuditLogActorSchema | undefined;
+  metadata: Record<string, string | boolean | number> | undefined;
   createdAt: string;
 }
 
