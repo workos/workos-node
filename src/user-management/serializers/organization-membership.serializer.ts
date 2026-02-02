@@ -16,5 +16,5 @@ export const deserializeOrganizationMembership = (
   updatedAt: organizationMembership.updated_at,
   role: organizationMembership.role,
   ...(organizationMembership.roles && { roles: organizationMembership.roles }),
-  idpAttributes: organizationMembership.idp_attributes,
+  customAttributes: organizationMembership.custom_attributes,
 });

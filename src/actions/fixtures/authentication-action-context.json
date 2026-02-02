@@ -35,7 +35,7 @@
             "slug": "member"
         },
         "status": "active",
-        "idp_attributes": {},
+        "custom_attributes": {},
         "created_at": "2024-10-22T17:12:50.746Z",
         "updated_at": "2024-10-22T17:12:50.746Z"
     }

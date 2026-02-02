@@ -13,7 +13,7 @@ export interface OrganizationMembership {
   updatedAt: string;
   role: RoleResponse;
   roles?: RoleResponse[];
-  idpAttributes: Record<string, unknown>;
+  customAttributes: Record<string, unknown>;
 }
 
 export interface OrganizationMembershipResponse {
@@ -27,5 +27,5 @@ export interface OrganizationMembershipResponse {
   updated_at: string;
   role: RoleResponse;
   roles?: RoleResponse[];
-  idp_attributes: Record<string, unknown>;
+  custom_attributes: Record<string, unknown>;
 }
