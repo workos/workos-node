@@ -2261,6 +2261,19 @@ describe('UserManagement', () => {
         inviter_user_id: 'user_someuser',
       });
     });
+
+    it('sends the locale param when provided', async () => {
+      fetchOnce(invitationFixture);
+      await workos.userManagement.sendInvitation({
+        email: 'dane@workos.com',
+        locale: 'es',
+      });
+
+      expect(fetchBody()).toEqual({
+        email: 'dane@workos.com',
+        locale: 'es',
+      });
+    });
   });
 
   describe('acceptInvitation', () => {
@@ -2310,8 +2323,9 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response =
-        await workos.userManagement.resendInvitation(invitationId);
+      const response = await workos.userManagement.resendInvitation({
+        invitationId,
+      });
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/resend`,
@@ -2319,6 +2333,23 @@ describe('UserManagement', () => {
       expect(response).toMatchObject({
         object: 'invitation',
         email: 'dane@workos.com',
+      });
+    });
+
+    it('sends the locale param when provided', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(invitationFixture);
+
+      await workos.userManagement.resendInvitation({
+        invitationId,
+        locale: 'es',
+      });
+
+      expect(fetchURL()).toContain(
+        `/user_management/invitations/${invitationId}/resend`,
+      );
+      expect(fetchBody()).toEqual({
+        locale: 'es',
       });
     });
 
@@ -2333,7 +2364,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation(invitationId),
+        workos.userManagement.resendInvitation({ invitationId }),
       ).rejects.toThrow();
     });
 
@@ -2348,7 +2379,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation(invitationId),
+        workos.userManagement.resendInvitation({ invitationId }),
       ).rejects.toThrow();
     });
 
@@ -2363,7 +2394,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation(invitationId),
+        workos.userManagement.resendInvitation({ invitationId }),
       ).rejects.toThrow();
     });
 
@@ -2378,7 +2409,25 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation(invitationId),
+        workos.userManagement.resendInvitation({ invitationId }),
+      ).rejects.toThrow();
+    });
+
+    it('throws an error when locale is invalid (422)', async () => {
+      const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
+      fetchOnce(
+        {
+          message: 'Locale is invalid.',
+          code: 'invalid_locale',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.resendInvitation({
+          invitationId,
+          locale: 'invalid' as any,
+        }),
       ).rejects.toThrow();
     });
   });

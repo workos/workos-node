@@ -1,9 +1,12 @@
+import { Locale } from './locale.interface';
+
 export interface SendInvitationOptions {
   email: string;
   organizationId?: string;
   expiresInDays?: number;
   inviterUserId?: string;
   roleSlug?: string;
+  locale?: Locale;
 }
 
 export interface SerializedSendInvitationOptions {
@@ -12,4 +15,5 @@ export interface SerializedSendInvitationOptions {
   expires_in_days?: number;
   inviter_user_id?: string;
   role_slug?: string;
+  locale?: Locale;
 }
