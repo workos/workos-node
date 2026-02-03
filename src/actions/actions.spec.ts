@@ -155,6 +155,7 @@ describe('Actions', () => {
             slug: 'member',
           },
           status: 'active',
+          customAttributes: {},
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
         },
