@@ -2323,9 +2323,8 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      const response = await workos.userManagement.resendInvitation({
-        invitationId,
-      });
+      const response =
+        await workos.userManagement.resendInvitation(invitationId);
 
       expect(fetchURL()).toContain(
         `/user_management/invitations/${invitationId}/resend`,
@@ -2340,8 +2339,7 @@ describe('UserManagement', () => {
       const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
       fetchOnce(invitationFixture);
 
-      await workos.userManagement.resendInvitation({
-        invitationId,
+      await workos.userManagement.resendInvitation(invitationId, {
         locale: 'es',
       });
 
@@ -2364,7 +2362,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation({ invitationId }),
+        workos.userManagement.resendInvitation(invitationId),
       ).rejects.toThrow();
     });
 
@@ -2379,7 +2377,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation({ invitationId }),
+        workos.userManagement.resendInvitation(invitationId),
       ).rejects.toThrow();
     });
 
@@ -2394,7 +2392,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation({ invitationId }),
+        workos.userManagement.resendInvitation(invitationId),
       ).rejects.toThrow();
     });
 
@@ -2409,7 +2407,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation({ invitationId }),
+        workos.userManagement.resendInvitation(invitationId),
       ).rejects.toThrow();
     });
 
@@ -2424,8 +2422,7 @@ describe('UserManagement', () => {
       );
 
       await expect(
-        workos.userManagement.resendInvitation({
-          invitationId,
+        workos.userManagement.resendInvitation(invitationId, {
           locale: 'invalid' as any,
         }),
       ).rejects.toThrow();

@@ -1067,14 +1067,15 @@ export class UserManagement {
   }
 
   async resendInvitation(
-    options: ResendInvitationOptions,
+    invitationId: string,
+    options?: ResendInvitationOptions,
   ): Promise<Invitation> {
     const { data } = await this.workos.post<
       InvitationResponse,
       SerializedResendInvitationOptions
     >(
-      `/user_management/invitations/${options.invitationId}/resend`,
-      serializeResendInvitationOptions(options),
+      `/user_management/invitations/${invitationId}/resend`,
+      options ? serializeResendInvitationOptions(options) : {},
     );
 
     return deserializeInvitation(data);
