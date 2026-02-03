@@ -1066,7 +1066,9 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
-  async resendInvitation(options: ResendInvitationOptions): Promise<Invitation> {
+  async resendInvitation(
+    options: ResendInvitationOptions,
+  ): Promise<Invitation> {
     const { data } = await this.workos.post<
       InvitationResponse,
       SerializedResendInvitationOptions
