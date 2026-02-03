@@ -12,4 +12,5 @@ export const serializeSendInvitationOptions = (
   expires_in_days: options.expiresInDays,
   inviter_user_id: options.inviterUserId,
   role_slug: options.roleSlug,
+  locale: options.locale,
 });
