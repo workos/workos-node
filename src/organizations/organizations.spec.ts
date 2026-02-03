@@ -546,6 +546,39 @@ describe('Organizations', () => {
         expect(data).toHaveLength(3);
       });
     });
+
+    describe('autoPagination', () => {
+      it('does not include organizationId in pagination query params', async () => {
+        const fixtureWithAfter = {
+          ...listOrganizationFeatureFlagsFixture,
+          list_metadata: {
+            after: 'flag_next_page',
+          },
+        };
+        // Mock 3 responses:
+        // 1. Initial fetch in constructor
+        // 2. First generatePages call (no after)
+        // 3. Recursive generatePages call (with after)
+        fetchOnce(fixtureWithAfter);
+        fetchOnce(fixtureWithAfter);
+        fetchOnce(listOrganizationFeatureFlagsFixture);
+
+        const result = await workos.organizations.listOrganizationFeatureFlags({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+        });
+
+        // Trigger auto-pagination
+        await result.autoPagination();
+
+        // Check that the third request (recursive pagination with after) does not include organizationId
+        const thirdCallUrl = fetch.mock.calls[2][0];
+        const thirdCallParams = Object.fromEntries(
+          new URL(String(thirdCallUrl)).searchParams,
+        );
+        expect(thirdCallParams).not.toHaveProperty('organizationId');
+        expect(thirdCallParams).toHaveProperty('after', 'flag_next_page');
+      });
+    });
   });
 
   describe('listOrganizationApiKeys', () => {
