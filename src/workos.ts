@@ -130,8 +130,8 @@ export class WorkOS {
     if (!this.hasApiKey && !this.clientId) {
       throw new Error(
         'WorkOS requires either an API key or a clientId. ' +
-        'For server-side: new WorkOS("sk_...") or new WorkOS({ apiKey: "sk_..." }). ' +
-        'For PKCE/public clients: new WorkOS({ clientId: "client_..." })',
+          'For server-side: new WorkOS("sk_...") or new WorkOS({ apiKey: "sk_..." }). ' +
+          'For PKCE/public clients: new WorkOS({ clientId: "client_..." })',
       );
     }
 
