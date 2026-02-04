@@ -8,13 +8,6 @@ export type {
   AuditLogTargetSchema,
 } from './audit-log-schema.interface';
 
-import type {
-  AuditLogSchemaMetadata,
-  AuditLogSchemaResponse,
-  AuditLogActorSchema,
-  AuditLogTargetSchema,
-} from './audit-log-schema.interface';
-
 export interface CreateAuditLogSchemaOptions {
   action: string;
   targets: AuditLogTargetSchema[];
