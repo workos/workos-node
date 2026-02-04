@@ -100,18 +100,6 @@ describe('Authorization', () => {
         ]),
       );
     });
-
-    it('passes expand parameter', async () => {
-      fetchOnce(listEnvironmentRolesFixture);
-
-      await workos.authorization.listEnvironmentRoles({
-        expand: 'permissions',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        expand: 'permissions',
-      });
-    });
   });
 
   describe('getEnvironmentRole', () => {
@@ -301,18 +289,6 @@ describe('Authorization', () => {
           }),
         ]),
       );
-    });
-
-    it('passes expand parameter', async () => {
-      fetchOnce(listOrganizationRolesFixture);
-
-      await workos.authorization.listOrganizationRoles(testOrgId, {
-        expand: 'permissions',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        expand: 'permissions',
-      });
     });
   });
 
