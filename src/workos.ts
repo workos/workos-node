@@ -45,7 +45,7 @@ import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
 import { getRuntimeInfo } from './common/utils/runtime-info';
 
-const VERSION = '8.1.0';
+const VERSION = '8.2.0';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
