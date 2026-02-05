@@ -12,13 +12,11 @@ import {
   EnvironmentRoleListResponse,
   CreateEnvironmentRoleOptions,
   UpdateEnvironmentRoleOptions,
-  ListEnvironmentRolesOptions,
   SetEnvironmentRolePermissionsOptions,
   AddEnvironmentRolePermissionOptions,
   OrganizationRole,
   CreateOrganizationRoleOptions,
   UpdateOrganizationRoleOptions,
-  ListOrganizationRolesOptions,
   SetOrganizationRolePermissionsOptions,
   AddOrganizationRolePermissionOptions,
   RemoveOrganizationRolePermissionOptions,
@@ -56,12 +54,9 @@ export class Authorization {
     return deserializeEnvironmentRole(data);
   }
 
-  async listEnvironmentRoles(
-    options?: ListEnvironmentRolesOptions,
-  ): Promise<EnvironmentRoleList> {
+  async listEnvironmentRoles(): Promise<EnvironmentRoleList> {
     const { data } = await this.workos.get<EnvironmentRoleListResponse>(
       '/authorization/roles',
-      { query: options },
     );
     return {
       object: 'list',
@@ -120,13 +115,9 @@ export class Authorization {
     return deserializeOrganizationRole(data);
   }
 
-  async listOrganizationRoles(
-    organizationId: string,
-    options?: ListOrganizationRolesOptions,
-  ): Promise<RoleList> {
+  async listOrganizationRoles(organizationId: string): Promise<RoleList> {
     const { data } = await this.workos.get<ListOrganizationRolesResponse>(
       `/authorization/organizations/${organizationId}/roles`,
-      { query: options },
     );
     return {
       object: 'list',
