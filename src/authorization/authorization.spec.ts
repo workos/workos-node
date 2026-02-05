@@ -10,6 +10,8 @@ import environmentRoleFixture from './fixtures/environment-role.json';
 import listEnvironmentRolesFixture from './fixtures/list-environment-roles.json';
 import organizationRoleFixture from './fixtures/organization-role.json';
 import listOrganizationRolesFixture from './fixtures/list-organization-roles.json';
+import permissionFixture from './fixtures/permission.json';
+import listPermissionsFixture from './fixtures/list-permissions.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -97,18 +99,6 @@ describe('Authorization', () => {
           }),
         ]),
       );
-    });
-
-    it('passes expand parameter', async () => {
-      fetchOnce(listEnvironmentRolesFixture);
-
-      await workos.authorization.listEnvironmentRoles({
-        expand: 'permissions',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        expand: 'permissions',
-      });
     });
   });
 
@@ -300,18 +290,6 @@ describe('Authorization', () => {
         ]),
       );
     });
-
-    it('passes expand parameter', async () => {
-      fetchOnce(listOrganizationRolesFixture);
-
-      await workos.authorization.listOrganizationRoles(testOrgId, {
-        expand: 'permissions',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        expand: 'permissions',
-      });
-    });
   });
 
   describe('getOrganizationRole', () => {
@@ -443,6 +421,174 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/roles/org-admin/permissions/members:invite`,
       );
+    });
+  });
+
+  describe('createPermission', () => {
+    it('creates a permission', async () => {
+      fetchOnce(permissionFixture, { status: 201 });
+
+      const permission = await workos.authorization.createPermission({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+      });
+
+      expect(fetchURL()).toContain('/authorization/permissions');
+      expect(fetchBody()).toEqual({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+      });
+      expect(permission).toMatchObject({
+        object: 'permission',
+        id: 'perm_01HXYZ123ABC456DEF789GHI',
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        system: false,
+      });
+    });
+
+    it('creates a permission without description', async () => {
+      fetchOnce({ ...permissionFixture, description: null }, { status: 201 });
+
+      const permission = await workos.authorization.createPermission({
+        slug: 'users:read',
+        name: 'Read Users',
+      });
+
+      expect(fetchBody()).toEqual({
+        slug: 'users:read',
+        name: 'Read Users',
+      });
+      expect(permission.description).toBeNull();
+    });
+  });
+
+  describe('listPermissions', () => {
+    it('returns permissions', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listPermissions();
+
+      expect(fetchURL()).toContain('/authorization/permissions');
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(2);
+      expect(data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHI',
+            slug: 'users:read',
+            name: 'Read Users',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHJ',
+            slug: 'users:write',
+            name: 'Write Users',
+          }),
+        ]),
+      );
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      await workos.authorization.listPermissions({
+        limit: 10,
+        after: 'perm_01HXYZ123ABC456DEF789GHI',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'perm_01HXYZ123ABC456DEF789GHI',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('getPermission', () => {
+    it('gets a permission by slug', async () => {
+      fetchOnce(permissionFixture);
+
+      const permission = await workos.authorization.getPermission('users:read');
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
+      expect(permission).toMatchObject({
+        object: 'permission',
+        id: 'perm_01HXYZ123ABC456DEF789GHI',
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        system: false,
+      });
+    });
+  });
+
+  describe('updatePermission', () => {
+    it('updates a permission', async () => {
+      const updatedPermissionFixture = {
+        ...permissionFixture,
+        name: 'Read All Users',
+        description: 'Updated description',
+      };
+      fetchOnce(updatedPermissionFixture);
+
+      const permission = await workos.authorization.updatePermission(
+        'users:read',
+        {
+          name: 'Read All Users',
+          description: 'Updated description',
+        },
+      );
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
+      expect(fetchBody()).toEqual({
+        name: 'Read All Users',
+        description: 'Updated description',
+      });
+      expect(permission).toMatchObject({
+        name: 'Read All Users',
+        description: 'Updated description',
+      });
+    });
+
+    it('clears description when set to null', async () => {
+      const updatedPermissionFixture = {
+        ...permissionFixture,
+        description: null,
+      };
+      fetchOnce(updatedPermissionFixture);
+
+      const permission = await workos.authorization.updatePermission(
+        'users:read',
+        {
+          description: null,
+        },
+      );
+
+      expect(fetchBody()).toEqual({
+        description: null,
+      });
+      expect(permission.description).toBeNull();
+    });
+  });
+
+  describe('deletePermission', () => {
+    it('deletes a permission', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deletePermission('users:read');
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
     });
   });
 });
