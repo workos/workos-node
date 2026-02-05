@@ -8,8 +8,13 @@ import {
 import { WorkOS } from '../workos';
 import environmentRoleFixture from './fixtures/environment-role.json';
 import listEnvironmentRolesFixture from './fixtures/list-environment-roles.json';
+import organizationRoleFixture from './fixtures/organization-role.json';
+import listOrganizationRolesFixture from './fixtures/list-organization-roles.json';
+import permissionFixture from './fixtures/permission.json';
+import listPermissionsFixture from './fixtures/list-permissions.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -94,18 +99,6 @@ describe('Authorization', () => {
           }),
         ]),
       );
-    });
-
-    it('passes expand parameter', async () => {
-      fetchOnce(listEnvironmentRolesFixture);
-
-      await workos.authorization.listEnvironmentRoles({
-        expand: 'permissions',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        expand: 'permissions',
-      });
     });
   });
 
@@ -234,6 +227,368 @@ describe('Authorization', () => {
       expect(role.permissions).toEqual(
         expect.arrayContaining(['billing:read']),
       );
+    });
+  });
+
+  describe('createOrganizationRole', () => {
+    it('creates an organization role', async () => {
+      fetchOnce(organizationRoleFixture, { status: 201 });
+
+      const role = await workos.authorization.createOrganizationRole(
+        testOrgId,
+        {
+          slug: 'org-admin',
+          name: 'Org Admin',
+          description: 'Organization administrator',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles`,
+      );
+      expect(fetchBody()).toEqual({
+        slug: 'org-admin',
+        name: 'Org Admin',
+        description: 'Organization administrator',
+      });
+      expect(role).toMatchObject({
+        object: 'role',
+        id: 'role_01HXYZ123ABC456DEF789ORG',
+        slug: 'org-admin',
+        name: 'Org Admin',
+        type: 'OrganizationRole',
+      });
+    });
+  });
+
+  describe('listOrganizationRoles', () => {
+    it('returns both environment and organization roles', async () => {
+      fetchOnce(listOrganizationRolesFixture);
+
+      const { data, object } =
+        await workos.authorization.listOrganizationRoles(testOrgId);
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles`,
+      );
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(3);
+      expect(data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            slug: 'admin',
+            type: 'EnvironmentRole',
+          }),
+          expect.objectContaining({
+            slug: 'org-admin',
+            type: 'OrganizationRole',
+          }),
+          expect.objectContaining({
+            slug: 'org-member',
+            type: 'OrganizationRole',
+          }),
+        ]),
+      );
+    });
+  });
+
+  describe('getOrganizationRole', () => {
+    it('gets an organization role by slug', async () => {
+      fetchOnce(organizationRoleFixture);
+
+      const role = await workos.authorization.getOrganizationRole(
+        testOrgId,
+        'org-admin',
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin`,
+      );
+      expect(role).toMatchObject({
+        object: 'role',
+        slug: 'org-admin',
+        type: 'OrganizationRole',
+      });
+    });
+  });
+
+  describe('updateOrganizationRole', () => {
+    it('updates an organization role', async () => {
+      const updatedRoleFixture = {
+        ...organizationRoleFixture,
+        name: 'Super Org Admin',
+        description: 'Updated description',
+      };
+      fetchOnce(updatedRoleFixture);
+
+      const role = await workos.authorization.updateOrganizationRole(
+        testOrgId,
+        'org-admin',
+        {
+          name: 'Super Org Admin',
+          description: 'Updated description',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin`,
+      );
+      expect(fetchBody()).toEqual({
+        name: 'Super Org Admin',
+        description: 'Updated description',
+      });
+      expect(role).toMatchObject({
+        name: 'Super Org Admin',
+        description: 'Updated description',
+      });
+    });
+  });
+
+  describe('deleteOrganizationRole', () => {
+    it('deletes an organization role', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteOrganizationRole(testOrgId, 'org-admin');
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin`,
+      );
+    });
+  });
+
+  describe('setOrganizationRolePermissions', () => {
+    it('sets permissions for an organization role', async () => {
+      const updatedRoleFixture = {
+        ...organizationRoleFixture,
+        permissions: ['org:read', 'org:write'],
+      };
+      fetchOnce(updatedRoleFixture);
+
+      const role = await workos.authorization.setOrganizationRolePermissions(
+        testOrgId,
+        'org-admin',
+        { permissions: ['org:read', 'org:write'] },
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin/permissions`,
+      );
+      expect(fetchBody()).toEqual({
+        permissions: ['org:read', 'org:write'],
+      });
+      expect(role.permissions).toEqual(
+        expect.arrayContaining(['org:read', 'org:write']),
+      );
+    });
+  });
+
+  describe('addOrganizationRolePermission', () => {
+    it('adds a permission to an organization role', async () => {
+      const updatedRoleFixture = {
+        ...organizationRoleFixture,
+        permissions: ['org:manage', 'members:invite', 'billing:read'],
+      };
+      fetchOnce(updatedRoleFixture);
+
+      const role = await workos.authorization.addOrganizationRolePermission(
+        testOrgId,
+        'org-admin',
+        { permissionSlug: 'billing:read' },
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin/permissions`,
+      );
+      expect(fetchBody()).toEqual({
+        slug: 'billing:read',
+      });
+      expect(role.permissions).toEqual(
+        expect.arrayContaining(['billing:read']),
+      );
+    });
+  });
+
+  describe('removeOrganizationRolePermission', () => {
+    it('removes a permission from an organization role', async () => {
+      fetchOnce({}, { status: 200 });
+
+      await workos.authorization.removeOrganizationRolePermission(
+        testOrgId,
+        'org-admin',
+        { permissionSlug: 'members:invite' },
+      );
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/roles/org-admin/permissions/members:invite`,
+      );
+    });
+  });
+
+  describe('createPermission', () => {
+    it('creates a permission', async () => {
+      fetchOnce(permissionFixture, { status: 201 });
+
+      const permission = await workos.authorization.createPermission({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+      });
+
+      expect(fetchURL()).toContain('/authorization/permissions');
+      expect(fetchBody()).toEqual({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+      });
+      expect(permission).toMatchObject({
+        object: 'permission',
+        id: 'perm_01HXYZ123ABC456DEF789GHI',
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        system: false,
+      });
+    });
+
+    it('creates a permission without description', async () => {
+      fetchOnce({ ...permissionFixture, description: null }, { status: 201 });
+
+      const permission = await workos.authorization.createPermission({
+        slug: 'users:read',
+        name: 'Read Users',
+      });
+
+      expect(fetchBody()).toEqual({
+        slug: 'users:read',
+        name: 'Read Users',
+      });
+      expect(permission.description).toBeNull();
+    });
+  });
+
+  describe('listPermissions', () => {
+    it('returns permissions', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listPermissions();
+
+      expect(fetchURL()).toContain('/authorization/permissions');
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(2);
+      expect(data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHI',
+            slug: 'users:read',
+            name: 'Read Users',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHJ',
+            slug: 'users:write',
+            name: 'Write Users',
+          }),
+        ]),
+      );
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      await workos.authorization.listPermissions({
+        limit: 10,
+        after: 'perm_01HXYZ123ABC456DEF789GHI',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'perm_01HXYZ123ABC456DEF789GHI',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('getPermission', () => {
+    it('gets a permission by slug', async () => {
+      fetchOnce(permissionFixture);
+
+      const permission = await workos.authorization.getPermission('users:read');
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
+      expect(permission).toMatchObject({
+        object: 'permission',
+        id: 'perm_01HXYZ123ABC456DEF789GHI',
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        system: false,
+      });
+    });
+  });
+
+  describe('updatePermission', () => {
+    it('updates a permission', async () => {
+      const updatedPermissionFixture = {
+        ...permissionFixture,
+        name: 'Read All Users',
+        description: 'Updated description',
+      };
+      fetchOnce(updatedPermissionFixture);
+
+      const permission = await workos.authorization.updatePermission(
+        'users:read',
+        {
+          name: 'Read All Users',
+          description: 'Updated description',
+        },
+      );
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
+      expect(fetchBody()).toEqual({
+        name: 'Read All Users',
+        description: 'Updated description',
+      });
+      expect(permission).toMatchObject({
+        name: 'Read All Users',
+        description: 'Updated description',
+      });
+    });
+
+    it('clears description when set to null', async () => {
+      const updatedPermissionFixture = {
+        ...permissionFixture,
+        description: null,
+      };
+      fetchOnce(updatedPermissionFixture);
+
+      const permission = await workos.authorization.updatePermission(
+        'users:read',
+        {
+          description: null,
+        },
+      );
+
+      expect(fetchBody()).toEqual({
+        description: null,
+      });
+      expect(permission.description).toBeNull();
+    });
+  });
+
+  describe('deletePermission', () => {
+    it('deletes a permission', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deletePermission('users:read');
+
+      expect(fetchURL()).toContain('/authorization/permissions/users:read');
     });
   });
 });

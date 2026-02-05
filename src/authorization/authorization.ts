@@ -1,19 +1,44 @@
 import { WorkOS } from '../workos';
 import {
+  Role,
+  RoleList,
+  OrganizationRoleResponse,
+  ListOrganizationRolesResponse,
+} from '../roles/interfaces';
+import {
   EnvironmentRole,
   EnvironmentRoleResponse,
   EnvironmentRoleList,
   EnvironmentRoleListResponse,
   CreateEnvironmentRoleOptions,
   UpdateEnvironmentRoleOptions,
-  ListEnvironmentRolesOptions,
   SetEnvironmentRolePermissionsOptions,
   AddEnvironmentRolePermissionOptions,
+  OrganizationRole,
+  CreateOrganizationRoleOptions,
+  UpdateOrganizationRoleOptions,
+  SetOrganizationRolePermissionsOptions,
+  AddOrganizationRolePermissionOptions,
+  RemoveOrganizationRolePermissionOptions,
+  Permission,
+  PermissionResponse,
+  PermissionList,
+  PermissionListResponse,
+  CreatePermissionOptions,
+  UpdatePermissionOptions,
+  ListPermissionsOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
   serializeCreateEnvironmentRoleOptions,
   serializeUpdateEnvironmentRoleOptions,
+  deserializeRole,
+  deserializeOrganizationRole,
+  serializeCreateOrganizationRoleOptions,
+  serializeUpdateOrganizationRoleOptions,
+  deserializePermission,
+  serializeCreatePermissionOptions,
+  serializeUpdatePermissionOptions,
 } from './serializers';
 
 export class Authorization {
@@ -29,12 +54,9 @@ export class Authorization {
     return deserializeEnvironmentRole(data);
   }
 
-  async listEnvironmentRoles(
-    options?: ListEnvironmentRolesOptions,
-  ): Promise<EnvironmentRoleList> {
+  async listEnvironmentRoles(): Promise<EnvironmentRoleList> {
     const { data } = await this.workos.get<EnvironmentRoleListResponse>(
       '/authorization/roles',
-      { query: options },
     );
     return {
       object: 'list',
@@ -80,5 +102,140 @@ export class Authorization {
       { slug: options.permissionSlug },
     );
     return deserializeEnvironmentRole(data);
+  }
+
+  async createOrganizationRole(
+    organizationId: string,
+    options: CreateOrganizationRoleOptions,
+  ): Promise<OrganizationRole> {
+    const { data } = await this.workos.post<OrganizationRoleResponse>(
+      `/authorization/organizations/${organizationId}/roles`,
+      serializeCreateOrganizationRoleOptions(options),
+    );
+    return deserializeOrganizationRole(data);
+  }
+
+  async listOrganizationRoles(organizationId: string): Promise<RoleList> {
+    const { data } = await this.workos.get<ListOrganizationRolesResponse>(
+      `/authorization/organizations/${organizationId}/roles`,
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeRole),
+    };
+  }
+
+  async getOrganizationRole(
+    organizationId: string,
+    slug: string,
+  ): Promise<Role> {
+    const { data } = await this.workos.get<OrganizationRoleResponse>(
+      `/authorization/organizations/${organizationId}/roles/${slug}`,
+    );
+    return deserializeRole(data);
+  }
+
+  async updateOrganizationRole(
+    organizationId: string,
+    slug: string,
+    options: UpdateOrganizationRoleOptions,
+  ): Promise<OrganizationRole> {
+    const { data } = await this.workos.patch<OrganizationRoleResponse>(
+      `/authorization/organizations/${organizationId}/roles/${slug}`,
+      serializeUpdateOrganizationRoleOptions(options),
+    );
+    return deserializeOrganizationRole(data);
+  }
+
+  async deleteOrganizationRole(
+    organizationId: string,
+    slug: string,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/authorization/organizations/${organizationId}/roles/${slug}`,
+    );
+  }
+
+  async setOrganizationRolePermissions(
+    organizationId: string,
+    slug: string,
+    options: SetOrganizationRolePermissionsOptions,
+  ): Promise<OrganizationRole> {
+    const { data } = await this.workos.put<OrganizationRoleResponse>(
+      `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
+      { permissions: options.permissions },
+    );
+    return deserializeOrganizationRole(data);
+  }
+
+  async addOrganizationRolePermission(
+    organizationId: string,
+    slug: string,
+    options: AddOrganizationRolePermissionOptions,
+  ): Promise<OrganizationRole> {
+    const { data } = await this.workos.post<OrganizationRoleResponse>(
+      `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
+      { slug: options.permissionSlug },
+    );
+    return deserializeOrganizationRole(data);
+  }
+
+  async removeOrganizationRolePermission(
+    organizationId: string,
+    slug: string,
+    options: RemoveOrganizationRolePermissionOptions,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/authorization/organizations/${organizationId}/roles/${slug}/permissions/${options.permissionSlug}`,
+    );
+  }
+
+  async createPermission(
+    options: CreatePermissionOptions,
+  ): Promise<Permission> {
+    const { data } = await this.workos.post<PermissionResponse>(
+      '/authorization/permissions',
+      serializeCreatePermissionOptions(options),
+    );
+    return deserializePermission(data);
+  }
+
+  async listPermissions(
+    options?: ListPermissionsOptions,
+  ): Promise<PermissionList> {
+    const { data } = await this.workos.get<PermissionListResponse>(
+      '/authorization/permissions',
+      { query: options },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializePermission),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  async getPermission(slug: string): Promise<Permission> {
+    const { data } = await this.workos.get<PermissionResponse>(
+      `/authorization/permissions/${slug}`,
+    );
+    return deserializePermission(data);
+  }
+
+  async updatePermission(
+    slug: string,
+    options: UpdatePermissionOptions,
+  ): Promise<Permission> {
+    const { data } = await this.workos.patch<PermissionResponse>(
+      `/authorization/permissions/${slug}`,
+      serializeUpdatePermissionOptions(options),
+    );
+    return deserializePermission(data);
+  }
+
+  async deletePermission(slug: string): Promise<void> {
+    await this.workos.delete(`/authorization/permissions/${slug}`);
   }
 }
