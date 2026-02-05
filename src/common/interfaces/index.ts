@@ -1,6 +1,7 @@
 export * from './event.interface';
 export * from './get-options.interface';
 export * from './list.interface';
+export * from './patch-options.interface';
 export * from './post-options.interface';
 export * from './put-options.interface';
 export * from './unprocessable-entity-error.interface';
