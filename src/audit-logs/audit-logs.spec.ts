@@ -898,9 +898,7 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const result = await workos.auditLogs.listSchemas({
-          action: 'user.logged_in',
-        });
+        const result = await workos.auditLogs.listSchemas('user.logged_in');
 
         expect(result.data).toHaveLength(1);
         // Metadata is deserialized to simplified format (same as createSchema)
@@ -944,8 +942,7 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        await workos.auditLogs.listSchemas({
-          action: 'user.logged_in',
+        await workos.auditLogs.listSchemas('user.logged_in', {
           limit: 10,
           after: 'cursor_123',
           order: 'asc',
@@ -969,7 +966,7 @@ describe('AuditLogs', () => {
         const workos = new WorkOS('invalid apikey');
 
         await expect(
-          workos.auditLogs.listSchemas({ action: 'user.logged_in' }),
+          workos.auditLogs.listSchemas('user.logged_in'),
         ).rejects.toThrow(UnauthorizedException);
       });
     });
@@ -1004,9 +1001,7 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const result = await workos.auditLogs.listSchemas({
-          action: 'document.created',
-        });
+        const result = await workos.auditLogs.listSchemas('document.created');
 
         expect(result.data).toHaveLength(1);
         expect(result.data[0]).toEqual({
@@ -1065,9 +1060,7 @@ describe('AuditLogs', () => {
 
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-        const result = await workos.auditLogs.listSchemas({
-          action: 'user.logged_in',
-        });
+        const result = await workos.auditLogs.listSchemas('user.logged_in');
 
         expect(result.data).toHaveLength(2);
         expect(result.data[0].version).toBe(2);

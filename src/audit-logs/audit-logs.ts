@@ -5,7 +5,6 @@ import { WorkOS } from '../workos';
 import {
   CreateAuditLogEventOptions,
   CreateAuditLogEventRequestOptions,
-  ListSchemasOptions,
 } from './interfaces';
 import { AuditLogExportOptions } from './interfaces/audit-log-export-options.interface';
 import {
@@ -86,9 +85,9 @@ export class AuditLogs {
   }
 
   async listSchemas(
-    options: ListSchemasOptions,
-  ): Promise<AutoPaginatable<AuditLogSchema, ListSchemasOptions>> {
-    const { action, ...paginationOptions } = options;
+    action: string,
+    options?: PaginationOptions,
+  ): Promise<AutoPaginatable<AuditLogSchema, PaginationOptions>> {
     const endpoint = `/audit_logs/actions/${action}/schemas`;
 
     return new AutoPaginatable(
@@ -96,7 +95,7 @@ export class AuditLogs {
         this.workos,
         endpoint,
         deserializeAuditLogSchema,
-        paginationOptions,
+        options,
       ),
       (params: PaginationOptions) =>
         fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(
