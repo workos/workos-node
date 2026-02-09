@@ -1,13 +1,11 @@
 import {
   AuthorizationResource,
   AuthorizationResourceResponse,
-} from '../interfaces/authorization-resource.interface';
-import {
   CreateAuthorizationResourceOptions,
   SerializedCreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
   SerializedUpdateAuthorizationResourceOptions,
-} from '../interfaces/authorization-resource-options.interface';
+} from '../interfaces/authorization-resource.interface';
 
 /**
  * Deserializes an authorization resource from API response format to SDK format.

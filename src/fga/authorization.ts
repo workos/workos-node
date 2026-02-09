@@ -2,11 +2,9 @@ import { WorkOS } from '../workos';
 import {
   AuthorizationResource,
   AuthorizationResourceResponse,
-} from './interfaces/authorization-resource.interface';
-import {
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
-} from './interfaces/authorization-resource-options.interface';
+} from './interfaces/authorization-resource.interface';
 import {
   deserializeAuthorizationResource,
   serializeCreateAuthorizationResourceOptions,

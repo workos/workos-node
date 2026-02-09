@@ -9,4 +9,3 @@ export * from './warrant.interface';
 
 // Authorization Resources (Advanced RBAC)
 export * from './authorization-resource.interface';
-export * from './authorization-resource-options.interface';
