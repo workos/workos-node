@@ -4,7 +4,7 @@ import {
   AuthorizationResourceResponse,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
-} from './interfaces/authorization-resource.interface';
+} from '../authorization/interfaces/authorization-resource.interface';
 import {
   deserializeAuthorizationResource,
   serializeCreateAuthorizationResourceOptions,

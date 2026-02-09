@@ -1,7 +1,7 @@
 import {
   UpdateAuthorizationResourceOptions,
   SerializedUpdateAuthorizationResourceOptions,
-} from '../../fga/interfaces';
+} from '../interfaces/authorization-resource.interface';
 
 /**
  * Serializes UpdateAuthorizationResourceOptions for the API request.

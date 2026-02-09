@@ -13,10 +13,4 @@ export * from './permission.interface';
 export * from './create-permission-options.interface';
 export * from './update-permission-options.interface';
 export * from './list-permissions-options.interface';
-// Re-export from fga for authorization resource types (Advanced RBAC)
-export {
-  AuthorizationResource,
-  AuthorizationResourceResponse,
-  CreateAuthorizationResourceOptions,
-  UpdateAuthorizationResourceOptions,
-} from '../../fga/interfaces';
+export * from './authorization-resource.interface';

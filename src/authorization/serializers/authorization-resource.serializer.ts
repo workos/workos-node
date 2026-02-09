@@ -1,7 +1,7 @@
 import {
   AuthorizationResource,
   AuthorizationResourceResponse,
-} from '../../fga/interfaces';
+} from '../interfaces/authorization-resource.interface';
 
 /**
  * Deserializes an API response into an AuthorizationResource.
