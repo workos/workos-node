@@ -34,7 +34,13 @@ import {
 import {
   RoleEvent,
   RoleEventResponse,
+  OrganizationRoleResponse,
 } from '../../roles/interfaces/role.interface';
+import { OrganizationRole } from '../../authorization/interfaces/organization-role.interface';
+import {
+  Permission,
+  PermissionResponse,
+} from '../../authorization/interfaces/permission.interface';
 import {
   OrganizationDomain,
   OrganizationDomainResponse,
@@ -532,6 +538,66 @@ export interface RoleUpdatedEventResponse extends EventResponseBase {
   data: RoleEventResponse;
 }
 
+export interface OrganizationRoleCreatedEvent extends EventBase {
+  event: 'organization_role.created';
+  data: OrganizationRole;
+}
+
+export interface OrganizationRoleCreatedEventResponse extends EventResponseBase {
+  event: 'organization_role.created';
+  data: OrganizationRoleResponse;
+}
+
+export interface OrganizationRoleUpdatedEvent extends EventBase {
+  event: 'organization_role.updated';
+  data: OrganizationRole;
+}
+
+export interface OrganizationRoleUpdatedEventResponse extends EventResponseBase {
+  event: 'organization_role.updated';
+  data: OrganizationRoleResponse;
+}
+
+export interface OrganizationRoleDeletedEvent extends EventBase {
+  event: 'organization_role.deleted';
+  data: OrganizationRole;
+}
+
+export interface OrganizationRoleDeletedEventResponse extends EventResponseBase {
+  event: 'organization_role.deleted';
+  data: OrganizationRoleResponse;
+}
+
+export interface PermissionCreatedEvent extends EventBase {
+  event: 'permission.created';
+  data: Permission;
+}
+
+export interface PermissionCreatedEventResponse extends EventResponseBase {
+  event: 'permission.created';
+  data: PermissionResponse;
+}
+
+export interface PermissionUpdatedEvent extends EventBase {
+  event: 'permission.updated';
+  data: Permission;
+}
+
+export interface PermissionUpdatedEventResponse extends EventResponseBase {
+  event: 'permission.updated';
+  data: PermissionResponse;
+}
+
+export interface PermissionDeletedEvent extends EventBase {
+  event: 'permission.deleted';
+  data: Permission;
+}
+
+export interface PermissionDeletedEventResponse extends EventResponseBase {
+  event: 'permission.deleted';
+  data: PermissionResponse;
+}
+
 export interface SessionCreatedEvent extends EventBase {
   event: 'session.created';
   data: Session;
@@ -666,6 +732,12 @@ export type Event =
   | RoleCreatedEvent
   | RoleDeletedEvent
   | RoleUpdatedEvent
+  | OrganizationRoleCreatedEvent
+  | OrganizationRoleUpdatedEvent
+  | OrganizationRoleDeletedEvent
+  | PermissionCreatedEvent
+  | PermissionUpdatedEvent
+  | PermissionDeletedEvent
   | SessionCreatedEvent
   | SessionRevokedEvent
   | OrganizationCreatedEvent
@@ -723,6 +795,12 @@ export type EventResponse =
   | RoleCreatedEventResponse
   | RoleDeletedEventResponse
   | RoleUpdatedEventResponse
+  | OrganizationRoleCreatedEventResponse
+  | OrganizationRoleUpdatedEventResponse
+  | OrganizationRoleDeletedEventResponse
+  | PermissionCreatedEventResponse
+  | PermissionUpdatedEventResponse
+  | PermissionDeletedEventResponse
   | SessionCreatedEventResponse
   | SessionRevokedEventResponse
   | OrganizationCreatedResponse
