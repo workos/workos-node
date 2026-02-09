@@ -113,6 +113,10 @@ import {
   serializeRevokeSessionOptions,
 } from './interfaces/revoke-session-options.interface';
 import {
+  ResendInvitationOptions,
+  SerializedResendInvitationOptions,
+} from './interfaces/resend-invitation-options.interface';
+import {
   SendInvitationOptions,
   SerializedSendInvitationOptions,
 } from './interfaces/send-invitation-options.interface';
@@ -153,6 +157,7 @@ import { deserializeInvitation } from './serializers/invitation.serializer';
 import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
 import { serializeListOrganizationMembershipsOptions } from './serializers/list-organization-memberships-options.serializer';
 import { serializeListUsersOptions } from './serializers/list-users-options.serializer';
+import { serializeResendInvitationOptions } from './serializers/resend-invitation-options.serializer';
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
@@ -1061,10 +1066,16 @@ export class UserManagement {
     return deserializeInvitation(data);
   }
 
-  async resendInvitation(invitationId: string): Promise<Invitation> {
-    const { data } = await this.workos.post<InvitationResponse, any>(
+  async resendInvitation(
+    invitationId: string,
+    options?: ResendInvitationOptions,
+  ): Promise<Invitation> {
+    const { data } = await this.workos.post<
+      InvitationResponse,
+      SerializedResendInvitationOptions
+    >(
       `/user_management/invitations/${invitationId}/resend`,
-      null,
+      options ? serializeResendInvitationOptions(options) : {},
     );
 
     return deserializeInvitation(data);

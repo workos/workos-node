@@ -12,6 +12,7 @@ import { WorkOSOptions } from './common/interfaces';
 export * from './actions/interfaces';
 export * from './api-keys/interfaces';
 export * from './audit-logs/interfaces';
+export * from './authorization/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';
