@@ -30,7 +30,6 @@ import {
   SerializedListResourcesOptions,
   SerializedQueryOptions,
 } from './interfaces';
-import { FGAAuthorization } from './authorization';
 import {
   deserializeBatchWriteResourcesResponse,
   deserializeResource,
@@ -56,11 +55,7 @@ import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
  * @deprecated 
  */
 export class FGA {
-  readonly authorization: FGAAuthorization;
-
-  constructor(private readonly workos: WorkOS) {
-    this.authorization = new FGAAuthorization(workos);
-  }
+  constructor(private readonly workos: WorkOS) {}
 
   async check(
     checkOptions: CheckOptions,
