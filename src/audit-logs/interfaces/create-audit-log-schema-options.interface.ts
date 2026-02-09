@@ -1,13 +1,5 @@
 import { PostOptions } from '../../common/interfaces';
 
-export type {
-  AuditLogSchema,
-  AuditLogSchemaResponse,
-  AuditLogSchemaMetadata,
-  AuditLogActorSchema,
-  AuditLogTargetSchema,
-} from './audit-log-schema.interface';
-
 import type {
   AuditLogSchemaMetadata,
   AuditLogSchemaResponse,
