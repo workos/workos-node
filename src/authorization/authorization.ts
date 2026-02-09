@@ -27,6 +27,10 @@ import {
   CreatePermissionOptions,
   UpdatePermissionOptions,
   ListPermissionsOptions,
+  AuthorizationResource,
+  AuthorizationResourceResponse,
+  CreateAuthorizationResourceOptions,
+  UpdateAuthorizationResourceOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -39,6 +43,9 @@ import {
   deserializePermission,
   serializeCreatePermissionOptions,
   serializeUpdatePermissionOptions,
+  deserializeAuthorizationResource,
+  serializeCreateResourceOptions,
+  serializeUpdateResourceOptions,
 } from './serializers';
 
 export class Authorization {
@@ -237,5 +244,55 @@ export class Authorization {
 
   async deletePermission(slug: string): Promise<void> {
     await this.workos.delete(`/authorization/permissions/${slug}`);
+  }
+
+  /**
+   * Retrieves an authorization resource by its internal ID.
+   * @param resourceId - The internal resource ID
+   * @returns The authorization resource
+   */
+  async getResource(resourceId: string): Promise<AuthorizationResource> {
+    const { data } = await this.workos.get<AuthorizationResourceResponse>(
+      `/authorization/resources/${resourceId}`,
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  /**
+   * Creates a new authorization resource.
+   * @param options - The resource creation options
+   * @returns The created authorization resource
+   */
+  async createResource(
+    options: CreateAuthorizationResourceOptions,
+  ): Promise<AuthorizationResource> {
+    const { data } = await this.workos.post<AuthorizationResourceResponse>(
+      '/authorization/resources',
+      serializeCreateResourceOptions(options),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  /**
+   * Updates an authorization resource by its internal ID.
+   * @param options - The resource update options including resourceId
+   * @returns The updated authorization resource
+   */
+  async updateResource(
+    options: UpdateAuthorizationResourceOptions,
+  ): Promise<AuthorizationResource> {
+    const { data } = await this.workos.patch<AuthorizationResourceResponse>(
+      `/authorization/resources/${options.resourceId}`,
+      serializeUpdateResourceOptions(options),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  /**
+   * Deletes an authorization resource by its internal ID.
+   * @param resourceId - The internal resource ID
+   */
+  async deleteResource(resourceId: string): Promise<void> {
+    await this.workos.delete(`/authorization/resources/${resourceId}`);
   }
 }

@@ -1,7 +1,3 @@
-/**
- * Represents an authorization resource in the WorkOS FGA system.
- * Resources are the objects on which permissions are granted (e.g., documents, folders).
- */
 export interface AuthorizationResource {
   object: 'authorization_resource';
   id: string;
@@ -15,9 +11,6 @@ export interface AuthorizationResource {
   updatedAt: string;
 }
 
-/**
- * API response format for authorization resource (snake_case).
- */
 export interface AuthorizationResourceResponse {
   object: 'authorization_resource';
   id: string;
@@ -31,9 +24,6 @@ export interface AuthorizationResourceResponse {
   updated_at: string;
 }
 
-/**
- * Paginated list of authorization resources.
- */
 export interface AuthorizationResourceList {
   object: 'list';
   data: AuthorizationResource[];
@@ -43,9 +33,6 @@ export interface AuthorizationResourceList {
   };
 }
 
-/**
- * API response format for paginated authorization resource list (snake_case).
- */
 export interface AuthorizationResourceListResponse {
   object: 'list';
   data: AuthorizationResourceResponse[];

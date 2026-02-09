@@ -12,9 +12,11 @@ import organizationRoleFixture from './fixtures/organization-role.json';
 import listOrganizationRolesFixture from './fixtures/list-organization-roles.json';
 import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
+import authorizationResourceFixture from './fixtures/authorization-resource.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
+const testResourceId = 'resource_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -589,6 +591,188 @@ describe('Authorization', () => {
       await workos.authorization.deletePermission('users:read');
 
       expect(fetchURL()).toContain('/authorization/permissions/users:read');
+    });
+  });
+
+  describe('getResource', () => {
+    it('gets an authorization resource by internal ID', async () => {
+      fetchOnce(authorizationResourceFixture);
+
+      const resource = await workos.authorization.getResource(testResourceId);
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}`,
+      );
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+        resourceType: 'document',
+        organizationId: testOrgId,
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+    });
+
+    it('handles resource without parent', async () => {
+      fetchOnce({ ...authorizationResourceFixture, parent_resource_id: null });
+
+      const resource = await workos.authorization.getResource(testResourceId);
+
+      expect(resource.parentResourceId).toBeNull();
+    });
+  });
+
+  describe('createResource', () => {
+    it('creates an authorization resource with all fields', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+
+      expect(fetchURL()).toContain('/authorization/resources');
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        resourceType: 'document',
+      });
+    });
+
+    it('creates an authorization resource with required fields only', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          description: null,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+      expect(resource.description).toBeNull();
+      expect(resource.parentResourceId).toBeNull();
+    });
+  });
+
+  describe('updateResource', () => {
+    it('updates resource name', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        name: 'Updated Report Name',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        name: 'Updated Report Name',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}`,
+      );
+      expect(fetchBody()).toEqual({
+        name: 'Updated Report Name',
+      });
+      expect(resource.name).toBe('Updated Report Name');
+    });
+
+    it('updates resource description', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        description: 'Updated description',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        description: 'Updated description',
+      });
+
+      expect(fetchBody()).toEqual({
+        description: 'Updated description',
+      });
+      expect(resource.description).toBe('Updated description');
+    });
+
+    it('clears description when set to null', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        description: null,
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        description: null,
+      });
+
+      expect(fetchBody()).toEqual({
+        description: null,
+      });
+      expect(resource.description).toBeNull();
+    });
+
+    it('updates both name and description', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        name: 'New Name',
+        description: 'New Description',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        name: 'New Name',
+        description: 'New Description',
+      });
+
+      expect(fetchBody()).toEqual({
+        name: 'New Name',
+        description: 'New Description',
+      });
+      expect(resource.name).toBe('New Name');
+      expect(resource.description).toBe('New Description');
+    });
+  });
+
+  describe('deleteResource', () => {
+    it('deletes an authorization resource', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteResource(testResourceId);
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}`,
+      );
     });
   });
 });
