@@ -52,7 +52,7 @@ import { FgaPaginatable } from './utils/fga-paginatable';
 import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
 
 /**
- * @deprecated 
+ * @deprecated
  */
 export class FGA {
   constructor(private readonly workos: WorkOS) {}
