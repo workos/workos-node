@@ -246,11 +246,6 @@ export class Authorization {
     await this.workos.delete(`/authorization/permissions/${slug}`);
   }
 
-  /**
-   * Retrieves an authorization resource by its internal ID.
-   * @param resourceId - The internal resource ID
-   * @returns The authorization resource
-   */
   async getResource(resourceId: string): Promise<AuthorizationResource> {
     const { data } = await this.workos.get<AuthorizationResourceResponse>(
       `/authorization/resources/${resourceId}`,
@@ -258,11 +253,6 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  /**
-   * Creates a new authorization resource.
-   * @param options - The resource creation options
-   * @returns The created authorization resource
-   */
   async createResource(
     options: CreateAuthorizationResourceOptions,
   ): Promise<AuthorizationResource> {
@@ -273,11 +263,6 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  /**
-   * Updates an authorization resource by its internal ID.
-   * @param options - The resource update options including resourceId
-   * @returns The updated authorization resource
-   */
   async updateResource(
     options: UpdateAuthorizationResourceOptions,
   ): Promise<AuthorizationResource> {
@@ -288,10 +273,6 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  /**
-   * Deletes an authorization resource by its internal ID.
-   * @param resourceId - The internal resource ID
-   */
   async deleteResource(resourceId: string): Promise<void> {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
   }

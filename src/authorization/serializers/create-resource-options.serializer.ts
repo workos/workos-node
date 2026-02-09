@@ -3,10 +3,6 @@ import {
   SerializedCreateAuthorizationResourceOptions,
 } from '../interfaces/authorization-resource.interface';
 
-/**
- * Serializes CreateAuthorizationResourceOptions for the API request.
- * Converts camelCase to snake_case for API compatibility.
- */
 export const serializeCreateResourceOptions = (
   options: CreateAuthorizationResourceOptions,
 ): SerializedCreateAuthorizationResourceOptions => ({

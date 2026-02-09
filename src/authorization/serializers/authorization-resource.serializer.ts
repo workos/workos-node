@@ -3,10 +3,6 @@ import {
   AuthorizationResourceResponse,
 } from '../interfaces/authorization-resource.interface';
 
-/**
- * Deserializes an API response into an AuthorizationResource.
- * Converts snake_case API fields to camelCase.
- */
 export const deserializeAuthorizationResource = (
   resource: AuthorizationResourceResponse,
 ): AuthorizationResource => ({

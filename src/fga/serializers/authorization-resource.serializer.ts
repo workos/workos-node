@@ -7,10 +7,6 @@ import {
   SerializedUpdateAuthorizationResourceOptions,
 } from '../../authorization/interfaces/authorization-resource.interface';
 
-/**
- * Deserializes an authorization resource from API response format to SDK format.
- * Converts snake_case fields to camelCase.
- */
 export const deserializeAuthorizationResource = (
   resource: AuthorizationResourceResponse,
 ): AuthorizationResource => ({
@@ -26,10 +22,6 @@ export const deserializeAuthorizationResource = (
   updatedAt: resource.updated_at,
 });
 
-/**
- * Serializes create resource options from SDK format to API request format.
- * Converts camelCase fields to snake_case.
- */
 export const serializeCreateAuthorizationResourceOptions = (
   options: CreateAuthorizationResourceOptions,
 ): SerializedCreateAuthorizationResourceOptions => ({
@@ -41,10 +33,6 @@ export const serializeCreateAuthorizationResourceOptions = (
   parent_resource_id: options.parentResourceId,
 });
 
-/**
- * Serializes update resource options from SDK format to API request format.
- * Only includes fields that are explicitly provided (including null for clearing).
- */
 export const serializeUpdateAuthorizationResourceOptions = (
   options: UpdateAuthorizationResourceOptions,
 ): SerializedUpdateAuthorizationResourceOptions => {
