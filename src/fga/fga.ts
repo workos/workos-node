@@ -52,20 +52,16 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FgaPaginatable } from './utils/fga-paginatable';
 import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
 
+/**
+ * @deprecated 
+ */
 export class FGA {
-  /**
-   * Authorization sub-module for Advanced RBAC resource management.
-   * Access via `workos.fga.authorization.*`
-   */
   readonly authorization: FGAAuthorization;
 
   constructor(private readonly workos: WorkOS) {
     this.authorization = new FGAAuthorization(workos);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async check(
     checkOptions: CheckOptions,
     options: CheckRequestOptions = {},
@@ -78,9 +74,6 @@ export class FGA {
     return new CheckResult(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async checkBatch(
     checkOptions: CheckBatchOptions,
     options: CheckRequestOptions = {},
@@ -95,9 +88,6 @@ export class FGA {
     );
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async createResource(resource: CreateResourceOptions): Promise<Resource> {
     const { data } = await this.workos.post<ResourceResponse>(
       '/fga/v1/resources',
@@ -107,9 +97,6 @@ export class FGA {
     return deserializeResource(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async getResource(
     resource: ResourceInterface | ResourceOptions,
   ): Promise<Resource> {
@@ -127,9 +114,6 @@ export class FGA {
     return deserializeResource(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async listResources(
     options?: ListResourcesOptions,
   ): Promise<AutoPaginatable<Resource, SerializedListResourcesOptions>> {
@@ -151,9 +135,6 @@ export class FGA {
     );
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async updateResource(options: UpdateResourceOptions): Promise<Resource> {
     const resourceType = isResourceInterface(options.resource)
       ? options.resource.getResourceType()
@@ -172,9 +153,6 @@ export class FGA {
     return deserializeResource(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async deleteResource(resource: DeleteResourceOptions): Promise<void> {
     const resourceType = isResourceInterface(resource)
       ? resource.getResourceType()
@@ -186,9 +164,6 @@ export class FGA {
     await this.workos.delete(`/fga/v1/resources/${resourceType}/${resourceId}`);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async batchWriteResources(
     options: BatchWriteResourcesOptions,
   ): Promise<Resource[]> {
@@ -199,9 +174,6 @@ export class FGA {
     return deserializeBatchWriteResourcesResponse(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async writeWarrant(options: WriteWarrantOptions): Promise<WarrantToken> {
     const { data } = await this.workos.post<WarrantTokenResponse>(
       '/fga/v1/warrants',
@@ -211,9 +183,6 @@ export class FGA {
     return deserializeWarrantToken(data);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async batchWriteWarrants(
     options: WriteWarrantOptions[],
   ): Promise<WarrantToken> {
@@ -225,9 +194,6 @@ export class FGA {
     return deserializeWarrantToken(warrantToken);
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async listWarrants(
     options?: ListWarrantsOptions,
     requestOptions?: ListWarrantsRequestOptions,
@@ -252,9 +218,6 @@ export class FGA {
     );
   }
 
-  /**
-   * @deprecated Use `workos.fga.authorization` methods instead.
-   */
   async query(
     options: QueryOptions,
     requestOptions: QueryRequestOptions = {},
