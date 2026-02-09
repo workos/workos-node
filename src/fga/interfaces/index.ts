@@ -6,3 +6,7 @@ export * from './resource.interface';
 export * from './warrant-op.enum';
 export * from './warrant-token.interface';
 export * from './warrant.interface';
+
+// Authorization Resources (Advanced RBAC)
+export * from './authorization-resource.interface';
+export * from './authorization-resource-options.interface';

@@ -17,7 +17,7 @@ export interface CreateAuthorizationResourceOptions {
 }
 
 /**
- * Serialized format for API request (snake_case).
+ * Serialized format for create request (snake_case).
  */
 export interface SerializedCreateAuthorizationResourceOptions {
   organization_id: string;
@@ -26,4 +26,24 @@ export interface SerializedCreateAuthorizationResourceOptions {
   name: string;
   description?: string;
   parent_resource_id?: string;
+}
+
+/**
+ * Options for updating an authorization resource.
+ */
+export interface UpdateAuthorizationResourceOptions {
+  /** The resource ID to update. */
+  resourceId: string;
+  /** Updated display name (max 48 chars). */
+  name?: string;
+  /** Updated description (max 150 chars). Set to null to clear. */
+  description?: string | null;
+}
+
+/**
+ * Serialized format for update request (snake_case).
+ */
+export interface SerializedUpdateAuthorizationResourceOptions {
+  name?: string;
+  description?: string | null;
 }

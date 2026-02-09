@@ -13,8 +13,3 @@ export * from './permission.interface';
 export * from './create-permission-options.interface';
 export * from './update-permission-options.interface';
 export * from './list-permissions-options.interface';
-
-// Authorization Resources (FGA)
-export * from './authorization-resource.interface';
-export * from './create-authorization-resource-options.interface';
-export * from './update-authorization-resource-options.interface';

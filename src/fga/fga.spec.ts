@@ -806,4 +806,214 @@ describe('FGA', () => {
       });
     });
   });
+
+  // ============================================================
+  // FGA Authorization (Advanced RBAC)
+  // ============================================================
+
+  describe('authorization', () => {
+    const authorizationResourceFixture = {
+      object: 'authorization_resource',
+      id: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+      external_id: 'doc-1',
+      name: 'Document 1',
+      description: 'A test document',
+      resource_type: 'document',
+      organization_id: 'org_01HXYZ123ABC456DEF789ABC',
+      parent_resource_id: null,
+      created_at: '2024-01-15T09:30:00.000Z',
+      updated_at: '2024-01-15T09:30:00.000Z',
+    };
+
+    describe('getResource', () => {
+      it('gets a resource by id', async () => {
+        fetchOnce(authorizationResourceFixture);
+
+        const resource = await workos.fga.authorization.getResource(
+          'authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+
+        expect(fetchURL()).toContain(
+          '/authorization/resources/authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+        expect(resource).toMatchObject({
+          object: 'authorization_resource',
+          id: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+          externalId: 'doc-1',
+          name: 'Document 1',
+          description: 'A test document',
+          resourceType: 'document',
+          organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+          parentResourceId: null,
+        });
+      });
+
+      it('deserializes all fields correctly', async () => {
+        const fixtureWithParent = {
+          ...authorizationResourceFixture,
+          parent_resource_id: 'authz_resource_parent_123',
+        };
+        fetchOnce(fixtureWithParent);
+
+        const resource = await workos.fga.authorization.getResource(
+          'authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+
+        expect(resource.parentResourceId).toBe('authz_resource_parent_123');
+        expect(resource.createdAt).toBe('2024-01-15T09:30:00.000Z');
+        expect(resource.updatedAt).toBe('2024-01-15T09:30:00.000Z');
+      });
+    });
+
+    describe('createResource', () => {
+      it('creates a resource with all options', async () => {
+        const fixtureWithParent = {
+          ...authorizationResourceFixture,
+          parent_resource_id: 'authz_resource_parent_123',
+        };
+        fetchOnce(fixtureWithParent, { status: 201 });
+
+        const resource = await workos.fga.authorization.createResource({
+          organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+          resourceTypeSlug: 'document',
+          externalId: 'doc-1',
+          name: 'Document 1',
+          description: 'A test document',
+          parentResourceId: 'authz_resource_parent_123',
+        });
+
+        expect(fetchURL()).toContain('/authorization/resources');
+        expect(fetchBody()).toEqual({
+          organization_id: 'org_01HXYZ123ABC456DEF789ABC',
+          resource_type_slug: 'document',
+          external_id: 'doc-1',
+          name: 'Document 1',
+          description: 'A test document',
+          parent_resource_id: 'authz_resource_parent_123',
+        });
+        expect(resource.externalId).toBe('doc-1');
+        expect(resource.parentResourceId).toBe('authz_resource_parent_123');
+      });
+
+      it('creates a resource with only required fields', async () => {
+        const minimalFixture = {
+          ...authorizationResourceFixture,
+          description: null,
+          parent_resource_id: null,
+        };
+        fetchOnce(minimalFixture, { status: 201 });
+
+        const resource = await workos.fga.authorization.createResource({
+          organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+          resourceTypeSlug: 'document',
+          externalId: 'doc-2',
+          name: 'Document 2',
+        });
+
+        expect(fetchBody()).toEqual({
+          organization_id: 'org_01HXYZ123ABC456DEF789ABC',
+          resource_type_slug: 'document',
+          external_id: 'doc-2',
+          name: 'Document 2',
+        });
+        expect(resource.description).toBeNull();
+        expect(resource.parentResourceId).toBeNull();
+      });
+    });
+
+    describe('updateResource', () => {
+      it('updates a resource name', async () => {
+        const updatedFixture = {
+          ...authorizationResourceFixture,
+          name: 'Updated Document',
+        };
+        fetchOnce(updatedFixture);
+
+        const resource = await workos.fga.authorization.updateResource({
+          resourceId: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+          name: 'Updated Document',
+        });
+
+        expect(fetchURL()).toContain(
+          '/authorization/resources/authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+        expect(fetchBody()).toEqual({
+          name: 'Updated Document',
+        });
+        expect(resource.name).toBe('Updated Document');
+      });
+
+      it('updates a resource description', async () => {
+        const updatedFixture = {
+          ...authorizationResourceFixture,
+          description: 'Updated description',
+        };
+        fetchOnce(updatedFixture);
+
+        const resource = await workos.fga.authorization.updateResource({
+          resourceId: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+          description: 'Updated description',
+        });
+
+        expect(fetchBody()).toEqual({
+          description: 'Updated description',
+        });
+        expect(resource.description).toBe('Updated description');
+      });
+
+      it('clears description when set to null', async () => {
+        const updatedFixture = {
+          ...authorizationResourceFixture,
+          description: null,
+        };
+        fetchOnce(updatedFixture);
+
+        const resource = await workos.fga.authorization.updateResource({
+          resourceId: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+          description: null,
+        });
+
+        expect(fetchBody()).toEqual({
+          description: null,
+        });
+        expect(resource.description).toBeNull();
+      });
+
+      it('updates both name and description', async () => {
+        const updatedFixture = {
+          ...authorizationResourceFixture,
+          name: 'New Name',
+          description: 'New Description',
+        };
+        fetchOnce(updatedFixture);
+
+        const resource = await workos.fga.authorization.updateResource({
+          resourceId: 'authz_resource_01HXYZ123ABC456DEF789GHI',
+          name: 'New Name',
+          description: 'New Description',
+        });
+
+        expect(fetchBody()).toEqual({
+          name: 'New Name',
+          description: 'New Description',
+        });
+        expect(resource.name).toBe('New Name');
+        expect(resource.description).toBe('New Description');
+      });
+    });
+
+    describe('deleteResource', () => {
+      it('deletes a resource', async () => {
+        fetchOnce({}, { status: 204 });
+
+        await workos.fga.authorization.deleteResource(
+          'authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+
+        expect(fetchURL()).toContain(
+          '/authorization/resources/authz_resource_01HXYZ123ABC456DEF789GHI',
+        );
+      });
+    });
+  });
 });

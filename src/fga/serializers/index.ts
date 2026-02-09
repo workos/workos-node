@@ -11,3 +11,6 @@ export * from './warrant-token.serializer';
 export * from './warrant.serializer';
 export * from './write-warrant-options.serializer';
 export * from './list.serializer';
+
+// Authorization Resources (Advanced RBAC)
+export * from './authorization-resource.serializer';
