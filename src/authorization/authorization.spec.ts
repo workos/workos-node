@@ -1073,7 +1073,7 @@ describe('Authorization', () => {
       });
 
       expect(fetchURL()).toContain(
-        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456`,
       );
       expect(resource).toMatchObject({
         object: 'authorization_resource',
@@ -1116,7 +1116,7 @@ describe('Authorization', () => {
       });
 
       expect(fetchURL()).toContain(
-        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456`,
       );
       expect(fetchBody()).toEqual({
         name: 'Updated Report Name',
@@ -1175,7 +1175,7 @@ describe('Authorization', () => {
       });
 
       expect(fetchURL()).toContain(
-        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456`,
       );
     });
   });
