@@ -14,3 +14,7 @@ export * from './create-permission-options.interface';
 export * from './update-permission-options.interface';
 export * from './list-permissions-options.interface';
 export * from './authorization-resource.interface';
+export * from './list-resources-options.interface';
+export * from './get-resource-by-external-id-options.interface';
+export * from './update-resource-by-external-id-options.interface';
+export * from './delete-resource-by-external-id-options.interface';

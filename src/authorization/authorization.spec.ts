@@ -13,6 +13,7 @@ import listOrganizationRolesFixture from './fixtures/list-organization-roles.jso
 import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
+import listResourcesFixture from './fixtures/list-resources.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -954,6 +955,227 @@ describe('Authorization', () => {
 
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}`,
+      );
+    });
+  });
+
+  describe('listResources', () => {
+    it('returns a paginated list of resources', async () => {
+      fetchOnce(listResourcesFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listResources();
+
+      expect(fetchURL()).toContain('/authorization/resources');
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(2);
+      expect(data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'authorization_resource',
+            id: 'resource_01HXYZ123ABC456DEF789ABC',
+            externalId: 'doc-456',
+            name: 'Q4 Budget Report',
+            resourceTypeSlug: 'document',
+          }),
+          expect.objectContaining({
+            object: 'authorization_resource',
+            id: 'resource_01HXYZ123ABC456DEF789DEF',
+            externalId: 'folder-123',
+            name: 'Finance Folder',
+            resourceTypeSlug: 'folder',
+          }),
+        ]),
+      );
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'resource_01HXYZ123ABC456DEF789DEF',
+      });
+    });
+
+    it('passes filter parameters as comma-separated strings', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        organizationIds: ['org_01', 'org_02'],
+        resourceTypeSlugs: ['document', 'folder'],
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        organization_ids: 'org_01,org_02',
+        resource_type_slugs: 'document,folder',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        limit: 10,
+        after: 'resource_01HXYZ123ABC456DEF789ABC',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'resource_01HXYZ123ABC456DEF789ABC',
+        order: 'desc',
+      });
+    });
+
+    it('passes parent resource filters', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+    });
+
+    it('passes parent external ID filters', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        parentResourceTypeSlug: 'folder',
+        parentExternalId: 'folder-123',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        parent_resource_type_slug: 'folder',
+        parent_external_id: 'folder-123',
+      });
+    });
+
+    it('passes search filter', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        search: 'Budget',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        search: 'Budget',
+      });
+    });
+  });
+
+  describe('getResourceByExternalId', () => {
+    it('gets a resource by organization, type, and external ID', async () => {
+      fetchOnce(authorizationResourceFixture);
+
+      const resource = await workos.authorization.getResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
+      );
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        resourceTypeSlug: 'document',
+        organizationId: testOrgId,
+      });
+    });
+
+    it('handles resource without parent', async () => {
+      fetchOnce({ ...authorizationResourceFixture, parent_resource_id: null });
+
+      const resource = await workos.authorization.getResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(resource.parentResourceId).toBeNull();
+    });
+  });
+
+  describe('updateResourceByExternalId', () => {
+    it('updates a resource by external ID', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        name: 'Updated Report Name',
+        description: 'Updated description',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Updated Report Name',
+        description: 'Updated description',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
+      );
+      expect(fetchBody()).toEqual({
+        name: 'Updated Report Name',
+        description: 'Updated description',
+      });
+      expect(resource.name).toBe('Updated Report Name');
+      expect(resource.description).toBe('Updated description');
+    });
+
+    it('updates only name when description is omitted', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        name: 'New Name',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      await workos.authorization.updateResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'New Name',
+      });
+
+      const body = fetchBody();
+      expect(body).toEqual({ name: 'New Name' });
+      expect(body).not.toHaveProperty('description');
+    });
+
+    it('clears description when set to null', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        description: null,
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        description: null,
+      });
+
+      expect(fetchBody()).toEqual({ description: null });
+      expect(resource.description).toBeNull();
+    });
+  });
+
+  describe('deleteResourceByExternalId', () => {
+    it('deletes a resource by external ID', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resource_types/document/resources/doc-456`,
       );
     });
   });

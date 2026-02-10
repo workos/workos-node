@@ -29,8 +29,14 @@ import {
   ListPermissionsOptions,
   AuthorizationResource,
   AuthorizationResourceResponse,
+  AuthorizationResourceList,
+  AuthorizationResourceListResponse,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
+  ListAuthorizationResourcesOptions,
+  GetResourceByExternalIdOptions,
+  UpdateResourceByExternalIdOptions,
+  DeleteResourceByExternalIdOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -46,6 +52,7 @@ import {
   deserializeAuthorizationResource,
   serializeCreateResourceOptions,
   serializeUpdateResourceOptions,
+  serializeListAuthorizationResourcesOptions,
 } from './serializers';
 
 export class Authorization {
@@ -275,5 +282,89 @@ export class Authorization {
 
   async deleteResource(resourceId: string): Promise<void> {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
+  }
+
+  /**
+   * List authorization resources with optional filtering and pagination.
+   *
+   * @param options - Filter and pagination options
+   * @returns Paginated list of authorization resources
+   */
+  async listResources(
+    options?: ListAuthorizationResourcesOptions,
+  ): Promise<AuthorizationResourceList> {
+    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
+      '/authorization/resources',
+      {
+        query: options
+          ? serializeListAuthorizationResourcesOptions(options)
+          : undefined,
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationResource),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  /**
+   * Get an authorization resource by its external ID.
+   *
+   * Uses the organization + resource type + external ID path format
+   * to uniquely identify the resource.
+   *
+   * @param options - The organization ID, resource type slug, and external ID
+   * @returns The authorization resource
+   */
+  async getResourceByExternalId(
+    options: GetResourceByExternalIdOptions,
+  ): Promise<AuthorizationResource> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    const { data } = await this.workos.get<AuthorizationResourceResponse>(
+      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  /**
+   * Update an authorization resource by its external ID.
+   *
+   * Uses the organization + resource type + external ID path format.
+   * At least one of name or description must be provided.
+   *
+   * @param options - The organization ID, resource type slug, external ID, and fields to update
+   * @returns The updated authorization resource
+   */
+  async updateResourceByExternalId(
+    options: UpdateResourceByExternalIdOptions,
+  ): Promise<AuthorizationResource> {
+    const { organizationId, resourceTypeSlug, externalId, ...updateFields } =
+      options;
+    const { data } = await this.workos.patch<AuthorizationResourceResponse>(
+      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
+      serializeUpdateResourceOptions({ resourceId: '', ...updateFields }),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  /**
+   * Delete an authorization resource by its external ID.
+   *
+   * Uses the organization + resource type + external ID path format
+   * to uniquely identify the resource to delete.
+   *
+   * @param options - The organization ID, resource type slug, and external ID
+   */
+  async deleteResourceByExternalId(
+    options: DeleteResourceByExternalIdOptions,
+  ): Promise<void> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    await this.workos.delete(
+      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
+    );
   }
 }
