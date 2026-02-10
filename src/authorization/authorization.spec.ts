@@ -13,10 +13,13 @@ import listOrganizationRolesFixture from './fixtures/list-organization-roles.jso
 import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
+import authorizationCheckAuthorizedFixture from './fixtures/authorization-check-authorized.json';
+import authorizationCheckUnauthorizedFixture from './fixtures/authorization-check-unauthorized.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'resource_01HXYZ123ABC456DEF789ABC';
+const testOrgMembershipId = 'om_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -955,6 +958,79 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}`,
       );
+    });
+  });
+
+  describe('check', () => {
+    it('returns authorized when permission is granted (by resource ID)', async () => {
+      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:edit',
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
+      );
+      expect(fetchBody()).toEqual({
+        permission_slug: 'documents:edit',
+        resource_id: testResourceId,
+      });
+      expect(result).toEqual({ authorized: true });
+    });
+
+    it('returns unauthorized when permission is not granted', async () => {
+      fetchOnce(authorizationCheckUnauthorizedFixture, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:delete',
+        resourceId: testResourceId,
+      });
+
+      expect(result).toEqual({ authorized: false });
+    });
+
+    it('checks authorization by external ID', async () => {
+      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:edit',
+        resourceExternalId: 'doc-123',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
+      );
+      expect(fetchBody()).toEqual({
+        permission_slug: 'documents:edit',
+        resource_external_id: 'doc-123',
+        resource_type_slug: 'document',
+      });
+      expect(result).toEqual({ authorized: true });
+    });
+
+    it('only includes provided resource identification fields', async () => {
+      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+
+      await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:read',
+        resourceId: testResourceId,
+      });
+
+      const body = fetchBody();
+      expect(body).toEqual({
+        permission_slug: 'documents:read',
+        resource_id: testResourceId,
+      });
+      // Verify external ID fields are NOT included
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
     });
   });
 });

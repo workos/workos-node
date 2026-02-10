@@ -31,6 +31,8 @@ import {
   AuthorizationResourceResponse,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
+  AuthorizationCheckOptions,
+  AuthorizationCheckResult,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -46,6 +48,7 @@ import {
   deserializeAuthorizationResource,
   serializeCreateResourceOptions,
   serializeUpdateResourceOptions,
+  serializeAuthorizationCheckOptions,
 } from './serializers';
 
 export class Authorization {
@@ -275,5 +278,44 @@ export class Authorization {
 
   async deleteResource(resourceId: string): Promise<void> {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
+  }
+
+  /**
+   * Check if an organization membership has a specific permission on a resource.
+   *
+   * @param options - The check options
+   * @param options.organizationMembershipId - The organization membership to check
+   * @param options.permissionSlug - The permission to check (e.g., "documents:edit")
+   * @param options.resourceId - Internal resource ID (mutually exclusive with external ID)
+   * @param options.resourceExternalId - External resource ID (requires resourceTypeSlug)
+   * @param options.resourceTypeSlug - Resource type slug (required with resourceExternalId)
+   * @returns Object with `authorized` boolean
+   *
+   * @example
+   * // Check by internal resource ID
+   * const result = await workos.authorization.check({
+   *   organizationMembershipId: 'om_01HXYZ...',
+   *   permissionSlug: 'documents:edit',
+   *   resourceId: 'resource_01HXYZ...',
+   * });
+   * console.log(result.authorized); // true or false
+   *
+   * @example
+   * // Check by external ID
+   * const result = await workos.authorization.check({
+   *   organizationMembershipId: 'om_01HXYZ...',
+   *   permissionSlug: 'documents:edit',
+   *   resourceExternalId: 'doc-123',
+   *   resourceTypeSlug: 'document',
+   * });
+   */
+  async check(
+    options: AuthorizationCheckOptions,
+  ): Promise<AuthorizationCheckResult> {
+    const { data } = await this.workos.post<AuthorizationCheckResult>(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/check`,
+      serializeAuthorizationCheckOptions(options),
+    );
+    return data;
   }
 }
