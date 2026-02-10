@@ -1,4 +1,4 @@
-export interface UpdateResourceByExternalIdOptions {
+export interface UpdateAuthorizationResourceByExternalIdOptions {
   organizationId: string;
   resourceTypeSlug: string;
   externalId: string;

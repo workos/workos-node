@@ -34,9 +34,9 @@ import {
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
   ListAuthorizationResourcesOptions,
-  GetResourceByExternalIdOptions,
-  UpdateResourceByExternalIdOptions,
-  DeleteResourceByExternalIdOptions,
+  GetAuthorizationResourceByExternalIdOptions,
+  UpdateAuthorizationResourceByExternalIdOptions,
+  DeleteAuthorizationResourceByExternalIdOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -307,7 +307,7 @@ export class Authorization {
   }
 
   async getResourceByExternalId(
-    options: GetResourceByExternalIdOptions,
+    options: GetAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.get<AuthorizationResourceResponse>(
@@ -317,7 +317,7 @@ export class Authorization {
   }
 
   async updateResourceByExternalId(
-    options: UpdateResourceByExternalIdOptions,
+    options: UpdateAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId, ...updateFields } =
       options;
@@ -329,7 +329,7 @@ export class Authorization {
   }
 
   async deleteResourceByExternalId(
-    options: DeleteResourceByExternalIdOptions,
+    options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     await this.workos.delete(

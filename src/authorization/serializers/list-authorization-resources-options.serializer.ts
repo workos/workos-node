@@ -1,7 +1,7 @@
 import {
   ListAuthorizationResourcesOptions,
   SerializedListAuthorizationResourcesOptions,
-} from '../interfaces/list-resources-options.interface';
+} from '../interfaces/list-authorization-resources-options.interface';
 
 export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
