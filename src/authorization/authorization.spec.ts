@@ -612,6 +612,8 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
         organizationId: testOrgId,
         parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
       });
     });
 
@@ -623,20 +625,17 @@ describe('Authorization', () => {
       expect(resource.parentResourceId).toBeNull();
     });
 
-    it('deserializes all fields correctly including timestamps', async () => {
-      const fixtureWithParent = {
+    it('handles resource without parent and without description', async () => {
+      fetchOnce({
         ...authorizationResourceFixture,
-        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
-      };
-      fetchOnce(fixtureWithParent);
+        parent_resource_id: null,
+        description: null,
+      });
 
       const resource = await workos.authorization.getResource(testResourceId);
 
-      expect(resource.parentResourceId).toBe(
-        'resource_01HXYZ123ABC456DEF789XYZ',
-      );
-      expect(resource.createdAt).toBe('2024-01-15T09:30:00.000Z');
-      expect(resource.updatedAt).toBe('2024-01-15T09:30:00.000Z');
+      expect(resource.parentResourceId).toBeNull();
+      expect(resource.description).toBeNull();
     });
   });
 
@@ -667,7 +666,11 @@ describe('Authorization', () => {
         id: testResourceId,
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
       });
     });
 
@@ -694,8 +697,91 @@ describe('Authorization', () => {
         external_id: 'doc-456',
         name: 'Q4 Budget Report',
       });
-      expect(resource.description).toBeNull();
-      expect(resource.parentResourceId).toBeNull();
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: null,
+        resourceTypeSlug: 'document',
+        parentResourceId: null,
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+    });
+
+    it('creates an authorization resource with description but no parent resource', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+      });
+
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+      });
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: 'Financial report for Q4 2025',
+        resourceTypeSlug: 'document',
+        parentResourceId: null,
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+    });
+
+    it('creates an authorization resource with parent resource but no description', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          description: null,
+        },
+        { status: 201 },
+      );
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+      });
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: null,
+        resourceTypeSlug: 'document',
+        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
     });
   });
 
@@ -791,5 +877,4 @@ describe('Authorization', () => {
       );
     });
   });
-
 });

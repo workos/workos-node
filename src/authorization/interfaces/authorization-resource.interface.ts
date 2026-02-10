@@ -24,24 +24,6 @@ export interface AuthorizationResourceResponse {
   updated_at: string;
 }
 
-export interface AuthorizationResourceList {
-  object: 'list';
-  data: AuthorizationResource[];
-  listMetadata: {
-    before: string | null;
-    after: string | null;
-  };
-}
-
-export interface AuthorizationResourceListResponse {
-  object: 'list';
-  data: AuthorizationResourceResponse[];
-  list_metadata: {
-    before: string | null;
-    after: string | null;
-  };
-}
-
 export interface CreateAuthorizationResourceOptions {
   externalId: string;
   name: string;
