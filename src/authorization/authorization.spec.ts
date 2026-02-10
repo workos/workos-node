@@ -1007,7 +1007,7 @@ describe('Authorization', () => {
       });
     });
 
-    it('passes pagination parameters', async () => {
+    it('passes pagination parameters with after cursor', async () => {
       fetchOnce(listResourcesFixture);
 
       await workos.authorization.listResources({
@@ -1020,6 +1020,22 @@ describe('Authorization', () => {
         limit: '10',
         after: 'resource_01HXYZ123ABC456DEF789ABC',
         order: 'desc',
+      });
+    });
+
+    it('passes pagination parameters with before cursor', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({
+        limit: 10,
+        before: 'resource_01HXYZ123ABC456DEF789DEF',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        before: 'resource_01HXYZ123ABC456DEF789DEF',
+        order: 'asc',
       });
     });
 
