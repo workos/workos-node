@@ -284,12 +284,6 @@ export class Authorization {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
   }
 
-  /**
-   * List authorization resources with optional filtering and pagination.
-   *
-   * @param options - Filter and pagination options
-   * @returns Paginated list of authorization resources
-   */
   async listResources(
     options?: ListAuthorizationResourcesOptions,
   ): Promise<AuthorizationResourceList> {
@@ -311,15 +305,6 @@ export class Authorization {
     };
   }
 
-  /**
-   * Get an authorization resource by its external ID.
-   *
-   * Uses the organization + resource type + external ID path format
-   * to uniquely identify the resource.
-   *
-   * @param options - The organization ID, resource type slug, and external ID
-   * @returns The authorization resource
-   */
   async getResourceByExternalId(
     options: GetResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
@@ -330,15 +315,6 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  /**
-   * Update an authorization resource by its external ID.
-   *
-   * Uses the organization + resource type + external ID path format.
-   * At least one of name or description must be provided.
-   *
-   * @param options - The organization ID, resource type slug, external ID, and fields to update
-   * @returns The updated authorization resource
-   */
   async updateResourceByExternalId(
     options: UpdateResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
@@ -351,14 +327,6 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  /**
-   * Delete an authorization resource by its external ID.
-   *
-   * Uses the organization + resource type + external ID path format
-   * to uniquely identify the resource to delete.
-   *
-   * @param options - The organization ID, resource type slug, and external ID
-   */
   async deleteResourceByExternalId(
     options: DeleteResourceByExternalIdOptions,
   ): Promise<void> {

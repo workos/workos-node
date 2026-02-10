@@ -3,12 +3,6 @@ import {
   SerializedListAuthorizationResourcesOptions,
 } from '../interfaces/list-resources-options.interface';
 
-/**
- * Serialize list resources options from SDK format to API query parameters.
- *
- * Converts array fields (organizationIds, resourceTypeSlugs) to comma-separated
- * strings as expected by the API.
- */
 export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
 ): SerializedListAuthorizationResourcesOptions => ({

@@ -53,9 +53,6 @@ export interface SerializedUpdateAuthorizationResourceOptions {
   description?: string | null;
 }
 
-/**
- * SDK representation of a paginated list of authorization resources.
- */
 export interface AuthorizationResourceList {
   object: 'list';
   data: AuthorizationResource[];
@@ -65,9 +62,6 @@ export interface AuthorizationResourceList {
   };
 }
 
-/**
- * API response format for a paginated list of authorization resources.
- */
 export interface AuthorizationResourceListResponse {
   object: 'list';
   data: AuthorizationResourceResponse[];
