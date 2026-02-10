@@ -23,7 +23,7 @@ export const serializeListAuthorizationResourcesOptions = (
   }),
   ...(options.search && { search: options.search }),
   ...(options.limit !== undefined && { limit: options.limit }),
-    ...(options.after && { after: options.after }),
+  ...(options.after && { after: options.after }),
   ...(options.before && { before: options.before }),
   ...(options.order && { order: options.order }),
 });
