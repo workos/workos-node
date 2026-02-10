@@ -22,8 +22,8 @@ export const serializeListAuthorizationResourcesOptions = (
     parent_external_id: options.parentExternalId,
   }),
   ...(options.search && { search: options.search }),
-  ...(options.limit && { limit: options.limit }),
-  ...(options.after && { after: options.after }),
+  ...(options.limit !== undefined && { limit: options.limit }),
+    ...(options.after && { after: options.after }),
   ...(options.before && { before: options.before }),
   ...(options.order && { order: options.order }),
 });
