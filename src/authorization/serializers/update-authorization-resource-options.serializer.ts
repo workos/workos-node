@@ -6,6 +6,8 @@ import {
 export const serializeUpdateResourceOptions = (
   options: UpdateAuthorizationResourceOptions,
 ): SerializedUpdateAuthorizationResourceOptions => ({
-  name: options.name,
-  description: options.description,
+  ...(options.name !== undefined && { name: options.name }),
+  ...(options.description !== undefined && {
+    description: options.description,
+  }),
 });

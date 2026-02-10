@@ -10,6 +10,10 @@ export const serializeCreateResourceOptions = (
   resource_type_slug: options.resourceTypeSlug,
   external_id: options.externalId,
   name: options.name,
-  description: options.description,
-  parent_resource_id: options.parentResourceId,
+  ...(options.description !== undefined && {
+    description: options.description,
+  }),
+  ...(options.parentResourceId !== undefined && {
+    parent_resource_id: options.parentResourceId,
+  }),
 });

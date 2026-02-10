@@ -783,10 +783,76 @@ describe('Authorization', () => {
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
     });
+
+    it('excludes description and parentResourceId when omitted (undefined)', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          description: null,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('description');
+      expect(body).not.toHaveProperty('parent_resource_id');
+    });
+
+    it('sends null when description is explicitly set to null', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          description: null,
+        },
+        { status: 201 },
+      );
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        description: null,
+      });
+
+      const body = fetchBody();
+      expect(body).toHaveProperty('description', null);
+      expect(body).not.toHaveProperty('parent_resource_id');
+    });
+
+    it('sends null when parentResourceId is explicitly set to null', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        parentResourceId: null,
+      });
+
+      const body = fetchBody();
+      expect(body).toHaveProperty('parent_resource_id', null);
+      expect(body).not.toHaveProperty('description');
+    });
   });
 
   describe('updateResource', () => {
-    it('updates resource name', async () => {
+    it('updates name when description is omitted', async () => {
       const updatedResourceFixture = {
         ...authorizationResourceFixture,
         name: 'Updated Report Name',
@@ -801,13 +867,14 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}`,
       );
-      expect(fetchBody()).toEqual({
-        name: 'Updated Report Name',
-      });
+      const body = fetchBody();
+      expect(body).toEqual({ name: 'Updated Report Name' });
+      expect(body).not.toHaveProperty('description');
       expect(resource.name).toBe('Updated Report Name');
+      expect(resource.description).toBe('Financial report for Q4 2025');
     });
 
-    it('updates resource description', async () => {
+    it('updates description when name is omitted', async () => {
       const updatedResourceFixture = {
         ...authorizationResourceFixture,
         description: 'Updated description',
@@ -819,10 +886,11 @@ describe('Authorization', () => {
         description: 'Updated description',
       });
 
-      expect(fetchBody()).toEqual({
-        description: 'Updated description',
-      });
+      const body = fetchBody();
+      expect(body).toEqual({ description: 'Updated description' });
+      expect(body).not.toHaveProperty('name');
       expect(resource.description).toBe('Updated description');
+      expect(resource.name).toBe('Q4 Budget Report');
     });
 
     it('clears description when set to null', async () => {
@@ -837,10 +905,22 @@ describe('Authorization', () => {
         description: null,
       });
 
-      expect(fetchBody()).toEqual({
-        description: null,
-      });
+      const body = fetchBody();
+      expect(body).toEqual({ description: null });
+      expect(body).not.toHaveProperty('name');
       expect(resource.description).toBeNull();
+    });
+
+    it('excludes description from request body when undefined', async () => {
+      fetchOnce(authorizationResourceFixture);
+
+      await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        name: 'Some Name',
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('description');
     });
 
     it('updates both name and description', async () => {

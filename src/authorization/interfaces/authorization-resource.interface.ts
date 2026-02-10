@@ -27,19 +27,19 @@ export interface AuthorizationResourceResponse {
 export interface CreateAuthorizationResourceOptions {
   externalId: string;
   name: string;
-  description?: string;
+  description?: string | null;
   resourceTypeSlug: string;
   organizationId: string;
-  parentResourceId?: string;
+  parentResourceId?: string | null;
 }
 
 export interface SerializedCreateAuthorizationResourceOptions {
   external_id: string;
   name: string;
-  description?: string;
+  description?: string | null;
   resource_type_slug: string;
   organization_id: string;
-  parent_resource_id?: string;
+  parent_resource_id?: string | null;
 }
 
 export interface UpdateAuthorizationResourceOptions {
