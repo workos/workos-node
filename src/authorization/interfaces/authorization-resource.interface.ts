@@ -4,7 +4,7 @@ export interface AuthorizationResource {
   externalId: string;
   name: string;
   description: string | null;
-  resourceType: string;
+  resourceTypeSlug: string;
   organizationId: string;
   parentResourceId: string | null;
   createdAt: string;
@@ -17,7 +17,7 @@ export interface AuthorizationResourceResponse {
   external_id: string;
   name: string;
   description: string | null;
-  resource_type: string;
+  resource_type_slug: string;
   organization_id: string;
   parent_resource_id: string | null;
   created_at: string;
@@ -42,23 +42,21 @@ export interface AuthorizationResourceListResponse {
   };
 }
 
-// Create / Update options
-
 export interface CreateAuthorizationResourceOptions {
-  organizationId: string;
-  resourceTypeSlug: string;
   externalId: string;
   name: string;
   description?: string;
+  resourceTypeSlug: string;
+  organizationId: string;
   parentResourceId?: string;
 }
 
 export interface SerializedCreateAuthorizationResourceOptions {
-  organization_id: string;
-  resource_type_slug: string;
   external_id: string;
   name: string;
   description?: string;
+  resource_type_slug: string;
+  organization_id: string;
   parent_resource_id?: string;
 }
 

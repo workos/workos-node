@@ -11,7 +11,7 @@ export const deserializeAuthorizationResource = (
   externalId: resource.external_id,
   name: resource.name,
   description: resource.description,
-  resourceType: resource.resource_type,
+  resourceTypeSlug: resource.resource_type_slug,
   organizationId: resource.organization_id,
   parentResourceId: resource.parent_resource_id,
   createdAt: resource.created_at,
