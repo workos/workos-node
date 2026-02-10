@@ -784,7 +784,7 @@ describe('Authorization', () => {
       });
     });
 
-    it('excludes description and parentResourceId when omitted (undefined)', async () => {
+    it('excludes description and parentResourceId when omitted', async () => {
       fetchOnce(
         {
           ...authorizationResourceFixture,
