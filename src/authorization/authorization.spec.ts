@@ -1098,6 +1098,18 @@ describe('Authorization', () => {
 
       expect(resource.parentResourceId).toBeNull();
     });
+
+    it('handles resource without description', async () => {
+      fetchOnce({ ...authorizationResourceFixture, description: null });
+
+      const resource = await workos.authorization.getResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(resource.description).toBeNull();
+    });
   });
 
   describe('updateResourceByExternalId', () => {
