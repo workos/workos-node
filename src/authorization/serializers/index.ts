@@ -10,4 +10,5 @@ export * from './update-permission-options.serializer';
 export * from './authorization-resource.serializer';
 export * from './create-authorization-resource-options.serializer';
 export * from './update-authorization-resource-options.serializer';
+export * from './update-authorization-resource-by-external-id-options.serializer';
 export * from './list-authorization-resources-options.serializer';

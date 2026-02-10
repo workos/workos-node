@@ -52,6 +52,7 @@ import {
   deserializeAuthorizationResource,
   serializeCreateResourceOptions,
   serializeUpdateResourceOptions,
+  serializeUpdateResourceByExternalIdOptions,
   serializeListAuthorizationResourcesOptions,
 } from './serializers';
 
@@ -311,7 +312,7 @@ export class Authorization {
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.get<AuthorizationResourceResponse>(
-      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
     );
     return deserializeAuthorizationResource(data);
   }
@@ -319,11 +320,10 @@ export class Authorization {
   async updateResourceByExternalId(
     options: UpdateAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
-    const { organizationId, resourceTypeSlug, externalId, ...updateFields } =
-      options;
+    const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.patch<AuthorizationResourceResponse>(
-      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
-      serializeUpdateResourceOptions({ resourceId: '', ...updateFields }),
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      serializeUpdateResourceByExternalIdOptions(options),
     );
     return deserializeAuthorizationResource(data);
   }
@@ -333,7 +333,7 @@ export class Authorization {
   ): Promise<void> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     await this.workos.delete(
-      `/authorization/organizations/${organizationId}/resource_types/${resourceTypeSlug}/resources/${externalId}`,
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
     );
   }
 }
