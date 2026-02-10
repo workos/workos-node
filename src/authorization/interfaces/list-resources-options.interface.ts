@@ -1,14 +1,12 @@
-export interface ListAuthorizationResourcesOptions {
+import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
+
+export interface ListAuthorizationResourcesOptions extends PaginationOptions {
   organizationIds?: string[];
   resourceTypeSlugs?: string[];
   parentResourceId?: string;
   parentResourceTypeSlug?: string;
   parentExternalId?: string;
   search?: string;
-  limit?: number;
-  after?: string;
-  before?: string;
-  order?: 'asc' | 'desc';
 }
 
 export interface SerializedListAuthorizationResourcesOptions {

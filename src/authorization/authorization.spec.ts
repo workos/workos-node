@@ -974,8 +974,8 @@ describe('Authorization', () => {
           expect.objectContaining({
             object: 'authorization_resource',
             id: 'resource_01HXYZ123ABC456DEF789ABC',
-            externalId: 'doc-456',
-            name: 'Q4 Budget Report',
+            externalId: 'doc-12345678',
+            name: 'Q5 Budget Report',
             resourceTypeSlug: 'document',
           }),
           expect.objectContaining({

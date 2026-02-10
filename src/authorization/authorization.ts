@@ -284,6 +284,7 @@ export class Authorization {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
   }
 
+  // part 2
   async listResources(
     options?: ListAuthorizationResourcesOptions,
   ): Promise<AuthorizationResourceList> {
