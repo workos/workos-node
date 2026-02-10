@@ -1159,7 +1159,7 @@ describe('Authorization', () => {
         name: 'Updated Report Name',
         description: 'Updated description',
         resourceTypeSlug: 'document',
-        organizationId: testOrgId
+        organizationId: testOrgId,
       });
     });
 
