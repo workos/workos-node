@@ -678,13 +678,13 @@ export interface ApiKeyCreatedEventResponse extends EventResponseBase {
   data: SerializedApiKey;
 }
 
-export interface ApiKeyDeletedEvent extends EventBase {
-  event: 'api_key.deleted';
+export interface ApiKeyRevokedEvent extends EventBase {
+  event: 'api_key.revoked';
   data: ApiKey;
 }
 
-export interface ApiKeyDeletedEventResponse extends EventResponseBase {
-  event: 'api_key.deleted';
+export interface ApiKeyRevokedEventResponse extends EventResponseBase {
+  event: 'api_key.revoked';
   data: SerializedApiKey;
 }
 
@@ -749,7 +749,7 @@ export type Event =
   | OrganizationDomainUpdatedEvent
   | OrganizationDomainDeletedEvent
   | ApiKeyCreatedEvent
-  | ApiKeyDeletedEvent;
+  | ApiKeyRevokedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -812,6 +812,6 @@ export type EventResponse =
   | OrganizationDomainUpdatedEventResponse
   | OrganizationDomainDeletedEventResponse
   | ApiKeyCreatedEventResponse
-  | ApiKeyDeletedEventResponse;
+  | ApiKeyRevokedEventResponse;
 
 export type EventName = Event['event'];
