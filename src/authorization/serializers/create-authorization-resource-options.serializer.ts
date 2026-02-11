@@ -16,4 +16,10 @@ export const serializeCreateResourceOptions = (
   ...(options.parentResourceId !== undefined && {
     parent_resource_id: options.parentResourceId,
   }),
+  ...(options.parentResourceExternalId !== undefined && {
+    parent_resource_external_id: options.parentResourceExternalId,
+  }),
+  ...(options.parentResourceTypeSlug !== undefined && {
+    parent_resource_type_slug: options.parentResourceTypeSlug,
+  }),
 });

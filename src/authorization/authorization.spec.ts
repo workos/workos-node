@@ -14,10 +14,10 @@ import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
 import listResourcesFixture from './fixtures/list-resources.json';
-
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
-const testResourceId = 'resource_01HXYZ123ABC456DEF789ABC';
+const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
+const testOrgMembershipId = 'om_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -612,7 +612,7 @@ describe('Authorization', () => {
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
         organizationId: testOrgId,
-        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
@@ -650,7 +650,7 @@ describe('Authorization', () => {
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
-        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
       });
 
       expect(fetchURL()).toContain('/authorization/resources');
@@ -660,7 +660,7 @@ describe('Authorization', () => {
         external_id: 'doc-456',
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
-        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parent_resource_id: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
       });
       expect(resource).toMatchObject({
         object: 'authorization_resource',
@@ -669,7 +669,7 @@ describe('Authorization', () => {
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
-        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
@@ -762,7 +762,7 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
-        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
       });
 
       expect(fetchBody()).toEqual({
@@ -770,7 +770,7 @@ describe('Authorization', () => {
         resource_type_slug: 'document',
         external_id: 'doc-456',
         name: 'Q4 Budget Report',
-        parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parent_resource_id: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
       });
       expect(resource).toMatchObject({
         object: 'authorization_resource',
@@ -779,7 +779,7 @@ describe('Authorization', () => {
         name: 'Q4 Budget Report',
         description: null,
         resourceTypeSlug: 'document',
-        parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
+        parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
@@ -849,6 +849,56 @@ describe('Authorization', () => {
       const body = fetchBody();
       expect(body).toHaveProperty('parent_resource_id', null);
       expect(body).not.toHaveProperty('description');
+    });
+
+    it('creates a resource with parentResourceExternalId and parentResourceTypeSlug', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        parentResourceExternalId: 'folder-123',
+        parentResourceTypeSlug: 'folder',
+      });
+
+      expect(fetchURL()).toContain('/authorization/resources');
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+        parent_resource_external_id: 'folder-123',
+        parent_resource_type_slug: 'folder',
+      });
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+    });
+
+    it('excludes parentResourceExternalId and parentResourceTypeSlug when omitted', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('parent_resource_external_id');
+      expect(body).not.toHaveProperty('parent_resource_type_slug');
     });
   });
 
@@ -973,14 +1023,14 @@ describe('Authorization', () => {
         expect.arrayContaining([
           expect.objectContaining({
             object: 'authorization_resource',
-            id: 'resource_01HXYZ123ABC456DEF789ABC',
+            id: 'authz_resource_01HXYZ123ABC456DEF789ABC',
             externalId: 'doc-12345678',
             name: 'Q5 Budget Report',
             resourceTypeSlug: 'document',
           }),
           expect.objectContaining({
             object: 'authorization_resource',
-            id: 'resource_01HXYZ123ABC456DEF789DEF',
+            id: 'authz_resource_01HXYZ123ABC456DEF789DEF',
             externalId: 'folder-123',
             name: 'Finance Folder',
             resourceTypeSlug: 'folder',
@@ -989,7 +1039,7 @@ describe('Authorization', () => {
       );
       expect(listMetadata).toEqual({
         before: null,
-        after: 'resource_01HXYZ123ABC456DEF789DEF',
+        after: 'authz_resource_01HXYZ123ABC456DEF789DEF',
       });
     });
 
@@ -1258,6 +1308,57 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/resources/${resourceTypeSlug}/${externalId}`,
       );
+    });
+  });
+
+  describe('check', () => {
+    it('returns authorized when permission is granted (by resource ID)', async () => {
+      fetchOnce({ authorized: true }, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:edit',
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
+      );
+      expect(fetchBody()).toEqual({
+        permission_slug: 'documents:edit',
+        resource_id: testResourceId,
+      });
+      expect(result).toEqual({ authorized: true });
+    });
+
+    it('returns unauthorized when permission is not granted', async () => {
+      fetchOnce({ authorized: false }, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:delete',
+        resourceId: testResourceId,
+      });
+
+      expect(result).toEqual({ authorized: false });
+    });
+
+    it('only includes provided resource identification fields', async () => {
+      fetchOnce({ authorized: true }, { status: 200 });
+
+      await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:read',
+        resourceId: testResourceId,
+      });
+
+      const body = fetchBody();
+      expect(body).toEqual({
+        permission_slug: 'documents:read',
+        resource_id: testResourceId,
+      });
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
     });
   });
 });

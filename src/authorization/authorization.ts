@@ -31,12 +31,14 @@ import {
   AuthorizationResourceResponse,
   AuthorizationResourceList,
   AuthorizationResourceListResponse,
-  CreateAuthorizationResourceOptions,
-  UpdateAuthorizationResourceOptions,
   ListAuthorizationResourcesOptions,
   GetAuthorizationResourceByExternalIdOptions,
   UpdateAuthorizationResourceByExternalIdOptions,
   DeleteAuthorizationResourceByExternalIdOptions,
+  CreateAuthorizationResourceOptions,
+  UpdateAuthorizationResourceOptions,
+  AuthorizationCheckOptions,
+  AuthorizationCheckResult,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -54,6 +56,7 @@ import {
   serializeUpdateResourceOptions,
   serializeUpdateResourceByExternalIdOptions,
   serializeListAuthorizationResourcesOptions,
+  serializeAuthorizationCheckOptions,
 } from './serializers';
 
 export class Authorization {
@@ -285,7 +288,6 @@ export class Authorization {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
   }
 
-  // part 2
   async listResources(
     options?: ListAuthorizationResourcesOptions,
   ): Promise<AuthorizationResourceList> {
@@ -335,5 +337,15 @@ export class Authorization {
     await this.workos.delete(
       `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
     );
+  }
+
+  async check(
+    options: AuthorizationCheckOptions,
+  ): Promise<AuthorizationCheckResult> {
+    const { data } = await this.workos.post<AuthorizationCheckResult>(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/check`,
+      serializeAuthorizationCheckOptions(options),
+    );
+    return data;
   }
 }
