@@ -32,19 +32,18 @@ interface BaseCreateAuthorizationResourceOptions {
   organizationId: string;
 }
 
-interface CreateOptionsWithParentResourceId
+export interface CreateOptionsWithParentResourceId
   extends BaseCreateAuthorizationResourceOptions {
   parentResourceId: string;
 }
 
-interface CreateOptionsWithParentExternalId
+export interface CreateOptionsWithParentExternalId
   extends BaseCreateAuthorizationResourceOptions {
   parentResourceExternalId: string;
   parentResourceTypeSlug: string;
 }
 
 export type CreateAuthorizationResourceOptions =
-  | BaseCreateAuthorizationResourceOptions
   | CreateOptionsWithParentResourceId
   | CreateOptionsWithParentExternalId;
 
