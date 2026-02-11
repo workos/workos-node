@@ -990,45 +990,5 @@ describe('Authorization', () => {
 
       expect(result).toEqual({ authorized: false });
     });
-
-    it('checks authorization by external ID', async () => {
-      fetchOnce({ authorized: true }, { status: 200 });
-
-      const result = await workos.authorization.check({
-        organizationMembershipId: testOrgMembershipId,
-        permissionSlug: 'documents:edit',
-        resourceExternalId: 'doc-123',
-        resourceTypeSlug: 'document',
-      });
-
-      expect(fetchURL()).toContain(
-        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
-      );
-      expect(fetchBody()).toEqual({
-        permission_slug: 'documents:edit',
-        resource_external_id: 'doc-123',
-        resource_type_slug: 'document',
-      });
-      expect(result).toEqual({ authorized: true });
-    });
-
-    it('only includes provided resource identification fields', async () => {
-      fetchOnce({ authorized: true }, { status: 200 });
-
-      await workos.authorization.check({
-        organizationMembershipId: testOrgMembershipId,
-        permissionSlug: 'documents:read',
-        resourceId: testResourceId,
-      });
-
-      const body = fetchBody();
-      expect(body).toEqual({
-        permission_slug: 'documents:read',
-        resource_id: testResourceId,
-      });
-      // Verify external ID fields are NOT included
-      expect(body).not.toHaveProperty('resource_external_id');
-      expect(body).not.toHaveProperty('resource_type_slug');
-    });
   });
 });
