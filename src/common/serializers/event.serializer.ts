@@ -208,7 +208,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeOrganizationDomain(event.data),
       };
     case 'api_key.created':
-    case 'api_key.deleted':
+    case 'api_key.revoked':
       return {
         ...eventBase,
         event: event.event,
