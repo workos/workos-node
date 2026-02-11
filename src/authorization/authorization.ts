@@ -27,6 +27,10 @@ import {
   CreatePermissionOptions,
   UpdatePermissionOptions,
   ListPermissionsOptions,
+  AuthorizationResource,
+  AuthorizationResourceResponse,
+  CreateAuthorizationResourceOptions,
+  UpdateAuthorizationResourceOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -39,6 +43,9 @@ import {
   deserializePermission,
   serializeCreatePermissionOptions,
   serializeUpdatePermissionOptions,
+  deserializeAuthorizationResource,
+  serializeCreateResourceOptions,
+  serializeUpdateResourceOptions,
 } from './serializers';
 
 export class Authorization {
@@ -237,5 +244,36 @@ export class Authorization {
 
   async deletePermission(slug: string): Promise<void> {
     await this.workos.delete(`/authorization/permissions/${slug}`);
+  }
+
+  async getResource(resourceId: string): Promise<AuthorizationResource> {
+    const { data } = await this.workos.get<AuthorizationResourceResponse>(
+      `/authorization/resources/${resourceId}`,
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  async createResource(
+    options: CreateAuthorizationResourceOptions,
+  ): Promise<AuthorizationResource> {
+    const { data } = await this.workos.post<AuthorizationResourceResponse>(
+      '/authorization/resources',
+      serializeCreateResourceOptions(options),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  async updateResource(
+    options: UpdateAuthorizationResourceOptions,
+  ): Promise<AuthorizationResource> {
+    const { data } = await this.workos.patch<AuthorizationResourceResponse>(
+      `/authorization/resources/${options.resourceId}`,
+      serializeUpdateResourceOptions(options),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  async deleteResource(resourceId: string): Promise<void> {
+    await this.workos.delete(`/authorization/resources/${resourceId}`);
   }
 }

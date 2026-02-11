@@ -13,3 +13,4 @@ export * from './permission.interface';
 export * from './create-permission-options.interface';
 export * from './update-permission-options.interface';
 export * from './list-permissions-options.interface';
+export * from './authorization-resource.interface';

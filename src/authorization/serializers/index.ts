@@ -7,3 +7,6 @@ export * from './update-organization-role-options.serializer';
 export * from './permission.serializer';
 export * from './create-permission-options.serializer';
 export * from './update-permission-options.serializer';
+export * from './authorization-resource.serializer';
+export * from './create-authorization-resource-options.serializer';
+export * from './update-authorization-resource-options.serializer';
