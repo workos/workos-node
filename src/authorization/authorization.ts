@@ -325,7 +325,7 @@ export class Authorization {
     const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.patch<AuthorizationResourceResponse>(
       `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
-    serializeUpdateResourceByExternalIdOptions(options),
+      serializeUpdateResourceByExternalIdOptions(options),
     );
     return deserializeAuthorizationResource(data);
   }

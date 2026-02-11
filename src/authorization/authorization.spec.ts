@@ -675,21 +675,15 @@ describe('Authorization', () => {
       });
     });
 
-    it('creates an authorization resource with required fields only', async () => {
-      fetchOnce(
-        {
-          ...authorizationResourceFixture,
-          description: null,
-          parent_resource_id: null,
-        },
-        { status: 201 },
-      );
+    it('creates an authorization resource with parentResourceId', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
 
       const resource = await workos.authorization.createResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
+        parentResourceId: 'resource_01HXYZ',
       });
 
       expect(fetchBody()).toEqual({
@@ -697,28 +691,21 @@ describe('Authorization', () => {
         resource_type_slug: 'document',
         external_id: 'doc-456',
         name: 'Q4 Budget Report',
+        parent_resource_id: 'resource_01HXYZ',
       });
       expect(resource).toMatchObject({
         object: 'authorization_resource',
         id: testResourceId,
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
-        description: null,
         resourceTypeSlug: 'document',
-        parentResourceId: null,
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
     });
 
-    it('creates an authorization resource with description but no parent resource', async () => {
-      fetchOnce(
-        {
-          ...authorizationResourceFixture,
-          parent_resource_id: null,
-        },
-        { status: 201 },
-      );
+    it('creates an authorization resource with description and parentResourceId', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
 
       const resource = await workos.authorization.createResource({
         organizationId: testOrgId,
@@ -726,6 +713,7 @@ describe('Authorization', () => {
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
+        parentResourceId: 'resource_01HXYZ',
       });
 
       expect(fetchBody()).toEqual({
@@ -734,6 +722,7 @@ describe('Authorization', () => {
         external_id: 'doc-456',
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
+        parent_resource_id: 'resource_01HXYZ',
       });
       expect(resource).toMatchObject({
         object: 'authorization_resource',
@@ -742,7 +731,6 @@ describe('Authorization', () => {
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
-        parentResourceId: null,
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
@@ -785,26 +773,20 @@ describe('Authorization', () => {
       });
     });
 
-    it('excludes description and parentResourceId when omitted', async () => {
-      fetchOnce(
-        {
-          ...authorizationResourceFixture,
-          description: null,
-          parent_resource_id: null,
-        },
-        { status: 201 },
-      );
+    it('excludes description when omitted', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
 
       await workos.authorization.createResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
+        parentResourceId: 'resource_01HXYZ',
       });
 
       const body = fetchBody();
       expect(body).not.toHaveProperty('description');
-      expect(body).not.toHaveProperty('parent_resource_id');
+      expect(body).toHaveProperty('parent_resource_id', 'resource_01HXYZ');
     });
 
     it('sends null when description is explicitly set to null', async () => {
@@ -822,11 +804,12 @@ describe('Authorization', () => {
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
         description: null,
+        parentResourceId: 'resource_01HXYZ',
       });
 
       const body = fetchBody();
       expect(body).toHaveProperty('description', null);
-      expect(body).not.toHaveProperty('parent_resource_id');
+      expect(body).toHaveProperty('parent_resource_id', 'resource_01HXYZ');
     });
 
     it('creates a resource with parentResourceExternalId and parentResourceTypeSlug', async () => {
@@ -858,23 +841,19 @@ describe('Authorization', () => {
       });
     });
 
-    it('excludes parentResourceExternalId and parentResourceTypeSlug when omitted', async () => {
-      fetchOnce(
-        {
-          ...authorizationResourceFixture,
-          parent_resource_id: null,
-        },
-        { status: 201 },
-      );
+    it('excludes parentResourceExternalId and parentResourceTypeSlug when parentResourceId is used', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
 
       await workos.authorization.createResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
+        parentResourceId: 'resource_01HXYZ',
       });
 
       const body = fetchBody();
+      expect(body).toHaveProperty('parent_resource_id', 'resource_01HXYZ');
       expect(body).not.toHaveProperty('parent_resource_external_id');
       expect(body).not.toHaveProperty('parent_resource_type_slug');
     });
