@@ -31,6 +31,8 @@ import {
   AuthorizationResourceResponse,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
+  AuthorizationCheckOptions,
+  AuthorizationCheckResult,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -46,6 +48,7 @@ import {
   deserializeAuthorizationResource,
   serializeCreateResourceOptions,
   serializeUpdateResourceOptions,
+  serializeAuthorizationCheckOptions,
 } from './serializers';
 
 export class Authorization {
@@ -275,5 +278,15 @@ export class Authorization {
 
   async deleteResource(resourceId: string): Promise<void> {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
+  }
+
+  async check(
+    options: AuthorizationCheckOptions,
+  ): Promise<AuthorizationCheckResult> {
+    const { data } = await this.workos.post<AuthorizationCheckResult>(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/check`,
+      serializeAuthorizationCheckOptions(options),
+    );
+    return data;
   }
 }
