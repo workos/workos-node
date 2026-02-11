@@ -24,16 +24,29 @@ export interface AuthorizationResourceResponse {
   updated_at: string;
 }
 
-export interface CreateAuthorizationResourceOptions {
+interface BaseCreateAuthorizationResourceOptions {
   externalId: string;
   name: string;
   description?: string | null;
   resourceTypeSlug: string;
   organizationId: string;
-  parentResourceId?: string | null;
-  parentResourceExternalId?: string | null;
-  parentResourceTypeSlug?: string | null;
 }
+
+interface CreateOptionsWithParentResourceId
+  extends BaseCreateAuthorizationResourceOptions {
+  parentResourceId: string | null;
+}
+
+interface CreateOptionsWithParentExternalId
+  extends BaseCreateAuthorizationResourceOptions {
+  parentResourceExternalId: string;
+  parentResourceTypeSlug: string;
+}
+
+export type CreateAuthorizationResourceOptions =
+  | BaseCreateAuthorizationResourceOptions
+  | CreateOptionsWithParentResourceId
+  | CreateOptionsWithParentExternalId;
 
 export interface SerializedCreateAuthorizationResourceOptions {
   external_id: string;
