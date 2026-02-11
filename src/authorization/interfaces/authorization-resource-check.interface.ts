@@ -1,3 +1,7 @@
+export interface AuthorizationCheckResult {
+  authorized: boolean;
+}
+
 export interface AuthorizationCheckOptions {
   organizationMembershipId: string;
   permissionSlug: string;
