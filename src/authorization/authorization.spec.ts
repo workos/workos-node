@@ -990,5 +990,23 @@ describe('Authorization', () => {
 
       expect(result).toEqual({ authorized: false });
     });
+
+    it('only includes provided resource identification fields', async () => {
+      fetchOnce({ authorized: true }, { status: 200 });
+
+      await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:read',
+        resourceId: testResourceId,
+      });
+
+      const body = fetchBody();
+      expect(body).toEqual({
+        permission_slug: 'documents:read',
+        resource_id: testResourceId,
+      });
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
+    });
   });
 });
