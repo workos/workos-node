@@ -857,6 +857,24 @@ describe('Authorization', () => {
       expect(body).not.toHaveProperty('parent_resource_external_id');
       expect(body).not.toHaveProperty('parent_resource_type_slug');
     });
+
+    it('excludes parentResourceId when parentResourceExternalId is used', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        parentResourceExternalId: 'folder-123',
+        parentResourceTypeSlug: 'folder',
+      });
+
+      const body = fetchBody();
+      expect(body).toHaveProperty('parent_resource_external_id', 'folder-123');
+      expect(body).toHaveProperty('parent_resource_type_slug', 'folder');
+      expect(body).not.toHaveProperty('parent_resource_id');
+    });
   });
 
   describe('updateResource', () => {
