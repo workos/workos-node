@@ -3,14 +3,6 @@ import {
   SerializedAuthorizationCheckOptions,
 } from '../interfaces';
 
-/**
- * Serializes SDK check options to API request format.
- *
- * Converts camelCase to snake_case and only includes
- * fields that are explicitly provided (truthy check).
- *
- * Note: organizationMembershipId is handled separately in the URL path.
- */
 export const serializeAuthorizationCheckOptions = (
   options: AuthorizationCheckOptions,
 ): SerializedAuthorizationCheckOptions => ({
