@@ -849,6 +849,56 @@ describe('Authorization', () => {
       expect(body).toHaveProperty('parent_resource_id', null);
       expect(body).not.toHaveProperty('description');
     });
+
+    it('creates a resource with parentResourceExternalId and parentResourceTypeSlug', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
+
+      const resource = await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+        parentResourceExternalId: 'folder-123',
+        parentResourceTypeSlug: 'folder',
+      });
+
+      expect(fetchURL()).toContain('/authorization/resources');
+      expect(fetchBody()).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+        parent_resource_external_id: 'folder-123',
+        parent_resource_type_slug: 'folder',
+      });
+      expect(resource).toMatchObject({
+        object: 'authorization_resource',
+        id: testResourceId,
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+    });
+
+    it('excludes parentResourceExternalId and parentResourceTypeSlug when omitted', async () => {
+      fetchOnce(
+        {
+          ...authorizationResourceFixture,
+          parent_resource_id: null,
+        },
+        { status: 201 },
+      );
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('parent_resource_external_id');
+      expect(body).not.toHaveProperty('parent_resource_type_slug');
+    });
   });
 
   describe('updateResource', () => {

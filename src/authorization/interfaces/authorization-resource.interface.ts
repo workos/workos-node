@@ -31,6 +31,8 @@ export interface CreateAuthorizationResourceOptions {
   resourceTypeSlug: string;
   organizationId: string;
   parentResourceId?: string | null;
+  parentResourceExternalId?: string;
+  parentResourceTypeSlug?: string;
 }
 
 export interface SerializedCreateAuthorizationResourceOptions {
@@ -40,6 +42,8 @@ export interface SerializedCreateAuthorizationResourceOptions {
   resource_type_slug: string;
   organization_id: string;
   parent_resource_id?: string | null;
+  parent_resource_external_id?: string;
+  parent_resource_type_slug?: string;
 }
 
 export interface UpdateAuthorizationResourceOptions {
