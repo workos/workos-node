@@ -13,8 +13,6 @@ import listOrganizationRolesFixture from './fixtures/list-organization-roles.jso
 import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
-import authorizationCheckAuthorizedFixture from './fixtures/authorization-check-authorized.json';
-import authorizationCheckUnauthorizedFixture from './fixtures/authorization-check-unauthorized.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -963,7 +961,7 @@ describe('Authorization', () => {
 
   describe('check', () => {
     it('returns authorized when permission is granted (by resource ID)', async () => {
-      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+      fetchOnce({ authorized: true }, { status: 200 });
 
       const result = await workos.authorization.check({
         organizationMembershipId: testOrgMembershipId,
@@ -982,7 +980,7 @@ describe('Authorization', () => {
     });
 
     it('returns unauthorized when permission is not granted', async () => {
-      fetchOnce(authorizationCheckUnauthorizedFixture, { status: 200 });
+      fetchOnce({ authorized: false }, { status: 200 });
 
       const result = await workos.authorization.check({
         organizationMembershipId: testOrgMembershipId,
@@ -994,7 +992,7 @@ describe('Authorization', () => {
     });
 
     it('checks authorization by external ID', async () => {
-      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+      fetchOnce({ authorized: true }, { status: 200 });
 
       const result = await workos.authorization.check({
         organizationMembershipId: testOrgMembershipId,
@@ -1015,7 +1013,7 @@ describe('Authorization', () => {
     });
 
     it('only includes provided resource identification fields', async () => {
-      fetchOnce(authorizationCheckAuthorizedFixture, { status: 200 });
+      fetchOnce({ authorized: true }, { status: 200 });
 
       await workos.authorization.check({
         organizationMembershipId: testOrgMembershipId,
