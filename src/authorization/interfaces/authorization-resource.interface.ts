@@ -34,7 +34,7 @@ interface BaseCreateAuthorizationResourceOptions {
 
 interface CreateOptionsWithParentResourceId
   extends BaseCreateAuthorizationResourceOptions {
-  parentResourceId: string | null;
+  parentResourceId: string;
 }
 
 interface CreateOptionsWithParentExternalId

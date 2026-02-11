@@ -829,28 +829,6 @@ describe('Authorization', () => {
       expect(body).not.toHaveProperty('parent_resource_id');
     });
 
-    it('sends null when parentResourceId is explicitly set to null', async () => {
-      fetchOnce(
-        {
-          ...authorizationResourceFixture,
-          parent_resource_id: null,
-        },
-        { status: 201 },
-      );
-
-      await workos.authorization.createResource({
-        organizationId: testOrgId,
-        resourceTypeSlug: 'document',
-        externalId: 'doc-456',
-        name: 'Q4 Budget Report',
-        parentResourceId: null,
-      });
-
-      const body = fetchBody();
-      expect(body).toHaveProperty('parent_resource_id', null);
-      expect(body).not.toHaveProperty('description');
-    });
-
     it('creates a resource with parentResourceExternalId and parentResourceTypeSlug', async () => {
       fetchOnce(authorizationResourceFixture, { status: 201 });
 
