@@ -624,6 +624,15 @@ describe('Authorization', () => {
       const resource = await workos.authorization.getResource(testResourceId);
 
       expect(resource.parentResourceId).toBeNull();
+      expect(resource.description).not.toBeNull();
+    });
+
+    it('handles resource without description', async () => {
+      fetchOnce({ ...authorizationResourceFixture, description: null });
+
+      const resource = await workos.authorization.getResource(testResourceId);
+      expect(resource.description).toBeNull();
+      expect(resource.parentResourceId).not.toBeNull();
     });
 
     it('handles resource without parent and without description', async () => {
@@ -919,6 +928,28 @@ describe('Authorization', () => {
       expect(resource.name).toBe('Q4 Budget Report');
     });
 
+    it('updates both name and description', async () => {
+      const updatedResourceFixture = {
+        ...authorizationResourceFixture,
+        name: 'New Name',
+        description: 'New Description',
+      };
+      fetchOnce(updatedResourceFixture);
+
+      const resource = await workos.authorization.updateResource({
+        resourceId: testResourceId,
+        name: 'New Name',
+        description: 'New Description',
+      });
+
+      expect(fetchBody()).toEqual({
+        name: 'New Name',
+        description: 'New Description',
+      });
+      expect(resource.name).toBe('New Name');
+      expect(resource.description).toBe('New Description');
+    });
+
     it('clears description when set to null', async () => {
       const updatedResourceFixture = {
         ...authorizationResourceFixture,
@@ -948,39 +979,46 @@ describe('Authorization', () => {
       const body = fetchBody();
       expect(body).not.toHaveProperty('description');
     });
-
-    it('updates both name and description', async () => {
-      const updatedResourceFixture = {
-        ...authorizationResourceFixture,
-        name: 'New Name',
-        description: 'New Description',
-      };
-      fetchOnce(updatedResourceFixture);
-
-      const resource = await workos.authorization.updateResource({
-        resourceId: testResourceId,
-        name: 'New Name',
-        description: 'New Description',
-      });
-
-      expect(fetchBody()).toEqual({
-        name: 'New Name',
-        description: 'New Description',
-      });
-      expect(resource.name).toBe('New Name');
-      expect(resource.description).toBe('New Description');
-    });
   });
 
   describe('deleteResource', () => {
     it('deletes an authorization resource', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.authorization.deleteResource(testResourceId);
+      await workos.authorization.deleteResource({ resourceId: testResourceId });
 
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}`,
       );
+      expect(fetchSearchParams()).toEqual({});
+    });
+
+    it('deletes a resource with cascadeDelete=true', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteResource({
+        resourceId: testResourceId,
+        cascadeDelete: true,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}`,
+      );
+      expect(fetchSearchParams()).toEqual({ cascade_delete: 'true' });
+    });
+
+    it('deletes a resource with cascadeDelete=false', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteResource({
+        resourceId: testResourceId,
+        cascadeDelete: false,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}`,
+      );
+      expect(fetchSearchParams()).toEqual({ cascade_delete: 'false' });
     });
   });
 

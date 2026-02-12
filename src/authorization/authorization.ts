@@ -35,6 +35,7 @@ import {
   GetAuthorizationResourceByExternalIdOptions,
   UpdateAuthorizationResourceByExternalIdOptions,
   DeleteAuthorizationResourceByExternalIdOptions,
+  DeleteAuthorizationResourceOptions,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
   AuthorizationCheckOptions,
@@ -284,8 +285,17 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  async deleteResource(resourceId: string): Promise<void> {
-    await this.workos.delete(`/authorization/resources/${resourceId}`);
+  async deleteResource(
+    options: DeleteAuthorizationResourceOptions,
+  ): Promise<void> {
+    const { resourceId, cascadeDelete } = options;
+
+    const query =
+      cascadeDelete !== undefined
+        ? { cascade_delete: cascadeDelete.toString() }
+        : undefined;
+
+    await this.workos.delete(`/authorization/resources/${resourceId}`, query);
   }
 
   async listResources(

@@ -18,4 +18,5 @@ export * from './list-authorization-resources-options.interface';
 export * from './get-authorization-resource-by-external-id-options.interface';
 export * from './update-authorization-resource-by-external-id-options.interface';
 export * from './delete-authorization-resource-by-external-id-options.interface';
+export * from './delete-authorization-resource-options.interface';
 export * from './authorization-resource-check.interface';
