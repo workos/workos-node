@@ -370,18 +370,14 @@ export class Authorization {
     return data;
   }
 
-  // new code
   async listResourcesForMembership(
     options: ListResourcesForMembershipOptions,
   ): Promise<AuthorizationResourceList> {
-    const { organizationMembershipId, ...queryOptions } = options;
+    const { organizationMembershipId } = options;
     const { data } = await this.workos.get<AuthorizationResourceListResponse>(
       `/authorization/organization_memberships/${organizationMembershipId}/resources`,
       {
-        query:
-          Object.keys(queryOptions).length > 0
-            ? serializeListResourcesForMembershipOptions(queryOptions)
-            : undefined,
+        query: serializeListResourcesForMembershipOptions(options),
       },
     );
     return {

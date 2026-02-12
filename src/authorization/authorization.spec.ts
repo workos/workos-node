@@ -1456,17 +1456,23 @@ describe('Authorization', () => {
   });
 
   describe('listResourcesForMembership', () => {
-    it('lists resources accessible to an organization membership', async () => {
+    it('lists resources with parentResourceId', async () => {
       fetchOnce(listResourcesFixture);
 
       const { data, object, listMetadata } =
         await workos.authorization.listResourcesForMembership({
           organizationMembershipId: testOrgMembershipId,
+          permissionSlug: 'document:read',
+          parentResourceId: testResourceId,
         });
 
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/resources`,
       );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_id: testResourceId,
+      });
       expect(object).toEqual('list');
       expect(data).toHaveLength(2);
       expect(data[0]).toMatchObject({
@@ -1479,16 +1485,20 @@ describe('Authorization', () => {
       });
     });
 
-    it('passes resourceTypeSlugs filter as comma-separated string', async () => {
+    it('lists resources with parentResourceTypeSlug and parentResourceExternalId', async () => {
       fetchOnce(listResourcesFixture);
 
       await workos.authorization.listResourcesForMembership({
         organizationMembershipId: testOrgMembershipId,
-        resourceTypeSlugs: ['document', 'folder'],
+        permissionSlug: 'document:read',
+        parentResourceTypeSlug: 'document',
+        parentResourceExternalId: 'doc-456',
       });
 
-      expect(fetchSearchParams()).toEqual({
-        resource_type_slugs: 'document,folder',
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_type_slug: 'document',
+        parent_resource_external_id: 'doc-456',
       });
     });
 
@@ -1497,12 +1507,16 @@ describe('Authorization', () => {
 
       await workos.authorization.listResourcesForMembership({
         organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
         limit: 10,
         after: 'resource_cursor123',
         order: 'desc',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_id: testResourceId,
         limit: '10',
         after: 'resource_cursor123',
         order: 'desc',
