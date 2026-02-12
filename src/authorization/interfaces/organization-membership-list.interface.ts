@@ -21,10 +21,6 @@ export interface OrganizationMembershipListResponse {
   };
 }
 
-/**
- * Membership shape returned by list memberships for resource endpoints.
- * Matches API's UserlandUserOrganizationMembershipBase - does not include role/roles.
- */
 export interface AuthorizationOrganizationMembership {
   object: 'organization_membership';
   id: string;

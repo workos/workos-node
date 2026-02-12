@@ -1,4 +1,4 @@
-import { PaginationOptions } from 'src/common/interfaces/pagination-options.interface';
+import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
 
 export interface ListMembershipsForResourceByExternalIdOptions extends PaginationOptions {
   organizationId: string;
