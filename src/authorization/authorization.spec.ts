@@ -21,7 +21,7 @@ const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
 const testOrgMembershipId = 'om_01HXYZ123ABC456DEF789ABC';
-const testRoleAssignmentId = 'ra_01HXYZ123ABC456DEF789ABC';
+const testRoleAssignmentId = 'role_assignment_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -1488,7 +1488,7 @@ describe('Authorization', () => {
       expect(data).toHaveLength(1);
       expect(data[0]).toMatchObject({
         object: 'role_assignment',
-        id: 'ra_01HXYZ123ABC456DEF789ABC',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
         role: { slug: 'editor' },
         resource: {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
@@ -1500,7 +1500,7 @@ describe('Authorization', () => {
       });
       expect(listMetadata).toEqual({
         before: null,
-        after: 'ra_01HXYZ123ABC456DEF789ABC',
+        after: 'role_assignment_01HXYZ123ABC456DEF789ABC',
       });
     });
 
@@ -1558,7 +1558,7 @@ describe('Authorization', () => {
       });
       expect(assignment).toMatchObject({
         object: 'role_assignment',
-        id: 'ra_01HXYZ123ABC456DEF789ABC',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
         role: { slug: 'editor' },
         resource: {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',

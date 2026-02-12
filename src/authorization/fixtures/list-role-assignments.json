@@ -3,7 +3,7 @@
     "data": [
       {
         "object": "role_assignment",
-        "id": "ra_01HXYZ123ABC456DEF789ABC",
+        "id": "role_assignment_01HXYZ123ABC456DEF789ABC",
         "role": {
           "slug": "editor"
         },
@@ -18,6 +18,6 @@
     ],
     "list_metadata": {
       "before": null,
-      "after": "ra_01HXYZ123ABC456DEF789ABC"
+      "after": "role_assignment_01HXYZ123ABC456DEF789ABC"
     }
   }

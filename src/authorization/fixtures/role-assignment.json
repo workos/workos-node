@@ -1,6 +1,6 @@
 {
     "object": "role_assignment",
-    "id": "ra_01HXYZ123ABC456DEF789ABC",
+    "id": "role_assignment_01HXYZ123ABC456DEF789ABC",
     "role": {
       "slug": "editor"
     },
