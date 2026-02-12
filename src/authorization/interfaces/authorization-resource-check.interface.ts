@@ -2,13 +2,23 @@ export interface AuthorizationCheckResult {
   authorized: boolean;
 }
 
-export interface AuthorizationCheckOptions {
+interface BaseAuthorizationCheckOptions {
   organizationMembershipId: string;
   permissionSlug: string;
-  resourceId?: string;
-  resourceExternalId?: string;
-  resourceTypeSlug?: string;
 }
+
+interface ResourceId {
+  resourceId: string;
+}
+
+interface ResourceExternalId {
+  resourceExternalId: string;
+  resourceTypeSlug: string;
+}
+
+export type AuthorizationCheckOptions =
+  | (BaseAuthorizationCheckOptions & ResourceId)
+  | (BaseAuthorizationCheckOptions & ResourceExternalId);
 
 export interface SerializedAuthorizationCheckOptions {
   permission_slug: string;
