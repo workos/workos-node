@@ -14,7 +14,7 @@ import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
 import listResourcesFixture from './fixtures/list-resources.json';
-import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
+import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
@@ -1526,7 +1526,7 @@ describe('Authorization', () => {
 
   describe('listMembershipsForResource', () => {
     it('lists organization memberships for a resource by internal ID', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       const { data, object, listMetadata } =
         await workos.authorization.listMembershipsForResource({
@@ -1557,7 +1557,7 @@ describe('Authorization', () => {
     });
 
     it('passes pagination parameters', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       await workos.authorization.listMembershipsForResource({
         resourceId: testResourceId,
@@ -1576,7 +1576,7 @@ describe('Authorization', () => {
     });
 
     it('passes assignment filter when provided', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       await workos.authorization.listMembershipsForResource({
         resourceId: testResourceId,
@@ -1593,7 +1593,7 @@ describe('Authorization', () => {
 
   describe('listMembershipsForResourceByExternalId', () => {
     it('lists organization memberships for a resource by external ID', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       const { data, object, listMetadata } =
         await workos.authorization.listMembershipsForResourceByExternalId({
@@ -1626,7 +1626,7 @@ describe('Authorization', () => {
     });
 
     it('passes pagination parameters', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       await workos.authorization.listMembershipsForResourceByExternalId({
         organizationId: testOrgId,
@@ -1647,7 +1647,7 @@ describe('Authorization', () => {
     });
 
     it('passes before cursor for backward pagination', async () => {
-      fetchOnce(listOrganizationMembershipsFixture);
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       await workos.authorization.listMembershipsForResourceByExternalId({
         organizationId: testOrgId,
