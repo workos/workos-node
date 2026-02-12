@@ -14,7 +14,7 @@ export const deserializeOrganizationMembership = (
   status: organizationMembership.status,
   createdAt: organizationMembership.created_at,
   updatedAt: organizationMembership.updated_at,
-  role: organizationMembership.role,
+  ...(organizationMembership.role && { role: organizationMembership.role }),
   ...(organizationMembership.roles && { roles: organizationMembership.roles }),
-  customAttributes: organizationMembership.custom_attributes,
+  customAttributes: organizationMembership.custom_attributes ?? {},
 });

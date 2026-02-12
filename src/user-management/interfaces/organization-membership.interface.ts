@@ -6,12 +6,12 @@ export interface OrganizationMembership {
   object: 'organization_membership';
   id: string;
   organizationId: string;
-  organizationName: string;
+  organizationName?: string;
   status: OrganizationMembershipStatus;
   userId: string;
   createdAt: string;
   updatedAt: string;
-  role: RoleResponse;
+  role?: RoleResponse;
   roles?: RoleResponse[];
   customAttributes: Record<string, unknown>;
 }
@@ -20,12 +20,12 @@ export interface OrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
   organization_id: string;
-  organization_name: string;
+  organization_name?: string;
   status: OrganizationMembershipStatus;
   user_id: string;
   created_at: string;
   updated_at: string;
-  role: RoleResponse;
+  role?: RoleResponse;
   roles?: RoleResponse[];
   custom_attributes: Record<string, unknown>;
 }
