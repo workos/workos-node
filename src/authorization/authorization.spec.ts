@@ -1362,7 +1362,7 @@ describe('Authorization', () => {
   });
 
   describe('check', () => {
-    it('returns authorized when permission is granted (by resource ID)', async () => {
+    it('returns authorized when permission is granted by resource ID', async () => {
       fetchOnce({ authorized: true }, { status: 200 });
 
       const result = await workos.authorization.check({
@@ -1381,7 +1381,28 @@ describe('Authorization', () => {
       expect(result).toEqual({ authorized: true });
     });
 
-    it('returns unauthorized when permission is not granted', async () => {
+    it('returns authorized when permission is granted by resource external ID and type slug', async () => {
+      fetchOnce({ authorized: true }, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:edit',
+        resourceExternalId: 'doc-456',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
+      );
+      expect(fetchBody()).toEqual({
+        permission_slug: 'documents:edit',
+        resource_external_id: 'doc-456',
+        resource_type_slug: 'document',
+      });
+      expect(result).toEqual({ authorized: true });
+    });
+
+    it('returns unauthorized when permission is not granted by resource ID', async () => {
       fetchOnce({ authorized: false }, { status: 200 });
 
       const result = await workos.authorization.check({
@@ -1393,7 +1414,20 @@ describe('Authorization', () => {
       expect(result).toEqual({ authorized: false });
     });
 
-    it('only includes provided resource identification fields', async () => {
+    it('returns unauthorized when permission is not granted by resource external ID and type slug', async () => {
+      fetchOnce({ authorized: false }, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'documents:delete',
+        resourceExternalId: 'doc-456',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(result).toEqual({ authorized: false });
+    });
+
+    it('only includes provided resource identification fields when permission is granted by resource ID', async () => {
       fetchOnce({ authorized: true }, { status: 200 });
 
       await workos.authorization.check({
@@ -1407,29 +1441,30 @@ describe('Authorization', () => {
         permission_slug: 'documents:read',
         resource_id: testResourceId,
       });
+      expect(body).toHaveProperty('resource_id', testResourceId);
       expect(body).not.toHaveProperty('resource_external_id');
       expect(body).not.toHaveProperty('resource_type_slug');
     });
 
-    it('checks permission without resource (organization-level check)', async () => {
+    it('only includes provided resource identification fields when permission is granted by resource external ID and type slug', async () => {
       fetchOnce({ authorized: true }, { status: 200 });
 
-      const result = await workos.authorization.check({
+      await workos.authorization.check({
         organizationMembershipId: testOrgMembershipId,
-        permissionSlug: 'settings:manage',
+        permissionSlug: 'documents:read',
+        resourceExternalId: 'doc-456',
+        resourceTypeSlug: 'document',
       });
 
-      expect(fetchURL()).toContain(
-        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
-      );
       const body = fetchBody();
       expect(body).toEqual({
-        permission_slug: 'settings:manage',
+        permission_slug: 'documents:read',
+        resource_external_id: 'doc-456',
+        resource_type_slug: 'document',
       });
       expect(body).not.toHaveProperty('resource_id');
-      expect(body).not.toHaveProperty('resource_external_id');
-      expect(body).not.toHaveProperty('resource_type_slug');
-      expect(result).toEqual({ authorized: true });
+      expect(body).toHaveProperty('resource_external_id', 'doc-456');
+      expect(body).toHaveProperty('resource_type_slug', 'document');
     });
   });
 });
