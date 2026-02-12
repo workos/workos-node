@@ -1,8 +1,8 @@
 import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
 
 export interface ListAuthorizationResourcesOptions extends PaginationOptions {
-  organizationId?: string[];
-  resourceTypeSlug?: string[];
+  organizationId?: string;
+  resourceTypeSlug?: string;
   parentResourceId?: string;
   parentResourceTypeSlug?: string;
   parentExternalId?: string;

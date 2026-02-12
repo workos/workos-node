@@ -7,10 +7,10 @@ export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
 ): SerializedListAuthorizationResourcesOptions => ({
   ...(options.organizationId && {
-    organization_ids: options.organizationId.join(','),
+    organization_ids: options.organizationId,
   }),
   ...(options.resourceTypeSlug && {
-    resource_type_slugs: options.resourceTypeSlug.join(','),
+    resource_type_slugs: options.resourceTypeSlug,
   }),
   ...(options.parentResourceId && {
     parent_resource_id: options.parentResourceId,

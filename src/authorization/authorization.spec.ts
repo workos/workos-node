@@ -1056,20 +1056,6 @@ describe('Authorization', () => {
       });
     });
 
-    it('passes filter parameters as comma-separated strings', async () => {
-      fetchOnce(listResourcesFixture);
-
-      await workos.authorization.listResources({
-        organizationId: ['org_01', 'org_02'],
-        resourceTypeSlug: ['document', 'folder'],
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        organization_ids: 'org_01,org_02',
-        resource_type_slugs: 'document,folder',
-      });
-    });
-
     it('passes pagination parameters with after cursor', async () => {
       fetchOnce(listResourcesFixture);
 
