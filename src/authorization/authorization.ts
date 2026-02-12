@@ -40,6 +40,14 @@ import {
   UpdateAuthorizationResourceOptions,
   AuthorizationCheckOptions,
   AuthorizationCheckResult,
+  AssignRoleOptions,
+  ListRoleAssignmentsOptions,
+  RemoveRoleAssignmentOptions,
+  RemoveRoleOptions,
+  RoleAssignment,
+  RoleAssignmentList,
+  RoleAssignmentListResponse,
+  RoleAssignmentResponse,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -58,6 +66,9 @@ import {
   serializeUpdateResourceByExternalIdOptions,
   serializeListAuthorizationResourcesOptions,
   serializeAuthorizationCheckOptions,
+  deserializeRoleAssignment,
+  serializeAssignRoleOptions,
+  serializeRemoveRoleOptions,
 } from './serializers';
 
 export class Authorization {
@@ -361,5 +372,46 @@ export class Authorization {
       serializeAuthorizationCheckOptions(options),
     );
     return data;
+  }
+
+  async listRoleAssignments(
+    options: ListRoleAssignmentsOptions,
+  ): Promise<RoleAssignmentList> {
+    const { organizationMembershipId, ...queryOptions } = options;
+    const { data } = await this.workos.get<RoleAssignmentListResponse>(
+      `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`,
+      { query: queryOptions },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeRoleAssignment),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  async assignRole(options: AssignRoleOptions): Promise<RoleAssignment> {
+    const { data } = await this.workos.post<RoleAssignmentResponse>(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
+      serializeAssignRoleOptions(options),
+    );
+    return deserializeRoleAssignment(data);
+  }
+
+  async removeRole(options: RemoveRoleOptions): Promise<void> {
+    await this.workos.delete(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
+      serializeRemoveRoleOptions(options),
+    );
+  }
+
+  async removeRoleAssignment(
+    options: RemoveRoleAssignmentOptions,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments/${options.roleAssignmentId}`,
+    );
   }
 }
