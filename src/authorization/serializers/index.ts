@@ -14,3 +14,4 @@ export * from './update-authorization-resource-by-external-id-options.serializer
 export * from './list-authorization-resources-options.serializer';
 export * from './authorization-check-options.serializer';
 export * from './list-resources-for-membership-options.serializer';
+export * from './list-memberships-for-resource-options.serializer';

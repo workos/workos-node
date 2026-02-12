@@ -64,6 +64,7 @@ import {
   serializeListAuthorizationResourcesOptions,
   serializeAuthorizationCheckOptions,
   serializeListResourcesForMembershipOptions,
+  serializeListMembershipsForResourceOptions,
 } from './serializers';
 import { deserializeOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
@@ -393,11 +394,11 @@ export class Authorization {
   async listMembershipsForResource(
     options: ListMembershipsForResourceOptions,
   ): Promise<OrganizationMembershipList> {
-    const { resourceId, ...queryOptions } = options;
+    const { resourceId } = options;
     const { data } = await this.workos.get<OrganizationMembershipListResponse>(
       `/authorization/resources/${resourceId}/organization_memberships`,
       {
-        query: Object.keys(queryOptions).length > 0 ? queryOptions : undefined,
+        query: serializeListMembershipsForResourceOptions(options),
       },
     );
     return {
@@ -413,12 +414,11 @@ export class Authorization {
   async listMembershipsForResourceByExternalId(
     options: ListMembershipsForResourceByExternalIdOptions,
   ): Promise<OrganizationMembershipList> {
-    const { organizationId, resourceTypeSlug, externalId, ...queryOptions } =
-      options;
+    const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.get<OrganizationMembershipListResponse>(
       `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
       {
-        query: Object.keys(queryOptions).length > 0 ? queryOptions : undefined,
+        query: serializeListMembershipsForResourceOptions(options),
       },
     );
     return {

@@ -1531,11 +1531,15 @@ describe('Authorization', () => {
       const { data, object, listMetadata } =
         await workos.authorization.listMembershipsForResource({
           resourceId: testResourceId,
+          permissionSlug: 'documents:read',
         });
 
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}/organization_memberships`,
       );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+      });
       expect(object).toEqual('list');
       expect(data).toHaveLength(1);
       expect(data[0]).toMatchObject({
@@ -1557,15 +1561,32 @@ describe('Authorization', () => {
 
       await workos.authorization.listMembershipsForResource({
         resourceId: testResourceId,
+        permissionSlug: 'documents:read',
         limit: 10,
         after: 'om_cursor123',
         order: 'desc',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
         limit: '10',
         after: 'om_cursor123',
         order: 'desc',
+      });
+    });
+
+    it('passes assignment filter when provided', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+        assignment: 'direct',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        assignment: 'direct',
       });
     });
   });
@@ -1579,11 +1600,15 @@ describe('Authorization', () => {
           organizationId: testOrgId,
           resourceTypeSlug: 'document',
           externalId: 'doc-456',
+          permissionSlug: 'documents:read',
         });
 
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships`,
       );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+      });
       expect(object).toEqual('list');
       expect(data).toHaveLength(1);
       expect(data[0]).toMatchObject({
@@ -1607,12 +1632,14 @@ describe('Authorization', () => {
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
+        permissionSlug: 'documents:read',
         limit: 10,
         after: 'om_cursor123',
         order: 'desc',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
         limit: '10',
         after: 'om_cursor123',
         order: 'desc',
@@ -1626,11 +1653,13 @@ describe('Authorization', () => {
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
+        permissionSlug: 'documents:read',
         before: 'om_cursor789',
         order: 'asc',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
         before: 'om_cursor789',
         order: 'asc',
       });

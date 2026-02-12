@@ -4,4 +4,6 @@ export interface ListMembershipsForResourceByExternalIdOptions extends Paginatio
   organizationId: string;
   resourceTypeSlug: string;
   externalId: string;
+  permissionSlug: string;
+  assignment?: 'direct' | 'indirect';
 }
