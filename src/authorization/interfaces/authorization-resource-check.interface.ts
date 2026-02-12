@@ -13,12 +13,12 @@ interface BaseAuthorizationCheckOptions {
 }
 
 export interface AuthorizationCheckOptionsWithResourceId
-  extends BaseAuthorizationCheckOptions,
-  AuthorizationResourceIdentifierById {}
+  extends BaseAuthorizationCheckOptions, AuthorizationResourceIdentifierById {}
 
 export interface AuthorizationCheckOptionsWithResourceExternalId
-  extends BaseAuthorizationCheckOptions,
-  AuthorizationResourceIdentifierByExternalId {}
+  extends
+    BaseAuthorizationCheckOptions,
+    AuthorizationResourceIdentifierByExternalId {}
 
 export type AuthorizationCheckOptions =
   | AuthorizationCheckOptionsWithResourceId
