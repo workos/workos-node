@@ -29,6 +29,12 @@ import {
   ListPermissionsOptions,
   AuthorizationResource,
   AuthorizationResourceResponse,
+  AuthorizationResourceList,
+  AuthorizationResourceListResponse,
+  ListAuthorizationResourcesOptions,
+  GetAuthorizationResourceByExternalIdOptions,
+  UpdateAuthorizationResourceByExternalIdOptions,
+  DeleteAuthorizationResourceByExternalIdOptions,
   CreateAuthorizationResourceOptions,
   UpdateAuthorizationResourceOptions,
   AuthorizationCheckOptions,
@@ -48,6 +54,8 @@ import {
   deserializeAuthorizationResource,
   serializeCreateResourceOptions,
   serializeUpdateResourceOptions,
+  serializeUpdateResourceByExternalIdOptions,
+  serializeListAuthorizationResourcesOptions,
   serializeAuthorizationCheckOptions,
 } from './serializers';
 
@@ -278,6 +286,57 @@ export class Authorization {
 
   async deleteResource(resourceId: string): Promise<void> {
     await this.workos.delete(`/authorization/resources/${resourceId}`);
+  }
+
+  async listResources(
+    options?: ListAuthorizationResourcesOptions,
+  ): Promise<AuthorizationResourceList> {
+    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
+      '/authorization/resources',
+      {
+        query: options
+          ? serializeListAuthorizationResourcesOptions(options)
+          : undefined,
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationResource),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  async getResourceByExternalId(
+    options: GetAuthorizationResourceByExternalIdOptions,
+  ): Promise<AuthorizationResource> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    const { data } = await this.workos.get<AuthorizationResourceResponse>(
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  async updateResourceByExternalId(
+    options: UpdateAuthorizationResourceByExternalIdOptions,
+  ): Promise<AuthorizationResource> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    const { data } = await this.workos.patch<AuthorizationResourceResponse>(
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      serializeUpdateResourceByExternalIdOptions(options),
+    );
+    return deserializeAuthorizationResource(data);
+  }
+
+  async deleteResourceByExternalId(
+    options: DeleteAuthorizationResourceByExternalIdOptions,
+  ): Promise<void> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    await this.workos.delete(
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+    );
   }
 
   async check(

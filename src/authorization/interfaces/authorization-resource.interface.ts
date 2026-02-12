@@ -24,16 +24,26 @@ export interface AuthorizationResourceResponse {
   updated_at: string;
 }
 
-export interface CreateAuthorizationResourceOptions {
+interface BaseCreateAuthorizationResourceOptions {
   externalId: string;
   name: string;
   description?: string | null;
   resourceTypeSlug: string;
   organizationId: string;
-  parentResourceId?: string | null;
-  parentResourceExternalId?: string | null;
-  parentResourceTypeSlug?: string | null;
 }
+
+export interface CreateOptionsWithParentResourceId extends BaseCreateAuthorizationResourceOptions {
+  parentResourceId: string;
+}
+
+export interface CreateOptionsWithParentExternalId extends BaseCreateAuthorizationResourceOptions {
+  parentResourceExternalId: string;
+  parentResourceTypeSlug: string;
+}
+
+export type CreateAuthorizationResourceOptions =
+  | CreateOptionsWithParentResourceId
+  | CreateOptionsWithParentExternalId;
 
 export interface SerializedCreateAuthorizationResourceOptions {
   external_id: string;
@@ -55,4 +65,22 @@ export interface UpdateAuthorizationResourceOptions {
 export interface SerializedUpdateAuthorizationResourceOptions {
   name?: string;
   description?: string | null;
+}
+
+export interface AuthorizationResourceList {
+  object: 'list';
+  data: AuthorizationResource[];
+  listMetadata: {
+    before: string | null;
+    after: string | null;
+  };
+}
+
+export interface AuthorizationResourceListResponse {
+  object: 'list';
+  data: AuthorizationResourceResponse[];
+  list_metadata: {
+    before: string | null;
+    after: string | null;
+  };
 }
