@@ -20,3 +20,8 @@ export * from './update-authorization-resource-by-external-id-options.interface'
 export * from './delete-authorization-resource-by-external-id-options.interface';
 export * from './delete-authorization-resource-options.interface';
 export * from './authorization-resource-check.interface';
+export * from './role-assignment.interface';
+export * from './list-role-assignments-options.interface';
+export * from './assign-role-options.interface';
+export * from './remove-role-options.interface';
+export * from './remove-role-assignment-options.interface';
