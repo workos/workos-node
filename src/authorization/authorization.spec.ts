@@ -1410,5 +1410,26 @@ describe('Authorization', () => {
       expect(body).not.toHaveProperty('resource_external_id');
       expect(body).not.toHaveProperty('resource_type_slug');
     });
+
+    it('checks permission without resource (organization-level check)', async () => {
+      fetchOnce({ authorized: true }, { status: 200 });
+
+      const result = await workos.authorization.check({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'settings:manage',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/check`,
+      );
+      const body = fetchBody();
+      expect(body).toEqual({
+        permission_slug: 'settings:manage',
+      });
+      expect(body).not.toHaveProperty('resource_id');
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
+      expect(result).toEqual({ authorized: true });
+    });
   });
 });
