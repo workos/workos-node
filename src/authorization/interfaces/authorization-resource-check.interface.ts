@@ -2,6 +2,8 @@ export interface AuthorizationCheckResult {
   authorized: boolean;
 }
 
+// TODO given what is in authorization.controller.e2e we should split these two up
+// this is for check, but useful in other places too
 export interface AuthorizationCheckOptions {
   organizationMembershipId: string;
   permissionSlug: string;

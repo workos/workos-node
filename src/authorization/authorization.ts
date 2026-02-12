@@ -333,9 +333,17 @@ export class Authorization {
   async deleteResourceByExternalId(
     options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
-    const { organizationId, resourceTypeSlug, externalId } = options;
+    const { organizationId, resourceTypeSlug, externalId, cascadeDelete } =
+      options;
+
+    const query =
+      cascadeDelete !== undefined
+        ? { cascade_delete: cascadeDelete.toString() }
+        : undefined;
+
     await this.workos.delete(
       `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      query,
     );
   }
 

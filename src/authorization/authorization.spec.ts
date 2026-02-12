@@ -1283,6 +1283,43 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/resources/${resourceTypeSlug}/${externalId}`,
       );
+      expect(fetchSearchParams()).toEqual({});
+    });
+
+    it('deletes a resource with cascadeDelete=true', async () => {
+      fetchOnce({}, { status: 204 });
+      const resourceTypeSlug = 'document';
+      const externalId = 'externalId';
+
+      await workos.authorization.deleteResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: resourceTypeSlug,
+        externalId: externalId,
+        cascadeDelete: true,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/${resourceTypeSlug}/${externalId}`,
+      );
+      expect(fetchSearchParams()).toEqual({ cascade_delete: 'true' });
+    });
+
+    it('deletes a resource with cascadeDelete=false', async () => {
+      fetchOnce({}, { status: 204 });
+      const resourceTypeSlug = 'document';
+      const externalId = 'externalId';
+
+      await workos.authorization.deleteResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: resourceTypeSlug,
+        externalId: externalId,
+        cascadeDelete: false,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/${resourceTypeSlug}/${externalId}`,
+      );
+      expect(fetchSearchParams()).toEqual({ cascade_delete: 'false' });
     });
   });
 
