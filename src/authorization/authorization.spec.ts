@@ -14,11 +14,15 @@ import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
 import listResourcesFixture from './fixtures/list-resources.json';
+import roleAssignmentFixture from './fixtures/role-assignment.json';
+import listRoleAssignmentsFixture from './fixtures/list-role-assignments.json';
 import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
+
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
 const testOrgMembershipId = 'om_01HXYZ123ABC456DEF789ABC';
+const testRoleAssignmentId = 'role_assignment_01HXYZ123ABC456DEF789ABC';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -1452,6 +1456,239 @@ describe('Authorization', () => {
       expect(body).not.toHaveProperty('resource_id');
       expect(body).toHaveProperty('resource_external_id', 'doc-456');
       expect(body).toHaveProperty('resource_type_slug', 'document');
+    });
+  });
+
+  describe('listRoleAssignments', () => {
+    it('lists role assignments for an organization membership', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listRoleAssignments({
+          organizationMembershipId: testOrgMembershipId,
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
+      );
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'role_assignment',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        role: { slug: 'editor' },
+        resource: {
+          id: 'resource_01HXYZ123ABC456DEF789XYZ',
+          externalId: 'doc-123',
+          resourceTypeSlug: 'document',
+        },
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        limit: 10,
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before pagination parameter', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        limit: 10,
+        before: 'ra_cursor456',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        before: 'ra_cursor456',
+        order: 'asc',
+      });
+    });
+  });
+
+  describe('assignRole', () => {
+    it('assigns a role by resource ID', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      const assignment = await workos.authorization.assignRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
+      );
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_id: testResourceId,
+      });
+      expect(assignment).toMatchObject({
+        object: 'role_assignment',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        role: { slug: 'editor' },
+        resource: {
+          id: 'resource_01HXYZ123ABC456DEF789XYZ',
+          externalId: 'doc-123',
+          resourceTypeSlug: 'document',
+        },
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+    });
+
+    it('assigns a role by external ID & resourceTypeSlug', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      const assignment = await workos.authorization.assignRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceExternalId: 'doc-123',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_external_id: 'doc-123',
+        resource_type_slug: 'document',
+      });
+      expect(assignment.resource.externalId).toBe('doc-123');
+      expect(assignment.createdAt).toBe('2024-01-15T09:30:00.000Z');
+      expect(assignment.updatedAt).toBe('2024-01-15T09:30:00.000Z');
+    });
+
+    it('body only includes resource_id when resourceId is provided', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.assignRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceId: testResourceId,
+      });
+
+      const body = fetchBody();
+      expect(body).toHaveProperty('resource_id');
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
+    });
+
+    it('body only includes externalId and typeSlug when provided', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.assignRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceExternalId: 'doc-123',
+        resourceTypeSlug: 'document',
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('resource_id');
+      expect(body).toHaveProperty('resource_external_id');
+      expect(body).toHaveProperty('resource_type_slug');
+    });
+  });
+
+  describe('removeRole', () => {
+    it('removes a role by resource ID', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
+      );
+      expect(fetchSearchParams()).toEqual({
+        role_slug: 'editor',
+        resource_id: testResourceId,
+      });
+    });
+
+    it('removes a role by externalId and resourceTypeSlug', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceExternalId: 'doc-123',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        role_slug: 'editor',
+        resource_external_id: 'doc-123',
+        resource_type_slug: 'document',
+      });
+    });
+
+    it('query only includes resource_id when resourceId is provided', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.removeRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceId: testResourceId,
+      });
+
+      const params = fetchSearchParams();
+      expect(params).toHaveProperty('resource_id');
+      expect(params).not.toHaveProperty('resource_external_id');
+      expect(params).not.toHaveProperty('resource_type_slug');
+    });
+
+    it('query only includes externalId and typeSlug when provided', async () => {
+      fetchOnce(roleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.removeRole({
+        organizationMembershipId: testOrgMembershipId,
+        roleSlug: 'editor',
+        resourceExternalId: 'doc-123',
+        resourceTypeSlug: 'document',
+      });
+
+      const params = fetchSearchParams();
+      expect(params).not.toHaveProperty('resource_id');
+      expect(params).toHaveProperty('resource_external_id');
+      expect(params).toHaveProperty('resource_type_slug');
+    });
+  });
+
+  describe('removeRoleAssignment', () => {
+    it('removes a role assignment by ID', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeRoleAssignment({
+        organizationMembershipId: testOrgMembershipId,
+        roleAssignmentId: testRoleAssignmentId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments/${testRoleAssignmentId}`,
+      );
     });
   });
 

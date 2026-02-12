@@ -24,3 +24,8 @@ export * from './list-resources-for-membership-options.interface';
 export * from './list-memberships-for-resource-options.interface';
 export * from './list-memberships-for-resource-by-external-id-options.interface';
 export * from './organization-membership-list.interface';
+export * from './role-assignment.interface';
+export * from './list-role-assignments-options.interface';
+export * from './assign-role-options.interface';
+export * from './remove-role-options.interface';
+export * from './remove-role-assignment-options.interface';
