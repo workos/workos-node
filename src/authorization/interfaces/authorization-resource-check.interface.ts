@@ -1,3 +1,8 @@
+import {
+  AuthorizationResourceIdentifierById,
+  AuthorizationResourceIdentifierByExternalId,
+} from './authorization-resource-identifier.interface';
+
 export interface AuthorizationCheckResult {
   authorized: boolean;
 }
@@ -7,18 +12,17 @@ interface BaseAuthorizationCheckOptions {
   permissionSlug: string;
 }
 
-interface ResourceId {
-  resourceId: string;
-}
+export interface AuthorizationCheckOptionsWithResourceId
+  extends BaseAuthorizationCheckOptions,
+  AuthorizationResourceIdentifierById {}
 
-interface ResourceExternalId {
-  resourceExternalId: string;
-  resourceTypeSlug: string;
-}
+export interface AuthorizationCheckOptionsWithResourceExternalId
+  extends BaseAuthorizationCheckOptions,
+  AuthorizationResourceIdentifierByExternalId {}
 
 export type AuthorizationCheckOptions =
-  | (BaseAuthorizationCheckOptions & ResourceId)
-  | (BaseAuthorizationCheckOptions & ResourceExternalId);
+  | AuthorizationCheckOptionsWithResourceId
+  | AuthorizationCheckOptionsWithResourceExternalId;
 
 export interface SerializedAuthorizationCheckOptions {
   permission_slug: string;
