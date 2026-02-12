@@ -40,6 +40,11 @@ import {
   UpdateAuthorizationResourceOptions,
   AuthorizationCheckOptions,
   AuthorizationCheckResult,
+  ListResourcesForMembershipOptions,
+  ListMembershipsForResourceOptions,
+  ListMembershipsForResourceByExternalIdOptions,
+  OrganizationMembershipList,
+  OrganizationMembershipListResponse,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -58,7 +63,9 @@ import {
   serializeUpdateResourceByExternalIdOptions,
   serializeListAuthorizationResourcesOptions,
   serializeAuthorizationCheckOptions,
+  serializeListResourcesForMembershipOptions,
 } from './serializers';
+import { deserializeOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -361,5 +368,108 @@ export class Authorization {
       serializeAuthorizationCheckOptions(options),
     );
     return data;
+  }
+
+  /**
+   * List all resources accessible to an organization membership
+   *
+   * @param options - Options including organizationMembershipId and optional filters
+   * @returns Paginated list of authorization resources
+   *
+   * @example
+   * const { data, listMetadata } = await workos.authorization.listResourcesForMembership({
+   *   organizationMembershipId: 'om_01HXYZ...',
+   *   resourceTypeSlugs: ['document', 'folder'],
+   *   limit: 10,
+   * });
+   */
+  async listResourcesForMembership(
+    options: ListResourcesForMembershipOptions,
+  ): Promise<AuthorizationResourceList> {
+    const { organizationMembershipId, ...queryOptions } = options;
+    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
+      `/authorization/organization_memberships/${organizationMembershipId}/resources`,
+      {
+        query:
+          Object.keys(queryOptions).length > 0
+            ? serializeListResourcesForMembershipOptions(queryOptions)
+            : undefined,
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationResource),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  /**
+   * List all organization memberships that have access to a resource (by internal ID)
+   *
+   * @param options - Options including resourceId and pagination
+   * @returns Paginated list of organization memberships
+   *
+   * @example
+   * const { data, listMetadata } = await workos.authorization.listMembershipsForResource({
+   *   resourceId: 'resource_01HXYZ...',
+   *   limit: 10,
+   * });
+   */
+  async listMembershipsForResource(
+    options: ListMembershipsForResourceOptions,
+  ): Promise<OrganizationMembershipList> {
+    const { resourceId, ...queryOptions } = options;
+    const { data } = await this.workos.get<OrganizationMembershipListResponse>(
+      `/authorization/resources/${resourceId}/organization_memberships`,
+      {
+        query: Object.keys(queryOptions).length > 0 ? queryOptions : undefined,
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeOrganizationMembership),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  /**
+   * List all organization memberships that have access to a resource (by external ID)
+   *
+   * @param options - Options including organizationId, resourceTypeSlug, externalId, and pagination
+   * @returns Paginated list of organization memberships
+   *
+   * @example
+   * const { data, listMetadata } = await workos.authorization.listMembershipsForResourceByExternalId({
+   *   organizationId: 'org_01HXYZ...',
+   *   resourceTypeSlug: 'document',
+   *   externalId: 'doc-123',
+   *   limit: 10,
+   * });
+   */
+  async listMembershipsForResourceByExternalId(
+    options: ListMembershipsForResourceByExternalIdOptions,
+  ): Promise<OrganizationMembershipList> {
+    const { organizationId, resourceTypeSlug, externalId, ...queryOptions } =
+      options;
+    const { data } = await this.workos.get<OrganizationMembershipListResponse>(
+      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
+      {
+        query: Object.keys(queryOptions).length > 0 ? queryOptions : undefined,
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeOrganizationMembership),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
   }
 }

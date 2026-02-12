@@ -14,6 +14,7 @@ import permissionFixture from './fixtures/permission.json';
 import listPermissionsFixture from './fixtures/list-permissions.json';
 import authorizationResourceFixture from './fixtures/authorization-resource.json';
 import listResourcesFixture from './fixtures/list-resources.json';
+import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
@@ -1451,6 +1452,174 @@ describe('Authorization', () => {
       expect(body).not.toHaveProperty('resource_id');
       expect(body).toHaveProperty('resource_external_id', 'doc-456');
       expect(body).toHaveProperty('resource_type_slug', 'document');
+    });
+  });
+
+  describe('listResourcesForMembership', () => {
+    it('lists resources accessible to an organization membership', async () => {
+      fetchOnce(listResourcesFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listResourcesForMembership({
+          organizationMembershipId: testOrgMembershipId,
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/resources`,
+      );
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(2);
+      expect(data[0]).toMatchObject({
+        object: 'authorization_resource',
+        id: 'authz_resource_01HXYZ123ABC456DEF789ABC',
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'authz_resource_01HXYZ123ABC456DEF789DEF',
+      });
+    });
+
+    it('passes resourceTypeSlugs filter as comma-separated string', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        resourceTypeSlugs: ['document', 'folder'],
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        resource_type_slugs: 'document,folder',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        limit: 10,
+        after: 'resource_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'resource_cursor123',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listMembershipsForResource', () => {
+    it('lists organization memberships for a resource by internal ID', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listMembershipsForResource({
+          resourceId: testResourceId,
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}/organization_memberships`,
+      );
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'organization_membership',
+        id: 'om_01HXYZ123ABC456DEF789ABC',
+        userId: 'user_01HXYZ123ABC456DEF789XYZ',
+        organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+        organizationName: 'Acme Corp',
+        status: 'active',
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'om_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        limit: 10,
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listMembershipsForResourceByExternalId', () => {
+    it('lists organization memberships for a resource by external ID', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listMembershipsForResourceByExternalId({
+          organizationId: testOrgId,
+          resourceTypeSlug: 'document',
+          externalId: 'doc-456',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships`,
+      );
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'organization_membership',
+        id: 'om_01HXYZ123ABC456DEF789ABC',
+        userId: 'user_01HXYZ123ABC456DEF789XYZ',
+        organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+        organizationName: 'Acme Corp',
+        status: 'active',
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'om_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        limit: 10,
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listOrganizationMembershipsFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        before: 'om_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        before: 'om_cursor789',
+        order: 'asc',
+      });
     });
   });
 });
