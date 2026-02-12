@@ -1,16 +1,28 @@
+import {
+  AuthorizationResourceIdentifierById,
+  AuthorizationResourceIdentifierByExternalId,
+} from './authorization-resource-identifier.interface';
+
 export interface AuthorizationCheckResult {
   authorized: boolean;
 }
 
-// TODO given what is in authorization.controller.e2e we should split these two up
-// this is for check, but useful in other places too
-export interface AuthorizationCheckOptions {
+interface BaseAuthorizationCheckOptions {
   organizationMembershipId: string;
   permissionSlug: string;
-  resourceId?: string;
-  resourceExternalId?: string;
-  resourceTypeSlug?: string;
 }
+
+export interface AuthorizationCheckOptionsWithResourceId
+  extends BaseAuthorizationCheckOptions, AuthorizationResourceIdentifierById {}
+
+export interface AuthorizationCheckOptionsWithResourceExternalId
+  extends
+    BaseAuthorizationCheckOptions,
+    AuthorizationResourceIdentifierByExternalId {}
+
+export type AuthorizationCheckOptions =
+  | AuthorizationCheckOptionsWithResourceId
+  | AuthorizationCheckOptionsWithResourceExternalId;
 
 export interface SerializedAuthorizationCheckOptions {
   permission_slug: string;
