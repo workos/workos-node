@@ -3,11 +3,6 @@ import {
   SerializedListAuthorizationResourcesOptions,
 } from '../interfaces/list-resources-options.interface';
 
-/**
- * Serialize SDK options to API query parameters
- * Converts camelCase to snake_case and arrays to comma-separated strings
- * Only includes fields that are provided (truthy check for optional fields)
- */
 export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
 ): SerializedListAuthorizationResourcesOptions => ({
