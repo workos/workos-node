@@ -370,19 +370,7 @@ export class Authorization {
     return data;
   }
 
-  /**
-   * List all resources accessible to an organization membership
-   *
-   * @param options - Options including organizationMembershipId and optional filters
-   * @returns Paginated list of authorization resources
-   *
-   * @example
-   * const { data, listMetadata } = await workos.authorization.listResourcesForMembership({
-   *   organizationMembershipId: 'om_01HXYZ...',
-   *   resourceTypeSlugs: ['document', 'folder'],
-   *   limit: 10,
-   * });
-   */
+  // new code
   async listResourcesForMembership(
     options: ListResourcesForMembershipOptions,
   ): Promise<AuthorizationResourceList> {
@@ -406,18 +394,6 @@ export class Authorization {
     };
   }
 
-  /**
-   * List all organization memberships that have access to a resource (by internal ID)
-   *
-   * @param options - Options including resourceId and pagination
-   * @returns Paginated list of organization memberships
-   *
-   * @example
-   * const { data, listMetadata } = await workos.authorization.listMembershipsForResource({
-   *   resourceId: 'resource_01HXYZ...',
-   *   limit: 10,
-   * });
-   */
   async listMembershipsForResource(
     options: ListMembershipsForResourceOptions,
   ): Promise<OrganizationMembershipList> {
@@ -438,20 +414,6 @@ export class Authorization {
     };
   }
 
-  /**
-   * List all organization memberships that have access to a resource (by external ID)
-   *
-   * @param options - Options including organizationId, resourceTypeSlug, externalId, and pagination
-   * @returns Paginated list of organization memberships
-   *
-   * @example
-   * const { data, listMetadata } = await workos.authorization.listMembershipsForResourceByExternalId({
-   *   organizationId: 'org_01HXYZ...',
-   *   resourceTypeSlug: 'document',
-   *   externalId: 'doc-123',
-   *   limit: 10,
-   * });
-   */
   async listMembershipsForResourceByExternalId(
     options: ListMembershipsForResourceByExternalIdOptions,
   ): Promise<OrganizationMembershipList> {
