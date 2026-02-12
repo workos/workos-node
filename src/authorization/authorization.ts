@@ -289,15 +289,11 @@ export class Authorization {
   }
 
   async listResources(
-    options?: ListAuthorizationResourcesOptions,
+    options: ListAuthorizationResourcesOptions = {},
   ): Promise<AuthorizationResourceList> {
     const { data } = await this.workos.get<AuthorizationResourceListResponse>(
       '/authorization/resources',
-      {
-        query: options
-          ? serializeListAuthorizationResourcesOptions(options)
-          : undefined,
-      },
+      { query: serializeListAuthorizationResourcesOptions(options) },
     );
     return {
       object: 'list',

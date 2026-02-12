@@ -6,11 +6,11 @@ import {
 export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
 ): SerializedListAuthorizationResourcesOptions => ({
-  ...(options.organizationIds && {
-    organization_ids: options.organizationIds.join(','),
+  ...(options.organizationId && {
+    organization_ids: options.organizationId.join(','),
   }),
-  ...(options.resourceTypeSlugs && {
-    resource_type_slugs: options.resourceTypeSlugs.join(','),
+  ...(options.resourceTypeSlug && {
+    resource_type_slugs: options.resourceTypeSlug.join(','),
   }),
   ...(options.parentResourceId && {
     parent_resource_id: options.parentResourceId,

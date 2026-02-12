@@ -1022,8 +1022,8 @@ describe('Authorization', () => {
       fetchOnce(listResourcesFixture);
 
       await workos.authorization.listResources({
-        organizationIds: ['org_01', 'org_02'],
-        resourceTypeSlugs: ['document', 'folder'],
+        organizationId: ['org_01', 'org_02'],
+        resourceTypeSlug: ['document', 'folder'],
       });
 
       expect(fetchSearchParams()).toEqual({
