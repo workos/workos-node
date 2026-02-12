@@ -3,8 +3,6 @@ import {
   OrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
 
-export { OrganizationMembership, OrganizationMembershipResponse };
-
 export interface OrganizationMembershipList {
   object: 'list';
   data: OrganizationMembership[];
