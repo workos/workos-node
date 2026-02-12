@@ -26,7 +26,7 @@ export interface RoleAssignment {
 export interface RoleAssignmentResponse {
   object: 'role_assignment';
   id: string;
-  role: RoleAssignmentRole; // Note: role.slug is already snake_case compatible
+  role: RoleAssignmentRole;
   resource: RoleAssignmentResourceResponse;
   created_at: string;
   updated_at: string;

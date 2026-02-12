@@ -1,10 +1,22 @@
-export interface RemoveRoleOptions {
+import {
+  AuthorizationResourceIdentifierById,
+  AuthorizationResourceIdentifierByExternalId,
+} from './authorization-resource-identifier.interface';
+
+export interface BaseRemoveRoleOptions {
   organizationMembershipId: string;
   roleSlug: string;
-  resourceId?: string;
-  resourceExternalId?: string;
-  resourceTypeSlug?: string;
 }
+
+export interface RemoveRoleOptionsWithResourceId
+  extends BaseRemoveRoleOptions, AuthorizationResourceIdentifierById {}
+
+export interface RemoveRoleOptionsWithResourceExternalId
+  extends BaseRemoveRoleOptions, AuthorizationResourceIdentifierByExternalId {}
+
+export type RemoveRoleOptions =
+  | RemoveRoleOptionsWithResourceId
+  | RemoveRoleOptionsWithResourceExternalId;
 
 export interface SerializedRemoveRoleOptions {
   role_slug: string;

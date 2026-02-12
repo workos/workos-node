@@ -7,11 +7,9 @@ export const serializeAssignRoleOptions = (
   options: AssignRoleOptions,
 ): SerializedAssignRoleOptions => ({
   role_slug: options.roleSlug,
-  ...(options.resourceId && { resource_id: options.resourceId }),
-  ...(options.resourceExternalId && {
+  ...('resourceId' in options && { resource_id: options.resourceId }),
+  ...('resourceExternalId' in options && {
     resource_external_id: options.resourceExternalId,
-  }),
-  ...(options.resourceTypeSlug && {
     resource_type_slug: options.resourceTypeSlug,
   }),
 });
