@@ -48,11 +48,11 @@ import {
   RoleAssignmentList,
   RoleAssignmentListResponse,
   RoleAssignmentResponse,
-  OrganizationMembershipList,
-  OrganizationMembershipListResponse,
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
   ListResourcesForMembershipOptions,
+  AuthorizationOrganizationMembershipListResponse,
+  AuthorizationOrganizationMembershipList,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -76,8 +76,8 @@ import {
   serializeRemoveRoleOptions,
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
+  deserializeAuthorizationOrganizationMembership,
 } from './serializers';
-import { deserializeOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -444,17 +444,18 @@ export class Authorization {
 
   async listMembershipsForResource(
     options: ListMembershipsForResourceOptions,
-  ): Promise<OrganizationMembershipList> {
+  ): Promise<AuthorizationOrganizationMembershipList> {
     const { resourceId } = options;
-    const { data } = await this.workos.get<OrganizationMembershipListResponse>(
-      `/authorization/resources/${resourceId}/organization_memberships`,
-      {
-        query: serializeListMembershipsForResourceOptions(options),
-      },
-    );
+    const { data } =
+      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
+        `/authorization/resources/${resourceId}/organization_memberships`,
+        {
+          query: serializeListMembershipsForResourceOptions(options),
+        },
+      );
     return {
       object: 'list',
-      data: data.data.map(deserializeOrganizationMembership),
+      data: data.data.map(deserializeAuthorizationOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,
@@ -464,17 +465,18 @@ export class Authorization {
 
   async listMembershipsForResourceByExternalId(
     options: ListMembershipsForResourceByExternalIdOptions,
-  ): Promise<OrganizationMembershipList> {
+  ): Promise<AuthorizationOrganizationMembershipList> {
     const { organizationId, resourceTypeSlug, externalId } = options;
-    const { data } = await this.workos.get<OrganizationMembershipListResponse>(
-      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
-      {
-        query: serializeListMembershipsForResourceOptions(options),
-      },
-    );
+    const { data } =
+      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
+        `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
+        {
+          query: serializeListMembershipsForResourceOptions(options),
+        },
+      );
     return {
       object: 'list',
-      data: data.data.map(deserializeOrganizationMembership),
+      data: data.data.map(deserializeAuthorizationOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,

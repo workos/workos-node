@@ -1,20 +1,28 @@
 import {
-  OrganizationMembership,
-  OrganizationMembershipResponse,
+  BaseOrganizationMembership,
+  BaseOrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
 
-export interface OrganizationMembershipList {
+export interface AuthorizationOrganizationMembership extends BaseOrganizationMembership {
+  organizationName?: string;
+}
+
+export interface AuthorizationOrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
+  organization_name?: string;
+}
+
+export interface AuthorizationOrganizationMembershipList {
   object: 'list';
-  data: OrganizationMembership[];
+  data: AuthorizationOrganizationMembership[];
   listMetadata: {
     before: string | null;
     after: string | null;
   };
 }
 
-export interface OrganizationMembershipListResponse {
+export interface AuthorizationOrganizationMembershipListResponse {
   object: 'list';
-  data: OrganizationMembershipResponse[];
+  data: AuthorizationOrganizationMembershipResponse[];
   list_metadata: {
     before: string | null;
     after: string | null;
