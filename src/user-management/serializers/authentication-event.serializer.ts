@@ -10,7 +10,7 @@ const deserializeAuthenticationEventSso = (
 ): AuthenticationEventSso => ({
   connectionId: sso.connection_id,
   organizationId: sso.organization_id,
-  ...(sso.session_id && { sessionId: sso.session_id }),
+  ...(sso.session_id !== undefined && { sessionId: sso.session_id }),
 });
 
 export const deserializeAuthenticationEvent = (
@@ -21,7 +21,7 @@ export const deserializeAuthenticationEvent = (
     error: authenticationEvent.error,
   }),
   ipAddress: authenticationEvent.ip_address,
-  ...(authenticationEvent.sso && {
+  ...(authenticationEvent.sso !== undefined && {
     sso: deserializeAuthenticationEventSso(authenticationEvent.sso),
   }),
   status: authenticationEvent.status,
