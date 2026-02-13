@@ -1805,7 +1805,6 @@ describe('Authorization', () => {
         id: 'om_01HXYZ123ABC456DEF789ABC',
         userId: 'user_01HXYZ123ABC456DEF789XYZ',
         organizationId: 'org_01HXYZ123ABC456DEF789ABC',
-        organizationName: 'Acme Corp',
         status: 'active',
         customAttributes: { department: 'Engineering', level: 'senior' },
       });
@@ -1889,28 +1888,6 @@ describe('Authorization', () => {
 
       expect(data[0].customAttributes).toEqual({});
     });
-
-    it('handles membership without organization_name', async () => {
-      const fixtureWithoutOrgName = {
-        object: 'list',
-        data: [
-          {
-            ...listOrganizationMembershipsForResourceFixture.data[0],
-            organization_name: undefined,
-          },
-        ],
-        list_metadata:
-          listOrganizationMembershipsForResourceFixture.list_metadata,
-      };
-      fetchOnce(fixtureWithoutOrgName);
-
-      const { data } = await workos.authorization.listMembershipsForResource({
-        resourceId: testResourceId,
-        permissionSlug: 'documents:read',
-      });
-
-      expect(data[0].organizationName).toBeUndefined();
-    });
   });
 
   describe('listMembershipsForResourceByExternalId', () => {
@@ -1938,7 +1915,6 @@ describe('Authorization', () => {
         id: 'om_01HXYZ123ABC456DEF789ABC',
         userId: 'user_01HXYZ123ABC456DEF789XYZ',
         organizationId: 'org_01HXYZ123ABC456DEF789ABC',
-        organizationName: 'Acme Corp',
         status: 'active',
         customAttributes: { department: 'Engineering', level: 'senior' },
       });

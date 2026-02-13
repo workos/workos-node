@@ -3,13 +3,10 @@ import {
   BaseOrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
 
-export interface AuthorizationOrganizationMembership extends BaseOrganizationMembership {
-  organizationName?: string;
-}
+export type AuthorizationOrganizationMembership = BaseOrganizationMembership;
 
-export interface AuthorizationOrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
-  organization_name?: string;
-}
+export type AuthorizationOrganizationMembershipResponse =
+  BaseOrganizationMembershipResponse;
 
 export interface AuthorizationOrganizationMembershipList {
   object: 'list';

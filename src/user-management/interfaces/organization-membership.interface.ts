@@ -23,6 +23,7 @@ export interface BaseOrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
   organization_id: string;
+  organization_name: string;
   status: OrganizationMembershipStatus;
   user_id: string;
   created_at: string;
@@ -31,7 +32,6 @@ export interface BaseOrganizationMembershipResponse {
 }
 
 export interface OrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
-  organization_name: string;
   role: RoleResponse;
   roles?: RoleResponse[];
 }
