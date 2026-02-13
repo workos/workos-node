@@ -1,11 +1,11 @@
 import {
-  FgaOrganizationMembership,
-  FgaOrganizationMembershipResponse,
+  AuthorizationOrganizationMembership,
+  AuthorizationOrganizationMembershipResponse,
 } from '../interfaces/organization-membership-list.interface';
 
-export const deserializeFgaOrganizationMembership = (
-  organizationMembership: FgaOrganizationMembershipResponse,
-): FgaOrganizationMembership => ({
+export const deserializeAuthorizationOrganizationMembership = (
+  organizationMembership: AuthorizationOrganizationMembershipResponse,
+): AuthorizationOrganizationMembership => ({
   object: organizationMembership.object,
   id: organizationMembership.id,
   userId: organizationMembership.user_id,

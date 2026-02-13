@@ -18,4 +18,4 @@ export * from './list-memberships-for-resource-options.serializer';
 export * from './role-assignment.serializer';
 export * from './assign-role-options.serializer';
 export * from './remove-role-options.serializer';
-export * from './fga-organization-membership.serializer';
+export * from './authorization-organization-membership.serializer';

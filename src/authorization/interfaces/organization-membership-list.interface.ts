@@ -1,30 +1,28 @@
 import {
-  OrganizationMembership,
-  OrganizationMembershipResponse,
+  BaseOrganizationMembership,
+  BaseOrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
 
-export type FgaOrganizationMembership = Omit<
-  OrganizationMembership,
-  'role' | 'roles'
->;
+export interface AuthorizationOrganizationMembership extends BaseOrganizationMembership {
+  organizationName?: string;
+}
 
-export type FgaOrganizationMembershipResponse = Omit<
-  OrganizationMembershipResponse,
-  'role' | 'roles'
->;
+export interface AuthorizationOrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
+  organization_name?: string;
+}
 
-export interface OrganizationMembershipList {
+export interface AuthorizationOrganizationMembershipList {
   object: 'list';
-  data: FgaOrganizationMembership[];
+  data: AuthorizationOrganizationMembership[];
   listMetadata: {
     before: string | null;
     after: string | null;
   };
 }
 
-export interface OrganizationMembershipListResponse {
+export interface AuthorizationOrganizationMembershipListResponse {
   object: 'list';
-  data: FgaOrganizationMembershipResponse[];
+  data: AuthorizationOrganizationMembershipResponse[];
   list_metadata: {
     before: string | null;
     after: string | null;
