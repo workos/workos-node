@@ -16,6 +16,7 @@ import authorizationResourceFixture from './fixtures/authorization-resource.json
 import listResourcesFixture from './fixtures/list-resources.json';
 import roleAssignmentFixture from './fixtures/role-assignment.json';
 import listRoleAssignmentsFixture from './fixtures/list-role-assignments.json';
+import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -1621,7 +1622,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
       );
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_id: testResourceId,
       });
@@ -1637,14 +1638,14 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_external_id: 'doc-123',
         resource_type_slug: 'document',
       });
     });
 
-    it('query only includes resource_id when resourceId is provided', async () => {
+    it('body only includes resource_id when resourceId is provided', async () => {
       fetchOnce(roleAssignmentFixture, { status: 201 });
 
       await workos.authorization.removeRole({
@@ -1653,13 +1654,13 @@ describe('Authorization', () => {
         resourceId: testResourceId,
       });
 
-      const params = fetchSearchParams();
-      expect(params).toHaveProperty('resource_id');
-      expect(params).not.toHaveProperty('resource_external_id');
-      expect(params).not.toHaveProperty('resource_type_slug');
+      const body = fetchBody();
+      expect(body).toHaveProperty('resource_id');
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
     });
 
-    it('query only includes externalId and typeSlug when provided', async () => {
+    it('body only includes externalId and typeSlug when provided', async () => {
       fetchOnce(roleAssignmentFixture, { status: 201 });
 
       await workos.authorization.removeRole({
@@ -1669,10 +1670,10 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
       });
 
-      const params = fetchSearchParams();
-      expect(params).not.toHaveProperty('resource_id');
-      expect(params).toHaveProperty('resource_external_id');
-      expect(params).toHaveProperty('resource_type_slug');
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('resource_id');
+      expect(body).toHaveProperty('resource_external_id');
+      expect(body).toHaveProperty('resource_type_slug');
     });
   });
 
@@ -1688,6 +1689,296 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments/${testRoleAssignmentId}`,
       );
+    });
+  });
+
+  describe('listResourcesForMembership', () => {
+    it('lists resources with parentResourceId', async () => {
+      fetchOnce(listResourcesFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listResourcesForMembership({
+          organizationMembershipId: testOrgMembershipId,
+          permissionSlug: 'document:read',
+          parentResourceId: testResourceId,
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organization_memberships/${testOrgMembershipId}/resources`,
+      );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_id: testResourceId,
+      });
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(2);
+      expect(data[0]).toMatchObject({
+        object: 'authorization_resource',
+        id: 'authz_resource_01HXYZ123ABC456DEF789ABC',
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'authz_resource_01HXYZ123ABC456DEF789DEF',
+      });
+    });
+
+    it('lists resources with parentResourceTypeSlug and parentResourceExternalId', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceTypeSlug: 'document',
+        parentResourceExternalId: 'doc-456',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_type_slug: 'document',
+        parent_resource_external_id: 'doc-456',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+        limit: 10,
+        after: 'resource_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_id: testResourceId,
+        limit: '10',
+        after: 'resource_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+        limit: 10,
+        before: 'resource_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'document:read',
+        parent_resource_id: testResourceId,
+        limit: '10',
+        before: 'resource_cursor789',
+        order: 'asc',
+      });
+    });
+  });
+
+  describe('listMembershipsForResource', () => {
+    it('lists organization memberships for a resource by internal ID', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listMembershipsForResource({
+          resourceId: testResourceId,
+          permissionSlug: 'documents:read',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}/organization_memberships`,
+      );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+      });
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'organization_membership',
+        id: 'om_01HXYZ123ABC456DEF789ABC',
+        userId: 'user_01HXYZ123ABC456DEF789XYZ',
+        organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+        status: 'active',
+        customAttributes: { department: 'Engineering', level: 'senior' },
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'om_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('returns empty list when no memberships match', async () => {
+      const emptyFixture = {
+        object: 'list',
+        data: [],
+        list_metadata: { before: null, after: null },
+      };
+      fetchOnce(emptyFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listMembershipsForResource({
+          resourceId: testResourceId,
+          permissionSlug: 'documents:read',
+        });
+
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(0);
+      expect(listMetadata).toEqual({ before: null, after: null });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+        limit: 10,
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        limit: '10',
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes assignment filter when provided', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+        assignment: 'direct',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        assignment: 'direct',
+      });
+    });
+
+    it('handles membership without custom_attributes', async () => {
+      const fixtureWithoutCustomAttrs = {
+        object: 'list',
+        data: [
+          {
+            ...listOrganizationMembershipsForResourceFixture.data[0],
+            custom_attributes: undefined,
+          },
+        ],
+        list_metadata:
+          listOrganizationMembershipsForResourceFixture.list_metadata,
+      };
+      fetchOnce(fixtureWithoutCustomAttrs);
+
+      const { data } = await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+      });
+
+      expect(data[0].customAttributes).toEqual({});
+    });
+  });
+
+  describe('listMembershipsForResourceByExternalId', () => {
+    it('lists organization memberships for a resource by external ID', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      const { data, object, listMetadata } =
+        await workos.authorization.listMembershipsForResourceByExternalId({
+          organizationId: testOrgId,
+          resourceTypeSlug: 'document',
+          externalId: 'doc-456',
+          permissionSlug: 'documents:read',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships`,
+      );
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+      });
+      expect(object).toEqual('list');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'organization_membership',
+        id: 'om_01HXYZ123ABC456DEF789ABC',
+        userId: 'user_01HXYZ123ABC456DEF789XYZ',
+        organizationId: 'org_01HXYZ123ABC456DEF789ABC',
+        status: 'active',
+        customAttributes: { department: 'Engineering', level: 'senior' },
+      });
+      expect(listMetadata).toEqual({
+        before: null,
+        after: 'om_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+        limit: 10,
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        limit: '10',
+        after: 'om_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+        before: 'om_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        before: 'om_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('passes assignment filter when provided', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+        assignment: 'direct',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        permission_slug: 'documents:read',
+        assignment: 'direct',
+      });
     });
   });
 });

@@ -1,3 +1,4 @@
+import { serializePaginationOptions } from '../../common/serializers';
 import {
   ListAuthorizationResourcesOptions,
   SerializedListAuthorizationResourcesOptions,
@@ -7,10 +8,10 @@ export const serializeListAuthorizationResourcesOptions = (
   options: ListAuthorizationResourcesOptions,
 ): SerializedListAuthorizationResourcesOptions => ({
   ...(options.organizationId && {
-    organization_ids: options.organizationId,
+    organization_id: options.organizationId,
   }),
   ...(options.resourceTypeSlug && {
-    resource_type_slugs: options.resourceTypeSlug,
+    resource_type_slug: options.resourceTypeSlug,
   }),
   ...(options.parentResourceId && {
     parent_resource_id: options.parentResourceId,
@@ -22,8 +23,5 @@ export const serializeListAuthorizationResourcesOptions = (
     parent_external_id: options.parentExternalId,
   }),
   ...(options.search && { search: options.search }),
-  ...(options.limit !== undefined && { limit: options.limit }),
-  ...(options.after && { after: options.after }),
-  ...(options.before && { before: options.before }),
-  ...(options.order && { order: options.order }),
+  ...serializePaginationOptions(options),
 });

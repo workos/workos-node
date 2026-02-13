@@ -13,6 +13,8 @@ export * from './update-authorization-resource-options.serializer';
 export * from './update-authorization-resource-by-external-id-options.serializer';
 export * from './list-authorization-resources-options.serializer';
 export * from './authorization-check-options.serializer';
+export * from './list-resources-for-membership-options.serializer';
+export * from './list-memberships-for-resource-options.serializer';
 export * from './role-assignment.serializer';
 export * from './assign-role-options.serializer';
 export * from './remove-role-options.serializer';

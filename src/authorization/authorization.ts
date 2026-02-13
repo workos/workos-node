@@ -48,6 +48,9 @@ import {
   RoleAssignmentList,
   RoleAssignmentListResponse,
   RoleAssignmentResponse,
+  ListMembershipsForResourceByExternalIdOptions,
+  ListMembershipsForResourceOptions,
+  ListResourcesForMembershipOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -69,7 +72,14 @@ import {
   deserializeRoleAssignment,
   serializeAssignRoleOptions,
   serializeRemoveRoleOptions,
+  serializeListMembershipsForResourceOptions,
+  serializeListResourcesForMembershipOptions,
 } from './serializers';
+import {
+  AuthorizationOrganizationMembershipList,
+  AuthorizationOrganizationMembershipListResponse,
+} from '../user-management/interfaces/organization-membership.interface';
+import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -346,7 +356,6 @@ export class Authorization {
     );
     return deserializeAuthorizationResource(data);
   }
-
   async deleteResourceByExternalId(
     options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
@@ -401,7 +410,7 @@ export class Authorization {
   }
 
   async removeRole(options: RemoveRoleOptions): Promise<void> {
-    await this.workos.delete(
+    await this.workos.deleteWithBody(
       `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
       serializeRemoveRoleOptions(options),
     );
@@ -413,5 +422,67 @@ export class Authorization {
     await this.workos.delete(
       `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments/${options.roleAssignmentId}`,
     );
+  }
+
+  async listResourcesForMembership(
+    options: ListResourcesForMembershipOptions,
+  ): Promise<AuthorizationResourceList> {
+    const { organizationMembershipId } = options;
+    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
+      `/authorization/organization_memberships/${organizationMembershipId}/resources`,
+      {
+        query: serializeListResourcesForMembershipOptions(options),
+      },
+    );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationResource),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  async listMembershipsForResource(
+    options: ListMembershipsForResourceOptions,
+  ): Promise<AuthorizationOrganizationMembershipList> {
+    const { resourceId } = options;
+    const { data } =
+      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
+        `/authorization/resources/${resourceId}/organization_memberships`,
+        {
+          query: serializeListMembershipsForResourceOptions(options),
+        },
+      );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationOrganizationMembership),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
+  }
+
+  async listMembershipsForResourceByExternalId(
+    options: ListMembershipsForResourceByExternalIdOptions,
+  ): Promise<AuthorizationOrganizationMembershipList> {
+    const { organizationId, resourceTypeSlug, externalId } = options;
+    const { data } =
+      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
+        `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
+        {
+          query: serializeListMembershipsForResourceOptions(options),
+        },
+      );
+    return {
+      object: 'list',
+      data: data.data.map(deserializeAuthorizationOrganizationMembership),
+      listMetadata: {
+        before: data.list_metadata.before,
+        after: data.list_metadata.after,
+      },
+    };
   }
 }

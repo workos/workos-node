@@ -390,6 +390,21 @@ export class WorkOS {
     }
   }
 
+  async deleteWithBody<Entity = any>(
+    path: string,
+    entity: Entity,
+  ): Promise<void> {
+    this.requireApiKey(path);
+
+    try {
+      await this.client.deleteWithBody(path, entity, {});
+    } catch (error) {
+      this.handleHttpError({ path, error });
+
+      throw error;
+    }
+  }
+
   emitWarning(warning: string) {
     // tslint:disable-next-line:no-console
     console.warn(`WorkOS: ${warning}`);
