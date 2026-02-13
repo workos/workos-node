@@ -6,9 +6,11 @@ import {
   FeatureFlagResponse,
   ListFeatureFlagsOptions,
   RemoveFlagTargetOptions,
+  RuntimeClientOptions,
 } from './interfaces';
 import { deserializeFeatureFlag } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { FeatureFlagsRuntimeClient } from './runtime-client';
 
 export class FeatureFlags {
   constructor(private readonly workos: WorkOS) {}
@@ -68,5 +70,11 @@ export class FeatureFlags {
   async removeFlagTarget(options: RemoveFlagTargetOptions): Promise<void> {
     const { slug, targetId } = options;
     await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
+  }
+
+  createRuntimeClient(
+    options?: RuntimeClientOptions,
+  ): FeatureFlagsRuntimeClient {
+    return new FeatureFlagsRuntimeClient(this.workos, options);
   }
 }
