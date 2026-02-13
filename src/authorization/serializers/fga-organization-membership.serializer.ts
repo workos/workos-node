@@ -1,11 +1,11 @@
 import {
-  OrganizationMembership,
-  OrganizationMembershipResponse,
-} from '../interfaces/organization-membership.interface';
+  FgaOrganizationMembership,
+  FgaOrganizationMembershipResponse,
+} from '../interfaces/organization-membership-list.interface';
 
-export const deserializeOrganizationMembership = (
-  organizationMembership: OrganizationMembershipResponse,
-): OrganizationMembership => ({
+export const deserializeFgaOrganizationMembership = (
+  organizationMembership: FgaOrganizationMembershipResponse,
+): FgaOrganizationMembership => ({
   object: organizationMembership.object,
   id: organizationMembership.id,
   userId: organizationMembership.user_id,
@@ -14,7 +14,5 @@ export const deserializeOrganizationMembership = (
   status: organizationMembership.status,
   createdAt: organizationMembership.created_at,
   updatedAt: organizationMembership.updated_at,
-  ...(organizationMembership.role && { role: organizationMembership.role }),
-  ...(organizationMembership.roles && { roles: organizationMembership.roles }),
   customAttributes: organizationMembership.custom_attributes ?? {},
 });

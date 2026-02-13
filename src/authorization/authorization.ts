@@ -76,8 +76,8 @@ import {
   serializeRemoveRoleOptions,
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
+  deserializeFgaOrganizationMembership,
 } from './serializers';
-import { deserializeBaseOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -454,7 +454,7 @@ export class Authorization {
     );
     return {
       object: 'list',
-      data: data.data.map(deserializeBaseOrganizationMembership),
+      data: data.data.map(deserializeFgaOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,
@@ -474,7 +474,7 @@ export class Authorization {
     );
     return {
       object: 'list',
-      data: data.data.map(deserializeBaseOrganizationMembership),
+      data: data.data.map(deserializeFgaOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,
