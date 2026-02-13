@@ -1,4 +1,9 @@
-import { Role, OrganizationRoleResponse } from '../../roles/interfaces';
+import {
+  Role,
+  OrganizationRoleResponse,
+  OrganizationRoleEvent,
+  OrganizationRoleEventResponse,
+} from '../../roles/interfaces';
 import { OrganizationRole } from '../interfaces';
 
 export const deserializeRole = (role: OrganizationRoleResponse): Role => ({
@@ -23,6 +28,20 @@ export const deserializeOrganizationRole = (
   description: role.description,
   permissions: role.permissions,
   type: 'OrganizationRole',
+  createdAt: role.created_at,
+  updatedAt: role.updated_at,
+});
+
+export const deserializeOrganizationRoleEvent = (
+  role: OrganizationRoleEventResponse,
+): OrganizationRoleEvent => ({
+  object: role.object,
+  organizationId: role.organization_id,
+  slug: role.slug,
+  name: role.name,
+  description: role.description,
+  resourceTypeSlug: role.resource_type_slug,
+  permissions: role.permissions,
   createdAt: role.created_at,
   updatedAt: role.updated_at,
 });

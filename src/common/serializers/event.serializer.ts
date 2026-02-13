@@ -23,7 +23,7 @@ import { deserializeSession } from '../../user-management/serializers/session.se
 import { Event, EventBase, EventResponse } from '../interfaces';
 import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-management/serializers/authentication-radar-risk-event-serializer';
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
-import { deserializeOrganizationRole } from '../../authorization/serializers/organization-role.serializer';
+import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
 import { deserializePermission } from '../../authorization/serializers/permission.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
@@ -172,7 +172,7 @@ export const deserializeEvent = (event: EventResponse): Event => {
       return {
         ...eventBase,
         event: event.event,
-        data: deserializeOrganizationRole(event.data),
+        data: deserializeOrganizationRoleEvent(event.data),
       };
     case 'permission.created':
     case 'permission.updated':
