@@ -19,6 +19,8 @@ export interface OrganizationMembership extends BaseOrganizationMembership {
   roles?: RoleResponse[];
 }
 
+export type AuthorizationOrganizationMembership = BaseOrganizationMembership;
+
 export interface BaseOrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
@@ -34,4 +36,25 @@ export interface BaseOrganizationMembershipResponse {
 export interface OrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
   role: RoleResponse;
   roles?: RoleResponse[];
+}
+
+export type AuthorizationOrganizationMembershipResponse =
+  BaseOrganizationMembershipResponse;
+
+export interface AuthorizationOrganizationMembershipList {
+  object: 'list';
+  data: AuthorizationOrganizationMembership[];
+  listMetadata: {
+    before: string | null;
+    after: string | null;
+  };
+}
+
+export interface AuthorizationOrganizationMembershipListResponse {
+  object: 'list';
+  data: AuthorizationOrganizationMembershipResponse[];
+  list_metadata: {
+    before: string | null;
+    after: string | null;
+  };
 }

@@ -51,6 +51,10 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FgaPaginatable } from './utils/fga-paginatable';
 import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
 
+/**
+ * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+ * @see src/authorization/authorization.ts
+ */
 export class FGA {
   constructor(private readonly workos: WorkOS) {}
 

@@ -1,4 +1,6 @@
 import {
+  AuthorizationOrganizationMembership,
+  AuthorizationOrganizationMembershipResponse,
   OrganizationMembership,
   OrganizationMembershipResponse,
 } from '../interfaces/organization-membership.interface';
@@ -16,5 +18,18 @@ export const deserializeOrganizationMembership = (
   updatedAt: organizationMembership.updated_at,
   ...(organizationMembership.role && { role: organizationMembership.role }),
   ...(organizationMembership.roles && { roles: organizationMembership.roles }),
+  customAttributes: organizationMembership.custom_attributes ?? {},
+});
+
+export const deserializeAuthorizationOrganizationMembership = (
+  organizationMembership: AuthorizationOrganizationMembershipResponse,
+): AuthorizationOrganizationMembership => ({
+  object: organizationMembership.object,
+  id: organizationMembership.id,
+  userId: organizationMembership.user_id,
+  organizationId: organizationMembership.organization_id,
+  status: organizationMembership.status,
+  createdAt: organizationMembership.created_at,
+  updatedAt: organizationMembership.updated_at,
   customAttributes: organizationMembership.custom_attributes ?? {},
 });

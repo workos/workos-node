@@ -51,8 +51,6 @@ import {
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
   ListResourcesForMembershipOptions,
-  AuthorizationOrganizationMembershipListResponse,
-  AuthorizationOrganizationMembershipList,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -76,8 +74,12 @@ import {
   serializeRemoveRoleOptions,
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
-  deserializeAuthorizationOrganizationMembership,
 } from './serializers';
+import {
+  AuthorizationOrganizationMembershipList,
+  AuthorizationOrganizationMembershipListResponse,
+} from '../user-management/interfaces/organization-membership.interface';
+import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
