@@ -33,15 +33,15 @@ export const deserializeOrganizationRole = (
 });
 
 export const deserializeOrganizationRoleEvent = (
-  role: OrganizationRoleEventResponse,
+  event: OrganizationRoleEventResponse,
 ): OrganizationRoleEvent => ({
-  object: role.object,
-  organizationId: role.organization_id,
-  slug: role.slug,
-  name: role.name,
-  description: role.description,
-  resourceTypeSlug: role.resource_type_slug,
-  permissions: role.permissions,
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
+  object: event.object,
+  organizationId: event.organization_id,
+  slug: event.slug,
+  name: event.name,
+  description: event.description,
+  resourceTypeSlug: event.resource_type_slug,
+  permissions: event.permissions,
+  createdAt: event.created_at,
+  updatedAt: event.updated_at,
 });
