@@ -1622,7 +1622,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
       );
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_id: testResourceId,
       });
@@ -1638,14 +1638,14 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
       });
 
-      expect(fetchSearchParams()).toEqual({
+      expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_external_id: 'doc-123',
         resource_type_slug: 'document',
       });
     });
 
-    it('query only includes resource_id when resourceId is provided', async () => {
+    it('body only includes resource_id when resourceId is provided', async () => {
       fetchOnce(roleAssignmentFixture, { status: 201 });
 
       await workos.authorization.removeRole({
@@ -1654,13 +1654,13 @@ describe('Authorization', () => {
         resourceId: testResourceId,
       });
 
-      const params = fetchSearchParams();
-      expect(params).toHaveProperty('resource_id');
-      expect(params).not.toHaveProperty('resource_external_id');
-      expect(params).not.toHaveProperty('resource_type_slug');
+      const body = fetchBody();
+      expect(body).toHaveProperty('resource_id');
+      expect(body).not.toHaveProperty('resource_external_id');
+      expect(body).not.toHaveProperty('resource_type_slug');
     });
 
-    it('query only includes externalId and typeSlug when provided', async () => {
+    it('body only includes externalId and typeSlug when provided', async () => {
       fetchOnce(roleAssignmentFixture, { status: 201 });
 
       await workos.authorization.removeRole({
@@ -1670,10 +1670,10 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
       });
 
-      const params = fetchSearchParams();
-      expect(params).not.toHaveProperty('resource_id');
-      expect(params).toHaveProperty('resource_external_id');
-      expect(params).toHaveProperty('resource_type_slug');
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('resource_id');
+      expect(body).toHaveProperty('resource_external_id');
+      expect(body).toHaveProperty('resource_type_slug');
     });
   });
 

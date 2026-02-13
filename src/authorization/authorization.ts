@@ -354,7 +354,6 @@ export class Authorization {
     );
     return deserializeAuthorizationResource(data);
   }
-
   async deleteResourceByExternalId(
     options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
@@ -372,6 +371,7 @@ export class Authorization {
     );
   }
 
+  // haven't tesed
   async check(
     options: AuthorizationCheckOptions,
   ): Promise<AuthorizationCheckResult> {
@@ -408,8 +408,9 @@ export class Authorization {
     return deserializeRoleAssignment(data);
   }
 
+  // test this
   async removeRole(options: RemoveRoleOptions): Promise<void> {
-    await this.workos.delete(
+    await this.workos.deleteWithBody(
       `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
       serializeRemoveRoleOptions(options),
     );
