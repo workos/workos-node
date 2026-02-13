@@ -23,6 +23,30 @@ export interface RoleEventResponse {
   updated_at: string;
 }
 
+export interface OrganizationRoleEventResponse {
+  object: 'organization_role';
+  organization_id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  resource_type_slug: string;
+  permissions: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface OrganizationRoleEvent {
+  object: 'organization_role';
+  organizationId: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  resourceTypeSlug: string;
+  permissions: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface ListOrganizationRolesResponse {
   object: 'list';
   data: OrganizationRoleResponse[];
