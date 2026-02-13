@@ -10,6 +10,7 @@ export const deserializeOrganizationDomain = (
   state: organizationDomain.state,
   verificationToken: organizationDomain.verification_token,
   verificationStrategy: organizationDomain.verification_strategy,
+  verificationPrefix: organizationDomain.verification_prefix,
   createdAt: organizationDomain.created_at,
   updatedAt: organizationDomain.updated_at,
 });
