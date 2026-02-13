@@ -1,7 +1,17 @@
 import {
   AuthenticationEvent,
   AuthenticationEventResponse,
+  AuthenticationEventSso,
+  AuthenticationEventSsoResponse,
 } from '../interfaces';
+
+const deserializeAuthenticationEventSso = (
+  sso: AuthenticationEventSsoResponse,
+): AuthenticationEventSso => ({
+  connectionId: sso.connection_id,
+  organizationId: sso.organization_id,
+  ...(sso.session_id && { sessionId: sso.session_id }),
+});
 
 export const deserializeAuthenticationEvent = (
   authenticationEvent: AuthenticationEventResponse,
@@ -9,6 +19,9 @@ export const deserializeAuthenticationEvent = (
   email: authenticationEvent.email,
   error: authenticationEvent.error,
   ipAddress: authenticationEvent.ip_address,
+  ...(authenticationEvent.sso && {
+    sso: deserializeAuthenticationEventSso(authenticationEvent.sso),
+  }),
   status: authenticationEvent.status,
   type: authenticationEvent.type,
   userAgent: authenticationEvent.user_agent,
