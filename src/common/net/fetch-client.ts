@@ -192,6 +192,40 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     }
   }
 
+  async deleteWithBody<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface> {
+    const resourceURL = HttpClient.getResourceURL(
+      this.baseURL,
+      path,
+      options.params,
+    );
+
+    if (HttpClient.isPathRetryable(path)) {
+      return await this.fetchRequestWithRetry(
+        resourceURL,
+        'DELETE',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    } else {
+      return await this.fetchRequest(
+        resourceURL,
+        'DELETE',
+        HttpClient.getBody(entity),
+        {
+          ...HttpClient.getContentTypeHeader(entity),
+          ...options.headers,
+        },
+      );
+    }
+  }
+
   private async fetchRequest(
     url: string,
     method: string,

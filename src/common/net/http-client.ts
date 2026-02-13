@@ -50,6 +50,12 @@ export abstract class HttpClient implements HttpClientInterface {
     options: RequestOptions,
   ): Promise<HttpClientResponseInterface>;
 
+  abstract deleteWithBody<Entity = any>(
+    path: string,
+    entity: Entity,
+    options: RequestOptions,
+  ): Promise<HttpClientResponseInterface>;
+
   addClientToUserAgent(userAgent: string): string {
     if (userAgent.indexOf(' ') > -1) {
       return userAgent.replace(/\b\s/, `/${this.getClientName()} `);

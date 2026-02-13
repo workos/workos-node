@@ -1,0 +1,12 @@
+{
+  "object": "authorization_resource",
+  "id": "authz_resource_01HXYZ123ABC456DEF789ABC",
+  "external_id": "doc-456",
+  "name": "Q4 Budget Report",
+  "description": "Financial report for Q4 2025",
+  "resource_type_slug": "document",
+  "organization_id": "org_01HXYZ123ABC456DEF789ABC",
+  "parent_resource_id": "authz_resource_01HXYZ123ABC456DEF789XYZ",
+  "created_at": "2024-01-15T09:30:00.000Z",
+  "updated_at": "2024-01-15T09:30:00.000Z"
+}

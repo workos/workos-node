@@ -2,21 +2,26 @@ import { RoleResponse } from '../../roles/interfaces/';
 
 export type OrganizationMembershipStatus = 'active' | 'inactive' | 'pending';
 
-export interface OrganizationMembership {
+export interface BaseOrganizationMembership {
   object: 'organization_membership';
   id: string;
   organizationId: string;
-  organizationName: string;
   status: OrganizationMembershipStatus;
   userId: string;
   createdAt: string;
   updatedAt: string;
-  role: RoleResponse;
-  roles?: RoleResponse[];
   customAttributes: Record<string, unknown>;
 }
 
-export interface OrganizationMembershipResponse {
+export interface OrganizationMembership extends BaseOrganizationMembership {
+  organizationName: string;
+  role: RoleResponse;
+  roles?: RoleResponse[];
+}
+
+export type AuthorizationOrganizationMembership = BaseOrganizationMembership;
+
+export interface BaseOrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
   organization_id: string;
@@ -25,7 +30,31 @@ export interface OrganizationMembershipResponse {
   user_id: string;
   created_at: string;
   updated_at: string;
+  custom_attributes?: Record<string, unknown>;
+}
+
+export interface OrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
   role: RoleResponse;
   roles?: RoleResponse[];
-  custom_attributes: Record<string, unknown>;
+}
+
+export type AuthorizationOrganizationMembershipResponse =
+  BaseOrganizationMembershipResponse;
+
+export interface AuthorizationOrganizationMembershipList {
+  object: 'list';
+  data: AuthorizationOrganizationMembership[];
+  listMetadata: {
+    before: string | null;
+    after: string | null;
+  };
+}
+
+export interface AuthorizationOrganizationMembershipListResponse {
+  object: 'list';
+  data: AuthorizationOrganizationMembershipResponse[];
+  list_metadata: {
+    before: string | null;
+    after: string | null;
+  };
 }
