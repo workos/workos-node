@@ -371,7 +371,6 @@ export class Authorization {
     );
   }
 
-  // haven't tesed
   async check(
     options: AuthorizationCheckOptions,
   ): Promise<AuthorizationCheckResult> {
@@ -408,7 +407,6 @@ export class Authorization {
     return deserializeRoleAssignment(data);
   }
 
-  // test this
   async removeRole(options: RemoveRoleOptions): Promise<void> {
     await this.workos.deleteWithBody(
       `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
