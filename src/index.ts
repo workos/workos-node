@@ -19,6 +19,7 @@ export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './events/interfaces';
 export * from './feature-flags/interfaces';
+export { FeatureFlagsRuntimeClient } from './feature-flags/runtime-client';
 export * from './fga/interfaces';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
