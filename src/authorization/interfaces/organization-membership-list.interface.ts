@@ -1,11 +1,11 @@
 import {
-  OrganizationMembership,
-  OrganizationMembershipResponse,
+  BaseOrganizationMembership,
+  BaseOrganizationMembershipResponse,
 } from '../../user-management/interfaces/organization-membership.interface';
 
 export interface OrganizationMembershipList {
   object: 'list';
-  data: OrganizationMembership[];
+  data: BaseOrganizationMembership[];
   listMetadata: {
     before: string | null;
     after: string | null;
@@ -14,7 +14,7 @@ export interface OrganizationMembershipList {
 
 export interface OrganizationMembershipListResponse {
   object: 'list';
-  data: OrganizationMembershipResponse[];
+  data: BaseOrganizationMembershipResponse[];
   list_metadata: {
     before: string | null;
     after: string | null;

@@ -77,7 +77,7 @@ import {
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
 } from './serializers';
-import { deserializeOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
+import { deserializeBaseOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -454,7 +454,7 @@ export class Authorization {
     );
     return {
       object: 'list',
-      data: data.data.map(deserializeOrganizationMembership),
+      data: data.data.map(deserializeBaseOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,
@@ -474,7 +474,7 @@ export class Authorization {
     );
     return {
       object: 'list',
-      data: data.data.map(deserializeOrganizationMembership),
+      data: data.data.map(deserializeBaseOrganizationMembership),
       listMetadata: {
         before: data.list_metadata.before,
         after: data.list_metadata.after,
