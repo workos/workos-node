@@ -25,6 +25,7 @@ import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-mana
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
 import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
 import { deserializePermission } from '../../authorization/serializers/permission.serializer';
+import { deserializeFeatureFlag } from '../../feature-flags/serializers/feature-flag.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -213,6 +214,15 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeApiKey(event.data),
+      };
+    case 'flag.created':
+    case 'flag.updated':
+    case 'flag.deleted':
+    case 'flag.rule_updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFeatureFlag(event.data),
       };
   }
 };
