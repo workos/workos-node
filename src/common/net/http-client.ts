@@ -80,7 +80,9 @@ export abstract class HttpClient implements HttpClientInterface {
     const sanitizedQueryObj: Record<string, any> = {};
 
     Object.entries(queryObj).forEach(([param, value]) => {
-      if (value !== '' && value !== undefined) sanitizedQueryObj[param] = value;
+      if (value !== null && value !== undefined && value !== '') {
+        sanitizedQueryObj[param] = value;
+      }
     });
 
     return new URLSearchParams(sanitizedQueryObj).toString();

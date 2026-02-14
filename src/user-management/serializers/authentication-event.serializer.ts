@@ -7,7 +7,9 @@ export const deserializeAuthenticationEvent = (
   authenticationEvent: AuthenticationEventResponse,
 ): AuthenticationEvent => ({
   email: authenticationEvent.email,
-  error: authenticationEvent.error,
+  ...(authenticationEvent.error !== undefined && {
+    error: authenticationEvent.error,
+  }),
   ipAddress: authenticationEvent.ip_address,
   status: authenticationEvent.status,
   type: authenticationEvent.type,

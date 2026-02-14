@@ -30,7 +30,7 @@ export const deserializeObjectMetadata = (
 export const deserializeObject = (object: ReadObjectResponse): VaultObject => ({
   id: object.id,
   name: object.name,
-  value: object.value,
+  ...(object.value !== undefined && { value: object.value }),
   metadata: deserializeObjectMetadata(object.metadata),
 });
 
@@ -48,8 +48,12 @@ export const deserializeListObjects = (
   object: 'list',
   data: list.data.map(deserializeObjectDigest),
   listMetadata: {
-    after: list.list_metadata.after ?? undefined,
-    before: list.list_metadata.before ?? undefined,
+    ...(list.list_metadata.after !== undefined && {
+      after: list.list_metadata.after,
+    }),
+    ...(list.list_metadata.before !== undefined && {
+      before: list.list_metadata.before,
+    }),
   },
 });
 

@@ -65,7 +65,6 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "customAttributes": {},
   "email": "foo@test.com",
   "firstName": "foo",
-  "groups": undefined,
   "id": "prof_123",
   "idpId": "123",
   "lastName": "bar",

@@ -20,7 +20,7 @@ describe.skip('Vault Live Test', () => {
 
   afterEach(async () => {
     let listLimit = 0;
-    let before: string | undefined;
+    let before: string | null | undefined;
 
     do {
       const allObjects = await workos.vault.listObjects({ after: before });
@@ -32,7 +32,7 @@ describe.skip('Vault Live Test', () => {
       }
       before = allObjects.listMetadata.before;
       listLimit++;
-    } while (listLimit < 100 && before !== undefined);
+    } while (listLimit < 100 && before);
   });
 
   describe('CRUD objects', () => {
@@ -251,7 +251,7 @@ describe.skip('Vault Live Test', () => {
       }
 
       const allObjectNames: string[] = [];
-      let before: string | undefined;
+      let before: string | null | undefined;
 
       do {
         const list = await workos.vault.listObjects({
@@ -265,7 +265,7 @@ describe.skip('Vault Live Test', () => {
           }
         }
         before = list.listMetadata.before;
-      } while (before !== undefined);
+      } while (before);
 
       const missingObjects = objectNames.filter(
         (name) => !allObjectNames.includes(name),

@@ -5,7 +5,9 @@ export const deserializeConnection = (
 ): Connection => ({
   object: connection.object,
   id: connection.id,
-  organizationId: connection.organization_id,
+  ...(connection.organization_id !== undefined && {
+    organizationId: connection.organization_id,
+  }),
   name: connection.name,
   type: connection.connection_type,
   state: connection.state,

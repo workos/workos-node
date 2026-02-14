@@ -179,7 +179,7 @@ describe('Vault', () => {
           },
         ],
         listMetadata: {
-          after: undefined,
+          after: null,
           before: 'charger',
         },
       });
@@ -260,7 +260,6 @@ describe('Vault', () => {
           },
           versionId: 'v1',
         },
-        value: undefined,
       });
     });
 
