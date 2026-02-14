@@ -25,4 +25,5 @@ export default defineConfig({
     },
   },
   publint: true,
+  attw: { profile: 'node16' },
 });
