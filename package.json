@@ -1,17 +1,44 @@
 {
-  "version": "8.5.0",
   "name": "@workos-inc/node",
-  "author": "WorkOS",
+  "version": "8.5.0",
   "description": "A Node wrapper for the WorkOS API",
-  "homepage": "https://github.com/workos/workos-node",
-  "license": "MIT",
   "keywords": [
     "workos"
   ],
-  "engines": {
-    "node": ">=20.15.0"
+  "homepage": "https://github.com/workos/workos-node",
+  "bugs": {
+    "url": "https://github.com/workos/workos-node/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/workos/workos-node.git"
+  },
+  "license": "MIT",
+  "author": "WorkOS",
   "type": "module",
+  "exports": {
+    ".": {
+      "workerd": {
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/index.worker.cjs"
+      },
+      "edge-light": {
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/index.worker.cjs"
+      },
+      "convex": {
+        "import": "./lib/index.worker.mjs",
+        "default": "./lib/index.worker.cjs"
+      },
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs"
+    },
+    "./worker": {
+      "import": "./lib/index.worker.mjs",
+      "require": "./lib/index.worker.cjs"
+    },
+    "./package.json": "./package.json"
+  },
   "main": "./lib/index.cjs",
   "module": "./lib/index.mjs",
   "types": "./lib/index.d.cts",
@@ -19,24 +46,17 @@
     "lib/",
     "package.json"
   ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/workos/workos-node.git"
-  },
-  "bugs": {
-    "url": "https://github.com/workos/workos-node/issues"
-  },
   "scripts": {
-    "clean": "rm -rf lib",
     "build": "tsdown",
     "build:watch": "tsdown --watch",
+    "check:runtimes": "tsx scripts/ecosystem-check.ts",
+    "clean": "rm -rf lib",
+    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "lint": "eslint",
+    "prepublishOnly": "npm run build",
+    "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "test": "jest",
     "test:watch": "jest --watch",
-    "check:runtimes": "tsx scripts/ecosystem-check.ts",
-    "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
-    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -68,27 +88,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "^8.46.0"
   },
-  "exports": {
-    ".": {
-      "workerd": {
-        "import": "./lib/index.worker.mjs",
-        "require": "./lib/index.worker.cjs"
-      },
-      "edge-light": {
-        "import": "./lib/index.worker.mjs",
-        "require": "./lib/index.worker.cjs"
-      },
-      "convex": {
-        "import": "./lib/index.worker.mjs",
-        "default": "./lib/index.worker.cjs"
-      },
-      "import": "./lib/index.mjs",
-      "require": "./lib/index.cjs"
-    },
-    "./worker": {
-      "import": "./lib/index.worker.mjs",
-      "require": "./lib/index.worker.cjs"
-    },
-    "./package.json": "./package.json"
+  "engines": {
+    "node": ">=20.15.0"
   }
 }
