@@ -1,43 +1,62 @@
 {
-  "version": "8.5.0",
   "name": "@workos-inc/node",
-  "author": "WorkOS",
+  "version": "8.5.0",
   "description": "A Node wrapper for the WorkOS API",
-  "homepage": "https://github.com/workos/workos-node",
-  "license": "MIT",
   "keywords": [
     "workos"
   ],
-  "engines": {
-    "node": ">=20.15.0"
+  "homepage": "https://github.com/workos/workos-node",
+  "bugs": {
+    "url": "https://github.com/workos/workos-node/issues"
   },
-  "type": "module",
-  "main": "./lib/index.cjs",
-  "module": "./lib/index.js",
-  "types": "./lib/index.d.ts",
-  "files": [
-    "lib/",
-    "package.json"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/workos/workos-node.git"
   },
-  "bugs": {
-    "url": "https://github.com/workos/workos-node/issues"
+  "license": "MIT",
+  "author": "WorkOS",
+  "type": "module",
+  "exports": {
+    ".": {
+      "workerd": {
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/index.worker.cjs"
+      },
+      "edge-light": {
+        "import": "./lib/index.worker.mjs",
+        "require": "./lib/index.worker.cjs"
+      },
+      "convex": {
+        "import": "./lib/index.worker.mjs",
+        "default": "./lib/index.worker.cjs"
+      },
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs"
+    },
+    "./worker": {
+      "import": "./lib/index.worker.mjs",
+      "require": "./lib/index.worker.cjs"
+    },
+    "./package.json": "./package.json"
   },
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.cts",
+  "files": [
+    "lib/",
+    "package.json"
+  ],
   "scripts": {
-    "clean": "rm -rf lib",
     "build": "tsdown",
     "build:watch": "tsdown --watch",
+    "check:runtimes": "tsx scripts/ecosystem-check.ts",
+    "clean": "rm -rf lib",
+    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
     "lint": "eslint",
+    "prepublishOnly": "npm run build",
+    "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
     "test": "jest",
     "test:watch": "jest --watch",
-    "check:runtimes": "tsx scripts/ecosystem-check.ts",
-    "check:types": "attw --pack . --ignore-rules no-resolution",
-    "prettier": "prettier \"src/**/*.{js,ts,tsx}\" --check",
-    "format": "prettier \"src/**/*.{js,ts,tsx}\" --write",
-    "prepublishOnly": "npm run build",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -62,59 +81,14 @@
     "jest-fetch-mock": "^3.0.3",
     "miniflare": "^4.20251004.0",
     "prettier": "^3.5.3",
+    "publint": "^0.3.17",
     "ts-jest": "29.4.4",
-    "tsdown": "^0.17.0",
+    "tsdown": "^0.20.3",
     "tsx": "^4.20.6",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.46.0"
   },
-  "exports": {
-    ".": {
-      "workerd": {
-        "types": "./lib/index.worker.d.ts",
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
-      },
-      "edge-light": {
-        "types": "./lib/index.worker.d.ts",
-        "import": "./lib/index.worker.js",
-        "require": "./lib/index.worker.cjs"
-      },
-      "deno": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/index.js"
-      },
-      "bun": {
-        "types": "./lib/index.d.ts",
-        "import": "./lib/index.js",
-        "require": "./lib/index.cjs"
-      },
-      "convex": {
-        "types": "./lib/index.worker.d.ts",
-        "import": "./lib/index.worker.js",
-        "default": "./lib/index.worker.cjs"
-      },
-      "import": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/index.js"
-      },
-      "require": {
-        "types": "./lib/index.d.cts",
-        "default": "./lib/index.cjs"
-      },
-      "default": "./lib/index.js"
-    },
-    "./worker": {
-      "import": {
-        "types": "./lib/index.worker.d.ts",
-        "default": "./lib/index.worker.js"
-      },
-      "require": {
-        "types": "./lib/index.worker.d.cts",
-        "default": "./lib/index.worker.cjs"
-      },
-      "default": "./lib/index.worker.js"
-    },
-    "./package.json": "./package.json"
+  "engines": {
+    "node": ">=20.15.0"
   }
 }
