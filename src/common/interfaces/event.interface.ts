@@ -50,6 +50,10 @@ import {
   AuthenticationRadarRiskDetectedEventResponseData,
 } from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
 import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
+import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from '../../feature-flags/interfaces';
 
 export interface EventBase {
   id: string;
@@ -688,6 +692,46 @@ export interface ApiKeyRevokedEventResponse extends EventResponseBase {
   data: SerializedApiKey;
 }
 
+export interface FlagCreatedEvent extends EventBase {
+  event: 'flag.created';
+  data: FeatureFlag;
+}
+
+export interface FlagCreatedEventResponse extends EventResponseBase {
+  event: 'flag.created';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagUpdatedEvent extends EventBase {
+  event: 'flag.updated';
+  data: FeatureFlag;
+}
+
+export interface FlagUpdatedEventResponse extends EventResponseBase {
+  event: 'flag.updated';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagDeletedEvent extends EventBase {
+  event: 'flag.deleted';
+  data: FeatureFlag;
+}
+
+export interface FlagDeletedEventResponse extends EventResponseBase {
+  event: 'flag.deleted';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagRuleUpdatedEvent extends EventBase {
+  event: 'flag.rule_updated';
+  data: FeatureFlag;
+}
+
+export interface FlagRuleUpdatedEventResponse extends EventResponseBase {
+  event: 'flag.rule_updated';
+  data: FeatureFlagResponse;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -749,7 +793,11 @@ export type Event =
   | OrganizationDomainUpdatedEvent
   | OrganizationDomainDeletedEvent
   | ApiKeyCreatedEvent
-  | ApiKeyRevokedEvent;
+  | ApiKeyRevokedEvent
+  | FlagCreatedEvent
+  | FlagUpdatedEvent
+  | FlagDeletedEvent
+  | FlagRuleUpdatedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -812,6 +860,10 @@ export type EventResponse =
   | OrganizationDomainUpdatedEventResponse
   | OrganizationDomainDeletedEventResponse
   | ApiKeyCreatedEventResponse
-  | ApiKeyRevokedEventResponse;
+  | ApiKeyRevokedEventResponse
+  | FlagCreatedEventResponse
+  | FlagUpdatedEventResponse
+  | FlagDeletedEventResponse
+  | FlagRuleUpdatedEventResponse;
 
 export type EventName = Event['event'];
