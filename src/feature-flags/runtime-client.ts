@@ -16,6 +16,9 @@ const MIN_POLLING_INTERVAL_MS = 5_000;
 const MIN_DELAY_MS = 1_000;
 const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 const JITTER_FACTOR = 0.1;
+const INITIAL_RETRY_MS = 1_000;
+const MAX_RETRY_MS = 60_000;
+const BACKOFF_MULTIPLIER = 2;
 
 export class FeatureFlagsRuntimeClient extends EventEmitter {
   private readonly store: InMemoryStore;
@@ -26,6 +29,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
 
   private closed = false;
   private initialized = false;
+  private consecutiveErrors = 0;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
 
   private readyResolve: (() => void) | null = null;
@@ -150,6 +154,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       this.store.swap(data);
       this.stats.lastSuccessfulPollAt = new Date();
       this.stats.flagCount = this.store.size;
+      this.consecutiveErrors = 0;
 
       if (this.initialized) {
         this.emitChanges(previousFlags, data);
@@ -159,6 +164,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
 
       this.logger?.debug('Poll successful', { flagCount: this.store.size });
     } catch (error) {
+      this.consecutiveErrors++;
       this.stats.pollErrorCount++;
       this.emit('error', error);
       this.logger?.error('Poll failed', error);
@@ -196,8 +202,19 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       return;
     }
 
+    let baseDelay = this.pollingIntervalMs;
+
+    if (this.consecutiveErrors > 0) {
+      const backoff = Math.min(
+        INITIAL_RETRY_MS *
+          Math.pow(BACKOFF_MULTIPLIER, this.consecutiveErrors - 1),
+        MAX_RETRY_MS,
+      );
+      baseDelay = Math.max(baseDelay, backoff);
+    }
+
     const jitter = 1 + (Math.random() * 2 - 1) * JITTER_FACTOR;
-    const delay = Math.max(MIN_DELAY_MS, this.pollingIntervalMs * jitter);
+    const delay = Math.max(MIN_DELAY_MS, baseDelay * jitter);
 
     this.pollTimer = setTimeout(() => this.poll(), delay);
   }

@@ -326,6 +326,113 @@ describe('FeatureFlagsRuntimeClient', () => {
     });
   });
 
+  describe('exponential backoff', () => {
+    let randomSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // Remove jitter for deterministic timing
+      randomSpy = jest.spyOn(Math, 'random').mockReturnValue(0.5);
+    });
+
+    afterEach(() => {
+      randomSpy.mockRestore();
+    });
+
+    it('backs off on consecutive errors', async () => {
+      // First poll fails
+      fetch.mockRejectOnce(new Error('fail 1'));
+      const client = workos.featureFlags.createRuntimeClient({
+        pollingIntervalMs: 5000,
+      });
+      client.on('error', () => {});
+
+      await jest.advanceTimersByTimeAsync(0); // first poll fires immediately
+      expect(fetch.mock.calls.length).toBe(1);
+
+      // 2nd poll: backoff = max(1s, 5s) = 5s
+      fetch.mockRejectOnce(new Error('fail 2'));
+      await jest.advanceTimersByTimeAsync(4999);
+      expect(fetch.mock.calls.length).toBe(1);
+      await jest.advanceTimersByTimeAsync(1);
+      expect(fetch.mock.calls.length).toBe(2);
+
+      // 3rd poll: backoff = max(2s, 5s) = 5s
+      fetch.mockRejectOnce(new Error('fail 3'));
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(fetch.mock.calls.length).toBe(3);
+
+      // 4th poll: backoff = max(4s, 5s) = 5s
+      fetch.mockRejectOnce(new Error('fail 4'));
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(fetch.mock.calls.length).toBe(4);
+
+      // 5th poll: backoff = max(8s, 5s) = 8s — backoff exceeds polling interval
+      fetch.mockRejectOnce(new Error('fail 5'));
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(fetch.mock.calls.length).toBe(4); // not yet at 5s
+      await jest.advanceTimersByTimeAsync(3000);
+      expect(fetch.mock.calls.length).toBe(5); // fires at 8s
+
+      client.close();
+    });
+
+    it('resets backoff after successful poll', async () => {
+      // First poll fails
+      fetch.mockRejectOnce(new Error('fail'));
+      const client = workos.featureFlags.createRuntimeClient({
+        pollingIntervalMs: 5000,
+      });
+      client.on('error', () => {});
+
+      await jest.advanceTimersByTimeAsync(0); // first poll fails
+
+      // Second poll succeeds
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(5000);
+      expect(fetch.mock.calls.length).toBe(2);
+
+      // Third poll should use normal 5s interval (backoff reset)
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(4999);
+      expect(fetch.mock.calls.length).toBe(2);
+      await jest.advanceTimersByTimeAsync(1);
+      expect(fetch.mock.calls.length).toBe(3);
+
+      client.close();
+    });
+
+    it('caps backoff at 60 seconds', async () => {
+      // Use mockReject (persistent) to avoid mock exhaustion issues
+      fetch.mockReject(new Error('always fail'));
+
+      const client = workos.featureFlags.createRuntimeClient({
+        pollingIntervalMs: 5000,
+      });
+      client.on('error', () => {});
+
+      // Fire first 7 polls to build up consecutiveErrors to 7
+      // Delays: 0, 5s, 5s, 5s, 8s, 16s, 32s
+      await jest.advanceTimersByTimeAsync(0); // poll 1 (immediate)
+      await jest.advanceTimersByTimeAsync(5000); // poll 2
+      await jest.advanceTimersByTimeAsync(5000); // poll 3
+      await jest.advanceTimersByTimeAsync(5000); // poll 4
+      await jest.advanceTimersByTimeAsync(8000); // poll 5
+      await jest.advanceTimersByTimeAsync(16_000); // poll 6
+      await jest.advanceTimersByTimeAsync(32_000); // poll 7
+      expect(fetch.mock.calls.length).toBe(7);
+      expect(client.getStats().pollErrorCount).toBe(7);
+
+      // Next: backoff = min(1s * 2^6, 60s) = 60s (capped, not 64s)
+      await jest.advanceTimersByTimeAsync(55_000);
+      expect(fetch.mock.calls.length).toBe(7); // not yet at 55s
+
+      await jest.advanceTimersByTimeAsync(6_000);
+      expect(fetch.mock.calls.length).toBe(8); // fires by 61s
+
+      client.close();
+    });
+  });
+
   describe('error handling', () => {
     it('emits error on poll failure and continues polling', async () => {
       // First poll fails
