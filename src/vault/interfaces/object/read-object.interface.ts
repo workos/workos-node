@@ -19,5 +19,5 @@ export interface ReadObjectResponse {
   id: string;
   metadata: ReadObjectMetadataResponse;
   name: string;
-  value: string;
+  value?: string;
 }
