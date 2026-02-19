@@ -34,9 +34,9 @@ import {
 import {
   RoleEvent,
   RoleEventResponse,
-  OrganizationRoleResponse,
+  OrganizationRoleEvent,
+  OrganizationRoleEventResponse,
 } from '../../roles/interfaces/role.interface';
-import { OrganizationRole } from '../../authorization/interfaces/organization-role.interface';
 import {
   Permission,
   PermissionResponse,
@@ -540,32 +540,32 @@ export interface RoleUpdatedEventResponse extends EventResponseBase {
 
 export interface OrganizationRoleCreatedEvent extends EventBase {
   event: 'organization_role.created';
-  data: OrganizationRole;
+  data: OrganizationRoleEvent;
 }
 
 export interface OrganizationRoleCreatedEventResponse extends EventResponseBase {
   event: 'organization_role.created';
-  data: OrganizationRoleResponse;
+  data: OrganizationRoleEventResponse;
 }
 
 export interface OrganizationRoleUpdatedEvent extends EventBase {
   event: 'organization_role.updated';
-  data: OrganizationRole;
+  data: OrganizationRoleEvent;
 }
 
 export interface OrganizationRoleUpdatedEventResponse extends EventResponseBase {
   event: 'organization_role.updated';
-  data: OrganizationRoleResponse;
+  data: OrganizationRoleEventResponse;
 }
 
 export interface OrganizationRoleDeletedEvent extends EventBase {
   event: 'organization_role.deleted';
-  data: OrganizationRole;
+  data: OrganizationRoleEvent;
 }
 
 export interface OrganizationRoleDeletedEventResponse extends EventResponseBase {
   event: 'organization_role.deleted';
-  data: OrganizationRoleResponse;
+  data: OrganizationRoleEventResponse;
 }
 
 export interface PermissionCreatedEvent extends EventBase {

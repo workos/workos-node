@@ -8,7 +8,7 @@ jobs:
 
     steps:
       - name: Checkout the ${{github.base_ref}} branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{github.base_ref}} # checkout the base branch (usually master/main).
 
@@ -22,7 +22,7 @@ jobs:
           echo "all_changed_files=$(git diff --name-only ${{ github.base_ref }} ${{ github.head_ref }} | tr '\n' ' ')" >> $GITHUB_OUTPUT
 
       - name: Use Node.js 20.x
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 20.x
 
@@ -44,7 +44,7 @@ jobs:
         run: sudo chown -R $USER:$USER .
 
       - name: Checkout the current branch
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           clean: true
 
