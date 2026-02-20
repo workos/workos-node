@@ -3,8 +3,9 @@
     "config:base"
   ],
   "schedule": [
-    "every 2 weeks on Tuesday"
+    "on the third tuesday of the month before 12pm"
   ],
+  "timezone": "UTC",
   "rebaseWhen": "conflicted",
   "packageRules": [
     {
