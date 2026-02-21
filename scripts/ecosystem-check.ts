@@ -24,14 +24,14 @@ const tests: Record<string, { cmd: string; args: string[] }> = {
     cmd: 'node',
     args: [
       '-e',
-      `import("${lib}/index.js").then(m => console.log('✅ Node ESM:', m.WorkOS.name))`,
+      `import("${lib}/index.mjs").then(m => console.log('✅ Node ESM:', m.WorkOS.name))`,
     ],
   },
   deno: {
     cmd: 'deno',
     args: [
       'eval',
-      `import("${lib}/index.js").then(m => console.log('✅ Deno:', m.WorkOS.name))`,
+      `import("${lib}/index.mjs").then(m => console.log('✅ Deno:', m.WorkOS.name))`,
     ],
   },
   'bun-cjs': {
@@ -45,7 +45,7 @@ const tests: Record<string, { cmd: string; args: string[] }> = {
     cmd: 'bun',
     args: [
       '-e',
-      `import("${lib}/index.js").then(m => console.log('✅ Bun ESM:', m.WorkOS.name))`,
+      `import("${lib}/index.mjs").then(m => console.log('✅ Bun ESM:', m.WorkOS.name))`,
     ],
   },
 };
@@ -93,7 +93,7 @@ if (miniflareCheck.status !== 0) {
   const safeLibPath = lib.replace(/\\/g, '\\\\'); // For Windows compatibility
 
   const workerScriptContent = `
-import { WorkOS } from '${safeLibPath}/index.worker.js';
+import { WorkOS } from '${safeLibPath}/index.worker.mjs';
 
 if (WorkOS && WorkOS.name === 'WorkOS') {
   console.log('✅ Worker (miniflare): SDK imported successfully.');
