@@ -136,6 +136,26 @@ describe('Portal', () => {
           );
         });
       });
+      describe('with the `bring_your_own_key` intent', () => {
+        it('returns an Admin Portal link', async () => {
+          fetchOnce(generateLink, { status: 201 });
+
+          const { link } = await workos.portal.generateLink({
+            intent: GeneratePortalLinkIntent.BringYourOwnKey,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+          });
+
+          expect(fetchBody()).toEqual({
+            intent: GeneratePortalLinkIntent.BringYourOwnKey,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+          });
+          expect(link).toEqual(
+            'https://id.workos.com/portal/launch?secret=secret',
+          );
+        });
+      });
     });
 
     describe('with an invalid organization', () => {

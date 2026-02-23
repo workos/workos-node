@@ -1,9 +1,9 @@
 {
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "schedule": [
-    "on the third tuesday of the month before 12pm"
+    "on the 15th day of the month before 12pm"
   ],
   "timezone": "UTC",
   "rebaseWhen": "conflicted",
