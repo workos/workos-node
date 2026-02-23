@@ -1,11 +1,32 @@
 {
-  "packageRules": [
-    {
-      "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
-    }
-  ],
   "extends": [
     "config:base"
+  ],
+  "schedule": [
+    "on the third tuesday of the month before 12pm"
+  ],
+  "timezone": "UTC",
+  "rebaseWhen": "conflicted",
+  "packageRules": [
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true,
+      "groupName": "minor and patch updates"
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false
+    }
   ]
 }
