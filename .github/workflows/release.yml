@@ -1,57 +1,30 @@
 name: Release
 
 on:
-  # Support manually pushing a new release
-  workflow_dispatch: {}
-  # Trigger when a release or a pre-release is published
-  release:
-    types: [published]
-
-defaults:
-  run:
-    shell: bash
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
-  test:
-    name: Publish to NPM
+  publish:
+    name: Publish to npm
     runs-on: ubuntu-latest
     permissions:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 24
-          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
-        run: |
-          npm install
+        run: npm install
 
       - name: Build Project
-        run: |
-          npm run build
+        run: npm run build
 
       - name: Run Tests
-        run: |
-          npm run test
+        run: npm run test
 
       - name: Publish
-        if: ${{ !github.event.release.prerelease }}
-        run: |
-          npm publish --tag latest --access=public --provenance
-
-      - name: Publish Pre-Release
-        if: ${{ github.event.release.prerelease }}
-        run: |
-          # Tags may come prefixed with "v" which we want to remove before putting
-          # it as the version of this deploy. E.g. this will turn "v7.5.0-beta" to "7.5.0-beta"
-          CLEAN_TAG=$(echo "${{ github.event.release.tag_name }}" | sed 's/[^0-9]//')
-          jq ".version=\"${CLEAN_TAG}\"" package.json > package.json.deploy
-          cp package.json.deploy package.json
-
-          echo "Deploying with package.json"
-          cat package.json
-
-          npm publish --tag next --access=public --provenance
+        run: npm publish --tag latest --access public --provenance
