@@ -8,8 +8,7 @@ module.exports = {
   roots: ['<rootDir>/src'],
   setupFilesAfterEnv: ['./setup-jest.ts'],
   transform: {
-    '^.+\\.ts?$': 'ts-jest',
-    '^.+\\.m?js$': '<rootDir>/jest-transform-esm.cjs',
+    '^.+\\.m?[jt]s$': '<rootDir>/jest-transform-esm.cjs',
   },
   transformIgnorePatterns: [
     'node_modules/(?!(iron-webcrypto|uint8array-extras|@noble|@scure|jose)/)',
