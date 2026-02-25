@@ -1,11 +1,32 @@
 {
+  "extends": [
+    "config:recommended"
+  ],
+  "schedule": [
+    "on the 15th day of the month before 12pm"
+  ],
+  "timezone": "UTC",
+  "rebaseWhen": "conflicted",
   "packageRules": [
     {
-      "updateTypes": ["minor", "patch", "pin", "digest"],
-      "automerge": true
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true,
+      "groupName": "minor and patch updates"
+    },
+    {
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "automerge": false
     }
-  ],
-  "extends": [
-    "config:base"
   ]
 }

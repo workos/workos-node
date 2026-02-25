@@ -5,4 +5,5 @@ export enum GeneratePortalLinkIntent {
   LogStreams = 'log_streams',
   SSO = 'sso',
   CertificateRenewal = 'certificate_renewal',
+  BringYourOwnKey = 'bring_your_own_key',
 }

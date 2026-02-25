@@ -1,6 +1,6 @@
 export interface PaginationOptions {
   limit?: number;
-  before?: string;
-  after?: string;
+  before?: string | null;
+  after?: string | null;
   order?: 'asc' | 'desc';
 }

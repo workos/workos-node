@@ -688,7 +688,10 @@ describe.skip('FGA Live Test', () => {
     expect(warrants1.data[0].policy).toEqual('region == "us"');
 
     const warrants2 = await workos.fga.listWarrants(
-      { limit: 1, after: warrants1.listMetadata.after },
+      {
+        limit: 1,
+        after: warrants1.listMetadata.after,
+      },
       { warrantToken: 'latest' },
     );
     expect(warrants2.data.length).toEqual(1);
