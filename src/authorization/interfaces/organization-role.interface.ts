@@ -5,6 +5,7 @@ export interface OrganizationRole {
   slug: string;
   description: string | null;
   permissions: string[];
+  resourceTypeSlug: string;
   type: 'OrganizationRole';
   createdAt: string;
   updatedAt: string;
