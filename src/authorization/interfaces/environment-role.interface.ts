@@ -5,6 +5,7 @@ export interface EnvironmentRole {
   slug: string;
   description: string | null;
   permissions: string[];
+  resourceTypeSlug: string;
   type: 'EnvironmentRole';
   createdAt: string;
   updatedAt: string;
@@ -17,6 +18,7 @@ export interface EnvironmentRoleResponse {
   slug: string;
   description: string | null;
   permissions: string[];
+  resource_type_slug: string;
   type: 'EnvironmentRole';
   created_at: string;
   updated_at: string;

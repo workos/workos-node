@@ -7,6 +7,7 @@
       "slug": "users:read",
       "name": "Read Users",
       "description": "Allows reading user data",
+      "resource_type_slug": "organization",
       "system": false,
       "created_at": "2024-01-15T08:00:00.000Z",
       "updated_at": "2024-01-15T08:00:00.000Z"
@@ -17,6 +18,7 @@
       "slug": "users:write",
       "name": "Write Users",
       "description": null,
+      "resource_type_slug": "organization",
       "system": true,
       "created_at": "2024-01-15T09:00:00.000Z",
       "updated_at": "2024-01-15T09:00:00.000Z"
