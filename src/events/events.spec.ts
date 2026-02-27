@@ -5,6 +5,8 @@ import {
   DsyncUserUpdatedEventResponse,
   Event,
   EventResponse,
+  FlagCreatedEvent,
+  FlagCreatedEventResponse,
   ListResponse,
 } from '../common/interfaces';
 import { WorkOS } from '../workos';
@@ -117,6 +119,68 @@ describe('Event', () => {
         object: 'list',
         data: [event],
         listMetadata: {},
+      });
+    });
+
+    describe('feature flag events', () => {
+      it('deserializes flag.created events', async () => {
+        const flagCreatedResponse: FlagCreatedEventResponse = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          created_at: '2025-08-28T17:56:31.027Z',
+          context: {
+            client_id: 'client_07FA3DZGSL941Z4YPH6XGHTY3S',
+          },
+          event: 'flag.created',
+          data: {
+            object: 'feature_flag',
+            id: 'flag_01K43DMGCCK0STXE0EJT2AHQN0',
+            name: 'Advanced Audit Logging',
+            slug: 'advanced-audit-logging',
+            description: '',
+            tags: [],
+            enabled: false,
+            default_value: false,
+            created_at: '2025-08-28T17:56:30.985Z',
+            updated_at: '2025-08-28T17:56:30.985Z',
+          },
+        };
+
+        const expected: FlagCreatedEvent = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          createdAt: '2025-08-28T17:56:31.027Z',
+          context: {
+            client_id: 'client_07FA3DZGSL941Z4YPH6XGHTY3S',
+          },
+          event: 'flag.created',
+          data: {
+            object: 'feature_flag',
+            id: 'flag_01K43DMGCCK0STXE0EJT2AHQN0',
+            name: 'Advanced Audit Logging',
+            slug: 'advanced-audit-logging',
+            description: '',
+            tags: [],
+            enabled: false,
+            defaultValue: false,
+            createdAt: '2025-08-28T17:56:30.985Z',
+            updatedAt: '2025-08-28T17:56:30.985Z',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [flagCreatedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['flag.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
       });
     });
 

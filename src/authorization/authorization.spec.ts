@@ -49,6 +49,7 @@ describe('Authorization', () => {
         slug: 'admin',
         name: 'Admin',
         description: 'Full administrative access',
+        resourceTypeSlug: 'organization',
         type: 'EnvironmentRole',
       });
       expect(role.permissions).toEqual(
@@ -58,6 +59,25 @@ describe('Authorization', () => {
           'settings:manage',
         ]),
       );
+    });
+
+    it('creates an environment role with resourceTypeSlug', async () => {
+      fetchOnce(environmentRoleFixture, { status: 201 });
+
+      const role = await workos.authorization.createEnvironmentRole({
+        slug: 'admin',
+        name: 'Admin',
+        description: 'Full administrative access',
+        resourceTypeSlug: 'organization',
+      });
+
+      expect(fetchBody()).toEqual({
+        slug: 'admin',
+        name: 'Admin',
+        description: 'Full administrative access',
+        resource_type_slug: 'organization',
+      });
+      expect(role.resourceTypeSlug).toEqual('organization');
     });
 
     it('creates an environment role without description', async () => {
@@ -96,6 +116,7 @@ describe('Authorization', () => {
             id: 'role_01HXYZ123ABC456DEF789GHI',
             slug: 'admin',
             name: 'Admin',
+            resourceTypeSlug: 'organization',
             type: 'EnvironmentRole',
           }),
           expect.objectContaining({
@@ -103,6 +124,7 @@ describe('Authorization', () => {
             id: 'role_01HXYZ123ABC456DEF789GHJ',
             slug: 'member',
             name: 'Member',
+            resourceTypeSlug: 'organization',
             type: 'EnvironmentRole',
           }),
         ]),
@@ -123,6 +145,7 @@ describe('Authorization', () => {
         slug: 'admin',
         name: 'Admin',
         description: 'Full administrative access',
+        resourceTypeSlug: 'organization',
         type: 'EnvironmentRole',
       });
     });
@@ -264,6 +287,7 @@ describe('Authorization', () => {
         id: 'role_01HXYZ123ABC456DEF789ORG',
         slug: 'org-admin',
         name: 'Org Admin',
+        resourceTypeSlug: 'organization',
         type: 'OrganizationRole',
       });
     });
@@ -285,14 +309,17 @@ describe('Authorization', () => {
         expect.arrayContaining([
           expect.objectContaining({
             slug: 'admin',
+            resourceTypeSlug: 'organization',
             type: 'EnvironmentRole',
           }),
           expect.objectContaining({
             slug: 'org-admin',
+            resourceTypeSlug: 'organization',
             type: 'OrganizationRole',
           }),
           expect.objectContaining({
             slug: 'org-member',
+            resourceTypeSlug: 'organization',
             type: 'OrganizationRole',
           }),
         ]),
@@ -315,6 +342,7 @@ describe('Authorization', () => {
       expect(role).toMatchObject({
         object: 'role',
         slug: 'org-admin',
+        resourceTypeSlug: 'organization',
         type: 'OrganizationRole',
       });
     });
@@ -454,8 +482,28 @@ describe('Authorization', () => {
         slug: 'users:read',
         name: 'Read Users',
         description: 'Allows reading user data',
+        resourceTypeSlug: 'organization',
         system: false,
       });
+    });
+
+    it('creates a permission with resourceTypeSlug', async () => {
+      fetchOnce(permissionFixture, { status: 201 });
+
+      const permission = await workos.authorization.createPermission({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        resourceTypeSlug: 'organization',
+      });
+
+      expect(fetchBody()).toEqual({
+        slug: 'users:read',
+        name: 'Read Users',
+        description: 'Allows reading user data',
+        resource_type_slug: 'organization',
+      });
+      expect(permission.resourceTypeSlug).toEqual('organization');
     });
 
     it('creates a permission without description', async () => {
@@ -491,12 +539,14 @@ describe('Authorization', () => {
             id: 'perm_01HXYZ123ABC456DEF789GHI',
             slug: 'users:read',
             name: 'Read Users',
+            resourceTypeSlug: 'organization',
           }),
           expect.objectContaining({
             object: 'permission',
             id: 'perm_01HXYZ123ABC456DEF789GHJ',
             slug: 'users:write',
             name: 'Write Users',
+            resourceTypeSlug: 'organization',
           }),
         ]),
       );
@@ -536,6 +586,7 @@ describe('Authorization', () => {
         slug: 'users:read',
         name: 'Read Users',
         description: 'Allows reading user data',
+        resourceTypeSlug: 'organization',
         system: false,
       });
     });

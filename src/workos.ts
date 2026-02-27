@@ -46,8 +46,7 @@ import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
 import { getRuntimeInfo } from './common/utils/runtime-info';
-
-const VERSION = '8.6.0';
+import { version as VERSION } from '../package.json' with { type: 'json' };
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
