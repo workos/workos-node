@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.7.1](https://github.com/workos/workos-node/compare/v8.7.0...v8.7.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* export CookieSession from package root ([#1504](https://github.com/workos/workos-node/issues/1504)) ([29048e9](https://github.com/workos/workos-node/commit/29048e992a08f32d353b38f2c53346ca3f39a16e))
+
 ## [8.7.0](https://github.com/workos/workos-node/compare/v8.6.0...v8.7.0) (2026-02-26)
 
 
