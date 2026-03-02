@@ -8,15 +8,22 @@ type AuthenticationMethod =
   | 'Passkey'
   | 'AppleOAuth'
   | 'BitbucketOAuth'
+  | 'DiscordOAuth'
   | 'GitHubOAuth'
   | 'GitLabOAuth'
   | 'GoogleOAuth'
+  | 'IntuitOAuth'
   | 'LinkedInOAuth'
   | 'MicrosoftOAuth'
   | 'SalesforceOAuth'
+  | 'SlackOAuth'
+  | 'VercelMarketplaceOAuth'
   | 'VercelOAuth'
+  | 'XeroOAuth'
   | 'MagicAuth'
   | 'CrossAppAuth'
+  | 'ExternalAuth'
+  | 'MigratedSession'
   | 'Impersonation';
 
 export interface AuthenticationResponse {
