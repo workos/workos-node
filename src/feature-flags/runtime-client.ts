@@ -237,7 +237,11 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       const curr = current[key];
 
       if (JSON.stringify(prev) !== JSON.stringify(curr)) {
-        this.emit('change', { key, previous: prev ?? null, current: curr ?? null });
+        this.emit('change', {
+          key,
+          previous: prev ?? null,
+          current: curr ?? null,
+        });
       }
     }
   }

@@ -60,9 +60,9 @@ describe('Evaluator', () => {
     });
 
     it('returns target.enabled for matching user', () => {
-      expect(
-        evaluator.isEnabled('targeted-flag', { userId: 'user_456' }),
-      ).toBe(true);
+      expect(evaluator.isEnabled('targeted-flag', { userId: 'user_456' })).toBe(
+        true,
+      );
     });
 
     it('returns false for user target with enabled=false', () => {
@@ -76,9 +76,9 @@ describe('Evaluator', () => {
         evaluator.isEnabled('targeted-flag', { userId: 'user_other' }),
       ).toBe(false);
 
-      expect(evaluator.isEnabled('enabled-flag', { userId: 'user_other' })).toBe(
-        true,
-      );
+      expect(
+        evaluator.isEnabled('enabled-flag', { userId: 'user_other' }),
+      ).toBe(true);
     });
   });
 
