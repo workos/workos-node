@@ -40,9 +40,7 @@ export class Evaluator {
     return entry.default_value;
   }
 
-  getAllFlags(
-    context: EvaluationContext = {},
-  ): Record<string, boolean> {
+  getAllFlags(context: EvaluationContext = {}): Record<string, boolean> {
     const flags = this.store.getAll();
     const result: Record<string, boolean> = {};
 
