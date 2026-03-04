@@ -81,7 +81,7 @@
     "jest-fetch-mock": "^3.0.3",
     "miniflare": "^4.20251004.0",
     "prettier": "^3.5.3",
-    "publint": "^0.3.17",
+    "publint": "^0.3.18",
     "tsdown": "^0.20.3",
     "tsx": "^4.20.6",
     "typescript": "5.9.3",
