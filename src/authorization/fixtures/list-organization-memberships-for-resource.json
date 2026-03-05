@@ -8,6 +8,7 @@
       "organization_id": "org_01HXYZ123ABC456DEF789ABC",
       "organization_name": "Acme Corp",
       "status": "active",
+      "directory_managed": false,
       "created_at": "2024-01-15T09:30:00.000Z",
       "updated_at": "2024-01-15T09:30:00.000Z",
       "custom_attributes": {
