@@ -6,7 +6,9 @@ export default defineConfig({
   format: ['esm', 'cjs'],
   outDir: 'lib',
   clean: true,
-  inlineOnly: ['iron-webcrypto', 'jose'],
+  deps: {
+    onlyAllowBundle: ['iron-webcrypto', 'jose', 'uint8array-extras'],
+  },
   sourcemap: true,
   exports: {
     customExports: (exports) => {
