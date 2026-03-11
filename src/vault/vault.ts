@@ -85,11 +85,17 @@ export class Vault {
     options?: PaginationOptions | undefined,
   ): Promise<List<ObjectDigest>> {
     const url = new URL('/vault/v1/kv', this.workos.baseURL);
+    if (options?.before) {
+      url.searchParams.set('before', options.before);
+    }
     if (options?.after) {
       url.searchParams.set('after', options.after);
     }
     if (options?.limit) {
       url.searchParams.set('limit', options.limit.toString());
+    }
+    if (options?.order) {
+      url.searchParams.set('order', options.order);
     }
 
     const { data } = await this.workos.get<ListResponse<ObjectDigestResponse>>(
