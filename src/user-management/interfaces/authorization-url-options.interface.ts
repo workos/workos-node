@@ -7,6 +7,7 @@ type PKCEFields =
   | { codeChallenge: string; codeChallengeMethod: 'S256' };
 
 interface UserManagementAuthorizationURLBaseOptions {
+  claimNonce?: string;
   clientId?: string;
   connectionId?: string;
   organizationId?: string;

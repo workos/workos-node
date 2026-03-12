@@ -2627,6 +2627,22 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with claimNonce', () => {
+      it('generates an authorize url with the provided claim nonce', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          claimNonce: 'nonce_123',
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toContain('claim_nonce=nonce_123');
+      });
+    });
+
     describe('with domainHint', () => {
       it('generates an authorize url with the provided domain hint', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
