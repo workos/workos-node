@@ -1100,6 +1100,7 @@ export class UserManagement {
    */
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
     const {
+      claimNonce,
       connectionId,
       codeChallenge,
       codeChallengeMethod,
@@ -1130,6 +1131,7 @@ export class UserManagement {
     }
 
     const query = toQueryString({
+      claim_nonce: claimNonce,
       connection_id: connectionId,
       code_challenge: codeChallenge,
       code_challenge_method: codeChallengeMethod,
