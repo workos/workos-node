@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.9.0](https://github.com/workos/workos-node/compare/v8.8.0...v8.9.0) (2026-03-12)
+
+
+### Features
+
+* **user-management:** add claimNonce to getAuthorizationUrl ([#1518](https://github.com/workos/workos-node/issues/1518)) ([19e4a20](https://github.com/workos/workos-node/commit/19e4a20e7db39a1fb5546229596cfaaa851907c2))
+* **user-management:** add directoryManaged to OrganizationMembership ([#1512](https://github.com/workos/workos-node/issues/1512)) ([4594f4e](https://github.com/workos/workos-node/commit/4594f4e2a871e94d719312bf0500f4d106169ed7))
+
+
+### Bug Fixes
+
+* Bump minimatch from 3.1.2 to 3.1.5 ([#1507](https://github.com/workos/workos-node/issues/1507)) ([fe74c33](https://github.com/workos/workos-node/commit/fe74c3342a0cbd61d265c1ddd5dd02a5a21eb371))
+* preserve sso context in authentication event deserialisation ([#1487](https://github.com/workos/workos-node/issues/1487)) ([2bad11c](https://github.com/workos/workos-node/commit/2bad11ca72127677fddfd2ae490a98cb77c53655))
+* preserve verification_prefix in organization domain deserialization ([#1486](https://github.com/workos/workos-node/issues/1486)) ([640f0e4](https://github.com/workos/workos-node/commit/640f0e419712755ce0e1f68dd3f441ce1282a75a))
+
 ## [8.8.0](https://github.com/workos/workos-node/compare/v8.7.0...v8.8.0) (2026-03-03)
 
 
