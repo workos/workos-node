@@ -316,6 +316,23 @@ describe('Organizations', () => {
       });
     });
 
+    describe('when given `allowProfilesOutsideOrganization`', () => {
+      it('sends allow_profiles_outside_organization in the request body', async () => {
+        fetchOnce(updateOrganization);
+
+        const subject = await workos.organizations.updateOrganization({
+          organization: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          allowProfilesOutsideOrganization: true,
+        });
+
+        expect(fetchBody()).toEqual({
+          allow_profiles_outside_organization: true,
+        });
+        expect(subject.id).toEqual('org_01EHT88Z8J8795GZNQ4ZP1J81T');
+        expect(subject.allowProfilesOutsideOrganization).toEqual(false);
+      });
+    });
+
     describe('when given `stripeCustomerId`', () => {
       it('updates the organization’s Stripe customer ID', async () => {
         fetchOnce(setStripeCustomerId);
