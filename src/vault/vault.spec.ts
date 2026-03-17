@@ -325,13 +325,30 @@ describe('Vault', () => {
 
       // Decrypt the data
       const decrypted = await workos.vault.decrypt(encrypted, associatedData);
-
       // Verify decrypt API call
       expect(fetchURL()).toContain('/vault/v1/keys/decrypt');
       expect(fetchMethod()).toBe('POST');
 
       // Verify the decrypted text matches the original
       expect(decrypted).toBe(originalText);
+
+      // Reset fetch
+      fetch.resetMocks();
+
+      // Decrypt with an already known key
+      const dataKey = {
+        key: validKey,
+        id: 'key123',
+      };
+      const decryptedLocal = await workos.vault.decrypt(
+        encrypted,
+        associatedData,
+        dataKey,
+      );
+      expect(decryptedLocal).toBe(originalText);
+
+      // No API calls should be made
+      expect(fetch.mock.calls.length).toEqual(0);
     });
   });
 });
