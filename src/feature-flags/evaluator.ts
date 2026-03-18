@@ -19,21 +19,21 @@ export class Evaluator {
       return false;
     }
 
-    if (context.organizationId) {
-      const orgTarget = entry.targets.organizations.find(
-        (t) => t.id === context.organizationId,
-      );
-      if (orgTarget) {
-        return orgTarget.enabled;
-      }
-    }
-
     if (context.userId) {
       const userTarget = entry.targets.users.find(
         (t) => t.id === context.userId,
       );
       if (userTarget) {
         return userTarget.enabled;
+      }
+    }
+
+    if (context.organizationId) {
+      const orgTarget = entry.targets.organizations.find(
+        (t) => t.id === context.organizationId,
+      );
+      if (orgTarget) {
+        return orgTarget.enabled;
       }
     }
 

@@ -71,6 +71,24 @@ describe('Evaluator', () => {
       ).toBe(false);
     });
 
+    it('prioritizes user target over organization target', () => {
+      expect(
+        evaluator.isEnabled('targeted-flag', {
+          userId: 'user_blocked',
+          organizationId: 'org_123',
+        }),
+      ).toBe(false);
+    });
+
+    it('falls back to organization target when user target does not match', () => {
+      expect(
+        evaluator.isEnabled('targeted-flag', {
+          userId: 'user_other',
+          organizationId: 'org_123',
+        }),
+      ).toBe(true);
+    });
+
     it('returns default_value when no target matches', () => {
       expect(
         evaluator.isEnabled('targeted-flag', { userId: 'user_other' }),
