@@ -7,6 +7,7 @@ export interface ListEventOptions {
   limit?: number;
   after?: string;
   organizationId?: string;
+  order?: 'asc' | 'desc';
 }
 
 export interface SerializedListEventOptions {
@@ -16,4 +17,5 @@ export interface SerializedListEventOptions {
   limit?: number;
   after?: string;
   organization_id?: string;
+  order?: 'asc' | 'desc';
 }

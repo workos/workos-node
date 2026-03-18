@@ -93,6 +93,19 @@ describe('Event', () => {
       });
     });
 
+    it('sends order parameter in query', async () => {
+      fetchOnce(eventsListResponse);
+
+      await workos.events.listEvents({
+        events: ['connection.activated'],
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
     it(`requests Events with a valid event name`, async () => {
       fetchOnce(eventsListResponse);
 
