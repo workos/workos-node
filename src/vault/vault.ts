@@ -88,8 +88,14 @@ export class Vault {
     if (options?.after) {
       url.searchParams.set('after', options.after);
     }
+    if (options?.before) {
+      url.searchParams.set('before', options.before);
+    }
     if (options?.limit) {
       url.searchParams.set('limit', options.limit.toString());
+    }
+    if (options?.order) {
+      url.searchParams.set('order', options.order);
     }
 
     const { data } = await this.workos.get<ListResponse<ObjectDigestResponse>>(
