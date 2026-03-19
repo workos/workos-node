@@ -18,3 +18,22 @@ export const deserializeOrganizationDomain = (
   createdAt: organizationDomain.created_at,
   updatedAt: organizationDomain.updated_at,
 });
+
+export const serializeOrganizationDomain = (
+  organizationDomain: OrganizationDomain,
+): OrganizationDomainResponse => ({
+  object: organizationDomain.object,
+  id: organizationDomain.id,
+  domain: organizationDomain.domain,
+  organization_id: organizationDomain.organizationId,
+  state: organizationDomain.state,
+  ...(organizationDomain.verificationToken !== undefined && {
+    verification_token: organizationDomain.verificationToken,
+  }),
+  verification_strategy: organizationDomain.verificationStrategy,
+  ...(organizationDomain.verificationPrefix !== undefined && {
+    verification_prefix: organizationDomain.verificationPrefix,
+  }),
+  created_at: organizationDomain.createdAt,
+  updated_at: organizationDomain.updatedAt,
+});
