@@ -706,6 +706,28 @@ describe('Authorization', () => {
   });
 
   describe('createResource', () => {
+    it('creates a resource without a parent', async () => {
+      fetchOnce(authorizationResourceFixture, { status: 201 });
+
+      await workos.authorization.createResource({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+
+      const body = fetchBody();
+      expect(body).toEqual({
+        organization_id: testOrgId,
+        resource_type_slug: 'document',
+        external_id: 'doc-456',
+        name: 'Q4 Budget Report',
+      });
+      expect(body).not.toHaveProperty('parent_resource_id');
+      expect(body).not.toHaveProperty('parent_resource_external_id');
+      expect(body).not.toHaveProperty('parent_resource_type_slug');
+    });
+
     it('creates an authorization resource with all fields', async () => {
       fetchOnce(authorizationResourceFixture, { status: 201 });
 
