@@ -63,8 +63,7 @@ export interface VaultMetadataReadEventData extends VaultActor {
   kvName: string;
 }
 
-export interface VaultMetadataReadEventResponseData
-  extends VaultActorResponse {
+export interface VaultMetadataReadEventResponseData extends VaultActorResponse {
   kv_name: string;
 }
 
@@ -100,7 +99,6 @@ export interface VaultDekDecryptedEventData extends VaultActor {
   keyId: string;
 }
 
-export interface VaultDekDecryptedEventResponseData
-  extends VaultActorResponse {
+export interface VaultDekDecryptedEventResponseData extends VaultActorResponse {
   key_id: string;
 }
