@@ -42,6 +42,7 @@ export interface CreateOptionsWithParentExternalId extends BaseCreateAuthorizati
 }
 
 export type CreateAuthorizationResourceOptions =
+  | BaseCreateAuthorizationResourceOptions
   | CreateOptionsWithParentResourceId
   | CreateOptionsWithParentExternalId;
 
