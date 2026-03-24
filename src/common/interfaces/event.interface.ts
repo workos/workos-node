@@ -54,6 +54,26 @@ import {
   FeatureFlag,
   FeatureFlagResponse,
 } from '../../feature-flags/interfaces';
+import {
+  VaultDataCreatedEventData,
+  VaultDataCreatedEventResponseData,
+  VaultDataUpdatedEventData,
+  VaultDataUpdatedEventResponseData,
+  VaultDataReadEventData,
+  VaultDataReadEventResponseData,
+  VaultDataDeletedEventData,
+  VaultDataDeletedEventResponseData,
+  VaultMetadataReadEventData,
+  VaultMetadataReadEventResponseData,
+  VaultNamesListedEventData,
+  VaultNamesListedEventResponseData,
+  VaultKekCreatedEventData,
+  VaultKekCreatedEventResponseData,
+  VaultDekReadEventData,
+  VaultDekReadEventResponseData,
+  VaultDekDecryptedEventData,
+  VaultDekDecryptedEventResponseData,
+} from '../../vault/interfaces/vault-event.interface';
 
 export interface EventBase {
   id: string;
@@ -732,6 +752,96 @@ export interface FlagRuleUpdatedEventResponse extends EventResponseBase {
   data: FeatureFlagResponse;
 }
 
+export interface VaultDataCreatedEvent extends EventBase {
+  event: 'vault.data.created';
+  data: VaultDataCreatedEventData;
+}
+
+export interface VaultDataCreatedEventResponse extends EventResponseBase {
+  event: 'vault.data.created';
+  data: VaultDataCreatedEventResponseData;
+}
+
+export interface VaultDataUpdatedEvent extends EventBase {
+  event: 'vault.data.updated';
+  data: VaultDataUpdatedEventData;
+}
+
+export interface VaultDataUpdatedEventResponse extends EventResponseBase {
+  event: 'vault.data.updated';
+  data: VaultDataUpdatedEventResponseData;
+}
+
+export interface VaultDataReadEvent extends EventBase {
+  event: 'vault.data.read';
+  data: VaultDataReadEventData;
+}
+
+export interface VaultDataReadEventResponse extends EventResponseBase {
+  event: 'vault.data.read';
+  data: VaultDataReadEventResponseData;
+}
+
+export interface VaultDataDeletedEvent extends EventBase {
+  event: 'vault.data.deleted';
+  data: VaultDataDeletedEventData;
+}
+
+export interface VaultDataDeletedEventResponse extends EventResponseBase {
+  event: 'vault.data.deleted';
+  data: VaultDataDeletedEventResponseData;
+}
+
+export interface VaultNamesListedEvent extends EventBase {
+  event: 'vault.names.listed';
+  data: VaultNamesListedEventData;
+}
+
+export interface VaultNamesListedEventResponse extends EventResponseBase {
+  event: 'vault.names.listed';
+  data: VaultNamesListedEventResponseData;
+}
+
+export interface VaultMetadataReadEvent extends EventBase {
+  event: 'vault.metadata.read';
+  data: VaultMetadataReadEventData;
+}
+
+export interface VaultMetadataReadEventResponse extends EventResponseBase {
+  event: 'vault.metadata.read';
+  data: VaultMetadataReadEventResponseData;
+}
+
+export interface VaultKekCreatedEvent extends EventBase {
+  event: 'vault.kek.created';
+  data: VaultKekCreatedEventData;
+}
+
+export interface VaultKekCreatedEventResponse extends EventResponseBase {
+  event: 'vault.kek.created';
+  data: VaultKekCreatedEventResponseData;
+}
+
+export interface VaultDekReadEvent extends EventBase {
+  event: 'vault.dek.read';
+  data: VaultDekReadEventData;
+}
+
+export interface VaultDekReadEventResponse extends EventResponseBase {
+  event: 'vault.dek.read';
+  data: VaultDekReadEventResponseData;
+}
+
+export interface VaultDekDecryptedEvent extends EventBase {
+  event: 'vault.dek.decrypted';
+  data: VaultDekDecryptedEventData;
+}
+
+export interface VaultDekDecryptedEventResponse extends EventResponseBase {
+  event: 'vault.dek.decrypted';
+  data: VaultDekDecryptedEventResponseData;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -797,7 +907,16 @@ export type Event =
   | FlagCreatedEvent
   | FlagUpdatedEvent
   | FlagDeletedEvent
-  | FlagRuleUpdatedEvent;
+  | FlagRuleUpdatedEvent
+  | VaultDataCreatedEvent
+  | VaultDataUpdatedEvent
+  | VaultDataReadEvent
+  | VaultDataDeletedEvent
+  | VaultNamesListedEvent
+  | VaultMetadataReadEvent
+  | VaultKekCreatedEvent
+  | VaultDekReadEvent
+  | VaultDekDecryptedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -864,6 +983,15 @@ export type EventResponse =
   | FlagCreatedEventResponse
   | FlagUpdatedEventResponse
   | FlagDeletedEventResponse
-  | FlagRuleUpdatedEventResponse;
+  | FlagRuleUpdatedEventResponse
+  | VaultDataCreatedEventResponse
+  | VaultDataUpdatedEventResponse
+  | VaultDataReadEventResponse
+  | VaultDataDeletedEventResponse
+  | VaultNamesListedEventResponse
+  | VaultMetadataReadEventResponse
+  | VaultKekCreatedEventResponse
+  | VaultDekReadEventResponse
+  | VaultDekDecryptedEventResponse;
 
 export type EventName = Event['event'];
