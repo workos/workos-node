@@ -69,9 +69,7 @@ export const deserializeVaultMetadataReadEvent = (
 
 export const deserializeVaultNamesListedEvent = (
   data: VaultNamesListedEventResponseData,
-): VaultNamesListedEventData => ({
-  ...deserializeVaultActor(data),
-});
+): VaultNamesListedEventData => deserializeVaultActor(data);
 
 export const deserializeVaultKekCreatedEvent = (
   data: VaultKekCreatedEventResponseData,

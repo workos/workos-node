@@ -12,31 +12,25 @@ export interface VaultActorResponse {
   actor_name: string;
 }
 
-// vault.data.created
-export interface VaultDataCreatedEventData extends VaultActor {
+// vault.data.created / vault.data.updated (identical shapes)
+interface VaultDataMutatedEventData extends VaultActor {
   kvName: string;
   keyId: string;
   keyContext: Record<string, string>;
 }
 
-export interface VaultDataCreatedEventResponseData extends VaultActorResponse {
+interface VaultDataMutatedEventResponseData extends VaultActorResponse {
   kv_name: string;
   key_id: string;
   key_context: Record<string, string>;
 }
 
-// vault.data.updated
-export interface VaultDataUpdatedEventData extends VaultActor {
-  kvName: string;
-  keyId: string;
-  keyContext: Record<string, string>;
-}
-
-export interface VaultDataUpdatedEventResponseData extends VaultActorResponse {
-  kv_name: string;
-  key_id: string;
-  key_context: Record<string, string>;
-}
+export type VaultDataCreatedEventData = VaultDataMutatedEventData;
+export type VaultDataUpdatedEventData = VaultDataMutatedEventData;
+export type VaultDataCreatedEventResponseData =
+  VaultDataMutatedEventResponseData;
+export type VaultDataUpdatedEventResponseData =
+  VaultDataMutatedEventResponseData;
 
 // vault.data.read
 export interface VaultDataReadEventData extends VaultActor {
