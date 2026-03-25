@@ -1,5 +1,20 @@
 # Changelog
 
+## [8.10.0](https://github.com/workos/workos-node/compare/v8.9.0...v8.10.0) (2026-03-25)
+
+
+### Features
+
+* add vault events ([#1531](https://github.com/workos/workos-node/issues/1531)) ([a5e619f](https://github.com/workos/workos-node/commit/a5e619f7aa31b5c93054bd5a0eeba37d1f052f52))
+
+
+### Bug Fixes
+
+* correct typecheck issues ([#1526](https://github.com/workos/workos-node/issues/1526)) ([5e52f6c](https://github.com/workos/workos-node/commit/5e52f6c72b503873f92b57b941e6b587d6e1c872))
+* CreateAuthorizationResourceOptions type definition ([#1530](https://github.com/workos/workos-node/issues/1530)) ([be2ec40](https://github.com/workos/workos-node/commit/be2ec40abbc57a170b6b20f48d8e01e1258ec8f0))
+* **events:** add missing order parameter to listEvents ([#1524](https://github.com/workos/workos-node/issues/1524)) ([2f3dcb4](https://github.com/workos/workos-node/commit/2f3dcb4688bae519d114cc573cd5bf8da1bd0fd6))
+* **vault:** forward order and before params in listObjects ([#1527](https://github.com/workos/workos-node/issues/1527)) ([2f9c2f1](https://github.com/workos/workos-node/commit/2f9c2f19c2a31150745c47b504b83d86593a087b))
+
 ## [8.9.0](https://github.com/workos/workos-node/compare/v8.8.0...v8.9.0) (2026-03-12)
 
 
