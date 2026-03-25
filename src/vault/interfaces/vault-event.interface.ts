@@ -1,4 +1,5 @@
 export type VaultActorSource = 'api' | 'dashboard';
+import type { KeyContext } from './key.interface';
 
 export interface VaultActor {
   actorId: string;
@@ -16,13 +17,13 @@ export interface VaultActorResponse {
 interface VaultDataMutatedEventData extends VaultActor {
   kvName: string;
   keyId: string;
-  keyContext: Record<string, string>;
+  keyContext: KeyContext;
 }
 
 interface VaultDataMutatedEventResponseData extends VaultActorResponse {
   kv_name: string;
   key_id: string;
-  key_context: Record<string, string>;
+  key_context: KeyContext;
 }
 
 export type VaultDataCreatedEventData = VaultDataMutatedEventData;
@@ -80,12 +81,12 @@ export interface VaultKekCreatedEventResponseData extends VaultActorResponse {
 // vault.dek.read
 export interface VaultDekReadEventData extends VaultActor {
   keyIds: string[];
-  keyContext: Record<string, string>;
+  keyContext: KeyContext;
 }
 
 export interface VaultDekReadEventResponseData extends VaultActorResponse {
   key_ids: string[];
-  key_context: Record<string, string>;
+  key_context: KeyContext;
 }
 
 // vault.dek.decrypted
