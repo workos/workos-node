@@ -60,7 +60,7 @@ export abstract class HttpClient implements HttpClientInterface {
     if (userAgent.indexOf(' ') > -1) {
       return userAgent.replace(/\b\s/, `/${this.getClientName()} `);
     } else {
-      return (userAgent += `/${this.getClientName()}`);
+      return `${userAgent}/${this.getClientName()}`;
     }
   }
 
