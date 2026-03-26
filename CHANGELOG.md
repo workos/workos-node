@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.10.1](https://github.com/workos/workos-node/compare/v8.10.0...v8.10.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* **security:** resolve miniflare and undici vulnerabilities ([#1500](https://github.com/workos/workos-node/issues/1500)) ([cd6ddd0](https://github.com/workos/workos-node/commit/cd6ddd017090786cc7b17b1398b1049201121fce))
+
 ## [8.10.0](https://github.com/workos/workos-node/compare/v8.9.0...v8.10.0) (2026-03-25)
 
 
