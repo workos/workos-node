@@ -56,6 +56,14 @@ import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
 import { WorkOSConnect } from './workos-connect/work-os-connect';
 import { Applications } from './workos-connect/applications';
 import { ApplicationClientSecrets } from './workos-connect/application-client-secrets';
+import { OrganizationsFeatureFlags } from './organizations-feature-flags/organizations-feature-flags';
+import { UserManagementSessionTokens } from './user-management/user-management-session-tokens';
+import { UserManagementCorsOrigins } from './user-management/user-management-cors-origins';
+import { UserManagementJWTTemplate } from './user-management/user-management-jwt-template';
+import { UserManagementRedirectUris } from './user-management/user-management-redirect-uris';
+import { UserManagementUsersFeatureFlags } from './user-management-users-feature-flags/user-management-users-feature-flags';
+import { UserManagementUsersAuthorizedApplications } from './user-management/user-management-users-authorized-applications';
+import { UserManagementDataProviders } from './user-management/user-management-data-providers';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -530,4 +538,14 @@ export class WorkOS {
   static readonly SERVER_PRODUCTION = 'https://api.workos.com';
   /** Staging */
   static readonly SERVER_STAGING = 'https://api.workos-test.com';
+  readonly organizationsFeatureFlags = new OrganizationsFeatureFlags(this);
+  readonly userManagementSessionTokens = new UserManagementSessionTokens(this);
+  readonly userManagementCorsOrigins = new UserManagementCorsOrigins(this);
+  readonly userManagementJWTTemplate = new UserManagementJWTTemplate(this);
+  readonly userManagementRedirectUris = new UserManagementRedirectUris(this);
+  readonly userManagementUsersFeatureFlags =
+    new UserManagementUsersFeatureFlags(this);
+  readonly userManagementUsersAuthorizedApplications =
+    new UserManagementUsersAuthorizedApplications(this);
+  readonly userManagementDataProviders = new UserManagementDataProviders(this);
 }
