@@ -1,0 +1,3 @@
+{
+  "redirect_uri": "https://your-authkit-domain.workos.com/oauth/authorize/complete?state=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGF0ZSI6InJhbmRvbV9zdGF0ZV9zdHJpbmciLCJpYXQiOjE3NDI2MDQ4NTN9.abc123def456ghi789"
+}
