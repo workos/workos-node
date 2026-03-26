@@ -230,6 +230,7 @@ export class Authorization {
     );
   }
 
+  /** @deprecated Use `workos.permissions.create()` instead. */
   async createPermission(
     options: CreatePermissionOptions,
   ): Promise<Permission> {
@@ -240,6 +241,7 @@ export class Authorization {
     return deserializePermission(data);
   }
 
+  /** @deprecated Use `workos.permissions.list()` instead. */
   async listPermissions(
     options?: ListPermissionsOptions,
   ): Promise<PermissionList> {
@@ -257,6 +259,7 @@ export class Authorization {
     };
   }
 
+  /** @deprecated Use `workos.permissions.find()` instead. */
   async getPermission(slug: string): Promise<Permission> {
     const { data } = await this.workos.get<PermissionResponse>(
       `/authorization/permissions/${slug}`,
@@ -264,6 +267,7 @@ export class Authorization {
     return deserializePermission(data);
   }
 
+  /** @deprecated Use `workos.permissions.update()` instead. */
   async updatePermission(
     slug: string,
     options: UpdatePermissionOptions,
@@ -275,6 +279,7 @@ export class Authorization {
     return deserializePermission(data);
   }
 
+  /** @deprecated Use `workos.permissions.delete()` instead. */
   async deletePermission(slug: string): Promise<void> {
     await this.workos.delete(`/authorization/permissions/${slug}`);
   }

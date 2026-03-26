@@ -1,0 +1,15 @@
+{
+  "name": "My Application",
+  "application_type": "oauth",
+  "description": "An application for managing user access",
+  "scopes": ["openid", "profile", "email"],
+  "redirect_uris": [
+    {
+      "uri": "https://example.com/callback",
+      "default": true
+    }
+  ],
+  "uses_pkce": true,
+  "is_first_party": true,
+  "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT"
+}

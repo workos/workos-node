@@ -1,0 +1,18 @@
+{
+  "data": [
+    {
+      "object": "webhook_endpoint",
+      "id": "we_0123456789",
+      "endpoint_url": "https://example.com/webhooks",
+      "secret": "whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4",
+      "status": "enabled",
+      "events": ["user.created", "dsync.user.created"],
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

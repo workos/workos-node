@@ -1,0 +1,8 @@
+{
+  "object": "redirect_uri",
+  "id": "ruri_01EHZNVPK3SFK441A1RGBFSHRT",
+  "uri": "https://example.com/callback",
+  "default": true,
+  "created_at": "2026-01-15T12:00:00.000Z",
+  "updated_at": "2026-01-15T12:00:00.000Z"
+}
