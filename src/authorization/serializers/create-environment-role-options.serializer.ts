@@ -9,4 +9,5 @@ export const serializeCreateEnvironmentRoleOptions = (
   slug: options.slug,
   name: options.name,
   description: options.description,
+  resource_type_slug: options.resourceTypeSlug,
 });

@@ -25,6 +25,18 @@ import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-mana
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
 import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
 import { deserializePermission } from '../../authorization/serializers/permission.serializer';
+import { deserializeFeatureFlag } from '../../feature-flags/serializers/feature-flag.serializer';
+import {
+  deserializeVaultDataCreatedEvent,
+  deserializeVaultDataUpdatedEvent,
+  deserializeVaultDataReadEvent,
+  deserializeVaultDataDeletedEvent,
+  deserializeVaultNamesListedEvent,
+  deserializeVaultMetadataReadEvent,
+  deserializeVaultKekCreatedEvent,
+  deserializeVaultDekReadEvent,
+  deserializeVaultDekDecryptedEvent,
+} from '../../vault/serializers/vault-event.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -213,6 +225,69 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeApiKey(event.data),
+      };
+    case 'flag.created':
+    case 'flag.updated':
+    case 'flag.deleted':
+    case 'flag.rule_updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFeatureFlag(event.data),
+      };
+    case 'vault.data.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDataCreatedEvent(event.data),
+      };
+    case 'vault.data.updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDataUpdatedEvent(event.data),
+      };
+    case 'vault.data.read':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDataReadEvent(event.data),
+      };
+    case 'vault.data.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDataDeletedEvent(event.data),
+      };
+    case 'vault.names.listed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultNamesListedEvent(event.data),
+      };
+    case 'vault.metadata.read':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultMetadataReadEvent(event.data),
+      };
+    case 'vault.kek.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultKekCreatedEvent(event.data),
+      };
+    case 'vault.dek.read':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDekReadEvent(event.data),
+      };
+    case 'vault.dek.decrypted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDekDecryptedEvent(event.data),
       };
   }
 };

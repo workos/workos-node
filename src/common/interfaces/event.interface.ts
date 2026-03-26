@@ -50,6 +50,30 @@ import {
   AuthenticationRadarRiskDetectedEventResponseData,
 } from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
 import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
+import {
+  FeatureFlag,
+  FeatureFlagResponse,
+} from '../../feature-flags/interfaces';
+import {
+  VaultDataCreatedEventData,
+  VaultDataCreatedEventResponseData,
+  VaultDataUpdatedEventData,
+  VaultDataUpdatedEventResponseData,
+  VaultDataReadEventData,
+  VaultDataReadEventResponseData,
+  VaultDataDeletedEventData,
+  VaultDataDeletedEventResponseData,
+  VaultMetadataReadEventData,
+  VaultMetadataReadEventResponseData,
+  VaultNamesListedEventData,
+  VaultNamesListedEventResponseData,
+  VaultKekCreatedEventData,
+  VaultKekCreatedEventResponseData,
+  VaultDekReadEventData,
+  VaultDekReadEventResponseData,
+  VaultDekDecryptedEventData,
+  VaultDekDecryptedEventResponseData,
+} from '../../vault/interfaces/vault-event.interface';
 
 export interface EventBase {
   id: string;
@@ -688,6 +712,136 @@ export interface ApiKeyRevokedEventResponse extends EventResponseBase {
   data: SerializedApiKey;
 }
 
+export interface FlagCreatedEvent extends EventBase {
+  event: 'flag.created';
+  data: FeatureFlag;
+}
+
+export interface FlagCreatedEventResponse extends EventResponseBase {
+  event: 'flag.created';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagUpdatedEvent extends EventBase {
+  event: 'flag.updated';
+  data: FeatureFlag;
+}
+
+export interface FlagUpdatedEventResponse extends EventResponseBase {
+  event: 'flag.updated';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagDeletedEvent extends EventBase {
+  event: 'flag.deleted';
+  data: FeatureFlag;
+}
+
+export interface FlagDeletedEventResponse extends EventResponseBase {
+  event: 'flag.deleted';
+  data: FeatureFlagResponse;
+}
+
+export interface FlagRuleUpdatedEvent extends EventBase {
+  event: 'flag.rule_updated';
+  data: FeatureFlag;
+}
+
+export interface FlagRuleUpdatedEventResponse extends EventResponseBase {
+  event: 'flag.rule_updated';
+  data: FeatureFlagResponse;
+}
+
+export interface VaultDataCreatedEvent extends EventBase {
+  event: 'vault.data.created';
+  data: VaultDataCreatedEventData;
+}
+
+export interface VaultDataCreatedEventResponse extends EventResponseBase {
+  event: 'vault.data.created';
+  data: VaultDataCreatedEventResponseData;
+}
+
+export interface VaultDataUpdatedEvent extends EventBase {
+  event: 'vault.data.updated';
+  data: VaultDataUpdatedEventData;
+}
+
+export interface VaultDataUpdatedEventResponse extends EventResponseBase {
+  event: 'vault.data.updated';
+  data: VaultDataUpdatedEventResponseData;
+}
+
+export interface VaultDataReadEvent extends EventBase {
+  event: 'vault.data.read';
+  data: VaultDataReadEventData;
+}
+
+export interface VaultDataReadEventResponse extends EventResponseBase {
+  event: 'vault.data.read';
+  data: VaultDataReadEventResponseData;
+}
+
+export interface VaultDataDeletedEvent extends EventBase {
+  event: 'vault.data.deleted';
+  data: VaultDataDeletedEventData;
+}
+
+export interface VaultDataDeletedEventResponse extends EventResponseBase {
+  event: 'vault.data.deleted';
+  data: VaultDataDeletedEventResponseData;
+}
+
+export interface VaultNamesListedEvent extends EventBase {
+  event: 'vault.names.listed';
+  data: VaultNamesListedEventData;
+}
+
+export interface VaultNamesListedEventResponse extends EventResponseBase {
+  event: 'vault.names.listed';
+  data: VaultNamesListedEventResponseData;
+}
+
+export interface VaultMetadataReadEvent extends EventBase {
+  event: 'vault.metadata.read';
+  data: VaultMetadataReadEventData;
+}
+
+export interface VaultMetadataReadEventResponse extends EventResponseBase {
+  event: 'vault.metadata.read';
+  data: VaultMetadataReadEventResponseData;
+}
+
+export interface VaultKekCreatedEvent extends EventBase {
+  event: 'vault.kek.created';
+  data: VaultKekCreatedEventData;
+}
+
+export interface VaultKekCreatedEventResponse extends EventResponseBase {
+  event: 'vault.kek.created';
+  data: VaultKekCreatedEventResponseData;
+}
+
+export interface VaultDekReadEvent extends EventBase {
+  event: 'vault.dek.read';
+  data: VaultDekReadEventData;
+}
+
+export interface VaultDekReadEventResponse extends EventResponseBase {
+  event: 'vault.dek.read';
+  data: VaultDekReadEventResponseData;
+}
+
+export interface VaultDekDecryptedEvent extends EventBase {
+  event: 'vault.dek.decrypted';
+  data: VaultDekDecryptedEventData;
+}
+
+export interface VaultDekDecryptedEventResponse extends EventResponseBase {
+  event: 'vault.dek.decrypted';
+  data: VaultDekDecryptedEventResponseData;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -749,7 +903,20 @@ export type Event =
   | OrganizationDomainUpdatedEvent
   | OrganizationDomainDeletedEvent
   | ApiKeyCreatedEvent
-  | ApiKeyRevokedEvent;
+  | ApiKeyRevokedEvent
+  | FlagCreatedEvent
+  | FlagUpdatedEvent
+  | FlagDeletedEvent
+  | FlagRuleUpdatedEvent
+  | VaultDataCreatedEvent
+  | VaultDataUpdatedEvent
+  | VaultDataReadEvent
+  | VaultDataDeletedEvent
+  | VaultNamesListedEvent
+  | VaultMetadataReadEvent
+  | VaultKekCreatedEvent
+  | VaultDekReadEvent
+  | VaultDekDecryptedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -812,6 +979,19 @@ export type EventResponse =
   | OrganizationDomainUpdatedEventResponse
   | OrganizationDomainDeletedEventResponse
   | ApiKeyCreatedEventResponse
-  | ApiKeyRevokedEventResponse;
+  | ApiKeyRevokedEventResponse
+  | FlagCreatedEventResponse
+  | FlagUpdatedEventResponse
+  | FlagDeletedEventResponse
+  | FlagRuleUpdatedEventResponse
+  | VaultDataCreatedEventResponse
+  | VaultDataUpdatedEventResponse
+  | VaultDataReadEventResponse
+  | VaultDataDeletedEventResponse
+  | VaultNamesListedEventResponse
+  | VaultMetadataReadEventResponse
+  | VaultKekCreatedEventResponse
+  | VaultDekReadEventResponse
+  | VaultDekDecryptedEventResponse;
 
 export type EventName = Event['event'];

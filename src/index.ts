@@ -27,6 +27,7 @@ export * from './portal/interfaces';
 export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
+export { CookieSession } from './user-management/session';
 export * from './vault/interfaces';
 export * from './pkce/pkce';
 export {

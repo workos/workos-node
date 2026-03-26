@@ -59,6 +59,7 @@ export interface OrganizationRoleResponse {
   slug: string;
   description: string | null;
   permissions: string[];
+  resource_type_slug: string;
   type: 'EnvironmentRole' | 'OrganizationRole';
   created_at: string;
   updated_at: string;

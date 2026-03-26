@@ -5,7 +5,27 @@ import {
   DsyncUserUpdatedEventResponse,
   Event,
   EventResponse,
+  FlagCreatedEvent,
+  FlagCreatedEventResponse,
   ListResponse,
+  VaultDataCreatedEvent,
+  VaultDataCreatedEventResponse,
+  VaultDataUpdatedEvent,
+  VaultDataUpdatedEventResponse,
+  VaultDataReadEvent,
+  VaultDataReadEventResponse,
+  VaultDataDeletedEvent,
+  VaultDataDeletedEventResponse,
+  VaultNamesListedEvent,
+  VaultNamesListedEventResponse,
+  VaultMetadataReadEvent,
+  VaultMetadataReadEventResponse,
+  VaultKekCreatedEvent,
+  VaultKekCreatedEventResponse,
+  VaultDekReadEvent,
+  VaultDekReadEventResponse,
+  VaultDekDecryptedEvent,
+  VaultDekDecryptedEventResponse,
 } from '../common/interfaces';
 import { WorkOS } from '../workos';
 import { ConnectionType } from '../sso/interfaces';
@@ -91,6 +111,19 @@ describe('Event', () => {
       });
     });
 
+    it('sends order parameter in query', async () => {
+      fetchOnce(eventsListResponse);
+
+      await workos.events.listEvents({
+        events: ['connection.activated'],
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
     it(`requests Events with a valid event name`, async () => {
       fetchOnce(eventsListResponse);
 
@@ -117,6 +150,470 @@ describe('Event', () => {
         object: 'list',
         data: [event],
         listMetadata: {},
+      });
+    });
+
+    describe('feature flag events', () => {
+      it('deserializes flag.created events', async () => {
+        const flagCreatedResponse: FlagCreatedEventResponse = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          created_at: '2025-08-28T17:56:31.027Z',
+          context: {
+            client_id: 'client_07FA3DZGSL941Z4YPH6XGHTY3S',
+          },
+          event: 'flag.created',
+          data: {
+            object: 'feature_flag',
+            id: 'flag_01K43DMGCCK0STXE0EJT2AHQN0',
+            name: 'Advanced Audit Logging',
+            slug: 'advanced-audit-logging',
+            description: '',
+            tags: [],
+            enabled: false,
+            default_value: false,
+            created_at: '2025-08-28T17:56:30.985Z',
+            updated_at: '2025-08-28T17:56:30.985Z',
+          },
+        };
+
+        const expected: FlagCreatedEvent = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          createdAt: '2025-08-28T17:56:31.027Z',
+          context: {
+            client_id: 'client_07FA3DZGSL941Z4YPH6XGHTY3S',
+          },
+          event: 'flag.created',
+          data: {
+            object: 'feature_flag',
+            id: 'flag_01K43DMGCCK0STXE0EJT2AHQN0',
+            name: 'Advanced Audit Logging',
+            slug: 'advanced-audit-logging',
+            description: '',
+            tags: [],
+            enabled: false,
+            defaultValue: false,
+            createdAt: '2025-08-28T17:56:30.985Z',
+            updatedAt: '2025-08-28T17:56:30.985Z',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [flagCreatedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['flag.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+    });
+
+    describe('vault events', () => {
+      it('deserializes vault.data.created events', async () => {
+        const response: VaultDataCreatedEventResponse = {
+          id: 'event_01VAULT00001',
+          created_at: '2026-03-24T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'vault.data.created',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'dashboard',
+            actor_name: 'Jane Doe',
+            kv_name: 'secret-key',
+            key_id: 'key_01ABC',
+            key_context: { env: 'production' },
+          },
+        };
+
+        const expected: VaultDataCreatedEvent = {
+          id: 'event_01VAULT00001',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'vault.data.created',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'dashboard',
+            actorName: 'Jane Doe',
+            kvName: 'secret-key',
+            keyId: 'key_01ABC',
+            keyContext: { env: 'production' },
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.data.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.data.updated events', async () => {
+        const response: VaultDataUpdatedEventResponse = {
+          id: 'event_01VAULT00002',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.data.updated',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'api',
+            actor_name: 'API Key',
+            kv_name: 'secret-key',
+            key_id: 'key_01ABC',
+            key_context: { env: 'staging' },
+          },
+        };
+
+        const expected: VaultDataUpdatedEvent = {
+          id: 'event_01VAULT00002',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.data.updated',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'api',
+            actorName: 'API Key',
+            kvName: 'secret-key',
+            keyId: 'key_01ABC',
+            keyContext: { env: 'staging' },
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.data.updated'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.data.read events', async () => {
+        const response: VaultDataReadEventResponse = {
+          id: 'event_01VAULT00003',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.data.read',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'api',
+            actor_name: 'API Key',
+            kv_name: 'secret-key',
+            key_id: 'key_01ABC',
+          },
+        };
+
+        const expected: VaultDataReadEvent = {
+          id: 'event_01VAULT00003',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.data.read',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'api',
+            actorName: 'API Key',
+            kvName: 'secret-key',
+            keyId: 'key_01ABC',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.data.read'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.data.deleted events', async () => {
+        const response: VaultDataDeletedEventResponse = {
+          id: 'event_01VAULT00004',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.data.deleted',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'dashboard',
+            actor_name: 'Jane Doe',
+            kv_name: 'secret-key',
+          },
+        };
+
+        const expected: VaultDataDeletedEvent = {
+          id: 'event_01VAULT00004',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.data.deleted',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'dashboard',
+            actorName: 'Jane Doe',
+            kvName: 'secret-key',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.data.deleted'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.names.listed events', async () => {
+        const response: VaultNamesListedEventResponse = {
+          id: 'event_01VAULT00005',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.names.listed',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'dashboard',
+            actor_name: 'Jane Doe',
+          },
+        };
+
+        const expected: VaultNamesListedEvent = {
+          id: 'event_01VAULT00005',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.names.listed',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'dashboard',
+            actorName: 'Jane Doe',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.names.listed'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.metadata.read events', async () => {
+        const response: VaultMetadataReadEventResponse = {
+          id: 'event_01VAULT00006',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.metadata.read',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'api',
+            actor_name: 'API Key',
+            kv_name: 'secret-key',
+          },
+        };
+
+        const expected: VaultMetadataReadEvent = {
+          id: 'event_01VAULT00006',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.metadata.read',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'api',
+            actorName: 'API Key',
+            kvName: 'secret-key',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.metadata.read'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.kek.created events', async () => {
+        const response: VaultKekCreatedEventResponse = {
+          id: 'event_01VAULT00007',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.kek.created',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'dashboard',
+            actor_name: 'Jane Doe',
+            key_name: 'my-kek',
+            key_id: 'key_01ABC',
+          },
+        };
+
+        const expected: VaultKekCreatedEvent = {
+          id: 'event_01VAULT00007',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.kek.created',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'dashboard',
+            actorName: 'Jane Doe',
+            keyName: 'my-kek',
+            keyId: 'key_01ABC',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.kek.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.dek.read events', async () => {
+        const response: VaultDekReadEventResponse = {
+          id: 'event_01VAULT00008',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.dek.read',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'api',
+            actor_name: 'API Key',
+            key_ids: ['key_01ABC', 'key_02DEF'],
+            key_context: { env: 'production' },
+          },
+        };
+
+        const expected: VaultDekReadEvent = {
+          id: 'event_01VAULT00008',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.dek.read',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'api',
+            actorName: 'API Key',
+            keyIds: ['key_01ABC', 'key_02DEF'],
+            keyContext: { env: 'production' },
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.dek.read'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.dek.decrypted events', async () => {
+        const response: VaultDekDecryptedEventResponse = {
+          id: 'event_01VAULT00009',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.dek.decrypted',
+          data: {
+            actor_id: 'user_01ABC',
+            actor_source: 'api',
+            actor_name: 'API Key',
+            key_id: 'key_01ABC',
+          },
+        };
+
+        const expected: VaultDekDecryptedEvent = {
+          id: 'event_01VAULT00009',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.dek.decrypted',
+          data: {
+            actorId: 'user_01ABC',
+            actorSource: 'api',
+            actorName: 'API Key',
+            keyId: 'key_01ABC',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.dek.decrypted'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
       });
     });
 

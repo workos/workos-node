@@ -2,7 +2,9 @@ export type WidgetScope =
   | 'widgets:users-table:manage'
   | 'widgets:sso:manage'
   | 'widgets:domain-verification:manage'
-  | 'widgets:api-keys:manage';
+  | 'widgets:dsync:manage'
+  | 'widgets:api-keys:manage'
+  | 'widgets:audit-log-streaming:manage';
 export interface GetTokenOptions {
   organizationId: string;
   userId?: string;

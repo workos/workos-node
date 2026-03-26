@@ -1,6 +1,7 @@
 import { Impersonator } from './impersonator.interface';
 
 export type AuthMethod =
+  | 'cross_app_auth'
   | 'external_auth'
   | 'impersonation'
   | 'magic_code'

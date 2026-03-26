@@ -1,5 +1,10 @@
 import fetch from 'jest-fetch-mock';
-import { fetchMethod, fetchOnce, fetchURL } from '../common/utils/test-utils';
+import {
+  fetchMethod,
+  fetchOnce,
+  fetchSearchParams,
+  fetchURL,
+} from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import { List } from '../common/interfaces';
 import {
@@ -182,6 +187,43 @@ describe('Vault', () => {
           after: null,
           before: 'charger',
         },
+      });
+    });
+
+    it('sends order parameter when provided', async () => {
+      fetchOnce({
+        data: [],
+        list_metadata: { after: null, before: null },
+      });
+      await workos.vault.listObjects({ order: 'asc' });
+      expect(fetchSearchParams()).toMatchObject({ order: 'asc' });
+    });
+
+    it('sends before parameter when provided', async () => {
+      fetchOnce({
+        data: [],
+        list_metadata: { after: null, before: null },
+      });
+      await workos.vault.listObjects({ before: 'cursor_abc' });
+      expect(fetchSearchParams()).toMatchObject({ before: 'cursor_abc' });
+    });
+
+    it('sends all pagination parameters when provided', async () => {
+      fetchOnce({
+        data: [],
+        list_metadata: { after: null, before: null },
+      });
+      await workos.vault.listObjects({
+        after: 'cursor_after',
+        before: 'cursor_before',
+        limit: 10,
+        order: 'desc',
+      });
+      expect(fetchSearchParams()).toMatchObject({
+        after: 'cursor_after',
+        before: 'cursor_before',
+        limit: '10',
+        order: 'desc',
       });
     });
   });
