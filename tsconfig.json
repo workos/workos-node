@@ -16,7 +16,7 @@
     "outDir": "lib",
     "strict": true,
     "lib": ["dom", "es2022"],
-    "types": ["jest", "jest-environment-miniflare/globals"],
+    "types": ["jest"],
     "noImplicitAny": true
   },
   "include": ["src"]
