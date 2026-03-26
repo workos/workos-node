@@ -1,0 +1,12 @@
+{
+  "return_url": "https://example.com/admin-portal/return",
+  "success_url": "https://example.com/admin-portal/success",
+  "organization": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+  "intent": "sso",
+  "intent_options": {
+    "sso": {
+      "bookmark_slug": "chatgpt",
+      "provider_type": "GoogleSAML"
+    }
+  }
+}

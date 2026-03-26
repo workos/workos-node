@@ -1,3 +1,4 @@
+/** @deprecated Use `AdminPortal` instead. */
 export enum GeneratePortalLinkIntent {
   AuditLogs = 'audit_logs',
   DomainVerification = 'domain_verification',
