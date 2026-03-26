@@ -15,17 +15,9 @@
     "declaration": true,
     "outDir": "lib",
     "strict": true,
-    "lib": [
-      "dom",
-      "es2022"
-    ],
-    "types": [
-      "jest"
-    ],
-    "noImplicitAny": true,
-    "skipLibCheck": true
+    "lib": ["dom", "es2022"],
+    "types": ["jest"],
+    "noImplicitAny": true
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
 }
