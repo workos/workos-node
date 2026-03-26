@@ -67,13 +67,27 @@ export const deserializeDeletedEventDirectory = (
   updatedAt: directory.updated_at,
 });
 
+export const serializeDirectoryState = (
+  state: DirectoryState,
+): DirectoryStateResponse => {
+  if (state === 'active') {
+    return 'linked';
+  }
+
+  if (state === 'inactive') {
+    return 'unlinked';
+  }
+
+  return state;
+};
+
 export const serializeDirectory = (model: Directory): DirectoryResponse => ({
   object: model.object,
   id: model.id,
   organization_id: model.organizationId,
   external_key: model.externalKey,
   type: model.type,
-  state: model.state,
+  state: serializeDirectoryState(model.state),
   name: model.name,
   domain: model.domain!,
   metadata:

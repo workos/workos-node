@@ -33,9 +33,9 @@ export interface OrganizationMembership extends BaseOrganizationMembership {
   /** The status of the organization membership. One of `active`, `inactive`, or `pending`. */
   status: OrganizationMembershipStatus;
   /** Whether this organization membership is managed by a directory sync connection. */
-  directoryManaged?: boolean;
+  directoryManaged: boolean;
   /** An object containing IdP-sourced attributes from the linked [Directory User](https://workos.com/docs/reference/directory-sync/directory-user) or [SSO Profile](https://workos.com/docs/reference/sso/profile). Directory User attributes take precedence when both are linked. */
-  customAttributes?: Record<string, any>;
+  customAttributes: Record<string, any>;
   /** An ISO 8601 timestamp. */
   createdAt: string;
   /** An ISO 8601 timestamp. */
@@ -66,7 +66,7 @@ export interface OrganizationMembershipResponse extends BaseOrganizationMembersh
   organization_id: string;
   status: OrganizationMembershipStatus;
   directory_managed?: boolean;
-  organization_name?: string;
+  organization_name: string;
   custom_attributes?: Record<string, unknown>;
   created_at: string;
   updated_at: string;

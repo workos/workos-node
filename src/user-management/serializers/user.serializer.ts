@@ -26,7 +26,7 @@ export const serializeUser = (model: User): UserResponse => ({
   profile_picture_url: model.profilePictureUrl,
   email: model.email,
   email_verified: model.emailVerified,
-  external_id: model.externalId ?? null,
+  external_id: model.externalId ?? undefined,
   metadata: model.metadata,
   last_sign_in_at: model.lastSignInAt,
   locale: model.locale ?? null,

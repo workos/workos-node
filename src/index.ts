@@ -102,8 +102,6 @@ export type { PostOptions } from './common/interfaces/post-options.interface';
 
 export type { GetOptions } from './common/interfaces/get-options.interface';
 
-export * from './mfa/interfaces';
-
 export type {
   ChallengeAuthenticationFactor,
   ChallengeAuthenticationFactorResponse,
