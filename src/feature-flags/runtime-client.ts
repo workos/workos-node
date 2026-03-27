@@ -32,6 +32,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
   private initialized = false;
   private consecutiveErrors = 0;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
+  private pollAbortController: AbortController | null = null;
 
   private readyResolve: (() => void) | null = null;
   private readyPromise: Promise<void>;
@@ -101,6 +102,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
 
   close(): void {
     this.closed = true;
+    this.pollAbortController?.abort();
     if (this.pollTimer) {
       clearTimeout(this.pollTimer);
       this.pollTimer = null;
@@ -181,6 +183,9 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
   }
 
   private async fetchWithTimeout(): Promise<FlagPollResponse> {
+    this.pollAbortController = new AbortController();
+    const { signal } = this.pollAbortController;
+
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const fetchPromise = this.workos
