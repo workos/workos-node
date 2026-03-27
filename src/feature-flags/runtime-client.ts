@@ -204,9 +204,13 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
         reject(new Error('Poll aborted'));
         return;
       }
-      signal.addEventListener('abort', () => reject(new Error('Poll aborted')), {
-        once: true,
-      });
+      signal.addEventListener(
+        'abort',
+        () => reject(new Error('Poll aborted')),
+        {
+          once: true,
+        },
+      );
     });
 
     return Promise.race([fetchPromise, timeoutPromise, abortPromise]).finally(
