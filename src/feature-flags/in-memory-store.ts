@@ -12,7 +12,7 @@ export class InMemoryStore {
   }
 
   getAll(): FlagPollResponse {
-    return this.flags;
+    return { ...this.flags };
   }
 
   get size(): number {

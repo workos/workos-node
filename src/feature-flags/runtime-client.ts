@@ -122,7 +122,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     return this.evaluator.getAllFlags(context);
   }
 
-  getFlag(flagKey: string) {
+  getFlag(flagKey: string): FlagPollEntry | undefined {
     return this.store.get(flagKey);
   }
 
@@ -193,15 +193,27 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       .then(({ data }) => data);
 
     const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(
-        () => reject(new Error('Request timed out')),
-        this.requestTimeoutMs,
-      );
+      timeoutId = setTimeout(() => {
+        this.pollAbortController?.abort();
+        reject(new Error('Request timed out'));
+      }, this.requestTimeoutMs);
     });
 
-    return Promise.race([fetchPromise, timeoutPromise]).finally(() => {
-      clearTimeout(timeoutId);
+    const abortPromise = new Promise<never>((_, reject) => {
+      if (signal.aborted) {
+        reject(new Error('Poll aborted'));
+        return;
+      }
+      signal.addEventListener('abort', () => reject(new Error('Poll aborted')), {
+        once: true,
+      });
     });
+
+    return Promise.race([fetchPromise, timeoutPromise, abortPromise]).finally(
+      () => {
+        clearTimeout(timeoutId);
+      },
+    );
   }
 
   private scheduleNextPoll(): void {
