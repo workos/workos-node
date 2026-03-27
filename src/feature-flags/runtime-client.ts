@@ -7,6 +7,7 @@ import {
   EvaluationContext,
   FlagPollEntry,
   FlagPollResponse,
+  FlagTarget,
   RuntimeClientOptions,
   RuntimeClientLogger,
   RuntimeClientStats,
@@ -168,6 +169,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
 
       this.logger?.debug('Poll successful', { flagCount: this.store.size });
     } catch (error) {
+      if (this.closed) return;
+
       this.consecutiveErrors++;
       this.stats.pollErrorCount++;
       this.emit('error', error);
@@ -277,21 +280,22 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       return a !== b;
     }
 
+    if (a.enabled !== b.enabled || a.default_value !== b.default_value) {
+      return true;
+    }
+
+    const targetsChanged = (
+      xs: FlagTarget[],
+      ys: FlagTarget[],
+    ): boolean => {
+      if (xs.length !== ys.length) return true;
+      const map = new Map(ys.map((t) => [t.id, t.enabled]));
+      return xs.some((t) => map.get(t.id) !== t.enabled);
+    };
+
     return (
-      a.enabled !== b.enabled ||
-      a.default_value !== b.default_value ||
-      a.targets.users.length !== b.targets.users.length ||
-      a.targets.organizations.length !== b.targets.organizations.length ||
-      a.targets.users.some(
-        (t, i) =>
-          t.id !== b.targets.users[i].id ||
-          t.enabled !== b.targets.users[i].enabled,
-      ) ||
-      a.targets.organizations.some(
-        (t, i) =>
-          t.id !== b.targets.organizations[i].id ||
-          t.enabled !== b.targets.organizations[i].enabled,
-      )
+      targetsChanged(a.targets.users, b.targets.users) ||
+      targetsChanged(a.targets.organizations, b.targets.organizations)
     );
   }
 }
