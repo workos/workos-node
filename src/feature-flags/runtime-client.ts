@@ -284,10 +284,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       return true;
     }
 
-    const targetsChanged = (
-      xs: FlagTarget[],
-      ys: FlagTarget[],
-    ): boolean => {
+    const targetsChanged = (xs: FlagTarget[], ys: FlagTarget[]): boolean => {
       if (xs.length !== ys.length) return true;
       const map = new Map(ys.map((t) => [t.id, t.enabled]));
       return xs.some((t) => map.get(t.id) !== t.enabled);
