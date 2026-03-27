@@ -5,6 +5,7 @@ import { InMemoryStore } from './in-memory-store';
 import { Evaluator } from './evaluator';
 import {
   EvaluationContext,
+  FlagPollEntry,
   FlagPollResponse,
   RuntimeClientOptions,
   RuntimeClientLogger,
@@ -73,7 +74,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       this.resolveReady();
     }
 
-    this.poll();
+    // Defer first poll so callers can attach event listeners after construction
+    setTimeout(() => this.poll(), 0);
   }
 
   async waitUntilReady(options?: { timeoutMs?: number }): Promise<void> {
@@ -236,7 +238,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       const prev = previous[key];
       const curr = current[key];
 
-      if (JSON.stringify(prev) !== JSON.stringify(curr)) {
+      if (this.hasEntryChanged(prev, curr)) {
         this.emit('change', {
           key,
           previous: prev ?? null,
@@ -244,5 +246,31 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
         });
       }
     }
+  }
+
+  private hasEntryChanged(
+    a: FlagPollEntry | undefined,
+    b: FlagPollEntry | undefined,
+  ): boolean {
+    if (!a || !b) {
+      return a !== b;
+    }
+
+    return (
+      a.enabled !== b.enabled ||
+      a.default_value !== b.default_value ||
+      a.targets.users.length !== b.targets.users.length ||
+      a.targets.organizations.length !== b.targets.organizations.length ||
+      a.targets.users.some(
+        (t, i) =>
+          t.id !== b.targets.users[i].id ||
+          t.enabled !== b.targets.users[i].enabled,
+      ) ||
+      a.targets.organizations.some(
+        (t, i) =>
+          t.id !== b.targets.organizations[i].id ||
+          t.enabled !== b.targets.organizations[i].enabled,
+      )
+    );
   }
 }
