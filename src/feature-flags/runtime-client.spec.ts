@@ -456,6 +456,25 @@ describe('FeatureFlagsRuntimeClient', () => {
       client.close();
     });
 
+    it('rejects waitUntilReady on 401 before initialization', async () => {
+      fetchOnce(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { 'X-Request-ID': 'req_123' } },
+      );
+
+      const client = workos.featureFlags.createRuntimeClient();
+      client.on('error', () => {});
+      client.on('failed', () => {});
+
+      await jest.advanceTimersByTimeAsync(0);
+
+      await expect(client.waitUntilReady()).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      client.close();
+    });
+
     it('emits failed and stops polling on 401', async () => {
       fetchOnce(
         { message: 'Unauthorized' },

@@ -36,6 +36,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
   private pollAbortController: AbortController | null = null;
 
   private readyResolve: (() => void) | null = null;
+  private readyReject: ((err: Error) => void) | null = null;
   private readyPromise: Promise<void>;
 
   private stats: RuntimeClientStats = {
@@ -64,8 +65,9 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     this.store = new InMemoryStore();
     this.evaluator = new Evaluator(this.store);
 
-    this.readyPromise = new Promise<void>((resolve) => {
+    this.readyPromise = new Promise<void>((resolve, reject) => {
       this.readyResolve = resolve;
+      this.readyReject = reject;
     });
     // Prevent unhandled rejection if no one awaits waitUntilReady
     this.readyPromise.catch(() => {});
@@ -178,6 +180,10 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
 
       if (error instanceof UnauthorizedException) {
         this.emit('failed', error);
+        if (!this.initialized && this.readyReject) {
+          this.readyReject(error);
+          this.readyReject = null;
+        }
         return;
       }
     }
