@@ -1,5 +1,17 @@
 # Changelog
 
+## [8.11.0](https://github.com/workos/workos-node/compare/v8.10.0...v8.11.0) (2026-04-02)
+
+
+### Features
+
+* Adds feature flags runtime client with local evaluation ([#1511](https://github.com/workos/workos-node/issues/1511)) ([581c618](https://github.com/workos/workos-node/commit/581c6182bc18384ba9912f681d76acb19d5964a2))
+
+
+### Bug Fixes
+
+* **security:** resolve miniflare and undici vulnerabilities ([#1500](https://github.com/workos/workos-node/issues/1500)) ([cd6ddd0](https://github.com/workos/workos-node/commit/cd6ddd017090786cc7b17b1398b1049201121fce))
+
 ## [8.10.0](https://github.com/workos/workos-node/compare/v8.9.0...v8.10.0) (2026-03-25)
 
 
