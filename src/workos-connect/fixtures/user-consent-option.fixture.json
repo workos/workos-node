@@ -1,0 +1,11 @@
+{
+  "claim": "tos_accepted",
+  "type": "enum",
+  "label": "Terms of Service",
+  "choices": [
+    {
+      "value": "accepted",
+      "label": "I accept the Terms of Service"
+    }
+  ]
+}

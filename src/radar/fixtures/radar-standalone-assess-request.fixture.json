@@ -1,0 +1,9 @@
+{
+  "ip_address": "49.78.240.97",
+  "user_agent": "Mozilla/5.0",
+  "email": "user@example.com",
+  "auth_method": "Password",
+  "action": "login",
+  "device_fingerprint": "fp_abc123",
+  "bot_score": "0.1"
+}

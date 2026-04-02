@@ -1,6 +1,7 @@
 import { WorkOS } from '../workos';
 import { GeneratePortalLinkIntent } from './interfaces/generate-portal-link-intent.interface';
 
+/** @deprecated Use `AdminPortal` instead. */
 export class Portal {
   constructor(private readonly workos: WorkOS) {}
 

@@ -1,0 +1,11 @@
+{
+  "object": "permission",
+  "id": "perm_01HXYZ123456789ABCDEFGHIJ",
+  "slug": "documents:read",
+  "name": "View Documents",
+  "description": "Allows viewing document contents",
+  "system": false,
+  "resource_type_slug": "document",
+  "created_at": "2026-01-15T12:00:00.000Z",
+  "updated_at": "2026-01-15T12:00:00.000Z"
+}
