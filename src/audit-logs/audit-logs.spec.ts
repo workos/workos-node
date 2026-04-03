@@ -1,6 +1,7 @@
 import fetch from 'jest-fetch-mock';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
+import { ListResponse } from '../common/interfaces';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
 import { WorkOS } from '../workos';
 import {
@@ -8,6 +9,7 @@ import {
   AuditLogExportOptions,
   AuditLogExportResponse,
   AuditLogSchema,
+  AuditLogSchemaResponse,
   CreateAuditLogEventOptions,
   CreateAuditLogSchemaOptions,
   CreateAuditLogSchemaResponse,
@@ -841,6 +843,232 @@ describe('AuditLogs', () => {
         await expect(workos.auditLogs.createSchema(schema)).rejects.toThrow(
           BadRequestException,
         );
+      });
+    });
+  });
+
+  describe('listSchemas', () => {
+    describe('when the api responds with a 200', () => {
+      it('returns a paginated list of schemas', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const time = new Date().toISOString();
+
+        const schemaResponse: AuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: {
+                type: 'object',
+                properties: {
+                  user_id: { type: 'string' },
+                },
+              },
+            },
+          ],
+          actor: {
+            metadata: {
+              type: 'object',
+              properties: {
+                actor_id: { type: 'string' },
+              },
+            },
+          },
+          metadata: {
+            type: 'object',
+            properties: {
+              foo: { type: 'number' },
+            },
+          },
+          created_at: time,
+        };
+
+        const listResponse: ListResponse<AuditLogSchemaResponse> = {
+          object: 'list',
+          data: [schemaResponse],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.auditLogs.listSchemas('user.logged_in');
+
+        expect(result.data).toHaveLength(1);
+        // Metadata is deserialized to simplified format (same as createSchema)
+        expect(result.data[0]).toEqual({
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'user',
+              metadata: { user_id: 'string' },
+            },
+          ],
+          actor: {
+            metadata: { actor_id: 'string' },
+          },
+          metadata: { foo: 'number' },
+          createdAt: time,
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          { query: { order: 'desc' } },
+        );
+      });
+    });
+
+    describe('with pagination options', () => {
+      it('passes pagination parameters to the API', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const listResponse: ListResponse<AuditLogSchemaResponse> = {
+          object: 'list',
+          data: [],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.auditLogs.listSchemas('user.logged_in', {
+          limit: 10,
+          after: 'cursor_123',
+          order: 'asc',
+        });
+
+        expect(workosSpy).toHaveBeenCalledWith(
+          '/audit_logs/actions/user.logged_in/schemas',
+          { query: { limit: 10, after: 'cursor_123', order: 'asc' } },
+        );
+      });
+    });
+
+    describe('when the api responds with a 401', () => {
+      it('throws an UnauthorizedException', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        workosSpy.mockImplementationOnce(() => {
+          throw new UnauthorizedException('a-request-id');
+        });
+
+        const workos = new WorkOS('invalid apikey');
+
+        await expect(
+          workos.auditLogs.listSchemas('user.logged_in'),
+        ).rejects.toThrow(UnauthorizedException);
+      });
+    });
+
+    describe('with schema without optional fields', () => {
+      it('returns schema with undefined actor and metadata', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const time = new Date().toISOString();
+
+        const schemaResponse: AuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'document',
+            },
+          ],
+          created_at: time,
+        };
+
+        const listResponse: ListResponse<AuditLogSchemaResponse> = {
+          object: 'list',
+          data: [schemaResponse],
+          list_metadata: {
+            before: undefined,
+            after: undefined,
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.auditLogs.listSchemas('document.created');
+
+        expect(result.data).toHaveLength(1);
+        expect(result.data[0]).toEqual({
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [
+            {
+              type: 'document',
+              metadata: undefined,
+            },
+          ],
+          actor: undefined,
+          metadata: undefined,
+          createdAt: time,
+        });
+      });
+    });
+
+    describe('with multiple schemas', () => {
+      it('returns all schemas in the response', async () => {
+        const workosSpy = jest.spyOn(WorkOS.prototype, 'get');
+
+        const time1 = new Date().toISOString();
+        const time2 = new Date(Date.now() - 1000).toISOString();
+
+        const schemaResponse1: AuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 2,
+          targets: [{ type: 'user' }],
+          created_at: time1,
+        };
+
+        const schemaResponse2: AuditLogSchemaResponse = {
+          object: 'audit_log_schema',
+          version: 1,
+          targets: [{ type: 'user' }],
+          metadata: {
+            type: 'object',
+            properties: {
+              ip_address: { type: 'string' },
+            },
+          },
+          created_at: time2,
+        };
+
+        const listResponse: ListResponse<AuditLogSchemaResponse> = {
+          object: 'list',
+          data: [schemaResponse1, schemaResponse2],
+          list_metadata: {
+            before: 'cursor_before',
+            after: 'cursor_after',
+          },
+        };
+
+        workosSpy.mockResolvedValueOnce(mockWorkOsResponse(200, listResponse));
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const result = await workos.auditLogs.listSchemas('user.logged_in');
+
+        expect(result.data).toHaveLength(2);
+        expect(result.data[0].version).toBe(2);
+        expect(result.data[1].version).toBe(1);
+        // Metadata is deserialized to simplified format
+        expect(result.data[1].metadata).toEqual({ ip_address: 'string' });
+        expect(result.listMetadata.before).toBe('cursor_before');
+        expect(result.listMetadata.after).toBe('cursor_after');
       });
     });
   });
