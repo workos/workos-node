@@ -128,6 +128,30 @@ if (WorkOS && WorkOS.name === 'WorkOS') {
   }
 }
 
+// Test that worker entry bundles cleanly without node builtins
+process.stdout.write(`Testing bundler     ... `);
+const bundleCheck = spawnSync(
+  'npx',
+  [
+    'esbuild',
+    `${lib}/index.worker.mjs`,
+    '--bundle',
+    '--platform=browser',
+    '--outfile=/dev/null',
+  ],
+  { encoding: 'utf8' },
+);
+if (bundleCheck.status !== 0) {
+  allOK = false;
+  console.error(`❌ Failed`);
+  if (bundleCheck.stderr) {
+    console.error(`   ${bundleCheck.stderr.trim()}`);
+  }
+} else {
+  ranTests++;
+  console.log(`✅ Passed`);
+}
+
 // Cleanup
 rmSync(tmp, { recursive: true, force: true });
 
