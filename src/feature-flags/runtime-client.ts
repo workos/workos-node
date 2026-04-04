@@ -103,6 +103,9 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     });
   }
 
+  // eventemitter3 silently drops 'error' events with no listeners.
+  // Restore Node's EventEmitter behavior: throw so poll failures
+  // are never silently swallowed.
   override emit(event: string | symbol, ...args: unknown[]): boolean {
     if (event === 'error' && this.listenerCount(event as string) === 0) {
       throw args[0] instanceof Error ? args[0] : new Error(String(args[0]));
