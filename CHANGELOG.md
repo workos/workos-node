@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.11.1](https://github.com/workos/workos-node/compare/v8.11.0...v8.11.1) (2026-04-04)
+
+
+### Bug Fixes
+
+* replace node:events with eventemitter3 in runtime client ([#1540](https://github.com/workos/workos-node/issues/1540)) ([e293be1](https://github.com/workos/workos-node/commit/e293be1328cecbdee6107d86252341de0f387692))
+
 ## [8.11.0](https://github.com/workos/workos-node/compare/v8.10.0...v8.11.0) (2026-04-02)
 
 
