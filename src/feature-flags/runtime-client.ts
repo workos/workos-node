@@ -1,4 +1,4 @@
-import { EventEmitter } from 'node:events';
+import { EventEmitter } from 'eventemitter3';
 import { WorkOS } from '../workos';
 import { UnauthorizedException } from '../common/exceptions';
 import { InMemoryStore } from './in-memory-store';
@@ -101,6 +101,13 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     return Promise.race([this.readyPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutId);
     });
+  }
+
+  override emit(event: string | symbol, ...args: unknown[]): boolean {
+    if (event === 'error' && this.listenerCount(event as string) === 0) {
+      throw args[0] instanceof Error ? args[0] : new Error(String(args[0]));
+    }
+    return super.emit(event, ...args);
   }
 
   close(): void {
