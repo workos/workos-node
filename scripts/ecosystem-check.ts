@@ -137,7 +137,7 @@ const bundleCheck = spawnSync(
     `${lib}/index.worker.mjs`,
     '--bundle',
     '--platform=browser',
-    '--outfile=/dev/null',
+    `--outfile=${join(tmp, 'bundle-check.js')}`,
   ],
   { encoding: 'utf8' },
 );
