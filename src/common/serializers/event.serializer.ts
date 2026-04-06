@@ -38,6 +38,7 @@ import {
   deserializeVaultDekDecryptedEvent,
   deserializeVaultByokKeyVerificationCompletedEvent,
 } from '../../vault/serializers/vault-event.serializer';
+import { deserializeOrganizationDomainVerificationFailed } from '../../organization-domains/serializers/organization-domain-verification-failed.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -210,8 +211,13 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeOrganization(event.data),
       };
-    case 'organization_domain.verified':
     case 'organization_domain.verification_failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeOrganizationDomainVerificationFailed(event.data),
+      };
+    case 'organization_domain.verified':
     case 'organization_domain.created':
     case 'organization_domain.updated':
     case 'organization_domain.deleted':

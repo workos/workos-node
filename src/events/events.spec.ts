@@ -8,6 +8,10 @@ import {
   FlagCreatedEvent,
   FlagCreatedEventResponse,
   ListResponse,
+  OrganizationDomainCreatedEvent,
+  OrganizationDomainCreatedEventResponse,
+  OrganizationDomainVerificationFailedEvent,
+  OrganizationDomainVerificationFailedEventResponse,
   VaultDataCreatedEvent,
   VaultDataCreatedEventResponse,
   VaultDataUpdatedEvent,
@@ -31,6 +35,10 @@ import {
 } from '../common/interfaces';
 import { WorkOS } from '../workos';
 import { ConnectionType } from '../sso/interfaces';
+import {
+  OrganizationDomainState,
+  OrganizationDomainVerificationStrategy,
+} from '../organization-domains/interfaces';
 
 describe('Event', () => {
   beforeEach(() => fetch.resetMocks());
@@ -733,6 +741,121 @@ describe('Event', () => {
             data: [directoryUserUpdated],
             listMetadata: {},
           });
+        });
+      });
+    });
+
+    describe('organization domain events', () => {
+      it('deserializes organization_domain.created events', async () => {
+        const response: OrganizationDomainCreatedEventResponse = {
+          event: 'organization_domain.created',
+          id: 'event_01DOMAINCREATED001',
+          data: {
+            id: 'org_domain_01TESTDOMAIN',
+            state: OrganizationDomainState.Pending,
+            domain: 'example.com',
+            object: 'organization_domain',
+            created_at: '2026-04-06T06:24:06.749Z',
+            updated_at: '2026-04-06T06:24:06.749Z',
+            organization_id: 'org_01TESTORGANIZATION',
+            verification_strategy:
+              OrganizationDomainVerificationStrategy.Manual,
+          },
+          context: {},
+          created_at: '2026-04-06T06:24:06.776Z',
+        };
+
+        const expected: OrganizationDomainCreatedEvent = {
+          event: 'organization_domain.created',
+          id: 'event_01DOMAINCREATED001',
+          data: {
+            id: 'org_domain_01TESTDOMAIN',
+            state: OrganizationDomainState.Pending,
+            domain: 'example.com',
+            object: 'organization_domain',
+            createdAt: '2026-04-06T06:24:06.749Z',
+            updatedAt: '2026-04-06T06:24:06.749Z',
+            organizationId: 'org_01TESTORGANIZATION',
+            verificationStrategy: OrganizationDomainVerificationStrategy.Manual,
+          },
+          context: {},
+          createdAt: '2026-04-06T06:24:06.776Z',
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['organization_domain.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes organization_domain.verification_failed events', async () => {
+        const response: OrganizationDomainVerificationFailedEventResponse = {
+          event: 'organization_domain.verification_failed',
+          id: 'event_01DOMAIN0002',
+          data: {
+            reason: 'domain_verification_period_expired',
+            organization_domain: {
+              id: 'org_domain_0TESTDOMAIN',
+              state: OrganizationDomainState.Failed,
+              domain: 'example.com',
+              object: 'organization_domain',
+              created_at: '2026-03-07T02:24:56.621Z',
+              updated_at: '2026-04-06T02:25:00.494Z',
+              organization_id: 'org_01TESTORGANIZATION',
+              verification_token: 'FAKETOKEN',
+              verification_strategy: OrganizationDomainVerificationStrategy.Dns,
+            },
+          },
+          context: {},
+          created_at: '2026-04-06T02:26:05.430Z',
+        };
+
+        const expected: OrganizationDomainVerificationFailedEvent = {
+          event: 'organization_domain.verification_failed',
+          id: 'event_01DOMAIN0002',
+          data: {
+            reason: 'domain_verification_period_expired',
+            organizationDomain: {
+              id: 'org_domain_0TESTDOMAIN',
+              state: OrganizationDomainState.Failed,
+              domain: 'example.com',
+              object: 'organization_domain',
+              createdAt: '2026-03-07T02:24:56.621Z',
+              updatedAt: '2026-04-06T02:25:00.494Z',
+              organizationId: 'org_01TESTORGANIZATION',
+              verificationToken: 'FAKETOKEN',
+              verificationStrategy: OrganizationDomainVerificationStrategy.Dns,
+            },
+          },
+          context: {},
+          createdAt: '2026-04-06T02:26:05.430Z',
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['organization_domain.verification_failed'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
         });
       });
     });
