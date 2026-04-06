@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.12.0](https://github.com/workos/workos-node/compare/v8.11.1...v8.12.0) (2026-04-06)
+
+
+### Features
+
+* Add vault.byok_key.verification_completed event interface ([#1544](https://github.com/workos/workos-node/issues/1544)) ([5b29d3c](https://github.com/workos/workos-node/commit/5b29d3c0c961ca79b4dde30f8d95821847942c65))
+
 ## [8.11.1](https://github.com/workos/workos-node/compare/v8.11.0...v8.11.1) (2026-04-04)
 
 
