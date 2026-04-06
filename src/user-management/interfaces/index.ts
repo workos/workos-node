@@ -118,15 +118,6 @@ export * from './update-user-organization-membership.interface';
 
 export * from './update-user.interface';
 
-export * from './urn-ietf-params-oauth-grant-type-device-code-session-authenticate-request.interface';
-
-export * from './urn-workos-oauth-grant-type-email-verification-code-session-authenticate-request.interface';
-
-export * from './urn-workos-oauth-grant-type-magic-auth-code-session-authenticate-request.interface';
-
-export * from './urn-workos-oauth-grant-type-mfa-totp-session-authenticate-request.interface';
-
-export * from './urn-workos-oauth-grant-type-organization-selection-session-authenticate-request.interface';
 
 export * from './user-identities-get-item.interface';
 
@@ -155,3 +146,13 @@ export * from './user-sessions-list-item.interface';
 export * from './verify-email-address.interface';
 
 export * from './verify-email-response.interface';
+
+export * from './device-code-session-authenticate-request.interface';
+
+export * from './email-verification-code-session-authenticate-request.interface';
+
+export * from './magic-auth-code-session-authenticate-request.interface';
+
+export * from './mfa-totp-session-authenticate-request.interface';
+
+export * from './organization-selection-session-authenticate-request.interface';

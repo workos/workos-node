@@ -18,8 +18,3 @@ export const serializeAuthenticateResponseImpersonator = (
   email: model.email,
   reason: model.reason,
 });
-
-export {
-  deserializeSessionCreatedDataImpersonator as deserializeAuthenticateResponseImpersonator,
-  serializeSessionCreatedDataImpersonator as serializeAuthenticateResponseImpersonator,
-} from '../../common/serializers/session-created-data-impersonator.serializer';

@@ -33,8 +33,3 @@ export const serializeUser = (model: User): UserResponse => ({
   created_at: model.createdAt,
   updated_at: model.updatedAt,
 });
-
-export {
-  deserializeUserCreatedData as deserializeUser,
-  serializeUserCreatedData as serializeUser,
-} from '../../common/serializers/user-created-data.serializer';

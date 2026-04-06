@@ -20,8 +20,3 @@ export const serializeConnectionDomain = (
   object: model.object,
   domain: model.domain,
 });
-
-export {
-  deserializeConnectionActivatedDataDomain as deserializeConnectionDomain,
-  serializeConnectionActivatedDataDomain as serializeConnectionDomain,
-} from '../../common/serializers/connection-activated-data-domain.serializer';

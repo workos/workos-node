@@ -450,7 +450,6 @@ export type { UserManagementUsersAuthorizedApplicationsOrder } from './user-mana
 
 export type { AuditLogsOrder } from './audit-logs/interfaces/audit-logs-order.interface';
 
-export type { M2M, M2MResponse } from './common/interfaces/m2m.interface';
 
 export type {
   ActionAuthenticationDenied,

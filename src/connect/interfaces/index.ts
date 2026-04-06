@@ -8,7 +8,6 @@ export * from './create-m2m-application.interface';
 export * from './create-oauth-application.interface';
 export * from './external-auth-complete-response.interface';
 export * from './new-connect-application-secret.interface';
-export * from './redirect-uri-dto.interface';
 export * from './update-oauth-application.interface';
 export * from './user-consent-option-choice.interface';
 export * from './user-consent-option.interface';

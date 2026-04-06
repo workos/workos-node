@@ -85,7 +85,6 @@ import { deserializeAuthorizationOrganizationMembership } from '../user-manageme
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 
 import type { AuthorizationAssignment } from './interfaces/authorization-assignment.interface';
-import type { List } from './interfaces/list.interface';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
