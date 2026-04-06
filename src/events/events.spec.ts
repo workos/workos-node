@@ -26,6 +26,8 @@ import {
   VaultDekReadEventResponse,
   VaultDekDecryptedEvent,
   VaultDekDecryptedEventResponse,
+  VaultByokKeyVerificationCompletedEvent,
+  VaultByokKeyVerificationCompletedEventResponse,
 } from '../common/interfaces';
 import { WorkOS } from '../workos';
 import { ConnectionType } from '../sso/interfaces';
@@ -564,6 +566,47 @@ describe('Event', () => {
 
         const list = await workos.events.listEvents({
           events: ['vault.dek.read'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes vault.byok_key.verification_completed events', async () => {
+        const response: VaultByokKeyVerificationCompletedEventResponse = {
+          id: 'event_01VAULT00010',
+          created_at: '2026-03-24T12:00:00.000Z',
+          event: 'vault.byok_key.verification_completed',
+          data: {
+            organization_id: 'org_01ABC',
+            key_provider: 'AWS_KMS',
+            verified: true,
+          },
+        };
+
+        const expected: VaultByokKeyVerificationCompletedEvent = {
+          id: 'event_01VAULT00010',
+          createdAt: '2026-03-24T12:00:00.000Z',
+          context: undefined,
+          event: 'vault.byok_key.verification_completed',
+          data: {
+            organizationId: 'org_01ABC',
+            keyProvider: 'AWS_KMS',
+            verified: true,
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [response],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['vault.byok_key.verification_completed'],
         });
 
         expect(list).toEqual({
