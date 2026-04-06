@@ -73,6 +73,8 @@ import {
   VaultDekReadEventResponseData,
   VaultDekDecryptedEventData,
   VaultDekDecryptedEventResponseData,
+  VaultByokKeyVerificationCompletedEventData,
+  VaultByokKeyVerificationCompletedEventResponseData,
 } from '../../vault/interfaces/vault-event.interface';
 
 export interface EventBase {
@@ -842,6 +844,16 @@ export interface VaultDekDecryptedEventResponse extends EventResponseBase {
   data: VaultDekDecryptedEventResponseData;
 }
 
+export interface VaultByokKeyVerificationCompletedEvent extends EventBase {
+  event: 'vault.byok_key.verification_completed';
+  data: VaultByokKeyVerificationCompletedEventData;
+}
+
+export interface VaultByokKeyVerificationCompletedEventResponse extends EventResponseBase {
+  event: 'vault.byok_key.verification_completed';
+  data: VaultByokKeyVerificationCompletedEventResponseData;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
@@ -916,7 +928,8 @@ export type Event =
   | VaultMetadataReadEvent
   | VaultKekCreatedEvent
   | VaultDekReadEvent
-  | VaultDekDecryptedEvent;
+  | VaultDekDecryptedEvent
+  | VaultByokKeyVerificationCompletedEvent;
 
 export type EventResponse =
   | AuthenticationEmailVerificationSucceededEventResponse
@@ -992,6 +1005,7 @@ export type EventResponse =
   | VaultMetadataReadEventResponse
   | VaultKekCreatedEventResponse
   | VaultDekReadEventResponse
-  | VaultDekDecryptedEventResponse;
+  | VaultDekDecryptedEventResponse
+  | VaultByokKeyVerificationCompletedEventResponse;
 
 export type EventName = Event['event'];

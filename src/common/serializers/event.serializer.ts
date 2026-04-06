@@ -36,6 +36,7 @@ import {
   deserializeVaultKekCreatedEvent,
   deserializeVaultDekReadEvent,
   deserializeVaultDekDecryptedEvent,
+  deserializeVaultByokKeyVerificationCompletedEvent,
 } from '../../vault/serializers/vault-event.serializer';
 
 export const deserializeEvent = (event: EventResponse): Event => {
@@ -288,6 +289,12 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeVaultDekDecryptedEvent(event.data),
+      };
+    case 'vault.byok_key.verification_completed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
       };
   }
 };

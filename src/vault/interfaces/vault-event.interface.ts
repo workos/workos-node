@@ -97,3 +97,18 @@ export interface VaultDekDecryptedEventData extends VaultActor {
 export interface VaultDekDecryptedEventResponseData extends VaultActorResponse {
   key_id: string;
 }
+
+// vault.byok_key.verification_completed
+export type VaultByokKeyProvider = 'AWS_KMS' | 'GCP_KMS' | 'AZURE_KEY_VAULT';
+
+export interface VaultByokKeyVerificationCompletedEventData {
+  organizationId: string;
+  keyProvider: VaultByokKeyProvider;
+  verified: boolean;
+}
+
+export interface VaultByokKeyVerificationCompletedEventResponseData {
+  organization_id: string;
+  key_provider: VaultByokKeyProvider;
+  verified: boolean;
+}
