@@ -6,3 +6,7 @@ export * from './radar-standalone-delete-radar-list-entry-request.interface';
 export * from './radar-standalone-response.interface';
 export * from './radar-standalone-update-radar-attempt-request.interface';
 export * from './radar-standalone-update-radar-list-request.interface';
+
+export * from './radar-action.interface';
+
+export * from './radar-type.interface';

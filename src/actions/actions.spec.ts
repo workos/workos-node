@@ -128,6 +128,8 @@ describe('Actions', () => {
           createdAt: '2024-10-22T17:12:50.746Z',
           updatedAt: '2024-10-22T17:12:50.746Z',
           externalId: null,
+          lastSignInAt: undefined,
+          locale: undefined,
           metadata: {},
         },
         ipAddress: '50.141.123.10',
@@ -151,6 +153,7 @@ describe('Actions', () => {
           id: '01JATCNVYCHT1SZGENR4QTXKRK',
           userId: '01JATCHZVEC5EPANDPEZVM68Y9',
           organizationId: '01JATCMZJY26PQ59XT9BNT0FNN',
+          organizationName: '',
           role: {
             slug: 'member',
           },

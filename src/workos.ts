@@ -56,6 +56,7 @@ import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
 import { WorkOSConnect } from './workos-connect/work-os-connect';
 import { Applications } from './workos-connect/applications';
 import { ApplicationClientSecrets } from './workos-connect/application-client-secrets';
+import { MultiFactorAuth } from './multi-factor-auth/multi-factor-auth';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -530,4 +531,5 @@ export class WorkOS {
   static readonly SERVER_PRODUCTION = 'https://api.workos.com';
   /** Staging */
   static readonly SERVER_STAGING = 'https://api.workos-test.com';
+  readonly multiFactorAuth = new MultiFactorAuth(this);
 }
