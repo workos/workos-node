@@ -58,6 +58,10 @@ import { fetchAndDeserializeFGAList } from './utils/fetch-and-deserialize-list';
 export class FGA {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async check(
     checkOptions: CheckOptions,
     options: CheckRequestOptions = {},
@@ -70,6 +74,10 @@ export class FGA {
     return new CheckResult(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async checkBatch(
     checkOptions: CheckBatchOptions,
     options: CheckRequestOptions = {},
@@ -84,6 +92,10 @@ export class FGA {
     );
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async createResource(resource: CreateResourceOptions): Promise<Resource> {
     const { data } = await this.workos.post<ResourceResponse>(
       '/fga/v1/resources',
@@ -93,6 +105,10 @@ export class FGA {
     return deserializeResource(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async getResource(
     resource: ResourceInterface | ResourceOptions,
   ): Promise<Resource> {
@@ -110,6 +126,10 @@ export class FGA {
     return deserializeResource(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async listResources(
     options?: ListResourcesOptions,
   ): Promise<AutoPaginatable<Resource, SerializedListResourcesOptions>> {
@@ -131,6 +151,10 @@ export class FGA {
     );
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async updateResource(options: UpdateResourceOptions): Promise<Resource> {
     const resourceType = isResourceInterface(options.resource)
       ? options.resource.getResourceType()
@@ -149,6 +173,10 @@ export class FGA {
     return deserializeResource(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async deleteResource(resource: DeleteResourceOptions): Promise<void> {
     const resourceType = isResourceInterface(resource)
       ? resource.getResourceType()
@@ -160,6 +188,10 @@ export class FGA {
     await this.workos.delete(`/fga/v1/resources/${resourceType}/${resourceId}`);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async batchWriteResources(
     options: BatchWriteResourcesOptions,
   ): Promise<Resource[]> {
@@ -170,6 +202,10 @@ export class FGA {
     return deserializeBatchWriteResourcesResponse(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async writeWarrant(options: WriteWarrantOptions): Promise<WarrantToken> {
     const { data } = await this.workos.post<WarrantTokenResponse>(
       '/fga/v1/warrants',
@@ -179,6 +215,10 @@ export class FGA {
     return deserializeWarrantToken(data);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async batchWriteWarrants(
     options: WriteWarrantOptions[],
   ): Promise<WarrantToken> {
@@ -190,6 +230,10 @@ export class FGA {
     return deserializeWarrantToken(warrantToken);
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async listWarrants(
     options?: ListWarrantsOptions,
     requestOptions?: ListWarrantsRequestOptions,
@@ -214,6 +258,10 @@ export class FGA {
     );
   }
 
+  /**
+   * @deprecated The FGA module is deprecated. Use the Authorization module instead.
+   * @see src/authorization/authorization.ts
+   */
   async query(
     options: QueryOptions,
     requestOptions: QueryRequestOptions = {},
