@@ -27,6 +27,23 @@ import {
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * Create Event
+   *
+   * Create an Audit Log Event.
+   *
+   * This API supports idempotency which guarantees that performing the same operation multiple times will have the same result as if the operation were performed only once. This is handy in situations where you may need to retry a request due to a failure or prevent accidental duplicate requests from creating more than one resource.
+   *
+   * To achieve idempotency, you can add `Idempotency-Key` request header to a Create Event request with a unique string as the value. Each subsequent request matching this unique string will return the same response. We suggest using [v4 UUIDs](https://en.wikipedia.org/wiki/Universally_unique_identifier) for idempotency keys to avoid collisions.
+   *
+   * Idempotency keys expire after 24 hours. The API will generate a new response if you submit a request with an expired key.
+   * @param payload - Object containing organizationId, event.
+   * @returns {AuditLogEventCreateResponse}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   * @throws {RateLimitExceededException} 429
+   */
   async createEvent(
     organization: string,
     event: CreateAuditLogEventOptions,
@@ -50,6 +67,14 @@ export class AuditLogs {
     );
   }
 
+  /**
+   * Create Export
+   *
+   * Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
+   * @param payload - Object containing organizationId, rangeStart, rangeEnd.
+   * @returns {AuditLogExportJson}
+   * @throws {BadRequestException} 400
+   */
   async createExport(options: AuditLogExportOptions): Promise<AuditLogExport> {
     const { data } = await this.workos.post<AuditLogExportResponse>(
       '/audit_logs/exports',
@@ -59,6 +84,15 @@ export class AuditLogs {
     return deserializeAuditLogExport(data);
   }
 
+  /**
+   * Get Export
+   *
+   * Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
+   * @param auditLogExportId - The unique ID of the Audit Log Export.
+   * @example "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V"
+   * @returns {AuditLogExportJson}
+   * @throws {NotFoundException} 404
+   */
   async getExport(auditLogExportId: string): Promise<AuditLogExport> {
     const { data } = await this.workos.get<AuditLogExportResponse>(
       `/audit_logs/exports/${auditLogExportId}`,

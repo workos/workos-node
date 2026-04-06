@@ -4,3 +4,8 @@ export {
   deserializeUser as deserializeEmailChangeConfirmationUser,
   serializeUser as serializeEmailChangeConfirmationUser,
 } from './user.serializer';
+
+export {
+  deserializeUserCreatedData as deserializeEmailChangeConfirmationUser,
+  serializeUserCreatedData as serializeEmailChangeConfirmationUser,
+} from '../../common/serializers/user-created-data.serializer';

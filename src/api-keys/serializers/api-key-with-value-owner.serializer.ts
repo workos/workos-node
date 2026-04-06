@@ -18,3 +18,8 @@ export const serializeApiKeyWithValueOwner = (
   type: model.type,
   id: model.id,
 });
+
+export {
+  deserializeApiKeyCreatedDataOwner as deserializeApiKeyWithValueOwner,
+  serializeApiKeyCreatedDataOwner as serializeApiKeyWithValueOwner,
+} from '../../common/serializers/api-key-created-data-owner.serializer';

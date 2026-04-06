@@ -4,3 +4,8 @@ export {
   deserializeFlagOwner as deserializeFeatureFlagOwner,
   serializeFlagOwner as serializeFeatureFlagOwner,
 } from './flag-owner.serializer';
+
+export {
+  deserializeFlagCreatedDataOwner as deserializeFeatureFlagOwner,
+  serializeFlagCreatedDataOwner as serializeFeatureFlagOwner,
+} from '../../common/serializers/flag-created-data-owner.serializer';

@@ -18,3 +18,8 @@ export const serializeFlagOwner = (model: FlagOwner): FlagOwnerResponse => ({
   first_name: model.firstName,
   last_name: model.lastName,
 });
+
+export {
+  deserializeFlagCreatedDataOwner as deserializeFlagOwner,
+  serializeFlagCreatedDataOwner as serializeFlagOwner,
+} from '../../common/serializers/flag-created-data-owner.serializer';

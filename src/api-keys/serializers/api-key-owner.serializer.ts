@@ -4,3 +4,8 @@ export {
   deserializeApiKeyWithValueOwner as deserializeApiKeyOwner,
   serializeApiKeyWithValueOwner as serializeApiKeyOwner,
 } from './api-key-with-value-owner.serializer';
+
+export {
+  deserializeApiKeyCreatedDataOwner as deserializeApiKeyOwner,
+  serializeApiKeyCreatedDataOwner as serializeApiKeyOwner,
+} from '../../common/serializers/api-key-created-data-owner.serializer';

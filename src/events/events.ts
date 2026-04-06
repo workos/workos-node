@@ -10,6 +10,15 @@ import type { PaginationOptions } from '../common/interfaces/pagination-options.
 export class Events {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * List events
+   *
+   * List events for the current environment.
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<EventSchema>}
+   * @throws {BadRequestException} 400
+   * @throws {UnprocessableEntityException} 422
+   */
   async listEvents(options: ListEventOptions): Promise<List<Event>> {
     const { data } = await this.workos.get<ListResponse<EventResponse>>(
       `/events`,

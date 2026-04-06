@@ -12,6 +12,15 @@ import { deserializeOrganizationDomain } from './serializers/organization-domain
 export class OrganizationDomains {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * Get an Organization Domain
+   *
+   * Get the details of an existing organization domain.
+   * @param id - Unique identifier of the organization domain.
+   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   * @returns {OrganizationDomainStandAlone}
+   * @throws {NotFoundException} 404
+   */
   async get(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.get<OrganizationDomainResponse>(
       `/organization_domains/${id}`,
@@ -20,6 +29,15 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
+  /**
+   * Verify an Organization Domain
+   *
+   * Initiates verification process for an Organization Domain.
+   * @param id - Unique identifier of the organization domain.
+   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   * @returns {OrganizationDomainStandAlone}
+   * @throws {BadRequestException} 400
+   */
   async verify(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.post<OrganizationDomainResponse>(
       `/organization_domains/${id}/verify`,
@@ -29,6 +47,14 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
+  /**
+   * Create an Organization Domain
+   *
+   * Creates a new Organization Domain.
+   * @param payload - Object containing domain, organizationId.
+   * @returns {OrganizationDomain}
+   * @throws {ConflictException} 409
+   */
   async create(
     payload: CreateOrganizationDomainOptions,
   ): Promise<OrganizationDomain> {
@@ -40,6 +66,15 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
+  /**
+   * Delete an Organization Domain
+   *
+   * Permanently deletes an organization domain. It cannot be undone.
+   * @param id - Unique identifier of the organization domain.
+   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   * @returns {void}
+   * @throws {NotFoundException} 404
+   */
   async delete(id: string): Promise<void> {
     await this.workos.delete(`/organization_domains/${id}`);
   }

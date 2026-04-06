@@ -19,3 +19,7 @@ export const deserializePermission = (
   updatedAt: permission.updated_at,
 });
 
+export {
+  deserializeAuthorizationPermission as deserializePermission,
+  serializeAuthorizationPermission as serializePermission,
+} from './authorization-permission.serializer';

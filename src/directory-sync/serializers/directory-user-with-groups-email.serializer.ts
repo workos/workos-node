@@ -20,3 +20,8 @@ export const serializeDirectoryUserWithGroupsEmail = (
   type: model.type,
   value: model.value ?? null,
 });
+
+export {
+  deserializeDsyncGroupUserAddedDataUserEmail as deserializeDirectoryUserWithGroupsEmail,
+  serializeDsyncGroupUserAddedDataUserEmail as serializeDirectoryUserWithGroupsEmail,
+} from '../../common/serializers/dsync-group-user-added-data-user-email.serializer';

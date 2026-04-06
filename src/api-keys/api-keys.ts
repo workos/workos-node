@@ -31,6 +31,15 @@ export class ApiKeys {
     return deserializeValidateApiKeyResponse(data);
   }
 
+  /**
+   * Delete an API key
+   *
+   * Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
+   * @param id - The unique ID of the API key.
+   * @example "api_key_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @returns {void}
+   * @throws {NotFoundException} 404
+   */
   async deleteApiKey(id: string): Promise<void> {
     await this.workos.delete(`/api_keys/${id}`);
   }
