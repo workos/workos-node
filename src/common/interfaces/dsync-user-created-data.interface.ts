@@ -28,15 +28,27 @@ export interface DsyncUserCreatedData {
   firstName?: string | null;
   /** The last name of the user. */
   lastName?: string | null;
-  /** A list of email addresses for the user. */
+  /**
+   * A list of email addresses for the user.
+   * @deprecated
+   */
   emails?: DsyncUserCreatedDataEmail[];
-  /** The job title of the user. */
+  /**
+   * The job title of the user.
+   * @deprecated
+   */
   jobTitle?: string | null;
-  /** The username of the user. */
+  /**
+   * The username of the user.
+   * @deprecated
+   */
   username?: string | null;
   /** The state of the user. */
   state: DsyncUserCreatedDataState;
-  /** The raw attributes received from the directory provider. */
+  /**
+   * The raw attributes received from the directory provider.
+   * @deprecated
+   */
   rawAttributes: Record<string, any>;
   /** An object containing the custom attribute mapping for the Directory Provider. */
   customAttributes: Record<string, any>;

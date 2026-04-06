@@ -12,7 +12,10 @@ export interface Organization {
   id: string;
   /** A descriptive name for the Organization. This field does not need to be unique. */
   name: string;
-  /** Whether the Organization allows profiles outside of its managed domains. */
+  /**
+   * Whether the Organization allows profiles outside of its managed domains.
+   * @deprecated
+   */
   allowProfilesOutsideOrganization: boolean;
   /** List of Organization Domains. */
   domains: OrganizationDomain[];

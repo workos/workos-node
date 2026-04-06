@@ -1268,11 +1268,13 @@ export class UserManagement {
   }
 
   /**
-   * List invitations
+   * Send an invitation
    *
-   * Get a list of all of invitations matching the criteria specified.
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserInvite>}
+   * Sends an invitation email to the recipient.
+   * @param payload - Object containing email.
+   * @returns {UserInvite}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async sendInvitation(payload: SendInvitationOptions): Promise<Invitation> {
