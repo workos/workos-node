@@ -147,11 +147,6 @@ export type {
 } from './connect/interfaces/user-consent-option-choice.interface';
 
 export type {
-  RedirectUriDto,
-  RedirectUriDtoResponse,
-} from './connect/interfaces/redirect-uri-dto.interface';
-
-export type {
   CreateOAuthApplication,
   CreateOAuthApplicationResponse,
 } from './connect/interfaces/create-oauth-application.interface';
@@ -449,7 +444,6 @@ export type { UserManagementUsersFeatureFlagsOrder } from './feature-flags/inter
 export type { UserManagementUsersAuthorizedApplicationsOrder } from './user-management/interfaces/user-management-users-authorized-applications-order.interface';
 
 export type { AuditLogsOrder } from './audit-logs/interfaces/audit-logs-order.interface';
-
 
 export type {
   ActionAuthenticationDenied,
@@ -3077,3 +3071,8 @@ export type { VaultMetadataReadContextActorSource } from './common/interfaces/va
 export type { VaultNamesListedDataActorSource } from './common/interfaces/vault-names-listed-data-actor-source.interface';
 
 export type { VaultNamesListedContextActorSource } from './common/interfaces/vault-names-listed-context-actor-source.interface';
+
+export type {
+  RedirectUriInput,
+  RedirectUriInputResponse,
+} from './connect/interfaces/redirect-uri-input.interface';

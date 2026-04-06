@@ -13,3 +13,5 @@ export * from './user-consent-option-choice.interface';
 export * from './user-consent-option.interface';
 export * from './user-management-login-request.interface';
 export * from './user-object.interface';
+
+export * from './redirect-uri-input.interface';

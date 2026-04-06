@@ -15,10 +15,10 @@ export * from './audit-logs-retention-json.interface';
 
 export * from './organization-domain-data.interface';
 
-export * from './organization-dto.interface';
-
 export * from './organizations-order.interface';
 
 export * from './update-audit-logs-retention.interface';
 
 export * from './update-organization.interface';
+
+export * from './organization-input.interface';

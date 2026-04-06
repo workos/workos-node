@@ -4,4 +4,3 @@ export {
   deserializeApiKeyWithValueOwner as deserializeApiKeyOwner,
   serializeApiKeyWithValueOwner as serializeApiKeyOwner,
 } from './api-key-with-value-owner.serializer';
-

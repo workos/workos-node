@@ -118,7 +118,6 @@ export * from './update-user-organization-membership.interface';
 
 export * from './update-user.interface';
 
-
 export * from './user-identities-get-item.interface';
 
 export * from './user-invite.interface';

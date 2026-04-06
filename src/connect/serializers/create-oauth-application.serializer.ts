@@ -5,9 +5,9 @@ import type {
   CreateOAuthApplicationResponse,
 } from '../interfaces/create-oauth-application.interface';
 import {
-  deserializeRedirectUriDto,
-  serializeRedirectUriDto,
-} from './redirect-uri-dto.serializer';
+  deserializeRedirectUriInput,
+  serializeRedirectUriInput,
+} from './redirect-uri-input.serializer';
 
 export const deserializeCreateOAuthApplication = (
   response: CreateOAuthApplicationResponse,
@@ -18,7 +18,7 @@ export const deserializeCreateOAuthApplication = (
   scopes: response.scopes ?? null,
   redirectUris:
     response.redirect_uris != null
-      ? response.redirect_uris.map(deserializeRedirectUriDto)
+      ? response.redirect_uris.map(deserializeRedirectUriInput)
       : null,
   usesPkce: response.uses_pkce ?? null,
   isFirstParty: response.is_first_party,
@@ -34,7 +34,7 @@ export const serializeCreateOAuthApplication = (
   scopes: model.scopes ?? null,
   redirect_uris:
     model.redirectUris != null
-      ? model.redirectUris.map(serializeRedirectUriDto)
+      ? model.redirectUris.map(serializeRedirectUriInput)
       : null,
   uses_pkce: model.usesPkce ?? null,
   is_first_party: model.isFirstParty,

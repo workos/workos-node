@@ -798,7 +798,6 @@ export * from './invitation-revoked-data.interface';
 
 export * from './invitation-revoked.interface';
 
-
 export * from './magic-auth-created-context-actor-source.interface';
 
 export * from './magic-auth-created-context-actor.interface';
