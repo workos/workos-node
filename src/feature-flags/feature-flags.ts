@@ -109,6 +109,7 @@ export class FeatureFlags {
    * @example "beta-feature"
    * @returns {void}
    * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
   async addFlagTarget(options: AddFlagTargetOptions): Promise<void> {
@@ -126,6 +127,7 @@ export class FeatureFlags {
    * @example "beta-feature"
    * @returns {void}
    * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
   async removeFlagTarget(options: RemoveFlagTargetOptions): Promise<void> {

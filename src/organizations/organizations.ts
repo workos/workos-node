@@ -74,12 +74,12 @@ export class Organizations {
   }
 
   /**
-   * Create an Organization Domain
+   * List Organizations
    *
-   * Creates a new Organization Domain.
-   * @param payload - Object containing domain, organizationId.
-   * @returns {OrganizationDomain}
-   * @throws {ConflictException} 409
+   * Get a list of all of your existing organizations matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<Organization>}
+   * @throws {UnprocessableEntityException} 422
    */
   async createOrganization(
     payload: CreateOrganizationOptions,
@@ -101,18 +101,19 @@ export class Organizations {
    * @param id - Unique identifier of the Organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @returns {void}
+   * @throws {AuthorizationException} 403
    */
   async deleteOrganization(id: string) {
     await this.workos.delete(`/organizations/${id}`);
   }
 
   /**
-   * Get an Organization Domain
+   * Get an Organization
    *
-   * Get the details of an existing organization domain.
-   * @param id - Unique identifier of the organization domain.
-   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {OrganizationDomainStandAlone}
+   * Get the details of an existing organization.
+   * @param id - Unique identifier of the Organization.
+   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @returns {Organization}
    * @throws {NotFoundException} 404
    */
   async getOrganization(id: string): Promise<Organization> {
@@ -149,6 +150,7 @@ export class Organizations {
    * @param payload - The request body.
    * @returns {Organization}
    * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422

@@ -3,5 +3,4 @@
 export * from './create-webhook-endpoint.interface';
 export * from './update-webhook-endpoint.interface';
 export * from './webhook-endpoint-json.interface';
-
 export * from './webhooks-order.interface';

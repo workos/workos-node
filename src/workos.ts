@@ -64,6 +64,7 @@ import { UserManagementRedirectUris } from './user-management/user-management-re
 import { UserManagementUsersFeatureFlags } from './user-management-users-feature-flags/user-management-users-feature-flags';
 import { UserManagementUsersAuthorizedApplications } from './user-management/user-management-users-authorized-applications';
 import { UserManagementDataProviders } from './user-management/user-management-data-providers';
+import { MultiFactorAuth } from './multi-factor-auth/multi-factor-auth';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -548,4 +549,5 @@ export class WorkOS {
   readonly userManagementUsersAuthorizedApplications =
     new UserManagementUsersAuthorizedApplications(this);
   readonly userManagementDataProviders = new UserManagementDataProviders(this);
+  readonly multiFactorAuth = new MultiFactorAuth(this);
 }

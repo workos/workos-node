@@ -4,3 +4,8 @@ export {
   deserializeAuthenticateResponseImpersonator as deserializeUserSessionsImpersonator,
   serializeAuthenticateResponseImpersonator as serializeUserSessionsImpersonator,
 } from './authenticate-response-impersonator.serializer';
+
+export {
+  deserializeSessionCreatedDataImpersonator as deserializeAuthenticateResponseImpersonator,
+  serializeSessionCreatedDataImpersonator as serializeAuthenticateResponseImpersonator,
+} from '../../common/serializers/session-created-data-impersonator.serializer';

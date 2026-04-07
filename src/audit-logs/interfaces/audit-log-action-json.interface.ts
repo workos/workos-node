@@ -10,6 +10,7 @@ export interface AuditLogActionJson {
   object: 'audit_log_action';
   /** Identifier of what action was taken. */
   name: string;
+  /** The schema associated with the action. */
   schema: AuditLogSchemaJson;
   /** An ISO 8601 timestamp. */
   createdAt: string;

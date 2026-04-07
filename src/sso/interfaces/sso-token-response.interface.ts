@@ -13,6 +13,7 @@ export interface SSOTokenResponse {
   accessToken: string;
   /** The lifetime of the access token in seconds. */
   expiresIn: number;
+  /** The user profile returned by the identity provider. */
   profile: Profile<Record<string, unknown>>;
   /** OAuth tokens issued by the identity provider, if available. */
   oauthTokens?: SSOTokenResponseOAuthToken;

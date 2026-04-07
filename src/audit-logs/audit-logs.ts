@@ -102,13 +102,14 @@ export class AuditLogs {
   }
 
   /**
-   * Create Schema
+   * List Schemas
    *
-   * Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
+   * Get a list of all schemas for the Audit Logs action identified by `:name`.
    * @param actionName - The name of the Audit Log action.
    * @example "user.logged_in"
-   * @param payload - Object containing targets.
-   * @returns {AuditLogSchemaJson}
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<AuditLogSchemaJson>}
+   * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async createSchema(

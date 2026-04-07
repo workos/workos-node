@@ -165,6 +165,8 @@ import { serializeSendInvitationOptions } from './serializers/send-invitation-op
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
+import type { UserManagementAuthenticationScreenHint } from './interfaces/user-management-authentication-screen-hint.interface';
+import type { UserManagementAuthenticationProvider } from './interfaces/user-management-authentication-provider.interface';
 
 export class UserManagement {
   private _jwks:
@@ -287,13 +289,11 @@ export class UserManagement {
   }
 
   /**
-   * Create a user
+   * List users
    *
-   * Create a new user in the current environment.
-   * @param payload - Object containing email.
-   * @returns {User}
-   * @throws {BadRequestException} 400
-   * @throws {NotFoundException} 404
+   * Get a list of all of your existing users matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<User>}
    * @throws {UnprocessableEntityException} 422
    */
   async createUser(payload: CreateUserOptions): Promise<User> {
@@ -305,17 +305,7 @@ export class UserManagement {
     return deserializeUser(data);
   }
 
-  /**
-   * Authenticate
-   *
-   * Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
-   * @param payload - The request body.
-   * @returns {AuthenticateResponse}
-   * @throws {BadRequestException} 400
-   * @throws {NotFoundException} 404
-   * @throws {UnprocessableEntityException} 422
-   * @throws {RateLimitExceededException} 429
-   */
+  /** Authenticate with magic auth. */
   async authenticateWithMagicAuth(
     payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
@@ -340,6 +330,7 @@ export class UserManagement {
     });
   }
 
+  /** Authenticate with password. */
   async authenticateWithPassword(
     payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
@@ -364,19 +355,7 @@ export class UserManagement {
     });
   }
 
-  /**
-   * Exchange an authorization code for tokens.
-   *
-   * Auto-detects public vs confidential client mode:
-   * - If codeVerifier is provided: Uses PKCE flow (public client)
-   * - If no codeVerifier: Uses client_secret from API key (confidential client)
-   * - If both: Uses both client_secret AND codeVerifier (confidential client with PKCE)
-   *
-   * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
-   * in depth and provides additional CSRF protection on the authorization flow.
-   *
-   * @throws Error if neither codeVerifier nor API key is available
-   */
+  /** Authenticate with code. */
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
@@ -422,13 +401,16 @@ export class UserManagement {
   }
 
   /**
-   * Exchange an authorization code for tokens using PKCE (public client flow).
-   * Use this instead of authenticateWithCode() when the client cannot securely
-   * store a client_secret (browser, mobile, CLI, desktop apps).
+   * Authenticate
    *
-   * @param payload.clientId - Your WorkOS client ID
-   * @param payload.code - The authorization code from the OAuth callback
-   * @param payload.codeVerifier - The PKCE code verifier used to generate the code challenge
+   * Authenticate a user with a specified [authentication method](https://workos.com/docs/reference/authkit/authentication).
+   * @param payload - The request body.
+   * @returns {AuthenticateResponse}
+   * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   * @throws {RateLimitExceededException} 429
    */
   async authenticateWithCodeAndVerifier(
     payload: AuthenticateWithCodeAndVerifierOptions,
@@ -454,11 +436,7 @@ export class UserManagement {
     });
   }
 
-  /**
-   * Refresh an access token using a refresh token.
-   * Automatically detects public client mode - if no API key is configured,
-   * omits client_secret from the request.
-   */
+  /** Authenticate with refresh token. */
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
@@ -491,6 +469,7 @@ export class UserManagement {
     });
   }
 
+  /** Authenticate with totp. */
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
@@ -515,6 +494,7 @@ export class UserManagement {
     });
   }
 
+  /** Authenticate with email verification. */
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
@@ -539,6 +519,7 @@ export class UserManagement {
     });
   }
 
+  /** Authenticate with organization selection. */
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
@@ -824,7 +805,7 @@ export class UserManagement {
    * @param id - The ID of the user.
    * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @param payload - Object containing code.
-   * @returns {VerifyEmailResponse}
+   * @returns {SendVerificationEmailResponse}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -866,6 +847,7 @@ export class UserManagement {
    * Creates a one-time token that can be used to reset a user's password.
    * @param payload - Object containing email.
    * @returns {PasswordReset}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
@@ -891,8 +873,9 @@ export class UserManagement {
    *
    * Sets a new password using the `token` query parameter from the link that the user received. Successfully resetting the password will verify a user's email, if it hasn't been verified yet.
    * @param payload - Object containing token, newPassword.
-   * @returns {ResetPasswordResponse}
+   * @returns {SendVerificationEmailResponse}
    * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -1147,13 +1130,11 @@ export class UserManagement {
   }
 
   /**
-   * Create an organization membership
+   * List organization memberships
    *
-   * Creates a new `active` organization membership for the given organization and user.
-   *
-   * Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
-   * @param payload - Object containing userId, organizationId.
-   * @returns {OrganizationMembership}
+   * Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<UserOrganizationMembership>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1436,14 +1417,11 @@ export class UserManagement {
   }
 
   /**
-   * Generate an OAuth 2.0 authorization URL.
+   * Get an authorization URL
    *
-   * For public clients (browser, mobile, CLI), include PKCE parameters:
-   * - Generate PKCE using workos.pkce.generate()
-   * - Pass codeChallenge and codeChallengeMethod here
-   * - Store codeVerifier and pass to authenticateWithCode() later
-   *
-   * Or use getAuthorizationUrlWithPKCE() which handles PKCE automatically.
+   * Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
+   * @param options - Additional query options.
+   * @returns {void}
    */
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
     const {
@@ -1676,4 +1654,46 @@ export interface UserManagementListOptions extends PaginationOptions {
   organizationId?: string;
   /** The email address of the recipient. */
   email?: string;
+}
+
+export interface GetAuthorizationUrlOptions {
+  /** The only valid PKCE code challenge method is `"S256"`. Required when specifying a `code_challenge`. */
+  codeChallengeMethod?: 'S256';
+  /** Code challenge derived from the code verifier used for the PKCE flow. */
+  codeChallenge?: string;
+  /** A domain hint for SSO connection lookup. */
+  domainHint?: string;
+  /** The ID of an SSO connection to use for authentication. */
+  connectionId?: string;
+  /** Key/value pairs of query parameters to pass to the OAuth provider. */
+  providerQueryParams?: Record<string, string>;
+  /** Additional OAuth scopes to request from the identity provider. */
+  providerScopes?: string[];
+  /** A token representing a user invitation to redeem during authentication. */
+  invitationToken?: string;
+  /** Used to specify which screen to display when the provider is `authkit`. */
+  screenHint?: UserManagementAuthenticationScreenHint;
+  /** A hint to the authorization server about the login identifier the user might use. */
+  loginHint?: string;
+  /** The OAuth provider to authenticate with (e.g., GoogleOAuth, MicrosoftOAuth, GitHubOAuth). */
+  provider?: UserManagementAuthenticationProvider;
+  /** Controls the authentication flow behavior for the user. */
+  prompt?: string;
+  /** An opaque value used to maintain state between the request and the callback. */
+  state?: string;
+  /** The ID of the organization to authenticate the user against. */
+  organizationId?: string;
+  /** The response type of the application. */
+  responseType: 'code';
+  /** The callback URI where the authorization code will be sent after authentication. */
+  redirectUri: string;
+  /** The unique identifier of the WorkOS environment client. */
+  clientId: string;
+}
+
+export interface GetLogoutUrlOptions {
+  /** The ID of the session to revoke. This can be extracted from the `sid` claim of the access token. */
+  sessionId: string;
+  /** The URL to redirect the user to after session revocation. */
+  returnTo?: string;
 }

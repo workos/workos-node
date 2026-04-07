@@ -33,6 +33,7 @@ export class DirectorySync {
    * Get a list of all of your existing directories matching the criteria specified.
    * @param options - Pagination and filter options.
    * @returns {AutoPaginatable<Directory>}
+   * @throws {AuthorizationException} 403
    * @throws {UnprocessableEntityException} 422
    */
   async listDirectories(
@@ -63,6 +64,7 @@ export class DirectorySync {
    * @param id - Unique identifier for the Directory.
    * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
    * @returns {Directory}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
   async getDirectory(id: string): Promise<Directory> {
@@ -80,6 +82,7 @@ export class DirectorySync {
    * @param id - Unique identifier for the Directory.
    * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
    * @returns {void}
+   * @throws {AuthorizationException} 403
    */
   async deleteDirectory(id: string) {
     await this.workos.delete(`/directories/${id}`);
@@ -91,6 +94,7 @@ export class DirectorySync {
    * Get a list of all of existing directory groups matching the criteria specified.
    * @param options - Pagination and filter options.
    * @returns {AutoPaginatable<DirectoryGroup>}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -121,6 +125,7 @@ export class DirectorySync {
    * Get a list of all of existing Directory Users matching the criteria specified.
    * @param options - Pagination and filter options.
    * @returns {AutoPaginatable<DirectoryUserWithGroups>}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
@@ -164,6 +169,7 @@ export class DirectorySync {
    * @param id - Unique identifier for the Directory User.
    * @example "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"
    * @returns {DirectoryUserWithGroups}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
@@ -183,6 +189,7 @@ export class DirectorySync {
    * @param id - Unique identifier for the Directory Group.
    * @example "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"
    * @returns {DirectoryGroup}
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
   async getGroup(group: string): Promise<DirectoryGroup> {

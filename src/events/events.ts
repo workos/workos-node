@@ -15,7 +15,7 @@ export class Events {
    *
    * List events for the current environment.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<Event>}
+   * @returns {AutoPaginatable<EventSchema>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
    */
