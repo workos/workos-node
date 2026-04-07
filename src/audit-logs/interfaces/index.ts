@@ -33,6 +33,4 @@ export * from './audit-log-schema-json.interface';
 
 export * from './audit-log-schema-target.interface';
 
-export * from './audit-logs-retention-json.interface';
-
-export * from './update-audit-logs-retention.interface';
+export * from './audit-logs-order.interface';

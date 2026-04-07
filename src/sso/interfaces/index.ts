@@ -12,11 +12,17 @@ export type { SSOPKCEAuthorizationURLResult } from './authorization-url-options.
 
 export * from './connection-option.interface';
 
+export * from './connections-connection-type.interface';
+
+export * from './connections-order.interface';
+
 export * from './sso-authorize-url-response.interface';
 
 export * from './sso-logout-authorize-request.interface';
 
 export * from './sso-logout-authorize-response.interface';
+
+export * from './sso-provider.interface';
 
 export * from './sso-token-response-oauth-token.interface';
 

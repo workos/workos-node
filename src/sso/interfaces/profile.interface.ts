@@ -24,6 +24,7 @@ export interface Profile<CustomAttributesType extends UnknownRecord> {
   lastName?: string;
   /** The role assigned to the user within the organization, if applicable. */
   role?: RoleResponse;
+  /** The roles assigned to the user within the organization, if applicable. */
   roles?: RoleResponse[];
   /** The groups the user belongs to, as returned by the identity provider. */
   groups?: string[];

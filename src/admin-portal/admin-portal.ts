@@ -19,6 +19,7 @@ export class AdminPortal {
    * @param payload - Object containing organization.
    * @returns {PortalLinkResponse}
    * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */

@@ -43,12 +43,22 @@ export * from './authorization-organization-roles-update-priority-order-item.int
 
 export * from './check-authorization.interface';
 
+export * from './authorization-assignment.interface';
+
+export * from './authorization-order.interface';
+
+export * from './authorization-permission.interface';
+
+export * from './create-authorization-permission.interface';
 export * from './create-authorization-resource.interface';
 
 export * from './create-organization-role.interface';
 
 export * from './create-role.interface';
 
+export * from './list-data.interface';
+
+export * from './permissions-order.interface';
 export * from './remove-role.interface';
 
 export * from './set-role-permissions.interface';
@@ -58,6 +68,8 @@ export * from './slim-role.interface';
 export * from './update-authorization-resource.interface';
 
 export * from './update-organization-role-priority-order.interface';
+
+export * from './update-authorization-permission.interface';
 
 export * from './update-organization-role.interface';
 

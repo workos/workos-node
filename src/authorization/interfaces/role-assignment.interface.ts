@@ -21,6 +21,7 @@ export interface RoleAssignment {
   object: 'role_assignment';
   /** Unique identifier of the role assignment. */
   id: string;
+  /** The role included in the assignment. */
   role: RoleAssignmentRole;
   /** The resource to which the role is assigned. */
   resource: RoleAssignmentResource;

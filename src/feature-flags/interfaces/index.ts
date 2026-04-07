@@ -7,6 +7,12 @@ export * from './remove-flag-target-options.interface';
 
 export * from './feature-flag-owner.interface';
 
+export * from './feature-flags-order.interface';
+
 export * from './flag-owner.interface';
 
 export * from './flag.interface';
+
+export * from './organizations-feature-flags-order.interface';
+
+export * from './user-management-users-feature-flags-order.interface';

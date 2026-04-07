@@ -28,3 +28,13 @@ export class Pipes {
     return deserializeGetAccessTokenResponse(data);
   }
 }
+
+export interface GetUserConnectedAccountOptions {
+  /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization. */
+  organizationId?: string;
+}
+
+export interface ListUserDataProvidersOptions {
+  /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to filter connections for a specific organization. */
+  organizationId?: string;
+}

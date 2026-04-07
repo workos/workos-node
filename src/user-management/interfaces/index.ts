@@ -62,6 +62,8 @@ export * from './authorized-connect-application-list-data.interface';
 
 export * from './connected-account.interface';
 
+export * from './confirm-email-change.interface';
+
 export * from './cors-origin-response.interface';
 
 export * from './create-cors-origin.interface';
@@ -90,6 +92,12 @@ export * from './device-authorization-response.interface';
 
 export * from './enroll-user-authentication-factor.interface';
 
+export * from './email-change-confirmation-user.interface';
+
+export * from './email-change-confirmation.interface';
+
+export * from './email-change.interface';
+
 export * from './jwks-response-keys.interface';
 
 export * from './jwks-response.interface';
@@ -97,7 +105,6 @@ export * from './jwks-response.interface';
 export * from './jwt-template-response.interface';
 
 export * from './password-session-authenticate-request.interface';
-
 export * from './refresh-token-session-authenticate-request.interface';
 
 export * from './resend-user-invite-options.interface';
@@ -106,6 +113,7 @@ export * from './reset-password-response.interface';
 
 export * from './revoke-session.interface';
 
+export * from './send-email-change.interface';
 export * from './send-verification-email-response.interface';
 
 export * from './sso-device-authorization-request.interface';
@@ -127,11 +135,23 @@ export * from './urn-workos-oauth-grant-type-mfa-totp-session-authenticate-reque
 export * from './urn-workos-oauth-grant-type-organization-selection-session-authenticate-request.interface';
 
 export * from './user-authentication-factor-enroll-response.interface';
-
 export * from './user-identities-get-item.interface';
 
 export * from './user-invite.interface';
 
+export * from './user-management-authentication-provider.interface';
+
+export * from './user-management-authentication-screen-hint.interface';
+
+export * from './user-management-invitations-order.interface';
+
+export * from './user-management-organization-membership-order.interface';
+
+export * from './user-management-organization-membership-statuses.interface';
+
+export * from './user-management-users-authorized-applications-order.interface';
+
+export * from './user-management-users-order.interface';
 export * from './user-organization-membership.interface';
 
 export * from './user-sessions-impersonator.interface';
@@ -141,3 +161,13 @@ export * from './user-sessions-list-item.interface';
 export * from './verify-email-address.interface';
 
 export * from './verify-email-response.interface';
+
+export * from './device-code-session-authenticate-request.interface';
+
+export * from './email-verification-code-session-authenticate-request.interface';
+
+export * from './magic-auth-code-session-authenticate-request.interface';
+
+export * from './mfa-totp-session-authenticate-request.interface';
+
+export * from './organization-selection-session-authenticate-request.interface';

@@ -3,3 +3,7 @@
 export * from './list-events-options.interface';
 
 export * from './event-list-list-metadata.interface';
+
+export * from './event-schema.interface';
+
+export * from './events-order.interface';

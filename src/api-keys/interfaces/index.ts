@@ -9,3 +9,11 @@ export * from './validate-api-key.interface';
 export * from './api-key-owner.interface';
 
 export * from './api-key-validation-response.interface';
+
+export * from './api-key-with-value-owner.interface';
+
+export * from './api-key-with-value.interface';
+
+export * from './create-organization-api-key.interface';
+
+export * from './organizations-api-keys-order.interface';
