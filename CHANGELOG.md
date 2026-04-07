@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.12.1](https://github.com/workos/workos-node/compare/v8.12.0...v8.12.1) (2026-04-07)
+
+
+### Bug Fixes
+
+* **events:** handle domain verification failed ([#1543](https://github.com/workos/workos-node/issues/1543)) ([0f3f1ce](https://github.com/workos/workos-node/commit/0f3f1ceef4a6da35ce3caf434835f0ec0ae2b827))
+
 ## [8.12.0](https://github.com/workos/workos-node/compare/v8.11.1...v8.12.0) (2026-04-06)
 
 
