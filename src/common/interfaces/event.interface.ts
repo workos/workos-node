@@ -44,6 +44,8 @@ import {
 import {
   OrganizationDomain,
   OrganizationDomainResponse,
+  OrganizationDomainVerificationFailed,
+  OrganizationDomainVerificationFailedResponse,
 } from '../../organization-domains/interfaces';
 import {
   AuthenticationRadarRiskDetectedEventData,
@@ -656,12 +658,12 @@ export interface OrganizationDomainVerifiedEventResponse extends EventResponseBa
 
 export interface OrganizationDomainVerificationFailedEvent extends EventBase {
   event: 'organization_domain.verification_failed';
-  data: OrganizationDomain;
+  data: OrganizationDomainVerificationFailed;
 }
 
 export interface OrganizationDomainVerificationFailedEventResponse extends EventResponseBase {
   event: 'organization_domain.verification_failed';
-  data: OrganizationDomainResponse;
+  data: OrganizationDomainVerificationFailedResponse;
 }
 
 export interface OrganizationDomainCreatedEvent extends EventBase {
