@@ -23,7 +23,7 @@ export interface AuthenticationFactor {
   /** SMS-based authentication factor details. */
   sms?: AuthenticationFactorSms;
   /** TOTP-based authentication factor details. */
-  totp?: AuthenticationFactorTotp | AuthenticationFactorTotp;
+  totp?: AuthenticationFactorTotp;
   /** An ISO 8601 timestamp. */
   createdAt: string;
   /** An ISO 8601 timestamp. */
@@ -36,7 +36,7 @@ export interface AuthenticationFactorResponse {
   type: AuthenticationFactorType;
   user_id?: string;
   sms?: AuthenticationFactorSmsResponse;
-  totp?: AuthenticationFactorTotpResponse | AuthenticationFactorTotpResponse;
+  totp?: AuthenticationFactorTotpResponse;
   created_at: string;
   updated_at: string;
 }
