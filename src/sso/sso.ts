@@ -239,15 +239,18 @@ export class SSO {
   }
 
   /**
-   * Get a Profile and Token
+   * Exchange an authorization code for a profile and access token.
    *
-   * Get an access token along with the user [Profile](https://workos.com/docs/reference/sso/profile) using the code passed to your [Redirect URI](https://workos.com/docs/reference/sso/get-authorization-url/redirect-uri).
-   * @param payload - Object containing clientId, clientSecret, code, grantType.
-   * @param options - Additional query options.
-   * @returns {SSOTokenResponse}
-   * @throws {BadRequestException} 400
-   * @throws {NotFoundException} 404
-   * @throws {UnprocessableEntityException} 422
+   * Auto-detects public vs confidential client mode:
+   * - If codeVerifier is provided: Uses PKCE flow (public client)
+   * - If no codeVerifier: Uses client_secret from API key (confidential client)
+   * - If both: Uses both client_secret AND codeVerifier (confidential client with PKCE)
+   *
+   * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
+   * in depth and provides additional CSRF protection on the authorization flow.
+   *
+   * @throws Error if neither codeVerifier nor API key is available
+   * @oagen-ignore
    */
   async getProfileAndToken<
     CustomAttributesType extends UnknownRecord = UnknownRecord,
