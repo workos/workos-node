@@ -22,7 +22,7 @@ export class WebhooksEndpoints {
    *
    * Get a list of all of your existing webhook endpoints.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<WebhookEndpointJson>}
+   * @returns {Promise<AutoPaginatable<WebhookEndpointJson, PaginationOptions>>}
    */
   async listWebhookEndpoints(
     options?: PaginationOptions,
@@ -44,7 +44,7 @@ export class WebhooksEndpoints {
    *
    * Create a new webhook endpoint to receive event notifications.
    * @param payload - Object containing endpointUrl, events.
-   * @returns {WebhookEndpointJson}
+   * @returns {Promise<WebhookEndpointJson>}
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
    */
@@ -65,7 +65,7 @@ export class WebhooksEndpoints {
    * @param id - Unique identifier of the Webhook Endpoint.
    * @example "we_0123456789"
    * @param payload - The request body.
-   * @returns {WebhookEndpointJson}
+   * @returns {Promise<WebhookEndpointJson>}
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
@@ -87,7 +87,7 @@ export class WebhooksEndpoints {
    * Delete an existing webhook endpoint.
    * @param id - Unique identifier of the Webhook Endpoint.
    * @example "we_0123456789"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteWebhookEndpoint(id: string): Promise<void> {

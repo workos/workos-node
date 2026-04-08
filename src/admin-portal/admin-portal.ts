@@ -17,7 +17,7 @@ export class AdminPortal {
    *
    * Generate a Portal Link scoped to an Organization.
    * @param payload - Object containing organization.
-   * @returns {PortalLinkResponse}
+   * @returns {Promise<PortalLinkResponse>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404

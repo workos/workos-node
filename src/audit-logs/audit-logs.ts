@@ -38,7 +38,7 @@ export class AuditLogs {
    *
    * Idempotency keys expire after 24 hours. The API will generate a new response if you submit a request with an expired key.
    * @param payload - Object containing organizationId, event.
-   * @returns {AuditLogEventCreateResponse}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -72,7 +72,7 @@ export class AuditLogs {
    *
    * Create an Audit Log Export. Exports are scoped to a single organization within a specified date range.
    * @param payload - Object containing organizationId, rangeStart, rangeEnd.
-   * @returns {AuditLogExportJson}
+   * @returns {Promise<AuditLogExport>}
    * @throws {BadRequestException} 400
    */
   async createExport(options: AuditLogExportOptions): Promise<AuditLogExport> {
@@ -90,7 +90,7 @@ export class AuditLogs {
    * Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
    * @param auditLogExportId - The unique ID of the Audit Log Export.
    * @example "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V"
-   * @returns {AuditLogExportJson}
+   * @returns {Promise<AuditLogExport>}
    * @throws {NotFoundException} 404
    */
   async getExport(auditLogExportId: string): Promise<AuditLogExport> {
@@ -102,14 +102,11 @@ export class AuditLogs {
   }
 
   /**
-   * List Schemas
+   * Create Schema
    *
-   * Get a list of all schemas for the Audit Logs action identified by `:name`.
-   * @param actionName - The name of the Audit Log action.
-   * @example "user.logged_in"
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuditLogSchemaJson>}
-   * @throws {NotFoundException} 404
+   * Creates a new Audit Log schema used to validate the payload of incoming Audit Log Events. If the `action` does not exist, it will also be created.
+   * @param payload - Object containing targets.
+   * @returns {Promise<AuditLogSchema>}
    * @throws {UnprocessableEntityException} 422
    */
   async createSchema(

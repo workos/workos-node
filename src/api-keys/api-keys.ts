@@ -16,7 +16,7 @@ export class ApiKeys {
    *
    * Validate an API key value and return the API key object if valid.
    * @param payload - Object containing value.
-   * @returns {ApiKeyValidationResponse}
+   * @returns {Promise<ApiKeyValidationResponse>}
    * @throws {UnauthorizedException} 401
    * @throws {UnprocessableEntityException} 422
    */
@@ -37,7 +37,7 @@ export class ApiKeys {
    * Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
    * @param id - The unique ID of the API key.
    * @example "api_key_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteApiKey(id: string): Promise<void> {

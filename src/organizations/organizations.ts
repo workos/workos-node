@@ -49,7 +49,7 @@ export class Organizations {
    *
    * Get a list of all of your existing organizations matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<Organization>}
+   * @returns {Promise<AutoPaginatable<Organization, ListOrganizationsOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listOrganizations(
@@ -78,7 +78,7 @@ export class Organizations {
    *
    * Creates a new organization in the current environment.
    * @param payload - Object containing name.
-   * @returns {Organization}
+   * @returns {Promise<Organization>}
    * @throws {BadRequestException} 400
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
@@ -102,7 +102,7 @@ export class Organizations {
    * Permanently deletes an organization in the current environment. It cannot be undone.
    * @param id - Unique identifier of the Organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    */
   async deleteOrganization(id: string) {
@@ -115,7 +115,7 @@ export class Organizations {
    * Get the details of an existing organization.
    * @param id - Unique identifier of the Organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @returns {Organization}
+   * @returns {Promise<Organization>}
    * @throws {NotFoundException} 404
    */
   async getOrganization(id: string): Promise<Organization> {
@@ -132,7 +132,7 @@ export class Organizations {
    * Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
    * @param externalId - The external ID of the Organization.
    * @example "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191"
-   * @returns {Organization}
+   * @returns {Promise<Organization>}
    * @throws {NotFoundException} 404
    */
   async getOrganizationByExternalId(externalId: string): Promise<Organization> {
@@ -148,7 +148,7 @@ export class Organizations {
    *
    * Updates an organization in the current environment.
    * @param payload - The request body.
-   * @returns {Organization}
+   * @returns {Promise<Organization>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404

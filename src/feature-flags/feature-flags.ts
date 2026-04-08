@@ -20,7 +20,7 @@ export class FeatureFlags {
    *
    * Get a list of all of your existing feature flags matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<Flag>}
+   * @returns {Promise<AutoPaginatable<FeatureFlag, PaginationOptions>>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -52,7 +52,7 @@ export class FeatureFlags {
    * Get the details of an existing feature flag by its slug.
    * @param slug - A unique key to reference the Feature Flag.
    * @example "advanced-analytics"
-   * @returns {Flag}
+   * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
   async getFeatureFlag(slug: string): Promise<FeatureFlag> {
@@ -69,7 +69,7 @@ export class FeatureFlags {
    * Enables a feature flag in the current environment.
    * @param slug - A unique key to reference the Feature Flag.
    * @example "advanced-analytics"
-   * @returns {FeatureFlag}
+   * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
   async enableFeatureFlag(slug: string): Promise<FeatureFlag> {
@@ -87,7 +87,7 @@ export class FeatureFlags {
    * Disables a feature flag in the current environment.
    * @param slug - A unique key to reference the Feature Flag.
    * @example "advanced-analytics"
-   * @returns {FeatureFlag}
+   * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
   async disableFeatureFlag(slug: string): Promise<FeatureFlag> {
@@ -103,11 +103,7 @@ export class FeatureFlags {
    * Add a feature flag target
    *
    * Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
-   * @param resourceId - The resource ID in format "user_<id>" or "org_<id>".
-   * @example "user_01234567890abcdef"
-   * @param slug - The unique slug identifier of the feature flag.
-   * @example "beta-feature"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -121,11 +117,7 @@ export class FeatureFlags {
    * Remove a feature flag target
    *
    * Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
-   * @param resourceId - The resource ID in format "user_<id>" or "org_<id>".
-   * @example "user_01234567890abcdef"
-   * @param slug - The unique slug identifier of the feature flag.
-   * @example "beta-feature"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404

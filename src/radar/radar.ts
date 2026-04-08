@@ -28,7 +28,7 @@ export class Radar {
    *
    * Assess a request for risk using the Radar engine and receive a verdict.
    * @param payload - Object containing ipAddress, userAgent, email, authMethod, action.
-   * @returns {RadarStandaloneResponse}
+   * @returns {Promise<RadarStandaloneResponse>}
    * @throws {BadRequestException} 400
    */
   async assess(
@@ -48,7 +48,7 @@ export class Radar {
    * @param id - The unique identifier of the Radar attempt to update.
    * @example "radar_att_01HZBC6N1EB1ZY7KG32X"
    * @param payload - The request body.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    */

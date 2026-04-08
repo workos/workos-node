@@ -32,7 +32,7 @@ export class DirectorySync {
    *
    * Get a list of all of your existing directories matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<Directory>}
+   * @returns {Promise<AutoPaginatable<Directory, SerializedListDirectoriesOptions>>}
    * @throws {AuthorizationException} 403
    * @throws {UnprocessableEntityException} 422
    */
@@ -63,7 +63,7 @@ export class DirectorySync {
    * Get the details of an existing directory.
    * @param id - Unique identifier for the Directory.
    * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
-   * @returns {Directory}
+   * @returns {Promise<Directory>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -81,7 +81,7 @@ export class DirectorySync {
    * Permanently deletes an existing directory. It cannot be undone.
    * @param id - Unique identifier for the Directory.
    * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    */
   async deleteDirectory(id: string) {
@@ -93,7 +93,7 @@ export class DirectorySync {
    *
    * Get a list of all of existing directory groups matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<DirectoryGroup>}
+   * @returns {Promise<AutoPaginatable<DirectoryGroup, ListDirectoryGroupsOptions>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -124,7 +124,7 @@ export class DirectorySync {
    *
    * Get a list of all of existing Directory Users matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<DirectoryUserWithGroups>}
+   * @returns {Promise<AutoPaginatable<DirectoryUserWithGroups<TCustomAttributes>, ListDirectoryUsersOptions>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -166,9 +166,7 @@ export class DirectorySync {
    * Get a Directory User
    *
    * Get the details of an existing Directory User.
-   * @param id - Unique identifier for the Directory User.
-   * @example "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"
-   * @returns {DirectoryUserWithGroups}
+   * @returns {Promise<DirectoryUserWithGroups<TCustomAttributes>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -186,9 +184,7 @@ export class DirectorySync {
    * Get a Directory Group
    *
    * Get the details of an existing Directory Group.
-   * @param id - Unique identifier for the Directory Group.
-   * @example "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"
-   * @returns {DirectoryGroup}
+   * @returns {Promise<DirectoryGroup>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */

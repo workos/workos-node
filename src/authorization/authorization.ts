@@ -92,8 +92,13 @@ export class Authorization {
    * Create an environment role
    *
    * Create a new environment role.
-   * @param options - Object containing slug, name.
-   * @returns {EnvironmentRole}
+   * @param payload - Object containing slug, name.
+   * @returns {Promise<EnvironmentRole>}
+   * @throws {BadRequestException} 400
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   * @throws {ConflictException} 409
+   * @throws {UnprocessableEntityException} 422
    */
   async createEnvironmentRole(
     options: CreateEnvironmentRoleOptions,
@@ -109,7 +114,8 @@ export class Authorization {
    * List environment roles
    *
    * List all environment roles in priority order.
-   * @returns {EnvironmentRoleList}
+   * @returns {Promise<EnvironmentRoleList>}
+   * @throws {AuthorizationException} 403
    */
   async listEnvironmentRoles(): Promise<EnvironmentRoleList> {
     const { data } = await this.workos.get<EnvironmentRoleListResponse>(
@@ -127,7 +133,7 @@ export class Authorization {
    * Get an environment role by its slug.
    * @param slug - The slug of the environment role.
    * @example "admin"
-   * @returns {Role}
+   * @returns {Promise<EnvironmentRole>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -145,7 +151,7 @@ export class Authorization {
    * @param slug - The slug of the environment role.
    * @example "admin"
    * @param payload - The request body.
-   * @returns {Role}
+   * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -163,13 +169,13 @@ export class Authorization {
   }
 
   /**
-   * Add a permission to an environment role
+   * Set permissions for an environment role
    *
-   * Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
+   * Replace all permissions on an environment role with the provided list.
    * @param slug - The slug of the environment role.
    * @example "admin"
-   * @param payload - Object containing slug.
-   * @returns {Role}
+   * @param payload - Object containing permissions.
+   * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -187,13 +193,13 @@ export class Authorization {
   }
 
   /**
-   * Set permissions for an environment role
+   * Add a permission to an environment role
    *
-   * Replace all permissions on an environment role with the provided list.
+   * Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
    * @param slug - The slug of the environment role.
    * @example "admin"
-   * @param payload - Object containing permissions.
-   * @returns {Role}
+   * @param payload - Object containing slug.
+   * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -217,7 +223,7 @@ export class Authorization {
    * @param organizationId - The ID of the organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param payload - Object containing name.
-   * @returns {Role}
+   * @returns {Promise<OrganizationRole>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -241,7 +247,7 @@ export class Authorization {
    * Get a list of all roles that apply to an organization. This includes both environment roles and organization-specific roles, returned in priority order.
    * @param organizationId - The ID of the organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @returns {RoleList}
+   * @returns {Promise<RoleList>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -263,7 +269,7 @@ export class Authorization {
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param slug - The slug of the role.
    * @example "org-billing-admin"
-   * @returns {Role}
+   * @returns {Promise<Role>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -286,7 +292,7 @@ export class Authorization {
    * @param slug - The slug of the role.
    * @example "org-billing-admin"
    * @param payload - The request body.
-   * @returns {Role}
+   * @returns {Promise<OrganizationRole>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -312,7 +318,7 @@ export class Authorization {
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param slug - The slug of the role.
    * @example "org-admin"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -390,7 +396,7 @@ export class Authorization {
    * @example "org-admin"
    * @param permissionSlug - The slug of the permission to remove.
    * @example "documents:read"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -409,7 +415,7 @@ export class Authorization {
    *
    * Create a new permission in your WorkOS environment. The permission can then be assigned to environment roles and organization roles.
    * @param payload - Object containing slug, name.
-   * @returns {Permission}
+   * @returns {Promise<Permission>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
@@ -431,7 +437,7 @@ export class Authorization {
    *
    * Get a list of all permissions in your WorkOS environment.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuthorizationPermission>}
+   * @returns {Promise<PermissionList>}
    * @throws {NotFoundException} 404
    * @deprecated Use `workos.permissions.list()` instead.
    */
@@ -458,7 +464,7 @@ export class Authorization {
    * Retrieve a permission by its unique slug.
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
    * @example "documents:read"
-   * @returns {AuthorizationPermission}
+   * @returns {Promise<Permission>}
    * @throws {NotFoundException} 404
    * @deprecated Use `workos.permissions.find()` instead.
    */
@@ -476,7 +482,7 @@ export class Authorization {
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
    * @example "documents:read"
    * @param payload - The request body.
-   * @returns {AuthorizationPermission}
+   * @returns {Promise<Permission>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -499,7 +505,7 @@ export class Authorization {
    * Delete an existing permission. System permissions cannot be deleted.
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
    * @example "documents:read"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @deprecated Use `workos.permissions.delete()` instead.
@@ -514,7 +520,7 @@ export class Authorization {
    * Retrieve the details of an authorization resource by its ID.
    * @param resourceId - The ID of the authorization resource.
    * @example "authz_resource_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {AuthorizationResource}
+   * @returns {Promise<AuthorizationResource>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -531,7 +537,7 @@ export class Authorization {
    *
    * Create a new authorization resource.
    * @param payload - Object containing externalId, name, resourceTypeSlug, organizationId.
-   * @returns {AuthorizationResource}
+   * @returns {Promise<AuthorizationResource>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -553,7 +559,7 @@ export class Authorization {
    *
    * Update an existing authorization resource.
    * @param payload - The request body.
-   * @returns {AuthorizationResource}
+   * @returns {Promise<AuthorizationResource>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -578,7 +584,7 @@ export class Authorization {
    * @default false
    * @example false
    * @param options - Additional query options.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -602,7 +608,7 @@ export class Authorization {
    *
    * Get a paginated list of authorization resources.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuthorizationResource>}
+   * @returns {Promise<AuthorizationResourceList>}
    * @throws {AuthorizationException} 403
    * @throws {UnprocessableEntityException} 422
    */
@@ -714,7 +720,7 @@ export class Authorization {
    *
    * Check if an organization membership has a specific permission on a resource. Supports identification by resource_id OR by resource_external_id + resource_type_slug.
    * @param payload - Object containing permissionSlug.
-   * @returns {AuthorizationCheck}
+   * @returns {Promise<AuthorizationCheckResult>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -736,7 +742,7 @@ export class Authorization {
    * @param organizationMembershipId - The ID of the organization membership.
    * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<RoleAssignment>}
+   * @returns {Promise<AutoPaginatable<RoleAssignment>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -762,10 +768,8 @@ export class Authorization {
    * Assign a role
    *
    * Assign a role to an organization membership on a specific resource.
-   * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param payload - Object containing roleSlug.
-   * @returns {RoleAssignment}
+   * @returns {Promise<RoleAssignment>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -782,10 +786,8 @@ export class Authorization {
    * Remove a role assignment
    *
    * Remove a role assignment by role slug and resource.
-   * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param payload - Object containing roleSlug.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -805,7 +807,7 @@ export class Authorization {
    * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param roleAssignmentId - The ID of the role assignment to remove.
    * @example "role_assignment_01HXYZ123456789ABCDEFGH"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -826,7 +828,7 @@ export class Authorization {
    * @param organizationMembershipId - The ID of the organization membership.
    * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuthorizationResource>}
+   * @returns {Promise<AutoPaginatable<AuthorizationResource>>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -857,7 +859,7 @@ export class Authorization {
    *
    * Returns all organization memberships that have a specific permission on a resource instance. This is useful for answering "Who can access this resource?".
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserOrganizationMembershipBaseListData>}
+   * @returns {Promise<AuthorizationOrganizationMembershipList>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -895,7 +897,7 @@ export class Authorization {
    * @param externalId - An identifier you provide to reference the resource in your system.
    * @example "proj-456"
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserOrganizationMembershipBaseListData>}
+   * @returns {Promise<AutoPaginatable<UserOrganizationMembershipBaseListData>>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404

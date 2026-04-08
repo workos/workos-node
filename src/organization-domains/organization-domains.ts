@@ -35,7 +35,7 @@ export class OrganizationDomains {
    * Initiates verification process for an Organization Domain.
    * @param id - Unique identifier of the organization domain.
    * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {OrganizationDomainStandAlone}
+   * @returns {Promise<OrganizationDomain>}
    * @throws {BadRequestException} 400
    */
   async verify(id: string): Promise<OrganizationDomain> {
@@ -52,7 +52,7 @@ export class OrganizationDomains {
    *
    * Creates a new Organization Domain.
    * @param payload - Object containing domain, organizationId.
-   * @returns {OrganizationDomain}
+   * @returns {Promise<OrganizationDomain>}
    * @throws {ConflictException} 409
    */
   async create(

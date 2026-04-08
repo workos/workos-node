@@ -58,7 +58,7 @@ export class Connect {
    *
    * If you provide a new `id` with an `email` that already belongs to an existing user, the request will fail with an error as email addresses are unique to a user.
    * @param payload - Object containing externalAuthId, user.
-   * @returns {ExternalAuthCompleteResponse}
+   * @returns {Promise<ExternalAuthCompleteResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -78,7 +78,7 @@ export class Connect {
    *
    * List all Connect Applications in the current environment with optional filtering.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<ConnectApplication>}
+   * @returns {Promise<AutoPaginatable<ConnectApplication>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listApplications(
@@ -101,7 +101,7 @@ export class Connect {
    *
    * Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
    * @param payload - The request body.
-   * @returns {ConnectApplication}
+   * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -178,7 +178,7 @@ export class Connect {
    * Retrieve details for a specific Connect Application by ID or client ID.
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {ConnectApplication}
+   * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    */
   async getApplication(id: string): Promise<ConnectApplication> {
@@ -195,7 +195,7 @@ export class Connect {
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @param payload - The request body.
-   * @returns {ConnectApplication}
+   * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -216,7 +216,7 @@ export class Connect {
    * Delete an existing Connect Application.
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteApplication(id: string): Promise<void> {
@@ -229,7 +229,7 @@ export class Connect {
    * List all client secrets associated with a Connect Application.
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {ApplicationCredentialsListItem}
+   * @returns {Promise<ApplicationCredentialsListItem>}
    * @throws {NotFoundException} 404
    */
   async listApplicationClientSecrets(
@@ -249,7 +249,7 @@ export class Connect {
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @param payload - The request body.
-   * @returns {NewConnectApplicationSecret}
+   * @returns {Promise<NewConnectApplicationSecret>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -271,7 +271,7 @@ export class Connect {
    * Delete (revoke) an existing client secret.
    * @param id - The unique ID of the client secret.
    * @example "secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteClientSecret(id: string): Promise<void> {

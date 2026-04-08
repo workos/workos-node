@@ -229,7 +229,7 @@ export class UserManagement {
    * Get a user
    *
    * Get the details of an existing user.
-   * @returns {User}
+   * @returns {Promise<User>}
    * @throws {NotFoundException} 404
    */
   async getUser(userId: string): Promise<User> {
@@ -246,7 +246,7 @@ export class UserManagement {
    * Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
    * @param externalId - The external ID of the user.
    * @example "f1ffa2b2-c20b-4d39-be5c-212726e11222"
-   * @returns {User}
+   * @returns {Promise<User>}
    * @throws {NotFoundException} 404
    */
   async getUserByExternalId(externalId: string): Promise<User> {
@@ -262,7 +262,7 @@ export class UserManagement {
    *
    * Get a list of all of your existing users matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<User>}
+   * @returns {Promise<AutoPaginatable<User, SerializedListUsersOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listUsers(
@@ -291,7 +291,7 @@ export class UserManagement {
    *
    * Create a new user in the current environment.
    * @param payload - Object containing email.
-   * @returns {User}
+   * @returns {Promise<User>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -720,7 +720,7 @@ export class UserManagement {
    * Get an email verification code
    *
    * Get the details of an existing email verification code that can be used to send an email to a user for verification.
-   * @returns {EmailVerification}
+   * @returns {Promise<EmailVerification>}
    * @throws {NotFoundException} 404
    */
   async getEmailVerification(
@@ -737,9 +737,7 @@ export class UserManagement {
    * Send verification email
    *
    * Sends an email that contains a one-time code used to verify a user’s email address.
-   * @param id - The ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
-   * @returns {SendVerificationEmailResponse}
+   * @returns {Promise<{ user: User; }>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {RateLimitExceededException} 429
@@ -759,7 +757,7 @@ export class UserManagement {
    * Get Magic Auth code details
    *
    * Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
-   * @returns {MagicAuth}
+   * @returns {Promise<MagicAuth>}
    * @throws {NotFoundException} 404
    */
   async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
@@ -775,7 +773,7 @@ export class UserManagement {
    *
    * Creates a one-time authentication code that can be sent to the user's email address. The code expires in 10 minutes. To verify the code, [authenticate the user with Magic Auth](https://workos.com/docs/reference/authkit/authentication/magic-auth).
    * @param payload - Object containing email.
-   * @returns {MagicAuth}
+   * @returns {Promise<MagicAuth>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
@@ -798,10 +796,8 @@ export class UserManagement {
    * Verify email
    *
    * Verifies an email address using the one-time code received by the user.
-   * @param id - The ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @param payload - Object containing code.
-   * @returns {SendVerificationEmailResponse}
+   * @returns {Promise<{ user: User; }>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -824,7 +820,7 @@ export class UserManagement {
    * Get a password reset token
    *
    * Get the details of an existing password reset token that can be used to reset a user's password.
-   * @returns {PasswordReset}
+   * @returns {Promise<PasswordReset>}
    * @throws {NotFoundException} 404
    */
   async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
@@ -863,15 +859,15 @@ export class UserManagement {
   }
 
   /**
-   * Reset the password
+   * Create a password reset token
    *
-   * Sets a new password using the `token` query parameter from the link that the user received. Successfully resetting the password will verify a user's email, if it hasn't been verified yet.
-   * @param payload - Object containing token, newPassword.
-   * @returns {SendVerificationEmailResponse}
-   * @throws {BadRequestException} 400
+   * Creates a one-time token that can be used to reset a user's password.
+   * @param payload - Object containing email.
+   * @returns {Promise<{ user: User; }>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
+   * @throws {RateLimitExceededException} 429
    */
   async resetPassword(payload: ResetPasswordOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<
@@ -890,7 +886,7 @@ export class UserManagement {
    *
    * Updates properties of a user. The omitted properties will be left unchanged.
    * @param payload - The request body.
-   * @returns {User}
+   * @returns {Promise<User>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
    */
@@ -990,7 +986,7 @@ export class UserManagement {
    *
    * Get a list of all active sessions for a specific user.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserSessionsListItem>}
+   * @returns {Promise<AutoPaginatable<Session, SerializedListSessionsOptions>>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -1020,7 +1016,7 @@ export class UserManagement {
    * Delete a user
    *
    * Permanently deletes a user in the current environment. It cannot be undone.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteUser(userId: string) {
@@ -1031,9 +1027,7 @@ export class UserManagement {
    * Get user identities
    *
    * Get a list of identities associated with the user. A user can have multiple associated identities after going through [identity linking](https://workos.com/docs/authkit/identity-linking). Currently only OAuth identities are supported. More provider types may be added in the future.
-   * @param id - The unique ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
-   * @returns {UserIdentitiesGetItem}
+   * @returns {Promise<Identity[]>}
    * @throws {NotFoundException} 404
    */
   async getUserIdentities(userId: string): Promise<Identity[]> {
@@ -1052,7 +1046,7 @@ export class UserManagement {
    * Get an organization membership
    *
    * Get the details of an existing organization membership.
-   * @returns {UserOrganizationMembership}
+   * @returns {Promise<OrganizationMembership>}
    * @throws {NotFoundException} 404
    */
   async getOrganizationMembership(
@@ -1070,7 +1064,7 @@ export class UserManagement {
    *
    * Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserOrganizationMembership>}
+   * @returns {Promise<AutoPaginatable<OrganizationMembership, SerializedListOrganizationMembershipsOptions>>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1117,7 +1111,7 @@ export class UserManagement {
    *
    * Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
    * @param payload - Object containing userId, organizationId.
-   * @returns {OrganizationMembership}
+   * @returns {Promise<OrganizationMembership>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1141,7 +1135,7 @@ export class UserManagement {
    *
    * Update the details of an existing organization membership.
    * @param payload - The request body.
-   * @returns {UserOrganizationMembership}
+   * @returns {Promise<OrganizationMembership>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -1164,7 +1158,7 @@ export class UserManagement {
    * Delete an organization membership
    *
    * Permanently deletes an existing organization membership. It cannot be undone.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteOrganizationMembership(
@@ -1184,7 +1178,7 @@ export class UserManagement {
    * - Deactivating a `pending` membership returns an error. This membership should be [deleted](https://workos.com/docs/reference/authkit/organization-membership/delete) instead.
    *
    * See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-   * @returns {OrganizationMembership}
+   * @returns {Promise<OrganizationMembership>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1209,7 +1203,7 @@ export class UserManagement {
    * - Reactivating a `pending` membership returns an error. The user needs to [accept the invitation](https://workos.com/docs/authkit/invitations) instead.
    *
    * See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-   * @returns {UserOrganizationMembership}
+   * @returns {Promise<OrganizationMembership>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1229,7 +1223,7 @@ export class UserManagement {
    * Get an invitation
    *
    * Get the details of an existing invitation.
-   * @returns {UserInvite}
+   * @returns {Promise<Invitation>}
    * @throws {NotFoundException} 404
    */
   async getInvitation(invitationId: string): Promise<Invitation> {
@@ -1244,9 +1238,7 @@ export class UserManagement {
    * Find an invitation by token
    *
    * Retrieve an existing invitation using the token.
-   * @param token - The token used to accept the invitation.
-   * @example "Z1uX3RbwcIl5fIGJJJCXXisdI"
-   * @returns {UserInvite}
+   * @returns {Promise<Invitation>}
    * @throws {NotFoundException} 404
    */
   async findInvitationByToken(invitationToken: string): Promise<Invitation> {
@@ -1262,7 +1254,7 @@ export class UserManagement {
    *
    * Get a list of all of invitations matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserInvite>}
+   * @returns {Promise<AutoPaginatable<Invitation, SerializedListInvitationsOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listInvitations(
@@ -1291,7 +1283,7 @@ export class UserManagement {
    *
    * Sends an invitation email to the recipient.
    * @param payload - Object containing email.
-   * @returns {UserInvite}
+   * @returns {Promise<Invitation>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1314,7 +1306,7 @@ export class UserManagement {
    * Accept an invitation
    *
    * Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
-   * @returns {Invitation}
+   * @returns {Promise<Invitation>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    */
@@ -1331,7 +1323,7 @@ export class UserManagement {
    * Revoke an invitation
    *
    * Revokes an existing invitation.
-   * @returns {Invitation}
+   * @returns {Promise<Invitation>}
    * @throws {BadRequestException} 400
    */
   async revokeInvitation(invitationId: string): Promise<Invitation> {
@@ -1348,7 +1340,7 @@ export class UserManagement {
    *
    * Resends an invitation email to the recipient. The invitation must be in a pending state.
    * @param payload - The request body.
-   * @returns {UserInvite}
+   * @returns {Promise<Invitation>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1373,7 +1365,7 @@ export class UserManagement {
    *
    * Revoke a [user session](https://workos.com/docs/reference/authkit/session).
    * @param payload - Object containing sessionId.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    */
   async revokeSession(payload: RevokeSessionOptions): Promise<void> {
@@ -1417,7 +1409,7 @@ export class UserManagement {
    * @param options.redirectUri - The callback URI where the authorization code will be sent after authentication.
    * @example "https://example.com/callback"
    * @param options - Additional query options.
-   * @returns {void}
+   * @returns {string}
    */
   getAuthorizationUrl(options: UserManagementAuthorizationURLOptions): string {
     const {
@@ -1570,7 +1562,7 @@ export class UserManagement {
    * @param options.returnTo - The URL to redirect the user to after session revocation.
    * @example "https://example.com"
    * @param options - Additional query options.
-   * @returns {void}
+   * @returns {string}
    * @throws {UnprocessableEntityException} 422
    */
   getLogoutUrl(options: LogoutURLOptions): string {

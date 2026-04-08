@@ -48,7 +48,7 @@ export class MultiFactorAuth {
    * @param id - The unique ID of the Authentication Challenge.
    * @example "auth_challenge_01FVYZ5QM8N98T9ME5BCB2BBMJ"
    * @param payload - Object containing code.
-   * @returns {AuthenticationChallengeVerifyResponse}
+   * @returns {Promise<AuthenticationChallengeVerifyResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -70,7 +70,7 @@ export class MultiFactorAuth {
    *
    * Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
    * @param payload - Object containing type.
-   * @returns {AuthenticationFactorEnrolled}
+   * @returns {Promise<AuthenticationFactorEnrolled>}
    * @throws {UnprocessableEntityException} 422
    */
   async enrollFactor(
@@ -90,7 +90,7 @@ export class MultiFactorAuth {
    * Gets an Authentication Factor.
    * @param id - The unique ID of the Factor.
    * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
-   * @returns {AuthenticationFactor}
+   * @returns {Promise<AuthenticationFactor>}
    * @throws {NotFoundException} 404
    */
   async getFactor(id: string): Promise<AuthenticationFactor> {
@@ -106,7 +106,7 @@ export class MultiFactorAuth {
    * Permanently deletes an Authentication Factor. It cannot be undone.
    * @param id - The unique ID of the Factor.
    * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async deleteFactor(id: string): Promise<void> {
@@ -120,7 +120,7 @@ export class MultiFactorAuth {
    * @param id - The unique ID of the Authentication Factor to be challenged.
    * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
    * @param payload - The request body.
-   * @returns {AuthenticationChallenge}
+   * @returns {Promise<AuthenticationChallenge>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -142,7 +142,7 @@ export class MultiFactorAuth {
    * @param userlandUserId - The ID of the [user](https://workos.com/docs/reference/authkit/user).
    * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuthenticationFactor>}
+   * @returns {Promise<AutoPaginatable<AuthenticationFactor, PaginationOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listUserAuthFactors(
@@ -168,7 +168,7 @@ export class MultiFactorAuth {
    * @param userlandUserId - The ID of the [user](https://workos.com/docs/reference/authkit/user).
    * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @param payload - Object containing type.
-   * @returns {UserAuthenticationFactorEnrollResponse}
+   * @returns {Promise<UserAuthenticationFactorEnrollResponse>}
    * @throws {UnprocessableEntityException} 422
    */
   async createUserAuthFactors(

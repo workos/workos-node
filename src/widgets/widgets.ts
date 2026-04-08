@@ -17,7 +17,7 @@ export class Widgets {
    *
    * Generate a widget token scoped to an organization and user with the specified scopes.
    * @param payload - Object containing organizationId.
-   * @returns {WidgetSessionTokenResponse}
+   * @returns {Promise<WidgetSessionTokenResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
