@@ -3140,3 +3140,27 @@ export type { UserManagementUsersFeatureFlagsOrder } from './feature-flags/inter
 export type { UserManagementUsersAuthorizedApplicationsOrder } from './user-management/interfaces/user-management-users-authorized-applications-order.interface';
 
 export type { AuditLogsOrder } from './audit-logs/interfaces/audit-logs-order.interface';
+
+export type {
+  EventContextActor,
+  EventContextActorResponse,
+} from './common/interfaces/event-context-actor.interface';
+
+export type {
+  EventContext,
+  EventContextResponse,
+} from './common/interfaces/event-context.interface';
+
+export type {
+  DirectoryUserEmail,
+  DirectoryUserEmailResponse,
+} from './common/interfaces/directory-user-email.interface';
+
+export type {
+  EventContextGoogleAnalyticsSession,
+  EventContextGoogleAnalyticsSessionResponse,
+} from './common/interfaces/event-context-google-analytics-session.interface';
+
+export type { EventContextActorSource } from './common/interfaces/event-context-actor-source.interface';
+
+export type { DirectoryUserState } from './common/interfaces/directory-user-state.interface';

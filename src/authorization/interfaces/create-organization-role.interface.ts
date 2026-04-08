@@ -7,10 +7,13 @@ export interface CreateOrganizationRole {
   name: string;
   /** An optional description of the role's purpose. */
   description?: string | null;
+  /** The slug of the resource type the role is scoped to. */
+  resourceTypeSlug?: string;
 }
 
 export interface CreateOrganizationRoleResponse {
   slug?: string;
   name: string;
   description?: string | null;
+  resource_type_slug?: string;
 }

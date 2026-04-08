@@ -25,6 +25,7 @@ import type { CreateOAuthApplication } from './interfaces/create-oauth-applicati
 import type { CreateM2MApplication } from './interfaces/create-m2m-application.interface';
 import type { UpdateOAuthApplication } from './interfaces/update-oauth-application.interface';
 import type { CreateApplicationSecret } from './interfaces/create-application-secret.interface';
+import type { RedirectUriInput } from './interfaces/redirect-uri-input.interface';
 import { deserializeExternalAuthCompleteResponse } from './serializers/external-auth-complete-response.serializer';
 import { deserializeConnectApplication } from './serializers/connect-application.serializer';
 import { deserializeApplicationCredentialsListItem } from './serializers/application-credentials-list-item.serializer';
@@ -125,19 +126,19 @@ export class Connect {
 
   /** Create oauth application. */
   async createOAuthApplication(
-    name?: string,
-    isFirstParty?: string,
-    description?: string,
-    scopes?: string,
-    redirectUris?: string,
-    usesPkce?: string,
-    organizationId?: string,
+    name: string,
+    isFirstParty: boolean,
+    description?: string | null,
+    scopes?: string[] | null,
+    redirectUris?: RedirectUriInput[] | null,
+    usesPkce?: boolean | null,
+    organizationId?: string | null,
   ): Promise<ConnectApplication> {
     const body: Record<string, unknown> = {
       application_type: 'oauth',
+      name: name,
+      is_first_party: isFirstParty,
     };
-    if (name !== undefined) body.name = name;
-    if (isFirstParty !== undefined) body.is_first_party = isFirstParty;
     if (description !== undefined) body.description = description;
     if (scopes !== undefined) body.scopes = scopes;
     if (redirectUris !== undefined) body.redirect_uris = redirectUris;
@@ -152,16 +153,16 @@ export class Connect {
 
   /** Create m2m application. */
   async createM2MApplication(
-    name?: string,
-    organizationId?: string,
-    description?: string,
-    scopes?: string,
+    name: string,
+    organizationId: string,
+    description?: string | null,
+    scopes?: string[] | null,
   ): Promise<ConnectApplication> {
     const body: Record<string, unknown> = {
       application_type: 'm2m',
+      name: name,
+      organization_id: organizationId,
     };
-    if (name !== undefined) body.name = name;
-    if (organizationId !== undefined) body.organization_id = organizationId;
     if (description !== undefined) body.description = description;
     if (scopes !== undefined) body.scopes = scopes;
     const { data } = await this.workos.post<ConnectApplicationResponse>(
