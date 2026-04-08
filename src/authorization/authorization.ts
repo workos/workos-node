@@ -342,7 +342,7 @@ export class Authorization {
    * @param slug - The slug of the role.
    * @example "org-admin"
    * @param payload - Object containing slug.
-   * @returns {Role}
+   * @returns {Promise<Role>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -369,7 +369,7 @@ export class Authorization {
    * @param slug - The slug of the role.
    * @example "org-admin"
    * @param payload - Object containing permissions.
-   * @returns {Role}
+   * @returns {Promise<Role>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -420,7 +420,6 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
-   * @deprecated Use `workos.permissions.create()` instead.
    */
   async createPermission(
     options: CreatePermissionOptions,
@@ -439,7 +438,6 @@ export class Authorization {
    * @param options - Pagination and filter options.
    * @returns {Promise<PermissionList>}
    * @throws {NotFoundException} 404
-   * @deprecated Use `workos.permissions.list()` instead.
    */
   async listPermissions(
     options?: ListPermissionsOptions,
@@ -466,7 +464,6 @@ export class Authorization {
    * @example "documents:read"
    * @returns {Promise<Permission>}
    * @throws {NotFoundException} 404
-   * @deprecated Use `workos.permissions.find()` instead.
    */
   async getPermission(slug: string): Promise<Permission> {
     const { data } = await this.workos.get<PermissionResponse>(
@@ -486,7 +483,6 @@ export class Authorization {
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
-   * @deprecated Use `workos.permissions.update()` instead.
    */
   async updatePermission(
     slug: string,
@@ -508,7 +504,6 @@ export class Authorization {
    * @returns {Promise<void>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
-   * @deprecated Use `workos.permissions.delete()` instead.
    */
   async deletePermission(slug: string): Promise<void> {
     await this.workos.delete(`/authorization/permissions/${slug}`);
@@ -639,7 +634,7 @@ export class Authorization {
    * @example "project"
    * @param externalId - An identifier you provide to reference the resource in your system.
    * @example "proj-456"
-   * @returns {AuthorizationResource}
+   * @returns {Promise<AuthorizationResource>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    */
@@ -664,7 +659,7 @@ export class Authorization {
    * @param externalId - An identifier you provide to reference the resource in your system.
    * @example "proj-456"
    * @param payload - The request body.
-   * @returns {AuthorizationResource}
+   * @returns {Promise<AuthorizationResource>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -692,7 +687,7 @@ export class Authorization {
    * @param externalId - An identifier you provide to reference the resource in your system.
    * @example "proj-456"
    * @param options - Additional query options.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
@@ -736,15 +731,14 @@ export class Authorization {
   }
 
   /**
-   * List role assignments
+   * Assign a role
    *
-   * List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
-   * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
-   * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<RoleAssignment>>}
+   * Assign a role to an organization membership on a specific resource.
+   * @param payload - Object containing roleSlug.
+   * @returns {Promise<RoleAssignment>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
    */
   async listRoleAssignments(
     options: ListRoleAssignmentsOptions,

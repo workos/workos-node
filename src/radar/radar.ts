@@ -71,7 +71,7 @@ export class Radar {
    * @param action - The list action indicating whether to add the entry to the allow or block list.
    * @example "block"
    * @param payload - Object containing entry.
-   * @returns {RadarListEntryAlreadyPresentResponse}
+   * @returns {Promise<RadarListEntryAlreadyPresentResponse>}
    * @throws {BadRequestException} 400
    */
   async updateRadarList(
@@ -103,7 +103,7 @@ export class Radar {
    * @param action - The list action indicating whether to remove the entry from the allow or block list.
    * @example "block"
    * @param payload - Object containing entry.
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    */

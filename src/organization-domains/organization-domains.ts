@@ -18,7 +18,7 @@ export class OrganizationDomains {
    * Get the details of an existing organization domain.
    * @param id - Unique identifier of the organization domain.
    * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {OrganizationDomainStandAlone}
+   * @returns {Promise<OrganizationDomain>}
    * @throws {NotFoundException} 404
    */
   async get(id: string): Promise<OrganizationDomain> {
@@ -72,7 +72,7 @@ export class OrganizationDomains {
    * Permanently deletes an organization domain. It cannot be undone.
    * @param id - Unique identifier of the organization domain.
    * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {void}
+   * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
   async delete(id: string): Promise<void> {
