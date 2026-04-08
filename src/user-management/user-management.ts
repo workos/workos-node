@@ -1406,12 +1406,8 @@ export class UserManagement {
    * @example "eyJyZXR1cm5UbyI6ICIvZGFzaGJvYXJkIn0="
    * @param options.organizationId - The ID of the organization to authenticate the user against.
    * @example "org_01EHQMYV6MBK39QC5PZXHY59C3"
-   * @param options.responseType - The response type of the application.
-   * @example "code"
    * @param options.redirectUri - The callback URI where the authorization code will be sent after authentication.
    * @example "https://example.com/callback"
-   * @param options.clientId - The unique identifier of the WorkOS environment client.
-   * @example "client_01HZBC6N1EB1ZY7KG32X"
    * @param options - Additional query options.
    * @returns {string}
    */

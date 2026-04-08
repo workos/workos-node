@@ -731,14 +731,15 @@ export class Authorization {
   }
 
   /**
-   * Assign a role
+   * List role assignments
    *
-   * Assign a role to an organization membership on a specific resource.
-   * @param payload - Object containing roleSlug.
-   * @returns {Promise<RoleAssignment>}
+   * List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
+   * @param organizationMembershipId - The ID of the organization membership.
+   * @example "om_01HXYZ123456789ABCDEFGHIJ"
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<RoleAssignment>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
-   * @throws {UnprocessableEntityException} 422
    */
   async listRoleAssignments(
     options: ListRoleAssignmentsOptions,
