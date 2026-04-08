@@ -904,14 +904,9 @@ export class UserManagement {
   }
 
   /**
-   * List authentication factors
+   * Enroll an authentication factor for a user.
    *
-   * Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
-   * @param userlandUserId - The ID of the [user](https://workos.com/docs/reference/authkit/user).
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<AuthenticationFactor>}
-   * @throws {UnprocessableEntityException} 422
+   * @param payload - Object containing userId, type, and optional issuer/user fields.
    */
   async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
     authenticationFactor: FactorWithSecrets;
