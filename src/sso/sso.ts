@@ -81,18 +81,12 @@ export class SSO {
    * @example ["openid","profile","email"]
    * @param options.providerQueryParams - Key/value pairs of query parameters to pass to the OAuth provider. Only applicable when using OAuth connections.
    * @example {"hd":"example.com","access_type":"offline"}
-   * @param options.clientId - The unique identifier of the WorkOS environment client.
-   * @example "client_01HZBC6N1EB1ZY7KG32X"
    * @param options.domain - (deprecated) Deprecated. Use `connection` or `organization` instead. Used to initiate SSO for a connection by domain. The domain must be associated with a connection in your WorkOS environment.
    * @example "example.com"
    * @param options.provider - Used to initiate OAuth authentication with Google, Microsoft, GitHub, or Apple.
    * @example "GoogleOAuth"
    * @param options.redirectUri - Where to redirect the user after they complete the authentication process. You must use one of the redirect URIs configured via the [Redirects](https://dashboard.workos.com/redirects) page on the dashboard.
    * @example "https://example.com/callback"
-   * @param options.responseType - The only valid option for the response type parameter is `"code"`.
-   *
-   * The `"code"` parameter value initiates an [authorization code grant type](https://tools.ietf.org/html/rfc6749#section-4.1). This grant type allows you to exchange an authorization code for an access token during the redirect that takes place after a user has authenticated with an identity provider.
-   * @example "code"
    * @param options.state - An optional parameter that can be used to encode arbitrary information to help restore application state between redirects. If included, the redirect URI received from WorkOS will contain the exact `state` that was passed.
    * @example "dj1kUXc0dzlXZ1hjUQ=="
    * @param options.connection - Used to initiate SSO for a connection. The value should be a WorkOS connection ID.
@@ -250,14 +244,6 @@ export class SSO {
    * Get a Profile and Token
    *
    * Get an access token along with the user [Profile](https://workos.com/docs/reference/sso/profile) using the code passed to your [Redirect URI](https://workos.com/docs/reference/sso/get-authorization-url/redirect-uri).
-   * @param options.clientId - The client ID of the WorkOS environment.
-   * @example "client_01HZBC6N1EB1ZY7KG32X"
-   * @param options.clientSecret - The client secret of the WorkOS environment.
-   * @example "sk_example_123456789"
-   * @param options.code - The authorization code received from the authorization callback.
-   * @example "authorization_code_value"
-   * @param options.grantType - The grant type for the token request.
-   * @example "authorization_code"
    * @param payload - Object containing clientId, clientSecret, code, grantType.
    * @param options - Additional query options.
    * @returns {SSOTokenResponse}

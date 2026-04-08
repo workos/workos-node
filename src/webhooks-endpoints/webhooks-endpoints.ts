@@ -17,6 +17,13 @@ import { serializeUpdateWebhookEndpoint } from '../webhooks/serializers/update-w
 export class WebhooksEndpoints {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * List Webhook Endpoints
+   *
+   * Get a list of all of your existing webhook endpoints.
+   * @param options - Pagination and filter options.
+   * @returns {AutoPaginatable<WebhookEndpointJson>}
+   */
   async listWebhookEndpoints(
     options?: PaginationOptions,
   ): Promise<AutoPaginatable<WebhookEndpointJson, PaginationOptions>> {
@@ -32,6 +39,15 @@ export class WebhooksEndpoints {
     );
   }
 
+  /**
+   * Create a Webhook Endpoint
+   *
+   * Create a new webhook endpoint to receive event notifications.
+   * @param payload - Object containing endpointUrl, events.
+   * @returns {WebhookEndpointJson}
+   * @throws {ConflictException} 409
+   * @throws {UnprocessableEntityException} 422
+   */
   async createWebhookEndpoints(
     payload: CreateWebhookEndpoint,
   ): Promise<WebhookEndpointJson> {
@@ -42,6 +58,18 @@ export class WebhooksEndpoints {
     return deserializeWebhookEndpointJson(data);
   }
 
+  /**
+   * Update a Webhook Endpoint
+   *
+   * Update the properties of an existing webhook endpoint.
+   * @param id - Unique identifier of the Webhook Endpoint.
+   * @example "we_0123456789"
+   * @param payload - The request body.
+   * @returns {WebhookEndpointJson}
+   * @throws {NotFoundException} 404
+   * @throws {ConflictException} 409
+   * @throws {UnprocessableEntityException} 422
+   */
   async updateWebhookEndpoint(
     id: string,
     payload: UpdateWebhookEndpoint,
@@ -53,6 +81,15 @@ export class WebhooksEndpoints {
     return deserializeWebhookEndpointJson(data);
   }
 
+  /**
+   * Delete a Webhook Endpoint
+   *
+   * Delete an existing webhook endpoint.
+   * @param id - Unique identifier of the Webhook Endpoint.
+   * @example "we_0123456789"
+   * @returns {void}
+   * @throws {NotFoundException} 404
+   */
   async deleteWebhookEndpoint(id: string): Promise<void> {
     await this.workos.delete(`/webhook_endpoints/${id}`);
   }

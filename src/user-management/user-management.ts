@@ -229,8 +229,6 @@ export class UserManagement {
    * Get a user
    *
    * Get the details of an existing user.
-   * @param id - The unique ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {User}
    * @throws {NotFoundException} 404
    */
@@ -289,11 +287,13 @@ export class UserManagement {
   }
 
   /**
-   * List users
+   * Create a user
    *
-   * Get a list of all of your existing users matching the criteria specified.
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<User>}
+   * Create a new user in the current environment.
+   * @param payload - Object containing email.
+   * @returns {User}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async createUser(payload: CreateUserOptions): Promise<User> {
@@ -720,8 +720,6 @@ export class UserManagement {
    * Get an email verification code
    *
    * Get the details of an existing email verification code that can be used to send an email to a user for verification.
-   * @param id - The ID of the email verification code.
-   * @example "email_verification_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {EmailVerification}
    * @throws {NotFoundException} 404
    */
@@ -761,8 +759,6 @@ export class UserManagement {
    * Get Magic Auth code details
    *
    * Get the details of an existing [Magic Auth](https://workos.com/docs/reference/authkit/magic-auth) code that can be used to send an email to a user for authentication.
-   * @param id - The unique ID of the Magic Auth code.
-   * @example "magic_auth_01HWZBQZY2M3AMQW166Q22K88F"
    * @returns {MagicAuth}
    * @throws {NotFoundException} 404
    */
@@ -828,8 +824,6 @@ export class UserManagement {
    * Get a password reset token
    *
    * Get the details of an existing password reset token that can be used to reset a user's password.
-   * @param id - The ID of the password reset token.
-   * @example "password_reset_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {PasswordReset}
    * @throws {NotFoundException} 404
    */
@@ -895,8 +889,6 @@ export class UserManagement {
    * Update a user
    *
    * Updates properties of a user. The omitted properties will be left unchanged.
-   * @param id - The unique ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @param payload - The request body.
    * @returns {User}
    * @throws {BadRequestException} 400
@@ -1002,8 +994,6 @@ export class UserManagement {
    * List sessions
    *
    * Get a list of all active sessions for a specific user.
-   * @param id - The ID of the user.
-   * @example "user_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param options - Pagination and filter options.
    * @returns {AutoPaginatable<UserSessionsListItem>}
    * @throws {NotFoundException} 404
@@ -1035,8 +1025,6 @@ export class UserManagement {
    * Delete a user
    *
    * Permanently deletes a user in the current environment. It cannot be undone.
-   * @param id - The unique ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {void}
    * @throws {NotFoundException} 404
    */
@@ -1069,8 +1057,6 @@ export class UserManagement {
    * Get an organization membership
    *
    * Get the details of an existing organization membership.
-   * @param id - The unique ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @returns {UserOrganizationMembership}
    * @throws {NotFoundException} 404
    */
@@ -1130,11 +1116,13 @@ export class UserManagement {
   }
 
   /**
-   * List organization memberships
+   * Create an organization membership
    *
-   * Get a list of all organization memberships matching the criteria specified. At least one of `user_id` or `organization_id` must be provided. By default only active memberships are returned. Use the `statuses` parameter to filter by other statuses.
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<UserOrganizationMembership>}
+   * Creates a new `active` organization membership for the given organization and user.
+   *
+   * Calling this API with an organization and user that match an `inactive` organization membership will activate the membership with the specified role(s).
+   * @param payload - Object containing userId, organizationId.
+   * @returns {OrganizationMembership}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -1157,8 +1145,6 @@ export class UserManagement {
    * Update an organization membership
    *
    * Update the details of an existing organization membership.
-   * @param id - The unique ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @param payload - The request body.
    * @returns {UserOrganizationMembership}
    * @throws {NotFoundException} 404
@@ -1183,8 +1169,6 @@ export class UserManagement {
    * Delete an organization membership
    *
    * Permanently deletes an existing organization membership. It cannot be undone.
-   * @param id - The unique ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @returns {void}
    * @throws {NotFoundException} 404
    */
@@ -1205,8 +1189,6 @@ export class UserManagement {
    * - Deactivating a `pending` membership returns an error. This membership should be [deleted](https://workos.com/docs/reference/authkit/organization-membership/delete) instead.
    *
    * See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-   * @param id - The unique ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @returns {OrganizationMembership}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
@@ -1232,8 +1214,6 @@ export class UserManagement {
    * - Reactivating a `pending` membership returns an error. The user needs to [accept the invitation](https://workos.com/docs/authkit/invitations) instead.
    *
    * See the [membership management documentation](https://workos.com/docs/authkit/users-organizations/organizations/membership-management) for additional details.
-   * @param id - The unique ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
    * @returns {UserOrganizationMembership}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
@@ -1254,8 +1234,6 @@ export class UserManagement {
    * Get an invitation
    *
    * Get the details of an existing invitation.
-   * @param id - The unique ID of the invitation.
-   * @example "invitation_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {UserInvite}
    * @throws {NotFoundException} 404
    */
@@ -1341,8 +1319,6 @@ export class UserManagement {
    * Accept an invitation
    *
    * Accepts an invitation and, if linked to an organization, activates the user's membership in that organization.
-   * @param id - The unique ID of the invitation.
-   * @example "invitation_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {Invitation}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
@@ -1360,8 +1336,6 @@ export class UserManagement {
    * Revoke an invitation
    *
    * Revokes an existing invitation.
-   * @param id - The unique ID of the invitation.
-   * @example "invitation_01E4ZCR3C56J083X43JQXF3JK5"
    * @returns {Invitation}
    * @throws {BadRequestException} 400
    */
@@ -1378,8 +1352,6 @@ export class UserManagement {
    * Resend an invitation
    *
    * Resends an invitation email to the recipient. The invitation must be in a pending state.
-   * @param id - The unique ID of the invitation.
-   * @example "invitation_01E4ZCR3C56J083X43JQXF3JK5"
    * @param payload - The request body.
    * @returns {UserInvite}
    * @throws {BadRequestException} 400
@@ -1420,6 +1392,35 @@ export class UserManagement {
    * Get an authorization URL
    *
    * Generates an OAuth 2.0 authorization URL to authenticate a user with AuthKit or SSO.
+   * @param options.codeChallengeMethod - The only valid PKCE code challenge method is `"S256"`. Required when specifying a `code_challenge`.
+   * @example "S256"
+   * @param options.codeChallenge - Code challenge derived from the code verifier used for the PKCE flow.
+   * @example "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM"
+   * @param options.domainHint - A domain hint for SSO connection lookup.
+   * @example "example.com"
+   * @param options.connectionId - The ID of an SSO connection to use for authentication.
+   * @example "conn_01EHQMYV6MBK39QC5PZXHY59C3"
+   * @param options.providerQueryParams - Key/value pairs of query parameters to pass to the OAuth provider.
+   * @example {"hd":"example.com","access_type":"offline"}
+   * @param options.providerScopes - Additional OAuth scopes to request from the identity provider.
+   * @example ["openid","profile","email"]
+   * @param options.invitationToken - A token representing a user invitation to redeem during authentication.
+   * @example "inv_token_abc123"
+   * @param options.screenHint - Used to specify which screen to display when the provider is `authkit`.
+   * @default "sign-in"
+   * @example "sign-in"
+   * @param options.loginHint - A hint to the authorization server about the login identifier the user might use.
+   * @example "user@example.com"
+   * @param options.provider - The OAuth provider to authenticate with (e.g., GoogleOAuth, MicrosoftOAuth, GitHubOAuth).
+   * @example "GoogleOAuth"
+   * @param options.prompt - Controls the authentication flow behavior for the user.
+   * @example "login"
+   * @param options.state - An opaque value used to maintain state between the request and the callback.
+   * @example "eyJyZXR1cm5UbyI6ICIvZGFzaGJvYXJkIn0="
+   * @param options.organizationId - The ID of the organization to authenticate the user against.
+   * @example "org_01EHQMYV6MBK39QC5PZXHY59C3"
+   * @param options.redirectUri - The callback URI where the authorization code will be sent after authentication.
+   * @example "https://example.com/callback"
    * @param options - Additional query options.
    * @returns {void}
    */
@@ -1569,6 +1570,10 @@ export class UserManagement {
    * Logout
    *
    * Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
+   * @param options.sessionId - The ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
+   * @example "session_01H93ZY4F80QPBEZ1R5B2SHQG8"
+   * @param options.returnTo - The URL to redirect the user to after session revocation.
+   * @example "https://example.com"
    * @param options - Additional query options.
    * @returns {void}
    * @throws {UnprocessableEntityException} 422

@@ -74,11 +74,13 @@ export class Organizations {
   }
 
   /**
-   * List Organizations
+   * Create an Organization
    *
-   * Get a list of all of your existing organizations matching the criteria specified.
-   * @param options - Pagination and filter options.
-   * @returns {AutoPaginatable<Organization>}
+   * Creates a new organization in the current environment.
+   * @param payload - Object containing name.
+   * @returns {Organization}
+   * @throws {BadRequestException} 400
+   * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
    */
   async createOrganization(
@@ -145,8 +147,6 @@ export class Organizations {
    * Update an Organization
    *
    * Updates an organization in the current environment.
-   * @param id - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param payload - The request body.
    * @returns {Organization}
    * @throws {BadRequestException} 400
