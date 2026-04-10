@@ -50,7 +50,6 @@ import { getEnv } from './common/utils/env';
 import { getRuntimeInfo } from './common/utils/runtime-info';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 import { AdminPortal } from './admin-portal/admin-portal';
-import { Permissions } from './permissions/permissions';
 import { Radar } from './radar/radar';
 import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
 import { Connect } from './connect/connect';
@@ -87,7 +86,6 @@ export class WorkOS {
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
-  readonly permissions = new Permissions(this);
   readonly pipes = new Pipes(this);
   /** @deprecated Use `workos.adminPortal` instead. */
   readonly portal = new Portal(this);
