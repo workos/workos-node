@@ -3,4 +3,4 @@
 export {
   deserializeCreateAuthorizationPermission as deserializeCreateRole,
   serializeCreateAuthorizationPermission as serializeCreateRole,
-} from '../../permissions/serializers/create-authorization-permission.serializer';
+} from './create-authorization-permission.serializer';

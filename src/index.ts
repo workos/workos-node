@@ -146,8 +146,6 @@ export * from './workos-connect/interfaces';
 
 export { WorkOSConnect } from './workos-connect/work-os-connect';
 
-export { Permissions } from './permissions/permissions';
-
 export type {
   RedirectUri,
   RedirectUriResponse,

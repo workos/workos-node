@@ -50,7 +50,6 @@ import { getEnv } from './common/utils/env';
 import { getRuntimeInfo } from './common/utils/runtime-info';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 import { AdminPortal } from './admin-portal/admin-portal';
-import { Permissions } from './permissions/permissions';
 import { Radar } from './radar/radar';
 import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
 import { WorkOSConnect } from './workos-connect/work-os-connect';
@@ -529,7 +528,6 @@ export class WorkOS {
   }
 
   readonly adminPortal = new AdminPortal(this);
-  readonly permissions = new Permissions(this);
   readonly radar = new Radar(this);
   readonly webhooksEndpoints = new WebhooksEndpoints(this);
   readonly workOsConnect = new WorkOSConnect(this);

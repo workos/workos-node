@@ -3,7 +3,7 @@
 import type {
   CreateAuthorizationPermission,
   CreateAuthorizationPermissionResponse,
-} from '../../permissions/interfaces/create-authorization-permission.interface';
+} from './create-authorization-permission.interface';
 
 export type CreateRole = CreateAuthorizationPermission;
 export type CreateRoleResponse = CreateAuthorizationPermissionResponse;
