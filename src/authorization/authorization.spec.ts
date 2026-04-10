@@ -291,6 +291,48 @@ describe('Authorization', () => {
         type: 'OrganizationRole',
       });
     });
+
+    it('creates an organization role with resourceTypeSlug', async () => {
+      fetchOnce(organizationRoleFixture, { status: 201 });
+
+      const role = await workos.authorization.createOrganizationRole(
+        testOrgId,
+        {
+          slug: 'org-admin',
+          name: 'Org Admin',
+          resourceTypeSlug: 'organization',
+        },
+      );
+
+      expect(fetchBody()).toEqual({
+        slug: 'org-admin',
+        name: 'Org Admin',
+        resource_type_slug: 'organization',
+      });
+      expect(role.resourceTypeSlug).toEqual('organization');
+    });
+
+    it('creates an organization role without slug', async () => {
+      fetchOnce(organizationRoleFixture, { status: 201 });
+
+      const role = await workos.authorization.createOrganizationRole(
+        testOrgId,
+        {
+          name: 'Org Admin',
+          description: 'Organization administrator',
+        },
+      );
+
+      expect(fetchBody()).toEqual({
+        name: 'Org Admin',
+        description: 'Organization administrator',
+      });
+      expect(role).toMatchObject({
+        object: 'role',
+        name: 'Org Admin',
+        type: 'OrganizationRole',
+      });
+    });
   });
 
   describe('listOrganizationRoles', () => {
