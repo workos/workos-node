@@ -2,5 +2,6 @@
 
 export * from './event-list-list-metadata.interface';
 export * from './event-schema.interface';
+export * from './event.interface';
 export * from './events-order.interface';
 export * from './list-events-options.interface';
