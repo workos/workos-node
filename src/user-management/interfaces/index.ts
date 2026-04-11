@@ -71,7 +71,6 @@ export * from './organization-selection-session-authenticate-request.interface';
 export * from './password-hash-type.interface';
 export * from './password-reset.interface';
 export * from './password-session-authenticate-request.interface';
-export * from './redirect-uri.interface';
 export * from './refresh-and-seal-session-data.interface';
 export * from './refresh-token-session-authenticate-request.interface';
 export * from './resend-invitation-options.interface';

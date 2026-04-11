@@ -2,11 +2,8 @@
 
 export * from './api-key-owner.interface';
 export * from './api-key-validation-response.interface';
-export * from './api-key-with-value-owner.interface';
-export * from './api-key-with-value.interface';
 export * from './api-key.interface';
 export * from './create-organization-api-key-options.interface';
-export * from './create-organization-api-key.interface';
 export * from './created-api-key.interface';
 export * from './list-organization-api-keys-options.interface';
 export * from './organizations-api-keys-order.interface';

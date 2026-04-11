@@ -6,7 +6,6 @@ export * from './directory-groups-order.interface';
 export * from './directory-metadata-user.interface';
 export * from './directory-metadata.interface';
 export * from './directory-user-with-groups-email.interface';
-export * from './directory-user-with-groups.interface';
 export * from './directory-user.interface';
 export * from './directory-users-order.interface';
 export * from './directory.interface';
