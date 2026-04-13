@@ -16,6 +16,7 @@ export * from './authorization/interfaces';
 export * from './common/exceptions';
 export * from './common/interfaces';
 export * from './common/utils/pagination';
+export * from './connect/interfaces';
 export * from './directory-sync/interfaces';
 export * from './events/interfaces';
 export * from './feature-flags/interfaces';

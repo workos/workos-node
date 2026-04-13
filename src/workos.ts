@@ -81,6 +81,7 @@ export class WorkOS {
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
+  /** @deprecated Use `workos.authorization` instead. */
   readonly fga = new FGA(this);
   readonly mfa = new Mfa(this);
   readonly organizations = new Organizations(this);
@@ -88,6 +89,7 @@ export class WorkOS {
   readonly passwordless = new Passwordless(this);
   readonly permissions = new Permissions(this);
   readonly pipes = new Pipes(this);
+  /** @deprecated Use `workos.adminPortal` instead. */
   readonly portal = new Portal(this);
   readonly radar = new Radar(this);
   readonly sso = new SSO(this);

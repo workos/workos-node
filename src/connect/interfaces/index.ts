@@ -7,6 +7,7 @@ export * from './create-application-secret.interface';
 export * from './create-m2m-application.interface';
 export * from './create-oauth-application.interface';
 export * from './external-auth-complete-response.interface';
+export * from './list-applications-options.interface';
 export * from './new-connect-application-secret.interface';
 export * from './redirect-uri-input.interface';
 export * from './update-oauth-application.interface';

@@ -25,6 +25,7 @@ import type { CreateOAuthApplication } from './interfaces/create-oauth-applicati
 import type { CreateM2MApplication } from './interfaces/create-m2m-application.interface';
 import type { UpdateOAuthApplication } from './interfaces/update-oauth-application.interface';
 import type { CreateApplicationSecret } from './interfaces/create-application-secret.interface';
+import type { ListApplicationsOptions } from './interfaces/list-applications-options.interface';
 import { deserializeExternalAuthCompleteResponse } from './serializers/external-auth-complete-response.serializer';
 import { deserializeConnectApplication } from './serializers/connect-application.serializer';
 import { deserializeApplicationCredentialsListItem } from './serializers/application-credentials-list-item.serializer';
@@ -34,11 +35,6 @@ import { serializeCreateOAuthApplication } from './serializers/create-oauth-appl
 import { serializeCreateM2MApplication } from './serializers/create-m2m-application.serializer';
 import { serializeUpdateOAuthApplication } from './serializers/update-oauth-application.serializer';
 import { serializeCreateApplicationSecret } from './serializers/create-application-secret.serializer';
-
-export interface ListApplicationsOptions extends PaginationOptions {
-  /** Filter Connect Applications by organization ID. */
-  organizationId?: string;
-}
 
 const serializeListApplicationsOptions = (
   options: ListApplicationsOptions,
