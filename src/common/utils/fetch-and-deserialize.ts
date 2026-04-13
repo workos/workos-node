@@ -49,12 +49,17 @@ export async function createPaginatedList<
       deserializeFn,
       options,
     ),
+    // AutoPaginatable invokes this callback with just the pagination cursor
+    // (`{ limit, after }`) for each page.  Spread the original `options`
+    // first so user-supplied filters (e.g. `organizationId`) persist across
+    // pages, then spread `params` so the cursor overrides `after`/`limit`
+    // as pages advance.
     (params) =>
       fetchAndDeserialize<TResponse, TModel>(
         workos,
         endpoint,
         deserializeFn,
-        params,
+        { ...options, ...params },
       ),
     options,
   );
