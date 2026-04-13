@@ -23,15 +23,15 @@ export class ApplicationClientSecrets {
    * List all client secrets associated with a Connect Application.
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {ApplicationCredentialsListItem}
+   * @returns {Promise<ApplicationCredentialsListItem[]>}
    * @throws {NotFoundException} 404
    */
-  async list(id: string): Promise<ApplicationCredentialsListItem> {
+  async list(id: string): Promise<ApplicationCredentialsListItem[]> {
     const { data } =
-      await this.workos.get<ApplicationCredentialsListItemResponse>(
+      await this.workos.get<ApplicationCredentialsListItemResponse[]>(
         `/connect/applications/${id}/client_secrets`,
       );
-    return deserializeApplicationCredentialsListItem(data);
+    return data.map(deserializeApplicationCredentialsListItem);
   }
 
   /**

@@ -28,12 +28,14 @@ describe('ApplicationClientSecrets', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/connect/applications/test_id/client_secrets',
       );
-      expect(result.object).toBe('connect_application_secret');
-      expect(result.id).toBe('secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q');
-      expect(result.secretHint).toBe('abc123');
-      expect(result.lastUsedAt).toBe(null);
-      expect(result.createdAt).toBe('2026-01-15T12:00:00.000Z');
-      expect(result.updatedAt).toBe('2026-01-15T12:00:00.000Z');
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveLength(1);
+      expect(result[0].object).toBe('connect_application_secret');
+      expect(result[0].id).toBe('secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q');
+      expect(result[0].secretHint).toBe('abc123');
+      expect(result[0].lastUsedAt).toBe(null);
+      expect(result[0].createdAt).toBe('2026-01-15T12:00:00.000Z');
+      expect(result[0].updatedAt).toBe('2026-01-15T12:00:00.000Z');
     });
 
     testUnauthorized(() => workos.applicationClientSecrets.list('test_id'));
