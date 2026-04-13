@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.13.0](https://github.com/workos/workos-node/compare/v8.12.1...v8.13.0) (2026-04-13)
+
+
+### Features
+
+* Add resource_type_slug to createOrganizationRole to create resource-scoped custom roles ([#1549](https://github.com/workos/workos-node/issues/1549)) ([36fb14a](https://github.com/workos/workos-node/commit/36fb14a81884892ba325a9d8a3f2b8e1c9023b58))
+
 ## [8.12.1](https://github.com/workos/workos-node/compare/v8.12.0...v8.12.1) (2026-04-07)
 
 
