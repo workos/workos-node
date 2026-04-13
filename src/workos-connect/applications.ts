@@ -62,13 +62,17 @@ export class Applications {
     const { data } = await this.workos.post<ConnectApplicationResponse>(
       '/connect/applications',
       (() => {
-        switch ((payload as any).applicationType) {
+        switch (payload.applicationType) {
           case 'oauth':
-            return serializeCreateOAuthApplication(payload as any);
+            return serializeCreateOAuthApplication(payload);
           case 'm2m':
-            return serializeCreateM2MApplication(payload as any);
-          default:
-            return payload;
+            return serializeCreateM2MApplication(payload);
+          default: {
+            const _unknown: never = payload;
+            throw new Error(
+              `Unknown applicationType: ${(_unknown as { applicationType?: unknown }).applicationType}`,
+            );
+          }
         }
       })(),
     );

@@ -63,7 +63,11 @@ describe('Applications', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(connectApplicationFixture);
 
-      const result = await workos.applications.create({} as any);
+      const result = await workos.applications.create({
+        applicationType: 'oauth',
+        name: 'My Application',
+        isFirstParty: true,
+      });
 
       expect(fetchMethod()).toBe('POST');
       expect(new URL(String(fetchURL())).pathname).toBe(
@@ -73,11 +77,25 @@ describe('Applications', () => {
       expectConnectApplication(result);
     });
 
-    testUnauthorized(() => workos.applications.create({} as any));
+    testUnauthorized(() => workos.applications.create({
+        applicationType: 'oauth',
+        name: 'My Application',
+        isFirstParty: true,
+      }));
 
     it('throws UnprocessableEntityException on 422', async () => {
       fetchOnce('', { status: 422 });
-      await expect(workos.applications.create({} as any)).rejects.toThrow();
+      await expect(workos.applications.create({
+        applicationType: 'oauth',
+        name: 'My Application',
+        isFirstParty: true,
+      })).rejects.toThrow();
+    });
+
+    it('throws on unknown applicationType', async () => {
+      await expect(
+        workos.applications.create({ applicationType: 'bogus' } as any),
+      ).rejects.toThrow(/Unknown applicationType: bogus/);
     });
   });
 
