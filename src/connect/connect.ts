@@ -40,6 +40,20 @@ export interface ListApplicationsOptions extends PaginationOptions {
   organizationId?: string;
 }
 
+const serializeListApplicationsOptions = (
+  options: ListApplicationsOptions,
+): PaginationOptions => {
+  const wire: Record<string, unknown> = {
+    limit: options.limit,
+    before: options.before,
+    after: options.after,
+    order: options.order,
+  };
+  if (options.organizationId !== undefined)
+    wire.organization_id = options.organizationId;
+  return wire as PaginationOptions;
+};
+
 export class Connect {
   constructor(private readonly workos: WorkOS) {}
 
@@ -92,6 +106,7 @@ export class Connect {
       '/connect/applications',
       deserializeConnectApplication,
       options,
+      serializeListApplicationsOptions,
     );
   }
 

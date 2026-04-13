@@ -73,6 +73,19 @@ describe('Connect', () => {
     );
 
     testUnauthorized(() => workos.connect.listApplications());
+
+    it('translates camelCase filter options to snake_case on the wire', async () => {
+      fetchOnce(listConnectApplicationFixture);
+
+      await workos.connect.listApplications({ organizationId: 'org_01HXYZ' });
+
+      // The API expects snake_case query keys; without the serializer,
+      // `organizationId` would go out unchanged and the filter would be
+      // silently dropped by the server.
+      const params = fetchSearchParams();
+      expect(params).toHaveProperty('organization_id', 'org_01HXYZ');
+      expect(params).not.toHaveProperty('organizationId');
+    });
   });
 
   describe('createApplication', () => {
