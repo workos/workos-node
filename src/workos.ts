@@ -73,9 +73,11 @@ export class WorkOS {
   private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
+  readonly adminPortal = new AdminPortal(this);
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
+  readonly connect = new Connect(this);
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
@@ -84,12 +86,15 @@ export class WorkOS {
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
+  readonly permissions = new Permissions(this);
   readonly pipes = new Pipes(this);
   readonly portal = new Portal(this);
+  readonly radar = new Radar(this);
   readonly sso = new SSO(this);
   readonly userManagement: UserManagement;
   readonly vault = new Vault(this);
   readonly webhooks: Webhooks;
+  readonly webhooksEndpoints = new WebhooksEndpoints(this);
   readonly widgets = new Widgets(this);
 
   /**
@@ -517,11 +522,6 @@ export class WorkOS {
     }
   }
 
-  readonly adminPortal = new AdminPortal(this);
-  readonly permissions = new Permissions(this);
-  readonly radar = new Radar(this);
-  readonly webhooksEndpoints = new WebhooksEndpoints(this);
-  readonly connect = new Connect(this);
   /** Production */
   static readonly SERVER_PRODUCTION = 'https://api.workos.com';
   /** Staging */
