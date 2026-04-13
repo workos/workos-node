@@ -1,7 +1,11 @@
 {
   "name": "My Application",
   "description": "An application for managing user access",
-  "scopes": ["openid", "profile", "email"],
+  "scopes": [
+    "openid",
+    "profile",
+    "email"
+  ],
   "redirect_uris": [
     {
       "uri": "https://example.com/callback",

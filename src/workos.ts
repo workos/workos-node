@@ -53,9 +53,7 @@ import { AdminPortal } from './admin-portal/admin-portal';
 import { Permissions } from './permissions/permissions';
 import { Radar } from './radar/radar';
 import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
-import { WorkOSConnect } from './workos-connect/work-os-connect';
-import { Applications } from './workos-connect/applications';
-import { ApplicationClientSecrets } from './workos-connect/application-client-secrets';
+import { Connect } from './connect/connect';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -523,9 +521,7 @@ export class WorkOS {
   readonly permissions = new Permissions(this);
   readonly radar = new Radar(this);
   readonly webhooksEndpoints = new WebhooksEndpoints(this);
-  readonly workOsConnect = new WorkOSConnect(this);
-  readonly applications = new Applications(this);
-  readonly applicationClientSecrets = new ApplicationClientSecrets(this);
+  readonly connect = new Connect(this);
   /** Production */
   static readonly SERVER_PRODUCTION = 'https://api.workos.com';
   /** Staging */

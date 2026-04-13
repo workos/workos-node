@@ -2,6 +2,10 @@
   "name": "My Application",
   "application_type": "m2m",
   "description": "An application for managing user access",
-  "scopes": ["openid", "profile", "email"],
+  "scopes": [
+    "openid",
+    "profile",
+    "email"
+  ],
   "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT"
 }

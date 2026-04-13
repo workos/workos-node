@@ -4,10 +4,8 @@ import type {
   UpdateOAuthApplication,
   UpdateOAuthApplicationResponse,
 } from '../interfaces/update-oauth-application.interface';
-import {
-  deserializeRedirectUri,
-  serializeRedirectUri,
-} from './redirect-uri.serializer';
+import { deserializeRedirectUriInput } from './redirect-uri-input.serializer';
+import { serializeRedirectUriInput } from './redirect-uri-input.serializer';
 
 export const deserializeUpdateOAuthApplication = (
   response: UpdateOAuthApplicationResponse,
@@ -17,7 +15,7 @@ export const deserializeUpdateOAuthApplication = (
   scopes: response.scopes ?? null,
   redirectUris:
     response.redirect_uris != null
-      ? response.redirect_uris.map(deserializeRedirectUri)
+      ? response.redirect_uris.map(deserializeRedirectUriInput)
       : null,
 });
 
@@ -29,6 +27,6 @@ export const serializeUpdateOAuthApplication = (
   scopes: model.scopes ?? null,
   redirect_uris:
     model.redirectUris != null
-      ? model.redirectUris.map(serializeRedirectUri)
+      ? model.redirectUris.map(serializeRedirectUriInput)
       : null,
 });
