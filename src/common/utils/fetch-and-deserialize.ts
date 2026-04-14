@@ -63,12 +63,10 @@ export async function createPaginatedList<
     // filters persist across pages, then spread `params` so the cursor
     // overrides `after`/`limit` as pages advance.
     (params) =>
-      fetchAndDeserialize<TResponse, TModel>(
-        workos,
-        endpoint,
-        deserializeFn,
-        { ...wireOptions, ...params },
-      ),
+      fetchAndDeserialize<TResponse, TModel>(workos, endpoint, deserializeFn, {
+        ...wireOptions,
+        ...params,
+      }),
     options,
   );
 }

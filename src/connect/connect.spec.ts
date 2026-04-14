@@ -27,7 +27,7 @@ function expectConnectApplication(result: any) {
   expect(result.clientId).toBe('client_01HXYZ123456789ABCDEFGHIJ');
   expect(result.description).toBe('An application for managing user access');
   expect(result.name).toBe('My Application');
-  expect(result.scopes).toEqual(["openid","profile","email"]);
+  expect(result.scopes).toEqual(['openid', 'profile', 'email']);
   expect(result.createdAt).toBe('2026-01-15T12:00:00.000Z');
   expect(result.updatedAt).toBe('2026-01-15T12:00:00.000Z');
 }
@@ -39,15 +39,32 @@ describe('Connect', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(externalAuthCompleteResponseFixture);
 
-      const result = await workos.connect.completeLogin({ externalAuthId: 'external_auth_id_01234', user: { id: '01234', email: 'test@example.com' } });
+      const result = await workos.connect.completeLogin({
+        externalAuthId: 'external_auth_id_01234',
+        user: { id: '01234', email: 'test@example.com' },
+      });
 
       expect(fetchMethod()).toBe('POST');
-      expect(new URL(String(fetchURL())).pathname).toBe('/authkit/oauth2/complete');
-      expect(fetchBody()).toEqual(expect.objectContaining({ external_auth_id: 'external_auth_id_01234', user: { id: '01234', email: 'test@example.com' } }));
-      expect(result.redirectUri).toBe('https://your-authkit-domain.workos.com/oauth/authorize/complete?state=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGF0ZSI6InJhbmRvbV9zdGF0ZV9zdHJpbmciLCJpYXQiOjE3NDI2MDQ4NTN9.abc123def456ghi789');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/authkit/oauth2/complete',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          external_auth_id: 'external_auth_id_01234',
+          user: { id: '01234', email: 'test@example.com' },
+        }),
+      );
+      expect(result.redirectUri).toBe(
+        'https://your-authkit-domain.workos.com/oauth/authorize/complete?state=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdGF0ZSI6InJhbmRvbV9zdGF0ZV9zdHJpbmciLCJpYXQiOjE3NDI2MDQ4NTN9.abc123def456ghi789',
+      );
     });
 
-    testUnauthorized(() => workos.connect.completeLogin({ externalAuthId: 'external_auth_id_01234', user: { id: '01234', email: 'test@example.com' } }));
+    testUnauthorized(() =>
+      workos.connect.completeLogin({
+        externalAuthId: 'external_auth_id_01234',
+        user: { id: '01234', email: 'test@example.com' },
+      }),
+    );
   });
 
   describe('listApplications', () => {
@@ -57,7 +74,9 @@ describe('Connect', () => {
       const { data, listMetadata } = await workos.connect.listApplications();
 
       expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications',
+      );
       expect(fetchSearchParams()).toHaveProperty('order');
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
@@ -92,19 +111,43 @@ describe('Connect', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(connectApplicationFixture);
 
-      const result = await workos.connect.createApplication({ name: 'Test', applicationType: 'oauth', isFirstParty: true });
+      const result = await workos.connect.createApplication({
+        name: 'Test',
+        applicationType: 'oauth',
+        isFirstParty: true,
+      });
 
       expect(fetchMethod()).toBe('POST');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications');
-      expect(fetchBody()).toEqual(expect.objectContaining({ name: 'Test', application_type: 'oauth', is_first_party: true }));
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          name: 'Test',
+          application_type: 'oauth',
+          is_first_party: true,
+        }),
+      );
       expectConnectApplication(result);
     });
 
-    testUnauthorized(() => workos.connect.createApplication({ name: 'Test', applicationType: 'oauth', isFirstParty: true }));
+    testUnauthorized(() =>
+      workos.connect.createApplication({
+        name: 'Test',
+        applicationType: 'oauth',
+        isFirstParty: true,
+      }),
+    );
 
     it('throws UnprocessableEntityException on 422', async () => {
       fetchOnce('', { status: 422 });
-      await expect(workos.connect.createApplication({ name: 'Test', applicationType: 'oauth', isFirstParty: true })).rejects.toThrow();
+      await expect(
+        workos.connect.createApplication({
+          name: 'Test',
+          applicationType: 'oauth',
+          isFirstParty: true,
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -115,7 +158,9 @@ describe('Connect', () => {
       const result = await workos.connect.getApplication('test_id');
 
       expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications/test_id');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications/test_id',
+      );
       expectConnectApplication(result);
     });
 
@@ -134,7 +179,9 @@ describe('Connect', () => {
       const result = await workos.connect.updateApplication('test_id', {});
 
       expect(fetchMethod()).toBe('PUT');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications/test_id');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications/test_id',
+      );
       expect(fetchBody()).toBeDefined();
       expectConnectApplication(result);
     });
@@ -143,7 +190,9 @@ describe('Connect', () => {
 
     it('throws UnprocessableEntityException on 422', async () => {
       fetchOnce('', { status: 422 });
-      await expect(workos.connect.updateApplication('test_id', {})).rejects.toThrow();
+      await expect(
+        workos.connect.updateApplication('test_id', {}),
+      ).rejects.toThrow();
     });
   });
 
@@ -154,7 +203,9 @@ describe('Connect', () => {
       await workos.connect.deleteApplication('test_id');
 
       expect(fetchMethod()).toBe('DELETE');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications/test_id');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications/test_id',
+      );
     });
   });
 
@@ -165,10 +216,13 @@ describe('Connect', () => {
       // second fixture.
       fetchOnce([applicationCredentialsListItemFixture]);
 
-      const result = await workos.connect.listApplicationClientSecrets('test_id');
+      const result =
+        await workos.connect.listApplicationClientSecrets('test_id');
 
       expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications/test_id/client_secrets');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications/test_id/client_secrets',
+      );
       expect(Array.isArray(result)).toBe(true);
       expect(result).toHaveLength(1);
       expect(result[0].object).toBe('connect_application_secret');
@@ -179,17 +233,24 @@ describe('Connect', () => {
       expect(result[0].updatedAt).toBe('2026-01-15T12:00:00.000Z');
     });
 
-    testUnauthorized(() => workos.connect.listApplicationClientSecrets('test_id'));
+    testUnauthorized(() =>
+      workos.connect.listApplicationClientSecrets('test_id'),
+    );
   });
 
   describe('createApplicationClientSecret', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(newConnectApplicationSecretFixture);
 
-      const result = await workos.connect.createApplicationClientSecret('test_id', {});
+      const result = await workos.connect.createApplicationClientSecret(
+        'test_id',
+        {},
+      );
 
       expect(fetchMethod()).toBe('POST');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/applications/test_id/client_secrets');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/applications/test_id/client_secrets',
+      );
       expect(fetchBody()).toBeDefined();
       expect(result.object).toBe('connect_application_secret');
       expect(result.id).toBe('secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q');
@@ -197,14 +258,20 @@ describe('Connect', () => {
       expect(result.lastUsedAt).toBe(null);
       expect(result.createdAt).toBe('2026-01-15T12:00:00.000Z');
       expect(result.updatedAt).toBe('2026-01-15T12:00:00.000Z');
-      expect(result.secret).toBe('abc123def456ghi789jkl012mno345pqr678stu901vwx234yz');
+      expect(result.secret).toBe(
+        'abc123def456ghi789jkl012mno345pqr678stu901vwx234yz',
+      );
     });
 
-    testUnauthorized(() => workos.connect.createApplicationClientSecret('test_id', {}));
+    testUnauthorized(() =>
+      workos.connect.createApplicationClientSecret('test_id', {}),
+    );
 
     it('throws UnprocessableEntityException on 422', async () => {
       fetchOnce('', { status: 422 });
-      await expect(workos.connect.createApplicationClientSecret('test_id', {})).rejects.toThrow();
+      await expect(
+        workos.connect.createApplicationClientSecret('test_id', {}),
+      ).rejects.toThrow();
     });
   });
 
@@ -215,7 +282,9 @@ describe('Connect', () => {
       await workos.connect.deleteClientSecret('test_id');
 
       expect(fetchMethod()).toBe('DELETE');
-      expect(new URL(String(fetchURL())).pathname).toBe('/connect/client_secrets/test_id');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/connect/client_secrets/test_id',
+      );
     });
   });
 });
