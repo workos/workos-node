@@ -2,6 +2,7 @@
   "extends": [
     "config:recommended"
   ],
+  "dependencyDashboard": false,
   "schedule": [
     "on the 15th day of the month before 12pm"
   ],
