@@ -21,21 +21,3 @@ export interface PermissionResponse {
   created_at: string;
   updated_at: string;
 }
-
-export interface PermissionList {
-  object: 'list';
-  data: Permission[];
-  listMetadata: {
-    before: string | null;
-    after: string | null;
-  };
-}
-
-export interface PermissionListResponse {
-  object: 'list';
-  data: PermissionResponse[];
-  list_metadata: {
-    before: string | null;
-    after: string | null;
-  };
-}
