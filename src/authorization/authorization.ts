@@ -1,4 +1,6 @@
 import { WorkOS } from '../workos';
+import { AutoPaginatable } from '../common/utils/pagination';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import {
   Role,
   RoleList,
@@ -22,15 +24,11 @@ import {
   RemoveOrganizationRolePermissionOptions,
   Permission,
   PermissionResponse,
-  PermissionList,
-  PermissionListResponse,
   CreatePermissionOptions,
   UpdatePermissionOptions,
   ListPermissionsOptions,
   AuthorizationResource,
   AuthorizationResourceResponse,
-  AuthorizationResourceList,
-  AuthorizationResourceListResponse,
   ListAuthorizationResourcesOptions,
   GetAuthorizationResourceByExternalIdOptions,
   UpdateAuthorizationResourceByExternalIdOptions,
@@ -45,8 +43,6 @@ import {
   RemoveRoleAssignmentOptions,
   RemoveRoleOptions,
   RoleAssignment,
-  RoleAssignmentList,
-  RoleAssignmentListResponse,
   RoleAssignmentResponse,
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
@@ -76,8 +72,8 @@ import {
   serializeListResourcesForMembershipOptions,
 } from './serializers';
 import {
-  AuthorizationOrganizationMembershipList,
-  AuthorizationOrganizationMembershipListResponse,
+  AuthorizationOrganizationMembership,
+  AuthorizationOrganizationMembershipResponse,
 } from '../user-management/interfaces/organization-membership.interface';
 import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 
@@ -242,19 +238,23 @@ export class Authorization {
 
   async listPermissions(
     options?: ListPermissionsOptions,
-  ): Promise<PermissionList> {
-    const { data } = await this.workos.get<PermissionListResponse>(
-      '/authorization/permissions',
-      { query: options },
+  ): Promise<AutoPaginatable<Permission>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<PermissionResponse, Permission>(
+        this.workos,
+        '/authorization/permissions',
+        deserializePermission,
+        options,
+      ),
+      (params) =>
+        fetchAndDeserialize<PermissionResponse, Permission>(
+          this.workos,
+          '/authorization/permissions',
+          deserializePermission,
+          params,
+        ),
+      options,
     );
-    return {
-      object: 'list',
-      data: data.data.map(deserializePermission),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
   }
 
   async getPermission(slug: string): Promise<Permission> {
@@ -321,19 +321,31 @@ export class Authorization {
 
   async listResources(
     options: ListAuthorizationResourcesOptions = {},
-  ): Promise<AuthorizationResourceList> {
-    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
-      '/authorization/resources',
-      { query: serializeListAuthorizationResourcesOptions(options) },
+  ): Promise<AutoPaginatable<AuthorizationResource>> {
+    const serializedOptions =
+      serializeListAuthorizationResourcesOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizationResourceResponse,
+        AuthorizationResource
+      >(
+        this.workos,
+        '/authorization/resources',
+        deserializeAuthorizationResource,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizationResourceResponse,
+          AuthorizationResource
+        >(
+          this.workos,
+          '/authorization/resources',
+          deserializeAuthorizationResource,
+          params,
+        ),
+      serializedOptions,
     );
-    return {
-      object: 'list',
-      data: data.data.map(deserializeAuthorizationResource),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
   }
 
   async getResourceByExternalId(
@@ -385,20 +397,25 @@ export class Authorization {
 
   async listRoleAssignments(
     options: ListRoleAssignmentsOptions,
-  ): Promise<RoleAssignmentList> {
+  ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
-    const { data } = await this.workos.get<RoleAssignmentListResponse>(
-      `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`,
-      { query: queryOptions },
+    const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`;
+    return new AutoPaginatable(
+      await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+        this.workos,
+        endpoint,
+        deserializeRoleAssignment,
+        queryOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+          this.workos,
+          endpoint,
+          deserializeRoleAssignment,
+          params,
+        ),
+      queryOptions,
     );
-    return {
-      object: 'list',
-      data: data.data.map(deserializeRoleAssignment),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
   }
 
   async assignRole(options: AssignRoleOptions): Promise<RoleAssignment> {
@@ -426,63 +443,89 @@ export class Authorization {
 
   async listResourcesForMembership(
     options: ListResourcesForMembershipOptions,
-  ): Promise<AuthorizationResourceList> {
+  ): Promise<AutoPaginatable<AuthorizationResource>> {
     const { organizationMembershipId } = options;
-    const { data } = await this.workos.get<AuthorizationResourceListResponse>(
-      `/authorization/organization_memberships/${organizationMembershipId}/resources`,
-      {
-        query: serializeListResourcesForMembershipOptions(options),
-      },
+    const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/resources`;
+    const serializedOptions =
+      serializeListResourcesForMembershipOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizationResourceResponse,
+        AuthorizationResource
+      >(
+        this.workos,
+        endpoint,
+        deserializeAuthorizationResource,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizationResourceResponse,
+          AuthorizationResource
+        >(this.workos, endpoint, deserializeAuthorizationResource, params),
+      serializedOptions,
     );
-    return {
-      object: 'list',
-      data: data.data.map(deserializeAuthorizationResource),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
   }
 
   async listMembershipsForResource(
     options: ListMembershipsForResourceOptions,
-  ): Promise<AuthorizationOrganizationMembershipList> {
+  ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { resourceId } = options;
-    const { data } =
-      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
-        `/authorization/resources/${resourceId}/organization_memberships`,
-        {
-          query: serializeListMembershipsForResourceOptions(options),
-        },
-      );
-    return {
-      object: 'list',
-      data: data.data.map(deserializeAuthorizationOrganizationMembership),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
+    const endpoint = `/authorization/resources/${resourceId}/organization_memberships`;
+    const serializedOptions =
+      serializeListMembershipsForResourceOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizationOrganizationMembershipResponse,
+        AuthorizationOrganizationMembership
+      >(
+        this.workos,
+        endpoint,
+        deserializeAuthorizationOrganizationMembership,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizationOrganizationMembershipResponse,
+          AuthorizationOrganizationMembership
+        >(
+          this.workos,
+          endpoint,
+          deserializeAuthorizationOrganizationMembership,
+          params,
+        ),
+      serializedOptions,
+    );
   }
 
   async listMembershipsForResourceByExternalId(
     options: ListMembershipsForResourceByExternalIdOptions,
-  ): Promise<AuthorizationOrganizationMembershipList> {
+  ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { organizationId, resourceTypeSlug, externalId } = options;
-    const { data } =
-      await this.workos.get<AuthorizationOrganizationMembershipListResponse>(
-        `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`,
-        {
-          query: serializeListMembershipsForResourceOptions(options),
-        },
-      );
-    return {
-      object: 'list',
-      data: data.data.map(deserializeAuthorizationOrganizationMembership),
-      listMetadata: {
-        before: data.list_metadata.before,
-        after: data.list_metadata.after,
-      },
-    };
+    const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`;
+    const serializedOptions =
+      serializeListMembershipsForResourceOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizationOrganizationMembershipResponse,
+        AuthorizationOrganizationMembership
+      >(
+        this.workos,
+        endpoint,
+        deserializeAuthorizationOrganizationMembership,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizationOrganizationMembershipResponse,
+          AuthorizationOrganizationMembership
+        >(
+          this.workos,
+          endpoint,
+          deserializeAuthorizationOrganizationMembership,
+          params,
+        ),
+      serializedOptions,
+    );
   }
 }
