@@ -1241,8 +1241,9 @@ describe('Authorization', () => {
         parentResourceId: 'resource_01HXYZ123ABC456DEF789XYZ',
       });
 
-      expect(fetchSearchParams()).toMatchObject({
+      expect(fetchSearchParams()).toEqual({
         parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+        order: 'desc',
       });
     });
 
@@ -1254,9 +1255,10 @@ describe('Authorization', () => {
         parentExternalId: 'folder-123',
       });
 
-      expect(fetchSearchParams()).toMatchObject({
+      expect(fetchSearchParams()).toEqual({
         parent_resource_type_slug: 'folder',
         parent_external_id: 'folder-123',
+        order: 'desc',
       });
     });
 
@@ -1267,8 +1269,9 @@ describe('Authorization', () => {
         search: 'Budget',
       });
 
-      expect(fetchSearchParams()).toMatchObject({
+      expect(fetchSearchParams()).toEqual({
         search: 'Budget',
+        order: 'desc',
       });
     });
 
