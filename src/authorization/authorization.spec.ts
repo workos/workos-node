@@ -571,6 +571,7 @@ describe('Authorization', () => {
       const result = await workos.authorization.listPermissions();
 
       expect(fetchURL()).toContain('/authorization/permissions');
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(2);
       expect(result.data).toEqual(
         expect.arrayContaining([
@@ -1177,6 +1178,7 @@ describe('Authorization', () => {
       const result = await workos.authorization.listResources();
 
       expect(fetchURL()).toContain('/authorization/resources');
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(2);
       expect(result.data).toEqual(
         expect.arrayContaining([
@@ -1644,6 +1646,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
       );
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).toMatchObject({
         object: 'role_assignment',
@@ -1919,6 +1922,7 @@ describe('Authorization', () => {
         permission_slug: 'document:read',
         parent_resource_id: testResourceId,
       });
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(2);
       expect(result.data[0]).toMatchObject({
         object: 'authorization_resource',
@@ -2049,6 +2053,7 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         permission_slug: 'documents:read',
       });
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).toMatchObject({
         object: 'organization_membership',
@@ -2077,6 +2082,7 @@ describe('Authorization', () => {
         permissionSlug: 'documents:read',
       });
 
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(0);
       expect(result.listMetadata).toEqual({ before: null, after: null });
     });
@@ -2197,6 +2203,7 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         permission_slug: 'documents:read',
       });
+      expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(1);
       expect(result.data[0]).toMatchObject({
         object: 'organization_membership',
