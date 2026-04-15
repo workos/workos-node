@@ -42,3 +42,4 @@ export interface OrganizationMembershipResponse extends BaseOrganizationMembersh
 
 export type AuthorizationOrganizationMembershipResponse =
   BaseOrganizationMembershipResponse;
+  
