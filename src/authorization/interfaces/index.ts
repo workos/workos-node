@@ -28,3 +28,5 @@ export * from './list-role-assignments-options.interface';
 export * from './assign-role-options.interface';
 export * from './remove-role-options.interface';
 export * from './remove-role-assignment-options.interface';
+export * from './list-effective-permissions-options.interface';
+export * from './list-effective-permissions-by-external-id-options.interface';

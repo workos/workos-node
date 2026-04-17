@@ -47,6 +47,8 @@ import {
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
   ListResourcesForMembershipOptions,
+  ListEffectivePermissionsOptions,
+  ListEffectivePermissionsByExternalIdOptions,
 } from './interfaces';
 import {
   deserializeEnvironmentRole,
@@ -70,6 +72,7 @@ import {
   serializeRemoveRoleOptions,
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
+  serializeListEffectivePermissionsOptions,
 } from './serializers';
 import {
   AuthorizationOrganizationMembership,
@@ -523,6 +526,54 @@ export class Authorization {
           this.workos,
           endpoint,
           deserializeAuthorizationOrganizationMembership,
+          params,
+        ),
+      serializedOptions,
+    );
+  }
+
+  async listEffectivePermissions(
+    options: ListEffectivePermissionsOptions,
+  ): Promise<AutoPaginatable<Permission>> {
+    const { organizationMembershipId, resourceId } = options;
+    const endpoint = `/authorization/resources/${resourceId}/organization_memberships/${organizationMembershipId}/permissions`;
+    const serializedOptions = serializeListEffectivePermissionsOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<PermissionResponse, Permission>(
+        this.workos,
+        endpoint,
+        deserializePermission,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<PermissionResponse, Permission>(
+          this.workos,
+          endpoint,
+          deserializePermission,
+          params,
+        ),
+      serializedOptions,
+    );
+  }
+
+  async listEffectivePermissionsByExternalId(
+    options: ListEffectivePermissionsByExternalIdOptions,
+  ): Promise<AutoPaginatable<Permission>> {
+    const { organizationMembershipId, organizationId, resourceTypeSlug, externalId } = options;
+    const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships/${organizationMembershipId}/permissions`;
+    const serializedOptions = serializeListEffectivePermissionsOptions(options);
+    return new AutoPaginatable(
+      await fetchAndDeserialize<PermissionResponse, Permission>(
+        this.workos,
+        endpoint,
+        deserializePermission,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<PermissionResponse, Permission>(
+          this.workos,
+          endpoint,
+          deserializePermission,
           params,
         ),
       serializedOptions,

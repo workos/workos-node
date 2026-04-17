@@ -17,6 +17,7 @@ import listResourcesFixture from './fixtures/list-resources.json';
 import roleAssignmentFixture from './fixtures/role-assignment.json';
 import listRoleAssignmentsFixture from './fixtures/list-role-assignments.json';
 import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
+import listEffectivePermissionsFixture from './fixtures/list-effective-permissions.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -2316,6 +2317,183 @@ describe('Authorization', () => {
         externalId: 'doc-456',
         permissionSlug: 'documents:read',
         order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listEffectivePermissions', () => {
+    it('lists effective permissions for a membership on a resource', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      const result = await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}/organization_memberships/${testOrgMembershipId}/permissions`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHI',
+            slug: 'documents:read',
+            name: 'Read Documents',
+            resourceTypeSlug: 'document',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHJ',
+            slug: 'documents:edit',
+            name: 'Edit Documents',
+            resourceTypeSlug: 'document',
+          }),
+        ]),
+      );
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+        limit: 10,
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        limit: '10',
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listEffectivePermissionsByExternalId', () => {
+    it('lists effective permissions for a membership on a resource by external ID', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      const result =
+        await workos.authorization.listEffectivePermissionsByExternalId({
+          organizationMembershipId: testOrgMembershipId,
+          organizationId: testOrgId,
+          resourceTypeSlug: 'document',
+          externalId: 'doc-456',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships/${testOrgMembershipId}/permissions`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            slug: 'documents:read',
+            resourceTypeSlug: 'document',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            slug: 'documents:edit',
+            resourceTypeSlug: 'document',
+          }),
+        ]),
+      );
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        limit: 10,
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        limit: '10',
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
       });
 
       expect(fetchSearchParams()).toMatchObject({
