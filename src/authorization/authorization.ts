@@ -559,7 +559,12 @@ export class Authorization {
   async listEffectivePermissionsByExternalId(
     options: ListEffectivePermissionsByExternalIdOptions,
   ): Promise<AutoPaginatable<Permission>> {
-    const { organizationMembershipId, organizationId, resourceTypeSlug, externalId } = options;
+    const {
+      organizationMembershipId,
+      organizationId,
+      resourceTypeSlug,
+      externalId,
+    } = options;
     const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships/${organizationMembershipId}/permissions`;
     const serializedOptions = serializeListEffectivePermissionsOptions(options);
     return new AutoPaginatable(
