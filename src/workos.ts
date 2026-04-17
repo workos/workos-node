@@ -1,6 +1,8 @@
 import {
   ApiKeyRequiredException,
+  AuthenticationException,
   GenericServerException,
+  isAuthenticationErrorData,
   NotFoundException,
   UnauthorizedException,
   UnprocessableEntityException,
@@ -494,6 +496,8 @@ export class WorkOS {
               message,
               requestID,
             });
+          } else if (isAuthenticationErrorData(data)) {
+            throw new AuthenticationException(status, data, requestID);
           } else {
             throw new GenericServerException(
               status,

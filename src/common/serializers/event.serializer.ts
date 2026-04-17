@@ -302,5 +302,9 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
       };
+    default:
+      throw new Error(
+        `Unrecognized event type: ${(event as { event: string }).event}`,
+      );
   }
 };
