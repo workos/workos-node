@@ -2135,12 +2135,12 @@ describe('Authorization', () => {
       };
       fetchOnce(fixtureWithoutCustomAttrs);
 
-      const { data } = await workos.authorization.listMembershipsForResource({
+      const result = await workos.authorization.listMembershipsForResource({
         resourceId: testResourceId,
         permissionSlug: 'documents:read',
       });
 
-      expect(data[0].customAttributes).toEqual({});
+      expect(result.data[0].customAttributes).toEqual({});
     });
 
     it('defaults to desc order when order is not specified', async () => {
