@@ -106,11 +106,7 @@ export abstract class HttpClient implements HttpClientInterface {
   }
 
   static isPathRetryable(path: string): boolean {
-    return (
-      path.startsWith('/fga/') ||
-      path.startsWith('/vault/') ||
-      path.startsWith('/audit_logs/events')
-    );
+    return path.startsWith('/vault/') || path.startsWith('/audit_logs/events');
   }
 
   private getSleepTimeInMilliseconds(retryAttempt: number): number {
