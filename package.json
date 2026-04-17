@@ -82,7 +82,7 @@
     "publint": "^0.3.18",
     "tsdown": "^0.21.0",
     "tsx": "^4.20.6",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "typescript-eslint": "^8.46.0"
   },
   "engines": {
