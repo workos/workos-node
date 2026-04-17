@@ -17,6 +17,7 @@ import listResourcesFixture from './fixtures/list-resources.json';
 import roleAssignmentFixture from './fixtures/role-assignment.json';
 import listRoleAssignmentsFixture from './fixtures/list-role-assignments.json';
 import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
+import listEffectivePermissionsFixture from './fixtures/list-effective-permissions.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
@@ -568,13 +569,12 @@ describe('Authorization', () => {
     it('returns permissions', async () => {
       fetchOnce(listPermissionsFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listPermissions();
+      const result = await workos.authorization.listPermissions();
 
       expect(fetchURL()).toContain('/authorization/permissions');
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(2);
-      expect(data).toEqual(
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             object: 'permission',
@@ -592,7 +592,7 @@ describe('Authorization', () => {
           }),
         ]),
       );
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'perm_01HXYZ123ABC456DEF789GHJ',
       });
@@ -610,6 +610,36 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toEqual({
         limit: '10',
         after: 'perm_01HXYZ123ABC456DEF789GHI',
+        order: 'desc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      await workos.authorization.listPermissions();
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      await workos.authorization.listPermissions({ order: 'asc' });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listPermissionsFixture);
+
+      await workos.authorization.listPermissions({ order: 'desc' });
+
+      expect(fetchSearchParams()).toMatchObject({
         order: 'desc',
       });
     });
@@ -1146,13 +1176,12 @@ describe('Authorization', () => {
     it('returns a paginated list of resources', async () => {
       fetchOnce(listResourcesFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listResources();
+      const result = await workos.authorization.listResources();
 
       expect(fetchURL()).toContain('/authorization/resources');
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(2);
-      expect(data).toEqual(
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
             object: 'authorization_resource',
@@ -1170,7 +1199,7 @@ describe('Authorization', () => {
           }),
         ]),
       );
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'authz_resource_01HXYZ123ABC456DEF789DEF',
       });
@@ -1217,6 +1246,7 @@ describe('Authorization', () => {
 
       expect(fetchSearchParams()).toEqual({
         parent_resource_id: 'resource_01HXYZ123ABC456DEF789XYZ',
+        order: 'desc',
       });
     });
 
@@ -1231,6 +1261,7 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toEqual({
         parent_resource_type_slug: 'folder',
         parent_external_id: 'folder-123',
+        order: 'desc',
       });
     });
 
@@ -1243,6 +1274,37 @@ describe('Authorization', () => {
 
       expect(fetchSearchParams()).toEqual({
         search: 'Budget',
+        order: 'desc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources();
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({ order: 'asc' });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResources({ order: 'desc' });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
       });
     });
   });
@@ -1578,17 +1640,16 @@ describe('Authorization', () => {
     it('lists role assignments for an organization membership', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listRoleAssignments({
-          organizationMembershipId: testOrgMembershipId,
-        });
+      const result = await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+      });
 
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
       );
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(1);
-      expect(data[0]).toMatchObject({
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
         object: 'role_assignment',
         id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
         role: { slug: 'editor' },
@@ -1600,7 +1661,7 @@ describe('Authorization', () => {
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'role_assignment_01HXYZ123ABC456DEF789ABC',
       });
@@ -1637,6 +1698,44 @@ describe('Authorization', () => {
         limit: '10',
         before: 'ra_cursor456',
         order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
       });
     });
   });
@@ -1811,12 +1910,11 @@ describe('Authorization', () => {
     it('lists resources with parentResourceId', async () => {
       fetchOnce(listResourcesFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listResourcesForMembership({
-          organizationMembershipId: testOrgMembershipId,
-          permissionSlug: 'document:read',
-          parentResourceId: testResourceId,
-        });
+      const result = await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+      });
 
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/resources`,
@@ -1825,13 +1923,13 @@ describe('Authorization', () => {
         permission_slug: 'document:read',
         parent_resource_id: testResourceId,
       });
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(2);
-      expect(data[0]).toMatchObject({
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data[0]).toMatchObject({
         object: 'authorization_resource',
         id: 'authz_resource_01HXYZ123ABC456DEF789ABC',
       });
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'authz_resource_01HXYZ123ABC456DEF789DEF',
       });
@@ -1895,17 +1993,60 @@ describe('Authorization', () => {
         order: 'asc',
       });
     });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listResourcesFixture);
+
+      await workos.authorization.listResourcesForMembership({
+        organizationMembershipId: testOrgMembershipId,
+        permissionSlug: 'document:read',
+        parentResourceId: testResourceId,
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
   });
 
   describe('listMembershipsForResource', () => {
     it('lists organization memberships for a resource by internal ID', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listMembershipsForResource({
-          resourceId: testResourceId,
-          permissionSlug: 'documents:read',
-        });
+      const result = await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+      });
 
       expect(fetchURL()).toContain(
         `/authorization/resources/${testResourceId}/organization_memberships`,
@@ -1913,9 +2054,9 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         permission_slug: 'documents:read',
       });
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(1);
-      expect(data[0]).toMatchObject({
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
         object: 'organization_membership',
         id: 'om_01HXYZ123ABC456DEF789ABC',
         userId: 'user_01HXYZ123ABC456DEF789XYZ',
@@ -1923,7 +2064,7 @@ describe('Authorization', () => {
         status: 'active',
         customAttributes: { department: 'Engineering', level: 'senior' },
       });
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'om_01HXYZ123ABC456DEF789ABC',
       });
@@ -1937,15 +2078,14 @@ describe('Authorization', () => {
       };
       fetchOnce(emptyFixture);
 
-      const { data, object, listMetadata } =
-        await workos.authorization.listMembershipsForResource({
-          resourceId: testResourceId,
-          permissionSlug: 'documents:read',
-        });
+      const result = await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+      });
 
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(0);
-      expect(listMetadata).toEqual({ before: null, after: null });
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(0);
+      expect(result.listMetadata).toEqual({ before: null, after: null });
     });
 
     it('passes pagination parameters', async () => {
@@ -1996,12 +2136,53 @@ describe('Authorization', () => {
       };
       fetchOnce(fixtureWithoutCustomAttrs);
 
-      const { data } = await workos.authorization.listMembershipsForResource({
+      const result = await workos.authorization.listMembershipsForResource({
         resourceId: testResourceId,
         permissionSlug: 'documents:read',
       });
 
-      expect(data[0].customAttributes).toEqual({});
+      expect(result.data[0].customAttributes).toEqual({});
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResource({
+        resourceId: testResourceId,
+        permissionSlug: 'documents:read',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
     });
   });
 
@@ -2009,7 +2190,7 @@ describe('Authorization', () => {
     it('lists organization memberships for a resource by external ID', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      const { data, object, listMetadata } =
+      const result =
         await workos.authorization.listMembershipsForResourceByExternalId({
           organizationId: testOrgId,
           resourceTypeSlug: 'document',
@@ -2023,9 +2204,9 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         permission_slug: 'documents:read',
       });
-      expect(object).toEqual('list');
-      expect(data).toHaveLength(1);
-      expect(data[0]).toMatchObject({
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
         object: 'organization_membership',
         id: 'om_01HXYZ123ABC456DEF789ABC',
         userId: 'user_01HXYZ123ABC456DEF789XYZ',
@@ -2033,7 +2214,7 @@ describe('Authorization', () => {
         status: 'active',
         customAttributes: { department: 'Engineering', level: 'senior' },
       });
-      expect(listMetadata).toEqual({
+      expect(result.listMetadata).toEqual({
         before: null,
         after: 'om_01HXYZ123ABC456DEF789ABC',
       });
@@ -2093,6 +2274,230 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         permission_slug: 'documents:read',
         assignment: 'direct',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+
+    it('passes order asc when explicitly set', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'asc',
+      });
+    });
+
+    it('passes order desc when explicitly set', async () => {
+      fetchOnce(listOrganizationMembershipsForResourceFixture);
+
+      await workos.authorization.listMembershipsForResourceByExternalId({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        permissionSlug: 'documents:read',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listEffectivePermissions', () => {
+    it('lists effective permissions for a membership on a resource', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      const result = await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}/organization_memberships/${testOrgMembershipId}/permissions`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHI',
+            slug: 'documents:read',
+            name: 'Read Documents',
+            resourceTypeSlug: 'document',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            id: 'perm_01HXYZ123ABC456DEF789GHJ',
+            slug: 'documents:edit',
+            name: 'Edit Documents',
+            resourceTypeSlug: 'document',
+          }),
+        ]),
+      );
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+        limit: 10,
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        limit: '10',
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissions({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listEffectivePermissionsByExternalId', () => {
+    it('lists effective permissions for a membership on a resource by external ID', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      const result =
+        await workos.authorization.listEffectivePermissionsByExternalId({
+          organizationMembershipId: testOrgMembershipId,
+          organizationId: testOrgId,
+          resourceTypeSlug: 'document',
+          externalId: 'doc-456',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships/${testOrgMembershipId}/permissions`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            object: 'permission',
+            slug: 'documents:read',
+            resourceTypeSlug: 'document',
+          }),
+          expect.objectContaining({
+            object: 'permission',
+            slug: 'documents:edit',
+            resourceTypeSlug: 'document',
+          }),
+        ]),
+      );
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'perm_01HXYZ123ABC456DEF789GHJ',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        limit: 10,
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        limit: '10',
+        after: 'perm_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        before: 'perm_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listEffectivePermissionsFixture);
+
+      await workos.authorization.listEffectivePermissionsByExternalId({
+        organizationMembershipId: testOrgMembershipId,
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
       });
     });
   });

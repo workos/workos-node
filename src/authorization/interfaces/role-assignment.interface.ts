@@ -31,21 +31,3 @@ export interface RoleAssignmentResponse {
   created_at: string;
   updated_at: string;
 }
-
-export interface RoleAssignmentList {
-  object: 'list';
-  data: RoleAssignment[];
-  listMetadata: {
-    before: string | null;
-    after: string | null;
-  };
-}
-
-export interface RoleAssignmentListResponse {
-  object: 'list';
-  data: RoleAssignmentResponse[];
-  list_metadata: {
-    before: string | null;
-    after: string | null;
-  };
-}

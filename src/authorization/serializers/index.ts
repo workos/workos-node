@@ -18,3 +18,4 @@ export * from './list-memberships-for-resource-options.serializer';
 export * from './role-assignment.serializer';
 export * from './assign-role-options.serializer';
 export * from './remove-role-options.serializer';
+export * from './list-effective-permissions-options.serializer';
