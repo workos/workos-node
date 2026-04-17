@@ -15,73 +15,6 @@ describe('Fetch client', () => {
   beforeEach(() => fetch.resetMocks());
 
   describe('fetchRequestWithRetry', () => {
-    it('get for FGA path should call fetchRequestWithRetry and return response', async () => {
-      fetchOnce({ data: 'response' });
-      const mockFetchRequestWithRetry = jest.spyOn(
-        FetchHttpClient.prototype as any,
-        'fetchRequestWithRetry',
-      );
-
-      const response = await fetchClient.get('/fga/v1/resources', {});
-
-      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
-      expect(fetchURL()).toBe('https://test.workos.com/fga/v1/resources');
-      expect(await response.toJSON()).toEqual({ data: 'response' });
-    });
-
-    it('post for FGA path should call fetchRequestWithRetry and return response', async () => {
-      fetchOnce({ data: 'response' });
-      const mockFetchRequestWithRetry = jest.spyOn(
-        FetchHttpClient.prototype as any,
-        'fetchRequestWithRetry',
-      );
-
-      const response = await fetchClient.post('/fga/v1/resources', {}, {});
-
-      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
-      expect(fetchURL()).toBe('https://test.workos.com/fga/v1/resources');
-      expect(await response.toJSON()).toEqual({ data: 'response' });
-    });
-
-    it('put for FGA path should call fetchRequestWithRetry and return response', async () => {
-      fetchOnce({ data: 'response' });
-      const mockFetchRequestWithRetry = jest.spyOn(
-        FetchHttpClient.prototype as any,
-        'fetchRequestWithRetry',
-      );
-
-      const response = await fetchClient.put(
-        '/fga/v1/resources/user/user-1',
-        {},
-        {},
-      );
-
-      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
-      expect(fetchURL()).toBe(
-        'https://test.workos.com/fga/v1/resources/user/user-1',
-      );
-      expect(await response.toJSON()).toEqual({ data: 'response' });
-    });
-
-    it('delete for FGA path should call fetchRequestWithRetry and return response', async () => {
-      fetchOnce({ data: 'response' });
-      const mockFetchRequestWithRetry = jest.spyOn(
-        FetchHttpClient.prototype as any,
-        'fetchRequestWithRetry',
-      );
-
-      const response = await fetchClient.delete(
-        '/fga/v1/resources/user/user-1',
-        {},
-      );
-
-      expect(mockFetchRequestWithRetry).toHaveBeenCalledTimes(1);
-      expect(fetchURL()).toBe(
-        'https://test.workos.com/fga/v1/resources/user/user-1',
-      );
-      expect(await response.toJSON()).toEqual({ data: 'response' });
-    });
-
     it('get for Vault path should call fetchRequestWithRetry and return response', async () => {
       fetchOnce({ data: 'response' });
       const mockFetchRequestWithRetry = jest.spyOn(
@@ -153,7 +86,7 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      const response = await fetchClient.get('/fga/v1/resources', {});
+      const response = await fetchClient.get('/vault/v1/kv', {});
 
       expect(mockShouldRetryRequest).toHaveBeenCalledTimes(2);
       expect(mockSleep).toHaveBeenCalledTimes(1);
@@ -175,7 +108,7 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      const response = await fetchClient.get('/fga/v1/resources', {});
+      const response = await fetchClient.get('/vault/v1/kv', {});
 
       expect(mockShouldRetryRequest).toHaveBeenCalledTimes(2);
       expect(mockSleep).toHaveBeenCalledTimes(1);
@@ -197,7 +130,7 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      const response = await fetchClient.get('/fga/v1/resources', {});
+      const response = await fetchClient.get('/vault/v1/kv', {});
 
       expect(mockShouldRetryRequest).toHaveBeenCalledTimes(2);
       expect(mockSleep).toHaveBeenCalledTimes(1);
@@ -236,7 +169,7 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      await expect(fetchClient.get('/fga/v1/resources', {})).rejects.toThrow(
+      await expect(fetchClient.get('/vault/v1/kv', {})).rejects.toThrow(
         'Gateway Timeout',
       );
 
@@ -256,7 +189,7 @@ describe('Fetch client', () => {
         'shouldRetryRequest',
       );
 
-      await expect(fetchClient.get('/fga/v1/resources', {})).rejects.toThrow(
+      await expect(fetchClient.get('/vault/v1/kv', {})).rejects.toThrow(
         'Bad Request',
       );
 
@@ -275,7 +208,7 @@ describe('Fetch client', () => {
       const mockSleep = jest.spyOn(fetchClient, 'sleep');
       mockSleep.mockImplementation(() => Promise.resolve());
 
-      const response = await fetchClient.get('/fga/v1/resources', {});
+      const response = await fetchClient.get('/vault/v1/kv', {});
 
       expect(mockFetchRequest).toHaveBeenCalledTimes(2);
       expect(mockSleep).toHaveBeenCalledTimes(1);
@@ -314,8 +247,7 @@ describe('Fetch client', () => {
       }
     });
 
-    it('should throw ParseError for non-FGA endpoints with invalid JSON response', async () => {
-      // Test with a non-FGA endpoint to ensure the error handling works for regular requests too
+    it('should throw ParseError for endpoints with invalid JSON response', async () => {
       fetch.mockResponseOnce('Not JSON content', {
         status: 400,
         statusText: 'Bad Request',
