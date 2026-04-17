@@ -41,21 +41,32 @@ export async function createPaginatedList<
   endpoint: string,
   deserializeFn: (r: TResponse) => TModel,
   options?: TOptions,
+  serializeOptionsFn?: (opts: TOptions) => PaginationOptions,
 ): Promise<AutoPaginatable<TModel, TOptions>> {
+  // When a serializer is provided, transform the user-facing camelCase
+  // options into the wire (snake_case) shape before making any HTTP call.
+  // Without this, extension filter fields like `organizationId` go out as
+  // camelCase query keys that the API silently ignores.  Standard pagination
+  // fields (limit/before/after/order) share spelling so no serializer is
+  // needed for options that extend only PaginationOptions.
+  const wireOptions =
+    options && serializeOptionsFn ? serializeOptionsFn(options) : options;
   return new AutoPaginatable(
     await fetchAndDeserialize<TResponse, TModel>(
       workos,
       endpoint,
       deserializeFn,
-      options,
+      wireOptions,
     ),
+    // AutoPaginatable invokes this callback with just the pagination cursor
+    // (`{ limit, after }`) for each page.  Spread the wire-form options so
+    // filters persist across pages, then spread `params` so the cursor
+    // overrides `after`/`limit` as pages advance.
     (params) =>
-      fetchAndDeserialize<TResponse, TModel>(
-        workos,
-        endpoint,
-        deserializeFn,
-        params,
-      ),
+      fetchAndDeserialize<TResponse, TModel>(workos, endpoint, deserializeFn, {
+        ...wireOptions,
+        ...params,
+      }),
     options,
   );
 }

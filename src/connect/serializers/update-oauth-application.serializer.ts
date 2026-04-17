@@ -4,10 +4,8 @@ import type {
   UpdateOAuthApplication,
   UpdateOAuthApplicationResponse,
 } from '../interfaces/update-oauth-application.interface';
-import {
-  deserializeRedirectUriInput,
-  serializeRedirectUriInput,
-} from './redirect-uri-input.serializer';
+import { deserializeRedirectUriInput } from './redirect-uri-input.serializer';
+import { serializeRedirectUriInput } from './redirect-uri-input.serializer';
 
 export const deserializeUpdateOAuthApplication = (
   response: UpdateOAuthApplicationResponse,

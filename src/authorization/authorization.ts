@@ -432,12 +432,11 @@ export class Authorization {
   }
 
   /**
-   * List permissions
-   *
-   * Get a list of all permissions in your WorkOS environment.
-   * @param options - Pagination and filter options.
-   * @returns {Promise<PermissionList>}
-   * @throws {NotFoundException} 404
+   * @deprecated Use `workos.permissions.list()` instead.  Note that the new
+   * method returns an `AutoPaginatable<Permission>` (with auto-pagination
+   * support) rather than this method's plain `PermissionList`.  The shapes
+   * are largely compatible — `.data` and `.listMetadata` are both available
+   * — but explicit `PermissionList` type annotations won't transfer.
    */
   async listPermissions(
     options?: ListPermissionsOptions,

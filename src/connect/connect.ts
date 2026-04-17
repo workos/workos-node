@@ -25,7 +25,7 @@ import type { CreateOAuthApplication } from './interfaces/create-oauth-applicati
 import type { CreateM2MApplication } from './interfaces/create-m2m-application.interface';
 import type { UpdateOAuthApplication } from './interfaces/update-oauth-application.interface';
 import type { CreateApplicationSecret } from './interfaces/create-application-secret.interface';
-import type { RedirectUriInput } from './interfaces/redirect-uri-input.interface';
+import type { ListApplicationsOptions } from './interfaces/list-applications-options.interface';
 import { deserializeExternalAuthCompleteResponse } from './serializers/external-auth-complete-response.serializer';
 import { deserializeConnectApplication } from './serializers/connect-application.serializer';
 import { deserializeApplicationCredentialsListItem } from './serializers/application-credentials-list-item.serializer';
@@ -36,10 +36,19 @@ import { serializeCreateM2MApplication } from './serializers/create-m2m-applicat
 import { serializeUpdateOAuthApplication } from './serializers/update-oauth-application.serializer';
 import { serializeCreateApplicationSecret } from './serializers/create-application-secret.serializer';
 
-export interface ListApplicationsOptions extends PaginationOptions {
-  /** Filter Connect Applications by organization ID. */
-  organizationId?: string;
-}
+const serializeListApplicationsOptions = (
+  options: ListApplicationsOptions,
+): PaginationOptions => {
+  const wire: Record<string, unknown> = {
+    limit: options.limit,
+    before: options.before,
+    after: options.after,
+    order: options.order,
+  };
+  if (options.organizationId !== undefined)
+    wire.organization_id = options.organizationId;
+  return wire as PaginationOptions;
+};
 
 export class Connect {
   constructor(private readonly workos: WorkOS) {}
@@ -63,7 +72,7 @@ export class Connect {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async completeOAuth2(
+  async completeLogin(
     payload: UserManagementLoginRequest,
   ): Promise<ExternalAuthCompleteResponse> {
     const { data } = await this.workos.post<ExternalAuthCompleteResponseWire>(
@@ -93,6 +102,7 @@ export class Connect {
       '/connect/applications',
       deserializeConnectApplication,
       options,
+      serializeListApplicationsOptions,
     );
   }
 
@@ -105,69 +115,25 @@ export class Connect {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async createApplications(
+  async createApplication(
     payload: CreateOAuthApplication | CreateM2MApplication,
   ): Promise<ConnectApplication> {
     const { data } = await this.workos.post<ConnectApplicationResponse>(
       '/connect/applications',
       (() => {
-        switch ((payload as any).applicationType) {
+        switch (payload.applicationType) {
           case 'oauth':
-            return serializeCreateOAuthApplication(payload as any);
+            return serializeCreateOAuthApplication(payload);
           case 'm2m':
-            return serializeCreateM2MApplication(payload as any);
-          default:
-            return payload;
+            return serializeCreateM2MApplication(payload);
+          default: {
+            const _unknown: never = payload;
+            throw new Error(
+              `Unknown applicationType: ${(_unknown as { applicationType?: unknown }).applicationType}`,
+            );
+          }
         }
       })(),
-    );
-    return deserializeConnectApplication(data);
-  }
-
-  /** Create oauth application. */
-  async createOAuthApplication(
-    name: string,
-    isFirstParty: boolean,
-    description?: string | null,
-    scopes?: string[] | null,
-    redirectUris?: RedirectUriInput[] | null,
-    usesPkce?: boolean | null,
-    organizationId?: string | null,
-  ): Promise<ConnectApplication> {
-    const body: Record<string, unknown> = {
-      application_type: 'oauth',
-      name: name,
-      is_first_party: isFirstParty,
-    };
-    if (description !== undefined) body.description = description;
-    if (scopes !== undefined) body.scopes = scopes;
-    if (redirectUris !== undefined) body.redirect_uris = redirectUris;
-    if (usesPkce !== undefined) body.uses_pkce = usesPkce;
-    if (organizationId !== undefined) body.organization_id = organizationId;
-    const { data } = await this.workos.post<ConnectApplicationResponse>(
-      '/connect/applications',
-      body,
-    );
-    return deserializeConnectApplication(data);
-  }
-
-  /** Create m2m application. */
-  async createM2MApplication(
-    name: string,
-    organizationId: string,
-    description?: string | null,
-    scopes?: string[] | null,
-  ): Promise<ConnectApplication> {
-    const body: Record<string, unknown> = {
-      application_type: 'm2m',
-      name: name,
-      organization_id: organizationId,
-    };
-    if (description !== undefined) body.description = description;
-    if (scopes !== undefined) body.scopes = scopes;
-    const { data } = await this.workos.post<ConnectApplicationResponse>(
-      '/connect/applications',
-      body,
     );
     return deserializeConnectApplication(data);
   }
@@ -229,17 +195,16 @@ export class Connect {
    * List all client secrets associated with a Connect Application.
    * @param id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {Promise<ApplicationCredentialsListItem>}
+   * @returns {Promise<ApplicationCredentialsListItem[]>}
    * @throws {NotFoundException} 404
    */
   async listApplicationClientSecrets(
     id: string,
-  ): Promise<ApplicationCredentialsListItem> {
-    const { data } =
-      await this.workos.get<ApplicationCredentialsListItemResponse>(
-        `/connect/applications/${id}/client_secrets`,
-      );
-    return deserializeApplicationCredentialsListItem(data);
+  ): Promise<ApplicationCredentialsListItem[]> {
+    const { data } = await this.workos.get<
+      ApplicationCredentialsListItemResponse[]
+    >(`/connect/applications/${id}/client_secrets`);
+    return data.map(deserializeApplicationCredentialsListItem);
   }
 
   /**
@@ -253,7 +218,7 @@ export class Connect {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async createApplicationClientSecrets(
+  async createApplicationClientSecret(
     id: string,
     payload: CreateApplicationSecret,
   ): Promise<NewConnectApplicationSecret> {

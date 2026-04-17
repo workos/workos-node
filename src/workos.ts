@@ -52,18 +52,7 @@ import { version as VERSION } from '../package.json' with { type: 'json' };
 import { AdminPortal } from './admin-portal/admin-portal';
 import { Radar } from './radar/radar';
 import { WebhooksEndpoints } from './webhooks/webhooks-endpoints';
-import { WorkOSConnect } from './workos-connect/work-os-connect';
-import { Applications } from './workos-connect/applications';
-import { ApplicationClientSecrets } from './workos-connect/application-client-secrets';
-import { OrganizationsFeatureFlags } from './organizations-feature-flags/organizations-feature-flags';
-import { UserManagementSessionTokens } from './user-management/user-management-session-tokens';
-import { UserManagementCorsOrigins } from './user-management/user-management-cors-origins';
-import { UserManagementJWTTemplate } from './user-management/user-management-jwt-template';
-import { UserManagementRedirectUris } from './user-management/user-management-redirect-uris';
-import { UserManagementUsersFeatureFlags } from './user-management-users-feature-flags/user-management-users-feature-flags';
-import { UserManagementUsersAuthorizedApplications } from './user-management/user-management-users-authorized-applications';
-import { UserManagementDataProviders } from './user-management/user-management-data-providers';
-import { MultiFactorAuth } from './multi-factor-auth/multi-factor-auth';
+import { Connect } from './connect/connect';
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
 
@@ -83,23 +72,29 @@ export class WorkOS {
   private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
+  readonly adminPortal = new AdminPortal(this);
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
+  readonly connect = new Connect(this);
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
+  /** @deprecated Use `workos.authorization` instead. */
   readonly fga = new FGA(this);
   readonly mfa = new Mfa(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
   readonly pipes = new Pipes(this);
+  /** @deprecated Use `workos.adminPortal` instead. */
   readonly portal = new Portal(this);
+  readonly radar = new Radar(this);
   readonly sso = new SSO(this);
   readonly userManagement: UserManagement;
   readonly vault = new Vault(this);
   readonly webhooks: Webhooks;
+  readonly webhooksEndpoints = new WebhooksEndpoints(this);
   readonly widgets = new Widgets(this);
 
   /**
@@ -527,12 +522,6 @@ export class WorkOS {
     }
   }
 
-  readonly adminPortal = new AdminPortal(this);
-  readonly radar = new Radar(this);
-  readonly webhooksEndpoints = new WebhooksEndpoints(this);
-  readonly workOsConnect = new WorkOSConnect(this);
-  readonly applications = new Applications(this);
-  readonly applicationClientSecrets = new ApplicationClientSecrets(this);
   /** Production */
   static readonly SERVER_PRODUCTION = 'https://api.workos.com';
   /** Staging */
