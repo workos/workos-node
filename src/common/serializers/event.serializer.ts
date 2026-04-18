@@ -303,8 +303,10 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
       };
     default:
-      throw new Error(
-        `Unrecognized event type: ${(event as { event: string }).event}`,
-      );
+      return {
+        ...eventBase,
+        event: (event as { event: string }).event,
+        data: (event as { data: Record<string, unknown> }).data,
+      } as Event;
   }
 };

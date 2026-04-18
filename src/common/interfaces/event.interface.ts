@@ -856,6 +856,11 @@ export interface VaultByokKeyVerificationCompletedEventResponse extends EventRes
   data: VaultByokKeyVerificationCompletedEventResponseData;
 }
 
+export interface UnknownEvent extends EventBase {
+  event: string;
+  data: Record<string, unknown>;
+}
+
 export type Event =
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent

@@ -13,7 +13,7 @@ export type AuthenticationErrorCode =
 
 export interface AuthenticationErrorData extends WorkOSErrorData {
   code: AuthenticationErrorCode;
-  pending_authentication_token: string;
+  pending_authentication_token?: string;
   user?: Record<string, unknown>;
   organizations?: Array<{ id: string; name: string }>;
 }
@@ -31,16 +31,13 @@ export function isAuthenticationErrorData(
   data: WorkOSErrorData,
 ): data is AuthenticationErrorData {
   return (
-    typeof data.code === 'string' &&
-    AUTHENTICATION_ERROR_CODES.has(data.code) &&
-    typeof data.pending_authentication_token === 'string'
+    typeof data.code === 'string' && AUTHENTICATION_ERROR_CODES.has(data.code)
   );
 }
 
 export class AuthenticationException extends GenericServerException {
   readonly name = 'AuthenticationException';
-  readonly code: AuthenticationErrorCode;
-  readonly pendingAuthenticationToken: string;
+  readonly pendingAuthenticationToken: string | undefined;
 
   constructor(
     status: number,
@@ -48,7 +45,6 @@ export class AuthenticationException extends GenericServerException {
     requestID: string,
   ) {
     super(status, rawData.message, rawData, requestID);
-    this.code = rawData.code;
     this.pendingAuthenticationToken = rawData.pending_authentication_token;
   }
 }
