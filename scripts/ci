@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+echo "==> Prettier"
+npm run prettier
+
+echo "==> Lint"
+npm run lint
+
+echo "==> Typecheck"
+npm run typecheck
+
+echo "==> Build"
+npm run build
+
+echo "==> Test"
+npm run test
