@@ -1,4 +1,5 @@
 export * from './event.interface';
+export * from './generate-link-intent.interface';
 export * from './get-options.interface';
 export * from './list.interface';
 export * from './patch-options.interface';
