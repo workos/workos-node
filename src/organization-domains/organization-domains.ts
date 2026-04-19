@@ -10,7 +10,7 @@ import { deserializeOrganizationDomain } from './serializers/organization-domain
 export class OrganizationDomains {
   constructor(private readonly workos: WorkOS) {}
 
-  async get(id: string): Promise<OrganizationDomain> {
+  async getOrganizationDomain(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.get<OrganizationDomainResponse>(
       `/organization_domains/${id}`,
     );
@@ -18,7 +18,7 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
-  async verify(id: string): Promise<OrganizationDomain> {
+  async verifyOrganizationDomain(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.post<OrganizationDomainResponse>(
       `/organization_domains/${id}/verify`,
       {},
@@ -27,7 +27,7 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
-  async create(
+  async createOrganizationDomain(
     payload: CreateOrganizationDomainOptions,
   ): Promise<OrganizationDomain> {
     const { data } = await this.workos.post<OrganizationDomainResponse>(
@@ -38,7 +38,7 @@ export class OrganizationDomains {
     return deserializeOrganizationDomain(data);
   }
 
-  async delete(id: string): Promise<void> {
+  async deleteOrganizationDomain(id: string): Promise<void> {
     await this.workos.delete(`/organization_domains/${id}`);
   }
 }

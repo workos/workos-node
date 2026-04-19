@@ -15,10 +15,10 @@ describe('ApiKeys', () => {
 
   beforeEach(() => fetch.resetMocks());
 
-  describe('validateApiKey', () => {
+  describe('createValidation', () => {
     it('sends a validate API key request', async () => {
       fetchOnce(validateApiKeyFixture);
-      const response = await workos.apiKeys.validateApiKey({
+      const response = await workos.apiKeys.createValidation({
         value: 'sk_123',
       });
 
@@ -43,7 +43,7 @@ describe('ApiKeys', () => {
 
     it('returns null if key is invalid', async () => {
       fetchOnce({ api_key: null });
-      const response = await workos.apiKeys.validateApiKey({
+      const response = await workos.apiKeys.createValidation({
         value: 'invalid',
       });
 

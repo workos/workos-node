@@ -9,7 +9,7 @@ import { deserializeValidateApiKeyResponse } from './serializers/validate-api-ke
 export class ApiKeys {
   constructor(private readonly workos: WorkOS) {}
 
-  async validateApiKey(
+  async createValidation(
     payload: ValidateApiKeyOptions,
   ): Promise<ValidateApiKeyResponse> {
     const { data } = await this.workos.post<SerializedValidateApiKeyResponse>(
