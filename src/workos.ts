@@ -30,7 +30,7 @@ import { Pipes } from './pipes/pipes';
 import { AdminPortal } from './admin-portal/admin-portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
-import { Mfa } from './mfa/mfa';
+import { MultiFactorAuth } from './multi-factor-auth/multi-factor-auth';
 import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
@@ -74,7 +74,7 @@ export class WorkOS {
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
-  readonly mfa = new Mfa(this);
+  readonly multiFactorAuth = new MultiFactorAuth(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);

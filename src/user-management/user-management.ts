@@ -4,8 +4,8 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
 import { toQueryString } from '../common/utils/query-string';
-import { Challenge, ChallengeResponse } from '../mfa/interfaces';
-import { deserializeChallenge } from '../mfa/serializers';
+import { Challenge, ChallengeResponse } from '../multi-factor-auth/interfaces';
+import { deserializeChallenge } from '../multi-factor-auth/serializers';
 import {
   FeatureFlag,
   FeatureFlagResponse,

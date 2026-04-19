@@ -19,7 +19,7 @@ import {
   deserializeVerifyResponse,
 } from './serializers';
 
-export class Mfa {
+export class MultiFactorAuth {
   constructor(private readonly workos: WorkOS) {}
 
   async deleteFactor(id: string) {

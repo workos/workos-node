@@ -7,7 +7,7 @@ import {
 import {
   deserializeTotp,
   deserializeTotpWithSecrets,
-} from '../../mfa/serializers/totp.serializer';
+} from '../../multi-factor-auth/serializers/totp.serializer';
 
 export const deserializeFactor = (factor: FactorResponse): Factor => ({
   object: factor.object,

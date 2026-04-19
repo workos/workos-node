@@ -46,7 +46,7 @@ describe('MFA', () => {
       fetchOnce(factorResponse);
 
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-      const subject = await workos.mfa.getFactor('test_123');
+      const subject = await workos.multiFactorAuth.getFactor('test_123');
 
       expect(subject).toEqual(factor);
     });
@@ -57,7 +57,7 @@ describe('MFA', () => {
       fetchOnce();
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-      await workos.mfa.deleteFactor('conn_123');
+      await workos.multiFactorAuth.deleteFactor('conn_123');
 
       expect(fetchURL()).toContain('/auth/factors/conn_123');
     });
@@ -88,7 +88,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.enrollFactor({
+        const subject = await workos.multiFactorAuth.enrollFactor({
           type: 'generic_otp',
         });
 
@@ -133,7 +133,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.enrollFactor({
+        const subject = await workos.multiFactorAuth.enrollFactor({
           type: 'totp',
           issuer: 'WorkOS',
           user: 'some_user',
@@ -173,7 +173,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.enrollFactor({
+        const subject = await workos.multiFactorAuth.enrollFactor({
           type: 'sms',
           phoneNumber: '+1555555555',
         });
@@ -199,7 +199,7 @@ describe('MFA', () => {
           });
 
           await expect(
-            workos.mfa.enrollFactor({
+            workos.multiFactorAuth.enrollFactor({
               type: 'sms',
               phoneNumber: 'foo',
             }),
@@ -238,7 +238,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.challengeFactor({
+        const subject = await workos.multiFactorAuth.challengeFactor({
           authenticationFactorId: 'auth_factor_1234',
         });
 
@@ -274,7 +274,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.challengeFactor({
+        const subject = await workos.multiFactorAuth.challengeFactor({
           authenticationFactorId: 'auth_factor_1234',
           smsTemplate: 'This is your code: 12345',
         });
@@ -322,7 +322,7 @@ describe('MFA', () => {
           apiHostname: 'api.workos.dev',
         });
 
-        const subject = await workos.mfa.verifyChallenge({
+        const subject = await workos.multiFactorAuth.verifyChallenge({
           authenticationChallengeId: 'auth_challenge_1234',
           code: '12345',
         });
@@ -352,7 +352,7 @@ describe('MFA', () => {
         });
 
         await expect(
-          workos.mfa.verifyChallenge({
+          workos.multiFactorAuth.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           }),
@@ -381,7 +381,7 @@ describe('MFA', () => {
         });
 
         await expect(
-          workos.mfa.verifyChallenge({
+          workos.multiFactorAuth.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           }),
@@ -408,7 +408,7 @@ describe('MFA', () => {
         });
 
         try {
-          await workos.mfa.verifyChallenge({
+          await workos.multiFactorAuth.verifyChallenge({
             authenticationChallengeId: 'auth_challenge_1234',
             code: '12345',
           });
