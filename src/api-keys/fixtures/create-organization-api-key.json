@@ -1,0 +1,15 @@
+{
+  "object": "api_key",
+  "id": "api_key_01H5JQDV7R7ATEYZDEG0W5PRYV",
+  "owner": {
+    "type": "organization",
+    "id": "org_01EHT88Z8J8795GZNQ4ZP1J81T"
+  },
+  "name": "New API Key",
+  "obfuscated_value": "sk_…9789",
+  "value": "sk_live_abc123xyz789",
+  "last_used_at": null,
+  "permissions": ["read", "write"],
+  "created_at": "2023-07-20T02:07:19.911Z",
+  "updated_at": "2023-07-20T02:07:19.911Z"
+}

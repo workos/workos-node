@@ -1,16 +1,8 @@
 import { sealData, unsealData } from '../common/crypto/seal';
-import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
 import { toQueryString } from '../common/utils/query-string';
-import { Challenge, ChallengeResponse } from '../multi-factor-auth/interfaces';
-import { deserializeChallenge } from '../multi-factor-auth/serializers';
-import {
-  FeatureFlag,
-  FeatureFlagResponse,
-} from '../feature-flags/interfaces/feature-flag.interface';
-import { deserializeFeatureFlag } from '../feature-flags/serializers';
 import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeAndVerifierOptions,
@@ -27,11 +19,8 @@ import {
   CreateUserOptions,
   EmailVerification,
   EmailVerificationResponse,
-  EnrollAuthFactorOptions,
-  ListAuthFactorsOptions,
   ListSessionsOptions,
   ListUsersOptions,
-  ListUserFeatureFlagsOptions,
   LogoutURLOptions,
   MagicAuth,
   MagicAuthResponse,
@@ -84,12 +73,6 @@ import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
 } from './interfaces/create-organization-membership-options.interface';
-import {
-  Factor,
-  FactorResponse,
-  FactorWithSecrets,
-  FactorWithSecretsResponse,
-} from './interfaces/factor.interface';
 import { Identity, IdentityResponse } from './interfaces/identity.interface';
 import {
   Invitation,
@@ -128,7 +111,6 @@ import {
 import {
   deserializeAuthenticationResponse,
   deserializeEmailVerification,
-  deserializeFactorWithSecrets,
   deserializeMagicAuth,
   deserializePasswordReset,
   deserializeSession,
@@ -143,7 +125,6 @@ import {
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
   serializeCreateUserOptions,
-  serializeEnrollAuthFactorOptions,
   serializeListSessionsOptions,
   serializeResetPasswordOptions,
   serializeUpdateUserOptions,
@@ -151,7 +132,6 @@ import {
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
 import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
-import { deserializeFactor } from './serializers/factor.serializer';
 import { deserializeIdentities } from './serializers/identity.serializer';
 import { deserializeInvitation } from './serializers/invitation.serializer';
 import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
@@ -797,77 +777,6 @@ export class UserManagement {
 
     return deserializeUser(data);
   }
-
-  // @oagen-ignore-start
-  async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
-    authenticationFactor: FactorWithSecrets;
-    authenticationChallenge: Challenge;
-  }> {
-    const { data } = await this.workos.post<{
-      authentication_factor: FactorWithSecretsResponse;
-      authentication_challenge: ChallengeResponse;
-    }>(
-      `/user_management/users/${payload.userId}/auth_factors`,
-      serializeEnrollAuthFactorOptions(payload),
-    );
-
-    return {
-      authenticationFactor: deserializeFactorWithSecrets(
-        data.authentication_factor,
-      ),
-      authenticationChallenge: deserializeChallenge(
-        data.authentication_challenge,
-      ),
-    };
-  }
-
-  async listAuthFactors(
-    options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<Factor, PaginationOptions>> {
-    const { userId, ...restOfOptions } = options;
-    return new AutoPaginatable(
-      await fetchAndDeserialize<FactorResponse, Factor>(
-        this.workos,
-        `/user_management/users/${userId}/auth_factors`,
-        deserializeFactor,
-        restOfOptions,
-      ),
-      (params) =>
-        fetchAndDeserialize<FactorResponse, Factor>(
-          this.workos,
-          `/user_management/users/${userId}/auth_factors`,
-          deserializeFactor,
-          params,
-        ),
-      restOfOptions,
-    );
-  }
-  // @oagen-ignore-end
-
-  // @oagen-ignore-start
-  async listUserFeatureFlags(
-    options: ListUserFeatureFlagsOptions,
-  ): Promise<AutoPaginatable<FeatureFlag>> {
-    const { userId, ...paginationOptions } = options;
-
-    return new AutoPaginatable(
-      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
-        this.workos,
-        `/user_management/users/${userId}/feature-flags`,
-        deserializeFeatureFlag,
-        paginationOptions,
-      ),
-      (params) =>
-        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
-          this.workos,
-          `/user_management/users/${userId}/feature-flags`,
-          deserializeFeatureFlag,
-          params,
-        ),
-      paginationOptions,
-    );
-  }
-  // @oagen-ignore-end
 
   async listSessions(
     userId: string,
