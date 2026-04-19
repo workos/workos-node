@@ -195,7 +195,7 @@ export class Authorization {
     );
   }
 
-  async setOrganizationRolePermissions(
+  async updateRolePermissions(
     organizationId: string,
     slug: string,
     options: SetOrganizationRolePermissionsOptions,
@@ -207,7 +207,7 @@ export class Authorization {
     return deserializeOrganizationRole(data);
   }
 
-  async addOrganizationRolePermission(
+  async createRolePermission(
     organizationId: string,
     slug: string,
     options: AddOrganizationRolePermissionOptions,
@@ -219,7 +219,7 @@ export class Authorization {
     return deserializeOrganizationRole(data);
   }
 
-  async removeOrganizationRolePermission(
+  async deleteRolePermission(
     organizationId: string,
     slug: string,
     options: RemoveOrganizationRolePermissionOptions,
@@ -351,7 +351,7 @@ export class Authorization {
     );
   }
 
-  async getResourceByExternalId(
+  async getOrganizationResource(
     options: GetAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -361,7 +361,7 @@ export class Authorization {
     return deserializeAuthorizationResource(data);
   }
 
-  async updateResourceByExternalId(
+  async updateOrganizationResource(
     options: UpdateAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -371,7 +371,7 @@ export class Authorization {
     );
     return deserializeAuthorizationResource(data);
   }
-  async deleteResourceByExternalId(
+  async deleteOrganizationResource(
     options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
     const { organizationId, resourceTypeSlug, externalId, cascadeDelete } =
@@ -398,7 +398,7 @@ export class Authorization {
     return data;
   }
 
-  async listRoleAssignments(
+  async listOrganizationMembershipRoleAssignments(
     options: ListRoleAssignmentsOptions,
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
@@ -436,7 +436,7 @@ export class Authorization {
     );
   }
 
-  async removeRoleAssignment(
+  async deleteOrganizationMembershipRoleAssignment(
     options: RemoveRoleAssignmentOptions,
   ): Promise<void> {
     await this.workos.delete(
@@ -444,7 +444,7 @@ export class Authorization {
     );
   }
 
-  async listResourcesForMembership(
+  async listOrganizationMembershipResources(
     options: ListResourcesForMembershipOptions,
   ): Promise<AutoPaginatable<AuthorizationResource>> {
     const { organizationMembershipId } = options;
@@ -501,7 +501,7 @@ export class Authorization {
     );
   }
 
-  async listMembershipsForResourceByExternalId(
+  async listResourceOrganizationMemberships(
     options: ListMembershipsForResourceByExternalIdOptions,
   ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -532,7 +532,7 @@ export class Authorization {
     );
   }
 
-  async listEffectivePermissions(
+  async listResourcePermissions(
     options: ListEffectivePermissionsOptions,
   ): Promise<AutoPaginatable<Permission>> {
     const { organizationMembershipId, resourceId } = options;
