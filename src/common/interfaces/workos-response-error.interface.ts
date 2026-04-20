@@ -6,4 +6,5 @@ export interface WorkOSResponseError {
   error?: string;
   errors?: UnprocessableEntityError[];
   message: string;
+  [key: string]: unknown;
 }

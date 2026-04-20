@@ -302,5 +302,11 @@ export const deserializeEvent = (event: EventResponse): Event => {
         event: event.event,
         data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
       };
+    default:
+      return {
+        ...eventBase,
+        event: (event as { event: string }).event,
+        data: (event as { data: Record<string, unknown> }).data,
+      } as Event;
   }
 };
