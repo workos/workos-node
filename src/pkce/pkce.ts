@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 export interface PKCEPair {
   codeVerifier: string;
   codeChallenge: string;

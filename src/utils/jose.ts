@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 let _josePromise: Promise<typeof import('jose')> | undefined;
 
 /**

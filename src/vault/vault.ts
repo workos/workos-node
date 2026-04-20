@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { decodeUInt32, encodeUInt32 } from '../common/utils/leb128';
 import { CryptoProvider } from '../common/crypto/crypto-provider';
 import { List, ListResponse } from '../common/interfaces';

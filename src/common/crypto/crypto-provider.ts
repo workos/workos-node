@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 /**
  * Interface encapsulating the various crypto computations used by the library,
  * allowing pluggable underlying crypto implementations.

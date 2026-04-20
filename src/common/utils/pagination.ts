@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { List, PaginationOptions } from '../interfaces';
 
 export class AutoPaginatable<

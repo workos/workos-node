@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 /**
  * Cross-runtime environment variable helper
  */

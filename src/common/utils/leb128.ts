@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 /**
  * LEB128 (Little Endian Base 128) encoding for unsigned 32-bit integers.
  * Variable-length encoding: each byte stores 7 bits of data, bit 7 is continuation flag.

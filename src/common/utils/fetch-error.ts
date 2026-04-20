@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 export class FetchError<T> extends Error {
   readonly name: string = 'FetchError';
   readonly message: string = 'The request could not be completed.';

@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import {
   seal as ironSeal,
   unseal as ironUnseal,

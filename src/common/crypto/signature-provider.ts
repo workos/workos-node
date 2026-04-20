@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { SignatureVerificationException } from '../exceptions';
 import { CryptoProvider } from './crypto-provider';
 
