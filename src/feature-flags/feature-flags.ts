@@ -72,9 +72,11 @@ export class FeatureFlags {
     await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
   }
 
+  // @oagen-ignore-start
   createRuntimeClient(
     options?: RuntimeClientOptions,
   ): FeatureFlagsRuntimeClient {
     return new FeatureFlagsRuntimeClient(this.workos, options);
   }
+  // @oagen-ignore-end
 }

@@ -165,6 +165,7 @@ import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
 
 export class UserManagement {
+  // @oagen-ignore-start
   private _jwks:
     | ReturnType<typeof import('jose').createRemoteJWKSet>
     | undefined;
@@ -189,7 +190,9 @@ export class UserManagement {
     }
     return resolved;
   }
+  // @oagen-ignore-end
 
+  // @oagen-ignore-start
   async getJWKS(): Promise<
     ReturnType<typeof import('jose').createRemoteJWKSet> | undefined
   > {
@@ -205,7 +208,9 @@ export class UserManagement {
 
     return this._jwks;
   }
+  // @oagen-ignore-end
 
+  // @oagen-ignore-start
   /**
    * Loads a sealed session using the provided session data and cookie password.
    *
@@ -220,6 +225,7 @@ export class UserManagement {
   }): CookieSession {
     return new CookieSession(this, options.sessionData, options.cookiePassword);
   }
+  // @oagen-ignore-end
 
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
@@ -372,6 +378,7 @@ export class UserManagement {
     });
   }
 
+  // @oagen-ignore-start
   /**
    * Exchange an authorization code for tokens using PKCE (public client flow).
    * Use this instead of authenticateWithCode() when the client cannot securely
@@ -404,6 +411,7 @@ export class UserManagement {
       session,
     });
   }
+  // @oagen-ignore-end
 
   /**
    * Refresh an access token using a refresh token.
@@ -514,6 +522,7 @@ export class UserManagement {
     });
   }
 
+  // @oagen-ignore-start
   async authenticateWithSessionCookie({
     sessionData,
     cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
@@ -685,6 +694,7 @@ export class UserManagement {
 
     return undefined;
   }
+  // @oagen-ignore-end
 
   async getEmailVerification(
     emailVerificationId: string,
@@ -788,6 +798,7 @@ export class UserManagement {
     return deserializeUser(data);
   }
 
+  // @oagen-ignore-start
   async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
     authenticationFactor: FactorWithSecrets;
     authenticationChallenge: Challenge;
@@ -831,7 +842,9 @@ export class UserManagement {
       restOfOptions,
     );
   }
+  // @oagen-ignore-end
 
+  // @oagen-ignore-start
   async listUserFeatureFlags(
     options: ListUserFeatureFlagsOptions,
   ): Promise<AutoPaginatable<FeatureFlag>> {
@@ -854,6 +867,7 @@ export class UserManagement {
       paginationOptions,
     );
   }
+  // @oagen-ignore-end
 
   async listSessions(
     userId: string,
@@ -1088,6 +1102,7 @@ export class UserManagement {
     );
   }
 
+  // @oagen-ignore-start
   /**
    * Generate an OAuth 2.0 authorization URL.
    *
@@ -1267,4 +1282,5 @@ export class UserManagement {
 
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
+  // @oagen-ignore-end
 }
