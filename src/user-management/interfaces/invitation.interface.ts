@@ -19,6 +19,7 @@ export interface Invitation {
   inviterUserId: string | null;
   /** The ID of the user who accepted the invitation, once accepted. */
   acceptedUserId: string | null;
+  /** Slug of the role the invitee will be assigned on acceptance. Reflects the current role on the pending organization membership, which may change before acceptance. null when the invitation has no associated organization. */
   roleSlug: string | null;
   /** The token used to accept the invitation. */
   token: string;
