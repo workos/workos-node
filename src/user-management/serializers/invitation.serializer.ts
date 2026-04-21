@@ -18,6 +18,7 @@ export const deserializeInvitation = (
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
   acceptedUserId: invitation.accepted_user_id,
+  roleSlug: invitation.role_slug,
   token: invitation.token,
   acceptInvitationUrl: invitation.accept_invitation_url,
   createdAt: invitation.created_at,
@@ -37,6 +38,7 @@ export const deserializeInvitationEvent = (
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
   acceptedUserId: invitation.accepted_user_id,
+  roleSlug: invitation.role_slug,
   createdAt: invitation.created_at,
   updatedAt: invitation.updated_at,
 });

@@ -19,6 +19,8 @@ export interface Invitation {
   inviterUserId: string | null;
   /** The ID of the user who accepted the invitation, once accepted. */
   acceptedUserId: string | null;
+  /** Slug of the role the invitee will be assigned on acceptance. Reflects the current role on the pending organization membership, which may change before acceptance. null when the invitation has no associated organization. */
+  roleSlug: string | null;
   /** The token used to accept the invitation. */
   token: string;
   /** The URL where the recipient can accept the invitation. */
@@ -40,6 +42,7 @@ export interface InvitationEvent {
   organizationId: string | null;
   inviterUserId: string | null;
   acceptedUserId: string | null;
+  roleSlug: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -55,6 +58,7 @@ export interface InvitationResponse {
   organization_id: string | null;
   inviter_user_id: string | null;
   accepted_user_id: string | null;
+  role_slug: string | null;
   token: string;
   accept_invitation_url: string;
   created_at: string;
@@ -72,6 +76,7 @@ export interface InvitationEventResponse {
   organization_id: string | null;
   inviter_user_id: string | null;
   accepted_user_id: string | null;
+  role_slug: string | null;
   created_at: string;
   updated_at: string;
 }
