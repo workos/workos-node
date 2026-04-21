@@ -9,6 +9,7 @@ export interface Invitation {
   organizationId: string | null;
   inviterUserId: string | null;
   acceptedUserId: string | null;
+  roleSlug: string | null;
   token: string;
   acceptInvitationUrl: string;
   createdAt: string;
@@ -26,6 +27,7 @@ export interface InvitationEvent {
   organizationId: string | null;
   inviterUserId: string | null;
   acceptedUserId: string | null;
+  roleSlug: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,6 +43,7 @@ export interface InvitationResponse {
   organization_id: string | null;
   inviter_user_id: string | null;
   accepted_user_id: string | null;
+  role_slug: string | null;
   token: string;
   accept_invitation_url: string;
   created_at: string;
@@ -58,6 +61,7 @@ export interface InvitationEventResponse {
   organization_id: string | null;
   inviter_user_id: string | null;
   accepted_user_id: string | null;
+  role_slug: string | null;
   created_at: string;
   updated_at: string;
 }
