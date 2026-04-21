@@ -453,7 +453,7 @@ export class WorkOS {
           throw new UnauthorizedException(requestID);
         }
         case 409: {
-          throw new ConflictException({ requestID, message, error });
+          throw new ConflictException({ requestID, message, error, code });
         }
         case 422: {
           throw new UnprocessableEntityException({
