@@ -214,6 +214,7 @@ export class UserManagement {
    * Get a user
    *
    * Get the details of an existing user.
+   * @param userId - The unique ID of the user.
    * @returns {Promise<User>}
    * @throws {NotFoundException} 404
    */
@@ -850,10 +851,12 @@ export class UserManagement {
   }
 
   /**
-   * Create a password reset token
+   * Reset the password
    *
-   * Creates a one-time token that can be used to reset a user's password.
-   * @param payload - Object containing email.
+   * Sets a new password using the `token` query parameter from the link that
+   * the user received. Successfully resetting the password will verify a
+   * user's email, if it hasn't been verified yet.
+   * @param payload - Object containing the reset token and new password.
    * @returns {Promise<{ user: User; }>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -1462,7 +1465,6 @@ export class UserManagement {
    * @example "session_01H93ZY4F80QPBEZ1R5B2SHQG8"
    * @param options.returnTo - The URL to redirect the user to after session revocation.
    * @example "https://example.com"
-   * @param options - Additional query options.
    * @returns {string}
    * @throws {UnprocessableEntityException} 422
    */

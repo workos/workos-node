@@ -106,8 +106,6 @@ export class MultiFactorAuth {
    * Challenge Factor
    *
    * Creates a Challenge for an Authentication Factor.
-   * @param id - The unique ID of the Authentication Factor to be challenged.
-   * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
    * @param options - The request body.
    * @returns {Promise<AuthenticationChallenge>}
    * @throws {NotFoundException} 404
@@ -129,8 +127,6 @@ export class MultiFactorAuth {
    * Verify Challenge
    *
    * Verifies an Authentication Challenge.
-   * @param id - The unique ID of the Authentication Challenge.
-   * @example "auth_challenge_01FVYZ5QM8N98T9ME5BCB2BBMJ"
    * @param options - Object containing code.
    * @returns {Promise<AuthenticationChallengeVerifyResponse>}
    * @throws {BadRequestException} 400
