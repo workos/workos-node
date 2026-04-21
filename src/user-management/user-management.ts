@@ -73,7 +73,8 @@ import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
 } from './interfaces/create-organization-membership-options.interface';
-import { Identity, IdentityResponse } from './interfaces/identity.interface';
+import { Identity } from './interfaces/identity.interface';
+import { RawIdentityResponse } from './interfaces/identity-response.interface';
 import {
   Invitation,
   InvitationResponse,
@@ -812,7 +813,7 @@ export class UserManagement {
       throw new TypeError(`Incomplete arguments. Need to specify 'userId'.`);
     }
 
-    const { data } = await this.workos.get<IdentityResponse[]>(
+    const { data } = await this.workos.get<RawIdentityResponse[]>(
       `/user_management/users/${userId}/identities`,
     );
 

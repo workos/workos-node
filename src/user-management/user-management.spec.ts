@@ -1732,7 +1732,7 @@ describe('UserManagement', () => {
         {
           idpId: '108872335',
           type: 'OAuth',
-          provider: 'GithubOAuth',
+          provider: 'GitHubOAuth',
         },
         {
           idpId: '111966195055680542408',
@@ -1740,6 +1740,24 @@ describe('UserManagement', () => {
           provider: 'GoogleOAuth',
         },
       ]);
+    });
+
+    it('normalizes GithubOAuth to GitHubOAuth so it can be passed to getAuthorizationUrl', async () => {
+      fetchOnce(identityFixture);
+
+      const identities = await workos.userManagement.getUserIdentities(userId);
+
+      const githubIdentity = identities.find(
+        (i) => i.provider === 'GitHubOAuth',
+      );
+      expect(githubIdentity).toBeDefined();
+
+      const url = workos.userManagement.getAuthorizationUrl({
+        provider: githubIdentity!.provider,
+        redirectUri: 'https://example.com/callback',
+      });
+
+      expect(url).toContain('provider=GitHubOAuth');
     });
   });
 
