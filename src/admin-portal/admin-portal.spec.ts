@@ -156,6 +156,41 @@ describe('AdminPortal', () => {
           );
         });
       });
+
+      describe('with intentOptions and adminEmails', () => {
+        it('serializes the new parameters correctly', async () => {
+          fetchOnce(portalLinkResponse, { status: 201 });
+
+          const { link } = await workos.adminPortal.generateLink({
+            intent: GenerateLinkIntent.SSO,
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            returnUrl: 'https://www.example.com',
+            intentOptions: {
+              sso: {
+                bookmarkSlug: 'chatgpt',
+                providerType: 'GoogleSAML',
+              },
+            },
+            adminEmails: ['admin@example.com'],
+          });
+
+          expect(fetchBody()).toEqual({
+            intent: 'sso',
+            organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+            return_url: 'https://www.example.com',
+            intent_options: {
+              sso: {
+                bookmark_slug: 'chatgpt',
+                provider_type: 'GoogleSAML',
+              },
+            },
+            admin_emails: ['admin@example.com'],
+          });
+          expect(link).toEqual(
+            'https://setup.workos.com?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          );
+        });
+      });
     });
 
     describe('with an invalid organization', () => {
