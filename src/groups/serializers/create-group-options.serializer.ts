@@ -4,7 +4,7 @@ import {
 } from '../interfaces';
 
 export const serializeCreateGroupOptions = (
-  options: CreateGroupOptions,
+  options: Omit<CreateGroupOptions, 'organizationId'>,
 ): SerializedCreateGroupOptions => ({
   name: options.name,
   description: options.description,

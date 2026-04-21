@@ -1,4 +1,4 @@
-export interface GetGroupOptions {
+export interface DeleteGroupOptions {
   organizationId: string;
   groupId: string;
 }

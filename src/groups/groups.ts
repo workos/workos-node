@@ -32,14 +32,14 @@ export class Groups {
   constructor(private readonly workos: WorkOS) {}
 
   async createGroup(options: CreateGroupOptions): Promise<Group> {
-    const { organizationId } = options;
+    const { organizationId, ...payload } = options;
 
     const { data } = await this.workos.post<
       GroupResponse,
       SerializedCreateGroupOptions
     >(
       `/organizations/${organizationId}/groups`,
-      serializeCreateGroupOptions(options),
+      serializeCreateGroupOptions(payload),
     );
 
     return deserializeGroup(data);
@@ -103,14 +103,14 @@ export class Groups {
   async addOrganizationMembership(
     options: AddGroupOrganizationMembershipOptions,
   ): Promise<Group> {
-    const { organizationId, groupId } = options;
+    const { organizationId, groupId, ...payload } = options;
 
     const { data } = await this.workos.post<
       GroupResponse,
       SerializedAddGroupOrganizationMembershipOptions
     >(
       `/organizations/${organizationId}/groups/${groupId}/organization-memberships`,
-      serializeAddGroupOrganizationMembershipOptions(options),
+      serializeAddGroupOrganizationMembershipOptions(payload),
     );
 
     return deserializeGroup(data);

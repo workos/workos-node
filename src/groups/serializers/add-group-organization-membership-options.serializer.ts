@@ -4,7 +4,10 @@ import {
 } from '../interfaces';
 
 export const serializeAddGroupOrganizationMembershipOptions = (
-  options: AddGroupOrganizationMembershipOptions,
+  options: Omit<
+    AddGroupOrganizationMembershipOptions,
+    'organizationId' | 'groupId'
+  >,
 ): SerializedAddGroupOrganizationMembershipOptions => ({
   organization_membership_id: options.organizationMembershipId,
 });

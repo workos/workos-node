@@ -1,5 +1,6 @@
 export * from './add-group-organization-membership-options.interface';
 export * from './create-group-options.interface';
+export * from './delete-group-options.interface';
 export * from './get-group-options.interface';
 export * from './group.interface';
 export * from './list-group-organization-memberships-options.interface';
