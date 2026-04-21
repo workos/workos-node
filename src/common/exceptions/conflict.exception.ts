@@ -26,7 +26,7 @@ export class ConflictException extends Error implements RequestException {
     } else if (error) {
       this.message = `Error: ${error}`;
     } else {
-      this.message = `An conflict has occurred on the server.`;
+      this.message = `A conflict has occurred on the server.`;
     }
 
     this.code = code;
