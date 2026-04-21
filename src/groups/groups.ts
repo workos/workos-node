@@ -1,27 +1,29 @@
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
+import {
+  AuthorizationOrganizationMembership,
+  AuthorizationOrganizationMembershipResponse,
+} from '../user-management/interfaces/organization-membership.interface';
+import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
 import { WorkOS } from '../workos';
 import {
-  AddGroupMemberOptions,
+  AddGroupOrganizationMembershipOptions,
   CreateGroupOptions,
   DeleteGroupOptions,
   GetGroupOptions,
   Group,
-  GroupMember,
-  GroupMemberResponse,
   GroupResponse,
-  ListGroupMembersOptions,
+  ListGroupOrganizationMembershipsOptions,
   ListGroupsOptions,
-  RemoveGroupMemberOptions,
-  SerializedAddGroupMemberOptions,
+  RemoveGroupOrganizationMembershipOptions,
+  SerializedAddGroupOrganizationMembershipOptions,
   SerializedCreateGroupOptions,
   SerializedUpdateGroupOptions,
   UpdateGroupOptions,
 } from './interfaces';
 import {
   deserializeGroup,
-  deserializeGroupMember,
-  serializeAddGroupMemberOptions,
+  serializeAddGroupOrganizationMembershipOptions,
   serializeCreateGroupOptions,
   serializeUpdateGroupOptions,
 } from './serializers';
@@ -98,45 +100,55 @@ export class Groups {
     );
   }
 
-  async addMember(options: AddGroupMemberOptions): Promise<Group> {
+  async addOrganizationMembership(
+    options: AddGroupOrganizationMembershipOptions,
+  ): Promise<Group> {
     const { organizationId, groupId } = options;
 
     const { data } = await this.workos.post<
       GroupResponse,
-      SerializedAddGroupMemberOptions
+      SerializedAddGroupOrganizationMembershipOptions
     >(
       `/organizations/${organizationId}/groups/${groupId}/organization-memberships`,
-      serializeAddGroupMemberOptions(options),
+      serializeAddGroupOrganizationMembershipOptions(options),
     );
 
     return deserializeGroup(data);
   }
 
-  async listMembers(
-    options: ListGroupMembersOptions,
-  ): Promise<AutoPaginatable<GroupMember>> {
+  async listOrganizationMemberships(
+    options: ListGroupOrganizationMembershipsOptions,
+  ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { organizationId, groupId, ...paginationOptions } = options;
     const endpoint = `/organizations/${organizationId}/groups/${groupId}/organization-memberships`;
 
     return new AutoPaginatable(
-      await fetchAndDeserialize<GroupMemberResponse, GroupMember>(
+      await fetchAndDeserialize<
+        AuthorizationOrganizationMembershipResponse,
+        AuthorizationOrganizationMembership
+      >(
         this.workos,
         endpoint,
-        deserializeGroupMember,
+        deserializeAuthorizationOrganizationMembership,
         paginationOptions,
       ),
       (params) =>
-        fetchAndDeserialize<GroupMemberResponse, GroupMember>(
+        fetchAndDeserialize<
+          AuthorizationOrganizationMembershipResponse,
+          AuthorizationOrganizationMembership
+        >(
           this.workos,
           endpoint,
-          deserializeGroupMember,
+          deserializeAuthorizationOrganizationMembership,
           params,
         ),
       paginationOptions,
     );
   }
 
-  async removeMember(options: RemoveGroupMemberOptions): Promise<void> {
+  async removeOrganizationMembership(
+    options: RemoveGroupOrganizationMembershipOptions,
+  ): Promise<void> {
     const { organizationId, groupId, organizationMembershipId } = options;
 
     await this.workos.delete(

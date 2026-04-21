@@ -1,6 +1,6 @@
 import { PaginationOptions } from '../../common/interfaces';
 
-export interface ListGroupMembersOptions extends PaginationOptions {
+export interface ListGroupOrganizationMembershipsOptions extends PaginationOptions {
   organizationId: string;
   groupId: string;
 }

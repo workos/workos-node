@@ -8,7 +8,7 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import groupFixture from './fixtures/group.json';
-import listGroupMembersFixture from './fixtures/list-group-members.json';
+import listGroupOrganizationMembershipsFixture from './fixtures/list-group-organization-memberships.json';
 import listGroupsFixture from './fixtures/list-groups.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -162,11 +162,11 @@ describe('Groups', () => {
     });
   });
 
-  describe('addMember', () => {
+  describe('addOrganizationMembership', () => {
     it('adds an organization membership to a group', async () => {
       fetchOnce(groupFixture);
 
-      const group = await workos.groups.addMember({
+      const group = await workos.groups.addOrganizationMembership({
         organizationId,
         groupId,
         organizationMembershipId,
@@ -183,11 +183,11 @@ describe('Groups', () => {
     });
   });
 
-  describe('listMembers', () => {
-    it('returns members of the group', async () => {
-      fetchOnce(listGroupMembersFixture);
+  describe('listOrganizationMemberships', () => {
+    it('returns organization memberships of the group', async () => {
+      fetchOnce(listGroupOrganizationMembershipsFixture);
 
-      const { data } = await workos.groups.listMembers({
+      const { data } = await workos.groups.listOrganizationMemberships({
         organizationId,
         groupId,
       });
@@ -210,9 +210,9 @@ describe('Groups', () => {
     });
 
     it('forwards pagination options to the API', async () => {
-      fetchOnce(listGroupMembersFixture);
+      fetchOnce(listGroupOrganizationMembershipsFixture);
 
-      await workos.groups.listMembers({
+      await workos.groups.listOrganizationMemberships({
         organizationId,
         groupId,
         limit: 25,
@@ -225,11 +225,11 @@ describe('Groups', () => {
     });
   });
 
-  describe('removeMember', () => {
+  describe('removeOrganizationMembership', () => {
     it('sends a delete request', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.groups.removeMember({
+      await workos.groups.removeOrganizationMembership({
         organizationId,
         groupId,
         organizationMembershipId,

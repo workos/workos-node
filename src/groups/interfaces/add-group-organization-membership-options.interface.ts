@@ -1,14 +1,14 @@
-export interface AddGroupMemberOptions {
+export interface AddGroupOrganizationMembershipOptions {
   organizationId: string;
   groupId: string;
   organizationMembershipId: string;
 }
 
-export interface SerializedAddGroupMemberOptions {
+export interface SerializedAddGroupOrganizationMembershipOptions {
   organization_membership_id: string;
 }
 
-export interface RemoveGroupMemberOptions {
+export interface RemoveGroupOrganizationMembershipOptions {
   organizationId: string;
   groupId: string;
   organizationMembershipId: string;
