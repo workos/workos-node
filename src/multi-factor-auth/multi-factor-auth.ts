@@ -57,7 +57,7 @@ export class MultiFactorAuth {
    * Gets an Authentication Factor.
    * @param id - The unique ID of the Factor.
    * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
-   * @returns {Promise<AuthenticationFactor>}
+   * @returns {Promise<Factor>}
    * @throws {NotFoundException} 404
    */
   async getFactor(id: string): Promise<Factor> {
@@ -73,7 +73,7 @@ export class MultiFactorAuth {
    *
    * Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
    * @param options - Object containing type.
-   * @returns {Promise<AuthenticationFactorEnrolled>}
+   * @returns {Promise<FactorWithSecrets>}
    * @throws {UnprocessableEntityException} 422
    */
   async enrollFactor(options: EnrollFactorOptions): Promise<FactorWithSecrets> {
@@ -107,7 +107,7 @@ export class MultiFactorAuth {
    *
    * Creates a Challenge for an Authentication Factor.
    * @param options - The request body.
-   * @returns {Promise<AuthenticationChallenge>}
+   * @returns {Promise<Challenge>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
@@ -128,7 +128,7 @@ export class MultiFactorAuth {
    *
    * Verifies an Authentication Challenge.
    * @param options - Object containing code.
-   * @returns {Promise<AuthenticationChallengeVerifyResponse>}
+   * @returns {Promise<VerifyResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -151,7 +151,7 @@ export class MultiFactorAuth {
    *
    * Enrolls a user in a new [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor).
    * @param payload - Object containing type.
-   * @returns {Promise<UserAuthenticationFactorEnrollResponse>}
+   * @returns {Promise<{authenticationFactor: UMFactorWithSecrets; authenticationChallenge: Challenge}>}
    * @throws {UnprocessableEntityException} 422
    */
   async createUserAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
@@ -181,7 +181,7 @@ export class MultiFactorAuth {
    *
    * Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<AuthenticationFactor>>}
+   * @returns {Promise<AutoPaginatable<UMFactor, PaginationOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listUserAuthFactors(
