@@ -24,6 +24,15 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * List Directories
+   *
+   * Get a list of all of your existing directories matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<Directory, SerializedListDirectoriesOptions>>}
+   * @throws 403 response from the API.
+   * @throws {UnprocessableEntityException} 422
+   */
   async listDirectories(
     options?: ListDirectoriesOptions,
   ): Promise<AutoPaginatable<Directory, SerializedListDirectoriesOptions>> {
@@ -45,6 +54,16 @@ export class DirectorySync {
     );
   }
 
+  /**
+   * Get a Directory
+   *
+   * Get the details of an existing directory.
+   * @param id - Unique identifier for the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @returns {Promise<Directory>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async getDirectory(id: string): Promise<Directory> {
     const { data } = await this.workos.get<DirectoryResponse>(
       `/directories/${id}`,
@@ -53,10 +72,29 @@ export class DirectorySync {
     return deserializeDirectory(data);
   }
 
+  /**
+   * Delete a Directory
+   *
+   * Permanently deletes an existing directory. It cannot be undone.
+   * @param id - Unique identifier for the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @returns {Promise<void>}
+   * @throws 403 response from the API.
+   */
   async deleteDirectory(id: string) {
     await this.workos.delete(`/directories/${id}`);
   }
 
+  /**
+   * List Directory Groups
+   *
+   * Get a list of all of existing directory groups matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<DirectoryGroup, ListDirectoryGroupsOptions>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
   async listGroups(
     options: ListDirectoryGroupsOptions,
   ): Promise<AutoPaginatable<DirectoryGroup, ListDirectoryGroupsOptions>> {
@@ -78,6 +116,17 @@ export class DirectorySync {
     );
   }
 
+  /**
+   * List Directory Users
+   *
+   * Get a list of all of existing Directory Users matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<DirectoryUserWithGroups<TCustomAttributes>, ListDirectoryUsersOptions>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   * @throws {RateLimitExceededException} 429
+   */
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
   ): Promise<
@@ -110,6 +159,14 @@ export class DirectorySync {
     );
   }
 
+  /**
+   * Get a Directory User
+   *
+   * Get the details of an existing Directory User.
+   * @returns {Promise<DirectoryUserWithGroups<TCustomAttributes>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
     user: string,
   ): Promise<DirectoryUserWithGroups<TCustomAttributes>> {
@@ -120,6 +177,14 @@ export class DirectorySync {
     return deserializeDirectoryUserWithGroups(data);
   }
 
+  /**
+   * Get a Directory Group
+   *
+   * Get the details of an existing Directory Group.
+   * @returns {Promise<DirectoryGroup>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async getGroup(group: string): Promise<DirectoryGroup> {
     const { data } = await this.workos.get<DirectoryGroupResponse>(
       `/directory_groups/${group}`,

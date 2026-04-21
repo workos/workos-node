@@ -1,13 +1,23 @@
 export interface FeatureFlag {
+  /** Distinguishes the Feature Flag object. */
   object: 'feature_flag';
+  /** Unique identifier of the Feature Flag. */
   id: string;
+  /** A descriptive name for the Feature Flag. This field does not need to be unique. */
   name: string;
+  /** A unique key to reference the Feature Flag. */
   slug: string;
+  /** A description for the Feature Flag. */
   description: string;
+  /** Labels assigned to the Feature Flag for categorizing and filtering. */
   tags: string[];
+  /** Specifies whether the Feature Flag is active for the current environment. */
   enabled: boolean;
+  /** The value returned for users and organizations who don't match any configured targeting rules. */
   defaultValue: boolean;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
 }
 
