@@ -1745,8 +1745,7 @@ describe('UserManagement', () => {
     it('normalizes GithubOAuth to GitHubOAuth so it can be passed to getAuthorizationUrl', async () => {
       fetchOnce(identityFixture);
 
-      const identities =
-        await workos.userManagement.getUserIdentities(userId);
+      const identities = await workos.userManagement.getUserIdentities(userId);
 
       const githubIdentity = identities.find(
         (i) => i.provider === 'GitHubOAuth',
