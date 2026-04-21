@@ -2,6 +2,7 @@ import { WorkOS } from '../workos';
 import {
   deserializeGetTokenResponse,
   GetTokenOptions,
+  GetTokenResponse,
   GetTokenResponseResponse,
   SerializedGetTokenOptions,
   serializeGetTokenOptions,
@@ -10,12 +11,12 @@ import {
 export class Widgets {
   constructor(private readonly workos: WorkOS) {}
 
-  async getToken(payload: GetTokenOptions): Promise<string> {
+  async createToken(payload: GetTokenOptions): Promise<GetTokenResponse> {
     const { data } = await this.workos.post<
       GetTokenResponseResponse,
       SerializedGetTokenOptions
     >('/widgets/token', serializeGetTokenOptions(payload));
 
-    return deserializeGetTokenResponse(data).token;
+    return deserializeGetTokenResponse(data);
   }
 }
