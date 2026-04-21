@@ -1,5 +1,38 @@
 # Changelog
 
+## [9.0.0](https://github.com/workos/workos-node/compare/v8.13.0...v9.0.0) (2026-04-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* rename `portal` to `adminPortal` ([#1562](https://github.com/workos/workos-node/issues/1562))
+* standardize authorization list endpoint pagination ([#1553](https://github.com/workos/workos-node/issues/1553))
+* Drop Node.js v20 support, require v22.11+ ([#1560](https://github.com/workos/workos-node/issues/1560))
+* Remove legacy FGA package ([#1559](https://github.com/workos/workos-node/issues/1559))
+
+### Features
+
+* Add groups endpoints and group event types ([#1564](https://github.com/workos/workos-node/issues/1564)) ([cb0c46d](https://github.com/workos/workos-node/commit/cb0c46d74304942146259c4b90778f05fc16df64))
+* adding three new conection types to node SDK connection type enums ([#1389](https://github.com/workos/workos-node/issues/1389)) ([c11cfd6](https://github.com/workos/workos-node/commit/c11cfd659f2a151b3e03e7db88feac1fac3a6483))
+* standardize authorization list endpoint pagination ([#1553](https://github.com/workos/workos-node/issues/1553)) ([7a91d74](https://github.com/workos/workos-node/commit/7a91d74146c0b4464aefa0e046c7fc002464a8ee))
+* Update Node SDK to include auditlogs.listSchemas ([#1457](https://github.com/workos/workos-node/issues/1457)) ([c31736d](https://github.com/workos/workos-node/commit/c31736df36c5c933628950e5be38ae542883116c))
+
+
+### Bug Fixes
+
+* add JSDoc docstrings from OpenAPI spec to all resource methods ([#1565](https://github.com/workos/workos-node/issues/1565)) ([562a57a](https://github.com/workos/workos-node/commit/562a57abfbabbb37c037fee53544c47df662cd57))
+* **errors:** type server/auth errors and restore type compatibility ([#1561](https://github.com/workos/workos-node/issues/1561)) ([e149152](https://github.com/workos/workos-node/commit/e149152e873afd3ef9034c27a4505281bbadca9e))
+* Export `ConflictException` and add `code` ([#1563](https://github.com/workos/workos-node/issues/1563)) ([a5524f8](https://github.com/workos/workos-node/commit/a5524f8d567ea842297ef780d9fd11f3120ad7ce))
+* Normalize GithubOAuth to GitHubOAuth in identity deserialization ([#1566](https://github.com/workos/workos-node/issues/1566)) ([61f54a5](https://github.com/workos/workos-node/commit/61f54a544434d7af8ca2e93d742214c6fa776c6e))
+* Remove extractVersion from matchUpdateTypes rules ([#1557](https://github.com/workos/workos-node/issues/1557)) ([f6272ea](https://github.com/workos/workos-node/commit/f6272ea85ecf4fa72142a8a046a8df175c180f0a))
+* rename `portal` to `adminPortal` ([#1562](https://github.com/workos/workos-node/issues/1562)) ([80614d4](https://github.com/workos/workos-node/commit/80614d470ea43d11f76824db4390726fba041002))
+
+
+### Code Refactoring
+
+* Drop Node.js v20 support, require v22.11+ ([#1560](https://github.com/workos/workos-node/issues/1560)) ([24609a7](https://github.com/workos/workos-node/commit/24609a737cb26d159774dd89ffca384cbc6c6723))
+* Remove legacy FGA package ([#1559](https://github.com/workos/workos-node/issues/1559)) ([8cdd668](https://github.com/workos/workos-node/commit/8cdd668949d0b04e3b3eaf3214153d58ca16b0b1))
+
 ## [8.13.0](https://github.com/workos/workos-node/compare/v8.12.1...v8.13.0) (2026-04-13)
 
 

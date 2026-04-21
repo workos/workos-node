@@ -1,26 +1,11 @@
 import { PostOptions } from '../../common/interfaces';
 
-export type AuditLogSchemaMetadata =
-  | Record<string, { type: 'string' | 'boolean' | 'number' }>
-  | undefined;
-
-export interface AuditLogSchema {
-  object: 'audit_log_schema';
-  version: number;
-  targets: AuditLogTargetSchema[];
-  actor: AuditLogActorSchema;
-  metadata: Record<string, string | boolean | number> | undefined;
-  createdAt: string;
-}
-
-export interface AuditLogActorSchema {
-  metadata: Record<string, string | boolean | number>;
-}
-
-export interface AuditLogTargetSchema {
-  type: string;
-  metadata?: Record<string, string | boolean | number> | undefined;
-}
+import type {
+  AuditLogSchemaMetadata,
+  AuditLogSchemaResponse,
+  AuditLogActorSchema,
+  AuditLogTargetSchema,
+} from './audit-log-schema.interface';
 
 export interface CreateAuditLogSchemaOptions {
   action: string;
@@ -51,22 +36,8 @@ export interface SerializedCreateAuditLogSchemaOptions {
   };
 }
 
-export interface CreateAuditLogSchemaResponse {
-  object: 'audit_log_schema';
-  version: number;
-  targets: SerializedAuditLogTargetSchema[];
-  actor: {
-    metadata: {
-      type: 'object';
-      properties: AuditLogSchemaMetadata;
-    };
-  };
-  metadata?: {
-    type: 'object';
-    properties: AuditLogSchemaMetadata;
-  };
-  created_at: string;
-}
+/** @deprecated Use AuditLogSchemaResponse instead */
+export type CreateAuditLogSchemaResponse = AuditLogSchemaResponse;
 
 export type CreateAuditLogSchemaRequestOptions = Pick<
   PostOptions,

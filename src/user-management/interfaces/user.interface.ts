@@ -1,16 +1,30 @@
+/** The user object. */
 export interface User {
+  /** Distinguishes the user object. */
   object: 'user';
+  /** The unique ID of the user. */
   id: string;
+  /** The email address of the user. */
   email: string;
+  /** Whether the user's email has been verified. */
   emailVerified: boolean;
+  /** A URL reference to an image representing the user. */
   profilePictureUrl: string | null;
+  /** The first name of the user. */
   firstName: string | null;
+  /** The last name of the user. */
   lastName: string | null;
+  /** The timestamp when the user last signed in. */
   lastSignInAt: string | null;
+  /** The user's preferred locale. */
   locale: string | null;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
+  /** The external ID of the user. */
   externalId: string | null;
+  /** Object containing metadata key/value pairs associated with the user. */
   metadata: Record<string, string>;
 }
 

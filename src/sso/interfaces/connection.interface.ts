@@ -7,14 +7,22 @@ export interface ConnectionDomain {
 }
 
 export interface Connection {
+  /** Distinguishes the Connection object. */
   object: 'connection';
+  /** Unique identifier for the Connection. */
   id: string;
+  /** Unique identifier for the Organization in which the Connection resides. */
   organizationId?: string;
+  /** A human-readable name for the Connection. This will most commonly be the organization's name. */
   name: string;
+  /** Indicates whether a Connection is able to authenticate users. */
   state: 'draft' | 'active' | 'inactive' | 'validating';
+  /** List of Organization Domains. */
   domains: ConnectionDomain[];
   type: ConnectionType;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
 }
 

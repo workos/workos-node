@@ -1,11 +1,19 @@
 export interface EmailVerification {
+  /** Distinguishes the email verification object. */
   object: 'email_verification';
+  /** The unique ID of the email verification code. */
   id: string;
+  /** The unique ID of the user. */
   userId: string;
+  /** The email address of the user. */
   email: string;
+  /** The timestamp when the email verification code expires. */
   expiresAt: string;
+  /** The code used to verify the email. */
   code: string;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
 }
 
