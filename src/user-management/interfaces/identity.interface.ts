@@ -8,15 +8,3 @@ export interface Identity {
     | 'MicrosoftOAuth'
     | 'SalesforceOAuth';
 }
-
-export interface IdentityResponse {
-  idp_id: string;
-  type: 'OAuth';
-  provider:
-    | 'AppleOAuth'
-    | 'GithubOAuth'
-    | 'GitHubOAuth'
-    | 'GoogleOAuth'
-    | 'MicrosoftOAuth'
-    | 'SalesforceOAuth';
-}
