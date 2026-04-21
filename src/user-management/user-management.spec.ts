@@ -8,6 +8,7 @@ import {
 import { WorkOS } from '../workos';
 import deactivateOrganizationMembershipsFixture from './fixtures/deactivate-organization-membership.json';
 import emailVerificationFixture from './fixtures/email_verification.json';
+import listGroupsFixture from '../groups/fixtures/list-groups.json';
 import invitationFixture from './fixtures/invitation.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
@@ -1927,6 +1928,45 @@ describe('UserManagement', () => {
         role: {
           slug: 'member',
         },
+      });
+    });
+  });
+
+  describe('listGroupsForOrganizationMembership', () => {
+    it('returns groups for the organization membership', async () => {
+      fetchOnce(listGroupsFixture);
+
+      const { data } =
+        await workos.userManagement.listGroupsForOrganizationMembership({
+          organizationMembershipId,
+        });
+
+      expect(fetchURL()).toContain(
+        `/user_management/organization_memberships/${organizationMembershipId}/groups`,
+      );
+      expect(fetchSearchParams()).toEqual({ order: 'desc' });
+      expect(data).toHaveLength(2);
+      expect(data[0]).toMatchObject({
+        object: 'group',
+        id: 'group_01HXYZ123456789ABCDEFGHIJ',
+        organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+        name: 'Engineering',
+      });
+    });
+
+    it('forwards pagination options to the API', async () => {
+      fetchOnce(listGroupsFixture);
+
+      await workos.userManagement.listGroupsForOrganizationMembership({
+        organizationMembershipId,
+        limit: 10,
+        after: 'group_after_id',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        after: 'group_after_id',
+        limit: '10',
+        order: 'desc',
       });
     });
   });

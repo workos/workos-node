@@ -82,6 +82,7 @@ import {
   ListInvitationsOptions,
   SerializedListInvitationsOptions,
 } from './interfaces/list-invitations-options.interface';
+import { ListGroupsForOrganizationMembershipOptions } from './interfaces/list-groups-for-organization-membership-options.interface';
 import {
   ListOrganizationMembershipsOptions,
   SerializedListOrganizationMembershipsOptions,
@@ -143,6 +144,8 @@ import { serializeSendInvitationOptions } from './serializers/send-invitation-op
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
+import { Group, GroupResponse } from '../groups/interfaces';
+import { deserializeGroup } from '../groups/serializers';
 
 export class UserManagement {
   // @oagen-ignore-start
@@ -918,6 +921,30 @@ export class UserManagement {
     );
 
     return deserializeOrganizationMembership(data);
+  }
+
+  async listGroupsForOrganizationMembership(
+    options: ListGroupsForOrganizationMembershipOptions,
+  ): Promise<AutoPaginatable<Group>> {
+    const { organizationMembershipId, ...paginationOptions } = options;
+    const endpoint = `/user_management/organization_memberships/${organizationMembershipId}/groups`;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<GroupResponse, Group>(
+        this.workos,
+        endpoint,
+        deserializeGroup,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<GroupResponse, Group>(
+          this.workos,
+          endpoint,
+          deserializeGroup,
+          params,
+        ),
+      paginationOptions,
+    );
   }
 
   async getInvitation(invitationId: string): Promise<Invitation> {

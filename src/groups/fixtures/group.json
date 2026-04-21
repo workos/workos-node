@@ -1,0 +1,9 @@
+{
+  "object": "group",
+  "id": "group_01HXYZ123456789ABCDEFGHIJ",
+  "organization_id": "org_01EHT88Z8J8795GZNQ4ZP1J81T",
+  "name": "Engineering",
+  "description": "The engineering team",
+  "created_at": "2026-01-01T00:00:00.000Z",
+  "updated_at": "2026-01-01T00:00:00.000Z"
+}

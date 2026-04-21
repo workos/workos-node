@@ -56,6 +56,7 @@ import {
   FeatureFlag,
   FeatureFlagResponse,
 } from '../../feature-flags/interfaces';
+import { Group, GroupResponse } from '../../groups/interfaces';
 import {
   VaultDataCreatedEventData,
   VaultDataCreatedEventResponseData,
@@ -756,6 +757,66 @@ export interface FlagRuleUpdatedEventResponse extends EventResponseBase {
   data: FeatureFlagResponse;
 }
 
+export interface GroupCreatedEvent extends EventBase {
+  event: 'group.created';
+  data: Group;
+}
+
+export interface GroupCreatedEventResponse extends EventResponseBase {
+  event: 'group.created';
+  data: GroupResponse;
+}
+
+export interface GroupUpdatedEvent extends EventBase {
+  event: 'group.updated';
+  data: Group;
+}
+
+export interface GroupUpdatedEventResponse extends EventResponseBase {
+  event: 'group.updated';
+  data: GroupResponse;
+}
+
+export interface GroupDeletedEvent extends EventBase {
+  event: 'group.deleted';
+  data: Group;
+}
+
+export interface GroupDeletedEventResponse extends EventResponseBase {
+  event: 'group.deleted';
+  data: GroupResponse;
+}
+
+export interface GroupMemberEventData {
+  groupId: string;
+  organizationMembershipId: string;
+}
+
+export interface GroupMemberEventResponseData {
+  group_id: string;
+  organization_membership_id: string;
+}
+
+export interface GroupMemberAddedEvent extends EventBase {
+  event: 'group.member_added';
+  data: GroupMemberEventData;
+}
+
+export interface GroupMemberAddedEventResponse extends EventResponseBase {
+  event: 'group.member_added';
+  data: GroupMemberEventResponseData;
+}
+
+export interface GroupMemberRemovedEvent extends EventBase {
+  event: 'group.member_removed';
+  data: GroupMemberEventData;
+}
+
+export interface GroupMemberRemovedEventResponse extends EventResponseBase {
+  event: 'group.member_removed';
+  data: GroupMemberEventResponseData;
+}
+
 export interface VaultDataCreatedEvent extends EventBase {
   event: 'vault.data.created';
   data: VaultDataCreatedEventData;
@@ -927,6 +988,11 @@ export type Event =
   | FlagUpdatedEvent
   | FlagDeletedEvent
   | FlagRuleUpdatedEvent
+  | GroupCreatedEvent
+  | GroupUpdatedEvent
+  | GroupDeletedEvent
+  | GroupMemberAddedEvent
+  | GroupMemberRemovedEvent
   | VaultDataCreatedEvent
   | VaultDataUpdatedEvent
   | VaultDataReadEvent
@@ -1004,6 +1070,11 @@ export type EventResponse =
   | FlagUpdatedEventResponse
   | FlagDeletedEventResponse
   | FlagRuleUpdatedEventResponse
+  | GroupCreatedEventResponse
+  | GroupUpdatedEventResponse
+  | GroupDeletedEventResponse
+  | GroupMemberAddedEventResponse
+  | GroupMemberRemovedEventResponse
   | VaultDataCreatedEventResponse
   | VaultDataUpdatedEventResponse
   | VaultDataReadEventResponse
