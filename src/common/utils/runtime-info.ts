@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { detectRuntime } from './env';
 
 // Extend globalThis to include runtime-specific globals

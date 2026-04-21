@@ -435,7 +435,7 @@ describe('Authorization', () => {
     });
   });
 
-  describe('setOrganizationRolePermissions', () => {
+  describe('updateRolePermissions', () => {
     it('sets permissions for an organization role', async () => {
       const updatedRoleFixture = {
         ...organizationRoleFixture,
@@ -443,7 +443,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedRoleFixture);
 
-      const role = await workos.authorization.setOrganizationRolePermissions(
+      const role = await workos.authorization.updateRolePermissions(
         testOrgId,
         'org-admin',
         { permissions: ['org:read', 'org:write'] },
@@ -461,7 +461,7 @@ describe('Authorization', () => {
     });
   });
 
-  describe('addOrganizationRolePermission', () => {
+  describe('createRolePermission', () => {
     it('adds a permission to an organization role', async () => {
       const updatedRoleFixture = {
         ...organizationRoleFixture,
@@ -469,7 +469,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedRoleFixture);
 
-      const role = await workos.authorization.addOrganizationRolePermission(
+      const role = await workos.authorization.createRolePermission(
         testOrgId,
         'org-admin',
         { permissionSlug: 'billing:read' },
@@ -487,15 +487,13 @@ describe('Authorization', () => {
     });
   });
 
-  describe('removeOrganizationRolePermission', () => {
+  describe('deleteRolePermission', () => {
     it('removes a permission from an organization role', async () => {
       fetchOnce({}, { status: 200 });
 
-      await workos.authorization.removeOrganizationRolePermission(
-        testOrgId,
-        'org-admin',
-        { permissionSlug: 'members:invite' },
-      );
+      await workos.authorization.deleteRolePermission(testOrgId, 'org-admin', {
+        permissionSlug: 'members:invite',
+      });
 
       expect(fetchURL()).toContain(
         `/authorization/organizations/${testOrgId}/roles/org-admin/permissions/members:invite`,
@@ -1309,11 +1307,11 @@ describe('Authorization', () => {
     });
   });
 
-  describe('getResourceByExternalId', () => {
+  describe('getOrganizationResource', () => {
     it('gets a resource by organization, type, and external ID', async () => {
       fetchOnce(authorizationResourceFixture);
 
-      const resource = await workos.authorization.getResourceByExternalId({
+      const resource = await workos.authorization.getOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1337,7 +1335,7 @@ describe('Authorization', () => {
     it('handles resource without parent', async () => {
       fetchOnce({ ...authorizationResourceFixture, parent_resource_id: null });
 
-      const resource = await workos.authorization.getResourceByExternalId({
+      const resource = await workos.authorization.getOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1349,7 +1347,7 @@ describe('Authorization', () => {
     it('handles resource without description', async () => {
       fetchOnce({ ...authorizationResourceFixture, description: null });
 
-      const resource = await workos.authorization.getResourceByExternalId({
+      const resource = await workos.authorization.getOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1359,7 +1357,7 @@ describe('Authorization', () => {
     });
   });
 
-  describe('updateResourceByExternalId', () => {
+  describe('updateOrganizationResource', () => {
     it('updates a resource by external ID', async () => {
       const updatedResourceFixture = {
         ...authorizationResourceFixture,
@@ -1368,7 +1366,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedResourceFixture);
 
-      const resource = await workos.authorization.updateResourceByExternalId({
+      const resource = await workos.authorization.updateOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1401,7 +1399,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedResourceFixture);
 
-      await workos.authorization.updateResourceByExternalId({
+      await workos.authorization.updateOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1420,7 +1418,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedResourceFixture);
 
-      await workos.authorization.updateResourceByExternalId({
+      await workos.authorization.updateOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1435,7 +1433,7 @@ describe('Authorization', () => {
     it('returns unchanged resource when body is empty', async () => {
       fetchOnce(authorizationResourceFixture);
 
-      const resource = await workos.authorization.updateResourceByExternalId({
+      const resource = await workos.authorization.updateOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1462,7 +1460,7 @@ describe('Authorization', () => {
       };
       fetchOnce(updatedResourceFixture);
 
-      const resource = await workos.authorization.updateResourceByExternalId({
+      const resource = await workos.authorization.updateOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -1474,13 +1472,13 @@ describe('Authorization', () => {
     });
   });
 
-  describe('deleteResourceByExternalId', () => {
+  describe('deleteOrganizationResource', () => {
     it('deletes a resource by external ID', async () => {
       fetchOnce({}, { status: 204 });
       const resourceTypeSlug = 'document';
       const externalId = 'externalId';
 
-      await workos.authorization.deleteResourceByExternalId({
+      await workos.authorization.deleteOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: resourceTypeSlug,
         externalId: externalId,
@@ -1497,7 +1495,7 @@ describe('Authorization', () => {
       const resourceTypeSlug = 'document';
       const externalId = 'externalId';
 
-      await workos.authorization.deleteResourceByExternalId({
+      await workos.authorization.deleteOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: resourceTypeSlug,
         externalId: externalId,
@@ -1515,7 +1513,7 @@ describe('Authorization', () => {
       const resourceTypeSlug = 'document';
       const externalId = 'externalId';
 
-      await workos.authorization.deleteResourceByExternalId({
+      await workos.authorization.deleteOrganizationResource({
         organizationId: testOrgId,
         resourceTypeSlug: resourceTypeSlug,
         externalId: externalId,
@@ -1636,13 +1634,14 @@ describe('Authorization', () => {
     });
   });
 
-  describe('listRoleAssignments', () => {
+  describe('listOrganizationMembershipRoleAssignments', () => {
     it('lists role assignments for an organization membership', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      const result = await workos.authorization.listRoleAssignments({
-        organizationMembershipId: testOrgMembershipId,
-      });
+      const result =
+        await workos.authorization.listOrganizationMembershipRoleAssignments({
+          organizationMembershipId: testOrgMembershipId,
+        });
 
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/role_assignments`,
@@ -1670,7 +1669,7 @@ describe('Authorization', () => {
     it('passes pagination parameters', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      await workos.authorization.listRoleAssignments({
+      await workos.authorization.listOrganizationMembershipRoleAssignments({
         organizationMembershipId: testOrgMembershipId,
         limit: 10,
         after: 'ra_cursor123',
@@ -1687,7 +1686,7 @@ describe('Authorization', () => {
     it('passes before pagination parameter', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      await workos.authorization.listRoleAssignments({
+      await workos.authorization.listOrganizationMembershipRoleAssignments({
         organizationMembershipId: testOrgMembershipId,
         limit: 10,
         before: 'ra_cursor456',
@@ -1704,7 +1703,7 @@ describe('Authorization', () => {
     it('defaults to desc order when order is not specified', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      await workos.authorization.listRoleAssignments({
+      await workos.authorization.listOrganizationMembershipRoleAssignments({
         organizationMembershipId: testOrgMembershipId,
       });
 
@@ -1716,7 +1715,7 @@ describe('Authorization', () => {
     it('passes order asc when explicitly set', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      await workos.authorization.listRoleAssignments({
+      await workos.authorization.listOrganizationMembershipRoleAssignments({
         organizationMembershipId: testOrgMembershipId,
         order: 'asc',
       });
@@ -1729,7 +1728,7 @@ describe('Authorization', () => {
     it('passes order desc when explicitly set', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
-      await workos.authorization.listRoleAssignments({
+      await workos.authorization.listOrganizationMembershipRoleAssignments({
         organizationMembershipId: testOrgMembershipId,
         order: 'desc',
       });
@@ -1891,11 +1890,11 @@ describe('Authorization', () => {
     });
   });
 
-  describe('removeRoleAssignment', () => {
+  describe('deleteOrganizationMembershipRoleAssignment', () => {
     it('removes a role assignment by ID', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.authorization.removeRoleAssignment({
+      await workos.authorization.deleteOrganizationMembershipRoleAssignment({
         organizationMembershipId: testOrgMembershipId,
         roleAssignmentId: testRoleAssignmentId,
       });
@@ -1906,15 +1905,16 @@ describe('Authorization', () => {
     });
   });
 
-  describe('listResourcesForMembership', () => {
+  describe('listOrganizationMembershipResources', () => {
     it('lists resources with parentResourceId', async () => {
       fetchOnce(listResourcesFixture);
 
-      const result = await workos.authorization.listResourcesForMembership({
-        organizationMembershipId: testOrgMembershipId,
-        permissionSlug: 'document:read',
-        parentResourceId: testResourceId,
-      });
+      const result =
+        await workos.authorization.listOrganizationMembershipResources({
+          organizationMembershipId: testOrgMembershipId,
+          permissionSlug: 'document:read',
+          parentResourceId: testResourceId,
+        });
 
       expect(fetchURL()).toContain(
         `/authorization/organization_memberships/${testOrgMembershipId}/resources`,
@@ -1938,7 +1938,7 @@ describe('Authorization', () => {
     it('lists resources with parentResourceTypeSlug and parentResourceExternalId', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceTypeSlug: 'document',
@@ -1955,7 +1955,7 @@ describe('Authorization', () => {
     it('passes pagination parameters', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceId: testResourceId,
@@ -1976,7 +1976,7 @@ describe('Authorization', () => {
     it('passes before cursor for backward pagination', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceId: testResourceId,
@@ -1997,7 +1997,7 @@ describe('Authorization', () => {
     it('defaults to desc order when order is not specified', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceId: testResourceId,
@@ -2011,7 +2011,7 @@ describe('Authorization', () => {
     it('passes order asc when explicitly set', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceId: testResourceId,
@@ -2026,7 +2026,7 @@ describe('Authorization', () => {
     it('passes order desc when explicitly set', async () => {
       fetchOnce(listResourcesFixture);
 
-      await workos.authorization.listResourcesForMembership({
+      await workos.authorization.listOrganizationMembershipResources({
         organizationMembershipId: testOrgMembershipId,
         permissionSlug: 'document:read',
         parentResourceId: testResourceId,
@@ -2186,12 +2186,12 @@ describe('Authorization', () => {
     });
   });
 
-  describe('listMembershipsForResourceByExternalId', () => {
+  describe('listResourceOrganizationMemberships', () => {
     it('lists organization memberships for a resource by external ID', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
       const result =
-        await workos.authorization.listMembershipsForResourceByExternalId({
+        await workos.authorization.listResourceOrganizationMemberships({
           organizationId: testOrgId,
           resourceTypeSlug: 'document',
           externalId: 'doc-456',
@@ -2223,7 +2223,7 @@ describe('Authorization', () => {
     it('passes pagination parameters', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2244,7 +2244,7 @@ describe('Authorization', () => {
     it('passes before cursor for backward pagination', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2263,7 +2263,7 @@ describe('Authorization', () => {
     it('passes assignment filter when provided', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2280,7 +2280,7 @@ describe('Authorization', () => {
     it('defaults to desc order when order is not specified', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2295,7 +2295,7 @@ describe('Authorization', () => {
     it('passes order asc when explicitly set', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2311,7 +2311,7 @@ describe('Authorization', () => {
     it('passes order desc when explicitly set', async () => {
       fetchOnce(listOrganizationMembershipsForResourceFixture);
 
-      await workos.authorization.listMembershipsForResourceByExternalId({
+      await workos.authorization.listResourceOrganizationMemberships({
         organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
@@ -2325,11 +2325,11 @@ describe('Authorization', () => {
     });
   });
 
-  describe('listEffectivePermissions', () => {
+  describe('listResourcePermissions', () => {
     it('lists effective permissions for a membership on a resource', async () => {
       fetchOnce(listEffectivePermissionsFixture);
 
-      const result = await workos.authorization.listEffectivePermissions({
+      const result = await workos.authorization.listResourcePermissions({
         organizationMembershipId: testOrgMembershipId,
         resourceId: testResourceId,
       });
@@ -2366,7 +2366,7 @@ describe('Authorization', () => {
     it('passes pagination parameters', async () => {
       fetchOnce(listEffectivePermissionsFixture);
 
-      await workos.authorization.listEffectivePermissions({
+      await workos.authorization.listResourcePermissions({
         organizationMembershipId: testOrgMembershipId,
         resourceId: testResourceId,
         limit: 10,
@@ -2384,7 +2384,7 @@ describe('Authorization', () => {
     it('passes before cursor for backward pagination', async () => {
       fetchOnce(listEffectivePermissionsFixture);
 
-      await workos.authorization.listEffectivePermissions({
+      await workos.authorization.listResourcePermissions({
         organizationMembershipId: testOrgMembershipId,
         resourceId: testResourceId,
         before: 'perm_cursor789',
@@ -2400,7 +2400,7 @@ describe('Authorization', () => {
     it('defaults to desc order when order is not specified', async () => {
       fetchOnce(listEffectivePermissionsFixture);
 
-      await workos.authorization.listEffectivePermissions({
+      await workos.authorization.listResourcePermissions({
         organizationMembershipId: testOrgMembershipId,
         resourceId: testResourceId,
       });

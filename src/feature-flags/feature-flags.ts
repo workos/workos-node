@@ -11,6 +11,8 @@ import {
 import { deserializeFeatureFlag } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
+import { ListOrganizationFeatureFlagsOptions } from '../organizations/interfaces/list-organization-feature-flags-options.interface';
+import { ListUserFeatureFlagsOptions } from '../user-management/interfaces/list-user-feature-flags-options.interface';
 
 export class FeatureFlags {
   constructor(private readonly workos: WorkOS) {}
@@ -72,9 +74,57 @@ export class FeatureFlags {
     await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
   }
 
+  async listOrganizationFeatureFlags(
+    options: ListOrganizationFeatureFlagsOptions,
+  ): Promise<AutoPaginatable<FeatureFlag>> {
+    const { organizationId, ...paginationOptions } = options;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+        this.workos,
+        `/organizations/${organizationId}/feature-flags`,
+        deserializeFeatureFlag,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+          this.workos,
+          `/organizations/${organizationId}/feature-flags`,
+          deserializeFeatureFlag,
+          params,
+        ),
+      paginationOptions,
+    );
+  }
+
+  async listUserFeatureFlags(
+    options: ListUserFeatureFlagsOptions,
+  ): Promise<AutoPaginatable<FeatureFlag>> {
+    const { userId, ...paginationOptions } = options;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+        this.workos,
+        `/user_management/users/${userId}/feature-flags`,
+        deserializeFeatureFlag,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
+          this.workos,
+          `/user_management/users/${userId}/feature-flags`,
+          deserializeFeatureFlag,
+          params,
+        ),
+      paginationOptions,
+    );
+  }
+
+  // @oagen-ignore-start
   createRuntimeClient(
     options?: RuntimeClientOptions,
   ): FeatureFlagsRuntimeClient {
     return new FeatureFlagsRuntimeClient(this.workos, options);
   }
+  // @oagen-ignore-end
 }

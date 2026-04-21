@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
 import { SignatureProvider } from '../common/crypto/signature-provider';

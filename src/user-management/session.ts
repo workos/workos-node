@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { OauthException } from '../common/exceptions/oauth.exception';
 import {
   AccessToken,

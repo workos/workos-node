@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { RequestException } from '../interfaces/request-exception.interface';
 
 export class ParseError extends Error implements RequestException {

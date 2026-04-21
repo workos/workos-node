@@ -10,11 +10,11 @@ const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 describe('OrganizationDomains', () => {
   beforeEach(() => fetch.resetMocks());
 
-  describe('get', () => {
+  describe('getOrganizationDomain', () => {
     it('requests an Organization Domain', async () => {
       fetchOnce(getOrganizationDomainVerified);
 
-      const subject = await workos.organizationDomains.get(
+      const subject = await workos.organizationDomains.getOrganizationDomain(
         'org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
       );
 
@@ -32,7 +32,7 @@ describe('OrganizationDomains', () => {
     it('requests an Organization Domain', async () => {
       fetchOnce(getOrganizationDomainPending);
 
-      const subject = await workos.organizationDomains.get(
+      const subject = await workos.organizationDomains.getOrganizationDomain(
         'org_domain_01HD50K7EPWCMNPGMKXKKE14XT',
       );
 
@@ -48,11 +48,11 @@ describe('OrganizationDomains', () => {
     });
   });
 
-  describe('verify', () => {
+  describe('verifyOrganizationDomain', () => {
     it('start Organization Domain verification flow', async () => {
       fetchOnce(getOrganizationDomainPending);
 
-      const subject = await workos.organizationDomains.verify(
+      const subject = await workos.organizationDomains.verifyOrganizationDomain(
         'org_domain_01HD50K7EPWCMNPGMKXKKE14XT',
       );
 
@@ -68,14 +68,16 @@ describe('OrganizationDomains', () => {
     });
   });
 
-  describe('create', () => {
+  describe('createOrganizationDomain', () => {
     it('creates an Organization Domain', async () => {
       fetchOnce(getOrganizationDomainPending);
 
-      const subject = await workos.organizationDomains.create({
-        organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
-        domain: 'workos.com',
-      });
+      const subject = await workos.organizationDomains.createOrganizationDomain(
+        {
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          domain: 'workos.com',
+        },
+      );
 
       expect(fetchURL()).toContain('/organization_domains');
       expect(fetchBody()).toEqual({
@@ -92,11 +94,11 @@ describe('OrganizationDomains', () => {
     });
   });
 
-  describe('delete', () => {
+  describe('deleteOrganizationDomain', () => {
     it('deletes an Organization Domain', async () => {
       fetchOnce();
 
-      await workos.organizationDomains.delete(
+      await workos.organizationDomains.deleteOrganizationDomain(
         'org_domain_01HCZRAP3TPQ0X0DKJHR32TATG',
       );
 

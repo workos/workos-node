@@ -15,22 +15,22 @@ describe('Widgets', () => {
   });
 
   beforeEach(() => fetch.resetMocks());
-  describe('getToken', () => {
-    it('sends a Get Token request', async () => {
+  describe('createToken', () => {
+    it('sends a Create Token request', async () => {
       fetchOnce(tokenFixture);
-      const token = await workos.widgets.getToken({
+      const token = await workos.widgets.createToken({
         organizationId: 'org_123',
         userId: 'user_123',
         scopes: ['widgets:users-table:manage'],
       });
       expect(fetchURL()).toContain('/widgets/token');
-      expect(token).toEqual('this.is.a.token');
+      expect(token.token).toEqual('this.is.a.token');
     });
 
     it('returns an error if the API returns an error', async () => {
       fetchOnce(getTokenErrorFixture, { status: 404 });
       await expect(
-        workos.widgets.getToken({
+        workos.widgets.createToken({
           organizationId: 'org_123',
           userId: 'user_123',
           scopes: ['widgets:users-table:manage'],

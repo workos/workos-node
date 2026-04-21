@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import { WorkOS } from './workos';
 import type { UserManagement } from './user-management/user-management';
 import type { SSO } from './sso/sso';

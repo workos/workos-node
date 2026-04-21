@@ -20,14 +20,14 @@ import type { SSOIntentOptionsResponse } from './interfaces/sso-intent-options.i
 import type { IntentOptionsResponse } from './interfaces/intent-options.interface';
 import type { GenerateLinkResponse } from './interfaces/generate-link.interface';
 import type { PortalLinkResponseWire } from './interfaces/portal-link-response.interface';
-import sSOIntentOptionsFixture from './fixtures/sso-intent-options.fixture.json';
-import intentOptionsFixture from './fixtures/intent-options.fixture.json';
-import generateLinkFixture from './fixtures/generate-link.fixture.json';
-import portalLinkResponseFixture from './fixtures/portal-link-response.fixture.json';
+import SSOIntentOptionsFixture from './fixtures/sso-intent-options.json';
+import intentOptionsFixture from './fixtures/intent-options.json';
+import generateLinkFixture from './fixtures/generate-link.json';
+import portalLinkResponseFixture from './fixtures/portal-link-response.json';
 
 describe('SSOIntentOptionsSerializer', () => {
   it('round-trips through serialize/deserialize', () => {
-    const fixture = sSOIntentOptionsFixture as SSOIntentOptionsResponse;
+    const fixture = SSOIntentOptionsFixture as SSOIntentOptionsResponse;
     const deserialized = deserializeSSOIntentOptions(fixture);
     const reserialized = serializeSSOIntentOptions(deserialized);
     expect(reserialized).toEqual(expect.objectContaining(fixture));

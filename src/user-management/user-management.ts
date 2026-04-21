@@ -1,16 +1,8 @@
 import { sealData, unsealData } from '../common/crypto/seal';
-import { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
 import { toQueryString } from '../common/utils/query-string';
-import { Challenge, ChallengeResponse } from '../mfa/interfaces';
-import { deserializeChallenge } from '../mfa/serializers';
-import {
-  FeatureFlag,
-  FeatureFlagResponse,
-} from '../feature-flags/interfaces/feature-flag.interface';
-import { deserializeFeatureFlag } from '../feature-flags/serializers';
 import { WorkOS } from '../workos';
 import {
   AuthenticateWithCodeAndVerifierOptions,
@@ -27,11 +19,8 @@ import {
   CreateUserOptions,
   EmailVerification,
   EmailVerificationResponse,
-  EnrollAuthFactorOptions,
-  ListAuthFactorsOptions,
   ListSessionsOptions,
   ListUsersOptions,
-  ListUserFeatureFlagsOptions,
   LogoutURLOptions,
   MagicAuth,
   MagicAuthResponse,
@@ -84,12 +73,6 @@ import {
   CreateOrganizationMembershipOptions,
   SerializedCreateOrganizationMembershipOptions,
 } from './interfaces/create-organization-membership-options.interface';
-import {
-  Factor,
-  FactorResponse,
-  FactorWithSecrets,
-  FactorWithSecretsResponse,
-} from './interfaces/factor.interface';
 import { Identity, IdentityResponse } from './interfaces/identity.interface';
 import {
   Invitation,
@@ -129,7 +112,6 @@ import {
 import {
   deserializeAuthenticationResponse,
   deserializeEmailVerification,
-  deserializeFactorWithSecrets,
   deserializeMagicAuth,
   deserializePasswordReset,
   deserializeSession,
@@ -144,7 +126,6 @@ import {
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
   serializeCreateUserOptions,
-  serializeEnrollAuthFactorOptions,
   serializeListSessionsOptions,
   serializeResetPasswordOptions,
   serializeUpdateUserOptions,
@@ -152,7 +133,6 @@ import {
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
 import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
-import { deserializeFactor } from './serializers/factor.serializer';
 import { deserializeIdentities } from './serializers/identity.serializer';
 import { deserializeInvitation } from './serializers/invitation.serializer';
 import { serializeListInvitationsOptions } from './serializers/list-invitations-options.serializer';
@@ -168,6 +148,7 @@ import { Group, GroupResponse } from '../groups/interfaces';
 import { deserializeGroup } from '../groups/serializers';
 
 export class UserManagement {
+  // @oagen-ignore-start
   private _jwks:
     | ReturnType<typeof import('jose').createRemoteJWKSet>
     | undefined;
@@ -192,7 +173,9 @@ export class UserManagement {
     }
     return resolved;
   }
+  // @oagen-ignore-end
 
+  // @oagen-ignore-start
   async getJWKS(): Promise<
     ReturnType<typeof import('jose').createRemoteJWKSet> | undefined
   > {
@@ -208,7 +191,9 @@ export class UserManagement {
 
     return this._jwks;
   }
+  // @oagen-ignore-end
 
+  // @oagen-ignore-start
   /**
    * Loads a sealed session using the provided session data and cookie password.
    *
@@ -223,6 +208,7 @@ export class UserManagement {
   }): CookieSession {
     return new CookieSession(this, options.sessionData, options.cookiePassword);
   }
+  // @oagen-ignore-end
 
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
@@ -375,6 +361,7 @@ export class UserManagement {
     });
   }
 
+  // @oagen-ignore-start
   /**
    * Exchange an authorization code for tokens using PKCE (public client flow).
    * Use this instead of authenticateWithCode() when the client cannot securely
@@ -407,6 +394,7 @@ export class UserManagement {
       session,
     });
   }
+  // @oagen-ignore-end
 
   /**
    * Refresh an access token using a refresh token.
@@ -517,6 +505,7 @@ export class UserManagement {
     });
   }
 
+  // @oagen-ignore-start
   async authenticateWithSessionCookie({
     sessionData,
     cookiePassword = getEnv('WORKOS_COOKIE_PASSWORD'),
@@ -688,6 +677,7 @@ export class UserManagement {
 
     return undefined;
   }
+  // @oagen-ignore-end
 
   async getEmailVerification(
     emailVerificationId: string,
@@ -789,73 +779,6 @@ export class UserManagement {
     );
 
     return deserializeUser(data);
-  }
-
-  async enrollAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
-    authenticationFactor: FactorWithSecrets;
-    authenticationChallenge: Challenge;
-  }> {
-    const { data } = await this.workos.post<{
-      authentication_factor: FactorWithSecretsResponse;
-      authentication_challenge: ChallengeResponse;
-    }>(
-      `/user_management/users/${payload.userId}/auth_factors`,
-      serializeEnrollAuthFactorOptions(payload),
-    );
-
-    return {
-      authenticationFactor: deserializeFactorWithSecrets(
-        data.authentication_factor,
-      ),
-      authenticationChallenge: deserializeChallenge(
-        data.authentication_challenge,
-      ),
-    };
-  }
-
-  async listAuthFactors(
-    options: ListAuthFactorsOptions,
-  ): Promise<AutoPaginatable<Factor, PaginationOptions>> {
-    const { userId, ...restOfOptions } = options;
-    return new AutoPaginatable(
-      await fetchAndDeserialize<FactorResponse, Factor>(
-        this.workos,
-        `/user_management/users/${userId}/auth_factors`,
-        deserializeFactor,
-        restOfOptions,
-      ),
-      (params) =>
-        fetchAndDeserialize<FactorResponse, Factor>(
-          this.workos,
-          `/user_management/users/${userId}/auth_factors`,
-          deserializeFactor,
-          params,
-        ),
-      restOfOptions,
-    );
-  }
-
-  async listUserFeatureFlags(
-    options: ListUserFeatureFlagsOptions,
-  ): Promise<AutoPaginatable<FeatureFlag>> {
-    const { userId, ...paginationOptions } = options;
-
-    return new AutoPaginatable(
-      await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
-        this.workos,
-        `/user_management/users/${userId}/feature-flags`,
-        deserializeFeatureFlag,
-        paginationOptions,
-      ),
-      (params) =>
-        fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
-          this.workos,
-          `/user_management/users/${userId}/feature-flags`,
-          deserializeFeatureFlag,
-          params,
-        ),
-      paginationOptions,
-    );
   }
 
   async listSessions(
@@ -1115,6 +1038,7 @@ export class UserManagement {
     );
   }
 
+  // @oagen-ignore-start
   /**
    * Generate an OAuth 2.0 authorization URL.
    *
@@ -1294,4 +1218,5 @@ export class UserManagement {
 
     return `${this.workos.baseURL}/sso/jwks/${clientId}`;
   }
+  // @oagen-ignore-end
 }

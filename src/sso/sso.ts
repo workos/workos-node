@@ -51,6 +51,7 @@ export class SSO {
     await this.workos.delete(`/connections/${id}`);
   }
 
+  // @oagen-ignore-start
   getAuthorizationUrl(options: SSOAuthorizationURLOptions): string {
     const {
       codeChallenge,
@@ -166,6 +167,7 @@ export class SSO {
 
     return { url, state, codeVerifier: pkce.codeVerifier };
   }
+  // @oagen-ignore-end
 
   async getConnection(id: string): Promise<Connection> {
     const { data } = await this.workos.get<ConnectionResponse>(

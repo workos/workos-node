@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 type QueryValue =
   | string
   | string[]

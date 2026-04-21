@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 import {
   HttpClientInterface,
   HttpClientResponseInterface,

@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 /**
  * Indicates that code is unreachable.
  *

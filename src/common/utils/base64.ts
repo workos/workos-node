@@ -1,3 +1,4 @@
+// @oagen-ignore-file
 /**
  * Cross-runtime compatible base64 encoding/decoding utilities
  * that work in both Node.js and browser environments
