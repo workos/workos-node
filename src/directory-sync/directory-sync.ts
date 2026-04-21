@@ -169,6 +169,10 @@ export class DirectorySync {
    * Get a Directory User
    *
    * Get the details of an existing Directory User.
+   * @param user - Unique identifier for the Directory User.
+   *
+   * @example
+   * "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"
    * @returns {Promise<DirectoryUserWithGroups<TCustomAttributes>>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -187,6 +191,10 @@ export class DirectorySync {
    * Get a Directory Group
    *
    * Get the details of an existing Directory Group.
+   * @param group - Unique identifier for the Directory Group.
+   *
+   * @example
+   * "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"
    * @returns {Promise<DirectoryGroup>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404

@@ -22,7 +22,7 @@ export class FeatureFlags {
    *
    * Get a list of all of your existing feature flags matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<FeatureFlag, PaginationOptions>>}
+   * @returns {Promise<AutoPaginatable<FeatureFlag>>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -114,6 +114,7 @@ export class FeatureFlags {
    * Add a feature flag target
    *
    * Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
+   * @params options - Object containing slug and targetId.
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws 403 response from the API.
@@ -128,6 +129,7 @@ export class FeatureFlags {
    * Remove a feature flag target
    *
    * Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
+   * @params options - Object containing slug and targetId.
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws 403 response from the API.
@@ -142,13 +144,8 @@ export class FeatureFlags {
    * List enabled feature flags for an organization
    *
    * Get a list of all enabled feature flags for an organization.
-   * @param organizationId - Unique identifier of the Organization.
-   *
-   * @example
-   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   *
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<Flag>>}
+   * @returns {Promise<AutoPaginatable<FeatureFlag>>}
    * @throws {NotFoundException} 404
    */
   async listOrganizationFeatureFlags(
@@ -176,12 +173,6 @@ export class FeatureFlags {
 
   /**
    * List enabled feature flags for a user
-   *
-   * Get a list of all enabled feature flags for the provided user. This includes feature flags enabled specifically for the user as well as any organizations that the user is a member of.
-   * @param userId - The ID of the user.
-   *
-   * @example
-   * "user_01E4ZCR3C56J083X43JQXF3JK5"
    *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<Flag>>}
