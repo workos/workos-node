@@ -59,7 +59,10 @@ export class DirectorySync {
    *
    * Get the details of an existing directory.
    * @param id - Unique identifier for the Directory.
-   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   *
+   * @example
+   * "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   *
    * @returns {Promise<Directory>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -77,7 +80,10 @@ export class DirectorySync {
    *
    * Permanently deletes an existing directory. It cannot be undone.
    * @param id - Unique identifier for the Directory.
-   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   *
+   * @example
+   * "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    */

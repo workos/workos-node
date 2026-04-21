@@ -43,7 +43,10 @@ export class MultiFactorAuth {
    *
    * Permanently deletes an Authentication Factor. It cannot be undone.
    * @param id - The unique ID of the Factor.
-   * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
+   * @example
+   * "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
@@ -56,7 +59,10 @@ export class MultiFactorAuth {
    *
    * Gets an Authentication Factor.
    * @param id - The unique ID of the Factor.
-   * @example "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
+   * @example
+   * "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
    * @returns {Promise<Factor>}
    * @throws {NotFoundException} 404
    */

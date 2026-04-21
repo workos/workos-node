@@ -76,7 +76,10 @@ export class Organizations {
    *
    * Permanently deletes an organization in the current environment. It cannot be undone.
    * @param id - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    */
@@ -89,7 +92,10 @@ export class Organizations {
    *
    * Get the details of an existing organization.
    * @param id - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @returns {Promise<Organization>}
    * @throws {NotFoundException} 404
    */
@@ -106,7 +112,10 @@ export class Organizations {
    *
    * Get the details of an existing organization by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
    * @param externalId - The external ID of the Organization.
-   * @example "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191"
+   *
+   * @example
+   * "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191"
+   *
    * @returns {Promise<Organization>}
    * @throws {NotFoundException} 404
    */

@@ -87,7 +87,10 @@ export class AuditLogs {
    *
    * Get an Audit Log Export. The URL will expire after 10 minutes. If the export is needed again at a later time, refetching the export will regenerate the URL.
    * @param auditLogExportId - The unique ID of the Audit Log Export.
-   * @example "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V"
+   *
+   * @example
+   * "audit_log_export_01GBZK5MP7TD1YCFQHFR22180V"
+   *
    * @returns {Promise<AuditLogExport>}
    * @throws {NotFoundException} 404
    */

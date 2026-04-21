@@ -15,7 +15,10 @@ export class OrganizationDomains {
    *
    * Get the details of an existing organization domain.
    * @param id - Unique identifier of the organization domain.
-   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
+   * @example
+   * "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
    * @returns {Promise<OrganizationDomain>}
    * @throws {NotFoundException} 404
    */
@@ -32,7 +35,10 @@ export class OrganizationDomains {
    *
    * Initiates verification process for an Organization Domain.
    * @param id - Unique identifier of the organization domain.
-   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
+   * @example
+   * "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
    * @returns {Promise<OrganizationDomain>}
    * @throws {BadRequestException} 400
    */
@@ -69,7 +75,10 @@ export class OrganizationDomains {
    *
    * Permanently deletes an organization domain. It cannot be undone.
    * @param id - Unique identifier of the organization domain.
-   * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
+   * @example
+   * "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
+   *
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */

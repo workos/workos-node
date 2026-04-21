@@ -52,7 +52,10 @@ export class ApiKeys {
    *
    * Permanently deletes an API key. This action cannot be undone. Once deleted, any requests using this API key will fail authentication.
    * @param id - The unique ID of the API key.
-   * @example "api_key_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "api_key_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
@@ -65,7 +68,10 @@ export class ApiKeys {
    *
    * Get a list of all API keys for an organization.
    * @param organizationId - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<ApiKey>>}
    * @throws {NotFoundException} 404
@@ -98,7 +104,10 @@ export class ApiKeys {
    *
    * Create a new API key for an organization.
    * @param organizationId - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param options - Object containing name.
    * @returns {Promise<ApiKeyWithValue>}
    * @throws {NotFoundException} 404

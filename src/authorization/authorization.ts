@@ -127,7 +127,10 @@ export class Authorization {
    *
    * Get an environment role by its slug.
    * @param slug - The slug of the environment role.
-   * @example "admin"
+   *
+   * @example
+   * "admin"
+   *
    * @returns {Promise<EnvironmentRole>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -144,7 +147,10 @@ export class Authorization {
    *
    * Update an existing environment role.
    * @param slug - The slug of the environment role.
-   * @example "admin"
+   *
+   * @example
+   * "admin"
+   *
    * @param options - The request body.
    * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
@@ -168,7 +174,10 @@ export class Authorization {
    *
    * Replace all permissions on an environment role with the provided list.
    * @param slug - The slug of the environment role.
-   * @example "admin"
+   *
+   * @example
+   * "admin"
+   *
    * @param options - Object containing permissions.
    * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
@@ -192,7 +201,10 @@ export class Authorization {
    *
    * Add a single permission to an environment role. If the permission is already assigned to the role, this operation has no effect.
    * @param slug - The slug of the environment role.
-   * @example "admin"
+   *
+   * @example
+   * "admin"
+   *
    * @param options - Object containing slug.
    * @returns {Promise<EnvironmentRole>}
    * @throws {BadRequestException} 400
@@ -216,7 +228,10 @@ export class Authorization {
    *
    * Create a new custom role for this organization.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param options - Object containing name.
    * @returns {Promise<OrganizationRole>}
    * @throws {BadRequestException} 400
@@ -241,7 +256,10 @@ export class Authorization {
    *
    * Get a list of all roles that apply to an organization. This includes both environment roles and custom roles, returned in priority order.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @returns {Promise<RoleList>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -261,9 +279,15 @@ export class Authorization {
    *
    * Retrieve a role that applies to an organization by its slug. This can return either an environment role or a custom role.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-billing-admin"
+   *
+   * @example
+   * "org-billing-admin"
+   *
    * @returns {Promise<Role>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -283,9 +307,15 @@ export class Authorization {
    *
    * Update an existing custom role. Only the fields provided in the request body will be updated.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-billing-admin"
+   *
+   * @example
+   * "org-billing-admin"
+   *
    * @param options - The request body.
    * @returns {Promise<OrganizationRole>}
    * @throws {BadRequestException} 400
@@ -310,9 +340,15 @@ export class Authorization {
    *
    * Delete an existing custom role.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-admin"
+   *
+   * @example
+   * "org-admin"
+   *
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws 403 response from the API.
@@ -333,9 +369,15 @@ export class Authorization {
    *
    * Replace all permissions on a custom role with the provided list.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-admin"
+   *
+   * @example
+   * "org-admin"
+   *
    * @param options - Object containing permissions.
    * @returns {Promise<Role>}
    * @throws 403 response from the API.
@@ -359,9 +401,15 @@ export class Authorization {
    *
    * Add a single permission to a custom role. If the permission is already assigned to the role, this operation has no effect.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-admin"
+   *
+   * @example
+   * "org-admin"
+   *
    * @param options - Object containing slug.
    * @returns {Promise<Role>}
    * @throws {BadRequestException} 400
@@ -386,11 +434,20 @@ export class Authorization {
    *
    * Remove a single permission from a custom role by its slug.
    * @param organizationId - The ID of the organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param slug - The slug of the role.
-   * @example "org-admin"
+   *
+   * @example
+   * "org-admin"
+   *
    * @param permissionSlug - The slug of the permission to remove.
-   * @example "documents:read"
+   *
+   * @example
+   * "documents:read"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -460,7 +517,10 @@ export class Authorization {
    *
    * Retrieve a permission by its unique slug.
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
-   * @example "documents:read"
+   *
+   * @example
+   * "documents:read"
+   *
    * @returns {Promise<Permission>}
    * @throws {NotFoundException} 404
    */
@@ -476,7 +536,10 @@ export class Authorization {
    *
    * Update an existing permission. Only the fields provided in the request body will be updated.
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
-   * @example "documents:read"
+   *
+   * @example
+   * "documents:read"
+   *
    * @param options - The request body.
    * @returns {Promise<Permission>}
    * @throws 403 response from the API.
@@ -499,7 +562,10 @@ export class Authorization {
    *
    * Delete an existing permission. System permissions cannot be deleted.
    * @param slug - A unique key to reference the permission. Must be lowercase and contain only letters, numbers, hyphens, underscores, colons, periods, and asterisks.
-   * @example "documents:read"
+   *
+   * @example
+   * "documents:read"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -513,7 +579,10 @@ export class Authorization {
    *
    * Retrieve the details of an authorization resource by its ID.
    * @param resourceId - The ID of the authorization resource.
-   * @example "authz_resource_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "authz_resource_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @returns {Promise<AuthorizationResource>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -576,7 +645,6 @@ export class Authorization {
    * Delete an authorization resource and all its descendants.
    * @param options.cascadeDelete - If true, deletes all descendant resources and role assignments. If not set and the resource has children or assignments, the request will fail.
    * @default false
-   * @example false
    * @param options - Additional query options.
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
@@ -640,11 +708,20 @@ export class Authorization {
    *
    * Retrieve the details of an authorization resource by its external ID, organization, and resource type. This is useful when you only have the external ID from your system and need to fetch the full resource details.
    * @param organizationId - The ID of the organization that owns the resource.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param resourceTypeSlug - The slug of the resource type.
-   * @example "project"
+   *
+   * @example
+   * "project"
+   *
    * @param externalId - An identifier you provide to reference the resource in your system.
-   * @example "proj-456"
+   *
+   * @example
+   * "proj-456"
+   *
    * @returns {Promise<AuthorizationResource>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -664,11 +741,20 @@ export class Authorization {
    *
    * Update an existing authorization resource using its external ID.
    * @param organizationId - The ID of the organization that owns the resource.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param resourceTypeSlug - The slug of the resource type.
-   * @example "project"
+   *
+   * @example
+   * "project"
+   *
    * @param externalId - An identifier you provide to reference the resource in your system.
-   * @example "proj-456"
+   *
+   * @example
+   * "proj-456"
+   *
    * @param options - The request body.
    * @returns {Promise<AuthorizationResource>}
    * @throws {BadRequestException} 400
@@ -692,11 +778,20 @@ export class Authorization {
    *
    * Delete an authorization resource by organization, resource type, and external ID. This also deletes all descendant resources.
    * @param organizationId - The ID of the organization that owns the resource.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param resourceTypeSlug - The slug of the resource type.
-   * @example "project"
+   *
+   * @example
+   * "project"
+   *
    * @param externalId - An identifier you provide to reference the resource in your system.
-   * @example "proj-456"
+   *
+   * @example
+   * "proj-456"
+   *
    * @param options - Additional query options.
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
@@ -746,7 +841,10 @@ export class Authorization {
    *
    * List all role assignments for an organization membership. This returns all roles that have been assigned to the user on resources, including organization-level and sub-resource roles.
    * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "om_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<RoleAssignment>>}
    * @throws 403 response from the API.
@@ -815,9 +913,15 @@ export class Authorization {
    *
    * Remove a role assignment using its ID.
    * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "om_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @param roleAssignmentId - The ID of the role assignment to remove.
-   * @example "role_assignment_01HXYZ123456789ABCDEFGH"
+   *
+   * @example
+   * "role_assignment_01HXYZ123456789ABCDEFGH"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -837,7 +941,10 @@ export class Authorization {
    *
    * You must provide either `parent_resource_id` or both `parent_resource_external_id` and `parent_resource_type_slug` to identify the parent resource.
    * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "om_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<AuthorizationResource>>}
    * @throws {BadRequestException} 400
@@ -918,11 +1025,20 @@ export class Authorization {
    *
    * Returns all organization memberships that have a specific permission on a resource, using the resource's external ID. This is useful for answering "Who can access this resource?" when you only have the external ID.
    * @param organizationId - The ID of the organization that owns the resource.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param resourceTypeSlug - The slug of the resource type this resource belongs to.
-   * @example "project"
+   *
+   * @example
+   * "project"
+   *
    * @param externalId - An identifier you provide to reference the resource in your system.
-   * @example "proj-456"
+   *
+   * @example
+   * "proj-456"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<UserOrganizationMembershipBaseListData>>}
    * @throws {BadRequestException} 400
@@ -966,9 +1082,15 @@ export class Authorization {
    *
    * Returns all permissions the organization membership effectively has on a resource, including permissions inherited through roles assigned to ancestor resources.
    * @param organizationMembershipId - The ID of the organization membership.
-   * @example "om_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "om_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @param resourceId - The ID of the authorization resource.
-   * @example "authz_resource_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @example
+   * "authz_resource_01HXYZ123456789ABCDEFGHIJ"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<AuthorizationPermission>>}
    * @throws 403 response from the API.

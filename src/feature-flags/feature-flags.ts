@@ -53,7 +53,10 @@ export class FeatureFlags {
    *
    * Get the details of an existing feature flag by its slug.
    * @param slug - A unique key to reference the Feature Flag.
-   * @example "advanced-analytics"
+   *
+   * @example
+   * "advanced-analytics"
+   *
    * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
@@ -70,7 +73,10 @@ export class FeatureFlags {
    *
    * Enables a feature flag in the current environment.
    * @param slug - A unique key to reference the Feature Flag.
-   * @example "advanced-analytics"
+   *
+   * @example
+   * "advanced-analytics"
+   *
    * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
@@ -88,7 +94,10 @@ export class FeatureFlags {
    *
    * Disables a feature flag in the current environment.
    * @param slug - A unique key to reference the Feature Flag.
-   * @example "advanced-analytics"
+   *
+   * @example
+   * "advanced-analytics"
+   *
    * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
@@ -134,7 +143,10 @@ export class FeatureFlags {
    *
    * Get a list of all enabled feature flags for an organization.
    * @param organizationId - Unique identifier of the Organization.
-   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<Flag>>}
    * @throws {NotFoundException} 404
@@ -167,7 +179,10 @@ export class FeatureFlags {
    *
    * Get a list of all enabled feature flags for the provided user. This includes feature flags enabled specifically for the user as well as any organizations that the user is a member of.
    * @param userId - The ID of the user.
-   * @example "user_01E4ZCR3C56J083X43JQXF3JK5"
+   *
+   * @example
+   * "user_01E4ZCR3C56J083X43JQXF3JK5"
+   *
    * @param options - Pagination and filter options.
    * @returns {Promise<AutoPaginatable<Flag>>}
    * @throws {NotFoundException} 404

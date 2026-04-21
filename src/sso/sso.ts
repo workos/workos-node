@@ -61,7 +61,10 @@ export class SSO {
    *
    * Permanently deletes an existing connection. It cannot be undone.
    * @param id - Unique identifier for the Connection.
-   * @example "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
+   * @example
+   * "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
    * @returns {Promise<void>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
@@ -193,7 +196,10 @@ export class SSO {
    *
    * Get the details of an existing connection.
    * @param id - Unique identifier for the Connection.
-   * @example "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
+   * @example
+   * "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
    * @returns {Promise<Connection>}
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404

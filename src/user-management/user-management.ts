@@ -231,7 +231,10 @@ export class UserManagement {
    *
    * Get the details of an existing user by an [external identifier](https://workos.com/docs/authkit/metadata/external-identifiers).
    * @param externalId - The external ID of the user.
-   * @example "f1ffa2b2-c20b-4d39-be5c-212726e11222"
+   *
+   * @example
+   * "f1ffa2b2-c20b-4d39-be5c-212726e11222"
+   *
    * @returns {Promise<User>}
    * @throws {NotFoundException} 404
    */
@@ -1462,9 +1465,15 @@ export class UserManagement {
    *
    * Logout a user from the current [session](https://workos.com/docs/reference/authkit/session).
    * @param options.sessionId - The ID of the session to revoke. This can be extracted from the `sid` claim of the access token.
-   * @example "session_01H93ZY4F80QPBEZ1R5B2SHQG8"
+   *
+   * @example
+   * "session_01H93ZY4F80QPBEZ1R5B2SHQG8"
+   *
    * @param options.returnTo - The URL to redirect the user to after session revocation.
-   * @example "https://example.com"
+   *
+   * @example
+   * "https://example.com"
+   *
    * @returns {string}
    * @throws {UnprocessableEntityException} 422
    */
