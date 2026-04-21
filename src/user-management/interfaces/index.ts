@@ -24,6 +24,7 @@ export * from './identity.interface';
 export * from './impersonator.interface';
 export * from './invitation.interface';
 export * from './list-auth-factors-options.interface';
+export * from './list-groups-for-organization-membership-options.interface';
 export * from './list-invitations-options.interface';
 export * from './list-organization-memberships-options.interface';
 export * from './list-sessions-options.interface';

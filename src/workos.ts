@@ -36,6 +36,7 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FeatureFlags } from './feature-flags/feature-flags';
+import { Groups } from './groups/groups';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
@@ -75,6 +76,7 @@ export class WorkOS {
   readonly directorySync = new DirectorySync(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
+  readonly groups = new Groups(this);
   readonly mfa = new Mfa(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);

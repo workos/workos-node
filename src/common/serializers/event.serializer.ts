@@ -26,6 +26,7 @@ import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer
 import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
 import { deserializePermission } from '../../authorization/serializers/permission.serializer';
 import { deserializeFeatureFlag } from '../../feature-flags/serializers/feature-flag.serializer';
+import { deserializeGroup } from '../../groups/serializers';
 import {
   deserializeVaultDataCreatedEvent,
   deserializeVaultDataUpdatedEvent,
@@ -241,6 +242,24 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeFeatureFlag(event.data),
+      };
+    case 'group.created':
+    case 'group.updated':
+    case 'group.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeGroup(event.data),
+      };
+    case 'group.member_added':
+    case 'group.member_removed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: {
+          groupId: event.data.group_id,
+          organizationMembershipId: event.data.organization_membership_id,
+        },
       };
     case 'vault.data.created':
       return {

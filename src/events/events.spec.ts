@@ -7,6 +7,12 @@ import {
   EventResponse,
   FlagCreatedEvent,
   FlagCreatedEventResponse,
+  GroupCreatedEvent,
+  GroupCreatedEventResponse,
+  GroupMemberAddedEvent,
+  GroupMemberAddedEventResponse,
+  GroupMemberRemovedEvent,
+  GroupMemberRemovedEventResponse,
   ListResponse,
   OrganizationDomainCreatedEvent,
   OrganizationDomainCreatedEventResponse,
@@ -215,6 +221,138 @@ describe('Event', () => {
 
         const list = await workos.events.listEvents({
           events: ['flag.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+    });
+
+    describe('group events', () => {
+      it('deserializes group.created events', async () => {
+        const groupCreatedResponse: GroupCreatedEventResponse = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          created_at: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.created',
+          data: {
+            object: 'group',
+            id: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organization_id: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            name: 'Engineering',
+            description: 'The engineering team',
+            created_at: '2026-04-20T12:00:00.000Z',
+            updated_at: '2026-04-20T12:00:00.000Z',
+          },
+        };
+
+        const expected: GroupCreatedEvent = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
+          createdAt: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.created',
+          data: {
+            object: 'group',
+            id: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+            name: 'Engineering',
+            description: 'The engineering team',
+            createdAt: '2026-04-20T12:00:00.000Z',
+            updatedAt: '2026-04-20T12:00:00.000Z',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [groupCreatedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['group.created'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes group.member_added events', async () => {
+        const memberAddedResponse: GroupMemberAddedEventResponse = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3T',
+          created_at: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.member_added',
+          data: {
+            group_id: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organization_membership_id: 'om_01HXYZ123456789ABCDEFGHIJ',
+          },
+        };
+
+        const expected: GroupMemberAddedEvent = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3T',
+          createdAt: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.member_added',
+          data: {
+            groupId: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organizationMembershipId: 'om_01HXYZ123456789ABCDEFGHIJ',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [memberAddedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['group.member_added'],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      });
+
+      it('deserializes group.member_removed events', async () => {
+        const memberRemovedResponse: GroupMemberRemovedEventResponse = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3U',
+          created_at: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.member_removed',
+          data: {
+            group_id: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organization_membership_id: 'om_01HXYZ123456789ABCDEFGHIJ',
+          },
+        };
+
+        const expected: GroupMemberRemovedEvent = {
+          id: 'event_01K43DMGDK941Z4YPH6XGHTY3U',
+          createdAt: '2026-04-20T12:00:00.000Z',
+          context: { client_id: 'client_01234ABCD' },
+          event: 'group.member_removed',
+          data: {
+            groupId: 'group_01HXYZ123456789ABCDEFGHIJ',
+            organizationMembershipId: 'om_01HXYZ123456789ABCDEFGHIJ',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [memberRemovedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: ['group.member_removed'],
         });
 
         expect(list).toEqual({
