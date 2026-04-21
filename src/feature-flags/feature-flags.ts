@@ -17,6 +17,16 @@ import { ListUserFeatureFlagsOptions } from '../user-management/interfaces/list-
 export class FeatureFlags {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * List feature flags
+   *
+   * Get a list of all of your existing feature flags matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<FeatureFlag>>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
   async listFeatureFlags(
     options?: ListFeatureFlagsOptions,
   ): Promise<AutoPaginatable<FeatureFlag>> {
@@ -38,6 +48,18 @@ export class FeatureFlags {
     );
   }
 
+  /**
+   * Get a feature flag
+   *
+   * Get the details of an existing feature flag by its slug.
+   * @param slug - A unique key to reference the Feature Flag.
+   *
+   * @example
+   * "advanced-analytics"
+   *
+   * @returns {Promise<FeatureFlag>}
+   * @throws {NotFoundException} 404
+   */
   async getFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.get<FeatureFlagResponse>(
       `/feature-flags/${slug}`,
@@ -46,6 +68,18 @@ export class FeatureFlags {
     return deserializeFeatureFlag(data);
   }
 
+  /**
+   * Enable a feature flag
+   *
+   * Enables a feature flag in the current environment.
+   * @param slug - A unique key to reference the Feature Flag.
+   *
+   * @example
+   * "advanced-analytics"
+   *
+   * @returns {Promise<FeatureFlag>}
+   * @throws {NotFoundException} 404
+   */
   async enableFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.put<FeatureFlagResponse>(
       `/feature-flags/${slug}/enable`,
@@ -55,6 +89,18 @@ export class FeatureFlags {
     return deserializeFeatureFlag(data);
   }
 
+  /**
+   * Disable a feature flag
+   *
+   * Disables a feature flag in the current environment.
+   * @param slug - A unique key to reference the Feature Flag.
+   *
+   * @example
+   * "advanced-analytics"
+   *
+   * @returns {Promise<FeatureFlag>}
+   * @throws {NotFoundException} 404
+   */
   async disableFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.put<FeatureFlagResponse>(
       `/feature-flags/${slug}/disable`,
@@ -64,16 +110,44 @@ export class FeatureFlags {
     return deserializeFeatureFlag(data);
   }
 
+  /**
+   * Add a feature flag target
+   *
+   * Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
+   * @params options - Object containing slug and targetId.
+   * @returns {Promise<void>}
+   * @throws {BadRequestException} 400
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async addFlagTarget(options: AddFlagTargetOptions): Promise<void> {
     const { slug, targetId } = options;
     await this.workos.post(`/feature-flags/${slug}/targets/${targetId}`, {});
   }
 
+  /**
+   * Remove a feature flag target
+   *
+   * Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
+   * @params options - Object containing slug and targetId.
+   * @returns {Promise<void>}
+   * @throws {BadRequestException} 400
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async removeFlagTarget(options: RemoveFlagTargetOptions): Promise<void> {
     const { slug, targetId } = options;
     await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
   }
 
+  /**
+   * List enabled feature flags for an organization
+   *
+   * Get a list of all enabled feature flags for an organization.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<FeatureFlag>>}
+   * @throws {NotFoundException} 404
+   */
   async listOrganizationFeatureFlags(
     options: ListOrganizationFeatureFlagsOptions,
   ): Promise<AutoPaginatable<FeatureFlag>> {
@@ -97,6 +171,13 @@ export class FeatureFlags {
     );
   }
 
+  /**
+   * List enabled feature flags for a user
+   *
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<Flag>>}
+   * @throws {NotFoundException} 404
+   */
   async listUserFeatureFlags(
     options: ListUserFeatureFlagsOptions,
   ): Promise<AutoPaginatable<FeatureFlag>> {

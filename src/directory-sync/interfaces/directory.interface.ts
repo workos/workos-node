@@ -34,15 +34,25 @@ export type DirectoryStateResponse =
   | 'validating';
 
 export interface Directory {
+  /** Distinguishes the Directory object. */
   object: 'directory';
+  /** Unique identifier for the Directory. */
   id: string;
+  /** The URL associated with an Enterprise Client. */
   domain: string;
+  /** External Key for the Directory. */
   externalKey: string;
+  /** The name of the directory. */
   name: string;
+  /** The unique identifier for the Organization in which the directory resides. */
   organizationId?: string;
+  /** Describes whether the Directory has been successfully connected to an external provider. */
   state: DirectoryState;
+  /** The type of external Directory Provider integrated with. */
   type: DirectoryType;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
 }
 

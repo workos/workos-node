@@ -1,11 +1,19 @@
 export interface PasswordReset {
+  /** Distinguishes the password reset object. */
   object: 'password_reset';
+  /** The unique ID of the password reset object. */
   id: string;
+  /** The unique ID of the user. */
   userId: string;
+  /** The email address of the user. */
   email: string;
+  /** The token used to reset the password. */
   passwordResetToken: string;
+  /** The URL where the user can reset their password. */
   passwordResetUrl: string;
+  /** The timestamp when the password reset token expires. */
   expiresAt: string;
+  /** The timestamp when the password reset token was created. */
   createdAt: string;
 }
 

@@ -38,10 +38,34 @@ import { deserializeFactor as deserializeUMFactor } from '../user-management/ser
 export class MultiFactorAuth {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * Delete Factor
+   *
+   * Permanently deletes an Authentication Factor. It cannot be undone.
+   * @param id - The unique ID of the Factor.
+   *
+   * @example
+   * "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
   async deleteFactor(id: string) {
     await this.workos.delete(`/auth/factors/${id}`);
   }
 
+  /**
+   * Get Factor
+   *
+   * Gets an Authentication Factor.
+   * @param id - The unique ID of the Factor.
+   *
+   * @example
+   * "auth_factor_01FVYZ5QM8N98T9ME5BCB2BBMJ"
+   *
+   * @returns {Promise<Factor>}
+   * @throws {NotFoundException} 404
+   */
   async getFactor(id: string): Promise<Factor> {
     const { data } = await this.workos.get<FactorResponse>(
       `/auth/factors/${id}`,
@@ -50,6 +74,14 @@ export class MultiFactorAuth {
     return deserializeFactor(data);
   }
 
+  /**
+   * Enroll Factor
+   *
+   * Enrolls an Authentication Factor to be used as an additional factor of authentication. The returned ID should be used to create an authentication Challenge.
+   * @param options - Object containing type.
+   * @returns {Promise<FactorWithSecrets>}
+   * @throws {UnprocessableEntityException} 422
+   */
   async enrollFactor(options: EnrollFactorOptions): Promise<FactorWithSecrets> {
     const { data } = await this.workos.post<FactorWithSecretsResponse>(
       '/auth/factors/enroll',
@@ -76,6 +108,15 @@ export class MultiFactorAuth {
     return deserializeFactorWithSecrets(data);
   }
 
+  /**
+   * Challenge Factor
+   *
+   * Creates a Challenge for an Authentication Factor.
+   * @param options - The request body.
+   * @returns {Promise<Challenge>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
   async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {
     const { data } = await this.workos.post<ChallengeResponse>(
       `/auth/factors/${options.authenticationFactorId}/challenge`,
@@ -88,6 +129,16 @@ export class MultiFactorAuth {
     return deserializeChallenge(data);
   }
 
+  /**
+   * Verify Challenge
+   *
+   * Verifies an Authentication Challenge.
+   * @param options - Object containing code.
+   * @returns {Promise<VerifyResponse>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
   async verifyChallenge(
     options: VerifyChallengeOptions,
   ): Promise<VerifyResponse> {
@@ -101,6 +152,14 @@ export class MultiFactorAuth {
     return deserializeVerifyResponse(data);
   }
 
+  /**
+   * Enroll an authentication factor
+   *
+   * Enrolls a user in a new [authentication factor](https://workos.com/docs/reference/authkit/mfa/authentication-factor).
+   * @param payload - Object containing type.
+   * @returns {Promise<{authenticationFactor: UMFactorWithSecrets; authenticationChallenge: Challenge}>}
+   * @throws {UnprocessableEntityException} 422
+   */
   async createUserAuthFactor(payload: EnrollAuthFactorOptions): Promise<{
     authenticationFactor: UMFactorWithSecrets;
     authenticationChallenge: Challenge;
@@ -123,6 +182,14 @@ export class MultiFactorAuth {
     };
   }
 
+  /**
+   * List authentication factors
+   *
+   * Lists the [authentication factors](https://workos.com/docs/reference/authkit/mfa/authentication-factor) for a user.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<UMFactor, PaginationOptions>>}
+   * @throws {UnprocessableEntityException} 422
+   */
   async listUserAuthFactors(
     options: ListAuthFactorsOptions,
   ): Promise<AutoPaginatable<UMFactor, PaginationOptions>> {

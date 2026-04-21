@@ -1,13 +1,23 @@
 export interface AuthorizationResource {
+  /** Distinguishes the Resource object. */
   object: 'authorization_resource';
+  /** The unique ID of the Resource. */
   id: string;
+  /** An identifier you provide to reference the resource in your system. */
   externalId: string;
+  /** A human-readable name for the Resource. */
   name: string;
+  /** An optional description of the Resource. */
   description: string | null;
+  /** The slug of the resource type this resource belongs to. */
   resourceTypeSlug: string;
+  /** The ID of the organization that owns the resource. */
   organizationId: string;
+  /** The ID of the parent resource, if this resource is nested. */
   parentResourceId: string | null;
+  /** An ISO 8601 timestamp. */
   createdAt: string;
+  /** An ISO 8601 timestamp. */
   updatedAt: string;
 }
 

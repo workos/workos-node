@@ -27,6 +27,15 @@ import {
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
 
+  /**
+   * List Connections
+   *
+   * Get a list of all of your existing connections matching the criteria specified.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<Connection, SerializedListConnectionsOptions>>}
+   * @throws 403 response from the API.
+   * @throws {UnprocessableEntityException} 422
+   */
   async listConnections(
     options?: ListConnectionsOptions,
   ): Promise<AutoPaginatable<Connection, SerializedListConnectionsOptions>> {
@@ -47,6 +56,19 @@ export class SSO {
       options ? serializeListConnectionsOptions(options) : undefined,
     );
   }
+  /**
+   * Delete a Connection
+   *
+   * Permanently deletes an existing connection. It cannot be undone.
+   * @param id - Unique identifier for the Connection.
+   *
+   * @example
+   * "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
+   * @returns {Promise<void>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async deleteConnection(id: string) {
     await this.workos.delete(`/connections/${id}`);
   }
@@ -169,6 +191,19 @@ export class SSO {
   }
   // @oagen-ignore-end
 
+  /**
+   * Get a Connection
+   *
+   * Get the details of an existing connection.
+   * @param id - Unique identifier for the Connection.
+   *
+   * @example
+   * "conn_01E4ZCR3C56J083X43JQXF3JK5"
+   *
+   * @returns {Promise<Connection>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
   async getConnection(id: string): Promise<Connection> {
     const { data } = await this.workos.get<ConnectionResponse>(
       `/connections/${id}`,
@@ -239,6 +274,14 @@ export class SSO {
     return deserializeProfileAndToken(data);
   }
 
+  /**
+   * Get a User Profile
+   *
+   * Exchange an access token for a user's [Profile](https://workos.com/docs/reference/sso/profile). Because this profile is returned in the [Get a Profile and Token endpoint](https://workos.com/docs/reference/sso/profile/get-profile-and-token) your application usually does not need to call this endpoint. It is available for any authentication flows that require an additional endpoint to retrieve a user's profile.
+   * @returns {Promise<Profile<CustomAttributesType>>}
+   * @throws {UnauthorizedException} 401
+   * @throws {NotFoundException} 404
+   */
   async getProfile<CustomAttributesType extends UnknownRecord = UnknownRecord>({
     accessToken,
   }: GetProfileOptions): Promise<Profile<CustomAttributesType>> {
