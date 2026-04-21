@@ -14,8 +14,9 @@ export interface IdentityResponse {
   type: 'OAuth';
   provider:
     | 'AppleOAuth'
-    | 'GoogleOAuth'
+    | 'GithubOAuth'
     | 'GitHubOAuth'
+    | 'GoogleOAuth'
     | 'MicrosoftOAuth'
     | 'SalesforceOAuth';
 }

@@ -363,3 +363,31 @@ This is intended to make strict TypeScript error handling easier, especially if 
 The v9 update also tightens webhook/event deserialization behavior for unknown event types.
 
 If your integration assumed unknown event types would be ignored or treated loosely, re-test webhook handling on the latest v9 release.
+
+### User Management
+
+#### `getUserIdentities` now normalizes `GithubOAuth` to `GitHubOAuth`
+
+The WorkOS API returns `GithubOAuth` (lowercase 'h') as the provider in identity responses, but `getAuthorizationUrl` expects `GitHubOAuth` (uppercase 'H'). The SDK now normalizes the casing during deserialization so that identity provider values can be passed directly to `getAuthorizationUrl`.
+
+If your code was comparing against the raw API value `'GithubOAuth'`, update it to `'GitHubOAuth'`:
+
+**Before (v8):**
+
+```typescript
+const identities = await workos.userManagement.getUserIdentities(userId);
+const github = identities.find((i) => i.provider === 'GithubOAuth');
+```
+
+**After (v9):**
+
+```typescript
+const identities = await workos.userManagement.getUserIdentities(userId);
+const github = identities.find((i) => i.provider === 'GitHubOAuth');
+
+// The provider value can now be passed directly to getAuthorizationUrl
+const url = workos.userManagement.getAuthorizationUrl({
+  provider: github.provider,
+  redirectUri: 'https://example.com/callback',
+});
+```
