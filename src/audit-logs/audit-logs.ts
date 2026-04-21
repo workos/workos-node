@@ -1,3 +1,6 @@
+import { PaginationOptions } from '../common/interfaces';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
   CreateAuditLogEventOptions,
@@ -10,16 +13,19 @@ import {
 } from './interfaces/audit-log-export.interface';
 import {
   AuditLogSchema,
-  CreateAuditLogSchemaOptions,
-  CreateAuditLogSchemaRequestOptions,
+  AuditLogSchemaResponse,
+} from './interfaces/audit-log-schema.interface';
+import {
   CreateAuditLogSchemaResponse,
+  CreateAuditLogSchemaRequestOptions,
+  CreateAuditLogSchemaOptions,
 } from './interfaces/create-audit-log-schema-options.interface';
 import {
   deserializeAuditLogExport,
+  deserializeAuditLogSchema,
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
   serializeCreateAuditLogSchemaOptions,
-  deserializeAuditLogSchema,
 } from './serializers';
 
 export class AuditLogs {
@@ -76,5 +82,29 @@ export class AuditLogs {
     );
 
     return deserializeAuditLogSchema(data);
+  }
+
+  async listSchemas(
+    action: string,
+    options?: PaginationOptions,
+  ): Promise<AutoPaginatable<AuditLogSchema, PaginationOptions>> {
+    const endpoint = `/audit_logs/actions/${action}/schemas`;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(
+        this.workos,
+        endpoint,
+        deserializeAuditLogSchema,
+        options,
+      ),
+      (params: PaginationOptions) =>
+        fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(
+          this.workos,
+          endpoint,
+          deserializeAuditLogSchema,
+          params,
+        ),
+      options,
+    );
   }
 }
