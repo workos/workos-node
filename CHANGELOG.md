@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.1.0](https://github.com/workos/workos-node/compare/v9.0.0...v9.1.0) (2026-04-21)
+
+
+### Features
+
+* add support for role_slug in invitation schema ([#1567](https://github.com/workos/workos-node/issues/1567)) ([ba29409](https://github.com/workos/workos-node/commit/ba29409743619ebb855c06b7c9987114afae61ea))
+
 ## [9.0.0](https://github.com/workos/workos-node/compare/v8.13.0...v9.0.0) (2026-04-21)
 
 
