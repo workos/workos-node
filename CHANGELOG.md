@@ -40,6 +40,8 @@
 * Drop Node.js v20 support, require v22.11+ ([#1560](https://github.com/workos/workos-node/issues/1560)) ([24609a7](https://github.com/workos/workos-node/commit/24609a737cb26d159774dd89ffca384cbc6c6723))
 * Remove legacy FGA package ([#1559](https://github.com/workos/workos-node/issues/1559)) ([8cdd668](https://github.com/workos/workos-node/commit/8cdd668949d0b04e3b3eaf3214153d58ca16b0b1))
 
+Read the [V9_MIGRATION_GUIDE.md](https://github.com/workos/workos-node/blob/main/docs/V9_MIGRATION_GUIDE.md) for more information.
+
 ## [8.13.0](https://github.com/workos/workos-node/compare/v8.12.1...v8.13.0) (2026-04-13)
 
 
