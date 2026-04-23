@@ -2,6 +2,7 @@ import {
   GenericServerException,
   WorkOSErrorData,
 } from './generic-server.exception';
+import type { UserResponse } from '../../user-management/interfaces/user.interface';
 
 export type AuthenticationErrorCode =
   | 'email_verification_required'
@@ -14,8 +15,9 @@ export type AuthenticationErrorCode =
 export interface AuthenticationErrorData extends WorkOSErrorData {
   code: AuthenticationErrorCode;
   pending_authentication_token?: string;
-  user?: Record<string, unknown>;
+  user?: UserResponse;
   organizations?: Array<{ id: string; name: string }>;
+  connection_ids?: string[];
 }
 
 const AUTHENTICATION_ERROR_CODES: ReadonlySet<string> = new Set<string>([
