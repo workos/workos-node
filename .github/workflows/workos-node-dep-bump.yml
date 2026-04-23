@@ -168,53 +168,56 @@ jobs:
             rm -rf "$WORK_DIR"
             gh repo clone "$REPO" "$WORK_DIR" || { echo "   Clone failed — skipping"; continue; }
 
-            cd "$WORK_DIR" || { echo "   cd failed — skipping"; continue; }
-            git checkout -b "$BRANCH"
+            # Subshell isolates errexit so one repo failure doesn't abort the loop
+            (
+              cd "$WORK_DIR"
+              git checkout -b "$BRANCH"
 
-            # sed preserves exact file formatting; | delimiter avoids conflicts with /
-            sed -i "s|\"@workos-inc/node\": \"${CURRENT}\"|\"@workos-inc/node\": \"${NEW_CONSTRAINT}\"|g" \
-              package.json
+              # sed preserves exact file formatting; | delimiter avoids conflicts with /
+              sed -i "s|\"@workos-inc/node\": \"${CURRENT}\"|\"@workos-inc/node\": \"${NEW_CONSTRAINT}\"|g" \
+                package.json
 
-            git config user.email "workos-sdk-bot[bot]@users.noreply.github.com"
-            git config user.name "workos-sdk-bot[bot]"
+              git config user.email "workos-sdk-bot[bot]@users.noreply.github.com"
+              git config user.name "workos-sdk-bot[bot]"
 
-            # Regenerate lockfile based on detected package manager
-            if [ -f "pnpm-lock.yaml" ]; then
-              corepack enable pnpm
-              pnpm install --lockfile-only
-            elif [ -f "package-lock.json" ]; then
-              npm install --package-lock-only
-            fi
+              # Regenerate lockfile based on detected package manager
+              if [ -f "pnpm-lock.yaml" ]; then
+                corepack enable pnpm
+                pnpm install --lockfile-only
+              elif [ -f "package-lock.json" ]; then
+                npm install --package-lock-only
+              fi
 
-            git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
-            git commit -m "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
+              git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
+              git commit -m "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
 
-            # Push idempotently — force-with-lease if branch exists from a prior run
-            if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
-              echo "   Branch $BRANCH already exists — updating"
-              git push --force-with-lease origin "$BRANCH"
-            else
-              git push origin "$BRANCH"
-            fi
+              # Push idempotently — force-with-lease if branch exists from a prior run
+              if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+                echo "   Branch $BRANCH already exists — updating"
+                git push --force-with-lease origin "$BRANCH"
+              else
+                git push origin "$BRANCH"
+              fi
 
-            # Only create PR if one doesn't already exist for this branch
-            EXISTING_PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --json number --jq '.[0].number')
-            if [ -n "$EXISTING_PR" ]; then
-              echo "   PR #$EXISTING_PR already exists — skipping"
-            else
-              DEFAULT_BRANCH=$(gh repo view "$REPO" \
-                --json defaultBranchRef \
-                --jq '.defaultBranchRef.name')
+              # Only create PR if one doesn't already exist for this branch
+              EXISTING_PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --json number --jq '.[0].number')
+              if [ -n "$EXISTING_PR" ]; then
+                echo "   PR #$EXISTING_PR already exists — skipping"
+              else
+                DEFAULT_BRANCH=$(gh repo view "$REPO" \
+                  --json defaultBranchRef \
+                  --jq '.defaultBranchRef.name')
 
-              gh pr create \
-                --repo "$REPO" \
-                --base "$DEFAULT_BRANCH" \
-                --head "$BRANCH" \
-                --title "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
-                --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})."
-            fi
+                gh pr create \
+                  --repo "$REPO" \
+                  --base "$DEFAULT_BRANCH" \
+                  --head "$BRANCH" \
+                  --title "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
+                  --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})."
+              fi
+            ) || echo "   Failed — skipping"
 
-            cd /tmp && rm -rf "$WORK_DIR"
+            rm -rf "$WORK_DIR"
             echo "   Done ✓"
 
           done < /tmp/repos.txt
