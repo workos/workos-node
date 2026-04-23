@@ -28,9 +28,13 @@ jobs:
     steps:
       - name: Determine target major version
         id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            TAG="${{ github.event.release.tag_name }}"
+          if [ "$EVENT_NAME" = "release" ]; then
+            TAG="$RELEASE_TAG"
             VERSION="${TAG#v}"
             MAJOR=$(echo "$VERSION" | cut -d. -f1)
             MINOR=$(echo "$VERSION" | cut -d. -f2)
@@ -44,9 +48,15 @@ jobs:
               exit 0
             fi
           else
-            INPUT="${{ inputs.version }}"
+            INPUT="$INPUT_VERSION"
             VERSION="${INPUT#v}"
             MAJOR=$(echo "$VERSION" | cut -d. -f1)
+
+            if ! [[ "$MAJOR" =~ ^[0-9]+$ ]]; then
+              echo "Invalid version input: $INPUT"
+              exit 1
+            fi
+
             TAG="v${MAJOR}.0.0"
 
             echo "Input: $INPUT  →  major=$MAJOR"
@@ -94,10 +104,10 @@ jobs:
       - name: Bump dependencies
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          NEW_MAJOR: ${{ needs.check-version.outputs.major }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          RELEASE_TAG: ${{ needs.check-version.outputs.tag }}
         run: |
-          NEW_MAJOR="${{ needs.check-version.outputs.major }}"
-          DRY_RUN="${{ inputs.dry_run || 'false' }}"
-
           echo "Target major: $NEW_MAJOR | Dry run: $DRY_RUN"
 
           if [ ! -s /tmp/repos.txt ]; then
@@ -129,9 +139,13 @@ jobs:
               continue
             fi
 
-            # Compare majors
-            CURRENT_CLEAN="${CURRENT#^}"
-            CURRENT_MAJOR=$(echo "$CURRENT_CLEAN" | cut -d. -f1)
+            # Compare majors — strip any non-numeric prefix (^, ~, >=, etc.)
+            CURRENT_MAJOR=$(echo "$CURRENT" | sed 's/^[^0-9]*//' | cut -d. -f1)
+
+            if ! [[ "$CURRENT_MAJOR" =~ ^[0-9]+$ ]]; then
+              echo "   Unable to parse version: $CURRENT — skipping"
+              continue
+            fi
 
             if [ "$CURRENT_MAJOR" -ge "$NEW_MAJOR" ]; then
               echo "   Already at major $CURRENT_MAJOR (>= $NEW_MAJOR) — skipping"
@@ -152,9 +166,9 @@ jobs:
             WORK_DIR="/tmp/${REPO_NAME}"
 
             rm -rf "$WORK_DIR"
-            gh repo clone "$REPO" "$WORK_DIR"
+            gh repo clone "$REPO" "$WORK_DIR" || { echo "   Clone failed — skipping"; continue; }
 
-            cd "$WORK_DIR"
+            cd "$WORK_DIR" || { echo "   cd failed — skipping"; continue; }
             git checkout -b "$BRANCH"
 
             # sed preserves exact file formatting; | delimiter avoids conflicts with /
@@ -163,7 +177,18 @@ jobs:
 
             git config user.email "workos-sdk-bot[bot]@users.noreply.github.com"
             git config user.name "workos-sdk-bot[bot]"
-            git add package.json
+
+            # Regenerate lockfile based on detected package manager
+            if [ -f "pnpm-lock.yaml" ]; then
+              corepack enable pnpm
+              pnpm install --lockfile-only
+            elif [ -f "package-lock.json" ]; then
+              npm install --package-lock-only
+            elif [ -f "yarn.lock" ]; then
+              yarn install --mode update-lockfile
+            fi
+
+            git add package.json package-lock.json yarn.lock pnpm-lock.yaml 2>/dev/null || true
             git commit -m "chore: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
             git push origin "$BRANCH"
 
@@ -176,7 +201,7 @@ jobs:
               --base "$DEFAULT_BRANCH" \
               --head "$BRANCH" \
               --title "chore: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
-              --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${{ needs.check-version.outputs.tag }})." \
+              --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})." \
               || echo "   PR may already exist — skipping"
 
             cd /tmp && rm -rf "$WORK_DIR"
