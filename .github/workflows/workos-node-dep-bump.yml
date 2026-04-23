@@ -1,0 +1,223 @@
+name: Bump workos-node dependency in workos repos
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Target version (e.g. 9, 9.0.0, or v9.0.0) — major is extracted automatically'
+        required: true
+        type: string
+      dry_run:
+        description: 'Log what would happen without opening any PRs'
+        required: false
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.version.outputs.skip }}
+      major: ${{ steps.version.outputs.major }}
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - name: Determine target major version
+        id: version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "$EVENT_NAME" = "release" ]; then
+            TAG="$RELEASE_TAG"
+            VERSION="${TAG#v}"
+            MAJOR=$(echo "$VERSION" | cut -d. -f1)
+            MINOR=$(echo "$VERSION" | cut -d. -f2)
+            PATCH=$(echo "$VERSION" | cut -d. -f3)
+
+            echo "Tag: $TAG  →  major=$MAJOR minor=$MINOR patch=$PATCH"
+
+            if [ "$MINOR" != "0" ] || [ "$PATCH" != "0" ]; then
+              echo "Not a major release ($TAG) — skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          else
+            INPUT="$INPUT_VERSION"
+            VERSION="${INPUT#v}"
+            MAJOR=$(echo "$VERSION" | cut -d. -f1)
+
+            if ! [[ "$MAJOR" =~ ^[0-9]+$ ]]; then
+              echo "Invalid version input: $INPUT"
+              exit 1
+            fi
+
+            TAG="v${MAJOR}.0.0"
+
+            echo "Input: $INPUT  →  major=$MAJOR"
+          fi
+
+          echo "major=$MAJOR" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+  bump-workos-node-deps:
+    needs: check-version
+    if: needs.check-version.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: generate-token
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # 3.1.1
+        with:
+          app-id: ${{ vars.SDK_BOT_APP_ID }}
+          private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
+          owner: workos
+
+      - name: Discover repos
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          REPO_PATTERNS=("authkit-")
+
+          > /tmp/repos.txt
+          for PATTERN in "${REPO_PATTERNS[@]}"; do
+            gh repo list workos \
+              --limit 200 \
+              --json name \
+              --jq ".[] | select(.name | startswith(\"$PATTERN\")) | .name" \
+              >> /tmp/repos.txt
+          done
+
+          if [ ! -s /tmp/repos.txt ]; then
+            echo "No repos found matching patterns: ${REPO_PATTERNS[*]}"
+          else
+            echo "Found repos:"
+            cat /tmp/repos.txt
+          fi
+
+      - name: Bump dependencies
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          NEW_MAJOR: ${{ needs.check-version.outputs.major }}
+          DRY_RUN: ${{ inputs.dry_run || 'false' }}
+          RELEASE_TAG: ${{ needs.check-version.outputs.tag }}
+        run: |
+          echo "Target major: $NEW_MAJOR | Dry run: $DRY_RUN"
+
+          if [ ! -s /tmp/repos.txt ]; then
+            echo "No repos to process."
+            exit 0
+          fi
+
+          while IFS= read -r REPO_NAME; do
+            [ -z "$REPO_NAME" ] && continue
+            REPO="workos/$REPO_NAME"
+            echo "── $REPO"
+
+            # Fetch package.json via API (avoids a full clone for the read phase)
+            PKG_CONTENT=$(gh api "repos/$REPO/contents/package.json" \
+              --jq '.content' 2>/dev/null) || {
+              echo "   No package.json — skipping"
+              continue
+            }
+            PKG_JSON=$(echo "$PKG_CONTENT" | base64 -d)
+
+            # Extract current @workos-inc/node version (deps or devDeps)
+            CURRENT=$(echo "$PKG_JSON" | jq -r '
+              (.dependencies["@workos-inc/node"] //
+               .devDependencies["@workos-inc/node"] //
+               "")
+            ')
+            if [ -z "$CURRENT" ]; then
+              echo "   @workos-inc/node not present — skipping"
+              continue
+            fi
+
+            # Compare majors — strip any non-numeric prefix (^, ~, >=, etc.)
+            CURRENT_MAJOR=$(echo "$CURRENT" | sed 's/^[^0-9]*//' | cut -d. -f1)
+
+            if ! [[ "$CURRENT_MAJOR" =~ ^[0-9]+$ ]]; then
+              echo "   Unable to parse version: $CURRENT — skipping"
+              continue
+            fi
+
+            if [ "$CURRENT_MAJOR" -ge "$NEW_MAJOR" ]; then
+              echo "   Already at major $CURRENT_MAJOR (>= $NEW_MAJOR) — skipping"
+              continue
+            fi
+
+            NEW_CONSTRAINT="^${NEW_MAJOR}.0.0"
+            echo "   Update: $CURRENT → $NEW_CONSTRAINT"
+
+            if [ "$DRY_RUN" = "true" ]; then
+              echo "   [DRY RUN] Would open PR in $REPO"
+              echo "   [DRY RUN]   Branch: deps/bump-workos-node-to-v${NEW_MAJOR}"
+              echo "   [DRY RUN]   Change: @workos-inc/node $CURRENT → $NEW_CONSTRAINT"
+              continue
+            fi
+
+            BRANCH="deps/bump-workos-node-to-v${NEW_MAJOR}"
+            WORK_DIR="/tmp/${REPO_NAME}"
+
+            rm -rf "$WORK_DIR"
+            gh repo clone "$REPO" "$WORK_DIR" || { echo "   Clone failed — skipping"; continue; }
+
+            # Subshell isolates errexit so one repo failure doesn't abort the loop
+            (
+              cd "$WORK_DIR"
+              git checkout -b "$BRANCH"
+
+              # sed preserves exact file formatting; | delimiter avoids conflicts with /
+              sed -i "s|\"@workos-inc/node\": \"${CURRENT}\"|\"@workos-inc/node\": \"${NEW_CONSTRAINT}\"|g" \
+                package.json
+
+              git config user.email "workos-sdk-bot[bot]@users.noreply.github.com"
+              git config user.name "workos-sdk-bot[bot]"
+
+              # Regenerate lockfile based on detected package manager
+              if [ -f "pnpm-lock.yaml" ]; then
+                corepack enable pnpm
+                pnpm install --lockfile-only
+              elif [ -f "package-lock.json" ]; then
+                npm install --package-lock-only
+              fi
+
+              git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
+              git commit -m "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
+
+              # Push idempotently — force-with-lease if branch exists from a prior run
+              if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+                echo "   Branch $BRANCH already exists — updating"
+                git push --force-with-lease origin "$BRANCH"
+              else
+                git push origin "$BRANCH"
+              fi
+
+              # Only create PR if one doesn't already exist for this branch
+              EXISTING_PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --json number --jq '.[0].number')
+              if [ -n "$EXISTING_PR" ]; then
+                echo "   PR #$EXISTING_PR already exists — skipping"
+              else
+                DEFAULT_BRANCH=$(gh repo view "$REPO" \
+                  --json defaultBranchRef \
+                  --jq '.defaultBranchRef.name')
+
+                gh pr create \
+                  --repo "$REPO" \
+                  --base "$DEFAULT_BRANCH" \
+                  --head "$BRANCH" \
+                  --title "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
+                  --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})."
+              fi
+            ) || echo "   Failed — skipping"
+
+            rm -rf "$WORK_DIR"
+            echo "   Done ✓"
+
+          done < /tmp/repos.txt
