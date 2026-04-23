@@ -184,25 +184,35 @@ jobs:
               pnpm install --lockfile-only
             elif [ -f "package-lock.json" ]; then
               npm install --package-lock-only
-            elif [ -f "yarn.lock" ]; then
-              yarn install --mode update-lockfile
             fi
 
-            git add package.json package-lock.json yarn.lock pnpm-lock.yaml 2>/dev/null || true
-            git commit -m "chore: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
-            git push origin "$BRANCH"
+            git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
+            git commit -m "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
 
-            DEFAULT_BRANCH=$(gh repo view "$REPO" \
-              --json defaultBranchRef \
-              --jq '.defaultBranchRef.name')
+            # Push idempotently — force-with-lease if branch exists from a prior run
+            if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+              echo "   Branch $BRANCH already exists — updating"
+              git push --force-with-lease origin "$BRANCH"
+            else
+              git push origin "$BRANCH"
+            fi
 
-            gh pr create \
-              --repo "$REPO" \
-              --base "$DEFAULT_BRANCH" \
-              --head "$BRANCH" \
-              --title "chore: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
-              --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})." \
-              || echo "   PR may already exist — skipping"
+            # Only create PR if one doesn't already exist for this branch
+            EXISTING_PR=$(gh pr list --repo "$REPO" --head "$BRANCH" --json number --jq '.[0].number')
+            if [ -n "$EXISTING_PR" ]; then
+              echo "   PR #$EXISTING_PR already exists — skipping"
+            else
+              DEFAULT_BRANCH=$(gh repo view "$REPO" \
+                --json defaultBranchRef \
+                --jq '.defaultBranchRef.name')
+
+              gh pr create \
+                --repo "$REPO" \
+                --base "$DEFAULT_BRANCH" \
+                --head "$BRANCH" \
+                --title "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0" \
+                --body "Bumps \`@workos-inc/node\` from \`${CURRENT}\` to \`${NEW_CONSTRAINT}\` following the [v${NEW_MAJOR}.0.0 release](https://github.com/workos/workos-node/releases/tag/${RELEASE_TAG})."
+            fi
 
             cd /tmp && rm -rf "$WORK_DIR"
             echo "   Done ✓"
