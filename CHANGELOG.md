@@ -1,5 +1,15 @@
 # Changelog
 
+## [9.1.1](https://github.com/workos/workos-node/compare/v9.1.0...v9.1.1) (2026-04-24)
+
+
+### Bug Fixes
+
+* Correctly handle all `isAuthenticationErrorData` cases ([#1573](https://github.com/workos/workos-node/issues/1573)) ([b572431](https://github.com/workos/workos-node/commit/b572431a9e225a8eb524220b054cef0596c7574b))
+* Fix incorrect url for listEffectivePermissionsByExternalId ([#1574](https://github.com/workos/workos-node/issues/1574)) ([8f8fc81](https://github.com/workos/workos-node/commit/8f8fc8168f6fcf6109e99938ab36c588c3e9bf62))
+* restore typed data on `AuthenticationErrorData` ([#1570](https://github.com/workos/workos-node/issues/1570)) ([a7a1e6d](https://github.com/workos/workos-node/commit/a7a1e6dee05d9449b4c565906536f67b343d0fd1))
+* revert "Rename Authorization methods to match oagen hints" ([7ab0380](https://github.com/workos/workos-node/commit/7ab03806854349928bac91d3f014e37f33cf94cc))
+
 ## [9.1.0](https://github.com/workos/workos-node/compare/v9.0.0...v9.1.0) (2026-04-21)
 
 
