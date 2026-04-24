@@ -2418,13 +2418,12 @@ describe('Authorization', () => {
       const result =
         await workos.authorization.listEffectivePermissionsByExternalId({
           organizationMembershipId: testOrgMembershipId,
-          organizationId: testOrgId,
           resourceTypeSlug: 'document',
           externalId: 'doc-456',
         });
 
       expect(fetchURL()).toContain(
-        `/authorization/organizations/${testOrgId}/resources/document/doc-456/organization_memberships/${testOrgMembershipId}/permissions`,
+        `/authorization/organization_memberships/${testOrgMembershipId}/resources/document/doc-456/permissions`,
       );
       expect(result.object).toEqual('list');
       expect(result.data).toHaveLength(2);
@@ -2453,7 +2452,6 @@ describe('Authorization', () => {
 
       await workos.authorization.listEffectivePermissionsByExternalId({
         organizationMembershipId: testOrgMembershipId,
-        organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         limit: 10,
@@ -2473,7 +2471,6 @@ describe('Authorization', () => {
 
       await workos.authorization.listEffectivePermissionsByExternalId({
         organizationMembershipId: testOrgMembershipId,
-        organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
         before: 'perm_cursor789',
@@ -2491,7 +2488,6 @@ describe('Authorization', () => {
 
       await workos.authorization.listEffectivePermissionsByExternalId({
         organizationMembershipId: testOrgMembershipId,
-        organizationId: testOrgId,
         resourceTypeSlug: 'document',
         externalId: 'doc-456',
       });
