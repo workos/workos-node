@@ -384,7 +384,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async updateRolePermissions(
+  async setOrganizationRolePermissions(
     organizationId: string,
     slug: string,
     options: SetOrganizationRolePermissionsOptions,
@@ -417,7 +417,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async createRolePermission(
+  async addOrganizationRolePermission(
     organizationId: string,
     slug: string,
     options: AddOrganizationRolePermissionOptions,
@@ -452,7 +452,7 @@ export class Authorization {
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
    */
-  async deleteRolePermission(
+  async removeOrganizationRolePermission(
     organizationId: string,
     slug: string,
     options: RemoveOrganizationRolePermissionOptions,
@@ -726,7 +726,7 @@ export class Authorization {
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
    */
-  async getOrganizationResource(
+  async getResourceByExternalId(
     options: GetAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -763,7 +763,7 @@ export class Authorization {
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
    */
-  async updateOrganizationResource(
+  async updateResourceByExternalId(
     options: UpdateAuthorizationResourceByExternalIdOptions,
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -799,7 +799,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
    */
-  async deleteOrganizationResource(
+  async deleteResourceByExternalId(
     options: DeleteAuthorizationResourceByExternalIdOptions,
   ): Promise<void> {
     const { organizationId, resourceTypeSlug, externalId, cascadeDelete } =
@@ -850,7 +850,7 @@ export class Authorization {
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
    */
-  async listOrganizationMembershipRoleAssignments(
+  async listRoleAssignments(
     options: ListRoleAssignmentsOptions,
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
@@ -926,7 +926,7 @@ export class Authorization {
    * @throws 403 response from the API.
    * @throws {NotFoundException} 404
    */
-  async deleteOrganizationMembershipRoleAssignment(
+  async removeRoleAssignment(
     options: RemoveRoleAssignmentOptions,
   ): Promise<void> {
     await this.workos.delete(
@@ -952,7 +952,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async listOrganizationMembershipResources(
+  async listResourcesForMembership(
     options: ListResourcesForMembershipOptions,
   ): Promise<AutoPaginatable<AuthorizationResource>> {
     const { organizationMembershipId } = options;
@@ -1046,7 +1046,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async listResourceOrganizationMemberships(
+  async listMembershipsForResourceByExternalId(
     options: ListMembershipsForResourceByExternalIdOptions,
   ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { organizationId, resourceTypeSlug, externalId } = options;
@@ -1097,7 +1097,7 @@ export class Authorization {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async listResourcePermissions(
+  async listEffectivePermissions(
     options: ListEffectivePermissionsOptions,
   ): Promise<AutoPaginatable<Permission>> {
     const { organizationMembershipId, resourceId } = options;
