@@ -210,4 +210,128 @@ describe('Webhooks', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
+
+  describe('raw-bytes payload path (non-breaking overload)', () => {
+    // Sign the exact bytes WorkOS would send on the wire. The SDK should HMAC
+    // those same bytes (not a re-stringified round-trip), matching the pattern
+    // used by Stripe, GitHub, and Svix.
+    const signRaw = (rawBody: string, ts: number, sec: string): string =>
+      crypto
+        .createHmac('sha256', sec)
+        .update(`${ts}.${rawBody}`)
+        .digest('hex');
+
+    it('verifies when payload is a raw JSON string matching the signed bytes', async () => {
+      const rawBody = JSON.stringify(mockWebhook);
+      const hash = signRaw(rawBody, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      const webhook = await workos.webhooks.constructEvent({
+        payload: rawBody,
+        sigHeader,
+        secret,
+      });
+
+      expect(webhook.id).toEqual('wh_123');
+    });
+
+    it('verifies when payload is a Buffer matching the signed bytes', async () => {
+      const rawBody = JSON.stringify(mockWebhook);
+      const hash = signRaw(rawBody, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      const webhook = await workos.webhooks.constructEvent({
+        payload: Buffer.from(rawBody, 'utf-8'),
+        sigHeader,
+        secret,
+      });
+
+      expect(webhook.id).toEqual('wh_123');
+    });
+
+    it('verifies when payload is a Uint8Array matching the signed bytes', async () => {
+      const rawBody = JSON.stringify(mockWebhook);
+      const hash = signRaw(rawBody, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+      const bytes = new TextEncoder().encode(rawBody);
+
+      const webhook = await workos.webhooks.constructEvent({
+        payload: bytes,
+        sigHeader,
+        secret,
+      });
+
+      expect(webhook.id).toEqual('wh_123');
+    });
+
+    it('rejects mutated bytes that round-trip through JSON.parse to the same object (whitespace)', async () => {
+      // Server signs canonical bytes; attacker forwards bytes with injected
+      // whitespace that parse to the same object.
+      const signedBytes = JSON.stringify(mockWebhook);
+      const mutatedBytes = JSON.stringify(mockWebhook, null, 2); // pretty-printed
+      expect(JSON.parse(signedBytes)).toEqual(JSON.parse(mutatedBytes));
+      expect(signedBytes).not.toEqual(mutatedBytes);
+
+      const hash = signRaw(signedBytes, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      await expect(
+        workos.webhooks.constructEvent({
+          payload: mutatedBytes,
+          sigHeader,
+          secret,
+        }),
+      ).rejects.toThrow(SignatureVerificationException);
+    });
+
+    it('rejects mutated bytes with unicode-escaped characters (same parsed object)', async () => {
+      const signedBytes = '{"event":"dsync.user.created","data":{"name":"hello"}}';
+      // hello parses to "hello" — same object, different bytes
+      const mutatedBytes =
+        '{"event":"dsync.user.created","data":{"name":"\\u0068\\u0065\\u006c\\u006c\\u006f"}}';
+      expect(JSON.parse(signedBytes)).toEqual(JSON.parse(mutatedBytes));
+      expect(signedBytes).not.toEqual(mutatedBytes);
+
+      const hash = signRaw(signedBytes, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      await expect(
+        workos.webhooks.constructEvent({
+          payload: mutatedBytes,
+          sigHeader,
+          secret,
+        }),
+      ).rejects.toThrow(SignatureVerificationException);
+    });
+
+    it('rejects mutated bytes with reordered keys (same parsed object)', async () => {
+      const signedBytes = '{"a":1,"b":2}';
+      const mutatedBytes = '{"b":2,"a":1}';
+      expect(JSON.parse(signedBytes)).toEqual(JSON.parse(mutatedBytes));
+
+      const hash = signRaw(signedBytes, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      await expect(
+        workos.webhooks.verifyHeader({
+          payload: mutatedBytes,
+          sigHeader,
+          secret,
+        }),
+      ).rejects.toThrow(SignatureVerificationException);
+    });
+
+    it('legacy object path still verifies (back-compat)', async () => {
+      // Existing caller shape: pre-parsed object, SDK re-stringifies internally.
+      // Unsafe to byte-level mutation but must keep working until we deprecate.
+      const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
+      const webhook = await workos.webhooks.constructEvent({
+        payload: mockWebhook as unknown as Record<string, unknown>,
+        sigHeader,
+        secret,
+      });
+
+      expect(webhook.id).toEqual('wh_123');
+    });
+  });
 });
