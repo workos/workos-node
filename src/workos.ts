@@ -483,7 +483,9 @@ export class WorkOS {
           );
         }
         default: {
-          if (error || errorDescription) {
+          if (isAuthenticationErrorData(data)) {
+            throw new AuthenticationException(status, data, requestID);
+          } else if (error || errorDescription) {
             throw new OauthException(
               status,
               requestID,
@@ -500,8 +502,6 @@ export class WorkOS {
               message,
               requestID,
             });
-          } else if (isAuthenticationErrorData(data)) {
-            throw new AuthenticationException(status, data, requestID);
           } else {
             throw new GenericServerException(
               status,

@@ -32,9 +32,18 @@ const AUTHENTICATION_ERROR_CODES: ReadonlySet<string> = new Set<string>([
 export function isAuthenticationErrorData(
   data: WorkOSErrorData,
 ): data is AuthenticationErrorData {
-  return (
-    typeof data.code === 'string' && AUTHENTICATION_ERROR_CODES.has(data.code)
-  );
+  let discriminant: string | undefined;
+
+  if (typeof data.code === 'string') {
+    discriminant = data.code;
+  } else if (typeof data.error === 'string') {
+    // Some errors like `sso_required` use an `error` field instead of `code`
+    discriminant = data.error;
+  }
+
+  if (!discriminant) return false;
+
+  return AUTHENTICATION_ERROR_CODES.has(discriminant);
 }
 
 export class AuthenticationException extends GenericServerException {
