@@ -13,8 +13,6 @@ export type AuthenticationErrorCode =
   | 'sso_required';
 
 interface BaseAuthenticationErrorData extends WorkOSErrorData {
-  error?: string;
-  error_description?: string;
   pending_authentication_token?: string;
   user?: UserResponse;
   organizations?: Array<{ id: string; name: string }>;
@@ -23,11 +21,11 @@ interface BaseAuthenticationErrorData extends WorkOSErrorData {
 
 export type AuthenticationErrorData =
   | (BaseAuthenticationErrorData & {
-      code: AuthenticationErrorCode;
+      code: Exclude<AuthenticationErrorCode, 'sso_required'>;
     })
   | (BaseAuthenticationErrorData & {
-      code?: AuthenticationErrorCode;
-      error: AuthenticationErrorCode;
+      error: 'sso_required';
+      error_description: string;
     });
 
 const AUTHENTICATION_ERROR_CODES: ReadonlySet<string> = new Set<string>([
@@ -88,7 +86,7 @@ export class AuthenticationException extends GenericServerException {
 
     super(
       status,
-      rawData.message ?? rawData.error_description,
+      rawData.message ?? (rawData.error_description as string | undefined),
       rawData,
       requestID,
     );
