@@ -2,7 +2,6 @@ import { PaginationOptions } from '../../common/interfaces/pagination-options.in
 
 export interface ListEffectivePermissionsByExternalIdOptions extends PaginationOptions {
   organizationMembershipId: string;
-  organizationId: string;
   resourceTypeSlug: string;
   externalId: string;
 }
