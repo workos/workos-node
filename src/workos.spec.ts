@@ -2,6 +2,7 @@ import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchHeaders, fetchBody } from './common/utils/test-utils';
 import {
   ApiKeyRequiredException,
+  AuthenticationException,
   GenericServerException,
   NotFoundException,
   OauthException,
@@ -354,6 +355,34 @@ describe('WorkOS', () => {
             { error: 'error', error_description: 'error description' },
           ),
         );
+      });
+
+      it('throws an AuthenticationException for known authentication errors', async () => {
+        const rawData = {
+          error: 'sso_required',
+          error_description:
+            'User must authenticate using one of the matching connections.',
+          email: 'user@example.com',
+          connection_ids: ['conn_123'],
+        };
+
+        fetchOnce(rawData, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const request = workos.post('/path', {});
+
+        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
+        await expect(request).rejects.toMatchObject({
+          code: 'sso_required',
+          message:
+            'User must authenticate using one of the matching connections.',
+          name: 'AuthenticationException',
+          rawData,
+          status: 400,
+        });
       });
     });
 
