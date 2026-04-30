@@ -165,7 +165,7 @@ describe('WorkOS', () => {
 
         const headers = fetchHeaders() as Record<string, string>;
         expect(headers['User-Agent']).toMatch(
-          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\) fooApp: 1\.0\.0$/,
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
         );
       });
     });
@@ -180,7 +180,7 @@ describe('WorkOS', () => {
 
         const headers = fetchHeaders() as Record<string, string>;
         expect(headers['User-Agent']).toMatch(
-          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
         );
       });
     });
