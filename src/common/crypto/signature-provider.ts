@@ -107,10 +107,12 @@ function toSignableString(
     return payload;
   }
   if (payload instanceof Uint8Array) {
-    return new TextDecoder('utf-8').decode(payload);
+    return new TextDecoder('utf-8', { ignoreBOM: true }).decode(payload);
   }
   if (payload instanceof ArrayBuffer) {
-    return new TextDecoder('utf-8').decode(new Uint8Array(payload));
+    return new TextDecoder('utf-8', { ignoreBOM: true }).decode(
+      new Uint8Array(payload),
+    );
   }
   return JSON.stringify(payload);
 }

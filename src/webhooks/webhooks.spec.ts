@@ -319,6 +319,25 @@ describe('Webhooks', () => {
       ).rejects.toThrow(SignatureVerificationException);
     });
 
+    it('rejects Buffer with a prepended UTF-8 BOM', async () => {
+      const signedBytes = JSON.stringify(mockWebhook);
+      const bomBuffer = Buffer.concat([
+        Buffer.from([0xef, 0xbb, 0xbf]),
+        Buffer.from(signedBytes, 'utf-8'),
+      ]);
+
+      const hash = signRaw(signedBytes, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      await expect(
+        workos.webhooks.constructEvent({
+          payload: bomBuffer,
+          sigHeader,
+          secret,
+        }),
+      ).rejects.toThrow(SignatureVerificationException);
+    });
+
     it('legacy object path still verifies (back-compat)', async () => {
       // Existing caller shape: pre-parsed object, SDK re-stringifies internally.
       // Unsafe to byte-level mutation but must keep working until we deprecate.

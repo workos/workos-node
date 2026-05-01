@@ -14,12 +14,14 @@ function parseVerifiedPayload(
   }
   if (payload instanceof Uint8Array) {
     return JSON.parse(
-      new TextDecoder('utf-8').decode(payload),
+      new TextDecoder('utf-8', { ignoreBOM: true }).decode(payload),
     ) as EventResponse;
   }
   if (payload instanceof ArrayBuffer) {
     return JSON.parse(
-      new TextDecoder('utf-8').decode(new Uint8Array(payload)),
+      new TextDecoder('utf-8', { ignoreBOM: true }).decode(
+        new Uint8Array(payload),
+      ),
     ) as EventResponse;
   }
   return payload as unknown as EventResponse;
