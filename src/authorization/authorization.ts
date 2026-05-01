@@ -47,6 +47,8 @@ import {
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
   ListResourcesForMembershipOptions,
+  ListRoleAssignmentsForResourceOptions,
+  ListRoleAssignmentsForResourceByExternalIdOptions,
   ListEffectivePermissionsOptions,
   ListEffectivePermissionsByExternalIdOptions,
 } from './interfaces';
@@ -855,6 +857,91 @@ export class Authorization {
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
     const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`;
+    return new AutoPaginatable(
+      await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+        this.workos,
+        endpoint,
+        deserializeRoleAssignment,
+        queryOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+          this.workos,
+          endpoint,
+          deserializeRoleAssignment,
+          params,
+        ),
+      queryOptions,
+    );
+  }
+
+  /**
+   * List role assignments for a resource
+   *
+   * List all role assignments granted on a resource. This returns every role assignment scoped to the resource, regardless of which organization membership received it.
+   * @param resourceId - The ID of the authorization resource.
+   *
+   * @example
+   * "authz_resource_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<RoleAssignment>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
+  async listRoleAssignmentsForResource(
+    options: ListRoleAssignmentsForResourceOptions,
+  ): Promise<AutoPaginatable<RoleAssignment>> {
+    const { resourceId, ...queryOptions } = options;
+    const endpoint = `/authorization/resources/${resourceId}/role_assignments`;
+    return new AutoPaginatable(
+      await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+        this.workos,
+        endpoint,
+        deserializeRoleAssignment,
+        queryOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
+          this.workos,
+          endpoint,
+          deserializeRoleAssignment,
+          params,
+        ),
+      queryOptions,
+    );
+  }
+
+  /**
+   * List role assignments for a resource by external ID
+   *
+   * List all role assignments granted on a resource identified by its external ID, organization, and resource type. This returns every role assignment scoped to the resource, regardless of which organization membership received it.
+   * @param organizationId - The ID of the organization that owns the resource.
+   *
+   * @example
+   * "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   *
+   * @param resourceTypeSlug - The slug of the resource type this resource belongs to.
+   *
+   * @example
+   * "project"
+   *
+   * @param externalId - An identifier you provide to reference the resource in your system.
+   *
+   * @example
+   * "proj-456"
+   *
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<RoleAssignment>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
+  async listResourceRoleAssignments(
+    options: ListRoleAssignmentsForResourceByExternalIdOptions,
+  ): Promise<AutoPaginatable<RoleAssignment>> {
+    const { organizationId, resourceTypeSlug, externalId, ...queryOptions } =
+      options;
+    const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/role_assignments`;
     return new AutoPaginatable(
       await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
         this.workos,
