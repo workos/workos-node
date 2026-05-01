@@ -1,6 +1,7 @@
 // @oagen-ignore-file
 import { SignatureVerificationException } from '../exceptions';
 import { CryptoProvider } from './crypto-provider';
+import { type WebhookPayload, decodePayloadToString } from './decode-payload';
 
 export class SignatureProvider {
   private cryptoProvider: CryptoProvider;
@@ -15,16 +16,7 @@ export class SignatureProvider {
     secret,
     tolerance = 180000,
   }: {
-    // Accepts raw request bytes (string/Uint8Array/Buffer) — preferred — or a
-    // parsed object for back-compat. Raw-bytes path HMACs the exact bytes the
-    // server signed; object path falls back to JSON.stringify (unsafe to
-    // mutation that round-trips through JSON.parse → JSON.stringify).
-    payload:
-      | string
-      | Uint8Array
-      | ArrayBuffer
-      | Record<string, unknown>
-      | unknown;
+    payload: WebhookPayload;
     sigHeader: string;
     secret: string;
     tolerance?: number;
@@ -72,15 +64,10 @@ export class SignatureProvider {
 
   async computeSignature(
     timestamp: any,
-    payload:
-      | string
-      | Uint8Array
-      | ArrayBuffer
-      | Record<string, unknown>
-      | unknown,
+    payload: WebhookPayload,
     secret: string,
   ): Promise<string> {
-    const signable = toSignableString(payload);
+    const signable = decodePayloadToString(payload);
     const signedPayload = `${timestamp}.${signable}`;
 
     return await this.cryptoProvider.computeHMACSignatureAsync(
@@ -88,31 +75,4 @@ export class SignatureProvider {
       secret,
     );
   }
-}
-
-// Raw bytes path (string / Uint8Array / ArrayBuffer) reproduces the exact
-// bytes WorkOS signed on emit. Object path is legacy back-compat — vulnerable
-// to any on-the-wire mutation that round-trips through JSON.parse →
-// JSON.stringify to the same canonical form (whitespace, key order, \uXXXX
-// escapes, duplicate keys).
-function toSignableString(
-  payload:
-    | string
-    | Uint8Array
-    | ArrayBuffer
-    | Record<string, unknown>
-    | unknown,
-): string {
-  if (typeof payload === 'string') {
-    return payload;
-  }
-  if (payload instanceof Uint8Array) {
-    return new TextDecoder('utf-8', { ignoreBOM: true }).decode(payload);
-  }
-  if (payload instanceof ArrayBuffer) {
-    return new TextDecoder('utf-8', { ignoreBOM: true }).decode(
-      new Uint8Array(payload),
-    );
-  }
-  return JSON.stringify(payload);
 }

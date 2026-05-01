@@ -261,6 +261,25 @@ describe('Webhooks', () => {
       expect(webhook.id).toEqual('wh_123');
     });
 
+    it('verifies when payload is an ArrayBuffer matching the signed bytes', async () => {
+      const rawBody = JSON.stringify(mockWebhook);
+      const hash = signRaw(rawBody, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+      const bytes = new TextEncoder().encode(rawBody);
+      const arrayBuffer = bytes.buffer.slice(
+        bytes.byteOffset,
+        bytes.byteOffset + bytes.byteLength,
+      );
+
+      const webhook = await workos.webhooks.constructEvent({
+        payload: arrayBuffer,
+        sigHeader,
+        secret,
+      });
+
+      expect(webhook.id).toEqual('wh_123');
+    });
+
     it('rejects mutated bytes that round-trip through JSON.parse to the same object (whitespace)', async () => {
       // Server signs canonical bytes; attacker forwards bytes with injected
       // whitespace that parse to the same object.
