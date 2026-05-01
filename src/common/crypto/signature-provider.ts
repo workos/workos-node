@@ -72,7 +72,12 @@ export class SignatureProvider {
 
   async computeSignature(
     timestamp: any,
-    payload: string | Uint8Array | ArrayBuffer | Record<string, unknown> | unknown,
+    payload:
+      | string
+      | Uint8Array
+      | ArrayBuffer
+      | Record<string, unknown>
+      | unknown,
     secret: string,
   ): Promise<string> {
     const signable = toSignableString(payload);
@@ -91,7 +96,12 @@ export class SignatureProvider {
 // JSON.stringify to the same canonical form (whitespace, key order, \uXXXX
 // escapes, duplicate keys).
 function toSignableString(
-  payload: string | Uint8Array | ArrayBuffer | Record<string, unknown> | unknown,
+  payload:
+    | string
+    | Uint8Array
+    | ArrayBuffer
+    | Record<string, unknown>
+    | unknown,
 ): string {
   if (typeof payload === 'string') {
     return payload;

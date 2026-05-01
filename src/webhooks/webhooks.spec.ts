@@ -216,10 +216,7 @@ describe('Webhooks', () => {
     // those same bytes (not a re-stringified round-trip), matching the pattern
     // used by Stripe, GitHub, and Svix.
     const signRaw = (rawBody: string, ts: number, sec: string): string =>
-      crypto
-        .createHmac('sha256', sec)
-        .update(`${ts}.${rawBody}`)
-        .digest('hex');
+      crypto.createHmac('sha256', sec).update(`${ts}.${rawBody}`).digest('hex');
 
     it('verifies when payload is a raw JSON string matching the signed bytes', async () => {
       const rawBody = JSON.stringify(mockWebhook);
@@ -285,7 +282,8 @@ describe('Webhooks', () => {
     });
 
     it('rejects mutated bytes with unicode-escaped characters (same parsed object)', async () => {
-      const signedBytes = '{"event":"dsync.user.created","data":{"name":"hello"}}';
+      const signedBytes =
+        '{"event":"dsync.user.created","data":{"name":"hello"}}';
       // hello parses to "hello" — same object, different bytes
       const mutatedBytes =
         '{"event":"dsync.user.created","data":{"name":"\\u0068\\u0065\\u006c\\u006c\\u006f"}}';
