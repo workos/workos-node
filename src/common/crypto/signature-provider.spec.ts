@@ -56,6 +56,55 @@ describe('SignatureProvider', () => {
     });
   });
 
+  describe('replay protection', () => {
+    it('rejects a timestamp that is too old', async () => {
+      const oldTimestamp = (Date.now() - 300000) * 1000; // 5 minutes ago in microseconds
+      const unhashedString = `${oldTimestamp}.${JSON.stringify(payload)}`;
+      const oldSignatureHash = crypto
+        .createHmac('sha256', secret)
+        .update(unhashedString)
+        .digest()
+        .toString('hex');
+      const sigHeader = `t=${oldTimestamp}, v1=${oldSignatureHash}`;
+      const options = { payload, sigHeader, secret, tolerance: 180000 };
+
+      await expect(signatureProvider.verifyHeader(options)).rejects.toThrow(
+        'Timestamp outside the tolerance zone',
+      );
+    });
+
+    it('rejects a future-dated timestamp', async () => {
+      const futureTimestamp = (Date.now() + 300000) * 1000; // 5 minutes in the future in microseconds
+      const unhashedString = `${futureTimestamp}.${JSON.stringify(payload)}`;
+      const futureSignatureHash = crypto
+        .createHmac('sha256', secret)
+        .update(unhashedString)
+        .digest()
+        .toString('hex');
+      const sigHeader = `t=${futureTimestamp}, v1=${futureSignatureHash}`;
+      const options = { payload, sigHeader, secret, tolerance: 180000 };
+
+      await expect(signatureProvider.verifyHeader(options)).rejects.toThrow(
+        'Timestamp outside the tolerance zone',
+      );
+    });
+
+    it('accepts a timestamp within tolerance', async () => {
+      const recentTimestamp = (Date.now() - 60000) * 1000; // 1 minute ago in microseconds
+      const unhashedString = `${recentTimestamp}.${JSON.stringify(payload)}`;
+      const recentSignatureHash = crypto
+        .createHmac('sha256', secret)
+        .update(unhashedString)
+        .digest()
+        .toString('hex');
+      const sigHeader = `t=${recentTimestamp}, v1=${recentSignatureHash}`;
+      const options = { payload, sigHeader, secret, tolerance: 180000 };
+
+      const result = await signatureProvider.verifyHeader(options);
+      expect(result).toBeTruthy();
+    });
+  });
+
   describe('when in an environment that supports SubtleCrypto', () => {
     it('automatically uses the subtle crypto library', () => {
       // tslint:disable-next-line

@@ -29,7 +29,17 @@ export class SignatureProvider {
       );
     }
 
-    if (parseInt(timestamp, 10) < Date.now() - tolerance) {
+    // WorkOS emits microsecond timestamps; convert to milliseconds for comparison
+    const timestampMs = Math.floor(parseInt(timestamp, 10) / 1000);
+    const now = Date.now();
+
+    if (timestampMs < now - tolerance) {
+      throw new SignatureVerificationException(
+        'Timestamp outside the tolerance zone',
+      );
+    }
+
+    if (timestampMs > now + tolerance) {
       throw new SignatureVerificationException(
         'Timestamp outside the tolerance zone',
       );

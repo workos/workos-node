@@ -161,6 +161,24 @@ describe('Webhooks', () => {
         );
       });
     });
+
+    describe('with a replayed old webhook', () => {
+      it('rejects a valid signature whose timestamp exceeds the tolerance', async () => {
+        const oldTimestamp = (Date.now() - 300000) * 1000; // 5 minutes ago in microseconds
+        const oldUnhashedString = `${oldTimestamp}.${JSON.stringify(payload)}`;
+        const oldSignatureHash = crypto
+          .createHmac('sha256', secret)
+          .update(oldUnhashedString)
+          .digest()
+          .toString('hex');
+        const sigHeader = `t=${oldTimestamp}, v1=${oldSignatureHash}`;
+        const options = { payload, sigHeader, secret };
+
+        await expect(workos.webhooks.constructEvent(options)).rejects.toThrow(
+          SignatureVerificationException,
+        );
+      });
+    });
   });
 
   describe('verifyHeader', () => {
