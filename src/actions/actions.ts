@@ -3,6 +3,7 @@ import { CryptoProvider } from '../common/crypto/crypto-provider';
 import {
   type WebhookPayload,
   decodePayloadToString,
+  isBinaryPayload,
 } from '../common/crypto/decode-payload';
 import { SignatureProvider } from '../common/crypto/signature-provider';
 import { unreachable } from '../common/utils/unreachable';
@@ -90,9 +91,7 @@ export class Actions {
     await this.verifyHeader(options);
 
     const parsed: ActionPayload =
-      typeof payload === 'string' ||
-      payload instanceof Uint8Array ||
-      payload instanceof ArrayBuffer
+      typeof payload === 'string' || isBinaryPayload(payload)
         ? (JSON.parse(decodePayloadToString(payload)) as ActionPayload)
         : (payload as unknown as ActionPayload);
 

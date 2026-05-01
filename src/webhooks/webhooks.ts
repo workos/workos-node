@@ -6,16 +6,13 @@ import { CryptoProvider } from '../common/crypto/crypto-provider';
 import {
   type WebhookPayload,
   decodePayloadToString,
+  isBinaryPayload,
 } from '../common/crypto/decode-payload';
 
 // Parse only after verification succeeds — a malformed body never reaches
 // JSON.parse on an unauthenticated request.
 function parseVerifiedPayload(payload: WebhookPayload): EventResponse {
-  if (
-    typeof payload === 'object' &&
-    !(payload instanceof Uint8Array) &&
-    !(payload instanceof ArrayBuffer)
-  ) {
+  if (typeof payload === 'object' && !isBinaryPayload(payload)) {
     return payload as unknown as EventResponse;
   }
   return JSON.parse(decodePayloadToString(payload)) as EventResponse;
