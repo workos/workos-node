@@ -8,6 +8,7 @@ export const deserializeRoleAssignment = (
 ): RoleAssignment => ({
   object: response.object,
   id: response.id,
+  organizationMembershipId: response.organization_membership_id,
   role: response.role,
   resource: {
     id: response.resource.id,

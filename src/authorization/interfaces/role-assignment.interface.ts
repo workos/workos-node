@@ -19,6 +19,8 @@ export interface RoleAssignment {
   object: 'role_assignment';
   /** Unique identifier of the role assignment. */
   id: string;
+  /** The ID of the organization membership the role is assigned to. */
+  organizationMembershipId: string;
   /** The role included in the assignment. */
   role: RoleAssignmentRole;
   /** The resource to which the role is assigned. */
@@ -32,6 +34,7 @@ export interface RoleAssignment {
 export interface RoleAssignmentResponse {
   object: 'role_assignment';
   id: string;
+  organization_membership_id: string;
   role: RoleAssignmentRole;
   resource: RoleAssignmentResourceResponse;
   created_at: string;

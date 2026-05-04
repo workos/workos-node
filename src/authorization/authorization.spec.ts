@@ -1652,6 +1652,7 @@ describe('Authorization', () => {
       expect(result.data[0]).toMatchObject({
         object: 'role_assignment',
         id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        organizationMembershipId: testOrgMembershipId,
         role: { slug: 'editor' },
         resource: {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
@@ -1740,6 +1741,170 @@ describe('Authorization', () => {
     });
   });
 
+  describe('listRoleAssignmentsForResource', () => {
+    it('lists role assignments for a resource by internal ID', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      const result = await workos.authorization.listRoleAssignmentsForResource({
+        resourceId: testResourceId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/resources/${testResourceId}/role_assignments`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        object: 'role_assignment',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        organizationMembershipId: testOrgMembershipId,
+        role: { slug: 'editor' },
+        resource: {
+          id: 'resource_01HXYZ123ABC456DEF789XYZ',
+          externalId: 'doc-123',
+          resourceTypeSlug: 'document',
+        },
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignmentsForResource({
+        resourceId: testResourceId,
+        limit: 10,
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before pagination parameter', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignmentsForResource({
+        resourceId: testResourceId,
+        limit: 10,
+        before: 'ra_cursor456',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        before: 'ra_cursor456',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignmentsForResource({
+        resourceId: testResourceId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('listResourceRoleAssignments', () => {
+    it('lists role assignments for a resource by external ID', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      const result = await workos.authorization.listResourceRoleAssignments({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/organizations/${testOrgId}/resources/document/doc-456/role_assignments`,
+      );
+      expect(result.object).toEqual('list');
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        object: 'role_assignment',
+        id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        organizationMembershipId: testOrgMembershipId,
+        role: { slug: 'editor' },
+        resource: {
+          id: 'resource_01HXYZ123ABC456DEF789XYZ',
+          externalId: 'doc-123',
+          resourceTypeSlug: 'document',
+        },
+        createdAt: '2024-01-15T09:30:00.000Z',
+        updatedAt: '2024-01-15T09:30:00.000Z',
+      });
+      expect(result.listMetadata).toEqual({
+        before: null,
+        after: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+      });
+    });
+
+    it('passes pagination parameters', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listResourceRoleAssignments({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        limit: 10,
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        after: 'ra_cursor123',
+        order: 'desc',
+      });
+    });
+
+    it('passes before cursor for backward pagination', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listResourceRoleAssignments({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        before: 'ra_cursor789',
+        order: 'asc',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        before: 'ra_cursor789',
+        order: 'asc',
+      });
+    });
+
+    it('defaults to desc order when order is not specified', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listResourceRoleAssignments({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        order: 'desc',
+      });
+    });
+  });
+
   describe('assignRole', () => {
     it('assigns a role by resource ID', async () => {
       fetchOnce(roleAssignmentFixture, { status: 201 });
@@ -1760,6 +1925,7 @@ describe('Authorization', () => {
       expect(assignment).toMatchObject({
         object: 'role_assignment',
         id: 'role_assignment_01HXYZ123ABC456DEF789ABC',
+        organizationMembershipId: testOrgMembershipId,
         role: { slug: 'editor' },
         resource: {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
