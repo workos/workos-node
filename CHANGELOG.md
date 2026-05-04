@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.2.0](https://github.com/workos/workos-node/compare/v9.1.1...v9.2.0) (2026-05-04)
+
+
+### Features
+
+* Add resource role assignments methods ([#1580](https://github.com/workos/workos-node/issues/1580)) ([ec8dd0f](https://github.com/workos/workos-node/commit/ec8dd0f66e507f4fb9dfe3d13260eb5da7c8ba77))
+
 ## [9.1.1](https://github.com/workos/workos-node/compare/v9.1.0...v9.1.1) (2026-04-24)
 
 
