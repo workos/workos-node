@@ -2,7 +2,7 @@ export type WebhookPayload =
   | string
   | Uint8Array
   | ArrayBuffer
-  | Record<string, unknown>;
+  | object;
 
 // Realm-agnostic check for binary payloads. `instanceof` fails when the
 // value originates from a different JS realm (Workers, iframes, VM contexts).
