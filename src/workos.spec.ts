@@ -171,7 +171,7 @@ describe('WorkOS', () => {
     });
 
     describe('when no `appInfo` option is provided', () => {
-      it('adds the HTTP client name to the user-agent', async () => {
+      it('sets the canonical user-agent', async () => {
         fetchOnce('{}');
 
         const workos = new WorkOS('sk_test');

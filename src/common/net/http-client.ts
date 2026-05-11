@@ -18,11 +18,6 @@ export abstract class HttpClient implements HttpClientInterface {
     readonly options?: RequestInit,
   ) {}
 
-  /** The HTTP client name used for diagnostics */
-  getClientName(): string {
-    throw new Error('getClientName not implemented');
-  }
-
   abstract get(
     path: string,
     options: RequestOptions,
@@ -56,10 +51,6 @@ export abstract class HttpClient implements HttpClientInterface {
     entity: Entity,
     options: RequestOptions,
   ): Promise<HttpClientResponseInterface>;
-
-  addClientToUserAgent(userAgent: string): string {
-    return userAgent;
-  }
 
   static getResourceURL(
     baseURL: string,
