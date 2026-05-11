@@ -1,5 +1,6 @@
 {
   "extends": [
+    "github>workos/renovate-config",
     "config:recommended"
   ],
   "dependencyDashboard": false,
