@@ -6,7 +6,6 @@ export interface ListRoleAssignmentsForResourceOptions extends PaginationOptions
   roleSlug?: string;
 }
 
-export interface SerializedListRoleAssignmentsForResourceOptions
-  extends PaginationOptions {
+export interface SerializedListRoleAssignmentsForResourceOptions extends PaginationOptions {
   role_slug?: string;
 }
