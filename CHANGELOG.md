@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.3.0](https://github.com/workos/workos-node/compare/v9.2.0...v9.3.0) (2026-05-13)
+
+
+### Features
+
+* Add resource and role_slug filter params to list role assignments ([#1585](https://github.com/workos/workos-node/issues/1585)) ([4f32a83](https://github.com/workos/workos-node/commit/4f32a83c1b490ffe97ecdfb18dadee22061d93c8))
+
 ## [9.2.0](https://github.com/workos/workos-node/compare/v9.1.1...v9.2.0) (2026-05-04)
 
 
