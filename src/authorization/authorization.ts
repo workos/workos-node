@@ -75,6 +75,8 @@ import {
   serializeListMembershipsForResourceOptions,
   serializeListResourcesForMembershipOptions,
   serializeListEffectivePermissionsOptions,
+  serializeListRoleAssignmentsOptions,
+  serializeListRoleAssignmentsForResourceOptions,
 } from './serializers';
 import {
   AuthorizationOrganizationMembership,
@@ -857,12 +859,13 @@ export class Authorization {
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
     const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`;
+    const serializedOptions = serializeListRoleAssignmentsOptions(queryOptions);
     return new AutoPaginatable(
       await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
         this.workos,
         endpoint,
         deserializeRoleAssignment,
-        queryOptions,
+        serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
@@ -871,7 +874,7 @@ export class Authorization {
           deserializeRoleAssignment,
           params,
         ),
-      queryOptions,
+      serializedOptions,
     );
   }
 
@@ -894,12 +897,14 @@ export class Authorization {
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { resourceId, ...queryOptions } = options;
     const endpoint = `/authorization/resources/${resourceId}/role_assignments`;
+    const serializedOptions =
+      serializeListRoleAssignmentsForResourceOptions(queryOptions);
     return new AutoPaginatable(
       await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
         this.workos,
         endpoint,
         deserializeRoleAssignment,
-        queryOptions,
+        serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
@@ -908,7 +913,7 @@ export class Authorization {
           deserializeRoleAssignment,
           params,
         ),
-      queryOptions,
+      serializedOptions,
     );
   }
 
@@ -942,12 +947,14 @@ export class Authorization {
     const { organizationId, resourceTypeSlug, externalId, ...queryOptions } =
       options;
     const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/role_assignments`;
+    const serializedOptions =
+      serializeListRoleAssignmentsForResourceOptions(queryOptions);
     return new AutoPaginatable(
       await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
         this.workos,
         endpoint,
         deserializeRoleAssignment,
-        queryOptions,
+        serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
@@ -956,7 +963,7 @@ export class Authorization {
           deserializeRoleAssignment,
           params,
         ),
-      queryOptions,
+      serializedOptions,
     );
   }
 
