@@ -2,4 +2,10 @@ import { PaginationOptions } from '../../common/interfaces/pagination-options.in
 
 export interface ListRoleAssignmentsForResourceOptions extends PaginationOptions {
   resourceId: string;
+  /** Filter role assignments to only those that grant this role. */
+  roleSlug?: string;
+}
+
+export interface SerializedListRoleAssignmentsForResourceOptions extends PaginationOptions {
+  role_slug?: string;
 }

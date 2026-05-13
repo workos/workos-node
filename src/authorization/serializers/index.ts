@@ -16,6 +16,8 @@ export * from './authorization-check-options.serializer';
 export * from './list-resources-for-membership-options.serializer';
 export * from './list-memberships-for-resource-options.serializer';
 export * from './role-assignment.serializer';
+export * from './list-role-assignments-options.serializer';
+export * from './list-role-assignments-for-resource-options.serializer';
 export * from './assign-role-options.serializer';
 export * from './remove-role-options.serializer';
 export * from './list-effective-permissions-options.serializer';

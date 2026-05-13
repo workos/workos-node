@@ -4,4 +4,6 @@ export interface ListRoleAssignmentsForResourceByExternalIdOptions extends Pagin
   organizationId: string;
   resourceTypeSlug: string;
   externalId: string;
+  /** Filter role assignments to only those that grant this role. */
+  roleSlug?: string;
 }

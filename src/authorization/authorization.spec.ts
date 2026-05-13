@@ -1739,6 +1739,47 @@ describe('Authorization', () => {
         order: 'desc',
       });
     });
+
+    it('filters by resource id', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        resourceId: testResourceId,
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        resource_id: testResourceId,
+      });
+    });
+
+    it('filters by resource external id and resource type slug', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        resourceExternalId: 'doc-456',
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        resource_external_id: 'doc-456',
+        resource_type_slug: 'document',
+      });
+    });
+
+    it('filters by resource type slug only', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+        resourceTypeSlug: 'document',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        resource_type_slug: 'document',
+      });
+    });
   });
 
   describe('listRoleAssignmentsForResource', () => {
@@ -1816,6 +1857,19 @@ describe('Authorization', () => {
 
       expect(fetchSearchParams()).toMatchObject({
         order: 'desc',
+      });
+    });
+
+    it('filters by role slug', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listRoleAssignmentsForResource({
+        resourceId: testResourceId,
+        roleSlug: 'editor',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        role_slug: 'editor',
       });
     });
   });
@@ -1901,6 +1955,21 @@ describe('Authorization', () => {
 
       expect(fetchSearchParams()).toMatchObject({
         order: 'desc',
+      });
+    });
+
+    it('filters by role slug', async () => {
+      fetchOnce(listRoleAssignmentsFixture);
+
+      await workos.authorization.listResourceRoleAssignments({
+        organizationId: testOrgId,
+        resourceTypeSlug: 'document',
+        externalId: 'doc-456',
+        roleSlug: 'editor',
+      });
+
+      expect(fetchSearchParams()).toMatchObject({
+        role_slug: 'editor',
       });
     });
   });
