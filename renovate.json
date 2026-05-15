@@ -1,7 +1,6 @@
 {
   "extends": [
-    "github>workos/renovate-config",
-    "config:recommended"
+    "github>workos/renovate-config"
   ],
   "dependencyDashboard": false,
   "schedule": [
