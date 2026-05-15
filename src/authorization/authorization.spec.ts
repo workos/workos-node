@@ -1265,19 +1265,6 @@ describe('Authorization', () => {
       });
     });
 
-    it('passes search filter', async () => {
-      fetchOnce(listResourcesFixture);
-
-      await workos.authorization.listResources({
-        search: 'Budget',
-      });
-
-      expect(fetchSearchParams()).toEqual({
-        search: 'Budget',
-        order: 'desc',
-      });
-    });
-
     it('defaults to desc order when order is not specified', async () => {
       fetchOnce(listResourcesFixture);
 

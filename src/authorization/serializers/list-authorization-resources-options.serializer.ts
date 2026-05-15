@@ -22,6 +22,5 @@ export const serializeListAuthorizationResourcesOptions = (
   ...(options.parentExternalId && {
     parent_external_id: options.parentExternalId,
   }),
-  ...(options.search && { search: options.search }),
   ...serializePaginationOptions(options),
 });
