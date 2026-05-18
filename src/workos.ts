@@ -48,7 +48,6 @@ import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
-import { getRuntimeInfo } from './common/utils/runtime-info';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
@@ -163,18 +162,8 @@ export class WorkOS {
     this.client = this.createHttpClient(this.options, userAgent);
   }
 
-  private createUserAgent(options: WorkOSOptions): string {
-    let userAgent: string = `workos-node/${VERSION}`;
-
-    const { name: runtimeName, version: runtimeVersion } = getRuntimeInfo();
-    userAgent += ` (${runtimeName}${runtimeVersion ? `/${runtimeVersion}` : ''})`;
-
-    if (options.appInfo) {
-      const { name, version } = options.appInfo;
-      userAgent += ` ${name}: ${version}`;
-    }
-
-    return userAgent;
+  private createUserAgent(_options: WorkOSOptions): string {
+    return `workos-node/${VERSION}`;
   }
 
   createWebhookClient() {

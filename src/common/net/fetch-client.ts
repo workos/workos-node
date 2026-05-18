@@ -37,11 +37,6 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     this._fetchFn = fetchFn.bind(globalThis);
   }
 
-  /** @override */
-  getClientName(): string {
-    return 'fetch';
-  }
-
   async get(
     path: string,
     options: RequestOptions,
@@ -259,9 +254,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           'Content-Type': 'application/json',
           ...this.options?.headers,
           ...headers,
-          'User-Agent': this.addClientToUserAgent(
-            (userAgent || 'workos-node').toString(),
-          ),
+          'User-Agent': (userAgent || 'workos-node').toString(),
         },
         body: requestBody,
         signal: abortController?.signal,
