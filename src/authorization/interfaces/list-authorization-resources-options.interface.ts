@@ -6,7 +6,6 @@ export interface ListAuthorizationResourcesOptions extends PaginationOptions {
   parentResourceId?: string;
   parentResourceTypeSlug?: string;
   parentExternalId?: string;
-  search?: string;
 }
 
 export interface SerializedListAuthorizationResourcesOptions extends PaginationOptions {
@@ -15,5 +14,4 @@ export interface SerializedListAuthorizationResourcesOptions extends PaginationO
   parent_resource_id?: string;
   parent_resource_type_slug?: string;
   parent_external_id?: string;
-  search?: string;
 }
