@@ -1,6 +1,7 @@
 // @oagen-ignore-file
 import { SignatureVerificationException } from '../exceptions';
 import { CryptoProvider } from './crypto-provider';
+import { type WebhookPayload, decodePayloadToString } from './decode-payload';
 
 export class SignatureProvider {
   private cryptoProvider: CryptoProvider;
@@ -15,7 +16,7 @@ export class SignatureProvider {
     secret,
     tolerance = 180000,
   }: {
-    payload: any;
+    payload: WebhookPayload;
     sigHeader: string;
     secret: string;
     tolerance?: number;
@@ -63,11 +64,11 @@ export class SignatureProvider {
 
   async computeSignature(
     timestamp: any,
-    payload: any,
+    payload: WebhookPayload,
     secret: string,
   ): Promise<string> {
-    payload = JSON.stringify(payload);
-    const signedPayload = `${timestamp}.${payload}`;
+    const signable = decodePayloadToString(payload);
+    const signedPayload = `${timestamp}.${signable}`;
 
     return await this.cryptoProvider.computeHMACSignatureAsync(
       signedPayload,
