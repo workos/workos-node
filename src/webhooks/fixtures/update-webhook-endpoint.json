@@ -1,0 +1,5 @@
+{
+  "endpoint_url": "https://example.com/webhooks",
+  "status": "enabled",
+  "events": ["user.created", "dsync.user.created"]
+}

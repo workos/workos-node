@@ -74,7 +74,7 @@ class WorkOSNode extends WorkOS {
 
   /** @override */
   createWebhookClient(): Webhooks {
-    return new Webhooks(this.getCryptoProvider());
+    return new Webhooks(this);
   }
 
   override getCryptoProvider(): CryptoProvider {

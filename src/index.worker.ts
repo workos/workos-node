@@ -62,9 +62,7 @@ class WorkOSWorker extends WorkOS {
 
   /** @override */
   createWebhookClient(): Webhooks {
-    const cryptoProvider = new SubtleCryptoProvider();
-
-    return new Webhooks(cryptoProvider);
+    return new Webhooks(this);
   }
 
   override getCryptoProvider(): CryptoProvider {

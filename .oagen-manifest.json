@@ -1,0 +1,26 @@
+{
+  "version": 2,
+  "language": "node",
+  "generatedAt": "2026-05-19T13:10:49.990Z",
+  "files": [
+    "src/webhooks/fixtures/create-webhook-endpoint.json",
+    "src/webhooks/fixtures/list-webhook-endpoint.json",
+    "src/webhooks/fixtures/update-webhook-endpoint.json",
+    "src/webhooks/fixtures/webhook-endpoint.json",
+    "src/webhooks/interfaces/create-webhook-endpoint-events.interface.ts",
+    "src/webhooks/interfaces/create-webhook-endpoint.interface.ts",
+    "src/webhooks/interfaces/index.ts",
+    "src/webhooks/interfaces/update-webhook-endpoint-events.interface.ts",
+    "src/webhooks/interfaces/update-webhook-endpoint-status.interface.ts",
+    "src/webhooks/interfaces/update-webhook-endpoint.interface.ts",
+    "src/webhooks/interfaces/webhook-endpoint-status.interface.ts",
+    "src/webhooks/interfaces/webhook-endpoint.interface.ts",
+    "src/webhooks/serializers/create-webhook-endpoint.serializer.ts",
+    "src/webhooks/serializers/index.ts",
+    "src/webhooks/serializers/update-webhook-endpoint.serializer.ts",
+    "src/webhooks/serializers/webhook-endpoint.serializer.ts",
+    "src/webhooks/webhooks.spec.ts",
+    "src/webhooks/webhooks.ts"
+  ],
+  "operations": {}
+}
