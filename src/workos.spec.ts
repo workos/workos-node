@@ -151,7 +151,7 @@ describe('WorkOS', () => {
     });
 
     describe('when the `appInfo` option is provided', () => {
-      it('applies the configuration to the fetch client user-agent', async () => {
+      it('sets the canonical user-agent', async () => {
         fetchOnce('{}');
 
         const workos = new WorkOS('sk_test', {
@@ -165,13 +165,13 @@ describe('WorkOS', () => {
 
         const headers = fetchHeaders() as Record<string, string>;
         expect(headers['User-Agent']).toMatch(
-          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\) fooApp: 1\.0\.0$/,
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
         );
       });
     });
 
     describe('when no `appInfo` option is provided', () => {
-      it('adds the HTTP client name to the user-agent', async () => {
+      it('sets the canonical user-agent', async () => {
         fetchOnce('{}');
 
         const workos = new WorkOS('sk_test');
@@ -180,7 +180,7 @@ describe('WorkOS', () => {
 
         const headers = fetchHeaders() as Record<string, string>;
         expect(headers['User-Agent']).toMatch(
-          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+          /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
         );
       });
     });
