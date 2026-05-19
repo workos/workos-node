@@ -5,13 +5,6 @@ import type {
   CreateWebhookEndpointResponse,
 } from '../interfaces/create-webhook-endpoint.interface';
 
-export const deserializeCreateWebhookEndpoint = (
-  response: CreateWebhookEndpointResponse,
-): CreateWebhookEndpoint => ({
-  endpointUrl: response.endpoint_url,
-  events: response.events,
-});
-
 export const serializeCreateWebhookEndpoint = (
   model: CreateWebhookEndpoint,
 ): CreateWebhookEndpointResponse => ({

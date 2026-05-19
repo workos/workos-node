@@ -74,13 +74,21 @@ describe('Webhooks', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(webhookEndpointFixture);
 
-      const result = await workos.webhooks.updateWebhookEndpoint('test_id', {});
+      const result = await workos.webhooks.updateWebhookEndpoint('test_id', {
+        endpointUrl: 'https://example.com',
+        status: 'enabled',
+      });
 
       expect(fetchMethod()).toBe('PATCH');
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/webhook_endpoints/test_id',
       );
-      expect(fetchBody()).toBeDefined();
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          endpoint_url: 'https://example.com',
+          status: 'enabled',
+        }),
+      );
       expectWebhookEndpoint(result);
     });
   });

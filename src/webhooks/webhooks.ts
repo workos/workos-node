@@ -31,7 +31,7 @@ export class Webhooks {
    *
    * Get a list of all of your existing webhook endpoints.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<WebhookEndpoint>>}
+   * @returns {Promise<AutoPaginatable<WebhookEndpoint, PaginationOptions>>}
    */
   async listWebhookEndpoints(
     options?: PaginationOptions,

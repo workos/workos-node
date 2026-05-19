@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "node",
-  "generatedAt": "2026-05-19T13:10:49.990Z",
+  "generatedAt": "2026-05-19T16:22:01.987Z",
   "files": [
     "src/webhooks/fixtures/create-webhook-endpoint.json",
     "src/webhooks/fixtures/list-webhook-endpoint.json",
@@ -15,6 +15,7 @@
     "src/webhooks/interfaces/update-webhook-endpoint.interface.ts",
     "src/webhooks/interfaces/webhook-endpoint-status.interface.ts",
     "src/webhooks/interfaces/webhook-endpoint.interface.ts",
+    "src/webhooks/serializers.spec.ts",
     "src/webhooks/serializers/create-webhook-endpoint.serializer.ts",
     "src/webhooks/serializers/index.ts",
     "src/webhooks/serializers/update-webhook-endpoint.serializer.ts",

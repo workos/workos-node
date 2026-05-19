@@ -5,14 +5,6 @@ import type {
   UpdateWebhookEndpointResponse,
 } from '../interfaces/update-webhook-endpoint.interface';
 
-export const deserializeUpdateWebhookEndpoint = (
-  response: UpdateWebhookEndpointResponse,
-): UpdateWebhookEndpoint => ({
-  endpointUrl: response.endpoint_url,
-  status: response.status,
-  events: response.events,
-});
-
 export const serializeUpdateWebhookEndpoint = (
   model: UpdateWebhookEndpoint,
 ): UpdateWebhookEndpointResponse => ({
