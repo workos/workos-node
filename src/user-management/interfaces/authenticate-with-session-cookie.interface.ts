@@ -7,7 +7,7 @@ export interface AuthenticateWithSessionCookieOptions {
   cookiePassword?: string;
 }
 
-export interface AccessToken {
+export interface UserManagementAccessToken {
   sid: string;
   org_id?: string;
   role?: string;

@@ -22,15 +22,19 @@ export * from './events/interfaces';
 export * from './feature-flags/interfaces';
 export { FeatureFlagsRuntimeClient } from './feature-flags/runtime-client';
 export * from './groups/interfaces';
+export * from './multi-factor-auth/interfaces';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
 export * from './passwordless/interfaces';
+export * from './pipes/interfaces';
 export * from './admin-portal/interfaces';
 export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export { CookieSession } from './user-management/session';
 export * from './vault/interfaces';
+export * from './webhooks/interfaces';
+export * from './widgets/interfaces';
 export * from './pkce/pkce';
 export {
   createWorkOS,

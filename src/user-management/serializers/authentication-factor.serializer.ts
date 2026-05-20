@@ -1,15 +1,17 @@
 import {
-  Factor,
-  FactorResponse,
-  FactorWithSecrets,
-  FactorWithSecretsResponse,
-} from '../interfaces/factor.interface';
+  AuthenticationFactor,
+  AuthenticationFactorResponse,
+  AuthenticationFactorWithSecrets,
+  AuthenticationFactorWithSecretsResponse,
+} from '../interfaces/authentication-factor.interface';
 import {
   deserializeTotp,
   deserializeTotpWithSecrets,
 } from '../../multi-factor-auth/serializers/totp.serializer';
 
-export const deserializeFactor = (factor: FactorResponse): Factor => ({
+export const deserializeFactor = (
+  factor: AuthenticationFactorResponse,
+): AuthenticationFactor => ({
   object: factor.object,
   id: factor.id,
   createdAt: factor.created_at,
@@ -20,8 +22,8 @@ export const deserializeFactor = (factor: FactorResponse): Factor => ({
 });
 
 export const deserializeFactorWithSecrets = (
-  factor: FactorWithSecretsResponse,
-): FactorWithSecrets => ({
+  factor: AuthenticationFactorWithSecretsResponse,
+): AuthenticationFactorWithSecrets => ({
   object: factor.object,
   id: factor.id,
   createdAt: factor.created_at,

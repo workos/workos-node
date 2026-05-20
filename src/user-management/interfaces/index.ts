@@ -10,6 +10,7 @@ export * from './authenticate-with-refresh-token-public-client-options.interface
 export * from './authenticate-with-session-cookie.interface';
 export * from './authenticate-with-totp-options.interface';
 export * from './authentication-event.interface';
+export * from './authentication-factor.interface';
 export * from './authentication-radar-risk-detected-event.interface';
 export * from './authentication-response.interface';
 export * from './authorization-url-options.interface';
@@ -19,7 +20,6 @@ export * from './create-password-reset-options.interface';
 export * from './create-user-options.interface';
 export * from './email-verification.interface';
 export * from './enroll-auth-factor.interface';
-export * from './factor.interface';
 export * from './identity.interface';
 export * from './impersonator.interface';
 export * from './invitation.interface';

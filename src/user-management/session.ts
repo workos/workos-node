@@ -1,7 +1,7 @@
 // @oagen-ignore-file
 import { OauthException } from '../common/exceptions/oauth.exception';
 import {
-  AccessToken,
+  UserManagementAccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
   AuthenticateWithSessionCookieSuccessResponse,
@@ -86,7 +86,7 @@ export class CookieSession {
       permissions,
       entitlements,
       feature_flags: featureFlags,
-    } = decodeJwt<AccessToken>(session.accessToken);
+    } = decodeJwt<UserManagementAccessToken>(session.accessToken);
 
     return {
       authenticated: true,
@@ -125,9 +125,8 @@ export class CookieSession {
       };
     }
 
-    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
-      session.accessToken,
-    );
+    const { org_id: organizationIdFromUserManagementAccessToken } =
+      decodeJwt<UserManagementAccessToken>(session.accessToken);
 
     try {
       const cookiePassword = options.cookiePassword ?? this.cookiePassword;
@@ -137,7 +136,8 @@ export class CookieSession {
           clientId: this.userManagement.clientId as string,
           refreshToken: session.refreshToken,
           organizationId:
-            options.organizationId ?? organizationIdFromAccessToken,
+            options.organizationId ??
+            organizationIdFromUserManagementAccessToken,
           session: {
             // We want to store the new sealed session in this class instance, so this always needs to be true
             sealSession: true,
@@ -160,7 +160,9 @@ export class CookieSession {
         permissions,
         entitlements,
         feature_flags: featureFlags,
-      } = decodeJwt<AccessToken>(authenticationResponse.accessToken);
+      } = decodeJwt<UserManagementAccessToken>(
+        authenticationResponse.accessToken,
+      );
 
       // TODO: Returning `session` here means there's some duplicated data.
       // Slim down the return type in a future major version.

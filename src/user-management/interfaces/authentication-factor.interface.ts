@@ -5,7 +5,7 @@ import {
   TotpWithSecretsResponse,
 } from '../../multi-factor-auth/interfaces/totp.interface';
 
-export interface Factor {
+export interface AuthenticationFactor {
   object: 'authentication_factor';
   id: string;
   createdAt: string;
@@ -15,7 +15,7 @@ export interface Factor {
   userId: string;
 }
 
-export interface FactorWithSecrets {
+export interface AuthenticationFactorWithSecrets {
   object: 'authentication_factor';
   id: string;
   createdAt: string;
@@ -25,7 +25,7 @@ export interface FactorWithSecrets {
   userId: string;
 }
 
-export interface FactorResponse {
+export interface AuthenticationFactorResponse {
   object: 'authentication_factor';
   id: string;
   created_at: string;
@@ -35,7 +35,7 @@ export interface FactorResponse {
   user_id: string;
 }
 
-export interface FactorWithSecretsResponse {
+export interface AuthenticationFactorWithSecretsResponse {
   object: 'authentication_factor';
   id: string;
   created_at: string;

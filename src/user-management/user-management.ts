@@ -58,7 +58,7 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import {
-  AccessToken,
+  UserManagementAccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
   AuthenticateWithSessionCookieOptions,
@@ -604,7 +604,7 @@ export class UserManagement {
       permissions,
       entitlements,
       feature_flags: featureFlags,
-    } = decodeJwt<AccessToken>(session.accessToken);
+    } = decodeJwt<UserManagementAccessToken>(session.accessToken);
 
     return {
       authenticated: true,
@@ -687,9 +687,8 @@ export class UserManagement {
 
     const { decodeJwt } = await getJose();
 
-    const { org_id: organizationIdFromAccessToken } = decodeJwt<AccessToken>(
-      authenticationResponse.accessToken,
-    );
+    const { org_id: organizationIdFromAccessToken } =
+      decodeJwt<UserManagementAccessToken>(authenticationResponse.accessToken);
 
     const sessionData: SessionCookieData = {
       organizationId: organizationIdFromAccessToken,

@@ -26,14 +26,14 @@ import {
   ListAuthFactorsOptions,
 } from '../user-management/interfaces';
 import {
-  FactorWithSecrets as UMFactorWithSecrets,
-  FactorWithSecretsResponse as UMFactorWithSecretsResponse,
-  Factor as UMFactor,
-  FactorResponse as UMFactorResponse,
-} from '../user-management/interfaces/factor.interface';
+  AuthenticationFactorWithSecrets as UMFactorWithSecrets,
+  AuthenticationFactorWithSecretsResponse as UMFactorWithSecretsResponse,
+  AuthenticationFactor as UMFactor,
+  AuthenticationFactorResponse as UMFactorResponse,
+} from '../user-management/interfaces/authentication-factor.interface';
 import { serializeEnrollAuthFactorOptions } from '../user-management/serializers';
-import { deserializeFactorWithSecrets as deserializeUMFactorWithSecrets } from '../user-management/serializers/factor.serializer';
-import { deserializeFactor as deserializeUMFactor } from '../user-management/serializers/factor.serializer';
+import { deserializeFactorWithSecrets as deserializeUMFactorWithSecrets } from '../user-management/serializers/authentication-factor.serializer';
+import { deserializeFactor as deserializeUMFactor } from '../user-management/serializers/authentication-factor.serializer';
 
 export class MultiFactorAuth {
   constructor(private readonly workos: WorkOS) {}
