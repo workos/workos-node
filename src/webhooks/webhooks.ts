@@ -28,15 +28,6 @@ import {
   isBinaryPayload,
 } from '../common/crypto/decode-payload';
 
-// Parse only after verification succeeds — a malformed body never reaches
-// JSON.parse on an unauthenticated request.
-function parseVerifiedPayload(payload: WebhookPayload): EventResponse {
-  if (typeof payload === 'object' && !isBinaryPayload(payload)) {
-    return payload as unknown as EventResponse;
-  }
-  return JSON.parse(decodePayloadToString(payload)) as EventResponse;
-}
-
 export class Webhooks {
   constructor(private readonly workos: WorkOS) {}
 
@@ -165,9 +156,17 @@ export class Webhooks {
     const options = { payload, sigHeader, secret, tolerance };
     await this.verifyHeader(options);
 
-    const webhookPayload = parseVerifiedPayload(payload);
+    const webhookPayload = this.parseVerifiedPayload(payload);
 
     return deserializeEvent(webhookPayload);
+  }
+  // Parse only after verification succeeds — a malformed body never reaches
+  // JSON.parse on an unauthenticated request.
+  private parseVerifiedPayload(payload: WebhookPayload): EventResponse {
+    if (typeof payload === 'object' && !isBinaryPayload(payload)) {
+      return payload as unknown as EventResponse;
+    }
+    return JSON.parse(decodePayloadToString(payload)) as EventResponse;
   }
   // @oagen-ignore-end
 }
