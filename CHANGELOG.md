@@ -1,5 +1,13 @@
 # Changelog
 
+## [9.3.1](https://github.com/workos/workos-node/compare/v9.3.0...v9.3.1) (2026-05-19)
+
+
+### Bug Fixes
+
+* set canonical User-Agent header format ([#1576](https://github.com/workos/workos-node/issues/1576)) ([4169434](https://github.com/workos/workos-node/commit/4169434bc9b59d77c3b226292441e8bad0a0df91))
+* **webhooks:** accept raw request bytes for signature verification ([#1578](https://github.com/workos/workos-node/issues/1578)) ([112b261](https://github.com/workos/workos-node/commit/112b261ecbfc68d0ee4912ad78095b1c70cf58b5))
+
 ## [9.3.0](https://github.com/workos/workos-node/compare/v9.2.0...v9.3.0) (2026-05-13)
 
 

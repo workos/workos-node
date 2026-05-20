@@ -1,5 +1,10 @@
 // @oagen-ignore-file
 import { CryptoProvider } from '../common/crypto/crypto-provider';
+import {
+  type WebhookPayload,
+  decodePayloadToString,
+  isBinaryPayload,
+} from '../common/crypto/decode-payload';
 import { SignatureProvider } from '../common/crypto/signature-provider';
 import { unreachable } from '../common/utils/unreachable';
 import { ActionContext, ActionPayload } from './interfaces/action.interface';
@@ -63,7 +68,7 @@ export class Actions {
       payload: responsePayload,
       signature: await this.computeSignature(
         responsePayload.timestamp,
-        responsePayload,
+        responsePayload as unknown as Record<string, unknown>,
         secret,
       ),
     };
@@ -77,7 +82,7 @@ export class Actions {
     secret,
     tolerance = 30000,
   }: {
-    payload: unknown;
+    payload: WebhookPayload;
     sigHeader: string;
     secret: string;
     tolerance?: number;
@@ -85,6 +90,11 @@ export class Actions {
     const options = { payload, sigHeader, secret, tolerance };
     await this.verifyHeader(options);
 
-    return deserializeAction(payload as ActionPayload);
+    const parsed: ActionPayload =
+      typeof payload === 'string' || isBinaryPayload(payload)
+        ? (JSON.parse(decodePayloadToString(payload)) as ActionPayload)
+        : (payload as unknown as ActionPayload);
+
+    return deserializeAction(parsed);
   }
 }

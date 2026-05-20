@@ -379,7 +379,7 @@ describe('SSO', () => {
             'application/x-www-form-urlencoded;charset=utf-8',
           );
           expect(headers['User-Agent']).toMatch(
-            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
           );
 
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
@@ -432,7 +432,7 @@ describe('SSO', () => {
             'application/x-www-form-urlencoded;charset=utf-8',
           );
           expect(headers['User-Agent']).toMatch(
-            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?\/fetch \(node\/v\d+\.\d+\.\d+\)$/,
+            /^workos-node\/\d+\.\d+\.\d+(-[a-zA-Z0-9.]+)?$/,
           );
 
           expect(accessToken).toBe('01DMEK0J53CVMC32CK5SE0KZ8Q');
