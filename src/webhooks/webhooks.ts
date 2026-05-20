@@ -22,7 +22,6 @@ import { serializeUpdateWebhookEndpoint } from './serializers/update-webhook-end
 import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
 import { SignatureProvider } from '../common/crypto/signature-provider';
-import { CryptoProvider } from '../common/crypto/crypto-provider';
 import {
   type WebhookPayload,
   decodePayloadToString,
