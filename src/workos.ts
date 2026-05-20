@@ -167,7 +167,7 @@ export class WorkOS {
   }
 
   createWebhookClient() {
-    return new Webhooks(this.getCryptoProvider());
+    return new Webhooks(this);
   }
 
   createActionsClient() {
