@@ -39,7 +39,7 @@ function parseVerifiedPayload(payload: WebhookPayload): EventResponse {
 }
 
 export class Webhooks {
-  constructor(private readonly workos: WorkOS) { }
+  constructor(private readonly workos: WorkOS) {}
 
   /**
    * List Webhook Endpoints
