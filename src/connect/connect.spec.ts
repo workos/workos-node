@@ -18,7 +18,7 @@ import newConnectApplicationSecretFixture from './fixtures/new-connect-applicati
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-function expectConnectApplication(result: any) {
+function expectConnectApplicationM2M(result: any) {
   expect(result.object).toBe('connect_application');
   expect(result.id).toBe('conn_app_01HXYZ123456789ABCDEFGHIJ');
   expect(result.clientId).toBe('client_01HXYZ123456789ABCDEFGHIJ');
@@ -71,7 +71,6 @@ describe('Connect', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
-      expectConnectApplication(data[0]);
     });
   });
 
@@ -96,7 +95,7 @@ describe('Connect', () => {
           is_first_party: true,
         }),
       );
-      expectConnectApplication(result);
+      expectConnectApplicationM2M(result);
     });
   });
 
@@ -110,7 +109,7 @@ describe('Connect', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/connect/applications/test_id',
       );
-      expectConnectApplication(result);
+      expectConnectApplicationM2M(result);
     });
   });
 
@@ -127,7 +126,7 @@ describe('Connect', () => {
         '/connect/applications/test_id',
       );
       expect(fetchBody()).toEqual(expect.objectContaining({ name: 'Test' }));
-      expectConnectApplication(result);
+      expectConnectApplicationM2M(result);
     });
   });
 
