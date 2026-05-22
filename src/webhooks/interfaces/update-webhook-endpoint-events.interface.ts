@@ -76,6 +76,10 @@ export const UpdateWebhookEndpointEvents = {
   PermissionCreated: 'permission.created',
   PermissionDeleted: 'permission.deleted',
   PermissionUpdated: 'permission.updated',
+  PipesConnectedAccountConnected: 'pipes.connected_account.connected',
+  PipesConnectedAccountDisconnected: 'pipes.connected_account.disconnected',
+  PipesConnectedAccountReauthorizationNeeded:
+    'pipes.connected_account.reauthorization_needed',
   SessionCreated: 'session.created',
   SessionRevoked: 'session.revoked',
   WaitlistUserApproved: 'waitlist_user.approved',

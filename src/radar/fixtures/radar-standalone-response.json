@@ -1,0 +1,7 @@
+{
+  "verdict": "block",
+  "reason": "Detected enabled Radar control",
+  "attempt_id": "radar_att_01HZBC6N1EB1ZY7KG32X",
+  "control": "bot_detection",
+  "blocklist_type": "ip_address"
+}
