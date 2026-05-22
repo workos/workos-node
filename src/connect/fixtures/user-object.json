@@ -1,0 +1,10 @@
+{
+  "id": "user_12345",
+  "email": "marcelina.davis@example.com",
+  "first_name": "Marcelina",
+  "last_name": "Davis",
+  "metadata": {
+    "department": "Engineering",
+    "role": "Developer"
+  }
+}
