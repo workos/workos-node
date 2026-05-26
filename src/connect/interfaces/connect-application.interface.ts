@@ -22,6 +22,7 @@ export interface ConnectApplicationOAuth {
   createdAt: Date;
   /** An ISO 8601 timestamp. */
   updatedAt: Date;
+  /** The type of the application. */
   applicationType: 'oauth';
   /** The redirect URIs configured for this application. */
   redirectUris: ConnectApplicationRedirectUri[];
@@ -52,6 +53,7 @@ export interface ConnectApplicationOAuthResponse {
   created_at: string;
   /** An ISO 8601 timestamp. */
   updated_at: string;
+  /** The type of the application. */
   application_type: 'oauth';
   /** The redirect URIs configured for this application. */
   redirect_uris: ConnectApplicationRedirectUriResponse[];
@@ -82,6 +84,7 @@ export interface ConnectApplicationM2M {
   createdAt: Date;
   /** An ISO 8601 timestamp. */
   updatedAt: Date;
+  /** The type of the application. */
   applicationType: 'm2m';
   /** The ID of the organization the application belongs to. */
   organizationId: string;
@@ -104,6 +107,7 @@ export interface ConnectApplicationM2MResponse {
   created_at: string;
   /** An ISO 8601 timestamp. */
   updated_at: string;
+  /** The type of the application. */
   application_type: 'm2m';
   /** The ID of the organization the application belongs to. */
   organization_id: string;
