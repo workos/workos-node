@@ -23,7 +23,6 @@
     "src/radar/interfaces/radar-standalone-response.interface.ts",
     "src/radar/interfaces/radar-standalone-update-radar-attempt-request.interface.ts",
     "src/radar/interfaces/radar-standalone-update-radar-list-request.interface.ts",
-    "src/radar/interfaces/radar-type.interface.ts",
     "src/radar/radar.spec.ts",
     "src/radar/radar.ts",
     "src/radar/serializers/index.ts",
