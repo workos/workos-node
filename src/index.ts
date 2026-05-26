@@ -28,6 +28,7 @@ export * from './organization-domains/interfaces';
 export * from './passwordless/interfaces';
 export * from './pipes/interfaces';
 export * from './admin-portal/interfaces';
+export * from './radar/interfaces';
 export * from './roles/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';

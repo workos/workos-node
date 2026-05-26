@@ -27,6 +27,7 @@ import { Organizations } from './organizations/organizations';
 import { OrganizationDomains } from './organization-domains/organization-domains';
 import { Passwordless } from './passwordless/passwordless';
 import { Pipes } from './pipes/pipes';
+import { Radar } from './radar/radar';
 import { AdminPortal } from './admin-portal/admin-portal';
 import { SSO } from './sso/sso';
 import { Webhooks } from './webhooks/webhooks';
@@ -80,6 +81,7 @@ export class WorkOS {
   readonly organizationDomains = new OrganizationDomains(this);
   readonly passwordless = new Passwordless(this);
   readonly pipes = new Pipes(this);
+  readonly radar = new Radar(this);
   readonly adminPortal = new AdminPortal(this);
   readonly sso = new SSO(this);
   readonly userManagement: UserManagement;
