@@ -15,7 +15,8 @@
         "patch"
       ],
       "automerge": true,
-      "groupName": "minor and patch updates"
+      "groupName": "minor and patch updates",
+      "enabled": true
     },
     {
       "matchUpdateTypes": [
