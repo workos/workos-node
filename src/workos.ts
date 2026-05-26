@@ -21,6 +21,7 @@ import {
   WorkOSResponseError,
 } from './common/interfaces';
 import { ApiKeys } from './api-keys/api-keys';
+import { Connect } from './connect/connect';
 import { DirectorySync } from './directory-sync/directory-sync';
 import { Events } from './events/events';
 import { Organizations } from './organizations/organizations';
@@ -73,6 +74,7 @@ export class WorkOS {
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
   readonly directorySync = new DirectorySync(this);
+  readonly connect = new Connect(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
   readonly groups = new Groups(this);

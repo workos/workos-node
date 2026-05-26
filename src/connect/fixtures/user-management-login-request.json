@@ -1,0 +1,26 @@
+{
+  "external_auth_id": "ext_auth_01HXYZ123456789ABCDEFGHIJ",
+  "user": {
+    "id": "user_12345",
+    "email": "marcelina.davis@example.com",
+    "first_name": "Marcelina",
+    "last_name": "Davis",
+    "metadata": {
+      "department": "Engineering",
+      "role": "Developer"
+    }
+  },
+  "user_consent_options": [
+    {
+      "claim": "tos_accepted",
+      "type": "enum",
+      "label": "Terms of Service",
+      "choices": [
+        {
+          "value": "accepted",
+          "label": "I accept the Terms of Service"
+        }
+      ]
+    }
+  ]
+}
