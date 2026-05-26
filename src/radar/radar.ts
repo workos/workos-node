@@ -31,7 +31,7 @@ import { serializeRadarStandaloneAssessRequest } from './serializers/radar-stand
 import { serializeRadarStandaloneUpdateRadarAttemptRequest } from './serializers/radar-standalone-update-radar-attempt-request.serializer';
 import { serializeRadarStandaloneUpdateRadarListRequest } from './serializers/radar-standalone-update-radar-list-request.serializer';
 import { serializeRadarStandaloneDeleteRadarListEntryRequest } from './serializers/radar-standalone-delete-radar-list-entry-request.serializer';
-import type { RadarType } from './interfaces/radar-type.interface';
+import type { RadarListType } from './interfaces/radar-list-type.interface';
 import type { RadarListAction } from './interfaces/radar-list-action.interface';
 
 export class Radar {
@@ -92,7 +92,7 @@ export class Radar {
    * @throws {BadRequestException} 400
    */
   async addListEntry(
-    type: RadarType,
+    type: RadarListType,
     action: RadarListAction,
     payload: RadarStandaloneUpdateRadarListRequest,
   ): Promise<RadarListEntryAlreadyPresentResponse> {
@@ -120,7 +120,7 @@ export class Radar {
    * @throws {NotFoundException} 404
    */
   async removeListEntry(
-    type: RadarType,
+    type: RadarListType,
     action: RadarListAction,
     payload: RadarStandaloneDeleteRadarListEntryRequest,
   ): Promise<void> {

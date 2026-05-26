@@ -12,6 +12,7 @@
     "src/radar/interfaces/index.ts",
     "src/radar/interfaces/radar-list-action.interface.ts",
     "src/radar/interfaces/radar-list-entry-already-present-response.interface.ts",
+    "src/radar/interfaces/radar-list-type.interface.ts",
     "src/radar/interfaces/radar-standalone-assess-request-action.interface.ts",
     "src/radar/interfaces/radar-standalone-assess-request-auth-method.interface.ts",
     "src/radar/interfaces/radar-standalone-assess-request.interface.ts",

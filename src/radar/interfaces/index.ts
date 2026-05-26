@@ -2,6 +2,7 @@
 
 export * from './radar-list-action.interface';
 export * from './radar-list-entry-already-present-response.interface';
+export * from './radar-list-type.interface';
 export * from './radar-standalone-assess-request-action.interface';
 export * from './radar-standalone-assess-request-auth-method.interface';
 export * from './radar-standalone-assess-request.interface';
@@ -12,4 +13,3 @@ export * from './radar-standalone-response-verdict.interface';
 export * from './radar-standalone-response.interface';
 export * from './radar-standalone-update-radar-attempt-request.interface';
 export * from './radar-standalone-update-radar-list-request.interface';
-export * from './radar-type.interface';
