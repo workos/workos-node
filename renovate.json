@@ -1,58 +1,6 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "github>workos/renovate-config"
-  ],
-  "dependencyDashboard": false,
-  "schedule": [
-    "on the 15th day of the month before 12pm"
-  ],
-  "timezone": "UTC",
-  "rebaseWhen": "conflicted",
-  "packageRules": [
-    {
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
-      "automerge": true,
-      "groupName": "minor and patch updates"
-    },
-    {
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "automerge": false
-    },
-    {
-      "matchUpdateTypes": [
-        "digest"
-      ],
-      "automerge": false
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "digest",
-        "pinDigest"
-      ],
-      "groupName": "github actions non-major",
-      "groupSlug": "github-actions-non-major",
-      "automerge": true
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "matchUpdateTypes": [
-        "major"
-      ],
-      "groupName": "github actions major",
-      "groupSlug": "github-actions-major",
-      "automerge": false
-    }
+    "github>workos/renovate-config:public"
   ]
 }
