@@ -6,13 +6,17 @@
 ### ⚠ BREAKING CHANGES
 
 * remove search param from listResources ([#1591](https://github.com/workos/workos-node/issues/1591))
-* **webhooks:** Add webhook endpoint CRUD ([#1592](https://github.com/workos/workos-node/issues/1592))
+* **groups:** `Group.createdAt` and `Group.updatedAt` now deserialize as `Date` objects
+* **vault:** `listObjects` now returns an auto-paginatable object summary collection instead of the previous list digest shape
+* **vault:** generated Vault response types now use SDK-shaped camelCase fields for key and object responses
 
 ### Features
 
 * Add Radar to Node SDK ([#1596](https://github.com/workos/workos-node/issues/1596)) ([6330961](https://github.com/workos/workos-node/commit/6330961da4b1f249f86825ad3eafc8643c275318))
 * **connect:** Add Connect module ([#1597](https://github.com/workos/workos-node/issues/1597)) ([4011dd0](https://github.com/workos/workos-node/commit/4011dd0b62f7d57e6f4fabb275bdfdc90a0fb7f7))
+* **groups:** Regenerate Groups module via oagen ([a3c14b3](https://github.com/workos/workos-node/commit/a3c14b31cba51aafad931ee512c6832d14a4f776))
 * remove search param from listResources ([#1591](https://github.com/workos/workos-node/issues/1591)) ([9ebc818](https://github.com/workos/workos-node/commit/9ebc818c908bb4ada660cd6ccefff43c36dec148))
+* **vault:** Add generated Vault serializers and types, including rekey support, object list filters, and delete version checks ([a3c14b3](https://github.com/workos/workos-node/commit/a3c14b31cba51aafad931ee512c6832d14a4f776))
 * **webhooks:** Add webhook endpoint CRUD ([#1592](https://github.com/workos/workos-node/issues/1592)) ([3b226d7](https://github.com/workos/workos-node/commit/3b226d71405b55f5eb519b533087902395c3e580))
 
 
