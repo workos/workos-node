@@ -18,7 +18,7 @@ import newConnectApplicationSecretFixture from './fixtures/new-connect-applicati
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-function expectConnectApplicationM2M(result: any) {
+function expectConnectApplication(result: any) {
   expect(result.object).toBe('connect_application');
   expect(result.id).toBe('conn_app_01HXYZ123456789ABCDEFGHIJ');
   expect(result.clientId).toBe('client_01HXYZ123456789ABCDEFGHIJ');
@@ -61,7 +61,10 @@ describe('Connect', () => {
     it('returns paginated results', async () => {
       fetchOnce(listConnectApplicationFixture);
 
-      const { data, listMetadata } = await workos.connect.listApplications();
+      const { data, listMetadata } = await workos.connect.listApplications({
+        order: 'desc',
+        organizationId: 'organization_id_01234',
+      });
 
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe(
@@ -71,6 +74,7 @@ describe('Connect', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expectConnectApplication(data[0]);
     });
   });
 
@@ -95,7 +99,7 @@ describe('Connect', () => {
           is_first_party: true,
         }),
       );
-      expectConnectApplicationM2M(result);
+      expectConnectApplication(result);
     });
   });
 
@@ -103,13 +107,13 @@ describe('Connect', () => {
     it('returns the expected result', async () => {
       fetchOnce(connectApplicationFixture);
 
-      const result = await workos.connect.getApplication('test_id');
+      const result = await workos.connect.getApplication({ id: 'test_id' });
 
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/connect/applications/test_id',
       );
-      expectConnectApplicationM2M(result);
+      expectConnectApplication(result);
     });
   });
 
@@ -117,7 +121,8 @@ describe('Connect', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(connectApplicationFixture);
 
-      const result = await workos.connect.updateApplication('test_id', {
+      const result = await workos.connect.updateApplication({
+        id: 'test_id',
         name: 'Test',
       });
 
@@ -126,7 +131,7 @@ describe('Connect', () => {
         '/connect/applications/test_id',
       );
       expect(fetchBody()).toEqual(expect.objectContaining({ name: 'Test' }));
-      expectConnectApplicationM2M(result);
+      expectConnectApplication(result);
     });
   });
 
@@ -134,7 +139,7 @@ describe('Connect', () => {
     it('sends a DELETE request', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.connect.deleteApplication('test_id');
+      await workos.connect.deleteApplication({ id: 'test_id' });
 
       expect(fetchMethod()).toBe('DELETE');
       expect(new URL(String(fetchURL())).pathname).toBe(
@@ -147,8 +152,9 @@ describe('Connect', () => {
     it('returns the expected result', async () => {
       fetchOnce([applicationCredentialsListItemFixture]);
 
-      const result =
-        await workos.connect.listApplicationClientSecrets('test_id');
+      const result = await workos.connect.listApplicationClientSecrets({
+        id: 'test_id',
+      });
 
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe(
@@ -172,10 +178,9 @@ describe('Connect', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(newConnectApplicationSecretFixture);
 
-      const result = await workos.connect.createApplicationClientSecret(
-        'test_id',
-        {},
-      );
+      const result = await workos.connect.createApplicationClientSecret({
+        id: 'test_id',
+      });
 
       expect(fetchMethod()).toBe('POST');
       expect(new URL(String(fetchURL())).pathname).toBe(
@@ -198,7 +203,7 @@ describe('Connect', () => {
     it('sends a DELETE request', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.connect.deleteClientSecret('test_id');
+      await workos.connect.deleteClientSecret({ id: 'test_id' });
 
       expect(fetchMethod()).toBe('DELETE');
       expect(new URL(String(fetchURL())).pathname).toBe(

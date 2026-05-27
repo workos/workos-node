@@ -36,8 +36,9 @@ describe('Webhooks', () => {
     it('returns paginated results', async () => {
       fetchOnce(listWebhookEndpointFixture);
 
-      const { data, listMetadata } =
-        await workos.webhooks.listWebhookEndpoints();
+      const { data, listMetadata } = await workos.webhooks.listWebhookEndpoints(
+        { order: 'desc' },
+      );
 
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe('/webhook_endpoints');
@@ -74,7 +75,8 @@ describe('Webhooks', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(webhookEndpointFixture);
 
-      const result = await workos.webhooks.updateWebhookEndpoint('test_id', {
+      const result = await workos.webhooks.updateWebhookEndpoint({
+        id: 'test_id',
         endpointUrl: 'https://example.com',
         status: 'enabled',
       });
@@ -97,7 +99,7 @@ describe('Webhooks', () => {
     it('sends a DELETE request', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.webhooks.deleteWebhookEndpoint('test_id');
+      await workos.webhooks.deleteWebhookEndpoint({ id: 'test_id' });
 
       expect(fetchMethod()).toBe('DELETE');
       expect(new URL(String(fetchURL())).pathname).toBe(

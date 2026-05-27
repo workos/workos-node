@@ -260,8 +260,8 @@ describe('Event', () => {
             organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
             name: 'Engineering',
             description: 'The engineering team',
-            createdAt: '2026-04-20T12:00:00.000Z',
-            updatedAt: '2026-04-20T12:00:00.000Z',
+            createdAt: new Date('2026-04-20T12:00:00.000Z'),
+            updatedAt: new Date('2026-04-20T12:00:00.000Z'),
           },
         };
 

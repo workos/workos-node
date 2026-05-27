@@ -93,7 +93,9 @@ describe.skip('Vault Live Test', () => {
         versionId: expect.any(String),
       };
 
-      const objectValue = await workos.vault.readObjectByName(objectName);
+      const objectValue = await workos.vault.readObjectByName({
+        name: objectName,
+      });
       expect(objectValue).toStrictEqual({
         id: newObject.id,
         name: objectName,
@@ -180,7 +182,7 @@ describe.skip('Vault Live Test', () => {
         workos.vault.updateObject({
           id: newObject.id,
           value: 'Ccara 30-40 micron',
-          versionCheck: newObject.versionId,
+          versionCheck: newObject.versionId!,
         }),
       ).rejects.toThrow(ConflictException);
     });

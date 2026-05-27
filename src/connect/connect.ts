@@ -4,7 +4,15 @@ import type { WorkOS } from '../workos';
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import type { CompleteOAuth2Options } from './interfaces/complete-oauth-2-options.interface';
 import type { ListApplicationsOptions } from './interfaces/list-applications-options.interface';
+import type { CreateApplicationOptions } from './interfaces/create-application-options.interface';
+import type { GetApplicationOptions } from './interfaces/get-application-options.interface';
+import type { UpdateApplicationOptions } from './interfaces/update-application-options.interface';
+import type { DeleteApplicationOptions } from './interfaces/delete-application-options.interface';
+import type { ListApplicationClientSecretsOptions } from './interfaces/list-application-client-secrets-options.interface';
+import type { CreateApplicationClientSecretOptions } from './interfaces/create-application-client-secret-options.interface';
+import type { DeleteClientSecretOptions } from './interfaces/delete-client-secret-options.interface';
 import type {
   ExternalAuthCompleteResponse,
   ExternalAuthCompleteResponseWire,
@@ -21,27 +29,12 @@ import type {
   NewConnectApplicationSecret,
   NewConnectApplicationSecretResponse,
 } from './interfaces/new-connect-application-secret.interface';
-import type {
-  UserManagementLoginRequest,
-  UserManagementLoginRequestResponse,
-} from './interfaces/user-management-login-request.interface';
-import type {
-  CreateOAuthApplication,
-  CreateOAuthApplicationResponse,
-} from './interfaces/create-oauth-application.interface';
-import type {
-  CreateM2MApplication,
-  CreateM2MApplicationResponse,
-} from './interfaces/create-m2m-application.interface';
-import type {
-  UpdateOAuthApplication,
-  UpdateOAuthApplicationResponse,
-} from './interfaces/update-oauth-application.interface';
-import type {
-  CreateApplicationSecret,
-  CreateApplicationSecretResponse,
-} from './interfaces/create-application-secret.interface';
 import type { RedirectUriInput } from './interfaces/redirect-uri-input.interface';
+import type { UserManagementLoginRequestResponse } from './interfaces/user-management-login-request.interface';
+import type { CreateOAuthApplicationResponse } from './interfaces/create-oauth-application.interface';
+import type { CreateM2MApplicationResponse } from './interfaces/create-m2m-application.interface';
+import type { UpdateOAuthApplicationResponse } from './interfaces/update-oauth-application.interface';
+import type { CreateApplicationSecretResponse } from './interfaces/create-application-secret.interface';
 import { deserializeExternalAuthCompleteResponse } from './serializers/external-auth-complete-response.serializer';
 import { deserializeConnectApplication } from './serializers/connect-application.serializer';
 import { deserializeApplicationCredentialsListItem } from './serializers/application-credentials-list-item.serializer';
@@ -82,15 +75,16 @@ export class Connect {
    * Users are automatically created or updated based on the `id` and `email` provided. If a user with the same `id` exists, their information is updated. Otherwise, a new user is created.
    *
    * If you provide a new `id` with an `email` that already belongs to an existing user, the request will fail with an error as email addresses are unique to a user.
-   * @param payload - Object containing externalAuthId, user.
+   * @param options - The request options.
    * @returns {Promise<ExternalAuthCompleteResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async completeOAuth2(
-    payload: UserManagementLoginRequest,
+    options: CompleteOAuth2Options,
   ): Promise<ExternalAuthCompleteResponse> {
+    const payload = options;
     const { data } = await this.workos.post<
       ExternalAuthCompleteResponseWire,
       UserManagementLoginRequestResponse
@@ -103,12 +97,13 @@ export class Connect {
    *
    * List all Connect Applications in the current environment with optional filtering.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<ConnectApplication>>}
+   * @returns {Promise<AutoPaginatable<ConnectApplication, ListApplicationsOptions>>}
    * @throws {UnprocessableEntityException} 422
    */
   async listApplications(
     options?: ListApplicationsOptions,
   ): Promise<AutoPaginatable<ConnectApplication, ListApplicationsOptions>> {
+    const paginationOptions = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<ConnectApplicationResponse, ConnectApplication>(
         this.workos,
@@ -123,7 +118,7 @@ export class Connect {
           deserializeConnectApplication,
           params,
         ),
-      options,
+      paginationOptions,
     );
   }
 
@@ -131,14 +126,15 @@ export class Connect {
    * Create a Connect Application
    *
    * Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
-   * @param payload - The request body.
+   * @param options - The request options.
    * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async createApplication(
-    payload: CreateOAuthApplication | CreateM2MApplication,
+    options: CreateApplicationOptions,
   ): Promise<ConnectApplication> {
+    const payload = options;
     const { data } = await this.workos.post<
       ConnectApplicationResponse,
       CreateOAuthApplicationResponse | CreateM2MApplicationResponse
@@ -231,12 +227,16 @@ export class Connect {
    * Get a Connect Application
    *
    * Retrieve details for a specific Connect Application by ID or client ID.
-   * @param id - The application ID or client ID of the Connect Application.
+   * @param options - The request options.
+   * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    */
-  async getApplication(id: string): Promise<ConnectApplication> {
+  async getApplication(
+    options: GetApplicationOptions,
+  ): Promise<ConnectApplication> {
+    const { id } = options;
     const { data } = await this.workos.get<ConnectApplicationResponse>(
       `/connect/applications/${encodeURIComponent(id)}`,
     );
@@ -247,17 +247,17 @@ export class Connect {
    * Update a Connect Application
    *
    * Update an existing Connect Application. For OAuth applications, you can update redirect URIs. For all applications, you can update the name, description, and scopes.
-   * @param id - The application ID or client ID of the Connect Application.
+   * @param options - The request options.
+   * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @param payload - The request body.
    * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async updateApplication(
-    id: string,
-    payload: UpdateOAuthApplication,
+    options: UpdateApplicationOptions,
   ): Promise<ConnectApplication> {
+    const { id, ...payload } = options;
     const { data } = await this.workos.put<
       ConnectApplicationResponse,
       UpdateOAuthApplicationResponse
@@ -272,12 +272,14 @@ export class Connect {
    * Delete a Connect Application
    *
    * Delete an existing Connect Application.
-   * @param id - The application ID or client ID of the Connect Application.
+   * @param options - The request options.
+   * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
-  async deleteApplication(id: string): Promise<void> {
+  async deleteApplication(options: DeleteApplicationOptions): Promise<void> {
+    const { id } = options;
     await this.workos.delete(`/connect/applications/${encodeURIComponent(id)}`);
   }
 
@@ -285,14 +287,16 @@ export class Connect {
    * List Client Secrets for a Connect Application
    *
    * List all client secrets associated with a Connect Application.
-   * @param id - The application ID or client ID of the Connect Application.
+   * @param options - The request options.
+   * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @returns {Promise<ApplicationCredentialsListItem[]>}
    * @throws {NotFoundException} 404
    */
   async listApplicationClientSecrets(
-    id: string,
+    options: ListApplicationClientSecretsOptions,
   ): Promise<ApplicationCredentialsListItem[]> {
+    const { id } = options;
     const { data } = await this.workos.get<
       ApplicationCredentialsListItemResponse[]
     >(`/connect/applications/${encodeURIComponent(id)}/client_secrets`);
@@ -303,17 +307,17 @@ export class Connect {
    * Create a new client secret for a Connect Application
    *
    * Create new secrets for a Connect Application.
-   * @param id - The application ID or client ID of the Connect Application.
+   * @param options - The request options.
+   * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
-   * @param payload - The request body.
    * @returns {Promise<NewConnectApplicationSecret>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
   async createApplicationClientSecret(
-    id: string,
-    payload: CreateApplicationSecret,
+    options: CreateApplicationClientSecretOptions,
   ): Promise<NewConnectApplicationSecret> {
+    const { id, ...payload } = options;
     const { data } = await this.workos.post<
       NewConnectApplicationSecretResponse,
       CreateApplicationSecretResponse
@@ -328,12 +332,14 @@ export class Connect {
    * Delete a Client Secret
    *
    * Delete (revoke) an existing client secret.
-   * @param id - The unique ID of the client secret.
+   * @param options - The request options.
+   * @param options.id - The unique ID of the client secret.
    * @example "secret_01J9Q2Z3X4Y5W6V7U8T9S0R1Q"
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
-  async deleteClientSecret(id: string): Promise<void> {
+  async deleteClientSecret(options: DeleteClientSecretOptions): Promise<void> {
+    const { id } = options;
     await this.workos.delete(
       `/connect/client_secrets/${encodeURIComponent(id)}`,
     );

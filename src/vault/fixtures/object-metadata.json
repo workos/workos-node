@@ -1,0 +1,14 @@
+{
+  "context": {
+    "organization_id": "org_01K8ZYT4AWJ6XP0E0S8CTBHE3P"
+  },
+  "environment_id": "environment_01K8ZYT4AWJ6XP0E0S8CTBHE3P",
+  "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "key_id": "bf65e326-43a0-4b20-88c4-07ff3de5434c",
+  "updated_at": "2024-06-15T10:30:00Z",
+  "updated_by": {
+    "id": "key_01K8ZYT4AWJ6XP0E0S8CTBHE3P",
+    "name": "My API Key"
+  },
+  "version_id": "c3d4e5f6-7890-abcd-ef12-34567890abcd"
+}

@@ -1,0 +1,41 @@
+{
+  "data": [
+    {
+      "object": "organization_membership",
+      "id": "om_01HXYZ123456789ABCDEFGHIJ",
+      "user_id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+      "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+      "status": "active",
+      "directory_managed": false,
+      "organization_name": "Acme Corp",
+      "custom_attributes": {
+        "department": "Engineering",
+        "title": "Developer Experience Engineer",
+        "location": "Brooklyn"
+      },
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z",
+      "user": {
+        "object": "user",
+        "id": "user_01E4ZCR3C56J083X43JQXF3JK5",
+        "first_name": "Marcelina",
+        "last_name": "Davis",
+        "profile_picture_url": "https://workoscdn.com/images/v1/123abc",
+        "email": "marcelina.davis@example.com",
+        "email_verified": true,
+        "external_id": "f1ffa2b2-c20b-4d39-be5c-212726e11222",
+        "metadata": {
+          "timezone": "America/New_York"
+        },
+        "last_sign_in_at": "2025-06-25T19:07:33.155Z",
+        "locale": "en-US",
+        "created_at": "2026-01-15T12:00:00.000Z",
+        "updated_at": "2026-01-15T12:00:00.000Z"
+      }
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

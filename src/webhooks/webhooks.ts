@@ -4,18 +4,16 @@ import type { WorkOS } from '../workos';
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import type { ListWebhookEndpointsOptions } from './interfaces/list-webhook-endpoints-options.interface';
+import type { CreateWebhookEndpointOptions } from './interfaces/create-webhook-endpoint-options.interface';
+import type { UpdateWebhookEndpointOptions } from './interfaces/update-webhook-endpoint-options.interface';
+import type { DeleteWebhookEndpointOptions } from './interfaces/delete-webhook-endpoint-options.interface';
 import type {
   WebhookEndpoint,
   WebhookEndpointResponse,
 } from './interfaces/webhook-endpoint.interface';
-import type {
-  CreateWebhookEndpoint,
-  CreateWebhookEndpointResponse,
-} from './interfaces/create-webhook-endpoint.interface';
-import type {
-  UpdateWebhookEndpoint,
-  UpdateWebhookEndpointResponse,
-} from './interfaces/update-webhook-endpoint.interface';
+import type { CreateWebhookEndpointResponse } from './interfaces/create-webhook-endpoint.interface';
+import type { UpdateWebhookEndpointResponse } from './interfaces/update-webhook-endpoint.interface';
 import { deserializeWebhookEndpoint } from './serializers/webhook-endpoint.serializer';
 import { serializeCreateWebhookEndpoint } from './serializers/create-webhook-endpoint.serializer';
 import { serializeUpdateWebhookEndpoint } from './serializers/update-webhook-endpoint.serializer';
@@ -23,10 +21,10 @@ import { deserializeEvent } from '../common/serializers';
 import { Event, EventResponse } from '../common/interfaces';
 import { SignatureProvider } from '../common/crypto/signature-provider';
 import {
-  type WebhookPayload,
   decodePayloadToString,
   isBinaryPayload,
 } from '../common/crypto/decode-payload';
+import type { WebhookPayload } from '../common/crypto/decode-payload';
 
 export class Webhooks {
   constructor(private readonly workos: WorkOS) {}
@@ -39,14 +37,15 @@ export class Webhooks {
    * @returns {Promise<AutoPaginatable<WebhookEndpoint, PaginationOptions>>}
    */
   async listWebhookEndpoints(
-    options?: PaginationOptions,
+    options?: ListWebhookEndpointsOptions,
   ): Promise<AutoPaginatable<WebhookEndpoint, PaginationOptions>> {
+    const paginationOptions = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<WebhookEndpointResponse, WebhookEndpoint>(
         this.workos,
         '/webhook_endpoints',
         deserializeWebhookEndpoint,
-        options,
+        paginationOptions,
       ),
       (params) =>
         fetchAndDeserialize<WebhookEndpointResponse, WebhookEndpoint>(
@@ -55,7 +54,7 @@ export class Webhooks {
           deserializeWebhookEndpoint,
           params,
         ),
-      options,
+      paginationOptions,
     );
   }
 
@@ -63,14 +62,15 @@ export class Webhooks {
    * Create a Webhook Endpoint
    *
    * Create a new webhook endpoint to receive event notifications.
-   * @param payload - Object containing endpointUrl, events.
+   * @param options - The request options.
    * @returns {Promise<WebhookEndpoint>}
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
    */
   async createWebhookEndpoint(
-    payload: CreateWebhookEndpoint,
+    options: CreateWebhookEndpointOptions,
   ): Promise<WebhookEndpoint> {
+    const payload = options;
     const { data } = await this.workos.post<
       WebhookEndpointResponse,
       CreateWebhookEndpointResponse
@@ -82,18 +82,18 @@ export class Webhooks {
    * Update a Webhook Endpoint
    *
    * Update the properties of an existing webhook endpoint.
-   * @param id - Unique identifier of the Webhook Endpoint.
+   * @param options - The request options.
+   * @param options.id - Unique identifier of the Webhook Endpoint.
    * @example "we_0123456789"
-   * @param payload - The request body.
    * @returns {Promise<WebhookEndpoint>}
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
    */
   async updateWebhookEndpoint(
-    id: string,
-    payload: UpdateWebhookEndpoint,
+    options: UpdateWebhookEndpointOptions,
   ): Promise<WebhookEndpoint> {
+    const { id, ...payload } = options;
     const { data } = await this.workos.patch<
       WebhookEndpointResponse,
       UpdateWebhookEndpointResponse
@@ -108,12 +108,16 @@ export class Webhooks {
    * Delete a Webhook Endpoint
    *
    * Delete an existing webhook endpoint.
-   * @param id - Unique identifier of the Webhook Endpoint.
+   * @param options - The request options.
+   * @param options.id - Unique identifier of the Webhook Endpoint.
    * @example "we_0123456789"
    * @returns {Promise<void>}
    * @throws {NotFoundException} 404
    */
-  async deleteWebhookEndpoint(id: string): Promise<void> {
+  async deleteWebhookEndpoint(
+    options: DeleteWebhookEndpointOptions,
+  ): Promise<void> {
+    const { id } = options;
     await this.workos.delete(`/webhook_endpoints/${encodeURIComponent(id)}`);
   }
 

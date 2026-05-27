@@ -50,7 +50,8 @@ describe('Radar', () => {
     it('sends the request', async () => {
       fetchOnce({});
 
-      await workos.radar.updateAttempt('test_id', {
+      await workos.radar.updateAttempt({
+        id: 'test_id',
         challengeStatus: 'success',
         attemptStatus: 'success',
       });
@@ -72,7 +73,9 @@ describe('Radar', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(radarListEntryAlreadyPresentResponseFixture);
 
-      const result = await workos.radar.addListEntry('ip_address', 'block', {
+      const result = await workos.radar.addListEntry({
+        type: 'ip_address',
+        action: 'block',
         entry: 'test_entry',
       });
 
@@ -91,7 +94,9 @@ describe('Radar', () => {
     it('sends a DELETE request', async () => {
       fetchOnce({}, { status: 204 });
 
-      await workos.radar.removeListEntry('ip_address', 'block', {
+      await workos.radar.removeListEntry({
+        type: 'ip_address',
+        action: 'block',
         entry: 'test_entry',
       });
 
