@@ -139,17 +139,46 @@ describe('Groups', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+    });
+  });
+
+  // @oagen-ignore-start
+  describe('listOrganizationMemberships', () => {
+    it('returns paginated results', async () => {
+      fetchOnce(listUserOrganizationMembershipBaseListDataFixture);
+
+      const { data, listMetadata } =
+        await workos.groups.listOrganizationMemberships({
+          organizationId: 'test_organizationId',
+          groupId: 'test_groupId',
+          order: 'desc',
+        });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/groups/test_groupId/organization-memberships',
+      );
+      expect(fetchSearchParams()).toHaveProperty('order');
+      expect(Array.isArray(data)).toBe(true);
+      expect(listMetadata).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
       expect(data[0].object).toBe('organization_membership');
       expect(data[0].id).toBe('om_01HXYZ123456789ABCDEFGHIJ');
       expect(data[0].userId).toBe('user_01E4ZCR3C56J083X43JQXF3JK5');
       expect(data[0].organizationId).toBe('org_01EHZNVPK3SFK441A1RGBFSHRT');
       expect(data[0].status).toBe('active');
       expect(data[0].directoryManaged).toBe(false);
-      expect(data[0].createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-      expect(data[0].updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+      expect(data[0].createdAt).toBe('2026-01-15T12:00:00.000Z');
+      expect(data[0].updatedAt).toBe('2026-01-15T12:00:00.000Z');
+      expect(data[0].customAttributes).toEqual({
+        department: 'Engineering',
+        title: 'Developer Experience Engineer',
+        location: 'Brooklyn',
+      });
+      expect(data[0]).not.toHaveProperty('user');
     });
   });
-
+  // @oagen-ignore-end
   describe('addOrganizationMembership', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(groupFixture);

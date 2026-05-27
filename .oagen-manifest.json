@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "node",
-  "generatedAt": "2026-05-27T20:37:49.862Z",
+  "generatedAt": "2026-05-27T21:09:46.992Z",
   "files": [
     "src/api-keys/interfaces/create-validation-options.interface.ts",
     "src/api-keys/interfaces/delete-api-key-options.interface.ts",

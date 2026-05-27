@@ -4,31 +4,77 @@ import type { WorkOS } from '../workos';
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+// @oagen-ignore-start
+import type {
+  AuthorizationOrganizationMembership,
+  AuthorizationOrganizationMembershipResponse,
+} from '../user-management/interfaces/organization-membership.interface';
+import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
+// @oagen-ignore-end
 import type { ListGroupsOptions } from './interfaces/list-groups-options.interface';
 import type { CreateGroupOptions } from './interfaces/create-group-options.interface';
 import type { GetGroupOptions } from './interfaces/get-group-options.interface';
 import type { UpdateGroupOptions } from './interfaces/update-group-options.interface';
 import type { DeleteGroupOptions } from './interfaces/delete-group-options.interface';
-import type { ListGroupOrganizationMembershipsOptions } from './interfaces/list-group-organization-memberships-options.interface';
 import type { AddGroupOrganizationMembershipOptions } from './interfaces/add-group-organization-membership-options.interface';
 import type { RemoveGroupOrganizationMembershipOptions } from './interfaces/remove-group-organization-membership-options.interface';
 import type { Group, GroupResponse } from './interfaces/group.interface';
 import type { CreateGroupResponse } from './interfaces/create-group.interface';
 import type { UpdateGroupResponse } from './interfaces/update-group.interface';
 import type { CreateGroupMembershipResponse } from './interfaces/create-group-membership.interface';
-import type {
-  UserOrganizationMembershipBaseListData,
-  UserOrganizationMembershipBaseListDataResponse,
-} from './interfaces/user-organization-membership-base-list-data.interface';
 import { deserializeGroup } from './serializers/group.serializer';
-import { deserializeUserOrganizationMembershipBaseListData } from './serializers/user-organization-membership-base-list-data.serializer';
 import { serializeCreateGroup } from './serializers/create-group.serializer';
 import { serializeUpdateGroup } from './serializers/update-group.serializer';
 import { serializeCreateGroupMembership } from './serializers/create-group-membership.serializer';
+import type { ListGroupOrganizationMembershipsOptions } from './interfaces/list-group-organization-memberships-options.interface';
 
 export class Groups {
   constructor(private readonly workos: WorkOS) {}
 
+  // @oagen-ignore-start
+  /**
+   * List Group members
+   *
+   * Get a list of organization memberships in a group.
+   * @param options - Pagination and filter options.
+   * @param options.organizationId - Unique identifier of the Organization.
+   * @example "org_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   * @param options.groupId - Unique identifier of the Group.
+   * @example "group_01HXYZ123456789ABCDEFGHIJ"
+   * @returns {Promise<AutoPaginatable<AuthorizationOrganizationMembership>>}
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   */
+  async listOrganizationMemberships(
+    options: ListGroupOrganizationMembershipsOptions,
+  ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
+    const { organizationId, groupId, ...paginationOptions } = options;
+    const endpoint = `/organizations/${encodeURIComponent(organizationId)}/groups/${encodeURIComponent(groupId)}/organization-memberships`;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizationOrganizationMembershipResponse,
+        AuthorizationOrganizationMembership
+      >(
+        this.workos,
+        endpoint,
+        deserializeAuthorizationOrganizationMembership,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizationOrganizationMembershipResponse,
+          AuthorizationOrganizationMembership
+        >(
+          this.workos,
+          endpoint,
+          deserializeAuthorizationOrganizationMembership,
+          params,
+        ),
+      paginationOptions,
+    );
+  }
+  // @oagen-ignore-end
   /**
    * List groups
    *
@@ -157,49 +203,6 @@ export class Groups {
     const { organizationId, groupId } = options;
     await this.workos.delete(
       `/organizations/${encodeURIComponent(organizationId)}/groups/${encodeURIComponent(groupId)}`,
-    );
-  }
-
-  /**
-   * List Group members
-   *
-   * Get a list of organization memberships in a group.
-   * @param options - Pagination and filter options.
-   * @param options.organizationId - Unique identifier of the Organization.
-   * @example "org_01EHWNCE74X7JSDV0X3SZ3KJNY"
-   * @param options.groupId - Unique identifier of the Group.
-   * @example "group_01HXYZ123456789ABCDEFGHIJ"
-   * @returns {Promise<AutoPaginatable<UserOrganizationMembershipBaseListData, PaginationOptions>>}
-   * @throws {AuthorizationException} 403
-   * @throws {NotFoundException} 404
-   */
-  async listOrganizationMemberships(
-    options: ListGroupOrganizationMembershipsOptions,
-  ): Promise<
-    AutoPaginatable<UserOrganizationMembershipBaseListData, PaginationOptions>
-  > {
-    const { organizationId, groupId, ...paginationOptions } = options;
-    return new AutoPaginatable(
-      await fetchAndDeserialize<
-        UserOrganizationMembershipBaseListDataResponse,
-        UserOrganizationMembershipBaseListData
-      >(
-        this.workos,
-        `/organizations/${encodeURIComponent(organizationId)}/groups/${encodeURIComponent(groupId)}/organization-memberships`,
-        deserializeUserOrganizationMembershipBaseListData,
-        paginationOptions,
-      ),
-      (params) =>
-        fetchAndDeserialize<
-          UserOrganizationMembershipBaseListDataResponse,
-          UserOrganizationMembershipBaseListData
-        >(
-          this.workos,
-          `/organizations/${encodeURIComponent(organizationId)}/groups/${encodeURIComponent(groupId)}/organization-memberships`,
-          deserializeUserOrganizationMembershipBaseListData,
-          params,
-        ),
-      paginationOptions,
     );
   }
 

@@ -4,13 +4,14 @@ import type { WorkOS } from '../workos';
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import { base64ToUint8Array, uint8ArrayToBase64 } from '../common/utils/base64';
+// @oagen-ignore-start
+import { decodeUInt32, encodeUInt32 } from '../common/utils/leb128';
+// @oagen-ignore-end
 import type { CreateDataKeyOptions } from './interfaces/key/create-data-key.interface';
 import type { DecryptDataKeyOptions } from './interfaces/key/decrypt-data-key.interface';
 import type { CreateRekeyOptions } from './interfaces/create-rekey-options.interface';
 import type { ListObjectsOptions } from './interfaces/list-objects-options.interface';
 import type { CreateObjectOptions } from './interfaces/object/create-object.interface';
-import type { ReadObjectByNameOptions } from './interfaces/read-object-by-name-options.interface';
 import type { ReadObjectOptions } from './interfaces/object/read-object.interface';
 import type { UpdateObjectOptions } from './interfaces/object/update-object.interface';
 import type { DeleteVaultObjectOptions } from './interfaces/delete-vault-object-options.interface';
@@ -55,6 +56,19 @@ import { serializeDecryptRequest } from './serializers/decrypt-request.serialize
 import { serializeRekeyRequest } from './serializers/rekey-request.serializer';
 import { serializeCreateObjectRequest } from './serializers/create-object-request.serializer';
 import { serializeUpdateObjectRequest } from './serializers/update-object-request.serializer';
+import { base64ToUint8Array, uint8ArrayToBase64 } from '../common/utils/base64';
+import type { ReadObjectByNameOptions } from './interfaces/read-object-by-name-options.interface';
+// @oagen-ignore-start
+interface Decoded {
+  iv: Uint8Array;
+  tag: Uint8Array;
+  keys: string;
+  ciphertext: Uint8Array;
+}
+// @oagen-ignore-end
+// @oagen-ignore-start
+import type { KeyContext } from './interfaces/key.interface';
+// @oagen-ignore-end
 
 const serializeListObjectsOptions = (
   options: ListObjectsOptions,
@@ -71,16 +85,35 @@ const serializeListObjectsOptions = (
   return wire as PaginationOptions;
 };
 
-export interface VaultEncryptedData {
-  ciphertext: string;
-  encryptedKeys: string;
-  iv: string;
-  tag: string;
-}
-
 export class Vault {
   constructor(private readonly workos: WorkOS) {}
 
+  // @oagen-ignore-start
+  /**
+   * Read an object by name
+   *
+   * Fetch and decrypt an object by its unique name.
+   * @param options - The object name string or request options.
+   * @param options.name - Unique name of the object.
+   * @example "my-secret"
+   * @returns {Promise<VaultObject>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   */
+  async readObjectByName(name: string): Promise<VaultObject>;
+  async readObjectByName(
+    options: ReadObjectByNameOptions,
+  ): Promise<VaultObject>;
+  async readObjectByName(
+    options: string | ReadObjectByNameOptions,
+  ): Promise<VaultObject> {
+    const name = typeof options === 'string' ? options : options.name;
+    const { data } = await this.workos.get<VaultObjectResponse>(
+      `/vault/v1/kv/name/${encodeURIComponent(name)}`,
+    );
+    return deserializeVaultObject(data);
+  }
+  // @oagen-ignore-end
   /**
    * Create a data key
    *
@@ -210,27 +243,6 @@ export class Vault {
   }
 
   /**
-   * Read an object by name
-   *
-   * Fetch and decrypt an object by its unique name.
-   * @param options - The request options.
-   * @param options.name - Unique name of the object.
-   * @example "my-secret"
-   * @returns {Promise<VaultObject>}
-   * @throws {BadRequestException} 400
-   * @throws {NotFoundException} 404
-   */
-  async readObjectByName(
-    options: ReadObjectByNameOptions,
-  ): Promise<VaultObject> {
-    const { name } = options;
-    const { data } = await this.workos.get<VaultObjectResponse>(
-      `/vault/v1/kv/name/${encodeURIComponent(name)}`,
-    );
-    return deserializeVaultObject(data);
-  }
-
-  /**
    * Read an object by ID
    *
    * Fetch and decrypt an object by its unique identifier.
@@ -342,49 +354,85 @@ export class Vault {
     return deserializeVersionListResponse(data).data;
   }
 
-  async encrypt(
-    plaintext: string,
-    context: Record<string, string>,
-    aad?: string,
-  ): Promise<VaultEncryptedData> {
-    const dataKeyPair = await this.createDataKey({ context });
-    const encodedPlaintext = new TextEncoder().encode(plaintext);
-    const encodedAad = aad ? new TextEncoder().encode(aad) : undefined;
-    const encrypted = await this.workos
-      .getCryptoProvider()
-      .encrypt(
-        encodedPlaintext,
-        base64ToUint8Array(dataKeyPair.dataKey.key),
-        undefined,
-        encodedAad,
-      );
+  // @oagen-ignore-start
+  private decode(payload: string): Decoded {
+    const inputData = base64ToUint8Array(payload);
+    const iv = new Uint8Array(inputData.subarray(0, 12));
+    const tag = new Uint8Array(inputData.subarray(12, 28));
+    const { value: keyLen, nextIndex } = decodeUInt32(inputData, 28);
+    const keysBuffer = inputData.subarray(nextIndex, nextIndex + keyLen);
+    const keys = uint8ArrayToBase64(keysBuffer);
+    const ciphertext = new Uint8Array(inputData.subarray(nextIndex + keyLen));
 
     return {
-      ciphertext: uint8ArrayToBase64(encrypted.ciphertext),
-      encryptedKeys: dataKeyPair.encryptedKeys,
-      iv: uint8ArrayToBase64(encrypted.iv),
-      tag: uint8ArrayToBase64(encrypted.tag),
+      iv,
+      tag,
+      keys,
+      ciphertext,
     };
   }
 
   async decrypt(
-    encryptedData: VaultEncryptedData,
-    aad?: string,
+    encryptedData: string,
+    associatedData?: string,
   ): Promise<string> {
-    const dataKey = await this.decryptDataKey({
-      keys: encryptedData.encryptedKeys,
-    });
-    const encodedAad = aad ? new TextEncoder().encode(aad) : undefined;
+    const decoded = this.decode(encryptedData);
+    const dataKey = await this.decryptDataKey({ keys: decoded.keys });
+    const key = base64ToUint8Array(dataKey.key);
+    const aadBuffer = associatedData
+      ? new TextEncoder().encode(associatedData)
+      : undefined;
     const decrypted = await this.workos
       .getCryptoProvider()
-      .decrypt(
-        base64ToUint8Array(encryptedData.ciphertext),
-        base64ToUint8Array(dataKey.key),
-        base64ToUint8Array(encryptedData.iv),
-        base64ToUint8Array(encryptedData.tag),
-        encodedAad,
-      );
+      .decrypt(decoded.ciphertext, key, decoded.iv, decoded.tag, aadBuffer);
 
     return new TextDecoder().decode(decrypted);
   }
+
+  async encrypt(
+    data: string,
+    context: KeyContext,
+    associatedData?: string,
+  ): Promise<string> {
+    const keyPair = await this.createDataKey({
+      context,
+    });
+
+    const encoder = new TextEncoder();
+    const key = base64ToUint8Array(keyPair.dataKey.key);
+    const keyBlob = base64ToUint8Array(keyPair.encryptedKeys);
+    const prefixLenBuffer = encodeUInt32(keyBlob.length);
+    const aadBuffer = associatedData
+      ? encoder.encode(associatedData)
+      : undefined;
+    const cryptoProvider = this.workos.getCryptoProvider();
+    const iv = cryptoProvider.randomBytes(12);
+    const {
+      ciphertext,
+      iv: resultIv,
+      tag,
+    } = await cryptoProvider.encrypt(encoder.encode(data), key, iv, aadBuffer);
+
+    const resultArray = new Uint8Array(
+      resultIv.length +
+        tag.length +
+        prefixLenBuffer.length +
+        keyBlob.length +
+        ciphertext.length,
+    );
+
+    let offset = 0;
+    resultArray.set(resultIv, offset);
+    offset += resultIv.length;
+    resultArray.set(tag, offset);
+    offset += tag.length;
+    resultArray.set(new Uint8Array(prefixLenBuffer), offset);
+    offset += prefixLenBuffer.length;
+    resultArray.set(keyBlob, offset);
+    offset += keyBlob.length;
+    resultArray.set(ciphertext, offset);
+
+    return uint8ArrayToBase64(resultArray);
+  }
+  // @oagen-ignore-end
 }

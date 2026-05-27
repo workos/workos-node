@@ -144,6 +144,20 @@ describe('Vault', () => {
       );
       expectVaultObject(result);
     });
+
+    // @oagen-ignore-start
+    it('accepts the previous string signature', async () => {
+      fetchOnce(vaultObjectFixture);
+
+      const result = await workos.vault.readObjectByName('test_name');
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/vault/v1/kv/name/test_name',
+      );
+      expectVaultObject(result);
+    });
+    // @oagen-ignore-end
   });
 
   describe('readObject', () => {
@@ -217,4 +231,45 @@ describe('Vault', () => {
       expect(Array.isArray(result)).toBe(true);
     });
   });
+
+  // @oagen-ignore-start
+  describe('encrypt and decrypt', () => {
+    it('correctly encrypts and decrypts data', async () => {
+      const validKey = Buffer.alloc(32).fill('A').toString('base64');
+
+      fetchOnce({
+        data_key: validKey,
+        encrypted_keys: 'ZW5jcnlwdGVkX2tleXM=',
+        id: 'key123',
+        context: { type: 'test' },
+      });
+
+      const originalText = 'This is a secret message';
+      const context = { type: 'test' };
+      const associatedData = 'additional-auth-data';
+
+      const encrypted = await workos.vault.encrypt(
+        originalText,
+        context,
+        associatedData,
+      );
+
+      expect(fetchURL()).toContain('/vault/v1/keys/data-key');
+      expect(fetchMethod()).toBe('POST');
+      expect(typeof encrypted).toBe('string');
+
+      fetch.resetMocks();
+      fetchOnce({
+        data_key: validKey,
+        id: 'key123',
+      });
+
+      const decrypted = await workos.vault.decrypt(encrypted, associatedData);
+
+      expect(fetchURL()).toContain('/vault/v1/keys/decrypt');
+      expect(fetchMethod()).toBe('POST');
+      expect(decrypted).toBe(originalText);
+    });
+  });
+  // @oagen-ignore-end
 });

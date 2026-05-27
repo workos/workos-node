@@ -16,99 +16,6 @@ import crypto from 'crypto';
 import mockWebhook from './fixtures/webhook.json';
 import { SignatureVerificationException } from '../common/exceptions';
 
-const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-
-function expectWebhookEndpoint(result: any) {
-  expect(result.object).toBe('webhook_endpoint');
-  expect(result.id).toBe('we_0123456789');
-  expect(result.endpointUrl).toBe('https://example.com/webhooks');
-  expect(result.secret).toBe('whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4');
-  expect(result.status).toBe('enabled');
-  expect(result.events).toEqual(['user.created', 'dsync.user.created']);
-  expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-  expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-}
-
-describe('Webhooks', () => {
-  beforeEach(() => fetch.resetMocks());
-
-  describe('listWebhookEndpoints', () => {
-    it('returns paginated results', async () => {
-      fetchOnce(listWebhookEndpointFixture);
-
-      const { data, listMetadata } = await workos.webhooks.listWebhookEndpoints(
-        { order: 'desc' },
-      );
-
-      expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe('/webhook_endpoints');
-      expect(fetchSearchParams()).toHaveProperty('order');
-      expect(Array.isArray(data)).toBe(true);
-      expect(listMetadata).toBeDefined();
-      expect(data.length).toBeGreaterThan(0);
-      expectWebhookEndpoint(data[0]);
-    });
-  });
-
-  describe('createWebhookEndpoint', () => {
-    it('sends the correct request and returns result', async () => {
-      fetchOnce(webhookEndpointFixture);
-
-      const result = await workos.webhooks.createWebhookEndpoint({
-        endpointUrl: 'https://example.com',
-        events: ['authentication.email_verification_succeeded'],
-      });
-
-      expect(fetchMethod()).toBe('POST');
-      expect(new URL(String(fetchURL())).pathname).toBe('/webhook_endpoints');
-      expect(fetchBody()).toEqual(
-        expect.objectContaining({
-          endpoint_url: 'https://example.com',
-          events: ['authentication.email_verification_succeeded'],
-        }),
-      );
-      expectWebhookEndpoint(result);
-    });
-  });
-
-  describe('updateWebhookEndpoint', () => {
-    it('sends the correct request and returns result', async () => {
-      fetchOnce(webhookEndpointFixture);
-
-      const result = await workos.webhooks.updateWebhookEndpoint({
-        id: 'test_id',
-        endpointUrl: 'https://example.com',
-        status: 'enabled',
-      });
-
-      expect(fetchMethod()).toBe('PATCH');
-      expect(new URL(String(fetchURL())).pathname).toBe(
-        '/webhook_endpoints/test_id',
-      );
-      expect(fetchBody()).toEqual(
-        expect.objectContaining({
-          endpoint_url: 'https://example.com',
-          status: 'enabled',
-        }),
-      );
-      expectWebhookEndpoint(result);
-    });
-  });
-
-  describe('deleteWebhookEndpoint', () => {
-    it('sends a DELETE request', async () => {
-      fetchOnce({}, { status: 204 });
-
-      await workos.webhooks.deleteWebhookEndpoint({ id: 'test_id' });
-
-      expect(fetchMethod()).toBe('DELETE');
-      expect(new URL(String(fetchURL())).pathname).toBe(
-        '/webhook_endpoints/test_id',
-      );
-    });
-  });
-});
-
 // @oagen-ignore-start
 describe('Webhook signatures', () => {
   let payload: any;
@@ -478,3 +385,95 @@ describe('Webhook signatures', () => {
   });
 });
 // @oagen-ignore-end
+const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+function expectWebhookEndpoint(result: any) {
+  expect(result.object).toBe('webhook_endpoint');
+  expect(result.id).toBe('we_0123456789');
+  expect(result.endpointUrl).toBe('https://example.com/webhooks');
+  expect(result.secret).toBe('whsec_0FWAiVGkEfGBqqsJH4aNAGBJ4');
+  expect(result.status).toBe('enabled');
+  expect(result.events).toEqual(['user.created', 'dsync.user.created']);
+  expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+  expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+}
+
+describe('Webhooks', () => {
+  beforeEach(() => fetch.resetMocks());
+
+  describe('listWebhookEndpoints', () => {
+    it('returns paginated results', async () => {
+      fetchOnce(listWebhookEndpointFixture);
+
+      const { data, listMetadata } = await workos.webhooks.listWebhookEndpoints(
+        { order: 'desc' },
+      );
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe('/webhook_endpoints');
+      expect(fetchSearchParams()).toHaveProperty('order');
+      expect(Array.isArray(data)).toBe(true);
+      expect(listMetadata).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+      expectWebhookEndpoint(data[0]);
+    });
+  });
+
+  describe('createWebhookEndpoint', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(webhookEndpointFixture);
+
+      const result = await workos.webhooks.createWebhookEndpoint({
+        endpointUrl: 'https://example.com',
+        events: ['authentication.email_verification_succeeded'],
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe('/webhook_endpoints');
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          endpoint_url: 'https://example.com',
+          events: ['authentication.email_verification_succeeded'],
+        }),
+      );
+      expectWebhookEndpoint(result);
+    });
+  });
+
+  describe('updateWebhookEndpoint', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(webhookEndpointFixture);
+
+      const result = await workos.webhooks.updateWebhookEndpoint({
+        id: 'test_id',
+        endpointUrl: 'https://example.com',
+        status: 'enabled',
+      });
+
+      expect(fetchMethod()).toBe('PATCH');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/webhook_endpoints/test_id',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          endpoint_url: 'https://example.com',
+          status: 'enabled',
+        }),
+      );
+      expectWebhookEndpoint(result);
+    });
+  });
+
+  describe('deleteWebhookEndpoint', () => {
+    it('sends a DELETE request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.webhooks.deleteWebhookEndpoint({ id: 'test_id' });
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/webhook_endpoints/test_id',
+      );
+    });
+  });
+});
