@@ -1,5 +1,25 @@
 # Changelog
 
+## [10.0.0](https://github.com/workos/workos-node/compare/v9.3.1...v10.0.0) (2026-05-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove search param from listResources ([#1591](https://github.com/workos/workos-node/issues/1591))
+* **webhooks:** Add webhook endpoint CRUD ([#1592](https://github.com/workos/workos-node/issues/1592))
+
+### Features
+
+* Add Radar to Node SDK ([#1596](https://github.com/workos/workos-node/issues/1596)) ([6330961](https://github.com/workos/workos-node/commit/6330961da4b1f249f86825ad3eafc8643c275318))
+* **connect:** Add Connect module ([#1597](https://github.com/workos/workos-node/issues/1597)) ([4011dd0](https://github.com/workos/workos-node/commit/4011dd0b62f7d57e6f4fabb275bdfdc90a0fb7f7))
+* remove search param from listResources ([#1591](https://github.com/workos/workos-node/issues/1591)) ([9ebc818](https://github.com/workos/workos-node/commit/9ebc818c908bb4ada660cd6ccefff43c36dec148))
+* **webhooks:** Add webhook endpoint CRUD ([#1592](https://github.com/workos/workos-node/issues/1592)) ([3b226d7](https://github.com/workos/workos-node/commit/3b226d71405b55f5eb519b533087902395c3e580))
+
+
+### Bug Fixes
+
+* **renovate:** explicitly enable minor and patch updates ([#1598](https://github.com/workos/workos-node/issues/1598)) ([ad48448](https://github.com/workos/workos-node/commit/ad484483f1a1ec3a6c990d778121c663970c38f1))
+
 ## [9.3.1](https://github.com/workos/workos-node/compare/v9.3.0...v9.3.1) (2026-05-19)
 
 
