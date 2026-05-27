@@ -11,13 +11,3 @@ export const deserializeGroup = (response: GroupResponse): Group => ({
   createdAt: new Date(response.created_at),
   updatedAt: new Date(response.updated_at),
 });
-
-export const serializeGroup = (model: Group): GroupResponse => ({
-  object: model.object,
-  id: model.id,
-  organization_id: model.organizationId,
-  name: model.name,
-  description: model.description,
-  created_at: model.createdAt.toISOString(),
-  updated_at: model.updatedAt.toISOString(),
-});

@@ -17,16 +17,3 @@ export const deserializeNewConnectApplicationSecret = (
   updatedAt: new Date(response.updated_at),
   secret: response.secret,
 });
-
-export const serializeNewConnectApplicationSecret = (
-  model: NewConnectApplicationSecret,
-): NewConnectApplicationSecretResponse => ({
-  object: model.object,
-  id: model.id,
-  secret_hint: model.secretHint,
-  last_used_at:
-    model.lastUsedAt != null ? model.lastUsedAt.toISOString() : null,
-  created_at: model.createdAt.toISOString(),
-  updated_at: model.updatedAt.toISOString(),
-  secret: model.secret,
-});

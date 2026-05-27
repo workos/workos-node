@@ -11,10 +11,3 @@ export const deserializeListMetadata = (
   after: response.after ?? null,
   before: response.before ?? null,
 });
-
-export const serializeListMetadata = (
-  model: ListMetadata,
-): ListMetadataResponse => ({
-  after: model.after ?? null,
-  before: model.before ?? null,
-});

@@ -17,16 +17,3 @@ export const deserializeWebhookEndpoint = (
   createdAt: new Date(response.created_at),
   updatedAt: new Date(response.updated_at),
 });
-
-export const serializeWebhookEndpoint = (
-  model: WebhookEndpoint,
-): WebhookEndpointResponse => ({
-  object: model.object,
-  id: model.id,
-  endpoint_url: model.endpointUrl,
-  secret: model.secret,
-  status: model.status,
-  events: model.events,
-  created_at: model.createdAt.toISOString(),
-  updated_at: model.updatedAt.toISOString(),
-});

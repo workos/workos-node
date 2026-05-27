@@ -14,13 +14,3 @@ export const deserializeRadarStandaloneResponse = (
   control: response.control,
   blocklistType: response.blocklist_type,
 });
-
-export const serializeRadarStandaloneResponse = (
-  model: RadarStandaloneResponse,
-): RadarStandaloneResponseWire => ({
-  verdict: model.verdict,
-  reason: model.reason,
-  attempt_id: model.attemptId,
-  control: model.control,
-  blocklist_type: model.blocklistType,
-});

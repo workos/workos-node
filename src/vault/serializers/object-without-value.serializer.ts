@@ -4,10 +4,7 @@ import type {
   ObjectWithoutValue,
   ObjectWithoutValueResponse,
 } from '../interfaces/object-without-value.interface';
-import {
-  deserializeObjectMetadata,
-  serializeObjectMetadata,
-} from './object-metadata.serializer';
+import { deserializeObjectMetadata } from './object-metadata.serializer';
 
 export const deserializeObjectWithoutValue = (
   response: ObjectWithoutValueResponse,
@@ -15,12 +12,4 @@ export const deserializeObjectWithoutValue = (
   id: response.id,
   metadata: deserializeObjectMetadata(response.metadata),
   name: response.name,
-});
-
-export const serializeObjectWithoutValue = (
-  model: ObjectWithoutValue,
-): ObjectWithoutValueResponse => ({
-  id: model.id,
-  metadata: serializeObjectMetadata(model.metadata),
-  name: model.name,
 });

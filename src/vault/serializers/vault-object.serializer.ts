@@ -4,10 +4,7 @@ import type {
   VaultObject,
   VaultObjectResponse,
 } from '../interfaces/vault-object.interface';
-import {
-  deserializeObjectMetadata,
-  serializeObjectMetadata,
-} from './object-metadata.serializer';
+import { deserializeObjectMetadata } from './object-metadata.serializer';
 
 export const deserializeVaultObject = (
   response: VaultObjectResponse,
@@ -16,13 +13,4 @@ export const deserializeVaultObject = (
   metadata: deserializeObjectMetadata(response.metadata),
   name: response.name,
   value: response.value,
-});
-
-export const serializeVaultObject = (
-  model: VaultObject,
-): VaultObjectResponse => ({
-  id: model.id,
-  metadata: serializeObjectMetadata(model.metadata),
-  name: model.name,
-  value: model.value!,
 });

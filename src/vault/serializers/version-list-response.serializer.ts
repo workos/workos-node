@@ -4,25 +4,12 @@ import type {
   VersionListResponse,
   VersionListResponseWire,
 } from '../interfaces/version-list-response.interface';
-import {
-  deserializeObjectVersion,
-  serializeObjectVersion,
-} from './object-version.serializer';
-import {
-  deserializeListMetadata,
-  serializeListMetadata,
-} from './list-metadata.serializer';
+import { deserializeObjectVersion } from './object-version.serializer';
+import { deserializeListMetadata } from './list-metadata.serializer';
 
 export const deserializeVersionListResponse = (
   response: VersionListResponseWire,
 ): VersionListResponse => ({
   data: response.data.map(deserializeObjectVersion),
   listMetadata: deserializeListMetadata(response.list_metadata),
-});
-
-export const serializeVersionListResponse = (
-  model: VersionListResponse,
-): VersionListResponseWire => ({
-  data: model.data.map(serializeObjectVersion),
-  list_metadata: serializeListMetadata(model.listMetadata),
 });

@@ -31,7 +31,17 @@ export class Radar {
    * Create an attempt
    *
    * Assess a request for risk using the Radar engine and receive a verdict.
-   * @param options - The request options.
+   * @param options - Object containing ipAddress, userAgent, email, authMethod, action.
+   * @param options.ipAddress - The IP address of the request to assess.
+   * @example "49.78.240.97"
+   * @param options.userAgent - The user agent string of the request to assess.
+   * @example "Mozilla/5.0"
+   * @param options.email - The email address of the user making the request.
+   * @example "user@example.com"
+   * @param options.authMethod - The authentication method being used.
+   * @example "Password"
+   * @param options.action - The action being performed.
+   * @example "sign-in"
    * @returns {Promise<RadarStandaloneResponse>}
    * @throws {BadRequestException} 400
    */
@@ -50,9 +60,13 @@ export class Radar {
    * Update a Radar attempt
    *
    * You may optionally inform Radar that an authentication attempt or challenge was successful using this endpoint. Some Radar controls depend on tracking recent successful attempts, such as impossible travel.
-   * @param options - The request options.
+   * @param options - The request body.
    * @param options.id - The unique identifier of the Radar attempt to update.
    * @example "radar_att_01HZBC6N1EB1ZY7KG32X"
+   * @param options.challengeStatus - Set to `"success"` to mark the challenge as completed.
+   * @example "success"
+   * @param options.attemptStatus - Set to `"success"` to mark the authentication attempt as successful.
+   * @example "success"
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
@@ -72,11 +86,13 @@ export class Radar {
    * Add an entry to a Radar list
    *
    * Add an entry to a Radar list.
-   * @param options - The request options.
+   * @param options - Object containing entry.
    * @param options.type - The type of the Radar list (e.g. ip_address, domain, email).
    * @example "ip_address"
    * @param options.action - The list action indicating whether to add the entry to the allow or block list.
    * @example "block"
+   * @param options.entry - The value to add to the list. Must match the format of the list type (e.g. a valid IP address for `ip_address`, a valid email for `email`).
+   * @example "198.51.100.42"
    * @returns {Promise<RadarListEntryAlreadyPresentResponse>}
    * @throws {BadRequestException} 400
    */
@@ -98,11 +114,13 @@ export class Radar {
    * Remove an entry from a Radar list
    *
    * Remove an entry from a Radar list.
-   * @param options - The request options.
+   * @param options - Object containing entry.
    * @param options.type - The type of the Radar list (e.g. ip_address, domain, email).
    * @example "ip_address"
    * @param options.action - The list action indicating whether to remove the entry from the allow or block list.
    * @example "block"
+   * @param options.entry - The value to remove from the list. Must match an existing entry.
+   * @example "198.51.100.42"
    * @returns {Promise<void>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404

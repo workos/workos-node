@@ -12,11 +12,3 @@ export const deserializeObjectSummary = (
   name: response.name,
   updatedAt: response.updated_at != null ? new Date(response.updated_at) : null,
 });
-
-export const serializeObjectSummary = (
-  model: ObjectSummary,
-): ObjectSummaryResponse => ({
-  id: model.id,
-  name: model.name,
-  updated_at: model.updatedAt != null ? model.updatedAt.toISOString() : null,
-});

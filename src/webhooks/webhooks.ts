@@ -62,7 +62,11 @@ export class Webhooks {
    * Create a Webhook Endpoint
    *
    * Create a new webhook endpoint to receive event notifications.
-   * @param options - The request options.
+   * @param options - Object containing endpointUrl, events.
+   * @param options.endpointUrl - The HTTPS URL where webhooks will be sent.
+   * @example "https://example.com/webhooks"
+   * @param options.events - The events that the Webhook Endpoint is subscribed to.
+   * @example ["user.created","dsync.user.created"]
    * @returns {Promise<WebhookEndpoint>}
    * @throws {ConflictException} 409
    * @throws {UnprocessableEntityException} 422
@@ -82,9 +86,15 @@ export class Webhooks {
    * Update a Webhook Endpoint
    *
    * Update the properties of an existing webhook endpoint.
-   * @param options - The request options.
+   * @param options - The request body.
    * @param options.id - Unique identifier of the Webhook Endpoint.
    * @example "we_0123456789"
+   * @param options.endpointUrl - The HTTPS URL where webhooks will be sent.
+   * @example "https://example.com/webhooks"
+   * @param options.status - Whether the Webhook Endpoint is enabled or disabled.
+   * @example "enabled"
+   * @param options.events - The events that the Webhook Endpoint is subscribed to.
+   * @example ["user.created","dsync.user.created"]
    * @returns {Promise<WebhookEndpoint>}
    * @throws {NotFoundException} 404
    * @throws {ConflictException} 409

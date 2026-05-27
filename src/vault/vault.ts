@@ -21,10 +21,6 @@ import type {
   CreateDataKeyResponseWire,
 } from './interfaces/create-data-key-response.interface';
 import type {
-  ObjectSummary,
-  ObjectSummaryResponse,
-} from './interfaces/object-summary.interface';
-import type {
   ObjectMetadata,
   ObjectMetadataResponse,
 } from './interfaces/object-metadata.interface';
@@ -43,13 +39,17 @@ import type { CreateObjectRequestResponse } from './interfaces/create-object-req
 import type { UpdateObjectRequestResponse } from './interfaces/update-object-request.interface';
 import type { DecryptResponseWire } from './interfaces/decrypt-response.interface';
 import type { ObjectWithoutValueResponse } from './interfaces/object-without-value.interface';
+import type {
+  ObjectSummary,
+  ObjectSummaryResponse,
+} from './interfaces/object-summary.interface';
 import { deserializeCreateDataKeyResponse } from './serializers/create-data-key-response.serializer';
 import { deserializeDecryptResponse } from './serializers/decrypt-response.serializer';
-import { deserializeObjectSummary } from './serializers/object-summary.serializer';
 import { deserializeObjectMetadata } from './serializers/object-metadata.serializer';
 import { deserializeVaultObject } from './serializers/vault-object.serializer';
 import { deserializeObjectWithoutValue } from './serializers/object-without-value.serializer';
 import { deserializeVersionListResponse } from './serializers/version-list-response.serializer';
+import { deserializeObjectSummary } from './serializers/object-summary.serializer';
 import { serializeCreateDataKeyRequest } from './serializers/create-data-key-request.serializer';
 import { serializeDecryptRequest } from './serializers/decrypt-request.serializer';
 import { serializeRekeyRequest } from './serializers/rekey-request.serializer';
@@ -85,7 +85,10 @@ export class Vault {
    * Create a data key
    *
    * Generate an isolated encryption key for local encryption operations.
-   * @returns {Promise<CreateDataKeyResponse>}
+   * @param options - Object containing context.
+   * @param options.context - Map of values used to determine the encryption key.
+   * @example {"organization_id":"org_01K8ZYT4AWJ6XP0E0S8CTBHE3P"}
+   * @returns {Promise<DataKeyPair>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
    */
@@ -107,7 +110,10 @@ export class Vault {
    * Decrypt a data key
    *
    * Decrypt a previously encrypted data key from WorkOS Vault.
-   * @returns {Promise<DecryptResponse>}
+   * @param options - Object containing keys.
+   * @param options.keys - Base64-encoded encrypted data key to decrypt.
+   * @example "V09TLkVLTS52MQBiZjUxY2NlYy03OGI0LTUyMDAtYjM4My0zNTczMGU3MWVmNjEBATEBJGJmNjVlMzI2LTQzYTAtNGIyMC04OGM0LTA3ZmYzZGU1NDM0YwF0YmY2NWUzMjYtNDNhMC00YjIwLTg4YzQtMDdmZjNkZTU0MzRj"
+   * @returns {Promise<DataKey>}
    * @throws {BadRequestException} 400
    */
   async decryptDataKey(options: DecryptDataKeyOptions): Promise<DataKey> {
@@ -124,6 +130,11 @@ export class Vault {
    * Re-encrypt a data key
    *
    * Decrypt an existing data key and re-encrypt it under a new key context.
+   * @param options - Object containing context, encryptedKeys.
+   * @param options.context - Map of values used to determine the new encryption key.
+   * @example {"organization_id":"org_01K8ZYT4AWJ6XP0E0S8CTBHE3P"}
+   * @param options.encryptedKeys - Base64-encoded encrypted data key blob to re-encrypt.
+   * @example "V09TLkVLTS52MQBiZjUxY2NlYy03OGI0LTUyMDAtYjM4My0zNTczMGU3MWVmNjEBATEBJGJmNjVlMzI2LTQzYTAtNGIyMC04OGM0LTA3ZmYzZGU1NDM0YwF0YmY2NWUzMjYtNDNhMC00YjIwLTg4YzQtMDdmZjNkZTU0MzRj"
    * @returns {Promise<CreateDataKeyResponse>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
@@ -144,12 +155,12 @@ export class Vault {
    *
    * List all encrypted objects with cursor-based pagination.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<ObjectSummary>>}
+   * @returns {Promise<AutoPaginatable<ObjectSummary, PaginationOptions>>}
    * @throws {BadRequestException} 400
    */
   async listObjects(
     options?: ListObjectsOptions,
-  ): Promise<AutoPaginatable<ObjectSummary>> {
+  ): Promise<AutoPaginatable<ObjectSummary, PaginationOptions>> {
     const paginationOptions = options;
     return new AutoPaginatable(
       await fetchAndDeserialize<ObjectSummaryResponse, ObjectSummary>(
@@ -173,6 +184,13 @@ export class Vault {
    * Create an object
    *
    * Encrypt and store a new key-value object.
+   * @param options - Object containing keyContext, name, value.
+   * @param options.keyContext - Map of values used to determine the encryption key.
+   * @example {"organization_id":"org_01K8ZYT4AWJ6XP0E0S8CTBHE3P"}
+   * @param options.name - Unique name for the object.
+   * @example "my-secret"
+   * @param options.value - Plaintext data to encrypt and store.
+   * @example "s3cr3t-v4lu3"
    * @returns {Promise<ObjectMetadata>}
    * @throws {BadRequestException} 400
    * @throws {ConflictException} 409
@@ -235,10 +253,14 @@ export class Vault {
    * Update an object
    *
    * Update the value of an existing encrypted object.
-   * @param options - The request options.
+   * @param options - Object containing value.
    * @param options.id - Unique identifier of the object.
    * @example "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-   * @returns {Promise<ObjectWithoutValue>}
+   * @param options.value - New plaintext value.
+   * @example "upd4t3d-v4lu3"
+   * @param options.versionCheck - ID of the expected current version for optimistic locking.
+   * @example "c3d4e5f6-7890-abcd-ef12-34567890abcd"
+   * @returns {Promise<VaultObject>}
    * @throws {BadRequestException} 400
    * @throws {ConflictException} 409
    */
@@ -286,7 +308,7 @@ export class Vault {
    * @param options - The request options.
    * @param options.id - Unique identifier of the object.
    * @example "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-   * @returns {Promise<ObjectWithoutValue>}
+   * @returns {Promise<VaultObject>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    */
@@ -306,7 +328,7 @@ export class Vault {
    * @param options - The request options.
    * @param options.id - Unique identifier of the object.
    * @example "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-   * @returns {Promise<VersionListResponse>}
+   * @returns {Promise<ObjectVersion[]>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    */

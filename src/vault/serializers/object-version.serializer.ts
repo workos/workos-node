@@ -14,13 +14,3 @@ export const deserializeObjectVersion = (
   id: response.id,
   size: response.size ?? 0,
 });
-
-export const serializeObjectVersion = (
-  model: ObjectVersion,
-): ObjectVersionResponse => ({
-  created_at: model.createdAt.toISOString(),
-  current_version: model.currentVersion,
-  etag: model.etag!,
-  id: model.id,
-  size: model.size!,
-});

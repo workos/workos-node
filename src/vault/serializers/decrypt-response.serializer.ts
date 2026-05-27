@@ -11,10 +11,3 @@ export const deserializeDecryptResponse = (
   dataKey: response.data_key,
   id: response.id,
 });
-
-export const serializeDecryptResponse = (
-  model: DecryptResponse,
-): DecryptResponseWire => ({
-  data_key: model.dataKey,
-  id: model.id,
-});

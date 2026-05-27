@@ -10,9 +10,3 @@ export const deserializeRadarListEntryAlreadyPresentResponse = (
 ): RadarListEntryAlreadyPresentResponse => ({
   message: response.message,
 });
-
-export const serializeRadarListEntryAlreadyPresentResponse = (
-  model: RadarListEntryAlreadyPresentResponse,
-): RadarListEntryAlreadyPresentResponseWire => ({
-  message: model.message,
-});

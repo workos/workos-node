@@ -75,7 +75,11 @@ export class Connect {
    * Users are automatically created or updated based on the `id` and `email` provided. If a user with the same `id` exists, their information is updated. Otherwise, a new user is created.
    *
    * If you provide a new `id` with an `email` that already belongs to an existing user, the request will fail with an error as email addresses are unique to a user.
-   * @param options - The request options.
+   * @param options - Object containing externalAuthId, user.
+   * @param options.externalAuthId - Identifier provided when AuthKit redirected to your login page.
+   * @example "ext_auth_01HXYZ123456789ABCDEFGHIJ"
+   * @param options.user - The user to create or update in AuthKit.
+   * @param options.userConsentOptions - Array of [User Consent Options](https://workos.com/docs/reference/workos-connect/standalone/user-consent-options) to store with the session.
    * @returns {Promise<ExternalAuthCompleteResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
@@ -126,7 +130,7 @@ export class Connect {
    * Create a Connect Application
    *
    * Create a new Connect Application. Supports both OAuth and Machine-to-Machine (M2M) application types.
-   * @param options - The request options.
+   * @param options - The request body.
    * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -247,9 +251,17 @@ export class Connect {
    * Update a Connect Application
    *
    * Update an existing Connect Application. For OAuth applications, you can update redirect URIs. For all applications, you can update the name, description, and scopes.
-   * @param options - The request options.
+   * @param options - The request body.
    * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
+   * @param options.name - The name of the application.
+   * @example "My Application"
+   * @param options.description - A description for the application.
+   * @example "An application for managing user access"
+   * @param options.scopes - The OAuth scopes granted to the application.
+   * @example ["openid","profile","email"]
+   * @param options.redirectUris - Updated redirect URIs for the application. OAuth applications only.
+   * @example [{"uri":"https://example.com/callback","default":true}]
    * @returns {Promise<ConnectApplication>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
@@ -307,7 +319,7 @@ export class Connect {
    * Create a new client secret for a Connect Application
    *
    * Create new secrets for a Connect Application.
-   * @param options - The request options.
+   * @param options - The request body.
    * @param options.id - The application ID or client ID of the Connect Application.
    * @example "conn_app_01HXYZ123456789ABCDEFGHIJ"
    * @returns {Promise<NewConnectApplicationSecret>}

@@ -10,9 +10,3 @@ export const deserializeExternalAuthCompleteResponse = (
 ): ExternalAuthCompleteResponse => ({
   redirectUri: response.redirect_uri,
 });
-
-export const serializeExternalAuthCompleteResponse = (
-  model: ExternalAuthCompleteResponse,
-): ExternalAuthCompleteResponseWire => ({
-  redirect_uri: model.redirectUri,
-});

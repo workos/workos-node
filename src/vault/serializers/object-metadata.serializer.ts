@@ -4,7 +4,7 @@ import type {
   ObjectMetadata,
   ObjectMetadataResponse,
 } from '../interfaces/object-metadata.interface';
-import { deserializeActor, serializeActor } from './actor.serializer';
+import { deserializeActor } from './actor.serializer';
 
 export const deserializeObjectMetadata = (
   response: ObjectMetadataResponse,
@@ -16,16 +16,4 @@ export const deserializeObjectMetadata = (
   updatedAt: new Date(response.updated_at),
   updatedBy: deserializeActor(response.updated_by),
   versionId: response.version_id ?? null,
-});
-
-export const serializeObjectMetadata = (
-  model: ObjectMetadata,
-): ObjectMetadataResponse => ({
-  context: model.context,
-  environment_id: model.environmentId,
-  id: model.id,
-  key_id: model.keyId,
-  updated_at: model.updatedAt.toISOString(),
-  updated_by: serializeActor(model.updatedBy),
-  version_id: model.versionId ?? null,
 });

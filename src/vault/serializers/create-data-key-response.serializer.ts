@@ -9,16 +9,7 @@ export const deserializeCreateDataKeyResponse = (
   response: CreateDataKeyResponseWire,
 ): CreateDataKeyResponse => ({
   context: response.context,
-  dataKey: response.data_key ?? '',
-  encryptedKeys: response.encrypted_keys ?? '',
+  dataKey: response.data_key,
+  encryptedKeys: response.encrypted_keys,
   id: response.id,
-});
-
-export const serializeCreateDataKeyResponse = (
-  model: CreateDataKeyResponse,
-): CreateDataKeyResponseWire => ({
-  context: model.context,
-  data_key: model.dataKey!,
-  encrypted_keys: model.encryptedKeys!,
-  id: model.id,
 });

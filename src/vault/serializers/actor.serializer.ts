@@ -6,8 +6,3 @@ export const deserializeActor = (response: ActorResponse): Actor => ({
   id: response.id,
   name: response.name,
 });
-
-export const serializeActor = (model: Actor): ActorResponse => ({
-  id: model.id,
-  name: model.name,
-});
