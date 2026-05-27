@@ -9,6 +9,7 @@
 * **groups:** `Group.createdAt` and `Group.updatedAt` now deserialize as `Date` objects
 * **vault:** `listObjects` now returns an auto-paginatable object summary collection instead of the previous list digest shape
 * **vault:** generated Vault response types now use SDK-shaped camelCase fields for key and object responses
+* **webhooks:** `Webhooks` constructor signature changed from `constructor(cryptoProvider: CryptoProvider)` to `constructor(workos: WorkOS)` ([#1592](https://github.com/workos/workos-node/issues/1592))
 
 ### Features
 
