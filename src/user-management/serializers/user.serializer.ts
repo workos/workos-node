@@ -5,6 +5,7 @@ export const deserializeUser = (user: UserResponse): User => ({
   id: user.id,
   email: user.email,
   emailVerified: user.email_verified,
+  name: user.name ?? null,
   firstName: user.first_name,
   profilePictureUrl: user.profile_picture_url,
   lastName: user.last_name,

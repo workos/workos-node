@@ -121,6 +121,7 @@ describe('Actions', () => {
           object: 'user',
           id: '01JATCHZVEC5EPANDPEZVM68Y9',
           email: 'jane@foocorp.com',
+          name: 'Jane Doe',
           firstName: 'Jane',
           lastName: 'Doe',
           emailVerified: true,
@@ -178,6 +179,7 @@ describe('Actions', () => {
         userData: {
           object: 'user_data',
           email: 'jane@foocorp.com',
+          name: 'Jane Doe',
           firstName: 'Jane',
           lastName: 'Doe',
         },

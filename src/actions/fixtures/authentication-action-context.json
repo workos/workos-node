@@ -4,6 +4,7 @@
         "object": "user",
         "id": "01JATCHZVEC5EPANDPEZVM68Y9",
         "email": "jane@foocorp.com",
+        "name": "Jane Doe",
         "first_name": "Jane",
         "last_name": "Doe",
         "email_verified": true,
