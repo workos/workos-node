@@ -434,7 +434,6 @@ describe('WorkOS', () => {
           status: 403,
         });
       });
-
     });
 
     describe('when the api responses with a 429', () => {
