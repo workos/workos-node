@@ -576,6 +576,7 @@ export class UserManagement {
     });
   }
 
+  // @oagen-ignore-start
   /** Send a Radar SMS challenge. */
   async sendRadarSmsChallenge(
     payload: SendRadarSmsChallengeOptions,
@@ -643,6 +644,7 @@ export class UserManagement {
       session,
     });
   }
+  // @oagen-ignore-end
 
   // @oagen-ignore-start
   async authenticateWithSessionCookie({
