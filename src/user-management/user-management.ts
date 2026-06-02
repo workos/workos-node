@@ -285,7 +285,7 @@ export class UserManagement {
    *
    * Create a new user in the current environment.
    * @param payload - Object containing email.
-   * @returns {Promise<User>}
+   * @returns {Promise<CreateUserResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
