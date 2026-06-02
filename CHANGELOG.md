@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.1.0](https://github.com/workos/workos-node/compare/v10.0.0...v10.1.0) (2026-06-02)
+
+
+### Features
+
+* Add name field to Profile, User, and Actions interfaces ([#1602](https://github.com/workos/workos-node/issues/1602)) ([df3ecbd](https://github.com/workos/workos-node/commit/df3ecbd3feadffb9dc9c25a31f5dc55a9e1a5ec2))
+* **authkit:** Add Radar fields to headless AuthKit methods ([#1603](https://github.com/workos/workos-node/issues/1603)) ([4f34f01](https://github.com/workos/workos-node/commit/4f34f018feb7b66adcff63078d83eeecf67a877e))
+
+
+### Bug Fixes
+
+* **connect:** Serialize pagination options for auto-pagination ([#1601](https://github.com/workos/workos-node/issues/1601)) ([c8333f4](https://github.com/workos/workos-node/commit/c8333f41ae36e262901b3d0048e44c94a49f2d5a))
+
 ## [10.0.0](https://github.com/workos/workos-node/compare/v9.3.1...v10.0.0) (2026-05-27)
 
 
