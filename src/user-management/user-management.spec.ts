@@ -1191,6 +1191,219 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('sendRadarSmsChallenge', () => {
+    it('sends a Radar SMS challenge request', async () => {
+      fetchOnce({
+        verification_id: 'verification_01ABC',
+        phone_number: '+15551234567',
+      });
+
+      const response = await workos.userManagement.sendRadarSmsChallenge({
+        userId: 'user_01ABC',
+        pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        phoneNumber: '+15551234567',
+      });
+
+      expect(fetchURL()).toContain('/user_management/radar_challenges');
+      expect(fetchBody()).toEqual({
+        user_id: 'user_01ABC',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        phone_number: '+15551234567',
+      });
+
+      expect(response).toEqual({
+        verificationId: 'verification_01ABC',
+        phoneNumber: '+15551234567',
+      });
+    });
+
+    it('sends optional ip_address and user_agent when provided', async () => {
+      fetchOnce({
+        verification_id: 'verification_01ABC',
+        phone_number: '+15551234567',
+      });
+
+      await workos.userManagement.sendRadarSmsChallenge({
+        userId: 'user_01ABC',
+        pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        phoneNumber: '+15551234567',
+        ipAddress: '203.0.113.42',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        ip_address: '203.0.113.42',
+        user_agent: 'Mozilla/5.0',
+      });
+    });
+  });
+
+  describe('authenticateWithRadarSmsChallenge', () => {
+    it('sends a Radar SMS challenge authentication request', async () => {
+      fetchOnce({ user: userFixture });
+
+      const resp =
+        await workos.userManagement.authenticateWithRadarSmsChallenge({
+          clientId: 'proj_whatever',
+          code: '123456',
+          verificationId: 'verification_01ABC',
+          phoneNumber: '+15551234567',
+          pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'urn:workos:oauth:grant-type:radar-sms-challenge:code',
+        code: '123456',
+        verification_id: 'verification_01ABC',
+        phone_number: '+15551234567',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithRadarSmsChallenge({
+              clientId: 'proj_whatever',
+              code: '123456',
+              verificationId: 'verification_01ABC',
+              phoneNumber: '+15551234567',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithRadarSmsChallenge({
+              clientId: 'proj_whatever',
+              code: '123456',
+              verificationId: 'verification_01ABC',
+              phoneNumber: '+15551234567',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: expect.any(String),
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
+  });
+
+  describe('authenticateWithRadarEmailChallenge', () => {
+    it('sends a Radar email challenge authentication request', async () => {
+      fetchOnce({ user: userFixture });
+
+      const resp =
+        await workos.userManagement.authenticateWithRadarEmailChallenge({
+          clientId: 'proj_whatever',
+          code: '123456',
+          radarChallengeId: 'radar_challenge_01ABC',
+          pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+        });
+
+      expect(fetchURL()).toContain('/user_management/authenticate');
+      expect(fetchBody()).toEqual({
+        client_id: 'proj_whatever',
+        client_secret: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        grant_type: 'urn:workos:oauth:grant-type:radar-email-challenge:code',
+        code: '123456',
+        radar_challenge_id: 'radar_challenge_01ABC',
+        pending_authentication_token: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+      });
+
+      expect(resp).toMatchObject({
+        user: {
+          email: 'test01@example.com',
+        },
+      });
+    });
+
+    describe('when sealSession = true', () => {
+      beforeEach(() => {
+        fetchOnce({
+          user: userFixture,
+          access_token:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        });
+      });
+
+      describe('when the cookie password is undefined', () => {
+        it('throws an error', async () => {
+          await expect(
+            workos.userManagement.authenticateWithRadarEmailChallenge({
+              clientId: 'proj_whatever',
+              code: '123456',
+              radarChallengeId: 'radar_challenge_01ABC',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true },
+            }),
+          ).rejects.toThrow('Cookie password is required');
+        });
+      });
+
+      describe('when successfully authenticated', () => {
+        it('returns the sealed session data', async () => {
+          const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+          const response =
+            await workos.userManagement.authenticateWithRadarEmailChallenge({
+              clientId: 'proj_whatever',
+              code: '123456',
+              radarChallengeId: 'radar_challenge_01ABC',
+              pendingAuthenticationToken: 'cTDQJTTkTkkVYxQUlKBIxEsFs',
+              session: { sealSession: true, cookiePassword },
+            });
+
+          expect(response).toEqual({
+            sealedSession: expect.any(String),
+            accessToken: expect.any(String),
+            authenticationMethod: undefined,
+            impersonator: undefined,
+            organizationId: undefined,
+            refreshToken: undefined,
+            user: expect.objectContaining({
+              email: 'test01@example.com',
+            }),
+          });
+        });
+      });
+    });
+  });
+
   describe('authenticateWithSessionCookie', () => {
     const OLD_ENV = process.env;
 
