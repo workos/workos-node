@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "node",
-  "generatedAt": "2026-05-27T21:09:46.992Z",
+  "generatedAt": "2026-06-01T17:59:07.215Z",
   "files": [
     "src/api-keys/interfaces/create-validation-options.interface.ts",
     "src/api-keys/interfaces/delete-api-key-options.interface.ts",
@@ -59,6 +59,10 @@
     "src/connect/serializers/user-consent-option.serializer.ts",
     "src/connect/serializers/user-management-login-request.serializer.ts",
     "src/connect/serializers/user-object.serializer.ts",
+    "src/events/events.spec.ts",
+    "src/events/events.ts",
+    "src/events/fixtures/list-event-schema.json",
+    "src/events/interfaces/index.ts",
     "src/groups/fixtures/create-group-membership.json",
     "src/groups/fixtures/create-group.json",
     "src/groups/fixtures/group.json",

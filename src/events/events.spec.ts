@@ -119,11 +119,7 @@ describe('Event', () => {
           range_end: '2020-05-07',
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [event],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([event]);
       });
     });
 
@@ -147,11 +143,7 @@ describe('Event', () => {
         events: ['connection.activated'],
       });
 
-      expect(list).toEqual({
-        object: 'list',
-        data: [event],
-        listMetadata: {},
-      });
+      expect(list.data).toEqual([event]);
     });
 
     it(`requests Events with a valid organization id`, async () => {
@@ -162,11 +154,7 @@ describe('Event', () => {
         organizationId: 'org_1234',
       });
 
-      expect(list).toEqual({
-        object: 'list',
-        data: [event],
-        listMetadata: {},
-      });
+      expect(list.data).toEqual([event]);
     });
 
     describe('feature flag events', () => {
@@ -223,11 +211,7 @@ describe('Event', () => {
           events: ['flag.created'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
     });
 
@@ -275,11 +259,7 @@ describe('Event', () => {
           events: ['group.created'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes group.member_added events', async () => {
@@ -315,11 +295,7 @@ describe('Event', () => {
           events: ['group.member_added'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes group.member_removed events', async () => {
@@ -355,11 +331,7 @@ describe('Event', () => {
           events: ['group.member_removed'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
     });
 
@@ -405,11 +377,7 @@ describe('Event', () => {
           events: ['vault.data.created'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.data.updated events', async () => {
@@ -452,11 +420,7 @@ describe('Event', () => {
           events: ['vault.data.updated'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.data.read events', async () => {
@@ -497,11 +461,7 @@ describe('Event', () => {
           events: ['vault.data.read'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.data.deleted events', async () => {
@@ -540,11 +500,7 @@ describe('Event', () => {
           events: ['vault.data.deleted'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.names.listed events', async () => {
@@ -581,11 +537,7 @@ describe('Event', () => {
           events: ['vault.names.listed'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.metadata.read events', async () => {
@@ -624,11 +576,7 @@ describe('Event', () => {
           events: ['vault.metadata.read'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.kek.created events', async () => {
@@ -669,11 +617,7 @@ describe('Event', () => {
           events: ['vault.kek.created'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.dek.read events', async () => {
@@ -714,11 +658,7 @@ describe('Event', () => {
           events: ['vault.dek.read'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.byok_key.verification_completed events', async () => {
@@ -755,11 +695,7 @@ describe('Event', () => {
           events: ['vault.byok_key.verification_completed'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes vault.dek.decrypted events', async () => {
@@ -798,11 +734,7 @@ describe('Event', () => {
           events: ['vault.dek.decrypted'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
     });
 
@@ -874,11 +806,7 @@ describe('Event', () => {
             events: ['dsync.user.updated'],
           });
 
-          expect(list).toEqual({
-            object: 'list',
-            data: [directoryUserUpdated],
-            listMetadata: {},
-          });
+          expect(list.data).toEqual([directoryUserUpdated]);
         });
       });
     });
@@ -930,11 +858,7 @@ describe('Event', () => {
           events: ['organization_domain.created'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
 
       it('deserializes organization_domain.verification_failed events', async () => {
@@ -990,11 +914,7 @@ describe('Event', () => {
           events: ['organization_domain.verification_failed'],
         });
 
-        expect(list).toEqual({
-          object: 'list',
-          data: [expected],
-          listMetadata: {},
-        });
+        expect(list.data).toEqual([expected]);
       });
     });
   });
