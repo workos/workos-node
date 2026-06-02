@@ -12,6 +12,7 @@ export const deserializeProfile = <CustomAttributesType extends UnknownRecord>(
   connectionId: profile.connection_id,
   connectionType: profile.connection_type,
   email: profile.email,
+  ...(profile.name !== undefined && { name: profile.name }),
   ...(profile.first_name !== undefined && { firstName: profile.first_name }),
   ...(profile.last_name !== undefined && { lastName: profile.last_name }),
   ...(profile.role !== undefined && { role: profile.role }),

@@ -10,6 +10,8 @@ export interface User {
   emailVerified: boolean;
   /** A URL reference to an image representing the user. */
   profilePictureUrl: string | null;
+  /** The full name of the user. */
+  name: string | null;
   /** The first name of the user. */
   firstName: string | null;
   /** The last name of the user. */
@@ -34,6 +36,7 @@ export interface UserResponse {
   email: string;
   email_verified: boolean;
   profile_picture_url: string | null;
+  name: string | null;
   first_name: string | null;
   last_name: string | null;
   last_sign_in_at: string | null;

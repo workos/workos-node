@@ -340,6 +340,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: {
@@ -398,6 +399,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: {
@@ -451,6 +453,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: {
@@ -504,6 +507,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: {
@@ -544,6 +548,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: { slug: 'admin' },
@@ -592,6 +597,7 @@ describe('SSO', () => {
               connection_id: 'conn_123',
               connection_type: 'OktaSAML',
               email: 'foo@test.com',
+              name: 'foo bar',
               first_name: 'foo',
               last_name: 'bar',
               role: { slug: 'admin' },
@@ -662,6 +668,7 @@ describe('SSO', () => {
           connection_id: 'conn_123',
           connection_type: 'OktaSAML',
           email: 'foo@test.com',
+          name: 'foo bar',
           first_name: 'foo',
           last_name: 'bar',
           role: {

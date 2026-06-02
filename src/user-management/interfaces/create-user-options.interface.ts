@@ -5,6 +5,7 @@ export interface CreateUserOptions {
   password?: string;
   passwordHash?: string;
   passwordHashType?: PasswordHashType;
+  name?: string;
   firstName?: string;
   lastName?: string;
   emailVerified?: boolean;
@@ -17,6 +18,7 @@ export interface SerializedCreateUserOptions {
   password?: string;
   password_hash?: string;
   password_hash_type?: PasswordHashType;
+  name?: string;
   first_name?: string;
   last_name?: string;
   email_verified?: boolean;

@@ -15,6 +15,8 @@ export interface Profile<CustomAttributesType extends UnknownRecord> {
   connectionType: ConnectionType;
   /** The user's email address. */
   email: string;
+  /** The user's full name. */
+  name?: string;
   /** The user's first name. */
   firstName?: string;
   /** The user's last name. */
@@ -38,6 +40,7 @@ export interface ProfileResponse<CustomAttributesType extends UnknownRecord> {
   connection_id: string;
   connection_type: ConnectionType;
   email: string;
+  name?: string;
   first_name?: string;
   last_name?: string;
   role?: RoleResponse;

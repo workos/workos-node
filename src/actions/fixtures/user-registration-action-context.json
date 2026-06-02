@@ -3,6 +3,7 @@
     "user_data": {
         "object": "user_data",
         "email": "jane@foocorp.com",
+        "name": "Jane Doe",
         "first_name": "Jane",
         "last_name": "Doe"
     },

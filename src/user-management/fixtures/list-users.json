@@ -5,6 +5,7 @@
       "object": "user",
       "id": "user_01H5JQDV7R7ATEYZDEG0W5PRYS",
       "email": "test01@example.com",
+      "name": "Test 01 User",
       "first_name": "Test 01",
       "last_name": "User",
       "created_at": "2023-07-18T02:07:19.911Z",
