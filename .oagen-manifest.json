@@ -1,7 +1,7 @@
 {
   "version": 2,
   "language": "node",
-  "generatedAt": "2026-05-27T21:09:46.992Z",
+  "generatedAt": "2026-06-01T17:59:24.986Z",
   "files": [
     "src/api-keys/interfaces/create-validation-options.interface.ts",
     "src/api-keys/interfaces/delete-api-key-options.interface.ts",
@@ -195,7 +195,19 @@
     "src/webhooks/serializers/update-webhook-endpoint.serializer.ts",
     "src/webhooks/serializers/webhook-endpoint.serializer.ts",
     "src/webhooks/webhooks.spec.ts",
-    "src/webhooks/webhooks.ts"
+    "src/webhooks/webhooks.ts",
+    "src/widgets/fixtures/widget-session-token-response.json",
+    "src/widgets/fixtures/widget-session-token.json",
+    "src/widgets/interfaces/create-token-options.interface.ts",
+    "src/widgets/interfaces/index.ts",
+    "src/widgets/interfaces/widget-session-token-response.interface.ts",
+    "src/widgets/interfaces/widget-session-token-scopes.interface.ts",
+    "src/widgets/interfaces/widget-session-token.interface.ts",
+    "src/widgets/serializers/index.ts",
+    "src/widgets/serializers/widget-session-token-response.serializer.ts",
+    "src/widgets/serializers/widget-session-token.serializer.ts",
+    "src/widgets/widgets.spec.ts",
+    "src/widgets/widgets.ts"
   ],
   "operations": {}
 }
