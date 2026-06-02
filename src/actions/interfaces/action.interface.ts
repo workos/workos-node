@@ -26,7 +26,7 @@ interface AuthenticationActionContext {
 export interface UserData {
   object: 'user_data';
   email: string;
-  name: string;
+  name: string | null;
   firstName: string;
   lastName: string;
 }
@@ -60,7 +60,7 @@ interface AuthenticationActionPayload {
 export interface UserDataPayload {
   object: 'user_data';
   email: string;
-  name: string;
+  name: string | null;
   first_name: string;
   last_name: string;
 }

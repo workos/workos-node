@@ -15,7 +15,7 @@ const deserializeUserData = (userData: UserDataPayload): UserData => {
   return {
     object: userData.object,
     email: userData.email,
-    name: userData.name,
+    name: userData.name ?? null,
     firstName: userData.first_name,
     lastName: userData.last_name,
   };
