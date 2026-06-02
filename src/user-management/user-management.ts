@@ -15,8 +15,12 @@ import {
   AuthenticationResponse,
   AuthenticationResponseResponse,
   CreateMagicAuthOptions,
+  CreateMagicAuthResponse,
+  CreateMagicAuthResponseResponse,
   CreatePasswordResetOptions,
   CreateUserOptions,
+  CreateUserResponse,
+  CreateUserResponseResponse,
   EmailVerification,
   EmailVerificationResponse,
   ListSessionsOptions,
@@ -286,13 +290,19 @@ export class UserManagement {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    */
-  async createUser(payload: CreateUserOptions): Promise<User> {
+  async createUser(payload: CreateUserOptions): Promise<CreateUserResponse> {
     const { data } = await this.workos.post<
-      UserResponse,
+      CreateUserResponseResponse,
       SerializedCreateUserOptions
     >('/user_management/users', serializeCreateUserOptions(payload));
 
-    return deserializeUser(data);
+    const { radar_auth_attempt_id, ...userResponse } = data;
+    return {
+      ...deserializeUser(userResponse),
+      ...(radar_auth_attempt_id
+        ? { radarAuthAttemptId: radar_auth_attempt_id }
+        : undefined),
+    };
   }
 
   /** Authenticate with magic auth. */
@@ -784,9 +794,11 @@ export class UserManagement {
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
    */
-  async createMagicAuth(options: CreateMagicAuthOptions): Promise<MagicAuth> {
+  async createMagicAuth(
+    options: CreateMagicAuthOptions,
+  ): Promise<CreateMagicAuthResponse> {
     const { data } = await this.workos.post<
-      MagicAuthResponse,
+      CreateMagicAuthResponseResponse,
       SerializedCreateMagicAuthOptions
     >(
       '/user_management/magic_auth',
@@ -795,7 +807,13 @@ export class UserManagement {
       }),
     );
 
-    return deserializeMagicAuth(data);
+    const { radar_auth_attempt_id, ...magicAuthResponse } = data;
+    return {
+      ...deserializeMagicAuth(magicAuthResponse),
+      ...(radar_auth_attempt_id
+        ? { radarAuthAttemptId: radar_auth_attempt_id }
+        : undefined),
+    };
   }
 
   /**

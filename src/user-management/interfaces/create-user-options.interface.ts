@@ -10,6 +10,8 @@ export interface CreateUserOptions {
   emailVerified?: boolean;
   externalId?: string;
   metadata?: Record<string, string>;
+  ipAddress?: string;
+  userAgent?: string;
 }
 
 export interface SerializedCreateUserOptions {
@@ -22,4 +24,6 @@ export interface SerializedCreateUserOptions {
   email_verified?: boolean;
   external_id?: string;
   metadata?: Record<string, string>;
+  ip_address?: string;
+  user_agent?: string;
 }

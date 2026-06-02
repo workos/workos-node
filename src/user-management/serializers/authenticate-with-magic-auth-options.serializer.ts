@@ -18,4 +18,5 @@ export const serializeAuthenticateWithMagicAuthOptions = (
   link_authorization_code: options.linkAuthorizationCode,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
+  radar_auth_attempt_id: options.radarAuthAttemptId,
 });

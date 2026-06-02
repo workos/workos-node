@@ -43,3 +43,11 @@ export interface UserResponse {
   external_id?: string;
   metadata?: Record<string, string>;
 }
+
+export interface CreateUserResponse extends User {
+  radarAuthAttemptId?: string;
+}
+
+export interface CreateUserResponseResponse extends UserResponse {
+  radar_auth_attempt_id?: string;
+}

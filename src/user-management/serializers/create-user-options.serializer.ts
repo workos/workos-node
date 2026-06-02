@@ -12,4 +12,6 @@ export const serializeCreateUserOptions = (
   email_verified: options.emailVerified,
   external_id: options.externalId,
   metadata: options.metadata,
+  ip_address: options.ipAddress,
+  user_agent: options.userAgent,
 });
