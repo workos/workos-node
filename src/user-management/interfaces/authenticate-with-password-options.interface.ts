@@ -7,6 +7,7 @@ export interface AuthenticateWithPasswordOptions extends AuthenticateWithOptions
   email: string;
   password: string;
   invitationToken?: string;
+  radarAuthAttemptId?: string;
 }
 
 export interface AuthenticateUserWithPasswordCredentials {
@@ -18,4 +19,5 @@ export interface SerializedAuthenticateWithPasswordOptions extends SerializedAut
   email: string;
   password: string;
   invitation_token?: string;
+  radar_auth_attempt_id?: string;
 }

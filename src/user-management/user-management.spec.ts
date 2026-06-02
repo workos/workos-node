@@ -169,6 +169,44 @@ describe('UserManagement', () => {
         metadata: { key: 'value' },
       });
     });
+
+    it('sends ip_address and user_agent when provided', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.createUser({
+        email: 'test01@example.com',
+        ipAddress: '203.0.113.42',
+        userAgent: 'Mozilla/5.0',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        ip_address: '203.0.113.42',
+        user_agent: 'Mozilla/5.0',
+      });
+    });
+
+    it('returns radarAuthAttemptId when present in response', async () => {
+      fetchOnce({
+        ...userFixture,
+        radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+
+      const user = await workos.userManagement.createUser({
+        email: 'test01@example.com',
+      });
+
+      expect(user.radarAuthAttemptId).toBe('radar_auth_attempt_01ABC');
+    });
+
+    it('omits radarAuthAttemptId when not in response', async () => {
+      fetchOnce(userFixture);
+
+      const user = await workos.userManagement.createUser({
+        email: 'test01@example.com',
+      });
+
+      expect(user.radarAuthAttemptId).toBeUndefined();
+    });
   });
 
   describe('authenticateUserWithMagicAuth', () => {
@@ -186,6 +224,21 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    it('sends radar_auth_attempt_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        email: userFixture.email,
+        radarAuthAttemptId: 'radar_auth_attempt_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
       });
     });
 
@@ -253,6 +306,21 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    it('sends radar_auth_attempt_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithPassword({
+        clientId: 'proj_whatever',
+        email: 'test01@example.com',
+        password: 'extra-secure',
+        radarAuthAttemptId: 'radar_auth_attempt_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
       });
     });
 
@@ -1525,6 +1593,46 @@ describe('UserManagement', () => {
         createdAt: '2023-07-18T02:07:19.911Z',
         updatedAt: '2023-07-18T02:07:19.911Z',
       });
+    });
+
+    it('sends ip_address, user_agent, and radar_auth_attempt_id when provided', async () => {
+      fetchOnce(magicAuthFixture);
+
+      await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+        ipAddress: '203.0.113.42',
+        userAgent: 'Mozilla/5.0',
+        radarAuthAttemptId: 'radar_auth_attempt_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        ip_address: '203.0.113.42',
+        user_agent: 'Mozilla/5.0',
+        radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+    });
+
+    it('returns radarAuthAttemptId when present in response', async () => {
+      fetchOnce({
+        ...magicAuthFixture,
+        radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+
+      const response = await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+      });
+
+      expect(response.radarAuthAttemptId).toBe('radar_auth_attempt_01ABC');
+    });
+
+    it('omits radarAuthAttemptId when not in response', async () => {
+      fetchOnce(magicAuthFixture);
+
+      const response = await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+      });
+
+      expect(response.radarAuthAttemptId).toBeUndefined();
     });
   });
 

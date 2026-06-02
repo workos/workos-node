@@ -38,6 +38,14 @@ export interface MagicAuthResponse {
   updated_at: string;
 }
 
+export interface CreateMagicAuthResponse extends MagicAuth {
+  radarAuthAttemptId?: string;
+}
+
+export interface CreateMagicAuthResponseResponse extends MagicAuthResponse {
+  radar_auth_attempt_id?: string;
+}
+
 export interface MagicAuthEventResponse {
   object: 'magic_auth';
   id: string;
