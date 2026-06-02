@@ -433,6 +433,53 @@ describe('WorkOS', () => {
           status: 400,
         });
       });
+
+      it('throws an AuthenticationException for radar_sms_challenge', async () => {
+        const rawData = {
+          code: 'radar_sms_challenge',
+          pending_authentication_token: 'pat_456',
+          user: { id: 'user_01ABC', email: 'test@example.com' },
+        };
+
+        fetchOnce(rawData, {
+          status: 403,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const request = workos.post('/path', {});
+
+        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
+        await expect(request).rejects.toMatchObject({
+          code: 'radar_sms_challenge',
+          name: 'AuthenticationException',
+          pendingAuthenticationToken: 'pat_456',
+          status: 403,
+        });
+      });
+
+      it('throws an AuthenticationException for radar_sms_challenge_error', async () => {
+        const rawData = {
+          code: 'radar_sms_challenge_error',
+          message: 'SMS send failed',
+        };
+
+        fetchOnce(rawData, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const request = workos.post('/path', {});
+
+        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
+        await expect(request).rejects.toMatchObject({
+          code: 'radar_sms_challenge_error',
+          message: 'SMS send failed',
+          name: 'AuthenticationException',
+          status: 400,
+        });
+      });
     });
 
     describe('when the api responses with a 429', () => {
