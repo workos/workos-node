@@ -106,8 +106,7 @@ export class Connect {
    */
   async listApplications(
     options?: ListApplicationsOptions,
-  ): Promise<AutoPaginatable<ConnectApplication, ListApplicationsOptions>> {
-    const paginationOptions = options;
+  ): Promise<AutoPaginatable<ConnectApplication, PaginationOptions>> {
     return new AutoPaginatable(
       await fetchAndDeserialize<ConnectApplicationResponse, ConnectApplication>(
         this.workos,
@@ -122,7 +121,7 @@ export class Connect {
           deserializeConnectApplication,
           params,
         ),
-      paginationOptions,
+      options ? serializeListApplicationsOptions(options) : undefined,
     );
   }
 
