@@ -62,6 +62,20 @@ import {
   SerializedAuthenticateWithOrganizationSelectionOptions,
 } from './interfaces/authenticate-with-organization-selection.interface';
 import {
+  AuthenticateWithRadarEmailChallengeOptions,
+  SerializedAuthenticateWithRadarEmailChallengeOptions,
+} from './interfaces/authenticate-with-radar-email-challenge-options.interface';
+import {
+  AuthenticateWithRadarSmsChallengeOptions,
+  SerializedAuthenticateWithRadarSmsChallengeOptions,
+} from './interfaces/authenticate-with-radar-sms-challenge-options.interface';
+import {
+  SendRadarSmsChallengeOptions,
+  SendRadarSmsChallengeResponse,
+  SendRadarSmsChallengeResponseResponse,
+  SerializedSendRadarSmsChallengeOptions,
+} from './interfaces/send-radar-sms-challenge-options.interface';
+import {
   UserManagementAccessToken,
   AuthenticateWithSessionCookieFailedResponse,
   AuthenticateWithSessionCookieFailureReason,
@@ -137,6 +151,9 @@ import {
 } from './serializers';
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
+import { serializeAuthenticateWithRadarEmailChallengeOptions } from './serializers/authenticate-with-radar-email-challenge-options.serializer';
+import { serializeAuthenticateWithRadarSmsChallengeOptions } from './serializers/authenticate-with-radar-sms-challenge-options.serializer';
+import { serializeSendRadarSmsChallengeOptions } from './serializers/send-radar-sms-challenge-options.serializer';
 import { serializeCreateOrganizationMembershipOptions } from './serializers/create-organization-membership-options.serializer';
 import { deserializeIdentities } from './serializers/identity.serializer';
 import { deserializeInvitation } from './serializers/invitation.serializer';
@@ -547,6 +564,74 @@ export class UserManagement {
     >(
       '/user_management/authenticate',
       serializeAuthenticateWithOrganizationSelectionOptions({
+        ...remainingPayload,
+        clientId: resolvedClientId,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
+  }
+
+  /** Send a Radar SMS challenge. */
+  async sendRadarSmsChallenge(
+    payload: SendRadarSmsChallengeOptions,
+  ): Promise<SendRadarSmsChallengeResponse> {
+    const { data } = await this.workos.post<
+      SendRadarSmsChallengeResponseResponse,
+      SerializedSendRadarSmsChallengeOptions
+    >(
+      '/user_management/radar_challenges',
+      serializeSendRadarSmsChallengeOptions(payload),
+    );
+
+    return {
+      verificationId: data.verification_id,
+      phoneNumber: data.phone_number,
+    };
+  }
+
+  /** Authenticate with Radar SMS challenge. */
+  async authenticateWithRadarSmsChallenge(
+    payload: AuthenticateWithRadarSmsChallengeOptions,
+  ): Promise<AuthenticationResponse> {
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
+
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      SerializedAuthenticateWithRadarSmsChallengeOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithRadarSmsChallengeOptions({
+        ...remainingPayload,
+        clientId: resolvedClientId,
+        clientSecret: this.workos.key,
+      }),
+    );
+
+    return this.prepareAuthenticationResponse({
+      authenticationResponse: deserializeAuthenticationResponse(data),
+      session,
+    });
+  }
+
+  /** Authenticate with Radar email challenge. */
+  async authenticateWithRadarEmailChallenge(
+    payload: AuthenticateWithRadarEmailChallengeOptions,
+  ): Promise<AuthenticationResponse> {
+    const { session, clientId, ...remainingPayload } = payload;
+    const resolvedClientId = this.resolveClientId(clientId);
+
+    const { data } = await this.workos.post<
+      AuthenticationResponseResponse,
+      SerializedAuthenticateWithRadarEmailChallengeOptions
+    >(
+      '/user_management/authenticate',
+      serializeAuthenticateWithRadarEmailChallengeOptions({
         ...remainingPayload,
         clientId: resolvedClientId,
         clientSecret: this.workos.key,

@@ -384,6 +384,55 @@ describe('WorkOS', () => {
           status: 400,
         });
       });
+
+      it('throws an AuthenticationException for radar_email_challenge with radarChallengeId', async () => {
+        const rawData = {
+          code: 'radar_email_challenge',
+          pending_authentication_token: 'pat_123',
+          radar_challenge_id: 'radar_challenge_01ABC',
+          user: { id: 'user_01ABC', email: 'test@example.com' },
+        };
+
+        fetchOnce(rawData, {
+          status: 403,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const request = workos.post('/path', {});
+
+        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
+        await expect(request).rejects.toMatchObject({
+          code: 'radar_email_challenge',
+          name: 'AuthenticationException',
+          pendingAuthenticationToken: 'pat_123',
+          radarChallengeId: 'radar_challenge_01ABC',
+          status: 403,
+        });
+      });
+
+      it('throws an AuthenticationException for policy_denied', async () => {
+        const rawData = {
+          code: 'policy_denied',
+          message: 'Access denied by policy',
+        };
+
+        fetchOnce(rawData, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const request = workos.post('/path', {});
+
+        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
+        await expect(request).rejects.toMatchObject({
+          code: 'policy_denied',
+          message: 'Access denied by policy',
+          name: 'AuthenticationException',
+          status: 400,
+        });
+      });
     });
 
     describe('when the api responses with a 429', () => {

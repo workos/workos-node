@@ -1,6 +1,8 @@
 export * from './authenticate-with-code-options.serializer';
 export * from './authenticate-with-code-and-verifier-options.serializer';
 export * from './authenticate-with-magic-auth-options.serializer';
+export * from './authenticate-with-radar-email-challenge-options.serializer';
+export * from './authenticate-with-radar-sms-challenge-options.serializer';
 export * from './authenticate-with-password-options.serializer';
 export * from './authenticate-with-refresh-token.options.serializer';
 export * from './authenticate-with-refresh-token-public-client-options.serializer';
@@ -19,6 +21,7 @@ export * from './password-reset.serializer';
 export * from './reset-password-options.serializer';
 export * from './session.serializer';
 export * from './create-user-options.serializer';
+export * from './send-radar-sms-challenge-options.serializer';
 export * from './update-user-options.serializer';
 export * from './update-user-password-options.serializer';
 export * from './user.serializer';

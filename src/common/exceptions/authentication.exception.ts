@@ -10,10 +10,15 @@ export type AuthenticationErrorCode =
   | 'mfa_enrollment'
   | 'mfa_challenge'
   | 'mfa_verification'
+  | 'policy_denied'
+  | 'radar_email_challenge'
+  | 'radar_sms_challenge'
+  | 'radar_sms_challenge_error'
   | 'sso_required';
 
 interface BaseAuthenticationErrorData extends WorkOSErrorData {
   pending_authentication_token?: string;
+  radar_challenge_id?: string;
   user?: UserResponse;
   organizations?: Array<{ id: string; name: string }>;
   connection_ids?: string[];
@@ -34,6 +39,10 @@ const AUTHENTICATION_ERROR_CODES: ReadonlySet<string> = new Set<string>([
   'mfa_enrollment',
   'mfa_challenge',
   'mfa_verification',
+  'policy_denied',
+  'radar_email_challenge',
+  'radar_sms_challenge',
+  'radar_sms_challenge_error',
   'sso_required',
 ]);
 
@@ -76,6 +85,7 @@ export class AuthenticationException extends GenericServerException {
   readonly name = 'AuthenticationException';
   override readonly code: AuthenticationErrorCode;
   readonly pendingAuthenticationToken: string | undefined;
+  readonly radarChallengeId: string | undefined;
 
   constructor(
     status: number,
@@ -92,5 +102,6 @@ export class AuthenticationException extends GenericServerException {
     );
     this.code = code;
     this.pendingAuthenticationToken = rawData.pending_authentication_token;
+    this.radarChallengeId = rawData.radar_challenge_id;
   }
 }
