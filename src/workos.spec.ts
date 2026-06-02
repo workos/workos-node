@@ -411,29 +411,6 @@ describe('WorkOS', () => {
         });
       });
 
-      it('throws an AuthenticationException for policy_denied', async () => {
-        const rawData = {
-          code: 'policy_denied',
-          message: 'Access denied by policy',
-        };
-
-        fetchOnce(rawData, {
-          status: 400,
-          headers: { 'X-Request-ID': 'a-request-id' },
-        });
-
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-        const request = workos.post('/path', {});
-
-        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
-        await expect(request).rejects.toMatchObject({
-          code: 'policy_denied',
-          message: 'Access denied by policy',
-          name: 'AuthenticationException',
-          status: 400,
-        });
-      });
-
       it('throws an AuthenticationException for radar_sms_challenge', async () => {
         const rawData = {
           code: 'radar_sms_challenge',
@@ -458,28 +435,6 @@ describe('WorkOS', () => {
         });
       });
 
-      it('throws an AuthenticationException for radar_sms_challenge_error', async () => {
-        const rawData = {
-          code: 'radar_sms_challenge_error',
-          message: 'SMS send failed',
-        };
-
-        fetchOnce(rawData, {
-          status: 400,
-          headers: { 'X-Request-ID': 'a-request-id' },
-        });
-
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
-        const request = workos.post('/path', {});
-
-        await expect(request).rejects.toBeInstanceOf(AuthenticationException);
-        await expect(request).rejects.toMatchObject({
-          code: 'radar_sms_challenge_error',
-          message: 'SMS send failed',
-          name: 'AuthenticationException',
-          status: 400,
-        });
-      });
     });
 
     describe('when the api responses with a 429', () => {

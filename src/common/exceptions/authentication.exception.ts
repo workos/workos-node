@@ -10,10 +10,8 @@ export type AuthenticationErrorCode =
   | 'mfa_enrollment'
   | 'mfa_challenge'
   | 'mfa_verification'
-  | 'policy_denied'
   | 'radar_email_challenge'
   | 'radar_sms_challenge'
-  | 'radar_sms_challenge_error'
   | 'sso_required';
 
 interface BaseAuthenticationErrorData extends WorkOSErrorData {
@@ -39,10 +37,8 @@ const AUTHENTICATION_ERROR_CODES: ReadonlySet<string> = new Set<string>([
   'mfa_enrollment',
   'mfa_challenge',
   'mfa_verification',
-  'policy_denied',
   'radar_email_challenge',
   'radar_sms_challenge',
-  'radar_sms_challenge_error',
   'sso_required',
 ]);
 
