@@ -789,7 +789,7 @@ export class UserManagement {
    *
    * Creates a one-time authentication code that can be sent to the user's email address. The code expires in 10 minutes. To verify the code, [authenticate the user with Magic Auth](https://workos.com/docs/reference/authkit/authentication/magic-auth).
    * @param options - Object containing email.
-   * @returns {Promise<MagicAuth>}
+   * @returns {Promise<CreateMagicAuthResponse>}
    * @throws {BadRequestException} 400
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
