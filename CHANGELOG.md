@@ -1,5 +1,17 @@
 # Changelog
 
+## [10.2.0](https://github.com/workos/workos-node/compare/v10.1.0...v10.2.0) (2026-06-02)
+
+
+### Features
+
+* **authkit:** Add Radar challenge completion and error handling ([#1606](https://github.com/workos/workos-node/issues/1606)) ([420e739](https://github.com/workos/workos-node/commit/420e739ea062f5f909d0845a25c194d535d3b05d))
+
+
+### Bug Fixes
+
+* migrate Widgets API to oagen work ([#1605](https://github.com/workos/workos-node/issues/1605)) ([19c1de6](https://github.com/workos/workos-node/commit/19c1de639392ac331823986d15e1117fbe698aa0))
+
 ## [10.1.0](https://github.com/workos/workos-node/compare/v10.0.0...v10.1.0) (2026-06-02)
 
 
