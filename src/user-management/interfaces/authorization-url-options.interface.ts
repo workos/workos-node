@@ -12,6 +12,7 @@ interface UserManagementAuthorizationURLBaseOptions {
   connectionId?: string;
   organizationId?: string;
   domainHint?: string;
+  invitationToken?: string;
   loginHint?: string;
   provider?: string;
   providerQueryParams?: Record<string, string | boolean | number>;

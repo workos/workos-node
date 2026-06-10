@@ -2622,6 +2622,21 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with an invitationToken', () => {
+      it('generates an authorize url with the invitation_token', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          invitationToken: 'invitation_token_123',
+        });
+
+        expect(url).toContain('invitation_token=invitation_token_123');
+      });
+    });
+
     describe('with no custom api hostname', () => {
       it('generates an authorize url with the default api hostname', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
