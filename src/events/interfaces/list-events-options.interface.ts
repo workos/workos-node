@@ -27,5 +27,11 @@ export interface SerializedListEventOptions {
   limit?: number;
   after?: string;
   organization_id?: string;
+  /**
+   * Wire-layer mirror of {@link ListEventOptions.order}. The server-side bug
+   * lives at this layer: as of 2026-06-11 `GET /events?order=desc` returns
+   * events oldest-first regardless. See
+   * {@link https://github.com/workos/workos-node/issues/1610}.
+   */
   order?: 'asc' | 'desc';
 }
