@@ -7,6 +7,7 @@ export interface AuthenticateWithCodeAndVerifierOptions extends AuthenticateWith
   codeVerifier: string;
   code: string;
   invitationToken?: string;
+  signalsId?: string;
 }
 
 export interface SerializedAuthenticateWithCodeAndVerifierOptions extends SerializedAuthenticatePublicClientBase {
@@ -14,4 +15,5 @@ export interface SerializedAuthenticateWithCodeAndVerifierOptions extends Serial
   code_verifier: string;
   code: string;
   invitation_token?: string;
+  signals_id?: string;
 }
