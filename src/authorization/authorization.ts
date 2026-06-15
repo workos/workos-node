@@ -1,6 +1,8 @@
 import { WorkOS } from '../workos';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { List, ListResponse } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import {
   Role,
   RoleList,
@@ -44,6 +46,14 @@ import {
   RemoveRoleOptions,
   RoleAssignment,
   RoleAssignmentResponse,
+  GroupRoleAssignment,
+  GroupRoleAssignmentResponse,
+  ListGroupRoleAssignmentsOptions,
+  GetGroupRoleAssignmentOptions,
+  CreateGroupRoleAssignmentOptions,
+  RemoveGroupRoleAssignmentOptions,
+  RemoveGroupRoleAssignmentsOptions,
+  ReplaceGroupRoleAssignmentsOptions,
   ListMembershipsForResourceByExternalIdOptions,
   ListMembershipsForResourceOptions,
   ListResourcesForMembershipOptions,
@@ -70,6 +80,10 @@ import {
   serializeListAuthorizationResourcesOptions,
   serializeAuthorizationCheckOptions,
   deserializeRoleAssignment,
+  deserializeGroupRoleAssignment,
+  serializeCreateGroupRoleAssignmentOptions,
+  serializeRemoveGroupRoleAssignmentsOptions,
+  serializeReplaceGroupRoleAssignmentsOptions,
   serializeAssignRoleOptions,
   serializeRemoveRoleOptions,
   serializeListMembershipsForResourceOptions,
@@ -1026,6 +1040,163 @@ export class Authorization {
     await this.workos.delete(
       `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments/${options.roleAssignmentId}`,
     );
+  }
+
+  /**
+   * List role assignments for a group
+   *
+   * List all role assignments granted to a group. Each assignment represents a role granted to the group on a resource.
+   * @param options - Pagination options.
+   * @param options.groupId - The ID of the group.
+   *
+   * @example
+   * "group_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @returns {Promise<AutoPaginatable<GroupRoleAssignment>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
+  async listGroupRoleAssignments(
+    options: ListGroupRoleAssignmentsOptions,
+  ): Promise<AutoPaginatable<GroupRoleAssignment>> {
+    const { groupId, ...paginationOptions } = options;
+    const endpoint = `/authorization/groups/${groupId}/role_assignments`;
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        GroupRoleAssignmentResponse,
+        GroupRoleAssignment
+      >(
+        this.workos,
+        endpoint,
+        deserializeGroupRoleAssignment,
+        paginationOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<GroupRoleAssignmentResponse, GroupRoleAssignment>(
+          this.workos,
+          endpoint,
+          deserializeGroupRoleAssignment,
+          params,
+        ),
+      paginationOptions,
+    );
+  }
+
+  /**
+   * Get a group role assignment
+   *
+   * Get a specific role assignment for a group by its ID.
+   * @param options - Object containing groupId and roleAssignmentId.
+   * @param options.groupId - The ID of the group.
+   *
+   * @example
+   * "group_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @param options.roleAssignmentId - The ID of the group role assignment.
+   *
+   * @example
+   * "gra_01HXYZ123456789ABCDEFGH"
+   *
+   * @returns {Promise<GroupRoleAssignment>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
+  async getGroupRoleAssignment(
+    options: GetGroupRoleAssignmentOptions,
+  ): Promise<GroupRoleAssignment> {
+    const { data } = await this.workos.get<GroupRoleAssignmentResponse>(
+      `/authorization/groups/${options.groupId}/role_assignments/${options.roleAssignmentId}`,
+    );
+    return deserializeGroupRoleAssignment(data);
+  }
+
+  /**
+   * Assign a role to a group
+   *
+   * Assign a role to a group on a specific resource. Omit the resource fields to assign the role on the organization itself.
+   * @param options - Object containing groupId and roleSlug.
+   * @returns {Promise<GroupRoleAssignment>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   * @throws {ConflictException} 409
+   * @throws {UnprocessableEntityException} 422
+   */
+  async createGroupRoleAssignment(
+    options: CreateGroupRoleAssignmentOptions,
+  ): Promise<GroupRoleAssignment> {
+    const { data } = await this.workos.post<GroupRoleAssignmentResponse>(
+      `/authorization/groups/${options.groupId}/role_assignments`,
+      serializeCreateGroupRoleAssignmentOptions(options),
+    );
+    return deserializeGroupRoleAssignment(data);
+  }
+
+  /**
+   * Remove a group role assignment
+   *
+   * Remove a specific role assignment from a group by its ID.
+   * @param options - Object containing groupId and roleAssignmentId.
+   * @param options.groupId - The ID of the group.
+   *
+   * @example
+   * "group_01HXYZ123456789ABCDEFGHIJ"
+   *
+   * @param options.roleAssignmentId - The ID of the group role assignment to remove.
+   *
+   * @example
+   * "gra_01HXYZ123456789ABCDEFGH"
+   *
+   * @returns {Promise<void>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   */
+  async removeGroupRoleAssignment(
+    options: RemoveGroupRoleAssignmentOptions,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/authorization/groups/${options.groupId}/role_assignments/${options.roleAssignmentId}`,
+    );
+  }
+
+  /**
+   * Remove group role assignments by criteria
+   *
+   * Remove role assignments from a group that match the provided role and resource. Omit the resource fields to target the organization itself.
+   * @param options - Object containing groupId and roleSlug.
+   * @returns {Promise<void>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async removeGroupRoleAssignments(
+    options: RemoveGroupRoleAssignmentsOptions,
+  ): Promise<void> {
+    await this.workos.deleteWithBody(
+      `/authorization/groups/${options.groupId}/role_assignments`,
+      serializeRemoveGroupRoleAssignmentsOptions(options),
+    );
+  }
+
+  /**
+   * Replace role assignments for a group
+   *
+   * Replace all of a group's role assignments with the provided list. Assignments not present in the list are removed and new ones are created. Pass an empty `roleAssignments` array to clear all assignments. Returns the resulting set of assignments.
+   * @param options - Object containing groupId and roleAssignments.
+   * @returns {Promise<List<GroupRoleAssignment>>}
+   * @throws 403 response from the API.
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async replaceGroupRoleAssignments(
+    options: ReplaceGroupRoleAssignmentsOptions,
+  ): Promise<List<GroupRoleAssignment>> {
+    const { data } = await this.workos.put<
+      ListResponse<GroupRoleAssignmentResponse>
+    >(
+      `/authorization/groups/${options.groupId}/role_assignments`,
+      serializeReplaceGroupRoleAssignmentsOptions(options),
+    );
+    return deserializeList(data, deserializeGroupRoleAssignment);
   }
 
   /**

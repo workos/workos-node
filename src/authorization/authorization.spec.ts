@@ -2,6 +2,7 @@ import fetch from 'jest-fetch-mock';
 import {
   fetchOnce,
   fetchURL,
+  fetchMethod,
   fetchSearchParams,
   fetchBody,
 } from '../common/utils/test-utils';
@@ -16,6 +17,8 @@ import authorizationResourceFixture from './fixtures/authorization-resource.json
 import listResourcesFixture from './fixtures/list-resources.json';
 import roleAssignmentFixture from './fixtures/role-assignment.json';
 import listRoleAssignmentsFixture from './fixtures/list-role-assignments.json';
+import groupRoleAssignmentFixture from './fixtures/group-role-assignment.json';
+import listGroupRoleAssignmentsFixture from './fixtures/list-group-role-assignments.json';
 import listOrganizationMembershipsForResourceFixture from './fixtures/list-organization-memberships-for-resource.json';
 import listEffectivePermissionsFixture from './fixtures/list-effective-permissions.json';
 
@@ -24,6 +27,8 @@ const testOrgId = 'org_01HXYZ123ABC456DEF789ABC';
 const testResourceId = 'authz_resource_01HXYZ123ABC456DEF789ABC';
 const testOrgMembershipId = 'om_01HXYZ123ABC456DEF789ABC';
 const testRoleAssignmentId = 'role_assignment_01HXYZ123ABC456DEF789ABC';
+const testGroupId = 'group_01HXYZ123456789ABCDEFGHIJ';
+const testGroupRoleAssignmentId = 'gra_01HXYZ123456789ABCDEFGH';
 
 describe('Authorization', () => {
   beforeEach(() => fetch.resetMocks());
@@ -2717,6 +2722,224 @@ describe('Authorization', () => {
       expect(fetchSearchParams()).toMatchObject({
         order: 'desc',
       });
+    });
+  });
+
+  describe('listGroupRoleAssignments', () => {
+    it('returns paginated results', async () => {
+      fetchOnce(listGroupRoleAssignmentsFixture);
+
+      const { data, listMetadata } =
+        await workos.authorization.listGroupRoleAssignments({
+          groupId: testGroupId,
+          order: 'desc',
+        });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments`,
+      );
+      expect(fetchSearchParams()).toHaveProperty('order', 'desc');
+      expect(data).toHaveLength(1);
+      expect(data[0]).toMatchObject({
+        object: 'group_role_assignment',
+        id: testGroupRoleAssignmentId,
+        groupId: testGroupId,
+        role: { slug: 'editor' },
+        resource: {
+          id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+          externalId: 'workspace-123',
+          resourceTypeSlug: 'workspace',
+        },
+      });
+      expect(listMetadata).toBeDefined();
+    });
+  });
+
+  describe('getGroupRoleAssignment', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(groupRoleAssignmentFixture);
+
+      const assignment = await workos.authorization.getGroupRoleAssignment({
+        groupId: testGroupId,
+        roleAssignmentId: testGroupRoleAssignmentId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments/${testGroupRoleAssignmentId}`,
+      );
+      expect(assignment).toMatchObject({
+        object: 'group_role_assignment',
+        id: testGroupRoleAssignmentId,
+        groupId: testGroupId,
+        role: { slug: 'editor' },
+        resource: {
+          id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+          externalId: 'workspace-123',
+          resourceTypeSlug: 'workspace',
+        },
+        createdAt: '2026-01-15T12:00:00.000Z',
+        updatedAt: '2026-01-15T12:00:00.000Z',
+      });
+    });
+  });
+
+  describe('createGroupRoleAssignment', () => {
+    it('assigns a role by resource ID', async () => {
+      fetchOnce(groupRoleAssignmentFixture, { status: 201 });
+
+      const assignment = await workos.authorization.createGroupRoleAssignment({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+        resourceId: 'authz_resource_01HXYZ123456789ABCDEFGH',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments`,
+      );
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+      });
+      expect(assignment.object).toBe('group_role_assignment');
+    });
+
+    it('assigns a role by external ID & resourceTypeSlug', async () => {
+      fetchOnce(groupRoleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.createGroupRoleAssignment({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+        resourceExternalId: 'workspace-123',
+        resourceTypeSlug: 'workspace',
+      });
+
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_external_id: 'workspace-123',
+        resource_type_slug: 'workspace',
+      });
+    });
+
+    it('assigns a role on the organization when no resource is provided', async () => {
+      fetchOnce(groupRoleAssignmentFixture, { status: 201 });
+
+      await workos.authorization.createGroupRoleAssignment({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+      });
+
+      expect(fetchBody()).toEqual({ role_slug: 'editor' });
+    });
+  });
+
+  describe('removeGroupRoleAssignment', () => {
+    it('sends a DELETE request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeGroupRoleAssignment({
+        groupId: testGroupId,
+        roleAssignmentId: testGroupRoleAssignmentId,
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments/${testGroupRoleAssignmentId}`,
+      );
+    });
+  });
+
+  describe('removeGroupRoleAssignments', () => {
+    it('removes assignments by resource ID', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeGroupRoleAssignments({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+        resourceId: 'authz_resource_01HXYZ123456789ABCDEFGH',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments`,
+      );
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+      });
+    });
+
+    it('removes assignments on the organization when no resource is provided', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeGroupRoleAssignments({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+      });
+
+      expect(fetchBody()).toEqual({ role_slug: 'editor' });
+    });
+  });
+
+  describe('replaceGroupRoleAssignments', () => {
+    it('sends a PUT request and returns the resulting list', async () => {
+      fetchOnce(listGroupRoleAssignmentsFixture);
+
+      const { object, data, listMetadata } =
+        await workos.authorization.replaceGroupRoleAssignments({
+          groupId: testGroupId,
+          roleAssignments: [
+            {
+              roleSlug: 'editor',
+              resourceId: 'authz_resource_01HXYZ123456789ABCDEFGH',
+            },
+            {
+              roleSlug: 'viewer',
+              resourceExternalId: 'workspace-123',
+              resourceTypeSlug: 'workspace',
+            },
+            { roleSlug: 'admin' },
+          ],
+        });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments`,
+      );
+      expect(fetchBody()).toEqual({
+        role_assignments: [
+          {
+            role_slug: 'editor',
+            resource_id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+          },
+          {
+            role_slug: 'viewer',
+            resource_external_id: 'workspace-123',
+            resource_type_slug: 'workspace',
+          },
+          { role_slug: 'admin' },
+        ],
+      });
+      expect(object).toBe('list');
+      expect(data[0]).toMatchObject({
+        object: 'group_role_assignment',
+        id: testGroupRoleAssignmentId,
+        groupId: testGroupId,
+      });
+      expect(listMetadata).toBeDefined();
+    });
+
+    it('clears all assignments with an empty list', async () => {
+      fetchOnce({
+        object: 'list',
+        data: [],
+        list_metadata: { before: null, after: null },
+      });
+
+      const { data } = await workos.authorization.replaceGroupRoleAssignments({
+        groupId: testGroupId,
+        roleAssignments: [],
+      });
+
+      expect(fetchBody()).toEqual({ role_assignments: [] });
+      expect(data).toEqual([]);
     });
   });
 });
