@@ -21,5 +21,5 @@ export interface HttpClientResponseInterface {
   getStatusCode: () => number;
   getHeaders: () => ResponseHeaders;
   getRawResponse: () => unknown;
-  toJSON: () => Promise<any> | null;
+  toJSON: () => Promise<any | null>;
 }

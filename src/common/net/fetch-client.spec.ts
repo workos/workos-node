@@ -292,11 +292,7 @@ describe('Fetch client', () => {
       );
 
       const res = await client.get('/users', {});
-      // toJSON() always returns a Promise for application/json responses;
-      // the union with null in the interface covers non-JSON content types.
-      const error = await (res.toJSON() as Promise<any>).catch(
-        (e: unknown) => e,
-      );
+      const error = await res.toJSON().catch((e: unknown) => e);
 
       expect(error).toBeInstanceOf(ParseError);
       const parseError = error as ParseError;
