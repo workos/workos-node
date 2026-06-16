@@ -23,8 +23,8 @@ export interface DirectoryUser<
   state: 'active' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface DirectoryUserResponse<
