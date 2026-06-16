@@ -2844,6 +2844,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/groups/${testGroupId}/role_assignments/${testGroupRoleAssignmentId}`,
       );
+      expect(fetchMethod()).toBe('DELETE');
     });
   });
 
@@ -2863,6 +2864,26 @@ describe('Authorization', () => {
       expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_id: 'authz_resource_01HXYZ123456789ABCDEFGH',
+      });
+    });
+
+    it('removes assignments by external ID and resourceTypeSlug', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeGroupRoleAssignments({
+        groupId: testGroupId,
+        roleSlug: 'editor',
+        resourceExternalId: 'workspace-123',
+        resourceTypeSlug: 'workspace',
+      });
+
+      expect(fetchURL()).toContain(
+        `/authorization/groups/${testGroupId}/role_assignments`,
+      );
+      expect(fetchBody()).toEqual({
+        role_slug: 'editor',
+        resource_external_id: 'workspace-123',
+        resource_type_slug: 'workspace',
       });
     });
 
