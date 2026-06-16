@@ -291,17 +291,14 @@ describe('Fetch client', () => {
           }),
       );
 
-      try {
-        const res = await client.get('/users', {});
-        await res.toJSON();
-        fail('Expected ParseError to be thrown');
-      } catch (error) {
-        expect(error).toBeInstanceOf(ParseError);
-        const parseError = error as ParseError;
-        expect(parseError.rawBody).toBe('{ invalid json');
-        expect(parseError.requestID).toBe('req_real_response');
-        expect(parseError.rawStatus).toBe(200);
-      }
+      const res = await client.get('/users', {});
+      const error = await res.toJSON().catch((e: unknown) => e);
+
+      expect(error).toBeInstanceOf(ParseError);
+      const parseError = error as ParseError;
+      expect(parseError.rawBody).toBe('{ invalid json');
+      expect(parseError.requestID).toBe('req_real_response');
+      expect(parseError.rawStatus).toBe(200);
     });
 
     it('should throw ParseError when X-Request-ID header is missing', async () => {
