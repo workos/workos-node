@@ -257,7 +257,7 @@ export class WorkOS {
     try {
       return { data: await res.toJSON() };
     } catch (error) {
-      await this.handleParseError(error, res);
+      await this.handleParseError(error);
       throw error;
     }
   }
@@ -295,7 +295,7 @@ export class WorkOS {
     try {
       return { data: await res.toJSON() };
     } catch (error) {
-      await this.handleParseError(error, res);
+      await this.handleParseError(error);
       throw error;
     }
   }
@@ -331,7 +331,7 @@ export class WorkOS {
     try {
       return { data: await res.toJSON() };
     } catch (error) {
-      await this.handleParseError(error, res);
+      await this.handleParseError(error);
       throw error;
     }
   }
@@ -367,7 +367,7 @@ export class WorkOS {
     try {
       return { data: await res.toJSON() };
     } catch (error) {
-      await this.handleParseError(error, res);
+      await this.handleParseError(error);
       throw error;
     }
   }
@@ -406,21 +406,9 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  private async handleParseError(
-    error: unknown,
-    res: HttpClientResponseInterface,
-  ) {
-    if (error instanceof SyntaxError) {
-      const rawResponse = res.getRawResponse() as Response;
-      const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
-      const rawStatus = rawResponse.status;
-      const rawBody = await rawResponse.text();
-      throw new ParseError({
-        message: error.message,
-        rawBody,
-        rawStatus,
-        requestID,
-      });
+  private async handleParseError(error: unknown) {
+    if (error instanceof ParseError) {
+      throw error;
     }
   }
 
