@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.2.1](https://github.com/workos/workos-node/compare/v10.2.0...v10.2.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* Prevent handleParseError from double-reading response body ([#1622](https://github.com/workos/workos-node/issues/1622)) ([e1cdb7f](https://github.com/workos/workos-node/commit/e1cdb7f45f550bc77a28737991b42b9fd2862f06))
+
 ## [10.2.0](https://github.com/workos/workos-node/compare/v10.1.0...v10.2.0) (2026-06-02)
 
 
