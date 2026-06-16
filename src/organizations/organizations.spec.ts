@@ -232,10 +232,13 @@ describe('Organizations', () => {
         {
           object: 'organization_domain',
           id: 'org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8',
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
           domain: 'example.com',
           state: 'verified',
           verificationStrategy: 'dns',
           verificationToken: 'xB8SeACdKJQP9DP4CahU4YuQZ',
+          createdAt: new Date('2023-07-17T20:07:20.055Z'),
+          updatedAt: new Date('2023-07-17T20:07:20.055Z'),
         },
       ]);
     });

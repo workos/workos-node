@@ -8,9 +8,12 @@
       "domain": "example.com",
       "object": "organization_domain",
       "id": "org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8",
+      "organization_id": "org_01EHT88Z8J8795GZNQ4ZP1J81T",
       "state": "verified",
       "verification_strategy": "dns",
-      "verification_token": "xB8SeACdKJQP9DP4CahU4YuQZ"
+      "verification_token": "xB8SeACdKJQP9DP4CahU4YuQZ",
+      "created_at": "2023-07-17T20:07:20.055Z",
+      "updated_at": "2023-07-17T20:07:20.055Z"
     }
   ],
   "metadata": {}
