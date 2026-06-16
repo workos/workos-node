@@ -1,0 +1,10 @@
+{
+  "object": "connected_account",
+  "id": "data_installation_01EHZNVPK3SFK441A1RGBFSHRT",
+  "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
+  "organization_id": null,
+  "scopes": ["repo", "user:email"],
+  "state": "connected",
+  "created_at": "2024-01-16T14:20:00.000Z",
+  "updated_at": "2024-01-16T14:20:00.000Z"
+}
