@@ -292,7 +292,9 @@ describe('Fetch client', () => {
       );
 
       const res = await client.get('/users', {});
-      const error = await res.toJSON().catch((e: unknown) => e);
+      const json = res.toJSON();
+      expect(json).not.toBeNull();
+      const error = await json!.catch((e: unknown) => e);
 
       expect(error).toBeInstanceOf(ParseError);
       const parseError = error as ParseError;
