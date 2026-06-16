@@ -2861,6 +2861,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/groups/${testGroupId}/role_assignments`,
       );
+      expect(fetchMethod()).toBe('DELETE');
       expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_id: 'authz_resource_01HXYZ123456789ABCDEFGH',
@@ -2880,6 +2881,7 @@ describe('Authorization', () => {
       expect(fetchURL()).toContain(
         `/authorization/groups/${testGroupId}/role_assignments`,
       );
+      expect(fetchMethod()).toBe('DELETE');
       expect(fetchBody()).toEqual({
         role_slug: 'editor',
         resource_external_id: 'workspace-123',
@@ -2895,6 +2897,7 @@ describe('Authorization', () => {
         roleSlug: 'editor',
       });
 
+      expect(fetchMethod()).toBe('DELETE');
       expect(fetchBody()).toEqual({ role_slug: 'editor' });
     });
   });
