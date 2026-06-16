@@ -272,6 +272,38 @@ describe('Fetch client', () => {
       }
     });
 
+    it('should throw ParseError on 200 with malformed JSON using real Response (GH-1621)', async () => {
+      const client = new FetchHttpClient(
+        'https://test.workos.com',
+        {
+          headers: {
+            Authorization: 'Bearer sk_test',
+            'User-Agent': 'test-fetch-client',
+          },
+        },
+        async () =>
+          new Response('{ invalid json', {
+            status: 200,
+            headers: {
+              'content-type': 'application/json',
+              'x-request-id': 'req_real_response',
+            },
+          }),
+      );
+
+      try {
+        const res = await client.get('/users', {});
+        await res.toJSON();
+        fail('Expected ParseError to be thrown');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ParseError);
+        const parseError = error as ParseError;
+        expect(parseError.rawBody).toBe('{ invalid json');
+        expect(parseError.requestID).toBe('req_real_response');
+        expect(parseError.rawStatus).toBe(200);
+      }
+    });
+
     it('should throw ParseError when X-Request-ID header is missing', async () => {
       fetch.mockResponseOnce('Invalid JSON Response', {
         status: 422,
