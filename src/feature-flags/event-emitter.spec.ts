@@ -60,6 +60,23 @@ describe('EventEmitter', () => {
       expect(calls).toBe(1);
       expect(emitter.listenerCount('ping')).toBe(0);
     });
+
+    it('auto-removal does not also remove a sibling on() listener sharing the reference', () => {
+      // The same fn is registered both persistently and once. Auto-removing
+      // the once-listener must target that one registration, not every entry
+      // with a matching fn — otherwise the persistent on() listener is lost.
+      const received: number[] = [];
+      const fn = (n: number) => received.push(n);
+
+      emitter.on('ping', fn);
+      emitter.once('ping', fn);
+
+      emitter.emit('ping', 1); // both fire
+      emitter.emit('ping', 2); // only the persistent on() listener fires
+
+      expect(received).toEqual([1, 1, 2]);
+      expect(emitter.listenerCount('ping')).toBe(1);
+    });
   });
 
   describe('off', () => {

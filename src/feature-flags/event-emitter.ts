@@ -1,5 +1,12 @@
 type Listener<Args extends unknown[]> = (...args: Args) => void;
 
+// Internal registration record. `fn` is stored loosely typed
+// (`(...args: any[]) => void`) so it is assignable both to and from the typed
+// public signatures — call sites need no casts, and public type-safety lives in
+// the generic method signatures. The ORIGINAL listener fn is stored (not a
+// wrapper) so off() matches the reference the caller passed.
+type Handler = { fn: (...args: any[]) => void; once: boolean };
+
 /**
  * Minimal, runtime-agnostic, typed event emitter.
  *
@@ -17,15 +24,7 @@ type Listener<Args extends unknown[]> = (...args: Args) => void;
 // interfaces have no implicit string index signature, so the looser form
 // would reject them.
 export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
-  // Store the ORIGINAL listener fn (not a wrapper) so off() can remove
-  // once-listeners by the reference the caller passed. The internal fn type
-  // is (...args: any[]) => void — assignable both to and from the typed
-  // public signatures, so no casts are needed at the call sites. Public
-  // type-safety lives in the generic method signatures below.
-  private handlers = new Map<
-    keyof Events,
-    Array<{ fn: (...args: any[]) => void; once: boolean }>
-  >();
+  private handlers = new Map<keyof Events, Handler[]>();
 
   on<E extends keyof Events>(event: E, fn: Listener<Events[E]>): this {
     return this.add(event, fn, false);
@@ -36,12 +35,7 @@ export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
   }
 
   off<E extends keyof Events>(event: E, fn: Listener<Events[E]>): this {
-    const list = this.handlers.get(event);
-    if (list) {
-      const next = list.filter((h) => h.fn !== fn);
-      if (next.length) this.handlers.set(event, next);
-      else this.handlers.delete(event);
-    }
+    this.remove(event, (h) => h.fn !== fn);
     return this;
   }
 
@@ -56,7 +50,9 @@ export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
     }
     // Snapshot so once-removal / off() during dispatch is safe.
     for (const h of [...list]) {
-      if (h.once) this.off(event, h.fn);
+      // Remove the once-registration by identity, not by fn: the same fn may
+      // also be registered with on(), and only this entry should be dropped.
+      if (h.once) this.remove(event, (existing) => existing !== h);
       h.fn(...args);
     }
     return true;
@@ -107,5 +103,15 @@ export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
     list.push({ fn, once });
     this.handlers.set(event, list);
     return this;
+  }
+
+  // Single owner of the "filter the list, then keep-or-delete the slot" logic
+  // shared by off() and once auto-removal.
+  private remove(event: keyof Events, keep: (h: Handler) => boolean): void {
+    const list = this.handlers.get(event);
+    if (!list) return;
+    const next = list.filter(keep);
+    if (next.length) this.handlers.set(event, next);
+    else this.handlers.delete(event);
   }
 }
