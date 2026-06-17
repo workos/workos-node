@@ -3,8 +3,8 @@ export interface AuditLogExportOptions {
   actorNames?: string[];
   actorIds?: string[];
   organizationId: string;
-  rangeEnd: Date;
-  rangeStart: Date;
+  rangeEnd: string;
+  rangeStart: string;
   targets?: string[];
 }
 
