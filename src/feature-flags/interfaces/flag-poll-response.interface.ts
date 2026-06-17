@@ -14,3 +14,9 @@ export interface FlagPollEntry {
 }
 
 export type FlagPollResponse = Record<string, FlagPollEntry>;
+
+export interface FlagChange {
+  key: string;
+  previous: FlagPollEntry | null;
+  current: FlagPollEntry | null;
+}
