@@ -34,6 +34,8 @@ export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
     return this.add(event, fn, true);
   }
 
+  // Removes every registration of `fn`, matching eventemitter3's
+  // removeListener (which, called without a context, also drops all matches).
   off<E extends keyof Events>(event: E, fn: Listener<Events[E]>): this {
     this.remove(event, (h) => h.fn !== fn);
     return this;

@@ -116,6 +116,23 @@ describe('EventEmitter', () => {
 
       expect(order).toEqual(['b']);
     });
+
+    it('removes every registration of a fn added more than once (eventemitter3 parity)', () => {
+      // eventemitter3's removeListener drops ALL entries for a fn (not just
+      // one), so off() does the same to keep the base-class swap non-breaking.
+      const received: number[] = [];
+      const fn = (n: number) => received.push(n);
+
+      emitter.on('ping', fn);
+      emitter.on('ping', fn);
+      expect(emitter.listenerCount('ping')).toBe(2);
+
+      emitter.off('ping', fn);
+
+      expect(emitter.listenerCount('ping')).toBe(0);
+      emitter.emit('ping', 1);
+      expect(received).toEqual([]);
+    });
   });
 
   describe('dispatch safety', () => {
