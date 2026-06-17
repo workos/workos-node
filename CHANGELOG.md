@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.3.0](https://github.com/workos/workos-node/compare/v10.2.1...v10.3.0) (2026-06-17)
+
+
+### Features
+
+* **authorization:** Add group role assignment endpoints ([#1619](https://github.com/workos/workos-node/issues/1619)) ([df60af3](https://github.com/workos/workos-node/commit/df60af3ba4fc2ea94fd0a7acd26daef9f56c3781))
+
 ## [10.2.1](https://github.com/workos/workos-node/compare/v10.2.0...v10.2.1) (2026-06-16)
 
 
