@@ -4,12 +4,19 @@ import type {
   SSOIntentOptions,
   SSOIntentOptionsResponse,
 } from './sso-intent-options.interface';
+import type {
+  DomainVerificationIntentOptions,
+  DomainVerificationIntentOptionsResponse,
+} from './domain-verification-intent-options.interface';
 
 export interface IntentOptions {
   /** SSO-specific options for the Admin Portal. */
-  sso: SSOIntentOptions;
+  sso?: SSOIntentOptions;
+  /** Domain verification-specific options for the Admin Portal. */
+  domainVerification?: DomainVerificationIntentOptions;
 }
 
 export interface IntentOptionsResponse {
-  sso: SSOIntentOptionsResponse;
+  sso?: SSOIntentOptionsResponse;
+  domain_verification?: DomainVerificationIntentOptionsResponse;
 }

@@ -2,5 +2,8 @@
   "sso": {
     "bookmark_slug": "chatgpt",
     "provider_type": "GoogleSAML"
+  },
+  "domain_verification": {
+    "domain_name": "example.com"
   }
 }

@@ -10,9 +10,3 @@ export const deserializePortalLinkResponse = (
 ): PortalLinkResponse => ({
   link: response.link,
 });
-
-export const serializePortalLinkResponse = (
-  model: PortalLinkResponse,
-): PortalLinkResponseWire => ({
-  link: model.link,
-});

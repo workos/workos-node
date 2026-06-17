@@ -4,24 +4,7 @@ import type {
   GenerateLink,
   GenerateLinkResponse,
 } from '../interfaces/generate-link.interface';
-import {
-  deserializeIntentOptions,
-  serializeIntentOptions,
-} from './intent-options.serializer';
-
-export const deserializeGenerateLink = (
-  response: GenerateLinkResponse,
-): GenerateLink => ({
-  returnUrl: response.return_url,
-  successUrl: response.success_url,
-  organization: response.organization,
-  intent: response.intent,
-  intentOptions:
-    response.intent_options != null
-      ? deserializeIntentOptions(response.intent_options)
-      : undefined,
-  adminEmails: response.admin_emails,
-});
+import { serializeIntentOptions } from './intent-options.serializer';
 
 export const serializeGenerateLink = (
   model: GenerateLink,
@@ -34,5 +17,5 @@ export const serializeGenerateLink = (
     model.intentOptions != null
       ? serializeIntentOptions(model.intentOptions)
       : undefined,
-  admin_emails: model.adminEmails,
+  it_contact_emails: model.itContactEmails,
 });

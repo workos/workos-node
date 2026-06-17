@@ -5,13 +5,6 @@ import type {
   SSOIntentOptionsResponse,
 } from '../interfaces/sso-intent-options.interface';
 
-export const deserializeSSOIntentOptions = (
-  response: SSOIntentOptionsResponse,
-): SSOIntentOptions => ({
-  bookmarkSlug: response.bookmark_slug,
-  providerType: response.provider_type,
-});
-
 export const serializeSSOIntentOptions = (
   model: SSOIntentOptions,
 ): SSOIntentOptionsResponse => ({

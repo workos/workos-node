@@ -4,19 +4,15 @@ import type {
   IntentOptions,
   IntentOptionsResponse,
 } from '../interfaces/intent-options.interface';
-import {
-  deserializeSSOIntentOptions,
-  serializeSSOIntentOptions,
-} from './sso-intent-options.serializer';
-
-export const deserializeIntentOptions = (
-  response: IntentOptionsResponse,
-): IntentOptions => ({
-  sso: deserializeSSOIntentOptions(response.sso),
-});
+import { serializeSSOIntentOptions } from './sso-intent-options.serializer';
+import { serializeDomainVerificationIntentOptions } from './domain-verification-intent-options.serializer';
 
 export const serializeIntentOptions = (
   model: IntentOptions,
 ): IntentOptionsResponse => ({
-  sso: serializeSSOIntentOptions(model.sso),
+  sso: model.sso != null ? serializeSSOIntentOptions(model.sso) : undefined,
+  domain_verification:
+    model.domainVerification != null
+      ? serializeDomainVerificationIntentOptions(model.domainVerification)
+      : undefined,
 });
