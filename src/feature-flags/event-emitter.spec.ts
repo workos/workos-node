@@ -206,4 +206,48 @@ describe('EventEmitter', () => {
       expect(received).toEqual([boom]);
     });
   });
+
+  describe('eventemitter3-compatible aliases', () => {
+    it('addListener registers a listener like on', () => {
+      const received: number[] = [];
+      emitter.addListener('ping', (n) => received.push(n));
+
+      emitter.emit('ping', 7);
+
+      expect(received).toEqual([7]);
+    });
+
+    it('removeListener removes a listener like off', () => {
+      const received: number[] = [];
+      const fn = (n: number) => received.push(n);
+      emitter.addListener('ping', fn);
+      emitter.removeListener('ping', fn);
+
+      emitter.emit('ping', 1);
+
+      expect(received).toEqual([]);
+    });
+
+    it('listeners returns the registered listener functions for an event', () => {
+      const a = (): void => {};
+      const b = (): void => {};
+      emitter.on('ping', a);
+      emitter.on('ping', b);
+
+      expect(emitter.listeners('ping')).toEqual([a, b]);
+      expect(emitter.listeners('data')).toEqual([]);
+    });
+
+    it('eventNames returns only events that currently have listeners', () => {
+      expect(emitter.eventNames()).toEqual([]);
+
+      const fn = (): void => {};
+      emitter.on('ping', fn);
+      emitter.on('data', () => {});
+      expect(emitter.eventNames()).toEqual(['ping', 'data']);
+
+      emitter.off('ping', fn);
+      expect(emitter.eventNames()).toEqual(['data']);
+    });
+  });
 });

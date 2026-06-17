@@ -72,6 +72,32 @@ export class EventEmitter<Events extends Record<keyof Events, unknown[]>> {
     return this;
   }
 
+  // ── eventemitter3-compatible aliases ────────────────────────────────────
+  // FeatureFlagsRuntimeClient previously extended eventemitter3, whose
+  // EventEmitter also exposed these. They are kept so the runtime client's
+  // public surface stays a superset of the old one — swapping the base class
+  // off eventemitter3 is then non-breaking for consumers.
+  addListener<E extends keyof Events>(event: E, fn: Listener<Events[E]>): this {
+    return this.on(event, fn);
+  }
+
+  removeListener<E extends keyof Events>(
+    event: E,
+    fn: Listener<Events[E]>,
+  ): this {
+    return this.off(event, fn);
+  }
+
+  listeners<E extends keyof Events>(event: E): Array<Listener<Events[E]>> {
+    return (this.handlers.get(event) ?? []).map(
+      (h) => h.fn as Listener<Events[E]>,
+    );
+  }
+
+  eventNames(): Array<keyof Events> {
+    return [...this.handlers.keys()];
+  }
+
   private add<E extends keyof Events>(
     event: E,
     fn: Listener<Events[E]>,
