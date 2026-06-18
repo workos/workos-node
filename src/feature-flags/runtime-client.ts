@@ -1,10 +1,11 @@
-import { EventEmitter } from 'eventemitter3';
+import { EventEmitter } from './event-emitter';
 import { WorkOS } from '../workos';
 import { UnauthorizedException } from '../common/exceptions';
 import { InMemoryStore } from './in-memory-store';
 import { Evaluator } from './evaluator';
 import {
   EvaluationContext,
+  FlagChange,
   FlagPollEntry,
   FlagPollResponse,
   FlagTarget,
@@ -12,6 +13,12 @@ import {
   RuntimeClientLogger,
   RuntimeClientStats,
 } from './interfaces';
+
+interface RuntimeClientEvents {
+  change: [FlagChange];
+  error: [Error];
+  failed: [Error];
+}
 
 const DEFAULT_POLLING_INTERVAL_MS = 30_000;
 const MIN_POLLING_INTERVAL_MS = 5_000;
@@ -22,7 +29,7 @@ const INITIAL_RETRY_MS = 1_000;
 const MAX_RETRY_MS = 60_000;
 const BACKOFF_MULTIPLIER = 2;
 
-export class FeatureFlagsRuntimeClient extends EventEmitter {
+export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents> {
   private readonly store: InMemoryStore;
   private readonly evaluator: Evaluator;
   private readonly pollingIntervalMs: number;
@@ -103,16 +110,6 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     });
   }
 
-  // eventemitter3 silently drops 'error' events with no listeners.
-  // Restore Node's EventEmitter behavior: throw so poll failures
-  // are never silently swallowed.
-  override emit(event: string | symbol, ...args: unknown[]): boolean {
-    if (event === 'error' && this.listenerCount(event as string) === 0) {
-      throw args[0] instanceof Error ? args[0] : new Error(String(args[0]));
-    }
-    return super.emit(event, ...args);
-  }
-
   close(): void {
     this.closed = true;
     this.pollAbortController?.abort();
@@ -183,15 +180,17 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     } catch (error) {
       if (this.closed) return;
 
+      const err = error instanceof Error ? error : new Error(String(error));
+
       this.consecutiveErrors++;
       this.stats.pollErrorCount++;
-      this.emit('error', error);
-      this.logger?.error('Poll failed', error);
+      this.emit('error', err);
+      this.logger?.error('Poll failed', err);
 
-      if (error instanceof UnauthorizedException) {
-        this.emit('failed', error);
+      if (err instanceof UnauthorizedException) {
+        this.emit('failed', err);
         if (!this.initialized && this.readyReject) {
-          this.readyReject(error);
+          this.readyReject(err);
           this.readyReject = null;
         }
         return;

@@ -502,5 +502,22 @@ describe('FeatureFlagsRuntimeClient', () => {
 
       client.close();
     });
+
+    it('throws on an error event when no listener is attached', () => {
+      // poll()'s catch block emits 'error'. With no listener, the emitter must
+      // throw (Node semantics) rather than silently drop it — the behavior
+      // eventemitter3 lacked and the old emit() override restored. Every other
+      // error test attaches a listener first, so this is the only guard against
+      // re-introducing silent error-dropping. Asserted on the inherited emit
+      // directly: via the real poll path the throw would surface as an
+      // unhandled promise rejection (poll runs in a setTimeout), which can't be
+      // observed deterministically.
+      const client = workos.featureFlags.createRuntimeClient();
+
+      const boom = new Error('boom');
+      expect(() => client.emit('error', boom)).toThrow(boom);
+
+      client.close();
+    });
   });
 });
