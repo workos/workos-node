@@ -13,7 +13,7 @@ export const deserializeConnection = (
   object: response.object,
   id: response.id,
   organizationId: response.organization_id,
-  connectionType: response.connection_type,
+  type: response.connection_type,
   name: response.name,
   state: response.state,
   status: response.status,

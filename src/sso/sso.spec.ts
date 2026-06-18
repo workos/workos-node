@@ -9,7 +9,7 @@ import {
   fetchBody,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
-import { ConnectionType } from './interfaces/connection-type.enum';
+import { ConnectionType } from './interfaces/connection-type.interface';
 
 import listConnectionFixture from './fixtures/list-connection.json';
 import ssoLogoutAuthorizeResponseFixture from './fixtures/sso-logout-authorize-response.json';
@@ -19,7 +19,7 @@ const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 function expectConnection(result: any) {
   expect(result.object).toBe('connection');
   expect(result.id).toBe('conn_01E4ZCR3C56J083X43JQXF3JK5');
-  expect(result.connectionType).toBe('OktaSAML');
+  expect(result.type).toBe('OktaSAML');
   expect(result.name).toBe('Foo Corp');
   expect(result.state).toBe('active');
   expect(result.status).toBe('linked');

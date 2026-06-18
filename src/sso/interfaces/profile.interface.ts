@@ -3,8 +3,6 @@
 import type { SlimRoleResponse } from './slim-role.interface';
 import type { ConnectionType } from './connection-type.interface';
 
-type RoleResponse = SlimRoleResponse;
-
 export interface Profile<
   GenericType extends Record<string, unknown> = Record<string, unknown>,
 > {
@@ -29,9 +27,9 @@ export interface Profile<
   /** The user's full name. */
   name?: string | null;
   /** The role assigned to the user within the organization, if applicable. */
-  role?: RoleResponse;
+  role?: SlimRoleResponse;
   /** The roles assigned to the user within the organization, if applicable. */
-  roles?: RoleResponse[];
+  roles?: SlimRoleResponse[];
   /** The groups the user belongs to, as returned by the identity provider. */
   groups?: string[];
   /** Custom attribute mappings defined for the connection, returned as key-value pairs. */
@@ -53,8 +51,8 @@ export interface ProfileResponse<
   first_name?: string | null;
   last_name?: string | null;
   name?: string | null;
-  role?: RoleResponse;
-  roles?: RoleResponse[];
+  role?: SlimRoleResponse;
+  roles?: SlimRoleResponse[];
   groups?: string[];
   custom_attributes?: GenericType;
   raw_attributes?: { [key: string]: any };

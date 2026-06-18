@@ -1,5 +1,5 @@
 import { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
-import { ConnectionType } from './connection-type.enum';
+import { ConnectionType } from './connection-type.interface';
 
 export interface ListConnectionsOptions extends PaginationOptions {
   /** Filter Connections by their type. */

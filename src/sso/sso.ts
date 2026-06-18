@@ -60,7 +60,7 @@ export class SSO {
    *
    * Get a list of all of your existing connections matching the criteria specified.
    * @param options - Pagination and filter options.
-   * @returns {Promise<AutoPaginatable<Connection, SerializedListConnectionsOptions>>}
+   * @returns {Promise<AutoPaginatable<Connection, PaginationOptions>>}
    * @throws {AuthorizationException} 403
    * @throws {UnprocessableEntityException} 422
    */
@@ -102,6 +102,9 @@ export class SSO {
    * Logout Authorize
    *
    * You should call this endpoint from your server to generate a logout token which is required for the [Logout Redirect](https://workos.com/docs/reference/sso/logout) endpoint.
+   * @param options - Object containing profileId.
+   * @param options.profileId - The unique ID of the profile to log out.
+   * @example "prof_01HXYZ123456789ABCDEFGHIJ"
    * @returns {Promise<SSOLogoutAuthorizeResponse>}
    * @throws {BadRequestException} 400
    * @throws {NotFoundException} 404

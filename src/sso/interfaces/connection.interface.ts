@@ -16,7 +16,7 @@ export interface Connection {
   /** Unique identifier for the Organization in which the Connection resides. */
   organizationId?: string;
   /** The type of the SSO Connection used to authenticate the user. The Connection type may be used to dynamically generate authorization URLs. */
-  connectionType?: ConnectionType;
+  type?: ConnectionType;
   /** A human-readable name for the Connection. This will most commonly be the organization's name. */
   name: string;
   /** Indicates whether a Connection is able to authenticate users. */

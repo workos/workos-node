@@ -10,14 +10,14 @@ export const deserializeProfile = <
 ): Profile<GenericType> => ({
   object: response.object ?? 'profile',
   id: response.id,
-  organizationId: response.organization_id ?? undefined,
+  organizationId: response.organization_id ?? null,
   connectionId: response.connection_id,
   connectionType: response.connection_type,
   idpId: response.idp_id,
   email: response.email,
-  firstName: response.first_name ?? undefined,
-  lastName: response.last_name ?? undefined,
-  name: response.name ?? undefined,
+  firstName: response.first_name ?? null,
+  lastName: response.last_name ?? null,
+  name: response.name ?? null,
   role: response.role != null ? deserializeSlimRole(response.role) : undefined,
   roles:
     response.roles != null
