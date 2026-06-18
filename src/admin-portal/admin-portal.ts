@@ -2,6 +2,7 @@
 
 import { WorkOS } from '../workos';
 import { GenerateLinkIntent } from '../common/interfaces';
+import type { SSOProviderType } from './interfaces/sso-intent-options.interface';
 
 export class AdminPortal {
   constructor(private readonly workos: WorkOS) {}
@@ -32,7 +33,7 @@ export class AdminPortal {
     intentOptions?: {
       sso: {
         bookmarkSlug?: string;
-        providerType?: string;
+        providerType?: SSOProviderType;
       };
     };
     adminEmails?: string[];
