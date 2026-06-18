@@ -63,11 +63,11 @@ describe('Event', () => {
       id: 'conn_01234ABCD',
       organizationId: 'org_1234',
       name: 'Connection',
-      type: ConnectionType.OktaSAML,
+      connectionType: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
-      createdAt: '2020-05-06 04:21:48.649164',
-      updatedAt: '2020-05-06 04:21:48.649164',
+      createdAt: new Date('2020-05-06 04:21:48.649164'),
+      updatedAt: new Date('2020-05-06 04:21:48.649164'),
     },
   };
 
