@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.4.0](https://github.com/workos/workos-node/compare/v10.3.0...v10.4.0) (2026-06-18)
+
+
+### Features
+
+* **user-management:** Add invitationToken to getAuthorizationUrl options ([#1612](https://github.com/workos/workos-node/issues/1612)) ([a2d516f](https://github.com/workos/workos-node/commit/a2d516fef5c7cf70aaf69b165f581ffe6dad5360))
+
 ## [10.3.0](https://github.com/workos/workos-node/compare/v10.2.1...v10.3.0) (2026-06-17)
 
 
