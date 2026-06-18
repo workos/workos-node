@@ -20,9 +20,12 @@ import {
 import {
   deserializeConnection,
   deserializeProfile,
-  deserializeProfileAndToken,
   serializeListConnectionsOptions,
 } from './serializers';
+// Imported from the concrete file rather than the serializer barrel: when SSO
+// is oagen-owned the regenerated barrel only re-exports serializers for
+// generated methods, and `getProfileAndToken` is hand-owned below.
+import { deserializeProfileAndToken } from './serializers/profile-and-token.serializer';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
@@ -56,6 +59,7 @@ export class SSO {
       options ? serializeListConnectionsOptions(options) : undefined,
     );
   }
+  // @oagen-ignore-start
   /**
    * Delete a Connection
    *
@@ -73,7 +77,6 @@ export class SSO {
     await this.workos.delete(`/connections/${id}`);
   }
 
-  // @oagen-ignore-start
   getAuthorizationUrl(options: SSOAuthorizationURLOptions): string {
     const {
       codeChallenge,
@@ -191,6 +194,7 @@ export class SSO {
   }
   // @oagen-ignore-end
 
+  // @oagen-ignore-start
   /**
    * Get a Connection
    *
@@ -293,4 +297,5 @@ export class SSO {
 
     return deserializeProfile(data);
   }
+  // @oagen-ignore-end
 }
