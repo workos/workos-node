@@ -12,11 +12,3 @@ export const deserializeFeatureFlagOwner = (
   firstName: response.first_name ?? null,
   lastName: response.last_name ?? null,
 });
-
-export const serializeFeatureFlagOwner = (
-  model: FeatureFlagOwner,
-): FeatureFlagOwnerResponse => ({
-  email: model.email,
-  first_name: model.firstName,
-  last_name: model.lastName,
-});

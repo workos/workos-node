@@ -2,5 +2,3 @@
 
 export * from './feature-flag.serializer';
 export * from './feature-flag-owner.serializer';
-export * from './flag.serializer';
-export * from './flag-owner.serializer';

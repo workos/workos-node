@@ -9,13 +9,12 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 
-import listFlagFixture from './fixtures/list-flag.json';
-import flagFixture from './fixtures/flag.json';
+import listFeatureFlagFixture from './fixtures/list-feature-flag.json';
 import featureFlagFixture from './fixtures/feature-flag.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-function expectFlag(result: any) {
+function expectFeatureFlag(result: any) {
   expect(result.object).toBe('feature_flag');
   expect(result.id).toBe('flag_01EHZNVPK3SFK441A1RGBFSHRT');
   expect(result.slug).toBe('advanced-analytics');
@@ -30,27 +29,12 @@ function expectFlag(result: any) {
   expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
 }
 
-function expectFeatureFlag(result: any) {
-  expect(result.object).toBe('feature_flag');
-  expect(result.id).toBe('flag_01EHZNVPK3SFK441A1RGBFSHRT');
-  expect(result.slug).toBe('advanced-analytics');
-  expect(result.name).toBe('Advanced Analytics');
-  expect(result.description).toBe(
-    'Enable advanced analytics dashboard feature',
-  );
-  expect(result.tags).toEqual(['reports']);
-  expect(result.enabled).toBe(false);
-  expect(result.defaultValue).toBe(false);
-  expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-  expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-}
-
 describe('FeatureFlags', () => {
   beforeEach(() => fetch.resetMocks());
 
   describe('listFeatureFlags', () => {
     it('returns paginated results', async () => {
-      fetchOnce(listFlagFixture);
+      fetchOnce(listFeatureFlagFixture);
 
       const { data, listMetadata } = await workos.featureFlags.listFeatureFlags(
         { order: 'desc' },
@@ -62,13 +46,13 @@ describe('FeatureFlags', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
-      expectFlag(data[0]);
+      expectFeatureFlag(data[0]);
     });
   });
 
   describe('getFeatureFlag', () => {
     it('returns the expected result', async () => {
-      fetchOnce(flagFixture);
+      fetchOnce(featureFlagFixture);
 
       const result = await workos.featureFlags.getFeatureFlag({
         slug: 'test_slug',
@@ -78,7 +62,7 @@ describe('FeatureFlags', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/feature-flags/test_slug',
       );
-      expectFlag(result);
+      expectFeatureFlag(result);
     });
   });
 
@@ -148,7 +132,7 @@ describe('FeatureFlags', () => {
 
   describe('listOrganizationFeatureFlags', () => {
     it('returns paginated results', async () => {
-      fetchOnce(listFlagFixture);
+      fetchOnce(listFeatureFlagFixture);
 
       const { data, listMetadata } =
         await workos.featureFlags.listOrganizationFeatureFlags({
@@ -164,12 +148,13 @@ describe('FeatureFlags', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expectFeatureFlag(data[0]);
     });
   });
 
   describe('listUserFeatureFlags', () => {
     it('returns paginated results', async () => {
-      fetchOnce(listFlagFixture);
+      fetchOnce(listFeatureFlagFixture);
 
       const { data, listMetadata } =
         await workos.featureFlags.listUserFeatureFlags({
@@ -185,6 +170,7 @@ describe('FeatureFlags', () => {
       expect(Array.isArray(data)).toBe(true);
       expect(listMetadata).toBeDefined();
       expect(data.length).toBeGreaterThan(0);
+      expectFeatureFlag(data[0]);
     });
   });
 });

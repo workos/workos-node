@@ -4,7 +4,6 @@ import type { WorkOS } from '../workos';
 import type { PaginationOptions } from '../common/interfaces/pagination-options.interface';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
-import type { ListFeatureFlagsOptions } from './interfaces/list-feature-flags-options.interface';
 import type { GetFeatureFlagOptions } from './interfaces/get-feature-flag-options.interface';
 import type { DisableFeatureFlagOptions } from './interfaces/disable-feature-flag-options.interface';
 import type { EnableFeatureFlagOptions } from './interfaces/enable-feature-flag-options.interface';
@@ -12,12 +11,10 @@ import type { AddFlagTargetOptions } from './interfaces/add-flag-target-options.
 import type { RemoveFlagTargetOptions } from './interfaces/remove-flag-target-options.interface';
 import type { ListOrganizationFeatureFlagsOptions } from '../organizations/interfaces/list-organization-feature-flags-options.interface';
 import type { ListUserFeatureFlagsOptions } from '../user-management/interfaces/list-user-feature-flags-options.interface';
-import type { Flag, FlagResponse } from './interfaces/flag.interface';
 import type {
   FeatureFlag,
   FeatureFlagResponse,
 } from './interfaces/feature-flag.interface';
-import { deserializeFlag } from './serializers/flag.serializer';
 import { deserializeFeatureFlag } from './serializers/feature-flag.serializer';
 import { RuntimeClientOptions } from './interfaces';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
@@ -36,7 +33,7 @@ export class FeatureFlags {
    * @throws {UnprocessableEntityException} 422
    */
   async listFeatureFlags(
-    options?: ListFeatureFlagsOptions,
+    options?: PaginationOptions,
   ): Promise<AutoPaginatable<FeatureFlag, PaginationOptions>> {
     const paginationOptions = options;
     return new AutoPaginatable(
@@ -64,15 +61,15 @@ export class FeatureFlags {
    * @param options - The request options.
    * @param options.slug - A unique key to reference the Feature Flag.
    * @example "advanced-analytics"
-   * @returns {Promise<Flag>}
+   * @returns {Promise<FeatureFlag>}
    * @throws {NotFoundException} 404
    */
-  async getFeatureFlag(options: GetFeatureFlagOptions): Promise<Flag> {
+  async getFeatureFlag(options: GetFeatureFlagOptions): Promise<FeatureFlag> {
     const { slug } = options;
-    const { data } = await this.workos.get<FlagResponse>(
+    const { data } = await this.workos.get<FeatureFlagResponse>(
       `/feature-flags/${encodeURIComponent(slug)}`,
     );
-    return deserializeFlag(data);
+    return deserializeFeatureFlag(data);
   }
 
   /**
