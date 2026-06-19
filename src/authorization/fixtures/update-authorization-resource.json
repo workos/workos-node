@@ -1,0 +1,7 @@
+{
+  "name": "Updated Name",
+  "description": "Updated description",
+  "parent_resource_id": "authz_resource_01HXYZ123456789ABCDEFGHIJ",
+  "parent_resource_external_id": "parent-workspace-01",
+  "parent_resource_type_slug": "workspace"
+}

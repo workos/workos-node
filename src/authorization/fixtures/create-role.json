@@ -1,0 +1,6 @@
+{
+  "slug": "editor",
+  "name": "Editor",
+  "description": "Can edit resources",
+  "resource_type_slug": "organization"
+}

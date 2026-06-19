@@ -1,0 +1,6 @@
+{
+  "slug": "documents:read",
+  "name": "View Documents",
+  "description": "Allows viewing document contents",
+  "resource_type_slug": "document"
+}

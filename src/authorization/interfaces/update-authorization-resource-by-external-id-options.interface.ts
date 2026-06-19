@@ -4,4 +4,5 @@ export interface UpdateAuthorizationResourceByExternalIdOptions {
   externalId: string;
   name?: string;
   description?: string | null;
+  parentResourceId?: string;
 }

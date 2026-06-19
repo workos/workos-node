@@ -1,0 +1,6 @@
+{
+  "slug": "org-billing-admin",
+  "name": "Billing Administrator",
+  "description": "Can manage billing and invoices",
+  "resource_type_slug": "organization"
+}

@@ -3,6 +3,7 @@ import { PaginationOptions } from '../../common/interfaces/pagination-options.in
 export interface ListAuthorizationResourcesOptions extends PaginationOptions {
   organizationId?: string;
   resourceTypeSlug?: string;
+  resourceExternalId?: string;
   parentResourceId?: string;
   parentResourceTypeSlug?: string;
   parentExternalId?: string;
@@ -11,6 +12,7 @@ export interface ListAuthorizationResourcesOptions extends PaginationOptions {
 export interface SerializedListAuthorizationResourcesOptions extends PaginationOptions {
   organization_id?: string;
   resource_type_slug?: string;
+  resource_external_id?: string;
   parent_resource_id?: string;
   parent_resource_type_slug?: string;
   parent_external_id?: string;

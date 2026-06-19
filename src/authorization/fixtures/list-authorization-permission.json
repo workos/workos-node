@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "object": "permission",
+      "id": "perm_01HXYZ123456789ABCDEFGHIJ",
+      "slug": "documents:read",
+      "name": "View Documents",
+      "description": "Allows viewing document contents",
+      "system": false,
+      "resource_type_slug": "workspace",
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

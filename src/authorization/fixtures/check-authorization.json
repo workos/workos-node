@@ -1,0 +1,6 @@
+{
+  "permission_slug": "posts:create",
+  "resource_id": "resource_01HXYZ123456789ABCDEFGHIJ",
+  "resource_external_id": "my-custom-id",
+  "resource_type_slug": "document"
+}
