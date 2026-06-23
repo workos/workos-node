@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.4.1](https://github.com/workos/workos-node/compare/v10.4.0...v10.4.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **events:** Add resourceTypeSlug to RoleEvent deserialization ([#1638](https://github.com/workos/workos-node/issues/1638)) ([d478595](https://github.com/workos/workos-node/commit/d4785958cdaf1ee2d7857022fb4e89ff4e9518b5))
+
 ## [10.4.0](https://github.com/workos/workos-node/compare/v10.3.0...v10.4.0) (2026-06-18)
 
 
