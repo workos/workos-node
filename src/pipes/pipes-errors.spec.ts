@@ -62,4 +62,15 @@ describe('Pipes getAccessToken inactive responses', () => {
       },
     });
   });
+
+  it('throws error for server errors', async () => {
+    fetchOnce({ message: 'Internal Server Error' }, { status: 500 });
+
+    await expect(
+      workos.pipes.getAccessToken({
+        provider: 'test_provider',
+        userId: 'user_id_01234',
+      }),
+    ).rejects.toThrow();
+  });
 });
