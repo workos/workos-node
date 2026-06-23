@@ -10,11 +10,10 @@ import {
 import { WorkOS } from '../workos';
 
 import organizationDomainFixture from './fixtures/organization-domain.json';
-import organizationDomainStandAloneFixture from './fixtures/organization-domain-stand-alone.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-function expectOrganizationDomainStandAlone(result: any) {
+function expectOrganizationDomain(result: any) {
   expect(result.object).toBe('organization_domain');
   expect(result.id).toBe('org_domain_01EHZNVPK2QXHMVWCEDQEKY69A');
   expect(result.organizationId).toBe('org_01HE8GSH8FQPASKSY27THRKRBP');
@@ -45,18 +44,13 @@ describe('OrganizationDomains', () => {
           organization_id: 'organization_id_01234',
         }),
       );
-      expect(result.object).toBe('organization_domain');
-      expect(result.id).toBe('org_domain_01EHZNVPK2QXHMVWCEDQEKY69A');
-      expect(result.organizationId).toBe('org_01HE8GSH8FQPASKSY27THRKRBP');
-      expect(result.domain).toBe('foo-corp.com');
-      expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-      expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+      expectOrganizationDomain(result);
     });
   });
 
   describe('getOrganizationDomain', () => {
     it('returns the expected result', async () => {
-      fetchOnce(organizationDomainStandAloneFixture);
+      fetchOnce(organizationDomainFixture);
 
       const result = await workos.organizationDomains.getOrganizationDomain({
         id: 'test_id',
@@ -66,7 +60,7 @@ describe('OrganizationDomains', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/organization_domains/test_id',
       );
-      expectOrganizationDomainStandAlone(result);
+      expectOrganizationDomain(result);
     });
   });
 
@@ -87,7 +81,7 @@ describe('OrganizationDomains', () => {
 
   describe('verifyOrganizationDomain', () => {
     it('returns the expected result', async () => {
-      fetchOnce(organizationDomainStandAloneFixture);
+      fetchOnce(organizationDomainFixture);
 
       const result = await workos.organizationDomains.verifyOrganizationDomain({
         id: 'test_id',
@@ -97,7 +91,7 @@ describe('OrganizationDomains', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/organization_domains/test_id/verify',
       );
-      expectOrganizationDomainStandAlone(result);
+      expectOrganizationDomain(result);
     });
   });
 });

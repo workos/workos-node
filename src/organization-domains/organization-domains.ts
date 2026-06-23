@@ -9,13 +9,8 @@ import type {
   OrganizationDomain,
   OrganizationDomainResponse,
 } from './interfaces/organization-domain.interface';
-import type {
-  OrganizationDomainStandAlone,
-  OrganizationDomainStandAloneResponse,
-} from './interfaces/organization-domain-stand-alone.interface';
 import type { CreateOrganizationDomainResponse } from './interfaces/create-organization-domain.interface';
 import { deserializeOrganizationDomain } from './serializers/organization-domain.serializer';
-import { deserializeOrganizationDomainStandAlone } from './serializers/organization-domain-stand-alone.serializer';
 import { serializeCreateOrganizationDomain } from './serializers/create-organization-domain.serializer';
 
 export class OrganizationDomains {
@@ -25,7 +20,11 @@ export class OrganizationDomains {
    * Create an Organization Domain
    *
    * Creates a new Organization Domain.
-   * @param options - The request options.
+   * @param options - Object containing domain, organizationId.
+   * @param options.domain - The domain to add to the organization.
+   * @example "foo-corp.com"
+   * @param options.organizationId - The ID of the organization to add the domain to.
+   * @example "org_01EHQMYV6MBK39QC5PZXHY59C3"
    * @returns {Promise<OrganizationDomain>}
    * @throws {ConflictException} 409
    */
@@ -47,18 +46,17 @@ export class OrganizationDomains {
    * @param options - The request options.
    * @param options.id - Unique identifier of the organization domain.
    * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {Promise<OrganizationDomainStandAlone>}
+   * @returns {Promise<OrganizationDomain>}
    * @throws {NotFoundException} 404
    */
   async getOrganizationDomain(
     options: GetOrganizationDomainOptions,
-  ): Promise<OrganizationDomainStandAlone> {
+  ): Promise<OrganizationDomain> {
     const { id } = options;
-    const { data } =
-      await this.workos.get<OrganizationDomainStandAloneResponse>(
-        `/organization_domains/${encodeURIComponent(id)}`,
-      );
-    return deserializeOrganizationDomainStandAlone(data);
+    const { data } = await this.workos.get<OrganizationDomainResponse>(
+      `/organization_domains/${encodeURIComponent(id)}`,
+    );
+    return deserializeOrganizationDomain(data);
   }
 
   /**
@@ -85,18 +83,17 @@ export class OrganizationDomains {
    * @param options - The request options.
    * @param options.id - Unique identifier of the organization domain.
    * @example "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A"
-   * @returns {Promise<OrganizationDomainStandAlone>}
+   * @returns {Promise<OrganizationDomain>}
    * @throws {BadRequestException} 400
    */
   async verifyOrganizationDomain(
     options: VerifyOrganizationDomainOptions,
-  ): Promise<OrganizationDomainStandAlone> {
+  ): Promise<OrganizationDomain> {
     const { id } = options;
-    const { data } =
-      await this.workos.post<OrganizationDomainStandAloneResponse>(
-        `/organization_domains/${encodeURIComponent(id)}/verify`,
-        {},
-      );
-    return deserializeOrganizationDomainStandAlone(data);
+    const { data } = await this.workos.post<OrganizationDomainResponse>(
+      `/organization_domains/${encodeURIComponent(id)}/verify`,
+      {},
+    );
+    return deserializeOrganizationDomain(data);
   }
 }

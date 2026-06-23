@@ -2,4 +2,3 @@
 
 export * from './create-organization-domain.serializer';
 export * from './organization-domain.serializer';
-export * from './organization-domain-stand-alone.serializer';
