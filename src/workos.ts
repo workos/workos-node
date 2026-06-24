@@ -20,6 +20,7 @@ import {
   WorkOSOptions,
   WorkOSResponseError,
 } from './common/interfaces';
+import { Agents } from './agents/agents';
 import { ApiKeys } from './api-keys/api-keys';
 import { Connect } from './connect/connect';
 import { DirectorySync } from './directory-sync/directory-sync';
@@ -69,6 +70,7 @@ export class WorkOS {
   private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
+  readonly agents = new Agents(this);
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
