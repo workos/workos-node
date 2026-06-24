@@ -1,7 +1,10 @@
-// Hand-written supplement to the generated pipes.spec.ts. The generated test
-// only exercises getAccessToken's happy path, leaving the `active: false`
-// branches of the DataIntegrationAccessTokenResponse union — and the
-// null-expiry success path — untested. Keep this file hand-owned (distinct
+// Hand-written supplement to the generated pipes.spec.ts. The generated suite
+// now covers getAccessToken's happy path, the `active: false` branch (asserting
+// the discriminator), and the error-throw path. Two gaps the generator can't
+// reach remain here: the second failure enum value — the generated branch test
+// only emits the first (`not_installed`) and asserts the discriminator, not the
+// deserialized `error` field — and the null-expiry success path, which is a
+// nullable field rather than a union branch. Keep this file hand-owned (distinct
 // name) so `regenerateOwnedTests` does not overwrite it.
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
@@ -11,17 +14,6 @@ const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 describe('Pipes getAccessToken inactive responses', () => {
   beforeEach(() => fetch.resetMocks());
-
-  it('deserializes a not_installed error response', async () => {
-    fetchOnce({ active: false, error: 'not_installed' });
-
-    const result = await workos.pipes.getAccessToken({
-      provider: 'test_provider',
-      userId: 'user_id_01234',
-    });
-
-    expect(result).toEqual({ active: false, error: 'not_installed' });
-  });
 
   it('deserializes a needs_reauthorization error response', async () => {
     fetchOnce({ active: false, error: 'needs_reauthorization' });
@@ -61,16 +53,5 @@ describe('Pipes getAccessToken inactive responses', () => {
         missingScopes: [],
       },
     });
-  });
-
-  it('throws error for server errors', async () => {
-    fetchOnce({ message: 'Internal Server Error' }, { status: 500 });
-
-    await expect(
-      workos.pipes.getAccessToken({
-        provider: 'test_provider',
-        userId: 'user_id_01234',
-      }),
-    ).rejects.toThrow();
   });
 });

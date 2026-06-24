@@ -39,6 +39,17 @@ describe('Pipes', () => {
         'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
       );
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.pipes.authorizeDataIntegration({
+          slug: 'test_slug',
+          userId: 'user_id_01234',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('getAccessToken', () => {
@@ -58,6 +69,28 @@ describe('Pipes', () => {
         expect.objectContaining({ user_id: 'user_id_01234' }),
       );
       expect(result).toBeDefined();
+    });
+
+    it('returns the active=false response variant', async () => {
+      fetchOnce({ active: false, error: 'not_installed' });
+
+      const result = await workos.pipes.getAccessToken({
+        provider: 'test_provider',
+        userId: 'user_id_01234',
+      });
+
+      expect(result.active).toBe(false);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.pipes.getAccessToken({
+          provider: 'test_provider',
+          userId: 'user_id_01234',
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -84,6 +117,18 @@ describe('Pipes', () => {
       expect(result.createdAt).toBe('2024-01-16T14:20:00.000Z');
       expect(result.updatedAt).toBe('2024-01-16T14:20:00.000Z');
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.pipes.getUserConnectedAccount({
+          userId: 'test_userId',
+          slug: 'test_slug',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('deleteUserConnectedAccount', () => {
@@ -101,6 +146,18 @@ describe('Pipes', () => {
         '/user_management/users/test_userId/connected_accounts/test_slug',
       );
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.pipes.deleteUserConnectedAccount({
+          userId: 'test_userId',
+          slug: 'test_slug',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('listUserDataProviders', () => {
@@ -117,6 +174,17 @@ describe('Pipes', () => {
         '/user_management/users/test_userId/data_providers',
       );
       expect(result.object).toBe('list');
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.pipes.listUserDataProviders({
+          userId: 'test_userId',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        }),
+      ).rejects.toThrow();
     });
   });
 });
