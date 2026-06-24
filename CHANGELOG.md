@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.5.0](https://github.com/workos/workos-node/compare/v10.4.1...v10.5.0) (2026-06-24)
+
+
+### Features
+
+* Add signalsId to user management APIs ([#1618](https://github.com/workos/workos-node/issues/1618)) ([b6e7944](https://github.com/workos/workos-node/commit/b6e7944796945b20d4a75177c9ea0a4d34ea20d8))
+
 ## [10.4.1](https://github.com/workos/workos-node/compare/v10.4.0...v10.4.1) (2026-06-23)
 
 
