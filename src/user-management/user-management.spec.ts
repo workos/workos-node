@@ -207,6 +207,19 @@ describe('UserManagement', () => {
 
       expect(user.radarAuthAttemptId).toBeUndefined();
     });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.createUser({
+        email: 'test01@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
   });
 
   describe('authenticateUserWithMagicAuth', () => {
@@ -239,6 +252,21 @@ describe('UserManagement', () => {
 
       expect(fetchBody()).toMatchObject({
         radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        email: userFixture.email,
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -324,6 +352,21 @@ describe('UserManagement', () => {
       });
     });
 
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithPassword({
+        clientId: 'proj_whatever',
+        email: 'test01@example.com',
+        password: 'extra-secure',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
+
     describe('when sealSession = true', () => {
       beforeEach(() => {
         fetchOnce({
@@ -397,6 +440,20 @@ describe('UserManagement', () => {
             email: 'test01@example.com',
           },
         });
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCode({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -715,6 +772,21 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCodeAndVerifier({
+        clientId: 'proj_whatever',
+        code: 'auth_code_123',
+        codeVerifier: 'required_code_verifier',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -1846,6 +1918,19 @@ describe('UserManagement', () => {
       });
 
       expect(response.radarAuthAttemptId).toBeUndefined();
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(magicAuthFixture);
+
+      await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
     });
   });
 

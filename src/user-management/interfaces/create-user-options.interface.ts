@@ -13,6 +13,7 @@ export interface CreateUserOptions {
   metadata?: Record<string, string>;
   ipAddress?: string;
   userAgent?: string;
+  signalsId?: string;
 }
 
 export interface SerializedCreateUserOptions {
@@ -28,4 +29,5 @@ export interface SerializedCreateUserOptions {
   metadata?: Record<string, string>;
   ip_address?: string;
   user_agent?: string;
+  signals_id?: string;
 }
