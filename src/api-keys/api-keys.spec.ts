@@ -62,14 +62,14 @@ describe('ApiKeys', () => {
     it('returns the agent registration id for an agent-assigned key', async () => {
       fetchOnce({
         ...validateApiKeyFixture,
-        agent_registration_id: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+        agent_registration_id: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
       });
       const response = await workos.apiKeys.createValidation({
         value: 'sk_123',
       });
 
       expect(response.agentRegistrationId).toEqual(
-        'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+        'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
       );
     });
 
