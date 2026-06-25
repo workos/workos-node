@@ -19,9 +19,18 @@ export function serializeValidateAgentCredentialOptions(
 export function deserializeAgentCredentialValidation(
   validation: SerializedAgentCredentialValidation,
 ): AgentCredentialValidation {
+  if (!validation.valid) {
+    return {
+      valid: false,
+      registrationId: null,
+      expiresAt: null,
+      claims: null,
+    };
+  }
+
   return {
-    valid: validation.valid,
-    registrationId: validation.registration_id,
+    valid: true,
+    registrationId: validation.registration_id ?? '',
     expiresAt: validation.expires_at,
     claims: null,
   };

@@ -68,7 +68,10 @@ export class Agents {
   private async validateAccessToken(
     options: ValidateAgentAccessTokenOptions,
   ): Promise<AgentCredentialValidation> {
-    const claims = await this.verifyAccessTokenClaims(options.credential);
+    const claims = await this.verifyAccessTokenClaims(
+      options.credential,
+      options.audience,
+    );
 
     if (!claims) {
       return {
@@ -79,9 +82,9 @@ export class Agents {
       };
     }
 
-    // The signature and time claims check out locally. Unless the caller wants
-    // a revocation check, that's the whole verdict — a revoked but unexpired
-    // token still reports valid here.
+    // The signature, audience, and time claims check out locally. Unless the
+    // caller wants a revocation check, that's the whole verdict — a revoked but
+    // unexpired token still reports valid here.
     if (!options.checkForRevoked) {
       return {
         valid: true,
@@ -98,7 +101,7 @@ export class Agents {
     // server is the source of truth for revocation and expiry, but the locally
     // decoded claims are still surfaced.
     const remote = await this.validateCredentialRemotely(options);
-    return { ...remote, claims: remote.valid ? claims : null };
+    return remote.valid ? { ...remote, claims } : remote;
   }
 
   private async validateCredentialRemotely(
@@ -114,19 +117,29 @@ export class Agents {
   }
 
   /**
-   * Verifies an access token's signature and time claims against the
+   * Verifies an access token's signature, audience, and time claims against the
    * environment's JWKS and returns its decoded claims, or `null` when the token
-   * is invalid (bad signature, expired, malformed). Errors that are not JWT
-   * validation failures (e.g. network errors fetching the JWKS) propagate.
+   * is invalid (bad signature, wrong audience, expired, malformed). Errors that
+   * are not JWT validation failures (e.g. network errors fetching the JWKS)
+   * propagate.
+   *
+   * The audience defaults to the client ID; resource-scoped tokens carry the
+   * resource as their audience and require it to be passed explicitly.
    */
-  private async verifyAccessTokenClaims(credential: string) {
+  private async verifyAccessTokenClaims(
+    credential: string,
+    audience?: string | string[],
+  ) {
     const { jwtVerify } = await getJose();
+    // Throws when no client ID is configured, so `this.workos.clientId` below
+    // is guaranteed to be present as the default audience.
     const jwks = await this.getJWKS();
 
     try {
       const { payload } = await jwtVerify<SerializedAgentAccessTokenClaims>(
         credential,
         jwks,
+        { audience: audience ?? this.workos.clientId },
       );
       return deserializeAgentAccessTokenClaims(payload);
     } catch (e) {

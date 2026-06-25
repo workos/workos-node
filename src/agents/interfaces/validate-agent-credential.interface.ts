@@ -18,11 +18,18 @@ export interface ValidateAgentAccessTokenOptions {
    * not-yet-expired token will still report as valid.
    */
   checkForRevoked?: boolean;
+  /**
+   * The expected token audience (`aud`). Defaults to the client ID the WorkOS
+   * client was initialized with. Pass the resource indicator for
+   * resource-scoped tokens, whose audience is the resource rather than the
+   * client ID.
+   */
+  audience?: string | string[];
 }
 
 /**
- * Options for validating an agent credential. `checkForRevoked` is only
- * available for `access_token` credentials.
+ * Options for validating an agent credential. `checkForRevoked` and `audience`
+ * are only available for `access_token` credentials.
  */
 export type ValidateAgentCredentialOptions =
   | ValidateAgentApiKeyOptions
@@ -68,26 +75,35 @@ export interface SerializedAgentAccessTokenClaims {
   iat?: number;
 }
 
-/** The result of validating an agent credential. */
-export interface AgentCredentialValidation {
-  /** Whether the credential is valid. */
-  valid: boolean;
-  /**
-   * Unique identifier of the agent registration the credential was issued for,
-   * or `null` when the credential is invalid.
-   */
-  registrationId: string | null;
+/** A valid agent credential. */
+export interface ValidAgentCredential {
+  valid: true;
+  /** Unique identifier of the agent registration the credential was issued for. */
+  registrationId: string;
   /**
    * An ISO 8601 timestamp of when the credential expires, or `null` when it
-   * does not expire or is invalid.
+   * does not expire.
    */
   expiresAt: string | null;
   /**
-   * The decoded claims of the access token. Only populated for valid
-   * `access_token` credentials; `null` for API keys and invalid tokens.
+   * The decoded claims of the access token. Populated for `access_token`
+   * credentials; `null` for API keys.
    */
   claims: AgentAccessTokenClaims | null;
 }
+
+/** An invalid agent credential. */
+export interface InvalidAgentCredential {
+  valid: false;
+  registrationId: null;
+  expiresAt: null;
+  claims: null;
+}
+
+/** The result of validating an agent credential. */
+export type AgentCredentialValidation =
+  | ValidAgentCredential
+  | InvalidAgentCredential;
 
 export interface SerializedAgentCredentialValidation {
   valid: boolean;

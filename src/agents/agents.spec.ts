@@ -135,11 +135,57 @@ describe('Agents', () => {
         });
 
         expect(fetch).not.toHaveBeenCalled();
+        // Audience defaults to the configured client ID.
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          'eyJ.token.value',
+          expect.anything(),
+          { audience: 'proj_123' },
+        );
         expect(validation).toEqual({
           valid: true,
           registrationId: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
           expiresAt: '2100-01-01T00:00:00.000Z',
           claims: EXPECTED_CLAIMS,
+        });
+      });
+
+      it('verifies against a caller-supplied audience for resource-scoped tokens', async () => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload: ACCESS_TOKEN_PAYLOAD } as never);
+
+        await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.token.value',
+          audience: 'https://api.example.com',
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          'eyJ.token.value',
+          expect.anything(),
+          { audience: 'https://api.example.com' },
+        );
+      });
+
+      it('reports an invalid token when the audience does not match', async () => {
+        jest.mocked(jose.jwtVerify).mockImplementation(() => {
+          const error = new Error('audience mismatch') as Error & {
+            code: string;
+          };
+          error.code = 'ERR_JWT_CLAIM_VALIDATION_FAILED';
+          throw error;
+        });
+
+        const validation = await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.wrong.audience',
+        });
+
+        expect(validation).toEqual({
+          valid: false,
+          registrationId: null,
+          expiresAt: null,
+          claims: null,
         });
       });
 
