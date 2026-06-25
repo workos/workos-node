@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.7.0](https://github.com/workos/workos-node/compare/v10.6.0...v10.7.0) (2026-06-25)
+
+
+### Features
+
+* Add source to role assignments to distinguish group grants ([#1646](https://github.com/workos/workos-node/issues/1646)) ([574f5ca](https://github.com/workos/workos-node/commit/574f5cabb4c5c13f22841d16096a6ce49796018e))
+
 ## [10.6.0](https://github.com/workos/workos-node/compare/v10.5.0...v10.6.0) (2026-06-25)
 
 
