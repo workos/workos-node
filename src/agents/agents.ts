@@ -126,10 +126,7 @@ export class Agents {
    * The audience defaults to the client ID; resource-scoped tokens carry the
    * resource as their audience and require it to be passed explicitly.
    */
-  private async verifyAccessTokenClaims(
-    credential: string,
-    audience?: string | string[],
-  ) {
+  private async verifyAccessTokenClaims(credential: string, audience?: string) {
     const { jwtVerify } = await getJose();
     // Throws when no client ID is configured, so `this.workos.clientId` below
     // is guaranteed to be present as the default audience.

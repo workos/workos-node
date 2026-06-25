@@ -22,9 +22,10 @@ export interface ValidateAgentAccessTokenOptions {
    * The expected token audience (`aud`). Defaults to the client ID the WorkOS
    * client was initialized with. Pass the resource indicator for
    * resource-scoped tokens, whose audience is the resource rather than the
-   * client ID.
+   * client ID. When `checkForRevoked` is set, this is also forwarded to the
+   * WorkOS API so the server verifies the `aud` claim against the same value.
    */
-  audience?: string | string[];
+  audience?: string;
 }
 
 /**
@@ -38,6 +39,7 @@ export type ValidateAgentCredentialOptions =
 export interface SerializedValidateAgentCredentialOptions {
   type: AgentCredentialType;
   credential: string;
+  audience?: string;
 }
 
 /** The decoded claims of an agent access token. */

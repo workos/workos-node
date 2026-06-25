@@ -13,6 +13,10 @@ export function serializeValidateAgentCredentialOptions(
   return {
     type: options.type,
     credential: options.credential,
+    // Only access_token credentials carry an audience; forwarding it lets the
+    // server verify the JWT `aud` claim against the same value.
+    ...(options.type === 'access_token' &&
+      options.audience !== undefined && { audience: options.audience }),
   };
 }
 

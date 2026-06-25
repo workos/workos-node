@@ -235,6 +235,26 @@ describe('Agents', () => {
         });
       });
 
+      it('forwards the audience to the server when checking for revocation', async () => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload: ACCESS_TOKEN_PAYLOAD } as never);
+        fetchOnce(validateAgentCredentialFixture);
+
+        await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.token.value',
+          checkForRevoked: true,
+          audience: 'https://api.example.com',
+        });
+
+        expect(fetchBody()).toEqual({
+          type: 'access_token',
+          credential: 'eyJ.token.value',
+          audience: 'https://api.example.com',
+        });
+      });
+
       it('reports a revoked token as invalid and drops its claims', async () => {
         jest
           .mocked(jose.jwtVerify)
