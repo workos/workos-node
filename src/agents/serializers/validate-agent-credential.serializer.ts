@@ -1,5 +1,7 @@
 import {
+  AgentAccessTokenClaims,
   AgentCredentialValidation,
+  SerializedAgentAccessTokenClaims,
   SerializedAgentCredentialValidation,
   SerializedValidateAgentCredentialOptions,
   ValidateAgentCredentialOptions,
@@ -21,5 +23,22 @@ export function deserializeAgentCredentialValidation(
     valid: validation.valid,
     registrationId: validation.registration_id,
     expiresAt: validation.expires_at,
+    claims: null,
+  };
+}
+
+export function deserializeAgentAccessTokenClaims(
+  payload: SerializedAgentAccessTokenClaims,
+): AgentAccessTokenClaims {
+  return {
+    issuer: payload.iss,
+    audience: payload.aud,
+    registrationId: payload.sub ?? '',
+    jwtId: payload.jti ?? '',
+    organizationId: payload.organization_id ?? '',
+    scope: payload.scope,
+    actor: payload.act,
+    expiresAt: payload.exp,
+    issuedAt: payload.iat,
   };
 }
