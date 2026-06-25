@@ -13,7 +13,7 @@ jest.mock('jose', () => ({
 const ACCESS_TOKEN_PAYLOAD = {
   iss: 'https://auth.example.com',
   aud: 'proj_123',
-  sub: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+  sub: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
   jti: '01EHZNVPK3SFK441A1RGBFSHRT',
   organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
   scope: 'read write',
@@ -24,7 +24,7 @@ const ACCESS_TOKEN_PAYLOAD = {
 const EXPECTED_CLAIMS = {
   issuer: 'https://auth.example.com',
   audience: 'proj_123',
-  registrationId: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+  registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
   jwtId: '01EHZNVPK3SFK441A1RGBFSHRT',
   organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
   scope: 'read write',
@@ -53,14 +53,14 @@ describe('Agents', () => {
       fetchOnce(getAgentRegistrationFixture);
 
       const registration = await workos.agents.getRegistration(
-        'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+        'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
       );
 
       expect(fetchURL()).toContain(
-        '/agents/registrations/agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+        '/agents/registrations/agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
       );
       expect(registration).toEqual({
-        id: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+        id: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
         agentIdentity: {
           id: 'agent_identity_01EHZNVPK3SFK441A1RGBFSHRT',
           userlandUserId: null,
@@ -71,8 +71,14 @@ describe('Agents', () => {
         status: 'unverified',
         kind: 'anonymous',
         claim: {
-          id: 'agent_registration_claim_01EHZNVPK3SFK441A1RGBFSHRT',
-          claimCompletion: null,
+          id: 'agent_reg_claim_01EHZNVPK3SFK441A1RGBFSHRT',
+          claimCompletion: {
+            id: 'agent_reg_claim_attempt_01EHZNVPK3SFK441A1RGBFSHRT',
+            createdAt: '2023-07-18T02:07:19.911Z',
+            updatedAt: '2023-07-18T02:07:19.911Z',
+            expiresAt: '2099-01-01T00:00:00.000Z',
+            claimedAt: '2023-07-18T02:08:00.000Z',
+          },
           createdAt: '2023-07-18T02:07:19.911Z',
           updatedAt: '2023-07-18T02:07:19.911Z',
           expiresAt: '2099-01-01T00:00:00.000Z',
@@ -100,7 +106,7 @@ describe('Agents', () => {
         });
         expect(validation).toEqual({
           valid: true,
-          registrationId: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+          registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
           expiresAt: '2099-01-01T00:00:00.000Z',
           claims: null,
         });
@@ -143,7 +149,7 @@ describe('Agents', () => {
         );
         expect(validation).toEqual({
           valid: true,
-          registrationId: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+          registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
           expiresAt: '2100-01-01T00:00:00.000Z',
           claims: EXPECTED_CLAIMS,
         });
@@ -229,7 +235,7 @@ describe('Agents', () => {
         });
         expect(validation).toEqual({
           valid: true,
-          registrationId: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+          registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
           expiresAt: '2099-01-01T00:00:00.000Z',
           claims: EXPECTED_CLAIMS,
         });

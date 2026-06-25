@@ -1,5 +1,5 @@
 {
-  "id": "agent_registration_01EHZNVPK3SFK441A1RGBFSHRT",
+  "id": "agent_reg_01EHZNVPK3SFK441A1RGBFSHRT",
   "agent_identity": {
     "id": "agent_identity_01EHZNVPK3SFK441A1RGBFSHRT",
     "userland_user_id": null,
@@ -10,8 +10,14 @@
   "status": "unverified",
   "kind": "anonymous",
   "claim": {
-    "id": "agent_registration_claim_01EHZNVPK3SFK441A1RGBFSHRT",
-    "claim_completion": null,
+    "id": "agent_reg_claim_01EHZNVPK3SFK441A1RGBFSHRT",
+    "claim_completion": {
+      "id": "agent_reg_claim_attempt_01EHZNVPK3SFK441A1RGBFSHRT",
+      "created_at": "2023-07-18T02:07:19.911Z",
+      "updated_at": "2023-07-18T02:07:19.911Z",
+      "expires_at": "2099-01-01T00:00:00.000Z",
+      "claimed_at": "2023-07-18T02:08:00.000Z"
+    },
     "created_at": "2023-07-18T02:07:19.911Z",
     "updated_at": "2023-07-18T02:07:19.911Z",
     "expires_at": "2099-01-01T00:00:00.000Z"

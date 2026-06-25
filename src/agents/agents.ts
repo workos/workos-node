@@ -28,7 +28,7 @@ export class Agents {
    * @param id - Unique identifier of the agent registration.
    *
    * @example
-   * "agent_registration_01EHZNVPK3SFK441A1RGBFSHRT"
+   * "agent_reg_01EHZNVPK3SFK441A1RGBFSHRT"
    *
    * @returns {Promise<AgentRegistration>}
    * @throws {NotFoundException} 404
