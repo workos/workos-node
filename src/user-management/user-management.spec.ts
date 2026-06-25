@@ -2935,6 +2935,22 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with maxAge', () => {
+      it('generates an authorize url with the provided max age', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          maxAge: 3600,
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toContain('max_age=3600');
+      });
+    });
+
     describe('with prompt', () => {
       it('generates an authorize url with the provided prompt', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -3042,6 +3058,18 @@ describe('UserManagement', () => {
       expect(result.url).toContain('screen_hint=sign-up');
       expect(result.url).toContain('login_hint=test%40example.com');
       expect(result.url).toContain('domain_hint=example.com');
+    });
+
+    it('includes max age when provided', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          maxAge: 3600,
+        });
+
+      expect(result.url).toContain('max_age=3600');
     });
 
     it('throws error when missing provider/connection/organization', async () => {
