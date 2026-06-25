@@ -9,5 +9,8 @@ export function deserializeValidateApiKeyResponse(
 ): ValidateApiKeyResponse {
   return {
     apiKey: response.api_key ? deserializeApiKey(response.api_key) : null,
+    ...(typeof response.agent_registration_id === 'undefined'
+      ? undefined
+      : { agentRegistrationId: response.agent_registration_id }),
   };
 }
