@@ -1629,6 +1629,30 @@ describe('Authorization', () => {
   });
 
   describe('listRoleAssignments', () => {
+    it('deserializes a group-derived source', async () => {
+      fetchOnce({
+        ...listRoleAssignmentsFixture,
+        data: [
+          {
+            ...listRoleAssignmentsFixture.data[0],
+            source: {
+              type: 'group',
+              group_role_assignment_id: testGroupRoleAssignmentId,
+            },
+          },
+        ],
+      });
+
+      const result = await workos.authorization.listRoleAssignments({
+        organizationMembershipId: testOrgMembershipId,
+      });
+
+      expect(result.data[0].source).toEqual({
+        type: 'group',
+        groupRoleAssignmentId: testGroupRoleAssignmentId,
+      });
+    });
+
     it('lists role assignments for an organization membership', async () => {
       fetchOnce(listRoleAssignmentsFixture);
 
@@ -1650,6 +1674,10 @@ describe('Authorization', () => {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
           externalId: 'doc-123',
           resourceTypeSlug: 'document',
+        },
+        source: {
+          type: 'direct',
+          groupRoleAssignmentId: null,
         },
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
@@ -1797,6 +1825,10 @@ describe('Authorization', () => {
           externalId: 'doc-123',
           resourceTypeSlug: 'document',
         },
+        source: {
+          type: 'direct',
+          groupRoleAssignmentId: null,
+        },
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
       });
@@ -1890,6 +1922,10 @@ describe('Authorization', () => {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
           externalId: 'doc-123',
           resourceTypeSlug: 'document',
+        },
+        source: {
+          type: 'direct',
+          groupRoleAssignmentId: null,
         },
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
@@ -1992,6 +2028,10 @@ describe('Authorization', () => {
           id: 'resource_01HXYZ123ABC456DEF789XYZ',
           externalId: 'doc-123',
           resourceTypeSlug: 'document',
+        },
+        source: {
+          type: 'direct',
+          groupRoleAssignmentId: null,
         },
         createdAt: '2024-01-15T09:30:00.000Z',
         updatedAt: '2024-01-15T09:30:00.000Z',
