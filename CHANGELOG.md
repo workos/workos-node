@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.6.0](https://github.com/workos/workos-node/compare/v10.5.0...v10.6.0) (2026-06-25)
+
+
+### Features
+
+* **user-management:** add max_age parameter to getAuthorizationUrl ([#1643](https://github.com/workos/workos-node/issues/1643)) ([730404e](https://github.com/workos/workos-node/commit/730404e3c753b3250da0c777929b24e9f955ba70))
+
 ## [10.5.0](https://github.com/workos/workos-node/compare/v10.4.1...v10.5.0) (2026-06-24)
 
 
