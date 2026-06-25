@@ -58,6 +58,29 @@ describe('ApiKeys', () => {
       expect(fetchURL()).toContain('/api_keys/validations');
       expect(response).toEqual({ apiKey: null });
     });
+
+    it('returns the agent registration id for an agent-assigned key', async () => {
+      fetchOnce({
+        ...validateApiKeyFixture,
+        agent_registration_id: 'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response.agentRegistrationId).toEqual(
+        'agent_registration_01EHZNVPK3SFK441A1RGBFSHRT',
+      );
+    });
+
+    it('omits the agent registration id for a non-agent key', async () => {
+      fetchOnce(validateApiKeyFixture);
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response).not.toHaveProperty('agentRegistrationId');
+    });
   });
 
   describe('deleteApiKey', () => {
