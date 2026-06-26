@@ -184,6 +184,7 @@ describe('Event', () => {
             name: 'Advanced Audit Logging',
             slug: 'advanced-audit-logging',
             description: '',
+            owner: null,
             tags: [],
             enabled: false,
             default_value: false,
@@ -205,11 +206,12 @@ describe('Event', () => {
             name: 'Advanced Audit Logging',
             slug: 'advanced-audit-logging',
             description: '',
+            owner: null,
             tags: [],
             enabled: false,
             defaultValue: false,
-            createdAt: '2025-08-28T17:56:30.985Z',
-            updatedAt: '2025-08-28T17:56:30.985Z',
+            createdAt: new Date('2025-08-28T17:56:30.985Z'),
+            updatedAt: new Date('2025-08-28T17:56:30.985Z'),
           },
         };
 
