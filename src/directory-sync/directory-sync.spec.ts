@@ -24,7 +24,7 @@ function expectDirectory(result: any) {
   expect(result.organizationId).toBe('org_01EHZNVPK3SFK441A1RGBFSHRT');
   expect(result.externalKey).toBe('sPa12dwRQ');
   expect(result.type).toBe('gsuite directory');
-  expect(result.state).toBe('linked');
+  expect(result.state).toBe('active');
   expect(result.name).toBe('Foo Corp');
   expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
   expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
