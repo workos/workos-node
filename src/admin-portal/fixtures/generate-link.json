@@ -7,7 +7,10 @@
     "sso": {
       "bookmark_slug": "chatgpt",
       "provider_type": "GoogleSAML"
+    },
+    "domain_verification": {
+      "domain_name": "example.com"
     }
   },
-  "admin_emails": ["admin@example.com"]
+  "it_contact_emails": ["it-contact@example.com"]
 }
