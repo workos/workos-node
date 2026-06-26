@@ -1,16 +1,15 @@
 {
   "name": "Foo Corp",
   "allow_profiles_outside_organization": false,
-  "domains": ["foo-corp.com"],
+  "domains": ["example.com"],
   "domain_data": [
     {
       "domain": "foo-corp.com",
       "state": "verified"
     }
   ],
-  "stripe_customer_id": "cus_R9qWAGMQ6nGE7V",
   "metadata": {
     "tier": "diamond"
   },
-  "external_id": "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191"
+  "external_id": "ext_12345"
 }

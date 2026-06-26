@@ -1,0 +1,35 @@
+{
+  "data": [
+    {
+      "object": "organization",
+      "id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+      "name": "Acme Inc.",
+      "domains": [
+        {
+          "object": "organization_domain",
+          "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
+          "organization_id": "org_01HE8GSH8FQPASKSY27THRKRBP",
+          "domain": "foo-corp.com",
+          "state": "pending",
+          "verification_prefix": "superapp-domain-verification-z3kjny",
+          "verification_token": "m5Oztg3jdK4NJLgs8uIlIprMw",
+          "verification_strategy": "dns",
+          "created_at": "2026-01-15T12:00:00.000Z",
+          "updated_at": "2026-01-15T12:00:00.000Z"
+        }
+      ],
+      "metadata": {
+        "tier": "diamond"
+      },
+      "external_id": "2fe01467-f7ea-4dd2-8b79-c2b4f56d0191",
+      "stripe_customer_id": "cus_R9qWAGMQ6nGE7V",
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z",
+      "allow_profiles_outside_organization": false
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

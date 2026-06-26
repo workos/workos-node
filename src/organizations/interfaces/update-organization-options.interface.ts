@@ -1,18 +1,8 @@
-import { DomainData } from './domain-data.interface';
+import { UpdateOrganization } from './update-organization.interface';
 
-export interface UpdateOrganizationOptions {
-  organization: string;
-  name?: string;
-  domainData?: DomainData[];
-  stripeCustomerId?: string | null;
-  externalId?: string | null;
-  metadata?: Record<string, string>;
-}
-
-export interface SerializedUpdateOrganizationOptions {
-  name?: string;
-  domain_data?: DomainData[];
-  stripe_customer_id?: string | null;
-  external_id?: string | null;
-  metadata?: Record<string, string>;
+// UpdateOrganizationOptions is the update request body plus the path id. After
+// the resource strips `id`, the remainder is passed to serializeUpdateOrganization.
+export interface UpdateOrganizationOptions extends UpdateOrganization {
+  /** Unique identifier of the Organization. */
+  id: string;
 }

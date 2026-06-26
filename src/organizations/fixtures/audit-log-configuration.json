@@ -1,0 +1,12 @@
+{
+  "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+  "retention_period_in_days": 30,
+  "state": "active",
+  "log_stream": {
+    "id": "als_01EHZNVPK3SFK441A1RGBFSHRT",
+    "type": "Datadog",
+    "state": "active",
+    "last_synced_at": "2026-01-15T12:00:00.000Z",
+    "created_at": "2026-01-15T12:00:00.000Z"
+  }
+}
