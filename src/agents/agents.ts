@@ -35,7 +35,7 @@ export class Agents {
    */
   async getRegistration(id: string): Promise<AgentRegistration> {
     const { data } = await this.workos.get<SerializedAgentRegistration>(
-      `/agents/registrations/${id}`,
+      `/agents/registrations/${encodeURIComponent(id)}`,
     );
 
     return deserializeAgentRegistration(data);
@@ -119,9 +119,9 @@ export class Agents {
   /**
    * Verifies an access token's signature, audience, and time claims against the
    * environment's JWKS and returns its decoded claims, or `null` when the token
-   * is invalid (bad signature, wrong audience, expired, malformed). Errors that
-   * are not JWT validation failures (e.g. network errors fetching the JWKS)
-   * propagate.
+   * is invalid (bad signature, wrong audience, expired, malformed, or missing
+   * the agent identity claims). Errors that are not JWT validation failures
+   * (e.g. network errors fetching the JWKS) propagate.
    *
    * The audience defaults to the client ID; resource-scoped tokens carry the
    * resource as their audience and require it to be passed explicitly.
@@ -138,6 +138,15 @@ export class Agents {
         jwks,
         { audience: audience ?? this.workos.clientId },
       );
+
+      // A well-formed agent token always carries these claims. A token signed
+      // by the same JWKS for a different purpose (e.g. a user session) is not a
+      // valid agent credential, so reject it rather than report it valid with
+      // empty identifiers.
+      if (!payload.sub || !payload.jti || !payload.organization_id) {
+        return null;
+      }
+
       return deserializeAgentAccessTokenClaims(payload);
     } catch (e) {
       if (

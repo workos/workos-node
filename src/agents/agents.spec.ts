@@ -87,6 +87,16 @@ describe('Agents', () => {
         updatedAt: '2023-07-18T02:07:19.911Z',
       });
     });
+
+    it('encodes the registration id in the request path', async () => {
+      fetchOnce(getAgentRegistrationFixture);
+
+      await workos.agents.getRegistration('agent_reg/../../evil');
+
+      expect(fetchURL()).toContain(
+        '/agents/registrations/agent_reg%2F..%2F..%2Fevil',
+      );
+    });
   });
 
   describe('validateCredential', () => {
@@ -118,6 +128,24 @@ describe('Agents', () => {
         const validation = await workos.agents.validateCredential({
           type: 'api_key',
           credential: 'sk_invalid',
+        });
+
+        expect(validation).toEqual({
+          valid: false,
+          registrationId: null,
+          expiresAt: null,
+          claims: null,
+        });
+      });
+
+      it('reports invalid when the server omits the registration id', async () => {
+        // Defensive: a valid verdict with no registration must not surface an
+        // empty registration id to callers.
+        fetchOnce({ valid: true, registration_id: null, expires_at: null });
+
+        const validation = await workos.agents.validateCredential({
+          type: 'api_key',
+          credential: 'sk_example',
         });
 
         expect(validation).toEqual({
@@ -185,6 +213,27 @@ describe('Agents', () => {
         const validation = await workos.agents.validateCredential({
           type: 'access_token',
           credential: 'eyJ.wrong.audience',
+        });
+
+        expect(validation).toEqual({
+          valid: false,
+          registrationId: null,
+          expiresAt: null,
+          claims: null,
+        });
+      });
+
+      it('reports invalid for a token missing the agent identity claims', async () => {
+        // A token signed by the same JWKS with the right audience but without
+        // the agent claims (sub/jti/organization_id) is not an agent credential.
+        const { sub, ...withoutSub } = ACCESS_TOKEN_PAYLOAD;
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload: withoutSub } as never);
+
+        const validation = await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.no.agent.claims',
         });
 
         expect(validation).toEqual({

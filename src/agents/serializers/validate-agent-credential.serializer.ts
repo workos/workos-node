@@ -23,7 +23,9 @@ export function serializeValidateAgentCredentialOptions(
 export function deserializeAgentCredentialValidation(
   validation: SerializedAgentCredentialValidation,
 ): AgentCredentialValidation {
-  if (!validation.valid) {
+  // A valid credential is always bound to a registration; treat a missing
+  // registration id as invalid rather than surfacing an empty identifier.
+  if (!validation.valid || validation.registration_id == null) {
     return {
       valid: false,
       registrationId: null,
@@ -34,7 +36,7 @@ export function deserializeAgentCredentialValidation(
 
   return {
     valid: true,
-    registrationId: validation.registration_id ?? '',
+    registrationId: validation.registration_id,
     expiresAt: validation.expires_at,
     claims: null,
   };
