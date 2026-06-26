@@ -20,7 +20,7 @@ export interface DirectoryUser<
   firstName: string | null;
   email: string | null;
   lastName: string | null;
-  state: 'active' | 'inactive';
+  state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
   createdAt: Date;
@@ -41,7 +41,7 @@ export interface DirectoryUserResponse<
   first_name: string | null;
   email: string | null;
   last_name: string | null;
-  state: 'active' | 'inactive';
+  state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
   created_at: string;
