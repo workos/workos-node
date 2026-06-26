@@ -1,0 +1,29 @@
+{
+  "data": [
+    {
+      "object": "connection",
+      "id": "conn_01E4ZCR3C56J083X43JQXF3JK5",
+      "organization_id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+      "connection_type": "OktaSAML",
+      "name": "Foo Corp",
+      "state": "active",
+      "status": "linked",
+      "domains": [
+        {
+          "id": "org_domain_01EHZNVPK2QXHMVWCEDQEKY69A",
+          "object": "connection_domain",
+          "domain": "foo-corp.com"
+        }
+      ],
+      "options": {
+        "signing_cert": null
+      },
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

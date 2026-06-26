@@ -1,0 +1,6 @@
+{
+  "client_id": "client_01HZBC6N1EB1ZY7KG32X",
+  "client_secret": "sk_example_123456789",
+  "code": "authorization_code_value",
+  "grant_type": "authorization_code"
+}

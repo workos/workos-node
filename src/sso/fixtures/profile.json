@@ -1,0 +1,27 @@
+{
+  "object": "profile",
+  "id": "prof_01DMC79VCBZ0NY2099737PSVF1",
+  "organization_id": "org_01EHQMYV6MBK39QC5PZXHY59C3",
+  "connection_id": "conn_01E4ZCR3C56J083X43JQXF3JK5",
+  "connection_type": "OktaSAML",
+  "idp_id": "103456789012345678901",
+  "email": "todd@example.com",
+  "first_name": "Todd",
+  "last_name": "Rundgren",
+  "name": "Todd Rundgren",
+  "role": {
+    "slug": "admin"
+  },
+  "roles": [
+    {
+      "slug": "admin"
+    }
+  ],
+  "groups": ["Engineering", "Admins"],
+  "custom_attributes": {
+    "key": {}
+  },
+  "raw_attributes": {
+    "key": {}
+  }
+}

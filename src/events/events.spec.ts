@@ -66,8 +66,8 @@ describe('Event', () => {
       type: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
-      createdAt: '2020-05-06 04:21:48.649164',
-      updatedAt: '2020-05-06 04:21:48.649164',
+      createdAt: new Date('2020-05-06 04:21:48.649164'),
+      updatedAt: new Date('2020-05-06 04:21:48.649164'),
     },
   };
 

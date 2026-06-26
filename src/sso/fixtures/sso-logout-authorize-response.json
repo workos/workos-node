@@ -1,0 +1,4 @@
+{
+  "logout_url": "https://auth.workos.com/sso/logout?token=eyJhbGciOiJSUzI1NiJ9",
+  "logout_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwcm9maWxlX2lkIjoicHJvZl8wMUdXUTFHMEgyRk02QVNFRjBIUzEzSENXOS0zMDRrZzAzZyIsImV4cCI6IjE1MTYyMzkwMjIifQ.Wru9Qlnf5DpohtGCKhZU4cVOd3zpiu7QQ-XEX--5A_4"
+}
