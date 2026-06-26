@@ -13,6 +13,7 @@ export * from './directory-user.interface';
 export * from './directory.interface';
 export * from './event-directory.interface';
 export * from './get-directory-options.interface';
+export * from './get-user-options.interface';
 export * from './list-directories-options.interface';
 export * from './list-directory-users-options.interface';
 export * from './list-groups-options.interface';

@@ -11,7 +11,7 @@ export const deserializeDirectory = (
 ): Directory => ({
   object: response.object,
   id: response.id,
-  organizationId: response.organization_id ?? '',
+  organizationId: response.organization_id,
   externalKey: response.external_key,
   type: response.type,
   state: response.state,
