@@ -48,9 +48,9 @@ export function deserializeAgentAccessTokenClaims(
   return {
     issuer: payload.iss,
     audience: payload.aud,
-    registrationId: payload.sub ?? '',
-    jwtId: payload.jti ?? '',
-    organizationId: payload.organization_id ?? '',
+    registrationId: payload.sub,
+    jti: payload.jti,
+    organizationId: payload.organization_id,
     scope: payload.scope,
     actor: payload.act,
     expiresAt: payload.exp,

@@ -25,7 +25,7 @@ const EXPECTED_CLAIMS = {
   issuer: 'https://auth.example.com',
   audience: 'proj_123',
   registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
-  jwtId: '01EHZNVPK3SFK441A1RGBFSHRT',
+  jti: '01EHZNVPK3SFK441A1RGBFSHRT',
   organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
   scope: 'read write',
   actor: undefined,
@@ -234,6 +234,26 @@ describe('Agents', () => {
         const validation = await workos.agents.validateCredential({
           type: 'access_token',
           credential: 'eyJ.no.agent.claims',
+        });
+
+        expect(validation).toEqual({
+          valid: false,
+          registrationId: null,
+          expiresAt: null,
+          claims: null,
+        });
+      });
+
+      it('reports invalid for a token whose expiry is in the past', async () => {
+        // jose is mocked here, so this exercises the SDK's own past-expiry
+        // guard rather than jose's built-in exp check.
+        jest.mocked(jose.jwtVerify).mockResolvedValue({
+          payload: { ...ACCESS_TOKEN_PAYLOAD, exp: 1000 },
+        } as never);
+
+        const validation = await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.expired.token',
         });
 
         expect(validation).toEqual({

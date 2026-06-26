@@ -16,6 +16,26 @@ import {
   serializeValidateAgentCredentialOptions,
 } from './serializers';
 
+/**
+ * A decoded JWT payload is only an agent credential if it carries every claim
+ * the SDK guarantees. A token signed by the same JWKS for another purpose
+ * (e.g. a user session) lacks these and is rejected rather than reported valid
+ * with empty identifiers.
+ */
+function hasRequiredAgentClaims(
+  payload: import('jose').JWTPayload,
+): payload is SerializedAgentAccessTokenClaims {
+  return (
+    typeof payload.iss === 'string' &&
+    (typeof payload.aud === 'string' || Array.isArray(payload.aud)) &&
+    typeof payload.sub === 'string' &&
+    typeof payload.jti === 'string' &&
+    typeof payload.organization_id === 'string' &&
+    typeof payload.exp === 'number' &&
+    typeof payload.iat === 'number'
+  );
+}
+
 export class Agents {
   private _jwks?: ReturnType<typeof import('jose').createRemoteJWKSet>;
 
@@ -89,10 +109,7 @@ export class Agents {
       return {
         valid: true,
         registrationId: claims.registrationId,
-        expiresAt:
-          claims.expiresAt != null
-            ? new Date(claims.expiresAt * 1000).toISOString()
-            : null,
+        expiresAt: new Date(claims.expiresAt * 1000).toISOString(),
         claims,
       };
     }
@@ -133,17 +150,17 @@ export class Agents {
     const jwks = await this.getJWKS();
 
     try {
-      const { payload } = await jwtVerify<SerializedAgentAccessTokenClaims>(
-        credential,
-        jwks,
-        { audience: audience ?? this.workos.clientId },
-      );
+      const { payload } = await jwtVerify(credential, jwks, {
+        audience: audience ?? this.workos.clientId,
+      });
 
-      // A well-formed agent token always carries these claims. A token signed
-      // by the same JWKS for a different purpose (e.g. a user session) is not a
-      // valid agent credential, so reject it rather than report it valid with
-      // empty identifiers.
-      if (!payload.sub || !payload.jti || !payload.organization_id) {
+      if (!hasRequiredAgentClaims(payload)) {
+        return null;
+      }
+
+      // Defense in depth: jose already rejects an expired token when `exp` is
+      // present, but enforce it explicitly so a past expiry is never accepted.
+      if (payload.exp * 1000 <= Date.now()) {
         return null;
       }
 

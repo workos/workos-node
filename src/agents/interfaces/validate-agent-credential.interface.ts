@@ -42,16 +42,20 @@ export interface SerializedValidateAgentCredentialOptions {
   audience?: string;
 }
 
-/** The decoded claims of an agent access token. */
+/**
+ * The decoded claims of an agent access token. The required fields are
+ * guaranteed present: the SDK rejects a token that is missing any of them
+ * rather than returning a partial result.
+ */
 export interface AgentAccessTokenClaims {
   /** The token issuer (`iss`). */
-  issuer?: string;
+  issuer: string;
   /** The token audience (`aud`). */
-  audience?: string | string[];
+  audience: string | string[];
   /** Unique identifier of the agent registration the token was issued for (`sub`). */
   registrationId: string;
   /** The token's unique identifier (`jti`). */
-  jwtId: string;
+  jti: string;
   /** Unique identifier of the Organization the registration belongs to. */
   organizationId: string;
   /** The space-separated scopes granted to the token, if any (`scope`). */
@@ -59,22 +63,29 @@ export interface AgentAccessTokenClaims {
   /** The actor the token acts on behalf of, if any (`act`). */
   actor?: { sub: string };
   /** The time the token expires, in seconds since the epoch (`exp`). */
-  expiresAt?: number;
+  expiresAt: number;
   /** The time the token was issued, in seconds since the epoch (`iat`). */
-  issuedAt?: number;
+  issuedAt: number;
 }
 
-/** The raw JWT payload of an agent access token, as encoded in the token. */
+/**
+ * A verified agent access token payload. The required claims are the ones the
+ * SDK guarantees on a valid agent credential; `scope` and `act` are genuinely
+ * optional on the token. A decoded payload missing any required claim is
+ * rejected as invalid before it reaches this shape.
+ */
 export interface SerializedAgentAccessTokenClaims {
-  iss?: string;
-  aud?: string | string[];
-  sub?: string;
-  jti?: string;
-  organization_id?: string;
+  iss: string;
+  aud: string | string[];
+  sub: string;
+  jti: string;
+  organization_id: string;
+  exp: number;
+  iat: number;
   scope?: string;
   act?: { sub: string };
-  exp?: number;
-  iat?: number;
+  // A JWT payload may carry additional standard or custom claims.
+  [claim: string]: unknown;
 }
 
 /** A valid agent credential. */
