@@ -127,7 +127,12 @@ export class Agents {
     // identity. If it doesn't, treat the credential as invalid rather than
     // returning two conflicting registration identities in one result.
     if (remote.registrationId !== claims.registrationId) {
-      return { valid: false, registrationId: null, expiresAt: null, claims: null };
+      return {
+        valid: false,
+        registrationId: null,
+        expiresAt: null,
+        claims: null,
+      };
     }
 
     return { ...remote, claims };
