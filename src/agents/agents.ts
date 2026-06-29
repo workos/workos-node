@@ -118,7 +118,19 @@ export class Agents {
     // server is the source of truth for revocation and expiry, but the locally
     // decoded claims are still surfaced.
     const remote = await this.validateCredentialRemotely(options);
-    return remote.valid ? { ...remote, claims } : remote;
+
+    if (!remote.valid) {
+      return remote;
+    }
+
+    // Defense in depth: the server should always agree with the token's own
+    // identity. If it doesn't, treat the credential as invalid rather than
+    // returning two conflicting registration identities in one result.
+    if (remote.registrationId !== claims.registrationId) {
+      return { valid: false, registrationId: null, expiresAt: null, claims: null };
+    }
+
+    return { ...remote, claims };
   }
 
   private async validateCredentialRemotely(

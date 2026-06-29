@@ -330,6 +330,30 @@ describe('Agents', () => {
         });
       });
 
+      it('reports invalid when the server returns a different registration id than the token', async () => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload: ACCESS_TOKEN_PAYLOAD } as never);
+        fetchOnce({
+          valid: true,
+          registration_id: 'agent_reg_DIFFERENT',
+          expires_at: '2099-01-01T00:00:00.000Z',
+        });
+
+        const validation = await workos.agents.validateCredential({
+          type: 'access_token',
+          credential: 'eyJ.token.value',
+          checkForRevoked: true,
+        });
+
+        expect(validation).toEqual({
+          valid: false,
+          registrationId: null,
+          expiresAt: null,
+          claims: null,
+        });
+      });
+
       it('reports a revoked token as invalid and drops its claims', async () => {
         jest
           .mocked(jose.jwtVerify)
