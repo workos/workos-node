@@ -52,6 +52,7 @@
     "src/audit-logs/interfaces/list-actions-options.interface.ts",
     "src/audit-logs/interfaces/update-audit-logs-retention.interface.ts",
     "src/audit-logs/interfaces/update-organization-audit-logs-retention-options.interface.ts",
+    "src/audit-logs/serializers.spec.ts",
     "src/audit-logs/serializers/audit-log-action.serializer.ts",
     "src/audit-logs/serializers/audit-log-event-actor.serializer.ts",
     "src/audit-logs/serializers/audit-log-event-context.serializer.ts",

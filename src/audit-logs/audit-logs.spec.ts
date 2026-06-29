@@ -60,6 +60,14 @@ describe('AuditLogs', () => {
       );
       expectAuditLogsRetention(result);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.getOrganizationAuditLogsRetention({ id: 'test_id' }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('updateOrganizationAuditLogsRetention', () => {
@@ -80,6 +88,17 @@ describe('AuditLogs', () => {
         expect.objectContaining({ retention_period_in_days: 1 }),
       );
       expectAuditLogsRetention(result);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.updateOrganizationAuditLogsRetention({
+          id: 'test_id',
+          retentionPeriodInDays: 1,
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -102,6 +121,14 @@ describe('AuditLogs', () => {
       expect(data[0].createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
       expect(data[0].updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.listActions({ order: 'desc' }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('listActionSchemas', () => {
@@ -123,6 +150,17 @@ describe('AuditLogs', () => {
       expect(data.length).toBeGreaterThan(0);
       expectAuditLogSchema(data[0]);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.listActionSchemas({
+          actionName: 'test_actionName',
+          order: 'desc',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('createSchema', () => {
@@ -142,6 +180,17 @@ describe('AuditLogs', () => {
         expect.objectContaining({ targets: [{ type: 'test_type' }] }),
       );
       expectAuditLogSchema(result);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.createSchema({
+          actionName: 'test_actionName',
+          targets: [{ type: 'test_type' }],
+        }),
+      ).rejects.toThrow();
     });
   });
 
@@ -176,6 +225,23 @@ describe('AuditLogs', () => {
       );
       expect(result.success).toBe(true);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.createEvent({
+          organizationId: 'organization_id_01234',
+          event: {
+            action: 'test_action',
+            occurredAt: new Date('2023-01-01T00:00:00.000Z'),
+            actor: { id: '01234', type: 'test_type' },
+            targets: [{ id: '01234', type: 'test_type' }],
+            context: { location: 'test_location' },
+          },
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('createExport', () => {
@@ -199,6 +265,18 @@ describe('AuditLogs', () => {
       );
       expectAuditLogExport(result);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.createExport({
+          organizationId: 'organization_id_01234',
+          rangeStart: 'test_range_start',
+          rangeEnd: 'test_range_end',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('getExport', () => {
@@ -214,6 +292,16 @@ describe('AuditLogs', () => {
         '/audit_logs/exports/test_auditLogExportId',
       );
       expectAuditLogExport(result);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.auditLogs.getExport({
+          auditLogExportId: 'test_auditLogExportId',
+        }),
+      ).rejects.toThrow();
     });
   });
 });

@@ -7,13 +7,3 @@ export interface AuditLogExportOptions {
   rangeStart: string;
   targets?: string[];
 }
-
-export interface SerializedAuditLogExportOptions {
-  actions?: string[];
-  actor_names?: string[];
-  actor_ids?: string[];
-  organization_id: string;
-  range_end: string;
-  range_start: string;
-  targets?: string[];
-}
