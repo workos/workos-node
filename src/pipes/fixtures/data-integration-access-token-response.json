@@ -1,0 +1,10 @@
+{
+  "active": true,
+  "access_token": {
+    "object": "access_token",
+    "access_token": "gho_16C7e42F292c6912E7710c838347Ae178B4a",
+    "expires_at": "2025-12-31T23:59:59.000Z",
+    "scopes": ["repo", "user:email"],
+    "missing_scopes": []
+  }
+}
