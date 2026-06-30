@@ -17,6 +17,7 @@ export const deserializeDataIntegrationsListResponseData = (
   integrationType: response.integration_type,
   credentialsType: response.credentials_type,
   scopes: response.scopes ?? null,
+  authMethods: response.auth_methods,
   ownership: response.ownership,
   createdAt: response.created_at,
   updatedAt: response.updated_at,

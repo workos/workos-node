@@ -13,6 +13,8 @@ export const deserializeDataIntegrationsListResponseDataConnectedAccount = (
   userId: response.user_id ?? null,
   organizationId: response.organization_id ?? null,
   scopes: response.scopes,
+  authMethod: response.auth_method,
+  apiKeyLast4: response.api_key_last_4 ?? null,
   state: response.state,
   createdAt: response.created_at,
   updatedAt: response.updated_at,
