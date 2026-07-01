@@ -4,7 +4,14 @@ export function deserializeApiKey(apiKey: SerializedApiKey): ApiKey {
   return {
     object: apiKey.object,
     id: apiKey.id,
-    owner: apiKey.owner,
+    owner:
+      apiKey.owner.type === 'user'
+        ? {
+            type: 'user',
+            id: apiKey.owner.id,
+            organizationId: apiKey.owner.organization_id,
+          }
+        : apiKey.owner,
     name: apiKey.name,
     obfuscatedValue: apiKey.obfuscated_value,
     lastUsedAt: apiKey.last_used_at,

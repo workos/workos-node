@@ -8,6 +8,7 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import validateApiKeyFixture from './fixtures/validate-api-key.json';
+import validateApiKeyUserOwnerFixture from './fixtures/validate-api-key-user-owner.json';
 import listOrganizationApiKeysFixture from './fixtures/list-organization-api-keys.json';
 import createOrganizationApiKeyFixture from './fixtures/create-organization-api-key.json';
 
@@ -40,6 +41,31 @@ describe('ApiKeys', () => {
             id: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
           },
           name: 'Test Api Key',
+          obfuscatedValue: 'sk_…PRYS',
+          lastUsedAt: null,
+          permissions: ['read', 'write'],
+          createdAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: '2023-07-18T02:07:19.911Z',
+        },
+      });
+    });
+
+    it('deserializes a user owner with organizationId', async () => {
+      fetchOnce(validateApiKeyUserOwnerFixture);
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response).toEqual({
+        apiKey: {
+          object: 'api_key',
+          id: 'api_key_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          owner: {
+            type: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          },
+          name: 'Test User Api Key',
           obfuscatedValue: 'sk_…PRYS',
           lastUsedAt: null,
           permissions: ['read', 'write'],
