@@ -79,7 +79,7 @@ export interface SerializedAgentAccessTokenClaims {
   aud: string | string[];
   sub: string;
   jti: string;
-  organization_id: string;
+  org_id: string;
   exp: number;
   iat: number;
   scope?: string;

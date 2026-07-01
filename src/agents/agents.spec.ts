@@ -15,7 +15,7 @@ const ACCESS_TOKEN_PAYLOAD = {
   aud: 'proj_123',
   sub: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
   jti: '01EHZNVPK3SFK441A1RGBFSHRT',
-  organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+  org_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
   scope: 'read write',
   exp: 4102444800, // 2100-01-01T00:00:00Z
   iat: 1689646039,
@@ -225,7 +225,7 @@ describe('Agents', () => {
 
       it('reports invalid for a token missing the agent identity claims', async () => {
         // A token signed by the same JWKS with the right audience but without
-        // the agent claims (sub/jti/organization_id) is not an agent credential.
+        // the agent claims (sub/jti/org_id) is not an agent credential.
         const { sub, ...withoutSub } = ACCESS_TOKEN_PAYLOAD;
         jest
           .mocked(jose.jwtVerify)

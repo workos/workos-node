@@ -50,7 +50,7 @@ export function deserializeAgentAccessTokenClaims(
     audience: payload.aud,
     registrationId: payload.sub,
     jti: payload.jti,
-    organizationId: payload.organization_id,
+    organizationId: payload.org_id,
     scope: payload.scope,
     actor: payload.act,
     expiresAt: payload.exp,

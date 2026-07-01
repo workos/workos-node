@@ -30,7 +30,7 @@ function hasRequiredAgentClaims(
     (typeof payload.aud === 'string' || Array.isArray(payload.aud)) &&
     typeof payload.sub === 'string' &&
     typeof payload.jti === 'string' &&
-    typeof payload.organization_id === 'string' &&
+    typeof payload.org_id === 'string' &&
     typeof payload.exp === 'number' &&
     typeof payload.iat === 'number'
   );
