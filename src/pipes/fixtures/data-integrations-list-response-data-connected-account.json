@@ -4,6 +4,8 @@
   "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
   "organization_id": "test_organizationId",
   "scopes": ["repo", "user:email"],
+  "auth_method": "oauth",
+  "api_key_last_4": null,
   "state": "connected",
   "created_at": "test_createdAt",
   "updated_at": "test_updatedAt",

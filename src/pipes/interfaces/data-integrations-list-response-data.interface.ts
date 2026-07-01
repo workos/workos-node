@@ -4,6 +4,7 @@ import type {
   DataIntegrationsListResponseDataConnectedAccount,
   DataIntegrationsListResponseDataConnectedAccountResponse,
 } from './data-integrations-list-response-data-connected-account.interface';
+import type { DataIntegrationsListResponseDataAuthMethods } from './data-integrations-list-response-data-auth-methods.interface';
 import type { DataIntegrationsListResponseDataOwnership } from './data-integrations-list-response-data-ownership.interface';
 
 export interface DataIntegrationsListResponseData {
@@ -23,6 +24,8 @@ export interface DataIntegrationsListResponseData {
   credentialsType: string;
   /** The OAuth scopes configured for this provider, or `null` if none are configured. */
   scopes: string[] | null;
+  /** The authentication methods supported by this provider (`oauth`, `api_key`, or both). Defaults to `["oauth"]` if absent. */
+  authMethods?: DataIntegrationsListResponseDataAuthMethods[];
   /** Whether the provider is owned by a user or organization. */
   ownership: DataIntegrationsListResponseDataOwnership;
   /** The timestamp when the provider was created. */
@@ -42,6 +45,7 @@ export interface DataIntegrationsListResponseDataResponse {
   integration_type: string;
   credentials_type: string;
   scopes: string[] | null;
+  auth_methods?: DataIntegrationsListResponseDataAuthMethods[];
   ownership: DataIntegrationsListResponseDataOwnership;
   created_at: string;
   updated_at: string;

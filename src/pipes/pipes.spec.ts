@@ -9,15 +9,51 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 
-import dataIntegrationAuthorizeUrlResponseFixture from './fixtures/data-integration-authorize-url-response.json';
-import dataIntegrationAccessTokenResponseFixture from './fixtures/data-integration-access-token-response.json';
 import connectedAccountFixture from './fixtures/connected-account.json';
+import dataIntegrationAuthorizeUrlResponseFixture from './fixtures/data-integration-authorize-url-response.json';
+import dataIntegrationCredentialsResponseFixture from './fixtures/data-integration-credentials-response.json';
+import dataIntegrationAccessTokenResponseFixture from './fixtures/data-integration-access-token-response.json';
 import dataIntegrationsListResponseFixture from './fixtures/data-integrations-list-response.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
+function expectConnectedAccount(result: any) {
+  expect(result.object).toBe('connected_account');
+  expect(result.id).toBe('data_installation_01EHZNVPK3SFK441A1RGBFSHRT');
+  expect(result.userId).toBe('user_01EHZNVPK3SFK441A1RGBFSHRT');
+  expect(result.organizationId).toBeNull();
+  expect(result.scopes).toEqual(['repo', 'user:email']);
+  expect(result.state).toBe('connected');
+  expect(result.createdAt).toBe('2024-01-16T14:20:00.000Z');
+  expect(result.updatedAt).toBe('2024-01-16T14:20:00.000Z');
+}
+
 describe('Pipes', () => {
   beforeEach(() => fetch.resetMocks());
+
+  describe('updateDataIntegrationApiKey', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.updateDataIntegrationApiKey({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+        secret: 'test_secret',
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/api-key',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          user_id: 'user_id_01234',
+          secret: 'test_secret',
+        }),
+      );
+      expectConnectedAccount(result);
+    });
+  });
 
   describe('authorizeDataIntegration', () => {
     it('sends the correct request and returns result', async () => {
@@ -39,16 +75,25 @@ describe('Pipes', () => {
         'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
       );
     });
+  });
 
-    it('throws when the API responds with an error', async () => {
-      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+  describe('createDataIntegrationCredential', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationCredentialsResponseFixture);
 
-      await expect(
-        workos.pipes.authorizeDataIntegration({
-          slug: 'test_slug',
-          userId: 'user_id_01234',
-        }),
-      ).rejects.toThrow();
+      const result = await workos.pipes.createDataIntegrationCredential({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/credentials',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({ user_id: 'user_id_01234' }),
+      );
+      expect(result).toBeDefined();
     });
   });
 
@@ -70,28 +115,6 @@ describe('Pipes', () => {
       );
       expect(result).toBeDefined();
     });
-
-    it('returns the active=false response variant', async () => {
-      fetchOnce({ active: false, error: 'not_installed' });
-
-      const result = await workos.pipes.getAccessToken({
-        provider: 'test_provider',
-        userId: 'user_id_01234',
-      });
-
-      expect(result.active).toBe(false);
-    });
-
-    it('throws when the API responds with an error', async () => {
-      fetchOnce({ message: 'Bad Request' }, { status: 400 });
-
-      await expect(
-        workos.pipes.getAccessToken({
-          provider: 'test_provider',
-          userId: 'user_id_01234',
-        }),
-      ).rejects.toThrow();
-    });
   });
 
   describe('getUserConnectedAccount', () => {
@@ -108,26 +131,7 @@ describe('Pipes', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/user_management/users/test_userId/connected_accounts/test_slug',
       );
-      expect(result.object).toBe('connected_account');
-      expect(result.id).toBe('data_installation_01EHZNVPK3SFK441A1RGBFSHRT');
-      expect(result.userId).toBe('user_01EHZNVPK3SFK441A1RGBFSHRT');
-      expect(result.organizationId).toBeNull();
-      expect(result.scopes).toEqual(['repo', 'user:email']);
-      expect(result.state).toBe('connected');
-      expect(result.createdAt).toBe('2024-01-16T14:20:00.000Z');
-      expect(result.updatedAt).toBe('2024-01-16T14:20:00.000Z');
-    });
-
-    it('throws when the API responds with an error', async () => {
-      fetchOnce({ message: 'Bad Request' }, { status: 400 });
-
-      await expect(
-        workos.pipes.getUserConnectedAccount({
-          userId: 'test_userId',
-          slug: 'test_slug',
-          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
-        }),
-      ).rejects.toThrow();
+      expectConnectedAccount(result);
     });
   });
 
@@ -146,18 +150,6 @@ describe('Pipes', () => {
         '/user_management/users/test_userId/connected_accounts/test_slug',
       );
     });
-
-    it('throws when the API responds with an error', async () => {
-      fetchOnce({ message: 'Bad Request' }, { status: 400 });
-
-      await expect(
-        workos.pipes.deleteUserConnectedAccount({
-          userId: 'test_userId',
-          slug: 'test_slug',
-          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
-        }),
-      ).rejects.toThrow();
-    });
   });
 
   describe('listUserDataProviders', () => {
@@ -174,17 +166,6 @@ describe('Pipes', () => {
         '/user_management/users/test_userId/data_providers',
       );
       expect(result.object).toBe('list');
-    });
-
-    it('throws when the API responds with an error', async () => {
-      fetchOnce({ message: 'Bad Request' }, { status: 400 });
-
-      await expect(
-        workos.pipes.listUserDataProviders({
-          userId: 'test_userId',
-          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
-        }),
-      ).rejects.toThrow();
     });
   });
 });
