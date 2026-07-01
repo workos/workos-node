@@ -1,5 +1,20 @@
 # Changelog
 
+## [10.8.0](https://github.com/workos/workos-node/compare/v10.7.0...v10.8.0) (2026-07-01)
+
+
+### Features
+
+* Add agent registration read and credential validation methods ([#1642](https://github.com/workos/workos-node/issues/1642)) ([d4274fc](https://github.com/workos/workos-node/commit/d4274fcb52760d2ccf6070d8b61c8717dfddb206))
+* Add API-key installation support to Pipes ([#1649](https://github.com/workos/workos-node/issues/1649)) ([6e6996d](https://github.com/workos/workos-node/commit/6e6996d24309e515bd457e964f6edc63e796c884))
+* Generate Pipes off the OpenAPI spec ([#1625](https://github.com/workos/workos-node/issues/1625)) ([5abfdb1](https://github.com/workos/workos-node/commit/5abfdb1b7891989eec145b6cc8994cb1116bd7dd))
+* Surface agent registration id on API key validation ([#1644](https://github.com/workos/workos-node/issues/1644)) ([b03cdd0](https://github.com/workos/workos-node/commit/b03cdd0975364272c818a9c32281993f1f4a7a5b))
+
+
+### Bug Fixes
+
+* ApiKey.owner type missing user variant and organizationId ([#1650](https://github.com/workos/workos-node/issues/1650)) ([f896a1f](https://github.com/workos/workos-node/commit/f896a1f39c1abc0e8fcd04ec9eee8d9c7e706a94))
+
 ## [10.7.0](https://github.com/workos/workos-node/compare/v10.6.0...v10.7.0) (2026-06-25)
 
 
