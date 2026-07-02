@@ -18,3 +18,8 @@ export * from './list-directories-options.interface';
 export * from './list-directory-users-options.interface';
 export * from './list-groups-options.interface';
 export * from './slim-role.interface';
+export type {
+  DefaultCustomAttributes,
+  DirectoryUser,
+  DirectoryUserResponse,
+} from './directory-user.interface';

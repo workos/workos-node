@@ -8,7 +8,3 @@ import type {
 export const deserializeSlimRole = (response: SlimRoleResponse): SlimRole => ({
   slug: response.slug,
 });
-
-export const serializeSlimRole = (model: SlimRole): SlimRoleResponse => ({
-  slug: model.slug,
-});

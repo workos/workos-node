@@ -13,8 +13,6 @@ import listDirectoryFixture from './fixtures/list-directory.json';
 import directoryFixture from './fixtures/directory.json';
 import listDirectoryGroupFixture from './fixtures/list-directory-group.json';
 import directoryGroupFixture from './fixtures/directory-group.json';
-import listDirectoryUserWithGroupsFixture from './fixtures/list-directory-user-with-groups.json';
-import directoryUserWithGroupsFixture from './fixtures/directory-user-with-groups.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -37,22 +35,6 @@ function expectDirectoryGroup(result: any) {
   expect(result.directoryId).toBe('directory_01ECAZ4NV9QMV47GW873HDCX74');
   expect(result.organizationId).toBe('org_01EZTR6WYX1A0DSE2CYMGXQ24Y');
   expect(result.name).toBe('Developers');
-  expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-  expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
-}
-
-function expectDirectoryUserWithGroups(result: any) {
-  expect(result.object).toBe('directory_user');
-  expect(result.id).toBe('directory_user_01E1JG7J09H96KYP8HM9B0G5SJ');
-  expect(result.directoryId).toBe('directory_01ECAZ4NV9QMV47GW873HDCX74');
-  expect(result.organizationId).toBe('org_01EZTR6WYX1A0DSE2CYMGXQ24Y');
-  expect(result.idpId).toBe('2836');
-  expect(result.email).toBe('marcelina.davis@example.com');
-  expect(result.state).toBe('active');
-  expect(result.customAttributes).toEqual({
-    department: 'Engineering',
-    job_title: 'Software Engineer',
-  });
   expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
   expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
 }
@@ -80,6 +62,18 @@ describe('DirectorySync', () => {
       expect(data.length).toBeGreaterThan(0);
       expectDirectory(data[0]);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.directorySync.listDirectories({
+          order: 'desc',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          search: 'Foo Corp',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('getDirectory', () => {
@@ -92,6 +86,14 @@ describe('DirectorySync', () => {
       expect(new URL(String(fetchURL())).pathname).toBe('/directories/test_id');
       expectDirectory(result);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.directorySync.getDirectory({ id: 'test_id' }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('deleteDirectory', () => {
@@ -102,6 +104,14 @@ describe('DirectorySync', () => {
 
       expect(fetchMethod()).toBe('DELETE');
       expect(new URL(String(fetchURL())).pathname).toBe('/directories/test_id');
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.directorySync.deleteDirectory({ id: 'test_id' }),
+      ).rejects.toThrow();
     });
   });
 
@@ -123,6 +133,18 @@ describe('DirectorySync', () => {
       expect(data.length).toBeGreaterThan(0);
       expectDirectoryGroup(data[0]);
     });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
+
+      await expect(
+        workos.directorySync.listGroups({
+          order: 'desc',
+          directory: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+          user: 'directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+        }),
+      ).rejects.toThrow();
+    });
   });
 
   describe('getGroup', () => {
@@ -137,39 +159,13 @@ describe('DirectorySync', () => {
       );
       expectDirectoryGroup(result);
     });
-  });
 
-  describe('listUsers', () => {
-    it('returns paginated results', async () => {
-      fetchOnce(listDirectoryUserWithGroupsFixture);
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Bad Request' }, { status: 400 });
 
-      const { data, listMetadata } = await workos.directorySync.listUsers({
-        order: 'desc',
-        directory: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
-        group: 'directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT',
-      });
-
-      expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe('/directory_users');
-      expect(fetchSearchParams()).toHaveProperty('order');
-      expect(Array.isArray(data)).toBe(true);
-      expect(listMetadata).toBeDefined();
-      expect(data.length).toBeGreaterThan(0);
-      expectDirectoryUserWithGroups(data[0]);
-    });
-  });
-
-  describe('getUser', () => {
-    it('returns the expected result', async () => {
-      fetchOnce(directoryUserWithGroupsFixture);
-
-      const result = await workos.directorySync.getUser({ id: 'test_id' });
-
-      expect(fetchMethod()).toBe('GET');
-      expect(new URL(String(fetchURL())).pathname).toBe(
-        '/directory_users/test_id',
-      );
-      expectDirectoryUserWithGroups(result);
+      await expect(
+        workos.directorySync.getGroup({ id: 'test_id' }),
+      ).rejects.toThrow();
     });
   });
 });

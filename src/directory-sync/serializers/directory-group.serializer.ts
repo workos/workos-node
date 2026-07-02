@@ -8,7 +8,7 @@ import type {
 export const deserializeDirectoryGroup = (
   response: DirectoryGroupResponse,
 ): DirectoryGroup => ({
-  object: response.object ?? 'directory_group',
+  object: response.object,
   id: response.id,
   idpId: response.idp_id,
   directoryId: response.directory_id,

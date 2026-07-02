@@ -6,3 +6,10 @@ export type DirectoryState =
   | 'invalid_credentials'
   | 'inactive'
   | 'deleting';
+
+export type DirectoryStateResponse =
+  | 'linked'
+  | 'validating'
+  | 'invalid_credentials'
+  | 'unlinked'
+  | 'deleting';

@@ -5,7 +5,10 @@ import type {
   DirectoryMetadataResponse,
 } from './directory-metadata.interface';
 import type { DirectoryType } from './directory-type.interface';
-import type { DirectoryState } from './directory-state.interface';
+import type {
+  DirectoryState,
+  DirectoryStateResponse,
+} from './directory-state.interface';
 
 export interface Directory {
   /** Distinguishes the Directory object. */
@@ -38,7 +41,7 @@ export interface DirectoryResponse {
   organization_id?: string;
   external_key: string;
   type: DirectoryType;
-  state: DirectoryState;
+  state: DirectoryStateResponse;
   name: string;
   domain?: string;
   metadata?: DirectoryMetadataResponse;

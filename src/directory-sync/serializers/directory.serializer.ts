@@ -5,9 +5,14 @@ import type {
   DirectoryResponse,
 } from '../interfaces/directory.interface';
 import { deserializeDirectoryMetadata } from './directory-metadata.serializer';
-import type { DirectoryState } from '../interfaces/directory-state.interface';
+import type {
+  DirectoryState,
+  DirectoryStateResponse,
+} from '../interfaces/directory-state.interface';
 
-const deserializeDirectoryState = (value: string): DirectoryState => {
+const deserializeDirectoryState = (
+  value: DirectoryStateResponse,
+): DirectoryState => {
   if (value === 'linked') {
     return 'active';
   }
