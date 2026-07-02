@@ -1,0 +1,33 @@
+{
+  "object": "data_integration",
+  "id": "data_integration_01EHZNVPK3SFK441A1RGBFSHRT",
+  "slug": "github",
+  "integration_type": "github",
+  "description": "Production GitHub app",
+  "enabled": true,
+  "state": "valid",
+  "scopes": ["repo", "read:org"],
+  "redirect_uri": "https://api.workos.com/data-integrations/github/dik_01EHZNVPK3SFK441A1RGBFSHRT/callback",
+  "credentials": {
+    "type": "custom",
+    "client_id": "Iv1.abc123",
+    "redacted_client_secret": "6789"
+  },
+  "custom_provider": {
+    "name": "My OAuth App",
+    "authorization_url": "https://provider.example.com/oauth/authorize",
+    "token_url": "https://provider.example.com/oauth/token",
+    "refresh_token_url": "https://provider.example.com/oauth/token",
+    "pkce_enabled": true,
+    "request_scope_separator": " ",
+    "scopes_required": false,
+    "client_secret_required": true,
+    "additional_authorization_parameters": {
+      "prompt": "consent"
+    },
+    "token_body_content_type": "application/x-www-form-urlencoded",
+    "authenticate_via": "request_body"
+  },
+  "created_at": "2026-01-15T12:00:00.000Z",
+  "updated_at": "2026-01-15T12:00:00.000Z"
+}
