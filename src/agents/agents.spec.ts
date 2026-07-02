@@ -2,6 +2,7 @@ import * as jose from 'jose';
 import fetch from 'jest-fetch-mock';
 import { fetchBody, fetchOnce, fetchURL } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
+import createClaimAttemptFixture from './fixtures/create-claim-attempt.json';
 import getAgentRegistrationFixture from './fixtures/get-agent-registration.json';
 import validateAgentCredentialFixture from './fixtures/validate-agent-credential.json';
 
@@ -46,6 +47,77 @@ describe('Agents', () => {
   beforeEach(() => {
     fetch.resetMocks();
     jest.mocked(jose.jwtVerify).mockReset();
+  });
+
+  describe('createClaimAttempt', () => {
+    it('sends the request and deserializes the response', async () => {
+      fetchOnce(createClaimAttemptFixture);
+
+      const result = await workos.agents.createClaimAttempt({
+        claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
+        user: {
+          email: 'alice@example.com',
+          externalId: 'user_abc123',
+        },
+      });
+
+      expect(fetchURL()).toContain('/agents/claims/attempts');
+      expect(fetchBody()).toEqual({
+        claim_attempt_token: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
+        user: {
+          email: 'alice@example.com',
+          external_id: 'user_abc123',
+        },
+      });
+      expect(result).toEqual({
+        id: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
+        status: 'unverified',
+        userCode: 'BCDF-GHJK',
+        organizations: [
+          {
+            id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+            name: 'Acme Corp',
+          },
+        ],
+      });
+    });
+
+    it('includes organizationId when provided', async () => {
+      fetchOnce(createClaimAttemptFixture);
+
+      await workos.agents.createClaimAttempt({
+        claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
+        user: {
+          email: 'alice@example.com',
+          externalId: 'user_abc123',
+        },
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchBody()).toEqual({
+        claim_attempt_token: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
+        user: {
+          email: 'alice@example.com',
+          external_id: 'user_abc123',
+        },
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+    });
+
+    it('omits organizationId from the payload when not provided', async () => {
+      fetchOnce(createClaimAttemptFixture);
+
+      await workos.agents.createClaimAttempt({
+        claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
+        user: {
+          email: 'alice@example.com',
+          externalId: 'user_abc123',
+        },
+      });
+
+      const body = fetchBody();
+      expect(body).not.toHaveProperty('organization_id');
+    });
   });
 
   describe('getRegistration', () => {
