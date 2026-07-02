@@ -1,14 +1,15 @@
 import {
   ClaimAttemptResponse,
-  CreateClaimAttemptOptions,
+  LinkClaimAttemptToExternalUserOptions,
   SerializedClaimAttemptResponse,
-  SerializedCreateClaimAttemptOptions,
+  SerializedLinkClaimAttemptToExternalUserOptions,
 } from '../interfaces/claim-attempt.interface';
 
-export function serializeCreateClaimAttemptOptions(
-  options: CreateClaimAttemptOptions,
-): SerializedCreateClaimAttemptOptions {
+export function serializeLinkClaimAttemptToExternalUserOptions(
+  options: LinkClaimAttemptToExternalUserOptions,
+): SerializedLinkClaimAttemptToExternalUserOptions {
   return {
+    type: 'link_external_user',
     claim_attempt_token: options.claimAttemptToken,
     user: {
       email: options.user.email,

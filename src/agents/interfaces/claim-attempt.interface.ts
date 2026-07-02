@@ -1,7 +1,7 @@
 import { AgentRegistrationStatus } from './agent-registration.interface';
 
-/** Options for creating a claim attempt via the admin API. */
-export interface CreateClaimAttemptOptions {
+/** Options for linking an external user to a claim attempt via the admin API. */
+export interface LinkClaimAttemptToExternalUserOptions {
   /** The claim attempt token identifying the pending claim. */
   claimAttemptToken: string;
   /** The user to attach to the claim attempt. */
@@ -15,7 +15,8 @@ export interface CreateClaimAttemptOptions {
   organizationId?: string;
 }
 
-export interface SerializedCreateClaimAttemptOptions {
+export interface SerializedLinkClaimAttemptToExternalUserOptions {
+  type: 'link_external_user';
   claim_attempt_token: string;
   user: {
     email: string;
@@ -32,7 +33,7 @@ export interface ClaimAttemptOrganization {
   name: string;
 }
 
-/** The result of confirming a claim attempt. */
+/** The result of linking an external user to a claim attempt. */
 export interface ClaimAttemptResponse {
   /** The agent registration ID. */
   id: string;

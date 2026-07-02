@@ -49,11 +49,11 @@ describe('Agents', () => {
     jest.mocked(jose.jwtVerify).mockReset();
   });
 
-  describe('createClaimAttempt', () => {
+  describe('linkClaimAttemptToExternalUser', () => {
     it('sends the request and deserializes the response', async () => {
       fetchOnce(createClaimAttemptFixture);
 
-      const result = await workos.agents.createClaimAttempt({
+      const result = await workos.agents.linkClaimAttemptToExternalUser({
         claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
         user: {
           email: 'alice@example.com',
@@ -63,6 +63,7 @@ describe('Agents', () => {
 
       expect(fetchURL()).toContain('/agents/claims/attempts');
       expect(fetchBody()).toEqual({
+        type: 'link_external_user',
         claim_attempt_token: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
         user: {
           email: 'alice@example.com',
@@ -85,7 +86,7 @@ describe('Agents', () => {
     it('includes organizationId when provided', async () => {
       fetchOnce(createClaimAttemptFixture);
 
-      await workos.agents.createClaimAttempt({
+      await workos.agents.linkClaimAttemptToExternalUser({
         claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
         user: {
           email: 'alice@example.com',
@@ -95,6 +96,7 @@ describe('Agents', () => {
       });
 
       expect(fetchBody()).toEqual({
+        type: 'link_external_user',
         claim_attempt_token: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
         user: {
           email: 'alice@example.com',
@@ -107,7 +109,7 @@ describe('Agents', () => {
     it('omits organizationId from the payload when not provided', async () => {
       fetchOnce(createClaimAttemptFixture);
 
-      await workos.agents.createClaimAttempt({
+      await workos.agents.linkClaimAttemptToExternalUser({
         claimAttemptToken: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',
         user: {
           email: 'alice@example.com',
