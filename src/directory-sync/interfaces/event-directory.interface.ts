@@ -16,8 +16,8 @@ export interface EventDirectory {
   name: string;
   organizationId?: string;
   domains: EventDirectoryDomain[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface EventDirectoryResponse {

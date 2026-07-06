@@ -17,8 +17,8 @@ export const deserializeEventDirectory = (
   name: directory.name,
   organizationId: directory.organization_id,
   domains: directory.domains,
-  createdAt: directory.created_at,
-  updatedAt: directory.updated_at,
+  createdAt: new Date(directory.created_at),
+  updatedAt: new Date(directory.updated_at),
 });
 
 export const deserializeDeletedEventDirectory = (
@@ -30,8 +30,8 @@ export const deserializeDeletedEventDirectory = (
   state: directory.state,
   name: directory.name,
   organizationId: directory.organization_id,
-  createdAt: directory.created_at,
-  updatedAt: directory.updated_at,
+  createdAt: new Date(directory.created_at),
+  updatedAt: new Date(directory.updated_at),
 });
 
 export const deserializeUpdatedEventDirectoryGroup = (
