@@ -11,7 +11,7 @@ export const serializeCustomProviderDefinition = (
   name: model.name,
   authorization_url: model.authorizationUrl,
   token_url: model.tokenUrl,
-  refresh_token_url: model.refreshTokenUrl ?? null,
+  refresh_token_url: model.refreshTokenUrl,
   pkce_enabled: model.pkceEnabled,
   request_scope_separator: model.requestScopeSeparator,
   scopes_required: model.scopesRequired,

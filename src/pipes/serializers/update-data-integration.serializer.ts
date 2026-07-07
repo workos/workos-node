@@ -10,9 +10,9 @@ import { serializeUpdateCustomProviderDefinition } from './update-custom-provide
 export const serializeUpdateDataIntegration = (
   model: UpdateDataIntegration,
 ): UpdateDataIntegrationResponse => ({
-  description: model.description ?? null,
+  description: model.description,
   enabled: model.enabled,
-  scopes: model.scopes ?? null,
+  scopes: model.scopes,
   credentials:
     model.credentials != null
       ? serializeDataIntegrationCredentialsDto(model.credentials)
