@@ -9,6 +9,7 @@ export interface AuthenticateWithMagicAuthOptions extends AuthenticateWithOption
   invitationToken?: string;
   linkAuthorizationCode?: string;
   radarAuthAttemptId?: string;
+  signalsId?: string;
 }
 
 export interface AuthenticateUserWithMagicAuthCredentials {
@@ -22,4 +23,5 @@ export interface SerializedAuthenticateWithMagicAuthOptions extends SerializedAu
   invitation_token?: string;
   link_authorization_code?: string;
   radar_auth_attempt_id?: string;
+  signals_id?: string;
 }

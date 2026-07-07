@@ -1,0 +1,17 @@
+{
+  "api_key": {
+    "object": "api_key",
+    "id": "api_key_01H5JQDV7R7ATEYZDEG0W5PRYS",
+    "owner": {
+      "type": "user",
+      "id": "user_01H5JQDV7R7ATEYZDEG0W5PRYS",
+      "organization_id": "org_01H5JQDV7R7ATEYZDEG0W5PRYS"
+    },
+    "name": "Test User Api Key",
+    "obfuscated_value": "sk_…PRYS",
+    "last_used_at": null,
+    "permissions": ["read", "write"],
+    "created_at": "2023-07-18T02:07:19.911Z",
+    "updated_at": "2023-07-18T02:07:19.911Z"
+  }
+}

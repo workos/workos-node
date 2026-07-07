@@ -562,6 +562,28 @@ describe('WorkOS', () => {
     });
   });
 
+  describe('when using a real Response with invalid JSON (GH-1621)', () => {
+    it('throws ParseError instead of body-already-read TypeError', async () => {
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        fetchFn: async () =>
+          new Response('{ invalid json', {
+            status: 200,
+            headers: {
+              'content-type': 'application/json',
+              'x-request-id': 'req_test',
+            },
+          }),
+      });
+
+      const error = await workos.get('/path').catch((e) => e);
+
+      expect(error).toBeInstanceOf(ParseError);
+      expect(error.rawBody).toBe('{ invalid json');
+      expect(error.requestID).toBe('req_test');
+      expect(error.rawStatus).toBe(200);
+    });
+  });
+
   describe('when in a worker environment', () => {
     it('uses the worker client', () => {
       const workos = new WorkOSWorker('sk_test_key');

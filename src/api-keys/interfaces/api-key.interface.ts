@@ -5,10 +5,16 @@ export interface ApiKey {
   /** Unique identifier of the API Key. */
   id: string;
   /** The entity that owns the API Key. */
-  owner: {
-    type: 'organization';
-    id: string;
-  };
+  owner:
+    | {
+        type: 'organization';
+        id: string;
+      }
+    | {
+        type: 'user';
+        id: string;
+        organizationId: string;
+      };
   /** A descriptive name for the API Key. */
   name: string;
   /** An obfuscated representation of the API Key value. */
@@ -26,10 +32,16 @@ export interface ApiKey {
 export interface SerializedApiKey {
   object: 'api_key';
   id: string;
-  owner: {
-    type: 'organization';
-    id: string;
-  };
+  owner:
+    | {
+        type: 'organization';
+        id: string;
+      }
+    | {
+        type: 'user';
+        id: string;
+        organization_id: string;
+      };
   name: string;
   obfuscated_value: string;
   last_used_at: string | null;

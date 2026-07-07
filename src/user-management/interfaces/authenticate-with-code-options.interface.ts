@@ -7,6 +7,7 @@ export interface AuthenticateWithCodeOptions extends AuthenticateWithOptionsBase
   codeVerifier?: string;
   code: string;
   invitationToken?: string;
+  signalsId?: string;
 }
 
 export interface AuthenticateUserWithCodeCredentials {
@@ -18,4 +19,5 @@ export interface SerializedAuthenticateWithCodeOptions extends SerializedAuthent
   code_verifier?: string;
   code: string;
   invitation_token?: string;
+  signals_id?: string;
 }

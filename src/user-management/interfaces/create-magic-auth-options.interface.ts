@@ -4,6 +4,7 @@ export interface CreateMagicAuthOptions {
   ipAddress?: string;
   userAgent?: string;
   radarAuthAttemptId?: string;
+  signalsId?: string;
 }
 
 export interface SerializedCreateMagicAuthOptions {
@@ -12,4 +13,5 @@ export interface SerializedCreateMagicAuthOptions {
   ip_address?: string;
   user_agent?: string;
   radar_auth_attempt_id?: string;
+  signals_id?: string;
 }

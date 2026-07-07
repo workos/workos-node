@@ -20,6 +20,7 @@ import {
   WorkOSOptions,
   WorkOSResponseError,
 } from './common/interfaces';
+import { Agents } from './agents/agents';
 import { ApiKeys } from './api-keys/api-keys';
 import { Connect } from './connect/connect';
 import { DirectorySync } from './directory-sync/directory-sync';
@@ -48,7 +49,6 @@ import { Authorization } from './authorization/authorization';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
-import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 
@@ -70,6 +70,7 @@ export class WorkOS {
   private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
+  readonly agents = new Agents(this);
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
@@ -254,12 +255,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await res.toJSON() };
   }
 
   async get<Result = any>(
@@ -292,12 +288,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await res.toJSON() };
   }
 
   async put<Result = any, Entity = any>(
@@ -328,12 +319,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await res.toJSON() };
   }
 
   async patch<Result = any, Entity = any>(
@@ -364,12 +350,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await res.toJSON() };
   }
 
   async delete(path: string, query?: any): Promise<void> {
@@ -404,24 +385,6 @@ export class WorkOS {
   emitWarning(warning: string) {
     // tslint:disable-next-line:no-console
     console.warn(`WorkOS: ${warning}`);
-  }
-
-  private async handleParseError(
-    error: unknown,
-    res: HttpClientResponseInterface,
-  ) {
-    if (error instanceof SyntaxError) {
-      const rawResponse = res.getRawResponse() as Response;
-      const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
-      const rawStatus = rawResponse.status;
-      const rawBody = await rawResponse.text();
-      throw new ParseError({
-        message: error.message,
-        rawBody,
-        rawStatus,
-        requestID,
-      });
-    }
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {

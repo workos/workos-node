@@ -20,4 +20,8 @@ export * from './list-role-assignments-options.serializer';
 export * from './list-role-assignments-for-resource-options.serializer';
 export * from './assign-role-options.serializer';
 export * from './remove-role-options.serializer';
+export * from './group-role-assignment.serializer';
+export * from './create-group-role-assignment-options.serializer';
+export * from './remove-group-role-assignments-options.serializer';
+export * from './replace-group-role-assignments-options.serializer';
 export * from './list-effective-permissions-options.serializer';

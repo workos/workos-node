@@ -392,11 +392,29 @@ export class FetchHttpClientResponse
     return this._res;
   }
 
-  toJSON(): Promise<any> | null {
+  async toJSON(): Promise<any | null> {
     const contentType = this._res.headers.get('content-type');
     const isJsonResponse = contentType?.includes('application/json');
 
-    return isJsonResponse ? this._res.json() : null;
+    if (!isJsonResponse) {
+      return null;
+    }
+
+    const rawBody = await this._res.text();
+
+    try {
+      return JSON.parse(rawBody);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new ParseError({
+          message: error.message,
+          rawBody,
+          rawStatus: this._res.status,
+          requestID: this._res.headers.get('X-Request-ID') ?? '',
+        });
+      }
+      throw error;
+    }
   }
 
   static _transformHeadersToObject(headers: Headers): ResponseHeaders {

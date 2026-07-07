@@ -207,6 +207,19 @@ describe('UserManagement', () => {
 
       expect(user.radarAuthAttemptId).toBeUndefined();
     });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.createUser({
+        email: 'test01@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
   });
 
   describe('authenticateUserWithMagicAuth', () => {
@@ -239,6 +252,21 @@ describe('UserManagement', () => {
 
       expect(fetchBody()).toMatchObject({
         radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        email: userFixture.email,
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -324,6 +352,21 @@ describe('UserManagement', () => {
       });
     });
 
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithPassword({
+        clientId: 'proj_whatever',
+        email: 'test01@example.com',
+        password: 'extra-secure',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
+
     describe('when sealSession = true', () => {
       beforeEach(() => {
         fetchOnce({
@@ -397,6 +440,20 @@ describe('UserManagement', () => {
             email: 'test01@example.com',
           },
         });
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCode({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -715,6 +772,21 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCodeAndVerifier({
+        clientId: 'proj_whatever',
+        code: 'auth_code_123',
+        codeVerifier: 'required_code_verifier',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -1847,6 +1919,19 @@ describe('UserManagement', () => {
 
       expect(response.radarAuthAttemptId).toBeUndefined();
     });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(magicAuthFixture);
+
+      await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
   });
 
   describe('getPasswordReset', () => {
@@ -2622,6 +2707,21 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with an invitationToken', () => {
+      it('generates an authorize url with the invitation_token', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          invitationToken: 'invitation_token_123',
+        });
+
+        expect(url).toContain('invitation_token=invitation_token_123');
+      });
+    });
+
     describe('with no custom api hostname', () => {
       it('generates an authorize url with the default api hostname', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -2835,6 +2935,22 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with maxAge', () => {
+      it('generates an authorize url with the provided max age', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          maxAge: 3600,
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toContain('max_age=3600');
+      });
+    });
+
     describe('with prompt', () => {
       it('generates an authorize url with the provided prompt', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -2942,6 +3058,18 @@ describe('UserManagement', () => {
       expect(result.url).toContain('screen_hint=sign-up');
       expect(result.url).toContain('login_hint=test%40example.com');
       expect(result.url).toContain('domain_hint=example.com');
+    });
+
+    it('includes max age when provided', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          maxAge: 3600,
+        });
+
+      expect(result.url).toContain('max_age=3600');
     });
 
     it('throws error when missing provider/connection/organization', async () => {

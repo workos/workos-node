@@ -131,7 +131,7 @@ export abstract class HttpClientResponse implements HttpClientResponseInterface 
 
   abstract getRawResponse(): unknown;
 
-  abstract toJSON(): any | null;
+  abstract toJSON(): Promise<any | null>;
 }
 
 // tslint:disable-next-line

@@ -1,5 +1,54 @@
 # Changelog
 
+## [10.7.0](https://github.com/workos/workos-node/compare/v10.6.0...v10.7.0) (2026-06-25)
+
+
+### Features
+
+* Add source to role assignments to distinguish group grants ([#1646](https://github.com/workos/workos-node/issues/1646)) ([574f5ca](https://github.com/workos/workos-node/commit/574f5cabb4c5c13f22841d16096a6ce49796018e))
+
+## [10.6.0](https://github.com/workos/workos-node/compare/v10.5.0...v10.6.0) (2026-06-25)
+
+
+### Features
+
+* **user-management:** add max_age parameter to getAuthorizationUrl ([#1643](https://github.com/workos/workos-node/issues/1643)) ([730404e](https://github.com/workos/workos-node/commit/730404e3c753b3250da0c777929b24e9f955ba70))
+
+## [10.5.0](https://github.com/workos/workos-node/compare/v10.4.1...v10.5.0) (2026-06-24)
+
+
+### Features
+
+* Add signalsId to user management APIs ([#1618](https://github.com/workos/workos-node/issues/1618)) ([b6e7944](https://github.com/workos/workos-node/commit/b6e7944796945b20d4a75177c9ea0a4d34ea20d8))
+
+## [10.4.1](https://github.com/workos/workos-node/compare/v10.4.0...v10.4.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **events:** Add resourceTypeSlug to RoleEvent deserialization ([#1638](https://github.com/workos/workos-node/issues/1638)) ([d478595](https://github.com/workos/workos-node/commit/d4785958cdaf1ee2d7857022fb4e89ff4e9518b5))
+
+## [10.4.0](https://github.com/workos/workos-node/compare/v10.3.0...v10.4.0) (2026-06-18)
+
+
+### Features
+
+* **user-management:** Add invitationToken to getAuthorizationUrl options ([#1612](https://github.com/workos/workos-node/issues/1612)) ([a2d516f](https://github.com/workos/workos-node/commit/a2d516fef5c7cf70aaf69b165f581ffe6dad5360))
+
+## [10.3.0](https://github.com/workos/workos-node/compare/v10.2.1...v10.3.0) (2026-06-17)
+
+
+### Features
+
+* **authorization:** Add group role assignment endpoints ([#1619](https://github.com/workos/workos-node/issues/1619)) ([df60af3](https://github.com/workos/workos-node/commit/df60af3ba4fc2ea94fd0a7acd26daef9f56c3781))
+
+## [10.2.1](https://github.com/workos/workos-node/compare/v10.2.0...v10.2.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* Prevent handleParseError from double-reading response body ([#1622](https://github.com/workos/workos-node/issues/1622)) ([e1cdb7f](https://github.com/workos/workos-node/commit/e1cdb7f45f550bc77a28737991b42b9fd2862f06))
+
 ## [10.2.0](https://github.com/workos/workos-node/compare/v10.1.0...v10.2.0) (2026-06-02)
 
 

@@ -8,6 +8,7 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import validateApiKeyFixture from './fixtures/validate-api-key.json';
+import validateApiKeyUserOwnerFixture from './fixtures/validate-api-key-user-owner.json';
 import listOrganizationApiKeysFixture from './fixtures/list-organization-api-keys.json';
 import createOrganizationApiKeyFixture from './fixtures/create-organization-api-key.json';
 
@@ -49,6 +50,31 @@ describe('ApiKeys', () => {
       });
     });
 
+    it('deserializes a user owner with organizationId', async () => {
+      fetchOnce(validateApiKeyUserOwnerFixture);
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response).toEqual({
+        apiKey: {
+          object: 'api_key',
+          id: 'api_key_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          owner: {
+            type: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          },
+          name: 'Test User Api Key',
+          obfuscatedValue: 'sk_…PRYS',
+          lastUsedAt: null,
+          permissions: ['read', 'write'],
+          createdAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: '2023-07-18T02:07:19.911Z',
+        },
+      });
+    });
+
     it('returns null if key is invalid', async () => {
       fetchOnce({ api_key: null });
       const response = await workos.apiKeys.createValidation({
@@ -57,6 +83,29 @@ describe('ApiKeys', () => {
 
       expect(fetchURL()).toContain('/api_keys/validations');
       expect(response).toEqual({ apiKey: null });
+    });
+
+    it('returns the agent registration id for an agent-assigned key', async () => {
+      fetchOnce({
+        ...validateApiKeyFixture,
+        agent_registration_id: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response.agentRegistrationId).toEqual(
+        'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
+      );
+    });
+
+    it('omits the agent registration id for a non-agent key', async () => {
+      fetchOnce(validateApiKeyFixture);
+      const response = await workos.apiKeys.createValidation({
+        value: 'sk_123',
+      });
+
+      expect(response).not.toHaveProperty('agentRegistrationId');
     });
   });
 
