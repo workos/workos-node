@@ -7,6 +7,7 @@ import {
   fetchMethod,
   fetchSearchParams,
   fetchBody,
+  fetchHeaders,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 
@@ -224,6 +225,47 @@ describe('AuditLogs', () => {
         }),
       );
       expect(result.success).toBe(true);
+    });
+
+    it('forwards a caller-supplied idempotency key', async () => {
+      fetchOnce(auditLogEventCreateResponseFixture);
+
+      await workos.auditLogs.createEvent(
+        {
+          organizationId: 'organization_id_01234',
+          event: {
+            action: 'test_action',
+            occurredAt: new Date('2023-01-01T00:00:00.000Z'),
+            actor: { id: '01234', type: 'test_type' },
+            targets: [{ id: '01234', type: 'test_type' }],
+            context: { location: 'test_location' },
+          },
+        },
+        { idempotencyKey: 'test-idempotency-key' },
+      );
+
+      expect(
+        (fetchHeaders() as Record<string, string>)['Idempotency-Key'],
+      ).toBe('test-idempotency-key');
+    });
+
+    it('auto-generates an idempotency key when none is supplied', async () => {
+      fetchOnce(auditLogEventCreateResponseFixture);
+
+      await workos.auditLogs.createEvent({
+        organizationId: 'organization_id_01234',
+        event: {
+          action: 'test_action',
+          occurredAt: new Date('2023-01-01T00:00:00.000Z'),
+          actor: { id: '01234', type: 'test_type' },
+          targets: [{ id: '01234', type: 'test_type' }],
+          context: { location: 'test_location' },
+        },
+      });
+
+      expect(
+        (fetchHeaders() as Record<string, string>)['Idempotency-Key'],
+      ).toEqual(expect.stringMatching(/^workos-node-/));
     });
 
     it('throws when the API responds with an error', async () => {
