@@ -5,10 +5,13 @@ import {
   fetchOnce,
   fetchURL,
   fetchMethod,
+  fetchSearchParams,
   fetchBody,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 
+import listDataIntegrationFixture from './fixtures/list-data-integration.json';
+import dataIntegrationFixture from './fixtures/data-integration.json';
 import connectedAccountFixture from './fixtures/connected-account.json';
 import dataIntegrationAuthorizeUrlResponseFixture from './fixtures/data-integration-authorize-url-response.json';
 import dataIntegrationCredentialsResponseFixture from './fixtures/data-integration-credentials-response.json';
@@ -16,6 +19,22 @@ import dataIntegrationAccessTokenResponseFixture from './fixtures/data-integrati
 import dataIntegrationsListResponseFixture from './fixtures/data-integrations-list-response.json';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+function expectDataIntegration(result: any) {
+  expect(result.object).toBe('data_integration');
+  expect(result.id).toBe('data_integration_01EHZNVPK3SFK441A1RGBFSHRT');
+  expect(result.slug).toBe('github');
+  expect(result.integrationType).toBe('github');
+  expect(result.description).toBe('Production GitHub app');
+  expect(result.enabled).toBe(true);
+  expect(result.state).toBe('valid');
+  expect(result.scopes).toEqual(['repo', 'read:org']);
+  expect(result.redirectUri).toBe(
+    'https://api.workos.com/data-integrations/github/dik_01EHZNVPK3SFK441A1RGBFSHRT/callback',
+  );
+  expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+  expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+}
 
 function expectConnectedAccount(result: any) {
   expect(result.object).toBe('connected_account');
@@ -30,6 +49,94 @@ function expectConnectedAccount(result: any) {
 
 describe('Pipes', () => {
   beforeEach(() => fetch.resetMocks());
+
+  describe('listDataIntegrations', () => {
+    it('returns paginated results', async () => {
+      fetchOnce(listDataIntegrationFixture);
+
+      const { data, listMetadata } = await workos.pipes.listDataIntegrations({
+        order: 'desc',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe('/data-integrations');
+      expect(fetchSearchParams()).toHaveProperty('order');
+      expect(Array.isArray(data)).toBe(true);
+      expect(listMetadata).toBeDefined();
+      expect(data.length).toBeGreaterThan(0);
+      expectDataIntegration(data[0]);
+    });
+  });
+
+  describe('createDataIntegration', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationFixture);
+
+      const result = await workos.pipes.createDataIntegration({
+        provider: 'provider_01234',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe('/data-integrations');
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({ provider: 'provider_01234' }),
+      );
+      expectDataIntegration(result);
+    });
+  });
+
+  describe('getDataIntegration', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(dataIntegrationFixture);
+
+      const result = await workos.pipes.getDataIntegration({
+        slug: 'test_slug',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug',
+      );
+      expectDataIntegration(result);
+    });
+  });
+
+  describe('updateDataIntegration', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationFixture);
+
+      const result = await workos.pipes.updateDataIntegration({
+        slug: 'test_slug',
+        enabled: true,
+        credentials: { type: 'custom' },
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          enabled: true,
+          credentials: { type: 'custom' },
+        }),
+      );
+      expectDataIntegration(result);
+    });
+  });
+
+  describe('deleteDataIntegration', () => {
+    it('sends a DELETE request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.pipes.deleteDataIntegration({ slug: 'test_slug' });
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug',
+      );
+    });
+  });
 
   describe('updateDataIntegrationApiKey', () => {
     it('sends the correct request and returns result', async () => {
@@ -130,6 +237,58 @@ describe('Pipes', () => {
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/user_management/users/test_userId/connected_accounts/test_slug',
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
+  describe('createUserConnectedAccount', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.createUserConnectedAccount({
+        userId: 'test_userId',
+        slug: 'test_slug',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        accessToken: 'test_access_token',
+        refreshToken: 'test_refresh_token',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/test_userId/connected_accounts/test_slug',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          access_token: 'test_access_token',
+          refresh_token: 'test_refresh_token',
+        }),
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
+  describe('updateUserConnectedAccount', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.updateUserConnectedAccount({
+        userId: 'test_userId',
+        slug: 'test_slug',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        accessToken: 'test_access_token',
+        refreshToken: 'test_refresh_token',
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/test_userId/connected_accounts/test_slug',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          access_token: 'test_access_token',
+          refresh_token: 'test_refresh_token',
+        }),
       );
       expectConnectedAccount(result);
     });

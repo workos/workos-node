@@ -9,5 +9,5 @@ export const serializeDataIntegrationsGetUserTokenRequest = (
   model: DataIntegrationsGetUserTokenRequest,
 ): DataIntegrationsGetUserTokenRequestResponse => ({
   user_id: model.userId,
-  organization_id: model.organizationId ?? null,
+  organization_id: model.organizationId,
 });
