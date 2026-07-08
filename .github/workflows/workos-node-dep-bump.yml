@@ -78,6 +78,15 @@ jobs:
           app-id: ${{ vars.SDK_BOT_APP_ID }}
           private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
           owner: workos
+          repositories: |
+            authkit-astro
+            authkit-nextjs
+            authkit-react-router
+            authkit-remix
+            authkit-session
+            authkit-tanstack-start
+          permission-contents: write
+          permission-pull-requests: write
 
       - name: Discover repos
         env:
