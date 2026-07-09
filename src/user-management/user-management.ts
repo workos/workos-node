@@ -18,12 +18,16 @@ import {
   CreateMagicAuthResponse,
   CreateMagicAuthResponseResponse,
   CreatePasswordResetOptions,
+  CreateUserApiKeyOptions,
+  CreateUserApiKeyRequestOptions,
   CreateUserOptions,
   CreateUserResponse,
   CreateUserResponseResponse,
   EmailVerification,
   EmailVerificationResponse,
   ListSessionsOptions,
+  ListUserApiKeysOptions,
+  SerializedListUserApiKeysOptions,
   ListUsersOptions,
   LogoutURLOptions,
   MagicAuth,
@@ -50,8 +54,12 @@ import {
   SessionResponse,
   UpdateUserOptions,
   User,
+  UserApiKey,
+  UserApiKeyWithValue,
   UserResponse,
   VerifyEmailOptions,
+  SerializedUserApiKey,
+  SerializedUserApiKeyWithValue,
 } from './interfaces';
 import {
   AuthenticateWithEmailVerificationOptions,
@@ -144,10 +152,14 @@ import {
   serializeAuthenticateWithTotpOptions,
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
+  serializeCreateUserApiKeyOptions,
   serializeCreateUserOptions,
   serializeListSessionsOptions,
+  serializeListUserApiKeysOptions,
   serializeResetPasswordOptions,
   serializeUpdateUserOptions,
+  deserializeUserApiKey,
+  deserializeUserApiKeyWithValue,
 } from './serializers';
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
@@ -1041,6 +1053,69 @@ export class UserManagement {
    */
   async deleteUser(userId: string) {
     await this.workos.delete(`/user_management/users/${userId}`);
+  }
+
+  /**
+   * List API keys for a user
+   *
+   * Get a list of API keys owned by a specific user.
+   * @param userId - Unique identifier of the user.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<UserApiKey, SerializedListUserApiKeysOptions>>}
+   * @throws {NotFoundException} 404
+   */
+  async listUserApiKeys(
+    userId: string,
+    options?: ListUserApiKeysOptions,
+  ): Promise<AutoPaginatable<UserApiKey, SerializedListUserApiKeysOptions>> {
+    const serializedOptions = options
+      ? serializeListUserApiKeysOptions(options)
+      : undefined;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
+        this.workos,
+        `/user_management/users/${userId}/api_keys`,
+        deserializeUserApiKey,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
+          this.workos,
+          `/user_management/users/${userId}/api_keys`,
+          deserializeUserApiKey,
+          params,
+        ),
+      serializedOptions,
+    );
+  }
+
+  /**
+   * Create an API key for a user
+   *
+   * Create a new API key owned by a user. The user must have an active membership in the specified organization.
+   * @param userId - Unique identifier of the user.
+   * @param options - Object containing the API key properties.
+   * @returns {Promise<UserApiKeyWithValue>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async createUserApiKey(
+    userId: string,
+    options: CreateUserApiKeyOptions,
+    requestOptions: CreateUserApiKeyRequestOptions = {},
+  ): Promise<UserApiKeyWithValue> {
+    const { data } = await this.workos.post<
+      SerializedUserApiKeyWithValue,
+      ReturnType<typeof serializeCreateUserApiKeyOptions>
+    >(
+      `/user_management/users/${userId}/api_keys`,
+      serializeCreateUserApiKeyOptions(options),
+      requestOptions,
+    );
+
+    return deserializeUserApiKeyWithValue(data);
   }
 
   /**
