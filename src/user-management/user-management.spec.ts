@@ -2219,7 +2219,7 @@ describe('UserManagement', () => {
         permissions: ['posts:read', 'posts:write'],
         createdAt: '2026-01-15T12:00:00.000Z',
         updatedAt: '2026-01-15T12:00:00.000Z',
-        value: 'sk_abcdefghijklmnop123456',
+        value: 'test_api_key_value',
       });
     });
 
