@@ -316,6 +316,54 @@ describe('WorkOS', () => {
       });
     });
 
+    describe('when the api responds with a 422 and an error but no message', () => {
+      it('surfaces the error in the exception message', async () => {
+        fetchOnce(
+          { error: 'Maximum unique keys reached' },
+          { status: 422, headers: { 'X-Request-ID': 'a-request-id' } },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          message: 'Error: Maximum unique keys reached',
+          requestID: 'a-request-id',
+          status: 422,
+        });
+      });
+
+      it('prefers the message over the error when both are present', async () => {
+        fetchOnce(
+          { error: 'an-error', message: 'A message' },
+          { status: 422, headers: { 'X-Request-ID': 'a-request-id' } },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          message: 'A message',
+          status: 422,
+        });
+      });
+
+      it('still formats field errors when present', async () => {
+        fetchOnce(
+          {
+            error: 'an-error',
+            errors: [{ field: 'a-field', code: 'a-requirement' }],
+          },
+          { status: 422, headers: { 'X-Request-ID': 'a-request-id' } },
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          message: 'The following requirement must be met:\n\ta-requirement\n',
+          status: 422,
+        });
+      });
+    });
+
     describe('when the api responds with a 500 and no error/error_description', () => {
       it('throws an GenericServerException', async () => {
         fetchOnce(
