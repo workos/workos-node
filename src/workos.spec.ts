@@ -364,6 +364,33 @@ describe('WorkOS', () => {
       });
     });
 
+    describe('when the request times out', () => {
+      it('surfaces the timeout rather than a headers TypeError', async () => {
+        const neverResolvingFetch = jest.fn(
+          (_url: any, init: any) =>
+            new Promise((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              });
+            }) as any,
+        );
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          timeout: 1,
+          fetchFn: neverResolvingFetch as any,
+        });
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          name: 'OauthException',
+          status: 408,
+          requestID: '',
+          message: 'Error: Request timeout',
+        });
+      }, 20000);
+    });
+
     describe('when the api responds with a 500 and no error/error_description', () => {
       it('throws an GenericServerException', async () => {
         fetchOnce(
