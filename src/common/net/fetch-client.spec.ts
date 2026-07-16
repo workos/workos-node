@@ -463,6 +463,101 @@ describe('automatic retries', () => {
 
     expect(fetch.mock.calls.length).toBe(2);
   });
+
+  it('honors the Retry-After header (HTTP-date) when retrying', async () => {
+    const fixedNow = 1_700_000_000_000;
+    jest.spyOn(Date, 'now').mockReturnValue(fixedNow);
+    fetchOnce(
+      {},
+      {
+        status: 429,
+        headers: { 'Retry-After': new Date(fixedNow + 5_000).toUTCString() },
+      },
+    );
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.get('/organizations', {});
+
+    expect(mockSleep).toHaveBeenCalledTimes(1);
+    expect(mockSleep).toHaveBeenCalledWith(expect.any(Number), 5000);
+  });
+
+  it('caps a server-provided Retry-After delay at 60 seconds', async () => {
+    fetchOnce({}, { status: 429, headers: { 'Retry-After': '3600' } });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.get('/organizations', {});
+
+    expect(mockSleep).toHaveBeenCalledTimes(1);
+    expect(mockSleep).toHaveBeenCalledWith(expect.any(Number), 60_000);
+  });
+
+  it('falls back to computed backoff when Retry-After is unparseable', async () => {
+    fetchOnce({}, { status: 429, headers: { 'Retry-After': 'not-a-delay' } });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.get('/organizations', {});
+
+    expect(mockSleep).toHaveBeenCalledTimes(1);
+    expect(mockSleep).toHaveBeenCalledWith(expect.any(Number), null);
+  });
+
+  it('retries when the fetch function rejects with a network error', async () => {
+    fetch.mockRejectOnce(new TypeError('Failed to fetch'));
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    const response = await fetchClient.get('/organizations', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('retries DELETE requests on transient failures', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    const response = await fetchClient.delete('/organizations/org_123', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('does not attach an Idempotency-Key to PUT or PATCH requests', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.put('/organizations/org_123', { name: 'Test' }, {});
+
+    const putHeaders = fetch.mock.calls[0][1]?.headers as Record<
+      string,
+      string
+    >;
+    expect(putHeaders['Idempotency-Key']).toBeUndefined();
+
+    fetch.resetMocks();
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+
+    await fetchClient.patch('/organizations/org_123', { name: 'Test' }, {});
+
+    const patchHeaders = fetch.mock.calls[0][1]?.headers as Record<
+      string,
+      string
+    >;
+    expect(patchHeaders['Idempotency-Key']).toBeUndefined();
+  });
 });
 
 describe('FetchHttpClient with timeout', () => {

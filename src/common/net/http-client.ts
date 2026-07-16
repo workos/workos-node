@@ -19,6 +19,13 @@ export interface HttpClientOptions extends RequestInit {
 
 export const DEFAULT_MAX_RETRY_ATTEMPTS = 3;
 
+/**
+ * Upper bound on a server-provided `Retry-After` delay. Caps how long a
+ * single retry can sleep so an aggressive proxy or an HTTP-date far in the
+ * future can't hang the caller indefinitely.
+ */
+export const MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS = 60_000;
+
 export abstract class HttpClient implements HttpClientInterface {
   readonly MAX_RETRY_ATTEMPTS: number;
   readonly BACKOFF_MULTIPLIER = 1.5;
@@ -110,9 +117,9 @@ export abstract class HttpClient implements HttpClientInterface {
 
   /**
    * Generate a random idempotency key used to make retried write requests
-   * safe. Mirrors the behavior of the other WorkOS SDKs (Kotlin, Go, Ruby),
-   * which attach an `Idempotency-Key` header to retried POST/PUT/PATCH
-   * requests that did not already specify one.
+   * safe. Mirrors the behavior of the other WorkOS SDKs (Kotlin, Go), which
+   * attach an `Idempotency-Key` header to POST requests that did not already
+   * specify one, so a retried request is not applied more than once.
    */
   static generateIdempotencyKey(): string {
     return `retry-${globalThis.crypto.randomUUID()}`;
@@ -120,9 +127,10 @@ export abstract class HttpClient implements HttpClientInterface {
 
   /**
    * Parse a `Retry-After` header value into milliseconds. Supports both the
-   * delay-seconds form (e.g. `120`) and the HTTP-date form. Returns `null`
-   * when the value is absent or unparseable so the caller falls back to the
-   * computed exponential backoff.
+   * delay-seconds form (e.g. `120`) and the HTTP-date form. The result is
+   * capped at {@link MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS}. Returns
+   * `null` when the value is absent or unparseable so the caller falls back
+   * to the computed exponential backoff.
    */
   static parseRetryAfter(
     headerValue: string | null | undefined,
@@ -136,15 +144,22 @@ export abstract class HttpClient implements HttpClientInterface {
       return null;
     }
 
-    const asSeconds = Number(trimmed);
-    if (!Number.isNaN(asSeconds)) {
-      return asSeconds < 0 ? 0 : asSeconds * 1000;
+    // RFC 9110 delay-seconds: a non-negative decimal integer. Using a strict
+    // pattern instead of Number() avoids honoring exotic forms like
+    // `Infinity`, hex, or exponent notation.
+    if (/^\d+$/.test(trimmed)) {
+      return Math.min(
+        Number(trimmed) * 1000,
+        MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS,
+      );
     }
 
     const asDate = Date.parse(trimmed);
     if (!Number.isNaN(asDate)) {
       const delta = asDate - Date.now();
-      return delta < 0 ? 0 : delta;
+      return delta < 0
+        ? 0
+        : Math.min(delta, MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS);
     }
 
     return null;

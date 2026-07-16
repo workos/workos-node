@@ -275,9 +275,11 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   ): Promise<HttpClientResponseInterface> {
     const maxRetryAttempts = maxRetries ?? this.MAX_RETRY_ATTEMPTS;
 
-    // Attach an idempotency key to retryable write requests that don't have
-    // one so retried POST/PUT/PATCH calls are not applied more than once by
-    // the API. Generated once so every attempt shares the same key.
+    // Attach an idempotency key to retryable POST requests that don't have
+    // one so retried calls are not applied more than once by the API.
+    // POST-only to match the Kotlin and Go SDKs and the API, which honors
+    // `Idempotency-Key` on create (POST) endpoints. Generated once so every
+    // attempt shares the same key.
     const requestHeaders = FetchHttpClient.withIdempotencyKey(
       method,
       headers,
@@ -357,11 +359,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     headers: RequestHeaders | undefined,
     maxRetryAttempts: number,
   ): RequestHeaders | undefined {
-    const isWriteMethod =
-      method === 'POST' || method === 'PUT' || method === 'PATCH';
-
     if (
-      !isWriteMethod ||
+      method !== 'POST' ||
       maxRetryAttempts <= 0 ||
       FetchHttpClient.hasHeader(headers, 'Idempotency-Key')
     ) {

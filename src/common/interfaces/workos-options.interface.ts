@@ -13,8 +13,8 @@ export interface WorkOSOptions {
   /**
    * Maximum number of automatic retries for transient failures (network
    * errors and 408/429/5xx responses). Retries use exponential backoff with
-   * jitter and honor the `Retry-After` header. Defaults to 3. Set to `0` to
-   * disable automatic retries.
+   * jitter and honor the `Retry-After` header (capped at 60 seconds).
+   * Defaults to 3. Set to `0` to disable automatic retries.
    */
   maxRetries?: number;
 }
