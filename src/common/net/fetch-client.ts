@@ -336,6 +336,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       ) {
         return true;
       }
+
+      // A retryable status can arrive with a non-JSON body (e.g. an HTML error
+      // page from a proxy), which `fetchRequest` surfaces as a `ParseError`.
+      // Retry those based on the underlying status.
+      if (
+        requestError instanceof ParseError &&
+        this.RETRY_STATUS_CODES.includes(requestError.rawStatus)
+      ) {
+        return true;
+      }
     }
 
     return false;

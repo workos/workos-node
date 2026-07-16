@@ -231,10 +231,12 @@ describe('Fetch client', () => {
         },
       );
 
-      await expect(fetchClient.get('/users', {})).rejects.toThrow(ParseError);
+      await expect(
+        fetchClient.get('/users', { maxRetries: 0 }),
+      ).rejects.toThrow(ParseError);
 
       try {
-        await fetchClient.get('/users', {});
+        await fetchClient.get('/users', { maxRetries: 0 });
       } catch (error) {
         expect(error).toBeInstanceOf(ParseError);
         const parseError = error as ParseError;
@@ -406,6 +408,21 @@ describe('automatic retries', () => {
     >;
     expect(firstHeaders['Idempotency-Key']).toBe('user-key');
     expect(secondHeaders['Idempotency-Key']).toBe('user-key');
+  });
+
+  it('retries a retryable status with a non-JSON error body', async () => {
+    fetch.mockResponseOnce('<html>503 Service Unavailable</html>', {
+      status: 503,
+      headers: { 'content-type': 'text/html' },
+    });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    const response = await fetchClient.get('/organizations', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
   });
 
   it('does not retry when maxRetries is 0', async () => {
