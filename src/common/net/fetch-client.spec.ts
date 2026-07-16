@@ -425,6 +425,21 @@ describe('automatic retries', () => {
     expect(await response.toJSON()).toEqual({ data: 'response' });
   });
 
+  it('honors Retry-After on a retryable non-JSON error body', async () => {
+    fetch.mockResponseOnce('<html>503 Service Unavailable</html>', {
+      status: 503,
+      headers: { 'content-type': 'text/html', 'Retry-After': '7' },
+    });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.get('/organizations', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(mockSleep).toHaveBeenCalledWith(expect.any(Number), 7000);
+  });
+
   it('does not retry when maxRetries is 0', async () => {
     const client = new FetchHttpClient('https://test.workos.com', {
       maxRetries: 0,

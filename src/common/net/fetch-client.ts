@@ -228,6 +228,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
               rawBody,
               requestID,
               rawStatus: res.status,
+              rawHeaders: res.headers,
             });
           }
           throw error;
@@ -386,11 +387,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   }
 
   private static getRetryAfterMs(requestError: any): number | null {
-    if (!(requestError instanceof HttpClientError)) {
+    let headers: any;
+
+    if (requestError instanceof HttpClientError) {
+      headers = requestError.response?.headers;
+    } else if (requestError instanceof ParseError) {
+      headers = requestError.rawHeaders;
+    } else {
       return null;
     }
 
-    const headers = requestError.response?.headers;
     let value: string | null | undefined;
 
     if (headers && typeof headers.get === 'function') {
