@@ -831,8 +831,8 @@ describe('Event', () => {
             previousAttributes: {
               role: { slug: 'member' },
             },
-            createdAt: '2021-10-27 15:21:50.640959',
-            updatedAt: '2021-12-13 12:15:45.531847',
+            createdAt: new Date('2021-10-27 15:21:50.640959'),
+            updatedAt: new Date('2021-12-13 12:15:45.531847'),
           },
         };
 

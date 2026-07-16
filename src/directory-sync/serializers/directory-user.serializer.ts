@@ -27,8 +27,8 @@ export const deserializeDirectoryUser = <
   state: directoryUser.state,
   ...(directoryUser.role !== undefined && { role: directoryUser.role }),
   ...(directoryUser.roles !== undefined && { roles: directoryUser.roles }),
-  createdAt: directoryUser.created_at,
-  updatedAt: directoryUser.updated_at,
+  createdAt: new Date(directoryUser.created_at),
+  updatedAt: new Date(directoryUser.updated_at),
 });
 
 export const deserializeDirectoryUserWithGroups = <
@@ -56,7 +56,7 @@ export const deserializeUpdatedEventDirectoryUser = (
   state: directoryUser.state,
   ...(directoryUser.role !== undefined && { role: directoryUser.role }),
   ...(directoryUser.roles !== undefined && { roles: directoryUser.roles }),
-  createdAt: directoryUser.created_at,
-  updatedAt: directoryUser.updated_at,
+  createdAt: new Date(directoryUser.created_at),
+  updatedAt: new Date(directoryUser.updated_at),
   previousAttributes: directoryUser.previous_attributes,
 });
