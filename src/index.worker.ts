@@ -56,6 +56,7 @@ class WorkOSWorker extends WorkOS {
 
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
+      maxRetries: options.maxRetries,
       headers,
     });
   }

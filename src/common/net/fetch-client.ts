@@ -6,12 +6,15 @@ import {
   RequestOptions,
   ResponseHeaders,
 } from '../interfaces/http-client.interface';
-import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
+import {
+  HttpClient,
+  HttpClientError,
+  HttpClientOptions,
+  HttpClientResponse,
+} from './http-client';
 import { ParseError } from '../exceptions/parse-error';
 
-interface FetchHttpClientOptions extends RequestInit {
-  timeout?: number;
-}
+type FetchHttpClientOptions = HttpClientOptions;
 
 const DEFAULT_FETCH_TIMEOUT = 60_000; // 60 seconds
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
@@ -47,16 +50,13 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'GET',
-        null,
-        options.headers,
-      );
-    } else {
-      return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'GET',
+      null,
+      options.headers,
+      options.maxRetries,
+    );
   }
 
   async post<Entity = any>(
@@ -70,27 +70,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'POST',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'POST',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'POST',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async put<Entity = any>(
@@ -104,27 +93,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'PUT',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'PUT',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'PUT',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async patch<Entity = any>(
@@ -138,27 +116,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'PATCH',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'PATCH',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'PATCH',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async delete(
@@ -171,21 +138,13 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'DELETE',
-        null,
-        options.headers,
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'DELETE',
-        null,
-        options.headers,
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'DELETE',
+      null,
+      options.headers,
+      options.maxRetries,
+    );
   }
 
   async deleteWithBody<Entity = any>(
@@ -199,27 +158,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'DELETE',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'DELETE',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'DELETE',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   private async fetchRequest(
@@ -280,6 +228,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
               rawBody,
               requestID,
               rawStatus: res.status,
+              rawHeaders: res.headers,
             });
           }
           throw error;
@@ -322,7 +271,21 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     method: string,
     body?: any,
     headers?: RequestHeaders,
+    maxRetries?: number,
   ): Promise<HttpClientResponseInterface> {
+    const maxRetryAttempts = maxRetries ?? this.MAX_RETRY_ATTEMPTS;
+
+    // Attach an idempotency key to retryable POST requests that don't have
+    // one so retried calls are not applied more than once by the API.
+    // POST-only to match the Kotlin and Go SDKs and the API, which honors
+    // `Idempotency-Key` on create (POST) endpoints. Generated once so every
+    // attempt shares the same key.
+    const requestHeaders = FetchHttpClient.withIdempotencyKey(
+      method,
+      headers,
+      maxRetryAttempts,
+    );
+
     let response: HttpClientResponseInterface;
     let retryAttempts = 1;
 
@@ -330,14 +293,19 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       let requestError: any = null;
 
       try {
-        response = await this.fetchRequest(url, method, body, headers);
+        response = await this.fetchRequest(url, method, body, requestHeaders);
       } catch (e) {
         requestError = e;
       }
 
-      if (this.shouldRetryRequest(requestError, retryAttempts)) {
+      if (
+        this.shouldRetryRequest(requestError, retryAttempts, maxRetryAttempts)
+      ) {
         retryAttempts++;
-        await this.sleep(retryAttempts);
+        await this.sleep(
+          retryAttempts,
+          FetchHttpClient.getRetryAfterMs(requestError),
+        );
         return makeRequest();
       }
 
@@ -351,8 +319,12 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     return makeRequest();
   }
 
-  private shouldRetryRequest(requestError: any, retryAttempt: number): boolean {
-    if (retryAttempt > this.MAX_RETRY_ATTEMPTS) {
+  private shouldRetryRequest(
+    requestError: any,
+    retryAttempt: number,
+    maxRetryAttempts: number,
+  ): boolean {
+    if (retryAttempt > maxRetryAttempts) {
       return false;
     }
 
@@ -367,9 +339,72 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       ) {
         return true;
       }
+
+      // A retryable status can arrive with a non-JSON body (e.g. an HTML error
+      // page from a proxy), which `fetchRequest` surfaces as a `ParseError`.
+      // Retry those based on the underlying status.
+      if (
+        requestError instanceof ParseError &&
+        this.RETRY_STATUS_CODES.includes(requestError.rawStatus)
+      ) {
+        return true;
+      }
     }
 
     return false;
+  }
+
+  private static withIdempotencyKey(
+    method: string,
+    headers: RequestHeaders | undefined,
+    maxRetryAttempts: number,
+  ): RequestHeaders | undefined {
+    if (
+      method !== 'POST' ||
+      maxRetryAttempts <= 0 ||
+      FetchHttpClient.hasHeader(headers, 'Idempotency-Key')
+    ) {
+      return headers;
+    }
+
+    return {
+      ...headers,
+      'Idempotency-Key': HttpClient.generateIdempotencyKey(),
+    };
+  }
+
+  private static hasHeader(
+    headers: RequestHeaders | undefined,
+    name: string,
+  ): boolean {
+    if (!headers) {
+      return false;
+    }
+
+    const target = name.toLowerCase();
+    return Object.keys(headers).some((key) => key.toLowerCase() === target);
+  }
+
+  private static getRetryAfterMs(requestError: any): number | null {
+    let headers: any;
+
+    if (requestError instanceof HttpClientError) {
+      headers = requestError.response?.headers;
+    } else if (requestError instanceof ParseError) {
+      headers = requestError.rawHeaders;
+    } else {
+      return null;
+    }
+
+    let value: string | null | undefined;
+
+    if (headers && typeof headers.get === 'function') {
+      value = headers.get('Retry-After');
+    } else if (headers && typeof headers === 'object') {
+      value = headers['Retry-After'] ?? headers['retry-after'];
+    }
+
+    return HttpClient.parseRetryAfter(value);
   }
 }
 
