@@ -4,13 +4,7 @@
  */
 
 type Runtime =
-  | 'node'
-  | 'deno'
-  | 'bun'
-  | 'cloudflare'
-  | 'fastly'
-  | 'edge-light'
-  | 'other';
+  'node' | 'deno' | 'bun' | 'cloudflare' | 'fastly' | 'edge-light' | 'other';
 
 let detectedRuntime: Runtime | null = null;
 

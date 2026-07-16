@@ -15,8 +15,7 @@ export interface RemoveRoleOptionsWithResourceExternalId
   extends BaseRemoveRoleOptions, AuthorizationResourceIdentifierByExternalId {}
 
 export type RemoveRoleOptions =
-  | RemoveRoleOptionsWithResourceId
-  | RemoveRoleOptionsWithResourceExternalId;
+  RemoveRoleOptionsWithResourceId | RemoveRoleOptionsWithResourceExternalId;
 
 export interface SerializedRemoveRoleOptions {
   role_slug: string;

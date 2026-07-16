@@ -15,8 +15,7 @@ export interface AssignRoleOptionsWithResourceExternalId
   extends BaseAssignRoleOptions, AuthorizationResourceIdentifierByExternalId {}
 
 export type AssignRoleOptions =
-  | AssignRoleOptionsWithResourceId
-  | AssignRoleOptionsWithResourceExternalId;
+  AssignRoleOptionsWithResourceId | AssignRoleOptionsWithResourceExternalId;
 
 export interface SerializedAssignRoleOptions {
   role_slug: string;

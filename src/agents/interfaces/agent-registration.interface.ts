@@ -1,15 +1,10 @@
 /** The lifecycle status of an agent registration. */
 export type AgentRegistrationStatus =
-  | 'unverified'
-  | 'verified'
-  | 'expired'
-  | 'revoked';
+  'unverified' | 'verified' | 'expired' | 'revoked';
 
 /** The kind of agent registration, derived from its authentication method. */
 export type AgentRegistrationKind =
-  | 'anonymous'
-  | 'service_auth'
-  | 'identity_assertion';
+  'anonymous' | 'service_auth' | 'identity_assertion';
 
 /** The agent identity an agent registration belongs to. */
 export interface AgentIdentity {

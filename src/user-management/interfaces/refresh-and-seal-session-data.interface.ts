@@ -28,5 +28,4 @@ type RefreshSessionSuccessResponse = Omit<
 };
 
 export type RefreshSessionResponse =
-  | RefreshSessionFailedResponse
-  | RefreshSessionSuccessResponse;
+  RefreshSessionFailedResponse | RefreshSessionSuccessResponse;

@@ -1,9 +1,6 @@
 // @oagen-ignore-file
 type QueryValue =
-  | string
-  | string[]
-  | Record<string, string | boolean | number>
-  | undefined;
+  string | string[] | Record<string, string | boolean | number> | undefined;
 
 /**
  * Converts options to a query string.

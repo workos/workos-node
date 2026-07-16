@@ -1,6 +1,5 @@
 export type AuditLogSchemaMetadata =
-  | Record<string, { type: 'string' | 'boolean' | 'number' }>
-  | undefined;
+  Record<string, { type: 'string' | 'boolean' | 'number' }> | undefined;
 
 export interface AuditLogActorSchema {
   metadata: Record<string, string | boolean | number>;

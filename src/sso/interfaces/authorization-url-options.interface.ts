@@ -54,6 +54,4 @@ type SSOWithProvider = SSOAuthorizationURLBaseFields &
   };
 
 export type SSOAuthorizationURLOptions =
-  | SSOWithConnection
-  | SSOWithOrganization
-  | SSOWithProvider;
+  SSOWithConnection | SSOWithOrganization | SSOWithProvider;

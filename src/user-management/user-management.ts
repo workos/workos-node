@@ -172,8 +172,7 @@ import { deserializeGroup } from '../groups/serializers';
 export class UserManagement {
   // @oagen-ignore-start
   private _jwks:
-    | ReturnType<typeof import('jose').createRemoteJWKSet>
-    | undefined;
+    ReturnType<typeof import('jose').createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
 
   constructor(private readonly workos: WorkOS) {

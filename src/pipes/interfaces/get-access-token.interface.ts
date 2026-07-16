@@ -21,8 +21,7 @@ export interface GetAccessTokenFailureResponse {
 }
 
 export type GetAccessTokenResponse =
-  | GetAccessTokenSuccessResponse
-  | GetAccessTokenFailureResponse;
+  GetAccessTokenSuccessResponse | GetAccessTokenFailureResponse;
 
 export interface SerializedGetAccessTokenSuccessResponse {
   active: true;
