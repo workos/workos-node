@@ -1,0 +1,33 @@
+{
+  "actor": {
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "role": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "targets": [
+    {
+      "type": "invoice",
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "cost": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "type": "object",
+    "properties": {
+      "transactionId": {
+        "type": "string"
+      }
+    }
+  }
+}

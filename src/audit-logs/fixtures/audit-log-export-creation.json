@@ -1,0 +1,10 @@
+{
+  "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+  "range_start": "2022-07-02T18:09:06.996Z",
+  "range_end": "2022-09-02T18:09:06.996Z",
+  "actions": ["user.signed_in"],
+  "actors": ["Jon Smith"],
+  "actor_names": ["Jon Smith"],
+  "actor_ids": ["user_01GBZK5MP7TD1YCFQHFR22180V"],
+  "targets": ["team"]
+}
