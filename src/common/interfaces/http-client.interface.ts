@@ -2,6 +2,11 @@ export type RequestHeaders = Record<string, string | number | string[]>;
 export type RequestOptions = {
   params?: Record<string, any>;
   headers?: RequestHeaders;
+  /**
+   * Maximum number of retries for this request, overriding the client-wide
+   * `maxRetries`. Set to `0` to disable retries for this request.
+   */
+  maxRetries?: number;
 };
 export type ResponseHeaderValue = string | string[];
 export type ResponseHeaders = Record<string, ResponseHeaderValue>;

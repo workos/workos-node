@@ -323,6 +323,116 @@ describe('Fetch client', () => {
   });
 });
 
+describe('automatic retries', () => {
+  beforeEach(() => fetch.resetMocks());
+
+  it('retries requests on non-vault paths by default', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    const response = await fetchClient.get('/organizations', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('retries requests on a 429 status code', async () => {
+    fetchOnce({}, { status: 429 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    const response = await fetchClient.get('/organizations', {});
+
+    expect(fetch.mock.calls.length).toBe(2);
+    expect(await response.toJSON()).toEqual({ data: 'response' });
+  });
+
+  it('honors the Retry-After header (delay-seconds) when retrying', async () => {
+    fetchOnce({}, { status: 429, headers: { 'Retry-After': '2' } });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.get('/organizations', {});
+
+    expect(mockSleep).toHaveBeenCalledTimes(1);
+    expect(mockSleep).toHaveBeenCalledWith(expect.any(Number), 2000);
+  });
+
+  it('attaches an Idempotency-Key to a retried POST that lacks one', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.post('/organizations', { name: 'Test' }, {});
+
+    const firstHeaders = fetch.mock.calls[0][1]?.headers as Record<
+      string,
+      string
+    >;
+    const secondHeaders = fetch.mock.calls[1][1]?.headers as Record<
+      string,
+      string
+    >;
+    expect(firstHeaders['Idempotency-Key']).toMatch(/^retry-/);
+    expect(secondHeaders['Idempotency-Key']).toBe(
+      firstHeaders['Idempotency-Key'],
+    );
+  });
+
+  it('does not override a caller-provided Idempotency-Key on retry', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({ data: 'response' });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await fetchClient.post(
+      '/organizations',
+      { name: 'Test' },
+      { headers: { 'Idempotency-Key': 'user-key' } },
+    );
+
+    const firstHeaders = fetch.mock.calls[0][1]?.headers as Record<
+      string,
+      string
+    >;
+    const secondHeaders = fetch.mock.calls[1][1]?.headers as Record<
+      string,
+      string
+    >;
+    expect(firstHeaders['Idempotency-Key']).toBe('user-key');
+    expect(secondHeaders['Idempotency-Key']).toBe('user-key');
+  });
+
+  it('does not retry when maxRetries is 0', async () => {
+    const client = new FetchHttpClient('https://test.workos.com', {
+      maxRetries: 0,
+    });
+    fetchOnce({}, { status: 500 });
+
+    await expect(client.get('/organizations', {})).rejects.toThrow();
+
+    expect(fetch.mock.calls.length).toBe(1);
+  });
+
+  it('respects a per-request maxRetries override', async () => {
+    fetchOnce({}, { status: 500 });
+    fetchOnce({}, { status: 500 });
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(() => Promise.resolve());
+
+    await expect(
+      fetchClient.get('/organizations', { maxRetries: 1 }),
+    ).rejects.toThrow();
+
+    expect(fetch.mock.calls.length).toBe(2);
+  });
+});
+
 describe('FetchHttpClient with timeout', () => {
   let client: FetchHttpClient;
   let mockFetch: jest.Mock;
@@ -331,7 +441,7 @@ describe('FetchHttpClient with timeout', () => {
     mockFetch = jest.fn();
     client = new FetchHttpClient(
       'https://api.example.com',
-      { timeout: 100 },
+      { timeout: 100, maxRetries: 0 },
       mockFetch,
     );
   });

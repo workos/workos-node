@@ -326,7 +326,10 @@ describe('WorkOS', () => {
           },
         );
 
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          maxRetries: 0,
+        });
 
         await expect(workos.post('/path', {})).rejects.toStrictEqual(
           new GenericServerException(500, undefined, {}, 'a-request-id'),
@@ -448,7 +451,10 @@ describe('WorkOS', () => {
           },
         );
 
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const workos = new WorkOS({
+          apiKey: 'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          maxRetries: 0,
+        });
 
         await expect(workos.get('/path')).rejects.toStrictEqual(
           new RateLimitExceededException(
