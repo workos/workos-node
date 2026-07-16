@@ -33,8 +33,7 @@ export interface ValidateAgentAccessTokenOptions {
  * are only available for `access_token` credentials.
  */
 export type ValidateAgentCredentialOptions =
-  | ValidateAgentApiKeyOptions
-  | ValidateAgentAccessTokenOptions;
+  ValidateAgentApiKeyOptions | ValidateAgentAccessTokenOptions;
 
 export interface SerializedValidateAgentCredentialOptions {
   type: AgentCredentialType;
@@ -115,8 +114,7 @@ export interface InvalidAgentCredential {
 
 /** The result of validating an agent credential. */
 export type AgentCredentialValidation =
-  | ValidAgentCredential
-  | InvalidAgentCredential;
+  ValidAgentCredential | InvalidAgentCredential;
 
 export interface SerializedAgentCredentialValidation {
   valid: boolean;

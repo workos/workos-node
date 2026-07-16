@@ -42,8 +42,7 @@ interface UserRegistrationActionContext {
 }
 
 export type ActionContext =
-  | AuthenticationActionContext
-  | UserRegistrationActionContext;
+  AuthenticationActionContext | UserRegistrationActionContext;
 
 interface AuthenticationActionPayload {
   id: string;
@@ -76,5 +75,4 @@ export interface UserRegistrationActionPayload {
 }
 
 export type ActionPayload =
-  | AuthenticationActionPayload
-  | UserRegistrationActionPayload;
+  AuthenticationActionPayload | UserRegistrationActionPayload;

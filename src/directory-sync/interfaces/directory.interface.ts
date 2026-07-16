@@ -20,18 +20,10 @@ export type DirectoryType =
   | 'workday';
 
 export type DirectoryState =
-  | 'active'
-  | 'deleting'
-  | 'inactive'
-  | 'invalid_credentials'
-  | 'validating';
+  'active' | 'deleting' | 'inactive' | 'invalid_credentials' | 'validating';
 
 export type DirectoryStateResponse =
-  | 'deleting'
-  | 'invalid_credentials'
-  | 'linked'
-  | 'unlinked'
-  | 'validating';
+  'deleting' | 'invalid_credentials' | 'linked' | 'unlinked' | 'validating';
 
 export interface Directory {
   /** Distinguishes the Directory object. */
