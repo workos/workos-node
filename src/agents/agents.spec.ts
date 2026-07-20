@@ -1,6 +1,11 @@
 import * as jose from 'jose';
 import fetch from 'jest-fetch-mock';
-import { fetchBody, fetchOnce, fetchURL } from '../common/utils/test-utils';
+import {
+  fetchBody,
+  fetchMethod,
+  fetchOnce,
+  fetchURL,
+} from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import createClaimAttemptFixture from './fixtures/create-claim-attempt.json';
 import getAgentRegistrationFixture from './fixtures/get-agent-registration.json';
@@ -62,6 +67,7 @@ describe('Agents', () => {
       });
 
       expect(fetchURL()).toContain('/agents/claims/attempts');
+      expect(fetchMethod()).toBe('PATCH');
       expect(fetchBody()).toEqual({
         type: 'link_external_user',
         claim_attempt_token: 'cla_tkn_01EHWNCE74X7JSDV0X3SZ3KJNY',

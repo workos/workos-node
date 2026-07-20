@@ -64,7 +64,7 @@ export class Agents {
   async linkClaimAttemptToExternalUser(
     options: LinkClaimAttemptToExternalUserOptions,
   ): Promise<ClaimAttemptResponse> {
-    const { data } = await this.workos.post<SerializedClaimAttemptResponse>(
+    const { data } = await this.workos.patch<SerializedClaimAttemptResponse>(
       '/agents/claims/attempts',
       serializeLinkClaimAttemptToExternalUserOptions(options),
     );
