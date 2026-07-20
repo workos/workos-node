@@ -205,6 +205,7 @@ export class WorkOS {
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
       timeout: options.timeout,
+      maxRetries: options.maxRetries,
       headers,
     }) as HttpClient;
   }
@@ -249,6 +250,7 @@ export class WorkOS {
       res = await this.client.post<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -281,6 +283,7 @@ export class WorkOS {
       res = await this.client.get(path, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -312,6 +315,7 @@ export class WorkOS {
       res = await this.client.put<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -343,6 +347,7 @@ export class WorkOS {
       res = await this.client.patch<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });

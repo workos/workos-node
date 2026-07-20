@@ -37,6 +37,29 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS('sk_1234');
 ```
 
+### Automatic retries
+
+The SDK automatically retries requests that fail with a transient error — a
+network error, a request timeout (408), a rate limit (429), or a server error
+(500, 502, 503, 504) — using exponential backoff with jitter. When the API
+responds with a `Retry-After` header, the SDK waits for that duration instead
+(capped at 60 seconds). Retried `POST` requests are automatically assigned an
+`Idempotency-Key` header (unless one is already set) so a retried write is not
+applied twice.
+
+The default is 3 retries. Configure it client-wide, or per request on the
+low-level HTTP methods:
+
+```ts
+// Client-wide: up to 5 retries per request
+const workos = new WorkOS('sk_1234', { maxRetries: 5 });
+
+// Per-request override: disable retries for this call only
+await workos.get('/organizations', { maxRetries: 0 });
+```
+
+Set `maxRetries: 0` to disable automatic retries entirely.
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:

@@ -73,6 +73,7 @@ class WorkOSNode extends WorkOS {
     const opts = {
       ...options.config,
       timeout: options.timeout,
+      maxRetries: options.maxRetries,
       headers,
     };
 

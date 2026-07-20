@@ -4,6 +4,5 @@ import type { CreateOAuthApplication } from './create-oauth-application.interfac
 import type { CreateM2MApplication } from './create-m2m-application.interface';
 
 export type CreateApplicationOptions = {} & (
-  | CreateOAuthApplication
-  | CreateM2MApplication
+  CreateOAuthApplication | CreateM2MApplication
 );
