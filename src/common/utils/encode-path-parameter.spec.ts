@@ -17,9 +17,23 @@ describe('encodePathParameter', () => {
     expect(encodePathParameter('../../user_management/users/user_01ABC')).toBe(
       '..%2F..%2Fuser_management%2Fusers%2Fuser_01ABC',
     );
-    expect(encodePathParameter('..')).toBe('..');
     expect(encodePathParameter('a/b')).toBe('a%2Fb');
     expect(encodePathParameter('a?b')).toBe('a%3Fb');
     expect(encodePathParameter('a#b')).toBe('a%23b');
+    expect(encodePathParameter('%2e%2e')).toBe('%252e%252e');
+  });
+
+  it('rejects dot-only segments the URL parser would collapse', () => {
+    // `encodeURIComponent` leaves these unchanged and `new URL()` removes them
+    // as relative path segments, so a non-terminal template (e.g.
+    // `/feature-flags/${slug}/enable`) would retarget the request.
+    expect(() => encodePathParameter('.')).toThrow(TypeError);
+    expect(() => encodePathParameter('..')).toThrow(TypeError);
+  });
+
+  it('allows segments that merely contain dots', () => {
+    expect(encodePathParameter('...')).toBe('...');
+    expect(encodePathParameter('..foo')).toBe('..foo');
+    expect(encodePathParameter('v1.2.3')).toBe('v1.2.3');
   });
 });
