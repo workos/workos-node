@@ -3,7 +3,10 @@ import { WorkOS } from '../workos';
 import {
   AgentCredentialValidation,
   AgentRegistration,
+  ClaimAttemptResponse,
+  LinkClaimAttemptToExternalUserOptions,
   SerializedAgentAccessTokenClaims,
+  SerializedClaimAttemptResponse,
   SerializedAgentCredentialValidation,
   SerializedAgentRegistration,
   ValidateAgentAccessTokenOptions,
@@ -13,6 +16,8 @@ import {
   deserializeAgentAccessTokenClaims,
   deserializeAgentCredentialValidation,
   deserializeAgentRegistration,
+  deserializeClaimAttemptResponse,
+  serializeLinkClaimAttemptToExternalUserOptions,
   serializeValidateAgentCredentialOptions,
 } from './serializers';
 
@@ -40,6 +45,32 @@ export class Agents {
   private _jwks?: ReturnType<typeof import('jose').createRemoteJWKSet>;
 
   constructor(private readonly workos: WorkOS) {}
+
+  /**
+   * Link a claim attempt to an external user
+   *
+   * Link an external user to a claim attempt and retrieve the code needed
+   * for the agent to complete the claim. The user is looked up by external
+   * ID; if no user exists, one is created. When the user belongs to multiple
+   * organizations, an explicit organization must be provided.
+   *
+   * @param options - Object containing the claim attempt token, user details, and optional organization ID.
+   * @returns {Promise<ClaimAttemptResponse>}
+   * @throws {BadRequestException} 400 - Invalid request, email mismatch, or wrong account.
+   * @throws {ForbiddenException} 403 - Claim denied or auth method disabled.
+   * @throws {ConflictException} 409 - Organization selection required, external ID conflict, or already claimed.
+   * @throws {GoneException} 410 - Claim or user code expired.
+   */
+  async linkClaimAttemptToExternalUser(
+    options: LinkClaimAttemptToExternalUserOptions,
+  ): Promise<ClaimAttemptResponse> {
+    const { data } = await this.workos.patch<SerializedClaimAttemptResponse>(
+      '/agents/claims/attempts',
+      serializeLinkClaimAttemptToExternalUserOptions(options),
+    );
+
+    return deserializeClaimAttemptResponse(data);
+  }
 
   /**
    * Get an agent registration
