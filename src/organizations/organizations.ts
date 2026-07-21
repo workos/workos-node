@@ -15,6 +15,7 @@ import {
 } from './serializers';
 
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class Organizations {
   constructor(private readonly workos: WorkOS) {}
@@ -84,7 +85,7 @@ export class Organizations {
    * @throws 403 response from the API.
    */
   async deleteOrganization(id: string) {
-    await this.workos.delete(`/organizations/${id}`);
+    await this.workos.delete(`/organizations/${encodePathParameter(id)}`);
   }
 
   /**
@@ -101,7 +102,7 @@ export class Organizations {
    */
   async getOrganization(id: string): Promise<Organization> {
     const { data } = await this.workos.get<OrganizationResponse>(
-      `/organizations/${id}`,
+      `/organizations/${encodePathParameter(id)}`,
     );
 
     return deserializeOrganization(data);
@@ -121,7 +122,7 @@ export class Organizations {
    */
   async getOrganizationByExternalId(externalId: string): Promise<Organization> {
     const { data } = await this.workos.get<OrganizationResponse>(
-      `/organizations/external_id/${externalId}`,
+      `/organizations/external_id/${encodePathParameter(externalId)}`,
     );
 
     return deserializeOrganization(data);
@@ -145,7 +146,7 @@ export class Organizations {
     const { organization: organizationId, ...payload } = options;
 
     const { data } = await this.workos.put<OrganizationResponse>(
-      `/organizations/${organizationId}`,
+      `/organizations/${encodePathParameter(organizationId)}`,
       serializeUpdateOrganizationOptions(payload),
     );
 

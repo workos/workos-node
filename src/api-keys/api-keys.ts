@@ -23,6 +23,7 @@ import {
 } from './interfaces/validate-api-key.interface';
 import { deserializeValidateApiKeyResponse } from './serializers/validate-api-key.serializer';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class ApiKeys {
   constructor(private readonly workos: WorkOS) {}
@@ -60,7 +61,7 @@ export class ApiKeys {
    * @throws {NotFoundException} 404
    */
   async deleteApiKey(id: string): Promise<void> {
-    await this.workos.delete(`/api_keys/${id}`);
+    await this.workos.delete(`/api_keys/${encodePathParameter(id)}`);
   }
 
   /**
@@ -84,14 +85,14 @@ export class ApiKeys {
     return new AutoPaginatable(
       await fetchAndDeserialize<SerializedApiKey, ApiKey>(
         this.workos,
-        `/organizations/${organizationId}/api_keys`,
+        `/organizations/${encodePathParameter(organizationId)}/api_keys`,
         deserializeApiKey,
         paginationOptions,
       ),
       (params) =>
         fetchAndDeserialize<SerializedApiKey, ApiKey>(
           this.workos,
-          `/organizations/${organizationId}/api_keys`,
+          `/organizations/${encodePathParameter(organizationId)}/api_keys`,
           deserializeApiKey,
           params,
         ),
@@ -120,7 +121,7 @@ export class ApiKeys {
     const { organizationId } = options;
 
     const { data } = await this.workos.post<SerializedCreatedApiKey>(
-      `/organizations/${organizationId}/api_keys`,
+      `/organizations/${encodePathParameter(organizationId)}/api_keys`,
       serializeCreateOrganizationApiKeyOptions(options),
       requestOptions,
     );

@@ -6,6 +6,7 @@ import {
 } from './interfaces';
 import { serializeCreateOrganizationDomainOptions } from './serializers/create-organization-domain-options.serializer';
 import { deserializeOrganizationDomain } from './serializers/organization-domain.serializer';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class OrganizationDomains {
   constructor(private readonly workos: WorkOS) {}
@@ -24,7 +25,7 @@ export class OrganizationDomains {
    */
   async getOrganizationDomain(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.get<OrganizationDomainResponse>(
-      `/organization_domains/${id}`,
+      `/organization_domains/${encodePathParameter(id)}`,
     );
 
     return deserializeOrganizationDomain(data);
@@ -44,7 +45,7 @@ export class OrganizationDomains {
    */
   async verifyOrganizationDomain(id: string): Promise<OrganizationDomain> {
     const { data } = await this.workos.post<OrganizationDomainResponse>(
-      `/organization_domains/${id}/verify`,
+      `/organization_domains/${encodePathParameter(id)}/verify`,
       {},
     );
 
@@ -83,6 +84,8 @@ export class OrganizationDomains {
    * @throws {NotFoundException} 404
    */
   async deleteOrganizationDomain(id: string): Promise<void> {
-    await this.workos.delete(`/organization_domains/${id}`);
+    await this.workos.delete(
+      `/organization_domains/${encodePathParameter(id)}`,
+    );
   }
 }

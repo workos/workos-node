@@ -168,6 +168,7 @@ import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
 import { Group, GroupResponse } from '../groups/interfaces';
 import { deserializeGroup } from '../groups/serializers';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class UserManagement {
   // @oagen-ignore-start
@@ -241,7 +242,7 @@ export class UserManagement {
    */
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/users/${userId}`,
+      `/user_management/users/${encodePathParameter(userId)}`,
     );
 
     return deserializeUser(data);
@@ -261,7 +262,7 @@ export class UserManagement {
    */
   async getUserByExternalId(externalId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/users/external_id/${externalId}`,
+      `/user_management/users/external_id/${encodePathParameter(externalId)}`,
     );
 
     return deserializeUser(data);
@@ -829,7 +830,7 @@ export class UserManagement {
     emailVerificationId: string,
   ): Promise<EmailVerification> {
     const { data } = await this.workos.get<EmailVerificationResponse>(
-      `/user_management/email_verification/${emailVerificationId}`,
+      `/user_management/email_verification/${encodePathParameter(emailVerificationId)}`,
     );
 
     return deserializeEmailVerification(data);
@@ -848,7 +849,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/user_management/users/${userId}/email_verification/send`,
+      `/user_management/users/${encodePathParameter(userId)}/email_verification/send`,
       {},
     );
 
@@ -864,7 +865,7 @@ export class UserManagement {
    */
   async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
     const { data } = await this.workos.get<MagicAuthResponse>(
-      `/user_management/magic_auth/${magicAuthId}`,
+      `/user_management/magic_auth/${encodePathParameter(magicAuthId)}`,
     );
 
     return deserializeMagicAuth(data);
@@ -919,9 +920,12 @@ export class UserManagement {
     const { data } = await this.workos.post<
       { user: UserResponse },
       SerializedVerifyEmailOptions
-    >(`/user_management/users/${userId}/email_verification/confirm`, {
-      code,
-    });
+    >(
+      `/user_management/users/${encodePathParameter(userId)}/email_verification/confirm`,
+      {
+        code,
+      },
+    );
 
     return { user: deserializeUser(data.user) };
   }
@@ -935,7 +939,7 @@ export class UserManagement {
    */
   async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
     const { data } = await this.workos.get<PasswordResetResponse>(
-      `/user_management/password_reset/${passwordResetId}`,
+      `/user_management/password_reset/${encodePathParameter(passwordResetId)}`,
     );
 
     return deserializePasswordReset(data);
@@ -993,7 +997,7 @@ export class UserManagement {
    */
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/user_management/users/${payload.userId}`,
+      `/user_management/users/${encodePathParameter(payload.userId)}`,
       serializeUpdateUserOptions(payload),
     );
 
@@ -1016,14 +1020,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<SessionResponse, Session>(
         this.workos,
-        `/user_management/users/${userId}/sessions`,
+        `/user_management/users/${encodePathParameter(userId)}/sessions`,
         deserializeSession,
         options ? serializeListSessionsOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<SessionResponse, Session>(
           this.workos,
-          `/user_management/users/${userId}/sessions`,
+          `/user_management/users/${encodePathParameter(userId)}/sessions`,
           deserializeSession,
           params,
         ),
@@ -1039,7 +1043,9 @@ export class UserManagement {
    * @throws {NotFoundException} 404
    */
   async deleteUser(userId: string) {
-    await this.workos.delete(`/user_management/users/${userId}`);
+    await this.workos.delete(
+      `/user_management/users/${encodePathParameter(userId)}`,
+    );
   }
 
   /**
@@ -1055,7 +1061,7 @@ export class UserManagement {
     }
 
     const { data } = await this.workos.get<RawIdentityResponse[]>(
-      `/user_management/users/${userId}/identities`,
+      `/user_management/users/${encodePathParameter(userId)}/identities`,
     );
 
     return deserializeIdentities(data);
@@ -1072,7 +1078,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.get<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
     );
 
     return deserializeOrganizationMembership(data);
@@ -1166,7 +1172,7 @@ export class UserManagement {
       OrganizationMembershipResponse,
       SerializedUpdateOrganizationMembershipOptions
     >(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
       serializeUpdateOrganizationMembershipOptions(options),
     );
 
@@ -1184,7 +1190,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<void> {
     await this.workos.delete(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
     );
   }
 
@@ -1206,7 +1212,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.put<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/deactivate`,
       {},
     );
 
@@ -1231,7 +1237,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.put<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/reactivate`,
       {},
     );
 
@@ -1242,7 +1248,7 @@ export class UserManagement {
     options: ListGroupsForOrganizationMembershipOptions,
   ): Promise<AutoPaginatable<Group>> {
     const { organizationMembershipId, ...paginationOptions } = options;
-    const endpoint = `/user_management/organization_memberships/${organizationMembershipId}/groups`;
+    const endpoint = `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/groups`;
 
     return new AutoPaginatable(
       await fetchAndDeserialize<GroupResponse, Group>(
@@ -1264,7 +1270,7 @@ export class UserManagement {
 
   async getInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
-      `/user_management/invitations/${invitationId}`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}`,
     );
 
     return deserializeInvitation(data);
@@ -1279,7 +1285,7 @@ export class UserManagement {
    */
   async findInvitationByToken(invitationToken: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
-      `/user_management/invitations/by_token/${invitationToken}`,
+      `/user_management/invitations/by_token/${encodePathParameter(invitationToken)}`,
     );
 
     return deserializeInvitation(data);
@@ -1348,7 +1354,7 @@ export class UserManagement {
    */
   async acceptInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.post<InvitationResponse, any>(
-      `/user_management/invitations/${invitationId}/accept`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/accept`,
       null,
     );
 
@@ -1364,7 +1370,7 @@ export class UserManagement {
    */
   async revokeInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.post<InvitationResponse, any>(
-      `/user_management/invitations/${invitationId}/revoke`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/revoke`,
       null,
     );
 
@@ -1389,7 +1395,7 @@ export class UserManagement {
       InvitationResponse,
       SerializedResendInvitationOptions
     >(
-      `/user_management/invitations/${invitationId}/resend`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/resend`,
       options ? serializeResendInvitationOptions(options) : {},
     );
 
