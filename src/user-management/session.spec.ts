@@ -5,6 +5,11 @@ import { sealData } from '../common/crypto/seal';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
+import {
+  GenericServerException,
+  OauthException,
+  RateLimitExceededException,
+} from '../common/exceptions';
 
 jest.mock('jose', () => ({
   ...jest.requireActual('jose'),
@@ -175,6 +180,117 @@ describe('Session', () => {
       expect(response).toEqual({
         authenticated: false,
         reason: 'invalid_session_cookie',
+        retryable: false,
+      });
+    });
+
+    describe('when the refresh fails', () => {
+      const accessToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+      async function loadSession() {
+        const workosNoRetries = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          clientId: 'client_123',
+          maxRetries: 0,
+        });
+
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        return workosNoRetries.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+      }
+
+      it('returns a terminal, non-retryable result for invalid_grant', async () => {
+        fetchOnce(
+          { error: 'invalid_grant', error_description: 'Invalid refresh token.' },
+          { status: 400 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'invalid_grant',
+          retryable: false,
+        });
+      });
+
+      it('returns a retryable result with retryAfter for a 429', async () => {
+        fetchOnce(
+          {
+            error: 'too_many_requests',
+            error_description: 'Could not process refresh token. Please retry.',
+          },
+          { status: 429, headers: { 'Retry-After': '1' } },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'rate_limit_exceeded',
+          retryable: true,
+          retryAfter: 1,
+          error: expect.any(RateLimitExceededException),
+        });
+      });
+
+      it('returns a retryable timeout result for a 408', async () => {
+        fetchOnce({ error: 'Request timeout' }, { status: 408 });
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'timeout',
+          retryable: true,
+          error: expect.any(OauthException),
+        });
+      });
+
+      it('returns a retryable server_error result for a 5xx', async () => {
+        fetchOnce({ message: 'Service unavailable' }, { status: 503 });
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'server_error',
+          retryable: true,
+          error: expect.any(GenericServerException),
+        });
+      });
+
+      it('returns a retryable network_error result for a network failure', async () => {
+        fetch.mockRejectOnce(new TypeError('Network request failed'));
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'network_error',
+          retryable: true,
+          error: expect.any(Error),
+        });
       });
     });
 

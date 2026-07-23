@@ -1,5 +1,7 @@
 // @oagen-ignore-file
+import { GenericServerException } from '../common/exceptions/generic-server.exception';
 import { OauthException } from '../common/exceptions/oauth.exception';
+import { RateLimitExceededException } from '../common/exceptions/rate-limit-exceeded.exception';
 import {
   UserManagementAccessToken,
   AuthenticateWithSessionCookieFailedResponse,
@@ -122,6 +124,7 @@ export class CookieSession {
       return {
         authenticated: false,
         reason: RefreshSessionFailureReason.INVALID_SESSION_COOKIE,
+        retryable: false,
       };
     }
 
@@ -182,9 +185,10 @@ export class CookieSession {
         impersonator: session.impersonator,
       };
     } catch (error) {
+      // Terminal authentication failures — the session is over. Surface a
+      // typed unauthenticated result so callers redirect to sign in.
       if (
         error instanceof OauthException &&
-        // TODO: Add additional known errors and remove re-throw
         (error.error === RefreshSessionFailureReason.INVALID_GRANT ||
           error.error === RefreshSessionFailureReason.MFA_ENROLLMENT ||
           error.error === RefreshSessionFailureReason.SSO_REQUIRED)
@@ -192,7 +196,16 @@ export class CookieSession {
         return {
           authenticated: false,
           reason: error.error,
+          retryable: false,
         };
+      }
+
+      // Transient/operational failures — the refresh token is likely still
+      // valid. Surface a retryable result so callers keep the existing session
+      // and retry later rather than signing the user out.
+      const retryableFailure = classifyRetryableRefreshError(error);
+      if (retryableFailure) {
+        return retryableFailure;
       }
 
       throw error;
@@ -246,4 +259,90 @@ export class CookieSession {
       throw e;
     }
   }
+}
+
+/**
+ * Classifies an error thrown while refreshing as a transient, retryable
+ * failure, or returns `null` when the error is not recognized as retryable
+ * (and should be rethrown). Retries at the HTTP transport layer are already
+ * exhausted by the time an error reaches here.
+ */
+function classifyRetryableRefreshError(
+  error: unknown,
+): RefreshSessionResponse | null {
+  // 429 — the server asked us to back off (e.g. short-lived refresh
+  // contention). Checked first to surface the parsed `Retry-After`.
+  if (error instanceof RateLimitExceededException) {
+    return {
+      authenticated: false,
+      reason: RefreshSessionFailureReason.RATE_LIMIT_EXCEEDED,
+      retryable: true,
+      retryAfter: error.retryAfter ?? undefined,
+      error,
+    };
+  }
+
+  // Classify by HTTP status regardless of which exception wraps it — a request
+  // timeout, for example, surfaces as an `OauthException` (status 408) because
+  // the transport gives it an `error` body.
+  const status = getErrorStatus(error);
+
+  if (status === 429) {
+    return {
+      authenticated: false,
+      reason: RefreshSessionFailureReason.RATE_LIMIT_EXCEEDED,
+      retryable: true,
+      error,
+    };
+  }
+
+  if (status === 408) {
+    return {
+      authenticated: false,
+      reason: RefreshSessionFailureReason.TIMEOUT,
+      retryable: true,
+      error,
+    };
+  }
+
+  if (status !== undefined && status >= 500) {
+    return {
+      authenticated: false,
+      reason: RefreshSessionFailureReason.SERVER_ERROR,
+      retryable: true,
+      error,
+    };
+  }
+
+  // Network-level failures (dropped connection, DNS, connection reset) surface
+  // from the transport as a `TypeError`, which the client rewraps as a generic
+  // `Error` with the original attached as `cause`.
+  if (isNetworkError(error)) {
+    return {
+      authenticated: false,
+      reason: RefreshSessionFailureReason.NETWORK_ERROR,
+      retryable: true,
+      error,
+    };
+  }
+
+  return null;
+}
+
+function getErrorStatus(error: unknown): number | undefined {
+  if (
+    error instanceof OauthException ||
+    error instanceof GenericServerException
+  ) {
+    return error.status;
+  }
+
+  return undefined;
+}
+
+function isNetworkError(error: unknown): boolean {
+  return (
+    error instanceof TypeError ||
+    (error instanceof Error && error.cause instanceof TypeError)
+  );
 }
