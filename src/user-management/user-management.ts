@@ -1074,14 +1074,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
         this.workos,
-        `/user_management/users/${userId}/api_keys`,
+        `/user_management/users/${encodeURIComponent(userId)}/api_keys`,
         deserializeUserApiKey,
         serializedOptions,
       ),
       (params) =>
         fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
           this.workos,
-          `/user_management/users/${userId}/api_keys`,
+          `/user_management/users/${encodeURIComponent(userId)}/api_keys`,
           deserializeUserApiKey,
           params,
         ),
@@ -1109,7 +1109,7 @@ export class UserManagement {
       SerializedUserApiKeyWithValue,
       ReturnType<typeof serializeCreateUserApiKeyOptions>
     >(
-      `/user_management/users/${userId}/api_keys`,
+      `/user_management/users/${encodeURIComponent(userId)}/api_keys`,
       serializeCreateUserApiKeyOptions(options),
       requestOptions,
     );

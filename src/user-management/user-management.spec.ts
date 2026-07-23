@@ -2184,6 +2184,19 @@ describe('UserManagement', () => {
         organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
       });
     });
+
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      await workos.userManagement.listUserApiKeys(
+        '../../organizations/org_01TARGET/api_keys?',
+      );
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%2Fapi_keys%3F/api_keys',
+      );
+    });
   });
 
   describe('createUserApiKey', () => {
@@ -2240,6 +2253,23 @@ describe('UserManagement', () => {
       expect(fetchHeaders()).toMatchObject({
         'Idempotency-Key': 'the-idempotency-key',
       });
+    });
+
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(createUserApiKeyFixture, { status: 201 });
+
+      await workos.userManagement.createUserApiKey(
+        '../../../organizations/org_01TARGET/api_keys?',
+        {
+          name: 'attacker-key',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        },
+      );
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2F..%2Forganizations%2Forg_01TARGET%2Fapi_keys%3F/api_keys',
+      );
     });
   });
 
