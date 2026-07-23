@@ -1,6 +1,7 @@
 import fetch from 'jest-fetch-mock';
 import {
   fetchBody,
+  fetchHeaders,
   fetchOnce,
   fetchSearchParams,
   fetchURL,
@@ -13,11 +14,13 @@ import invitationFixture from './fixtures/invitation.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import listSessionsFixture from './fixtures/list-sessions.json';
+import listUserApiKeysFixture from './fixtures/list-user-api-keys.json';
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
 import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
+import createUserApiKeyFixture from './fixtures/create-user-api-key.json';
 import identityFixture from './fixtures/identity.json';
 import * as jose from 'jose';
 import { sealData } from '../common/crypto/seal';
@@ -2126,6 +2129,117 @@ describe('UserManagement', () => {
 
       expect(fetchURL()).toContain(`/user_management/users/${userId}`);
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('listUserApiKeys', () => {
+    it('returns API keys for the user', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      const { data, object, listMetadata } =
+        await workos.userManagement.listUserApiKeys(userId);
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}/api_keys`);
+      expect(object).toEqual('list');
+      expect(listMetadata).toEqual({
+        before: null,
+        after: null,
+      });
+      expect(data).toEqual([
+        {
+          object: 'api_key',
+          id: 'api_key_01EHZNVPK3SFK441A1RGBFSHRT',
+          owner: {
+            type: 'user',
+            id: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+            organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          },
+          name: 'Production API Key',
+          obfuscatedValue: 'sk_...3456',
+          lastUsedAt: null,
+          expiresAt: null,
+          permissions: ['posts:read', 'posts:write'],
+          createdAt: '2026-01-15T12:00:00.000Z',
+          updatedAt: '2026-01-15T12:00:00.000Z',
+        },
+      ]);
+    });
+
+    it('serializes pagination and organization filters', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      await workos.userManagement.listUserApiKeys(userId, {
+        limit: 10,
+        before: 'api_key_before_id',
+        after: 'api_key_after_id',
+        order: 'asc',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        before: 'api_key_before_id',
+        after: 'api_key_after_id',
+        order: 'asc',
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+    });
+  });
+
+  describe('createUserApiKey', () => {
+    it('creates an API key for the user', async () => {
+      fetchOnce(createUserApiKeyFixture, { status: 201 });
+
+      const apiKey = await workos.userManagement.createUserApiKey(userId, {
+        name: 'Production API Key',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        permissions: ['posts:read', 'posts:write'],
+        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      });
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}/api_keys`);
+      expect(fetchBody()).toEqual({
+        name: 'Production API Key',
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        permissions: ['posts:read', 'posts:write'],
+        expires_at: '2030-01-01T00:00:00.000Z',
+      });
+      expect(apiKey).toEqual({
+        object: 'api_key',
+        id: 'api_key_01EHZNVPK3SFK441A1RGBFSHRT',
+        owner: {
+          type: 'user',
+          id: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        },
+        name: 'Production API Key',
+        obfuscatedValue: 'sk_...3456',
+        lastUsedAt: null,
+        expiresAt: '2030-01-01T00:00:00.000Z',
+        permissions: ['posts:read', 'posts:write'],
+        createdAt: '2026-01-15T12:00:00.000Z',
+        updatedAt: '2026-01-15T12:00:00.000Z',
+        value: 'test_api_key_value',
+      });
+    });
+
+    it('supports idempotency keys', async () => {
+      fetchOnce(createUserApiKeyFixture, { status: 201 });
+
+      await workos.userManagement.createUserApiKey(
+        userId,
+        {
+          name: 'Production API Key',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        },
+        {
+          idempotencyKey: 'the-idempotency-key',
+        },
+      );
+
+      expect(fetchHeaders()).toMatchObject({
+        'Idempotency-Key': 'the-idempotency-key',
+      });
     });
   });
 
