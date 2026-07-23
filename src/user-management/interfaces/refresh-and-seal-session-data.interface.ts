@@ -20,16 +20,24 @@ export enum RefreshSessionFailureReason {
   NETWORK_ERROR = 'network_error',
 }
 
-type RefreshSessionFailedResponse = {
+/**
+ * A terminal refresh failure: the session is over (e.g. `invalid_grant`) and
+ * the user should be redirected to sign in.
+ */
+type RefreshSessionTerminalFailedResponse = {
   authenticated: false;
   reason: RefreshSessionFailureReason;
-  /**
-   * Whether the refresh can safely be retried with the same refresh token.
-   * When `true` (e.g. a timeout, `5xx`, or `429`), keep the existing session
-   * and retry later. When `false` (e.g. `invalid_grant`), the failure is
-   * terminal and the user should be redirected to sign in.
-   */
-  retryable: boolean;
+  retryable: false;
+};
+
+/**
+ * A transient refresh failure: the refresh token is likely still valid (e.g. a
+ * timeout, `5xx`, or `429`), so keep the existing session and retry later.
+ */
+type RefreshSessionRetryableFailedResponse = {
+  authenticated: false;
+  reason: RefreshSessionFailureReason;
+  retryable: true;
   /**
    * Seconds the server asked the client to wait before retrying, parsed from
    * the `Retry-After` response header. Only present for some retryable
@@ -37,11 +45,13 @@ type RefreshSessionFailedResponse = {
    */
   retryAfter?: number;
   /**
-   * The underlying error, exposed for logging. Only present for retryable
-   * failures.
+   * The underlying error, exposed for logging.
    */
   error?: unknown;
 };
+
+type RefreshSessionFailedResponse =
+  RefreshSessionTerminalFailedResponse | RefreshSessionRetryableFailedResponse;
 
 type RefreshSessionSuccessResponse = Omit<
   AuthenticateWithSessionCookieSuccessResponse,

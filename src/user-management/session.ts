@@ -259,10 +259,10 @@ export class CookieSession {
 }
 
 /**
- * Classifies an error thrown while refreshing as a transient, retryable
- * failure, or returns `null` when the error is not recognized as retryable
- * (and should be rethrown). Retries at the HTTP transport layer are already
- * exhausted by the time an error reaches here.
+ * Classifies an error thrown while refreshing as a terminal authentication
+ * failure — the session is over and the user must re-authenticate — returning
+ * the matching failure reason, or `null` when the error is not a recognized
+ * terminal failure (and may still be retryable or should be rethrown).
  */
 function classifyTerminalRefreshError(
   error: unknown,
