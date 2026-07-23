@@ -253,7 +253,7 @@ export class UserManagement {
    */
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/users/${userId}`,
+      `/user_management/users/${encodeURIComponent(userId)}`,
     );
 
     return deserializeUser(data);
@@ -860,7 +860,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/user_management/users/${userId}/email_verification/send`,
+      `/user_management/users/${encodeURIComponent(userId)}/email_verification/send`,
       {},
     );
 
@@ -931,9 +931,12 @@ export class UserManagement {
     const { data } = await this.workos.post<
       { user: UserResponse },
       SerializedVerifyEmailOptions
-    >(`/user_management/users/${userId}/email_verification/confirm`, {
-      code,
-    });
+    >(
+      `/user_management/users/${encodeURIComponent(userId)}/email_verification/confirm`,
+      {
+        code,
+      },
+    );
 
     return { user: deserializeUser(data.user) };
   }
@@ -1028,14 +1031,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<SessionResponse, Session>(
         this.workos,
-        `/user_management/users/${userId}/sessions`,
+        `/user_management/users/${encodeURIComponent(userId)}/sessions`,
         deserializeSession,
         options ? serializeListSessionsOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<SessionResponse, Session>(
           this.workos,
-          `/user_management/users/${userId}/sessions`,
+          `/user_management/users/${encodeURIComponent(userId)}/sessions`,
           deserializeSession,
           params,
         ),
@@ -1051,7 +1054,9 @@ export class UserManagement {
    * @throws {NotFoundException} 404
    */
   async deleteUser(userId: string) {
-    await this.workos.delete(`/user_management/users/${userId}`);
+    await this.workos.delete(
+      `/user_management/users/${encodeURIComponent(userId)}`,
+    );
   }
 
   /**
@@ -1130,7 +1135,7 @@ export class UserManagement {
     }
 
     const { data } = await this.workos.get<RawIdentityResponse[]>(
-      `/user_management/users/${userId}/identities`,
+      `/user_management/users/${encodeURIComponent(userId)}/identities`,
     );
 
     return deserializeIdentities(data);

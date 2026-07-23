@@ -69,6 +69,17 @@ describe('UserManagement', () => {
         locale: 'en-US',
       });
     });
+
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.getUser('../../organizations/org_01TARGET?');
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%3F',
+      );
+    });
   });
 
   describe('getUserByExternalId', () => {
@@ -2129,6 +2140,19 @@ describe('UserManagement', () => {
 
       expect(fetchURL()).toContain(`/user_management/users/${userId}`);
       expect(resp).toBeUndefined();
+    });
+
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce();
+
+      await workos.userManagement.deleteUser(
+        '../../organizations/org_01TARGET?',
+      );
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%3F',
+      );
     });
   });
 
