@@ -12,6 +12,7 @@ import {
   RefreshSessionFailureReason,
   RefreshSessionResponse,
   SessionCookieData,
+  TerminalRefreshSessionFailureReason,
 } from './interfaces';
 import { UserManagement } from './user-management';
 import { unsealData } from '../common/crypto/seal';
@@ -266,7 +267,7 @@ export class CookieSession {
  */
 function classifyTerminalRefreshError(
   error: unknown,
-): RefreshSessionFailureReason | null {
+): TerminalRefreshSessionFailureReason | null {
   // `invalid_grant` is not an authentication-error code, so the client wraps it
   // as an `OauthException`.
   if (

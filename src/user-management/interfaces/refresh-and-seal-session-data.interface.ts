@@ -20,13 +20,26 @@ export enum RefreshSessionFailureReason {
   NETWORK_ERROR = 'network_error',
 }
 
+export type TerminalRefreshSessionFailureReason =
+  | RefreshSessionFailureReason.INVALID_SESSION_COOKIE
+  | RefreshSessionFailureReason.NO_SESSION_COOKIE_PROVIDED
+  | RefreshSessionFailureReason.INVALID_GRANT
+  | RefreshSessionFailureReason.MFA_ENROLLMENT
+  | RefreshSessionFailureReason.SSO_REQUIRED;
+
+export type RetryableRefreshSessionFailureReason =
+  | RefreshSessionFailureReason.RATE_LIMIT_EXCEEDED
+  | RefreshSessionFailureReason.TIMEOUT
+  | RefreshSessionFailureReason.SERVER_ERROR
+  | RefreshSessionFailureReason.NETWORK_ERROR;
+
 /**
  * A terminal refresh failure: the session is over (e.g. `invalid_grant`) and
  * the user should be redirected to sign in.
  */
 type RefreshSessionTerminalFailedResponse = {
   authenticated: false;
-  reason: RefreshSessionFailureReason;
+  reason: TerminalRefreshSessionFailureReason;
   retryable: false;
 };
 
@@ -36,7 +49,7 @@ type RefreshSessionTerminalFailedResponse = {
  */
 type RefreshSessionRetryableFailedResponse = {
   authenticated: false;
-  reason: RefreshSessionFailureReason;
+  reason: RetryableRefreshSessionFailureReason;
   retryable: true;
   /**
    * Seconds the server asked the client to wait before retrying, parsed from
