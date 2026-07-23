@@ -1008,7 +1008,7 @@ export class UserManagement {
    */
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/user_management/users/${payload.userId}`,
+      `/user_management/users/${encodeURIComponent(payload.userId)}`,
       serializeUpdateUserOptions(payload),
     );
 

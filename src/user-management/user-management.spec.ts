@@ -2033,6 +2033,20 @@ describe('UserManagement', () => {
       });
     });
 
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId: '../../organizations/org_01TARGET?',
+        firstName: 'Dane',
+      });
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%3F',
+      );
+    });
+
     describe('when only one property is provided', () => {
       it('sends a updateUser request', async () => {
         fetchOnce(userFixture);
