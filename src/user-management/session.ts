@@ -1,4 +1,5 @@
 // @oagen-ignore-file
+import { AuthenticationException } from '../common/exceptions/authentication.exception';
 import { GenericServerException } from '../common/exceptions/generic-server.exception';
 import { OauthException } from '../common/exceptions/oauth.exception';
 import { RateLimitExceededException } from '../common/exceptions/rate-limit-exceeded.exception';
@@ -187,15 +188,11 @@ export class CookieSession {
     } catch (error) {
       // Terminal authentication failures — the session is over. Surface a
       // typed unauthenticated result so callers redirect to sign in.
-      if (
-        error instanceof OauthException &&
-        (error.error === RefreshSessionFailureReason.INVALID_GRANT ||
-          error.error === RefreshSessionFailureReason.MFA_ENROLLMENT ||
-          error.error === RefreshSessionFailureReason.SSO_REQUIRED)
-      ) {
+      const terminalReason = classifyTerminalRefreshError(error);
+      if (terminalReason) {
         return {
           authenticated: false,
-          reason: error.error,
+          reason: terminalReason,
           retryable: false,
         };
       }
@@ -267,6 +264,34 @@ export class CookieSession {
  * (and should be rethrown). Retries at the HTTP transport layer are already
  * exhausted by the time an error reaches here.
  */
+function classifyTerminalRefreshError(
+  error: unknown,
+): RefreshSessionFailureReason | null {
+  // `invalid_grant` is not an authentication-error code, so the client wraps it
+  // as an `OauthException`.
+  if (
+    error instanceof OauthException &&
+    error.error === RefreshSessionFailureReason.INVALID_GRANT
+  ) {
+    return RefreshSessionFailureReason.INVALID_GRANT;
+  }
+
+  // `mfa_enrollment` and `sso_required` are authentication-error codes, so
+  // `handleHttpError` wraps them as an `AuthenticationException` (a subclass of
+  // `GenericServerException`), never an `OauthException`.
+  if (error instanceof AuthenticationException) {
+    const code: string = error.code;
+    if (code === RefreshSessionFailureReason.MFA_ENROLLMENT) {
+      return RefreshSessionFailureReason.MFA_ENROLLMENT;
+    }
+    if (code === RefreshSessionFailureReason.SSO_REQUIRED) {
+      return RefreshSessionFailureReason.SSO_REQUIRED;
+    }
+  }
+
+  return null;
+}
+
 function classifyRetryableRefreshError(
   error: unknown,
 ): RefreshSessionResponse | null {

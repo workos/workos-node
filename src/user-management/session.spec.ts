@@ -236,6 +236,44 @@ describe('Session', () => {
         });
       });
 
+      it('returns a terminal, non-retryable result for sso_required', async () => {
+        fetchOnce(
+          {
+            error: 'sso_required',
+            error_description: 'User must authenticate via SSO.',
+          },
+          { status: 403 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'sso_required',
+          retryable: false,
+        });
+      });
+
+      it('returns a terminal, non-retryable result for mfa_enrollment', async () => {
+        fetchOnce(
+          {
+            code: 'mfa_enrollment',
+            message: 'User must enroll in MFA.',
+          },
+          { status: 403 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'mfa_enrollment',
+          retryable: false,
+        });
+      });
+
       it('returns a retryable result with retryAfter for a 429', async () => {
         fetchOnce(
           {
