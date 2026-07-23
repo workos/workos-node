@@ -190,10 +190,13 @@ describe('Session', () => {
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
       async function loadSession() {
-        const workosNoRetries = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
-          clientId: 'client_123',
-          maxRetries: 0,
-        });
+        const workosNoRetries = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            maxRetries: 0,
+          },
+        );
 
         const sessionData = await sealData(
           {
@@ -216,7 +219,10 @@ describe('Session', () => {
 
       it('returns a terminal, non-retryable result for invalid_grant', async () => {
         fetchOnce(
-          { error: 'invalid_grant', error_description: 'Invalid refresh token.' },
+          {
+            error: 'invalid_grant',
+            error_description: 'Invalid refresh token.',
+          },
           { status: 400 },
         );
 
