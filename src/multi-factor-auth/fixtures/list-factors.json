@@ -10,7 +10,27 @@
       "totp": {
         "issuer": "WorkOS",
         "user": "some_user"
-      }
+      },
+      "user_id": "user_01H5JQDV7R7ATEYZDEG0W5PRYS"
+    },
+    {
+      "object": "authentication_factor",
+      "id": "auth_factor_5678",
+      "created_at": "2022-03-15T20:39:19.892Z",
+      "updated_at": "2022-03-15T20:39:19.892Z",
+      "type": "sms",
+      "sms": {
+        "phone_number": "+15555555555"
+      },
+      "user_id": "user_01H5JQDV7R7ATEYZDEG0W5PRYS"
+    },
+    {
+      "object": "authentication_factor",
+      "id": "auth_factor_9012",
+      "created_at": "2022-03-15T20:39:19.892Z",
+      "updated_at": "2022-03-15T20:39:19.892Z",
+      "type": "generic_otp",
+      "user_id": "user_01H5JQDV7R7ATEYZDEG0W5PRYS"
     }
   ],
   "list_metadata": {
