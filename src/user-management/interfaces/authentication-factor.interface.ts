@@ -1,3 +1,4 @@
+import { FactorType } from '../../multi-factor-auth/interfaces/factor.interface';
 import {
   Sms,
   SmsResponse,
@@ -9,7 +10,7 @@ import {
   TotpWithSecretsResponse,
 } from '../../multi-factor-auth/interfaces/totp.interface';
 
-export type AuthenticationFactorType = 'sms' | 'totp' | 'generic_otp';
+export type AuthenticationFactorType = FactorType;
 
 export interface AuthenticationFactor {
   object: 'authentication_factor';
@@ -27,9 +28,8 @@ export interface AuthenticationFactorWithSecrets {
   id: string;
   createdAt: string;
   updatedAt: string;
-  type: AuthenticationFactorType;
-  sms?: Sms;
-  totp?: TotpWithSecrets;
+  type: 'totp';
+  totp: TotpWithSecrets;
   userId: string;
 }
 
@@ -49,8 +49,7 @@ export interface AuthenticationFactorWithSecretsResponse {
   id: string;
   created_at: string;
   updated_at: string;
-  type: AuthenticationFactorType;
-  sms?: SmsResponse;
-  totp?: TotpWithSecretsResponse;
+  type: 'totp';
+  totp: TotpWithSecretsResponse;
   user_id: string;
 }

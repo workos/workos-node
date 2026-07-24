@@ -31,7 +31,6 @@ export const deserializeFactorWithSecrets = (
   createdAt: factor.created_at,
   updatedAt: factor.updated_at,
   type: factor.type,
-  ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
-  ...(factor.totp ? { totp: deserializeTotpWithSecrets(factor.totp) } : {}),
+  totp: deserializeTotpWithSecrets(factor.totp),
   userId: factor.user_id,
 });
