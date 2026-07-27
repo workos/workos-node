@@ -8,7 +8,7 @@ describe('deserializeFactor', () => {
       deserializeFactor(factor as AuthenticationFactorResponse),
     );
 
-    expect(factors).toEqual([
+    expect(factors).toStrictEqual([
       {
         object: 'authentication_factor',
         id: 'auth_factor_1234',
