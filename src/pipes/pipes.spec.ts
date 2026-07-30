@@ -308,6 +308,10 @@ describe('Pipes', () => {
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/user_management/users/test_userId/connected_accounts/test_slug',
       );
+      expect(fetchSearchParams()).toEqual({
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+      expect(fetchSearchParams()).not.toHaveProperty('query');
     });
   });
 

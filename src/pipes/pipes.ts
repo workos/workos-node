@@ -477,11 +477,9 @@ export class Pipes {
     await this.workos.delete(
       `/user_management/users/${encodeURIComponent(userId)}/connected_accounts/${encodeURIComponent(slug)}`,
       {
-        query: {
-          ...(options.organizationId !== undefined && {
-            organization_id: options.organizationId,
-          }),
-        },
+        ...(options.organizationId !== undefined && {
+          organization_id: options.organizationId,
+        }),
       },
     );
   }
