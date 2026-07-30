@@ -1,5 +1,20 @@
 # Changelog
 
+## [10.9.0](https://github.com/workos/workos-node/compare/v10.8.0...v10.9.0) (2026-07-30)
+
+
+### Features
+
+* Add linkClaimAttemptToExternalUser to Agents module ([#1652](https://github.com/workos/workos-node/issues/1652)) ([5e4813f](https://github.com/workos/workos-node/commit/5e4813f8f47e1d4c7d8bacd792d7e7939a9a6d64))
+* Add user API key methods ([#1655](https://github.com/workos/workos-node/issues/1655)) ([17e41e0](https://github.com/workos/workos-node/commit/17e41e09d59fe8fdfd62c524418ce49c7c19f9de))
+* Distinguish transient from terminal failures in CookieSession.refresh() ([#1663](https://github.com/workos/workos-node/issues/1663)) ([2c570a5](https://github.com/workos/workos-node/commit/2c570a56f12f156bee11ebbf6781e77cfb3cbb48))
+
+
+### Bug Fixes
+
+* `totp` on list-path `AuthenticationFactor` is now optional to match the API ([#1665](https://github.com/workos/workos-node/issues/1665)) ([53a506b](https://github.com/workos/workos-node/commit/53a506ba1f69452dd0ca42f8667914aab81e12d4))
+* delete requests drop query params passed via `{query: ...}` ([#1668](https://github.com/workos/workos-node/issues/1668)) ([08a8a73](https://github.com/workos/workos-node/commit/08a8a7329dca7774ece76fb1dcdd274f738b772e))
+
 ## [10.8.0](https://github.com/workos/workos-node/compare/v10.7.0...v10.8.0) (2026-07-16)
 
 
