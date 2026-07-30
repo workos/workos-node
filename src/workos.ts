@@ -358,7 +358,10 @@ export class WorkOS {
     return { data: await res.toJSON() };
   }
 
-  async delete(path: string, query?: any): Promise<void> {
+  async delete(
+    path: string,
+    query?: Record<string, string | number | boolean | undefined>,
+  ): Promise<void> {
     this.requireApiKey(path);
 
     try {

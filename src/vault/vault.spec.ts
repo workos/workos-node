@@ -201,6 +201,10 @@ describe('Vault', () => {
 
       expect(fetchMethod()).toBe('DELETE');
       expect(new URL(String(fetchURL())).pathname).toBe('/vault/v1/kv/test_id');
+      expect(fetchSearchParams()).toEqual({
+        version_check: 'test_version_check',
+      });
+      expect(fetchSearchParams()).not.toHaveProperty('query');
     });
   });
 
