@@ -10,6 +10,7 @@ export function deserializeApiKey(apiKey: SerializedApiKey): ApiKey {
             type: 'user',
             id: apiKey.owner.id,
             organizationId: apiKey.owner.organization_id,
+            organization_id: apiKey.owner.organization_id,
           }
         : apiKey.owner,
     name: apiKey.name,

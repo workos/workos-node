@@ -64,6 +64,7 @@ describe('ApiKeys', () => {
             type: 'user',
             id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             organizationId: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            organization_id: 'org_01H5JQDV7R7ATEYZDEG0W5PRYS',
           },
           name: 'Test User Api Key',
           obfuscatedValue: 'sk_…PRYS',

@@ -14,6 +14,11 @@ export interface ApiKey {
         type: 'user';
         id: string;
         organizationId: string;
+        /**
+         * @deprecated Use `organizationId`. Retained for compatibility with
+         * releases before 10.8.0, which returned the raw API field name.
+         */
+        organization_id: string;
       };
   /** A descriptive name for the API Key. */
   name: string;
