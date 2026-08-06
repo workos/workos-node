@@ -55,3 +55,7 @@ export * from './user.interface';
 export * from './user-api-key.interface';
 export * from './user-api-key-with-value.interface';
 export * from './verify-email-options.interface';
+export * from './create-waitlist-user-options.interface';
+export * from './list-waitlist-users-options.interface';
+export * from './waitlist.interface';
+export * from './waitlist-user.interface';

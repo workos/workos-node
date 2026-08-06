@@ -1,0 +1,19 @@
+{
+  "object": "list",
+  "data": [
+    {
+      "object": "waitlist_user",
+      "id": "wl_user_01H5JQDV7R7ATEYZDEG0W5PRYS",
+      "email": "marcelina.davis@example.com",
+      "state": "pending",
+      "approved_at": null,
+      "waitlist_id": "waitlist_01H5JQDV7R7ATEYZDEG0W5PRYS",
+      "created_at": "2026-08-04T02:07:19.911Z",
+      "updated_at": "2026-08-04T02:07:19.911Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

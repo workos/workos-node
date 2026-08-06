@@ -22,6 +22,10 @@ import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
 import createUserApiKeyFixture from './fixtures/create-user-api-key.json';
 import identityFixture from './fixtures/identity.json';
+import waitlistFixture from './fixtures/waitlist.json';
+import listWaitlistsFixture from './fixtures/list-waitlists.json';
+import waitlistUserFixture from './fixtures/waitlist-user.json';
+import listWaitlistUsersFixture from './fixtures/list-waitlist-users.json';
 import * as jose from 'jose';
 import { sealData } from '../common/crypto/seal';
 
@@ -38,6 +42,8 @@ const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationToken = 'Z1uX3RbwcIl5fIGJJJCXXisdI';
 const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const waitlistId = 'waitlist_01H5JQDV7R7ATEYZDEG0W5PRYS';
+const waitlistUserId = 'wl_user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
 describe('UserManagement', () => {
   let workos: WorkOS;
@@ -2753,6 +2759,277 @@ describe('UserManagement', () => {
       await expect(
         workos.userManagement.resendInvitation(invitationId),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('listWaitlists', () => {
+    it('lists waitlists', async () => {
+      fetchOnce(listWaitlistsFixture);
+
+      const waitlists = await workos.userManagement.listWaitlists();
+
+      expect(fetchURL()).toContain('/user_management/waitlists');
+      expect(waitlists).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist',
+            id: waitlistId,
+            createdAt: '2026-08-04T02:07:19.911Z',
+            updatedAt: '2026-08-04T02:07:19.911Z',
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+  });
+
+  describe('getWaitlist', () => {
+    it('sends a Get Waitlist request', async () => {
+      fetchOnce(waitlistFixture);
+
+      const waitlist = await workos.userManagement.getWaitlist(waitlistId);
+
+      expect(fetchURL()).toContain(`/user_management/waitlists/${waitlistId}`);
+      expect(waitlist).toEqual({
+        object: 'waitlist',
+        id: waitlistId,
+        createdAt: '2026-08-04T02:07:19.911Z',
+        updatedAt: '2026-08-04T02:07:19.911Z',
+      });
+    });
+
+    it('resolves the `default` alias', async () => {
+      fetchOnce(waitlistFixture);
+
+      const waitlist = await workos.userManagement.getWaitlist('default');
+
+      expect(fetchURL()).toContain('/user_management/waitlists/default');
+      expect(waitlist).toMatchObject({ object: 'waitlist', id: waitlistId });
+    });
+  });
+
+  describe('listWaitlistUsers', () => {
+    it('lists the users on a waitlist', async () => {
+      fetchOnce(listWaitlistUsersFixture);
+
+      const waitlistUsers =
+        await workos.userManagement.listWaitlistUsers(waitlistId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(waitlistUsers).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist_user',
+            id: waitlistUserId,
+            email: 'marcelina.davis@example.com',
+            state: 'pending',
+            approvedAt: null,
+            waitlistId,
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+
+    it('sends the correct params when filtering', async () => {
+      fetchOnce(listWaitlistUsersFixture);
+
+      await workos.userManagement.listWaitlistUsers(waitlistId, {
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: 10,
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: '10',
+        order: 'desc',
+      });
+    });
+
+    it('deserializes a legacy waitlist user without a waitlist ID', async () => {
+      fetchOnce({
+        ...listWaitlistUsersFixture,
+        data: [
+          {
+            object: 'waitlist_user',
+            id: waitlistUserId,
+            email: 'marcelina.davis@example.com',
+            state: 'pending',
+            approved_at: null,
+            created_at: '2026-08-04T02:07:19.911Z',
+            updated_at: '2026-08-04T02:07:19.911Z',
+          },
+        ],
+      });
+
+      const waitlistUsers =
+        await workos.userManagement.listWaitlistUsers(waitlistId);
+
+      expect(waitlistUsers.data[0].waitlistId).toBeNull();
+    });
+  });
+
+  describe('createWaitlistUser', () => {
+    it('sends a Create Waitlist User request', async () => {
+      fetchOnce(waitlistUserFixture, { status: 201 });
+
+      const waitlistUser = await workos.userManagement.createWaitlistUser(
+        waitlistId,
+        {
+          email: 'marcelina.davis@example.com',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+      });
+      expect(waitlistUser).toEqual({
+        object: 'waitlist_user',
+        id: waitlistUserId,
+        email: 'marcelina.davis@example.com',
+        state: 'pending',
+        approvedAt: null,
+        waitlistId,
+        createdAt: '2026-08-04T02:07:19.911Z',
+        updatedAt: '2026-08-04T02:07:19.911Z',
+      });
+    });
+
+    it('sends the correct params when provided', async () => {
+      fetchOnce(waitlistUserFixture, { status: 201 });
+
+      await workos.userManagement.createWaitlistUser('default', {
+        email: 'marcelina.davis@example.com',
+        additionalFields: { company: 'Foo Corp' },
+        notify: true,
+      });
+
+      expect(fetchURL()).toContain(
+        '/user_management/waitlists/default/entries',
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+        additional_fields: { company: 'Foo Corp' },
+        notify: true,
+      });
+    });
+
+    it('throws an error when a user with the email already exists (422)', async () => {
+      fetchOnce(
+        {
+          message: 'User already exists.',
+          code: 'user_already_exists',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.createWaitlistUser(waitlistId, {
+          email: 'existing@example.com',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('approveWaitlistUser', () => {
+    it('sends an Approve Waitlist User request', async () => {
+      fetchOnce({
+        ...waitlistUserFixture,
+        state: 'approved',
+        approved_at: '2026-08-04T02:07:19.911Z',
+      });
+
+      const waitlistUser =
+        await workos.userManagement.approveWaitlistUser(waitlistUserId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistUserId}/approve`,
+      );
+      expect(waitlistUser).toMatchObject({
+        object: 'waitlist_user',
+        id: waitlistUserId,
+        state: 'approved',
+        approvedAt: '2026-08-04T02:07:19.911Z',
+      });
+    });
+
+    it('throws an error when the waitlist user is already approved (422)', async () => {
+      fetchOnce(
+        {
+          message: 'Waitlist entry is approved and cannot be approved.',
+          code: 'invalid_state',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.approveWaitlistUser(waitlistUserId),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('denyWaitlistUser', () => {
+    it('sends a Deny Waitlist User request', async () => {
+      fetchOnce({
+        ...waitlistUserFixture,
+        state: 'denied',
+      });
+
+      const waitlistUser =
+        await workos.userManagement.denyWaitlistUser(waitlistUserId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistUserId}/deny`,
+      );
+      expect(waitlistUser).toMatchObject({
+        object: 'waitlist_user',
+        id: waitlistUserId,
+        state: 'denied',
+        approvedAt: null,
+      });
+    });
+
+    it('throws an error when the waitlist user is not pending (422)', async () => {
+      fetchOnce(
+        {
+          message: 'Waitlist entry is approved and cannot be denied.',
+          code: 'invalid_state',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.denyWaitlistUser(waitlistUserId),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('deleteWaitlistUser', () => {
+    it('sends a Delete Waitlist User request', async () => {
+      fetchOnce();
+
+      const response =
+        await workos.userManagement.deleteWaitlistUser(waitlistUserId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistUserId}`,
+      );
+      expect(response).toBeUndefined();
     });
 
     it('throws an error when invitation is accepted (400)', async () => {
