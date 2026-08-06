@@ -405,7 +405,7 @@ export class WorkOS {
     if (response) {
       const { status, data, headers } = response;
 
-      const requestID = headers['X-Request-ID'] ?? '';
+      const requestID = headers.get('X-Request-ID') ?? '';
       const {
         code,
         error_description: errorDescription,
@@ -424,6 +424,7 @@ export class WorkOS {
         case 422: {
           throw new UnprocessableEntityException({
             code,
+            error,
             errors,
             message,
             requestID,

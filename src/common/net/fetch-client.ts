@@ -256,7 +256,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           message: `Request timeout after ${timeout}ms`,
           response: {
             status: 408,
-            headers: {},
+            headers: new Headers(),
             data: { error: 'Request timeout' },
           },
         });

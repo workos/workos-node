@@ -213,7 +213,7 @@ export abstract class HttpClientResponse implements HttpClientResponseInterface 
 export class HttpClientError<T> extends Error {
   readonly name: string = 'HttpClientError';
   readonly message: string = 'The request could not be completed.';
-  readonly response: { status: number; headers: any; data: T };
+  readonly response: { status: number; headers: Headers; data: T };
 
   constructor({
     message,
