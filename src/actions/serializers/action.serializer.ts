@@ -34,6 +34,7 @@ export const deserializeAction = (
           ? deserializeInvitation(actionPayload.invitation)
           : undefined,
 
+        authenticationMethod: actionPayload.authentication_method,
         ipAddress: actionPayload.ip_address,
         userAgent: actionPayload.user_agent,
         deviceFingerprint: actionPayload.device_fingerprint,
@@ -51,6 +52,7 @@ export const deserializeAction = (
               actionPayload.organization_membership,
             )
           : undefined,
+        authenticationMethod: actionPayload.authentication_method,
         ipAddress: actionPayload.ip_address,
         userAgent: actionPayload.user_agent,
         deviceFingerprint: actionPayload.device_fingerprint,

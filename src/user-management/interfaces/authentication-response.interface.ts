@@ -2,7 +2,7 @@ import { Impersonator, ImpersonatorResponse } from './impersonator.interface';
 import { OauthTokens, OauthTokensResponse } from './oauth-tokens.interface';
 import { User, UserResponse } from './user.interface';
 
-type AuthenticationMethod =
+export type AuthenticationMethod =
   | 'SSO'
   | 'Password'
   | 'Passkey'
@@ -12,6 +12,8 @@ type AuthenticationMethod =
   | 'GitHubOAuth'
   | 'GitLabOAuth'
   | 'GoogleOAuth'
+  | 'GrokOAuth'
+  | 'XOAuth'
   | 'IntuitOAuth'
   | 'LinkedInOAuth'
   | 'MicrosoftOAuth'
