@@ -179,15 +179,33 @@ describe('Evaluator', () => {
     });
 
     it('rejects a context mixing legacy and typed keys', () => {
-      // Hybrid contexts are only constructible from untyped JavaScript; the
-      // published types reject them at compile time.
-      const hybridContext = {
+      const hybridContext: EvaluationContext = {
         userId: 'user_456',
         workspace: { id: 'ws_123' },
-      } as EvaluationContext;
+      };
 
       expect(evaluator.isEnabled('targeted-flag', hybridContext)).toBe(false);
       expect(logger.warn).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not treat unset keys as part of the context shape', () => {
+      expect(
+        evaluator.isEnabled('targeted-flag', {
+          userId: undefined,
+          workspace: { id: 'ws_123' },
+        }),
+      ).toBe(true);
+      expect(logger.warn).not.toHaveBeenCalled();
+    });
+
+    it('ignores scalar extra fields on a legacy context', () => {
+      const legacyWithExtras = {
+        userId: 'user_456',
+        requestId: 'req_1',
+      } as EvaluationContext;
+
+      expect(evaluator.isEnabled('targeted-flag', legacyWithExtras)).toBe(true);
+      expect(logger.warn).not.toHaveBeenCalled();
     });
 
     it('ignores invalid target type keys with a warning', () => {
@@ -240,6 +258,12 @@ describe('Evaluator', () => {
         'targeted-flag': true,
         'default-on-flag': true,
       });
+    });
+
+    it('warns once per call for an invalid context, not once per flag', () => {
+      evaluator.getAllFlags({ Workspace: { id: 'ws_123' } });
+
+      expect(logger.warn).toHaveBeenCalledTimes(1);
     });
 
     it('works with empty context', () => {

@@ -28,8 +28,9 @@ export type TypedEvaluationContext = Record<string, EvaluationResource>;
 
 /**
  * Either evaluation context form. The two shapes cannot be mixed in a single
- * call: a hybrid context is rejected at evaluation time and matches no
- * targets, so the flag falls back to its default value.
+ * call: a hybrid context (a legacy key alongside a typed resource entry) is
+ * rejected at evaluation time with a logged warning and matches no targets,
+ * so the flag falls back to its default value.
  */
 export type EvaluationContext =
   LegacyEvaluationContext | TypedEvaluationContext;

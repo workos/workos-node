@@ -32,8 +32,32 @@ export class Evaluator {
     context: EvaluationContext = {},
     defaultValue: boolean = false,
   ): boolean {
-    const entry = this.store.get(flagKey);
+    return this.evaluate(
+      this.store.get(flagKey),
+      this.normalizeContext(context),
+      defaultValue,
+    );
+  }
 
+  getAllFlags(context: EvaluationContext = {}): Record<string, boolean> {
+    // Normalized once so an invalid context warns once per call, not once
+    // per flag.
+    const normalizedContext = this.normalizeContext(context);
+    const flags = this.store.getAll();
+    const result: Record<string, boolean> = {};
+
+    for (const slug of Object.keys(flags)) {
+      result[slug] = this.evaluate(flags[slug], normalizedContext, false);
+    }
+
+    return result;
+  }
+
+  private evaluate(
+    entry: FlagPollEntry | undefined,
+    normalizedContext: Map<string, string>,
+    defaultValue: boolean,
+  ): boolean {
     if (!entry) {
       return defaultValue;
     }
@@ -44,24 +68,13 @@ export class Evaluator {
 
     // Evaluation is enable-only: any enabled target matching the context
     // turns the flag on, with no precedence between target types.
-    for (const [targetType, targetId] of this.normalizeContext(context)) {
+    for (const [targetType, targetId] of normalizedContext) {
       if (this.hasEnabledTarget(entry, targetType, targetId)) {
         return true;
       }
     }
 
     return entry.default_value;
-  }
-
-  getAllFlags(context: EvaluationContext = {}): Record<string, boolean> {
-    const flags = this.store.getAll();
-    const result: Record<string, boolean> = {};
-
-    for (const slug of Object.keys(flags)) {
-      result[slug] = this.isEnabled(slug, context);
-    }
-
-    return result;
   }
 
   /**
@@ -73,28 +86,50 @@ export class Evaluator {
   private normalizeContext(context: EvaluationContext): Map<string, string> {
     const normalized = new Map<string, string>();
     const record: Record<string, unknown> = context;
-    const keys = Object.keys(record);
 
-    const legacyKeys = keys.filter((key) => LEGACY_KEY_TO_TARGET_TYPE.has(key));
-    const typedKeys = keys.filter((key) => !LEGACY_KEY_TO_TARGET_TYPE.has(key));
+    const legacyEntries: Array<[string, string]> = [];
+    const typedKeys: string[] = [];
+
+    for (const [key, value] of Object.entries(record)) {
+      // Unset values never influence which shape the context is in, so
+      // optional spreading (`userId: maybeId`) stays safe.
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      const legacyTargetType = LEGACY_KEY_TO_TARGET_TYPE.get(key);
+      if (legacyTargetType) {
+        if (typeof value === 'string' && value !== '') {
+          legacyEntries.push([legacyTargetType, value]);
+        }
+        continue;
+      }
+
+      typedKeys.push(key);
+    }
 
     // The legacy and typed shapes cannot be mixed: inventing a precedence
-    // between them would guess at caller intent, so a hybrid context matches
-    // no targets at all.
-    if (legacyKeys.length > 0 && typedKeys.length > 0) {
+    // between them would guess at caller intent, so a genuinely hybrid
+    // context matches no targets at all. Only resource-shaped values signal
+    // typed intent here — a scalar extra field on a legacy context is
+    // ignored, as it always has been.
+    const resourceShapedKeys = typedKeys.filter(
+      (key) => typeof record[key] === 'object',
+    );
+
+    if (legacyEntries.length > 0 && resourceShapedKeys.length > 0) {
       this.logger?.warn(
         'Evaluation context mixes legacy keys (userId/organizationId) with typed target keys; no targets will match',
-        { keys },
+        { keys: Object.keys(record) },
       );
       return normalized;
     }
 
-    for (const key of legacyKeys) {
-      const value = record[key];
-      const targetType = LEGACY_KEY_TO_TARGET_TYPE.get(key);
-      if (targetType && typeof value === 'string' && value !== '') {
-        normalized.set(targetType, value);
+    if (legacyEntries.length > 0) {
+      for (const [targetType, targetId] of legacyEntries) {
+        normalized.set(targetType, targetId);
       }
+      return normalized;
     }
 
     for (const key of typedKeys) {
