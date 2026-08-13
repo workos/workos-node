@@ -131,6 +131,7 @@ describe('Actions', () => {
           externalId: null,
           metadata: {},
         },
+        authenticationMethod: 'Password',
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
         deviceFingerprint: 'notafingerprint',
@@ -183,6 +184,7 @@ describe('Actions', () => {
           firstName: 'Jane',
           lastName: 'Doe',
         },
+        authenticationMethod: 'GoogleOAuth',
         ipAddress: '50.141.123.10',
         userAgent: 'Mozilla/5.0',
         deviceFingerprint: 'notafingerprint',
@@ -196,6 +198,20 @@ describe('Actions', () => {
           acceptedAt: '2024-10-22T17:13:50.746Z',
         }),
       });
+    });
+
+    it('leaves the authentication method undefined when the payload omits it', async () => {
+      const { authentication_method: _omitted, ...payload } =
+        mockAuthActionContext;
+      const sigHeader = makeSigHeader(payload, secret);
+      const action = await workos.actions.constructAction({
+        payload,
+        sigHeader,
+        secret,
+      });
+
+      expect(action.authenticationMethod).toBeUndefined();
+      expect(action.object).toEqual('authentication_action_context');
     });
   });
 });
