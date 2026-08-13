@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.10.0](https://github.com/workos/workos-node/compare/v10.9.0...v10.10.0) (2026-08-13)
+
+
+### Features
+
+* expose authentication method on action contexts ([#1671](https://github.com/workos/workos-node/issues/1671)) ([6739820](https://github.com/workos/workos-node/commit/6739820bca718e9312f6e803cd19659cce03d631))
+
 ## [10.9.0](https://github.com/workos/workos-node/compare/v10.8.0...v10.9.0) (2026-07-30)
 
 
