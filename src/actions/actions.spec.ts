@@ -199,5 +199,19 @@ describe('Actions', () => {
         }),
       });
     });
+
+    it('leaves the authentication method undefined when the payload omits it', async () => {
+      const { authentication_method: _omitted, ...payload } =
+        mockAuthActionContext;
+      const sigHeader = makeSigHeader(payload, secret);
+      const action = await workos.actions.constructAction({
+        payload,
+        sigHeader,
+        secret,
+      });
+
+      expect(action.authenticationMethod).toBeUndefined();
+      expect(action.object).toEqual('authentication_action_context');
+    });
   });
 });
