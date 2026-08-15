@@ -8,6 +8,6 @@ on:
 
 jobs:
   block-generated-edits:
-    uses: workos/actions/.github/workflows/block-generated-edits.yml@main
+    uses: workos/actions/.github/workflows/block-generated-edits.yml@5c7450a04f5a182b346eae2d833b869e337b12bb # main
     secrets:
       SDK_BOT_PRIVATE_KEY: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
