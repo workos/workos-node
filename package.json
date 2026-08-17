@@ -77,7 +77,7 @@
     "jest": "30.4.2",
     "jest-fetch-mock": "^3.0.3",
     "jose": "^6.2.0",
-    "miniflare": "^4.20260302.0",
+    "miniflare": "^5.20260811.1-alpha",
     "prettier": "^3.5.3",
     "publint": "^0.3.18",
     "tsdown": "^0.22.0",
