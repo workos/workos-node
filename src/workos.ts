@@ -39,6 +39,7 @@ import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FeatureFlags } from './feature-flags/feature-flags';
 import { Groups } from './groups/groups';
+import { ItContacts } from './it-contacts/it-contacts';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
@@ -79,6 +80,7 @@ export class WorkOS {
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
   readonly groups = new Groups(this);
+  readonly itContacts = new ItContacts(this);
   readonly multiFactorAuth = new MultiFactorAuth(this);
   readonly organizations = new Organizations(this);
   readonly organizationDomains = new OrganizationDomains(this);
