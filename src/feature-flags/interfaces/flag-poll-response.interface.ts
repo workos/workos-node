@@ -1,4 +1,4 @@
-export interface FlagTarget {
+export interface FlagPollTarget {
   id: string;
   enabled: boolean;
 }
@@ -14,8 +14,8 @@ export interface FlagPollEntry {
   enabled: boolean;
   default_value: boolean;
   targets: {
-    users: FlagTarget[];
-    organizations: FlagTarget[];
+    users: FlagPollTarget[];
+    organizations: FlagPollTarget[];
     /** Absent until the API's custom-targets rollout flag is enabled. */
     custom_targets?: FlagCustomTarget[];
   };

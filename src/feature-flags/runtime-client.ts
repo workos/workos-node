@@ -9,7 +9,7 @@ import {
   FlagCustomTarget,
   FlagPollEntry,
   FlagPollResponse,
-  FlagTarget,
+  FlagPollTarget,
   RuntimeClientOptions,
   RuntimeClientLogger,
   RuntimeClientStats,
@@ -300,7 +300,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       return true;
     }
 
-    const targetsChanged = (xs: FlagTarget[], ys: FlagTarget[]): boolean => {
+    const targetsChanged = (xs: FlagPollTarget[], ys: FlagPollTarget[]): boolean => {
       if (xs.length !== ys.length) return true;
       const map = new Map(ys.map((t) => [t.id, t.enabled]));
       return xs.some((t) => map.get(t.id) !== t.enabled);
