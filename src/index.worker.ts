@@ -16,6 +16,8 @@ export * from './common/interfaces';
 export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './events/interfaces';
+export * from './flag-target-types/interfaces';
+export * from './flag-targets/interfaces';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
 export * from './passwordless/interfaces';
