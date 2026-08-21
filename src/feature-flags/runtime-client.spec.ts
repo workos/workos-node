@@ -147,6 +147,9 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(client.isEnabled('flag-a')).toBe(true);
       expect(client.isEnabled('flag-b')).toBe(false);
       expect(client.isEnabled('flag-b', { userId: 'user_123' })).toBe(true);
+      expect(client.isEnabled('flag-b', { user: { id: 'user_123' } })).toBe(
+        true,
+      );
       expect(client.isEnabled('unknown')).toBe(false);
       expect(client.isEnabled('unknown', {}, true)).toBe(true);
 
@@ -265,6 +268,41 @@ describe('FeatureFlagsRuntimeClient', () => {
           key: 'flag-a',
           previous: pollResponse['flag-a'],
           current: updatedResponse['flag-a'],
+        },
+      ]);
+
+      client.close();
+    });
+
+    it('emits change when only custom targets change', async () => {
+      const client = createClientAndWait();
+      await jest.advanceTimersByTimeAsync(0);
+      await client.waitUntilReady();
+
+      const changes: unknown[] = [];
+      client.on('change', (change) => changes.push(change));
+
+      const updatedResponse: FlagPollResponse = {
+        'flag-a': pollResponse['flag-a'],
+        'flag-b': {
+          ...pollResponse['flag-b'],
+          targets: {
+            ...pollResponse['flag-b'].targets,
+            custom_targets: [
+              { type: 'workspace', id: 'ws_123', enabled: true },
+            ],
+          },
+        },
+      };
+
+      fetchOnce(updatedResponse);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(changes).toEqual([
+        {
+          key: 'flag-b',
+          previous: pollResponse['flag-b'],
+          current: updatedResponse['flag-b'],
         },
       ]);
 

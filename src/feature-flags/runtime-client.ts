@@ -6,6 +6,7 @@ import { Evaluator } from './evaluator';
 import {
   EvaluationContext,
   FlagChange,
+  FlagCustomTarget,
   FlagPollEntry,
   FlagPollResponse,
   FlagTarget,
@@ -70,7 +71,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     this.logger = options.logger;
 
     this.store = new InMemoryStore();
-    this.evaluator = new Evaluator(this.store);
+    this.evaluator = new Evaluator(this.store, this.logger);
 
     this.readyPromise = new Promise<void>((resolve, reject) => {
       this.readyResolve = resolve;
@@ -305,9 +306,24 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       return xs.some((t) => map.get(t.id) !== t.enabled);
     };
 
+    // Type slugs cannot contain ':', so the first ':' unambiguously ends the
+    // type in this composite key even though target IDs may contain ':'.
+    const customTargetsChanged = (
+      xs: FlagCustomTarget[],
+      ys: FlagCustomTarget[],
+    ): boolean => {
+      if (xs.length !== ys.length) return true;
+      const map = new Map(ys.map((t) => [`${t.type}:${t.id}`, t.enabled]));
+      return xs.some((t) => map.get(`${t.type}:${t.id}`) !== t.enabled);
+    };
+
     return (
       targetsChanged(a.targets.users, b.targets.users) ||
-      targetsChanged(a.targets.organizations, b.targets.organizations)
+      targetsChanged(a.targets.organizations, b.targets.organizations) ||
+      customTargetsChanged(
+        a.targets.custom_targets ?? [],
+        b.targets.custom_targets ?? [],
+      )
     );
   }
 }
