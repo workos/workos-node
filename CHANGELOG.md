@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.11.0](https://github.com/workos/workos-node/compare/v10.10.0...v10.11.0) (2026-08-21)
+
+
+### Features
+
+* Evaluate custom targets in the feature flags runtime client ([#1674](https://github.com/workos/workos-node/issues/1674)) ([f30c3fa](https://github.com/workos/workos-node/commit/f30c3fa4233185ac965dbaec9a13f02f7db2ecbe))
+
 ## [10.10.0](https://github.com/workos/workos-node/compare/v10.9.0...v10.10.0) (2026-08-13)
 
 
