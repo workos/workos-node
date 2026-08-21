@@ -38,6 +38,8 @@ import { AuditLogs } from './audit-logs/audit-logs';
 import { UserManagement } from './user-management/user-management';
 import { BadRequestException } from './common/exceptions/bad-request.exception';
 import { FeatureFlags } from './feature-flags/feature-flags';
+import { FlagTargets } from './flag-targets/flag-targets';
+import { FlagTargetTypes } from './flag-target-types/flag-target-types';
 import { Groups } from './groups/groups';
 
 import { HttpClient, HttpClientError } from './common/net/http-client';
@@ -78,6 +80,8 @@ export class WorkOS {
   readonly connect = new Connect(this);
   readonly events = new Events(this);
   readonly featureFlags = new FeatureFlags(this);
+  readonly flagTargets = new FlagTargets(this);
+  readonly flagTargetTypes = new FlagTargetTypes(this);
   readonly groups = new Groups(this);
   readonly multiFactorAuth = new MultiFactorAuth(this);
   readonly organizations = new Organizations(this);

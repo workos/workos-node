@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "object": "flag_target",
+      "id": "flag_target_01EHZNVPK3SFK441A1RGBFSHRT",
+      "flag_id": "flag_01EHZNVPK3SFK441A1RGBFSHRT",
+      "flag_slug": "new-checkout",
+      "environment_id": "environment_01EHWNCE74X7JSDV0X3SZ3KJNY",
+      "target_type": "organization",
+      "target_id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+      "value_type": "boolean",
+      "value": true,
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}
