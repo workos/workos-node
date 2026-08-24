@@ -24,7 +24,6 @@ export * from './events/interfaces';
 export * from './feature-flags/interfaces';
 export { FeatureFlagsRuntimeClient } from './feature-flags/runtime-client';
 export * from './groups/interfaces';
-export * from './it-contacts/interfaces';
 export * from './multi-factor-auth/interfaces';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
