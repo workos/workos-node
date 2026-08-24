@@ -5,17 +5,20 @@ import {
   fetchSearchParams,
   fetchHeaders,
   fetchBody,
+  fetchMethod,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import clearStripeCustomerId from './fixtures/clear-stripe-customer-id.json';
 import createOrganizationInvalid from './fixtures/create-organization-invalid.json';
 import createOrganization from './fixtures/create-organization.json';
 import getOrganization from './fixtures/get-organization.json';
+import itContact from './fixtures/it-contact.json';
+import listItContacts from './fixtures/list-it-contacts.json';
 import listOrganizationsFixture from './fixtures/list-organizations.json';
 import updateOrganization from './fixtures/update-organization.json';
 import setStripeCustomerId from './fixtures/set-stripe-customer-id.json';
 import setStripeCustomerIdDisabled from './fixtures/set-stripe-customer-id-disabled.json';
-import { DomainDataState } from './interfaces';
+import { DomainDataState, ItContactIntent } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -360,6 +363,104 @@ describe('Organizations', () => {
             stripe_customer_id: 'cus_MX8J9nfK4lP2Yw',
           });
         });
+      });
+    });
+  });
+
+  describe('IT Contacts', () => {
+    describe('listItContacts', () => {
+      it('returns the organization’s IT contacts', async () => {
+        fetchOnce(listItContacts);
+
+        const { data, listMetadata } =
+          await workos.organizations.listItContacts({
+            organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          });
+
+        expect(fetchMethod()).toBe('GET');
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts',
+        );
+
+        expect(data).toEqual([
+          {
+            object: 'it_contact',
+            id: 'it_contact_01HXYZ123456789ABCDEFGHIJ',
+            email: 'it-contact@example.com',
+            createdAt: '2026-01-15T12:00:00.000Z',
+            updatedAt: '2026-01-15T12:00:00.000Z',
+          },
+        ]);
+        expect(listMetadata).toEqual({ before: null, after: null });
+      });
+    });
+
+    describe('createItContact', () => {
+      it('creates an IT contact', async () => {
+        fetchOnce(itContact);
+
+        const subject = await workos.organizations.createItContact({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          email: 'it-contact@example.com',
+        });
+
+        expect(fetchMethod()).toBe('POST');
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts',
+        );
+        expect(fetchBody()).toEqual({ email: 'it-contact@example.com' });
+
+        expect(subject.id).toBe('it_contact_01HXYZ123456789ABCDEFGHIJ');
+      });
+    });
+
+    describe('deleteItContact', () => {
+      it('deletes an IT contact', async () => {
+        fetchOnce({}, { status: 204 });
+
+        await workos.organizations.deleteItContact({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          contactId: 'it_contact_01HXYZ123456789ABCDEFGHIJ',
+        });
+
+        expect(fetchMethod()).toBe('DELETE');
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts/it_contact_01HXYZ123456789ABCDEFGHIJ',
+        );
+      });
+    });
+
+    describe('inviteItContact', () => {
+      it('invites an IT contact', async () => {
+        fetchOnce({}, { status: 204 });
+
+        await workos.organizations.inviteItContact({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          contactId: 'it_contact_01HXYZ123456789ABCDEFGHIJ',
+          intents: [ItContactIntent.SSO, ItContactIntent.DirectorySync],
+        });
+
+        expect(fetchMethod()).toBe('POST');
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts/it_contact_01HXYZ123456789ABCDEFGHIJ/invite',
+        );
+        expect(fetchBody()).toEqual({ intents: ['sso', 'directory_sync'] });
+      });
+    });
+
+    describe('revokeItContact', () => {
+      it('revokes an IT contact’s invitation', async () => {
+        fetchOnce({}, { status: 204 });
+
+        await workos.organizations.revokeItContact({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          contactId: 'it_contact_01HXYZ123456789ABCDEFGHIJ',
+        });
+
+        expect(fetchMethod()).toBe('POST');
+        expect(fetchURL()).toContain(
+          '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts/it_contact_01HXYZ123456789ABCDEFGHIJ/revoke',
+        );
       });
     });
   });
