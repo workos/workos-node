@@ -22,6 +22,8 @@ import {
   PipesConnectedAccountConnectedEventResponse,
   PipesConnectedAccountConnectionFailedEvent,
   PipesConnectedAccountConnectionFailedEventResponse,
+  PipesConnectedAccountDisconnectedEvent,
+  PipesConnectedAccountDisconnectedEventResponse,
   VaultDataCreatedEvent,
   VaultDataCreatedEventResponse,
   VaultDataUpdatedEvent,
@@ -193,6 +195,13 @@ describe('Event', () => {
             updated_at: '2026-08-25T12:00:00.000Z',
           },
         };
+        const disconnectedResponse: PipesConnectedAccountDisconnectedEventResponse =
+          {
+            ...connectedResponse,
+            id: 'event_disconnected',
+            event: 'pipes.connected_account.disconnected',
+            data: { ...connectedResponse.data, state: 'disconnected' },
+          };
         const connectionFailedResponse: PipesConnectedAccountConnectionFailedEventResponse =
           {
             id: 'event_connection_failed',
@@ -230,6 +239,12 @@ describe('Event', () => {
             updatedAt: '2026-08-25T12:00:00.000Z',
           },
         };
+        const disconnected: PipesConnectedAccountDisconnectedEvent = {
+          ...connected,
+          id: 'event_disconnected',
+          event: 'pipes.connected_account.disconnected',
+          data: { ...connected.data, state: 'disconnected' },
+        };
         const connectionFailed: PipesConnectedAccountConnectionFailedEvent = {
           id: 'event_connection_failed',
           createdAt: '2026-08-25T13:00:00.000Z',
@@ -252,7 +267,11 @@ describe('Event', () => {
 
         fetchOnce({
           object: 'list',
-          data: [connectedResponse, connectionFailedResponse],
+          data: [
+            connectedResponse,
+            disconnectedResponse,
+            connectionFailedResponse,
+          ],
           list_metadata: {},
         });
 
@@ -267,7 +286,7 @@ describe('Event', () => {
 
         expect(list).toEqual({
           object: 'list',
-          data: [connected, connectionFailed],
+          data: [connected, disconnected, connectionFailed],
           listMetadata: {},
         });
       });

@@ -818,6 +818,8 @@ export interface GroupMemberRemovedEventResponse extends EventResponseBase {
   data: GroupMemberEventResponseData;
 }
 
+export type PipesConnectedAccountState = ConnectedAccountState | 'disconnected';
+
 export interface PipesConnectedAccount {
   object: 'connected_account';
   id: string;
@@ -826,7 +828,7 @@ export interface PipesConnectedAccount {
   userId: string | null;
   organizationId: string | null;
   scopes: string[];
-  state: ConnectedAccountState;
+  state: PipesConnectedAccountState;
   createdAt: string;
   updatedAt: string;
 }
@@ -839,7 +841,7 @@ export interface PipesConnectedAccountResponse {
   user_id: string | null;
   organization_id: string | null;
   scopes: string[];
-  state: ConnectedAccountState;
+  state: PipesConnectedAccountState;
   created_at: string;
   updated_at: string;
 }
