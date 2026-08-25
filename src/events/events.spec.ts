@@ -18,6 +18,10 @@ import {
   OrganizationDomainCreatedEventResponse,
   OrganizationDomainVerificationFailedEvent,
   OrganizationDomainVerificationFailedEventResponse,
+  PipesConnectedAccountConnectedEvent,
+  PipesConnectedAccountConnectedEventResponse,
+  PipesConnectedAccountConnectionFailedEvent,
+  PipesConnectedAccountConnectionFailedEventResponse,
   VaultDataCreatedEvent,
   VaultDataCreatedEventResponse,
   VaultDataUpdatedEvent,
@@ -166,6 +170,106 @@ describe('Event', () => {
         object: 'list',
         data: [event],
         listMetadata: {},
+      });
+    });
+
+    describe('Pipes connected account events', () => {
+      it('accepts event filters and deserializes payloads', async () => {
+        const connectedResponse: PipesConnectedAccountConnectedEventResponse = {
+          id: 'event_connected',
+          created_at: '2026-08-25T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+          event: 'pipes.connected_account.connected',
+          data: {
+            object: 'connected_account',
+            id: 'data_installation_123',
+            data_integration_id: 'data_integration_123',
+            provider_slug: 'github',
+            user_id: 'user_123',
+            organization_id: null,
+            scopes: ['repo', 'user:email'],
+            state: 'connected',
+            created_at: '2026-08-25T11:00:00.000Z',
+            updated_at: '2026-08-25T12:00:00.000Z',
+          },
+        };
+        const connectionFailedResponse: PipesConnectedAccountConnectionFailedEventResponse =
+          {
+            id: 'event_connection_failed',
+            created_at: '2026-08-25T13:00:00.000Z',
+            event: 'pipes.connected_account.connection_failed',
+            data: {
+              object: 'connection_failed',
+              data_integration_id: 'data_integration_123',
+              provider_slug: 'github',
+              user_id: 'user_123',
+              organization_id: null,
+              error_code: 'authorization_code_exchange_error',
+              error_reason: 'The authorization code has expired.',
+              provider_error: 'access_denied',
+              provider_error_description:
+                'The user denied the authorization request.',
+              created_at: '2026-08-25T13:00:00.000Z',
+            },
+          };
+        const connected: PipesConnectedAccountConnectedEvent = {
+          id: 'event_connected',
+          createdAt: '2026-08-25T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+          event: 'pipes.connected_account.connected',
+          data: {
+            object: 'connected_account',
+            id: 'data_installation_123',
+            dataIntegrationId: 'data_integration_123',
+            providerSlug: 'github',
+            userId: 'user_123',
+            organizationId: null,
+            scopes: ['repo', 'user:email'],
+            state: 'connected',
+            createdAt: '2026-08-25T11:00:00.000Z',
+            updatedAt: '2026-08-25T12:00:00.000Z',
+          },
+        };
+        const connectionFailed: PipesConnectedAccountConnectionFailedEvent = {
+          id: 'event_connection_failed',
+          createdAt: '2026-08-25T13:00:00.000Z',
+          context: undefined,
+          event: 'pipes.connected_account.connection_failed',
+          data: {
+            object: 'connection_failed',
+            dataIntegrationId: 'data_integration_123',
+            providerSlug: 'github',
+            userId: 'user_123',
+            organizationId: null,
+            errorCode: 'authorization_code_exchange_error',
+            errorReason: 'The authorization code has expired.',
+            providerError: 'access_denied',
+            providerErrorDescription:
+              'The user denied the authorization request.',
+            createdAt: '2026-08-25T13:00:00.000Z',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [connectedResponse, connectionFailedResponse],
+          list_metadata: {},
+        });
+
+        const list = await workos.events.listEvents({
+          events: [
+            'pipes.connected_account.connected',
+            'pipes.connected_account.connection_failed',
+            'pipes.connected_account.disconnected',
+            'pipes.connected_account.reauthorization_needed',
+          ],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [connected, connectionFailed],
+          listMetadata: {},
+        });
       });
     });
 
