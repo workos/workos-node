@@ -13,11 +13,13 @@ export class UnprocessableEntityException
 
   constructor({
     code,
+    error,
     errors,
     message,
     requestID,
   }: {
     code?: string;
+    error?: string;
     errors?: UnprocessableEntityError[];
     message?: string;
     requestID: string;
@@ -28,6 +30,8 @@ export class UnprocessableEntityException
 
     if (message) {
       this.message = message;
+    } else if (error) {
+      this.message = `Error: ${error}`;
     }
 
     if (code) {
