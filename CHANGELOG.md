@@ -1,5 +1,18 @@
 # Changelog
 
+## [10.12.0](https://github.com/workos/workos-node/compare/v10.11.0...v10.12.0) (2026-08-27)
+
+
+### Features
+
+* Add IT Contacts API ([#1681](https://github.com/workos/workos-node/issues/1681)) ([5237aa2](https://github.com/workos/workos-node/commit/5237aa256f21419fc6dceed993ae6beda0bb0da4))
+
+
+### Bug Fixes
+
+* **events:** Type Pipes connected account events ([#1686](https://github.com/workos/workos-node/issues/1686)) ([b880c76](https://github.com/workos/workos-node/commit/b880c7648f6f1867a88b5c4c793f61bad6389129))
+* Surface the error field and request ID on 422 exceptions ([#1656](https://github.com/workos/workos-node/issues/1656)) ([2bc92ef](https://github.com/workos/workos-node/commit/2bc92ef69d5325562fbc2bd7ad67200a0b0eace7))
+
 ## [10.11.0](https://github.com/workos/workos-node/compare/v10.10.0...v10.11.0) (2026-08-21)
 
 
