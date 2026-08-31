@@ -1,4 +1,6 @@
 import { sealData, unsealData } from '../common/crypto/seal';
+import { List, ListResponse } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
@@ -60,6 +62,14 @@ import {
   VerifyEmailOptions,
   SerializedUserApiKey,
   SerializedUserApiKeyWithValue,
+  CreateWaitlistEntryOptions,
+  ListWaitlistEntriesOptions,
+  SerializedCreateWaitlistEntryOptions,
+  SerializedListWaitlistEntriesOptions,
+  Waitlist,
+  WaitlistEntry,
+  WaitlistEntryResponse,
+  WaitlistResponse,
 } from './interfaces';
 import {
   AuthenticateWithEmailVerificationOptions,
@@ -176,6 +186,10 @@ import { serializeResendInvitationOptions } from './serializers/resend-invitatio
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { deserializeWaitlist } from './serializers/waitlist.serializer';
+import { deserializeWaitlistEntry } from './serializers/waitlist-entry.serializer';
+import { serializeCreateWaitlistEntryOptions } from './serializers/create-waitlist-entry-options.serializer';
+import { serializeListWaitlistEntriesOptions } from './serializers/list-waitlist-entries-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
 import { Group, GroupResponse } from '../groups/interfaces';
@@ -1469,6 +1483,151 @@ export class UserManagement {
     );
 
     return deserializeInvitation(data);
+  }
+
+  /**
+   * List waitlists
+   *
+   * Get a list of the waitlists in the environment. All waitlists are
+   * returned in a single response — this endpoint is not paginated.
+   * @returns {Promise<List<Waitlist>>}
+   */
+  async listWaitlists(): Promise<List<Waitlist>> {
+    const { data } = await this.workos.get<ListResponse<WaitlistResponse>>(
+      '/user_management/waitlists',
+    );
+
+    return deserializeList(data, deserializeWaitlist);
+  }
+
+  /**
+   * Get a waitlist
+   *
+   * Get the details of an existing waitlist. The literal id `default`
+   * is accepted and resolves to the environment's default waitlist.
+   * @returns {Promise<Waitlist>}
+   * @throws {NotFoundException} 404
+   */
+  async getWaitlist(waitlistId: string): Promise<Waitlist> {
+    const { data } = await this.workos.get<WaitlistResponse>(
+      `/user_management/waitlists/${waitlistId}`,
+    );
+
+    return deserializeWaitlist(data);
+  }
+
+  /**
+   * List waitlist entries
+   *
+   * Get a list of the entries on a waitlist matching the criteria specified.
+   * The literal id `default` is accepted and resolves to the environment's
+   * default waitlist.
+   * @param waitlistId - The unique ID of the waitlist.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<WaitlistEntry, SerializedListWaitlistEntriesOptions>>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async listWaitlistEntries(
+    waitlistId: string,
+    options?: ListWaitlistEntriesOptions,
+  ): Promise<
+    AutoPaginatable<WaitlistEntry, SerializedListWaitlistEntriesOptions>
+  > {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<WaitlistEntryResponse, WaitlistEntry>(
+        this.workos,
+        `/user_management/waitlists/${waitlistId}/entries`,
+        deserializeWaitlistEntry,
+        options ? serializeListWaitlistEntriesOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<WaitlistEntryResponse, WaitlistEntry>(
+          this.workos,
+          `/user_management/waitlists/${waitlistId}/entries`,
+          deserializeWaitlistEntry,
+          params,
+        ),
+      options ? serializeListWaitlistEntriesOptions(options) : undefined,
+    );
+  }
+
+  /**
+   * Create a waitlist entry
+   *
+   * Add an email address to a waitlist. Adding an email address that is
+   * already on the waitlist returns the existing entry unchanged. The
+   * literal id `default` is accepted and resolves to the environment's
+   * default waitlist.
+   * @param waitlistId - The unique ID of the waitlist.
+   * @param payload - Object containing email and optional fields.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async createWaitlistEntry(
+    waitlistId: string,
+    payload: CreateWaitlistEntryOptions,
+  ): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<
+      WaitlistEntryResponse,
+      SerializedCreateWaitlistEntryOptions
+    >(
+      `/user_management/waitlists/${waitlistId}/entries`,
+      serializeCreateWaitlistEntryOptions(payload),
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Approve a waitlist entry
+   *
+   * Approve a waitlist entry, create an invitation for its email address,
+   * and send the invitation email.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async approveWaitlistEntry(waitlistEntryId: string): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<WaitlistEntryResponse, null>(
+      `/user_management/waitlist_entries/${waitlistEntryId}/approve`,
+      null,
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Deny a waitlist entry
+   *
+   * Deny a pending waitlist entry.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async denyWaitlistEntry(waitlistEntryId: string): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<WaitlistEntryResponse, null>(
+      `/user_management/waitlist_entries/${waitlistEntryId}/deny`,
+      null,
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Delete a waitlist entry
+   *
+   * Remove the entry from the waitlist. Its email address can join again
+   * unless a user with that email now exists in the environment. Deleting
+   * the entry does not revoke an invitation created by approving it.
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
+  async deleteWaitlistEntry(waitlistEntryId: string): Promise<void> {
+    await this.workos.delete(
+      `/user_management/waitlist_entries/${waitlistEntryId}`,
+    );
   }
 
   /**
