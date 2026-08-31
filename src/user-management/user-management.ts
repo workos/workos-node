@@ -1,4 +1,6 @@
 import { sealData, unsealData } from '../common/crypto/seal';
+import { List, ListResponse } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
@@ -1488,23 +1490,14 @@ export class UserManagement {
    *
    * Get a list of the waitlists in the environment. All waitlists are
    * returned in a single response — this endpoint is not paginated.
-   * @returns {Promise<AutoPaginatable<Waitlist>>}
+   * @returns {Promise<List<Waitlist>>}
    */
-  async listWaitlists(): Promise<AutoPaginatable<Waitlist>> {
-    return new AutoPaginatable(
-      await fetchAndDeserialize<WaitlistResponse, Waitlist>(
-        this.workos,
-        '/user_management/waitlists',
-        deserializeWaitlist,
-      ),
-      (params) =>
-        fetchAndDeserialize<WaitlistResponse, Waitlist>(
-          this.workos,
-          '/user_management/waitlists',
-          deserializeWaitlist,
-          params,
-        ),
+  async listWaitlists(): Promise<List<Waitlist>> {
+    const { data } = await this.workos.get<ListResponse<WaitlistResponse>>(
+      '/user_management/waitlists',
     );
+
+    return deserializeList(data, deserializeWaitlist);
   }
 
   /**
