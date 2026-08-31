@@ -1,0 +1,10 @@
+{
+  "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.example.token",
+  "token_type": "Bearer",
+  "expires_in": 300,
+  "refresh_token": "refresh_token_example",
+  "agent_instance_id": "agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "new_instance": true,
+  "agent_instance_session_id": "agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "permissions": ["crm:read", "email:send"]
+}

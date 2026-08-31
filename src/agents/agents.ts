@@ -1,7 +1,25 @@
 import { getJose } from '../utils/jose';
+import { AutoPaginatable } from '../common/utils/pagination';
+import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { WorkOS } from '../workos';
 import {
+  AgentBlueprint,
   AgentCredentialValidation,
+  AgentInstance,
+  AgentInstanceSession,
+  AgentToken,
+  CreateAgentBlueprintOptions,
+  ListAgentBlueprintsOptions,
+  ListAgentInstanceSessionsOptions,
+  ListAgentInstancesOptions,
+  MintAgentTokenOptions,
+  SerializedAgentBlueprint,
+  SerializedAgentInstance,
+  SerializedAgentInstanceSession,
+  SerializedAgentToken,
+  SerializedListAgentInstanceSessionsOptions,
+  SerializedListAgentInstancesOptions,
+  UpdateAgentBlueprintOptions,
   AgentRegistration,
   ClaimAttemptResponse,
   LinkClaimAttemptToExternalUserOptions,
@@ -14,6 +32,15 @@ import {
 } from './interfaces';
 import {
   deserializeAgentAccessTokenClaims,
+  deserializeAgentBlueprint,
+  deserializeAgentInstance,
+  deserializeAgentInstanceSession,
+  deserializeAgentToken,
+  serializeCreateAgentBlueprintOptions,
+  serializeListAgentInstanceSessionsOptions,
+  serializeListAgentInstancesOptions,
+  serializeMintAgentTokenOptions,
+  serializeUpdateAgentBlueprintOptions,
   deserializeAgentCredentialValidation,
   deserializeAgentRegistration,
   deserializeClaimAttemptResponse,
@@ -45,6 +72,302 @@ export class Agents {
   private _jwks?: ReturnType<typeof import('jose').createRemoteJWKSet>;
 
   constructor(private readonly workos: WorkOS) {}
+
+  /**
+   * Create an agent blueprint
+   *
+   * Creates an agent blueprint: the template describing what an agent may do
+   * (its permission ceiling), who may invoke it, and the lifetimes of its
+   * sessions.
+   *
+   * @param options - Configuration for the new agent blueprint.
+   * @returns {Promise<AgentBlueprint>}
+   * @throws {BadRequestException} 400
+   * @throws {ConflictException} 409 - Name already in use.
+   * @throws {UnprocessableEntityException} 422 - Permission, role, or organization not found.
+   */
+  async createBlueprint(
+    options: CreateAgentBlueprintOptions,
+  ): Promise<AgentBlueprint> {
+    const { data } = await this.workos.post<SerializedAgentBlueprint>(
+      '/agents/blueprints',
+      serializeCreateAgentBlueprintOptions(options),
+    );
+
+    return deserializeAgentBlueprint(data);
+  }
+
+  /**
+   * List agent blueprints
+   *
+   * Lists the agent blueprints in the current environment.
+   *
+   * @param options - Pagination options.
+   * @returns {Promise<AutoPaginatable<AgentBlueprint, ListAgentBlueprintsOptions>>}
+   */
+  async listBlueprints(
+    options?: ListAgentBlueprintsOptions,
+  ): Promise<AutoPaginatable<AgentBlueprint, ListAgentBlueprintsOptions>> {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SerializedAgentBlueprint, AgentBlueprint>(
+        this.workos,
+        '/agents/blueprints',
+        deserializeAgentBlueprint,
+        options,
+      ),
+      (params) =>
+        fetchAndDeserialize<SerializedAgentBlueprint, AgentBlueprint>(
+          this.workos,
+          '/agents/blueprints',
+          deserializeAgentBlueprint,
+          params,
+        ),
+      options,
+    );
+  }
+
+  /**
+   * Get an agent blueprint
+   *
+   * Retrieves an agent blueprint by ID.
+   * @param agentBlueprintId - Unique identifier of the agent blueprint.
+   *
+   * @example
+   * "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<AgentBlueprint>}
+   * @throws {NotFoundException} 404
+   */
+  async getBlueprint(agentBlueprintId: string): Promise<AgentBlueprint> {
+    const { data } = await this.workos.get<SerializedAgentBlueprint>(
+      `/agents/blueprints/${encodeURIComponent(agentBlueprintId)}`,
+    );
+
+    return deserializeAgentBlueprint(data);
+  }
+
+  /**
+   * Update an agent blueprint
+   *
+   * Updates an agent blueprint. Omitted fields are left unchanged; provided
+   * lists replace the existing configuration.
+   *
+   * @param options - Object containing the agent blueprint ID and the fields to update.
+   * @returns {Promise<AgentBlueprint>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {ConflictException} 409 - Name already in use.
+   * @throws {UnprocessableEntityException} 422 - Permission, role, or organization not found.
+   */
+  async updateBlueprint(
+    options: UpdateAgentBlueprintOptions,
+  ): Promise<AgentBlueprint> {
+    const { agentBlueprintId, ...payload } = options;
+
+    const { data } = await this.workos.patch<SerializedAgentBlueprint>(
+      `/agents/blueprints/${encodeURIComponent(agentBlueprintId)}`,
+      serializeUpdateAgentBlueprintOptions(payload),
+    );
+
+    return deserializeAgentBlueprint(data);
+  }
+
+  /**
+   * Delete an agent blueprint
+   *
+   * Deletes an agent blueprint by ID.
+   * @param agentBlueprintId - Unique identifier of the agent blueprint.
+   *
+   * @example
+   * "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
+  async deleteBlueprint(agentBlueprintId: string): Promise<void> {
+    await this.workos.delete(
+      `/agents/blueprints/${encodeURIComponent(agentBlueprintId)}`,
+    );
+  }
+
+  /**
+   * Mint an agent token
+   *
+   * Mints tokens for an agent session from a blueprint. Supports
+   * user-delegated, autonomous, and agent-delegated mints, as well as
+   * refreshing an existing session with a refresh token.
+   *
+   * @param options - Object containing the agent blueprint ID, the mint type, and its credentials.
+   * @returns {Promise<AgentToken>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   */
+  async mintToken(options: MintAgentTokenOptions): Promise<AgentToken> {
+    const { data } = await this.workos.post<SerializedAgentToken>(
+      `/agents/blueprints/${encodeURIComponent(options.agentBlueprintId)}/tokens`,
+      serializeMintAgentTokenOptions(options),
+    );
+
+    return deserializeAgentToken(data);
+  }
+
+  /**
+   * List agent instances
+   *
+   * Lists the agent instances in the current environment, optionally filtered
+   * by organization or agent blueprint.
+   *
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<AgentInstance, SerializedListAgentInstancesOptions>>}
+   */
+  async listInstances(
+    options?: ListAgentInstancesOptions,
+  ): Promise<
+    AutoPaginatable<AgentInstance, SerializedListAgentInstancesOptions>
+  > {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SerializedAgentInstance, AgentInstance>(
+        this.workos,
+        '/agents/instances',
+        deserializeAgentInstance,
+        options ? serializeListAgentInstancesOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<SerializedAgentInstance, AgentInstance>(
+          this.workos,
+          '/agents/instances',
+          deserializeAgentInstance,
+          params,
+        ),
+      options ? serializeListAgentInstancesOptions(options) : undefined,
+    );
+  }
+
+  /**
+   * Get an agent instance
+   *
+   * Retrieves an agent instance by ID.
+   * @param agentInstanceId - Unique identifier of the agent instance.
+   *
+   * @example
+   * "agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<AgentInstance>}
+   * @throws {NotFoundException} 404
+   */
+  async getInstance(agentInstanceId: string): Promise<AgentInstance> {
+    const { data } = await this.workos.get<SerializedAgentInstance>(
+      `/agents/instances/${encodeURIComponent(agentInstanceId)}`,
+    );
+
+    return deserializeAgentInstance(data);
+  }
+
+  /**
+   * Delete an agent instance
+   *
+   * Deletes an agent instance by ID.
+   * @param agentInstanceId - Unique identifier of the agent instance.
+   *
+   * @example
+   * "agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
+  async deleteInstance(agentInstanceId: string): Promise<void> {
+    await this.workos.delete(
+      `/agents/instances/${encodeURIComponent(agentInstanceId)}`,
+    );
+  }
+
+  /**
+   * List agent instance sessions
+   *
+   * Lists the agent instance sessions in the current environment, optionally
+   * filtered by agent blueprint or agent instance.
+   *
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<AgentInstanceSession, SerializedListAgentInstanceSessionsOptions>>}
+   */
+  async listInstanceSessions(
+    options?: ListAgentInstanceSessionsOptions,
+  ): Promise<
+    AutoPaginatable<
+      AgentInstanceSession,
+      SerializedListAgentInstanceSessionsOptions
+    >
+  > {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        SerializedAgentInstanceSession,
+        AgentInstanceSession
+      >(
+        this.workos,
+        '/agents/sessions',
+        deserializeAgentInstanceSession,
+        options
+          ? serializeListAgentInstanceSessionsOptions(options)
+          : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<
+          SerializedAgentInstanceSession,
+          AgentInstanceSession
+        >(
+          this.workos,
+          '/agents/sessions',
+          deserializeAgentInstanceSession,
+          params,
+        ),
+      options ? serializeListAgentInstanceSessionsOptions(options) : undefined,
+    );
+  }
+
+  /**
+   * Get an agent instance session
+   *
+   * Retrieves an agent instance session by ID.
+   * @param agentInstanceSessionId - Unique identifier of the agent instance session.
+   *
+   * @example
+   * "agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<AgentInstanceSession>}
+   * @throws {NotFoundException} 404
+   */
+  async getInstanceSession(
+    agentInstanceSessionId: string,
+  ): Promise<AgentInstanceSession> {
+    const { data } = await this.workos.get<SerializedAgentInstanceSession>(
+      `/agents/sessions/${encodeURIComponent(agentInstanceSessionId)}`,
+    );
+
+    return deserializeAgentInstanceSession(data);
+  }
+
+  /**
+   * Revoke an agent instance session
+   *
+   * Revokes an agent instance session by ID, invalidating its tokens.
+   * @param agentInstanceSessionId - Unique identifier of the agent instance session.
+   *
+   * @example
+   * "agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY"
+   *
+   * @returns {Promise<AgentInstanceSession>}
+   * @throws {NotFoundException} 404
+   */
+  async revokeInstanceSession(
+    agentInstanceSessionId: string,
+  ): Promise<AgentInstanceSession> {
+    const { data } = await this.workos.post<SerializedAgentInstanceSession>(
+      `/agents/sessions/${encodeURIComponent(agentInstanceSessionId)}/revoke`,
+      {},
+    );
+
+    return deserializeAgentInstanceSession(data);
+  }
 
   /**
    * Link a claim attempt to an external user
