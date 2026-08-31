@@ -29,3 +29,5 @@ export * from './update-user-password-options.serializer';
 export * from './user.serializer';
 export * from './user-api-key.serializer';
 export * from './user-api-key-with-value.serializer';
+export * from './waitlist.serializer';
+export * from './waitlist-entry.serializer';

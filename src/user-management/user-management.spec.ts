@@ -22,6 +22,10 @@ import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
 import createUserApiKeyFixture from './fixtures/create-user-api-key.json';
 import identityFixture from './fixtures/identity.json';
+import waitlistFixture from './fixtures/waitlist.json';
+import listWaitlistsFixture from './fixtures/list-waitlists.json';
+import waitlistEntryFixture from './fixtures/waitlist-entry.json';
+import listWaitlistEntriesFixture from './fixtures/list-waitlist-entries.json';
 import * as jose from 'jose';
 import { sealData } from '../common/crypto/seal';
 
@@ -36,6 +40,8 @@ const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationToken = 'Z1uX3RbwcIl5fIGJJJCXXisdI';
+const waitlistId = 'waitlist_01E4ZCR3C56J083X43JQXF3JK5';
+const waitlistEntryId = 'wl_user_01E4ZCR3C56J083X43JQXF3JK5';
 const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
@@ -2785,6 +2791,213 @@ describe('UserManagement', () => {
           locale: 'invalid' as any,
         }),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('listWaitlists', () => {
+    it('lists waitlists', async () => {
+      fetchOnce(listWaitlistsFixture);
+      const waitlists = await workos.userManagement.listWaitlists();
+
+      expect(fetchURL()).toContain('/user_management/waitlists');
+      expect(waitlists).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist',
+            id: waitlistId,
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+  });
+
+  describe('getWaitlist', () => {
+    it('sends a Get Waitlist request', async () => {
+      fetchOnce(waitlistFixture);
+      const waitlist = await workos.userManagement.getWaitlist(waitlistId);
+
+      expect(fetchURL()).toContain(`/user_management/waitlists/${waitlistId}`);
+      expect(waitlist).toMatchObject({
+        object: 'waitlist',
+        id: waitlistId,
+      });
+    });
+
+    it('accepts the default waitlist alias', async () => {
+      fetchOnce(waitlistFixture);
+      await workos.userManagement.getWaitlist('default');
+
+      expect(fetchURL()).toContain('/user_management/waitlists/default');
+    });
+  });
+
+  describe('listWaitlistEntries', () => {
+    it('lists waitlist entries', async () => {
+      fetchOnce(listWaitlistEntriesFixture);
+      const waitlistEntries =
+        await workos.userManagement.listWaitlistEntries(waitlistId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(waitlistEntries).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist_entry',
+            id: waitlistEntryId,
+            email: 'marcelina.davis@example.com',
+            state: 'pending',
+            approvedAt: null,
+            additionalFields: {
+              company: 'Example Corp',
+            },
+            waitlistId,
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+
+    it('sends the correct params when filtering', async () => {
+      fetchOnce(listWaitlistEntriesFixture);
+      await workos.userManagement.listWaitlistEntries(waitlistId, {
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: 10,
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: '10',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('createWaitlistEntry', () => {
+    it('sends a Create Waitlist Entry request', async () => {
+      fetchOnce(waitlistEntryFixture, { status: 201 });
+      const waitlistEntry = await workos.userManagement.createWaitlistEntry(
+        waitlistId,
+        {
+          email: 'marcelina.davis@example.com',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+      });
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        email: 'marcelina.davis@example.com',
+      });
+    });
+
+    it('sends the correct params when provided', async () => {
+      fetchOnce(waitlistEntryFixture, { status: 201 });
+      await workos.userManagement.createWaitlistEntry('default', {
+        email: 'marcelina.davis@example.com',
+        additionalFields: {
+          company: 'Example Corp',
+        },
+        sendConfirmationEmail: true,
+      });
+
+      expect(fetchURL()).toContain(
+        '/user_management/waitlists/default/entries',
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+        additional_fields: {
+          company: 'Example Corp',
+        },
+        send_confirmation_email: true,
+      });
+    });
+
+    it('throws when the email belongs to an existing user', async () => {
+      fetchOnce(
+        {
+          message: 'An account with that email already exists.',
+          code: 'user_already_exists',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.createWaitlistEntry(waitlistId, {
+          email: 'marcelina.davis@example.com',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('approveWaitlistEntry', () => {
+    it('sends an Approve Waitlist Entry request', async () => {
+      fetchOnce({
+        ...waitlistEntryFixture,
+        state: 'approved',
+        approved_at: '2026-01-16T12:00:00.000Z',
+      });
+      const waitlistEntry =
+        await workos.userManagement.approveWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}/approve`,
+      );
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        state: 'approved',
+        approvedAt: '2026-01-16T12:00:00.000Z',
+      });
+    });
+  });
+
+  describe('denyWaitlistEntry', () => {
+    it('sends a Deny Waitlist Entry request', async () => {
+      fetchOnce({
+        ...waitlistEntryFixture,
+        state: 'denied',
+      });
+      const waitlistEntry =
+        await workos.userManagement.denyWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}/deny`,
+      );
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        state: 'denied',
+      });
+    });
+  });
+
+  describe('deleteWaitlistEntry', () => {
+    it('sends a Delete Waitlist Entry request', async () => {
+      fetchOnce({}, { status: 204 });
+      const response =
+        await workos.userManagement.deleteWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}`,
+      );
+      expect(response).toBeUndefined();
     });
   });
 
