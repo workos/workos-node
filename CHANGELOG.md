@@ -1,5 +1,13 @@
 # Changelog
 
+## [10.13.0](https://github.com/workos/workos-node/compare/v10.12.0...v10.13.0) (2026-08-31)
+
+
+### Features
+
+* Add Agent Blueprints API support ([#1687](https://github.com/workos/workos-node/issues/1687)) ([364e223](https://github.com/workos/workos-node/commit/364e223f2063ce5341986091107b9bd971eadd2f))
+* Add Waitlists API support ([#1689](https://github.com/workos/workos-node/issues/1689)) ([0faa84f](https://github.com/workos/workos-node/commit/0faa84f3dc1aec556a1c93c3a21eb887e7840f50))
+
 ## [10.12.0](https://github.com/workos/workos-node/compare/v10.11.0...v10.12.0) (2026-08-27)
 
 
