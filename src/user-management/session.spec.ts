@@ -255,6 +255,30 @@ describe('Session', () => {
           { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
         );
       });
+
+      it('returns invalid_jwt when the issuer claim does not match', async () => {
+        const error = new Error('unexpected "iss" claim value');
+        (error as Error & { code: string }).code =
+          'ERR_JWT_CLAIM_VALIDATION_FAILED';
+        jest.mocked(jose.jwtVerify).mockRejectedValue(error);
+
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await expect(session.authenticate()).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      });
     });
   });
 

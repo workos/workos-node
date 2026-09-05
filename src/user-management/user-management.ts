@@ -203,10 +203,8 @@ export class UserManagement {
   public issuer: string | string[] | undefined;
 
   constructor(private readonly workos: WorkOS) {
-    const { clientId, issuer } = workos.options;
-
-    this.clientId = clientId;
-    this.issuer = issuer;
+    this.clientId = workos.clientId;
+    this.issuer = workos.options.issuer;
   }
 
   /**

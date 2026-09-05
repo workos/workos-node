@@ -1811,6 +1811,61 @@ describe('UserManagement', () => {
           { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
         );
       });
+
+      it('validates the issuer claim when clientId comes from WORKOS_CLIENT_ID', async () => {
+        const OLD_ENV = process.env;
+        process.env = { ...OLD_ENV, WORKOS_CLIENT_ID: 'client_from_env' };
+
+        try {
+          const workosWithIssuer = new WorkOS(
+            'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+            { issuer: 'https://auth.example.com' },
+          );
+
+          expect(workosWithIssuer.userManagement.clientId).toBe(
+            'client_from_env',
+          );
+
+          await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          });
+
+          expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+          expect(jose.jwtVerify).toHaveBeenCalledWith(
+            accessToken,
+            expect.anything(),
+            { issuer: 'https://auth.example.com' },
+          );
+        } finally {
+          process.env = OLD_ENV;
+        }
+      });
+
+      it('returns invalid_jwt when the issuer claim does not match', async () => {
+        const error = new Error('unexpected "iss" claim value');
+        (error as Error & { code: string }).code =
+          'ERR_JWT_CLAIM_VALIDATION_FAILED';
+        jest.mocked(jose.jwtVerify).mockRejectedValue(error);
+
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+
+        await expect(
+          workosWithIssuer.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          }),
+        ).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      });
     });
   });
 
