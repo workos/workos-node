@@ -164,6 +164,122 @@ describe('Session', () => {
         accessToken,
       });
     });
+
+    describe('issuer validation', () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const accessToken =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInJvbGVzIjpbIm1lbWJlciIsImFkbWluIl0sInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.TNUzJYn6lzLWFFsiWiKEgIshyUs-bKJQf1VxwNr1cGI';
+
+      let sessionData: string;
+
+      beforeAll(async () => {
+        sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+      });
+
+      beforeEach(() => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockReset()
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      });
+
+      it('does not validate the issuer claim by default', async () => {
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          undefined,
+        );
+      });
+
+      it('validates the issuer claim when issuer is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          { issuer: 'https://auth.example.com' },
+        );
+      });
+
+      it('validates the issuer claim when a list of issuers is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: ['https://auth.example.com', 'https://api.workos.com'],
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
+        );
+      });
+
+      it('returns invalid_jwt when the issuer claim does not match', async () => {
+        const error = new Error('unexpected "iss" claim value');
+        (error as Error & { code: string }).code =
+          'ERR_JWT_CLAIM_VALIDATION_FAILED';
+        jest.mocked(jose.jwtVerify).mockRejectedValue(error);
+
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await expect(session.authenticate()).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      });
+    });
   });
 
   describe('refresh', () => {

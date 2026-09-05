@@ -60,6 +60,22 @@ await workos.get('/organizations', { maxRetries: 0 });
 
 Set `maxRetries: 0` to disable automatic retries entirely.
 
+### Access token issuer validation
+
+Session helpers (`authenticateWithSessionCookie`, `loadSealedSession(...).authenticate()`)
+verify the access token signature against the WorkOS JWKS. To also enforce the
+token's `iss` claim, pass the expected issuer when creating the client:
+
+```ts
+const workos = new WorkOS('sk_1234', {
+  clientId: 'client_...',
+  issuer: 'https://api.workos.com/user_management/client_...',
+});
+```
+
+`issuer` also accepts an array when tokens from more than one issuer should be
+accepted. When `issuer` is not set, the `iss` claim is not validated.
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:

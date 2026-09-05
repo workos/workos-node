@@ -9,6 +9,12 @@ export interface WorkOSOptions {
   appInfo?: AppInfo;
   fetchFn?: typeof fetch;
   clientId?: string;
+  /**
+   * Expected `iss` claim of WorkOS access tokens, enforced when verifying
+   * session access tokens. Accepts a single issuer or a list of allowed
+   * issuers. When not set, the issuer claim is not validated.
+   */
+  issuer?: string | string[];
   timeout?: number; // Timeout in milliseconds
   /**
    * Maximum number of automatic retries for transient failures (network
