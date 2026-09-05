@@ -1725,6 +1725,93 @@ describe('UserManagement', () => {
         accessToken,
       });
     });
+
+    describe('issuer validation', () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const accessToken =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.YVNjR8S2xGn2jAoLuEcBQNJ1_xY3OzjRE1-BK0zjfQE';
+      let sessionData: string;
+
+      beforeAll(async () => {
+        sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+      });
+
+      beforeEach(() => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockReset()
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      });
+
+      it('does not validate the issuer claim by default', async () => {
+        await workos.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          undefined,
+        );
+      });
+
+      it('validates the issuer claim when issuer is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+
+        await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          { issuer: 'https://auth.example.com' },
+        );
+      });
+
+      it('validates the issuer claim when a list of issuers is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: ['https://auth.example.com', 'https://api.workos.com'],
+          },
+        );
+
+        await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
+        );
+      });
+    });
   });
 
   describe('getSessionFromCookie', () => {

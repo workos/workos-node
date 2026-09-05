@@ -200,11 +200,13 @@ export class UserManagement {
   private _jwks:
     ReturnType<typeof import('jose').createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
+  public issuer: string | string[] | undefined;
 
   constructor(private readonly workos: WorkOS) {
-    const { clientId } = workos.options;
+    const { clientId, issuer } = workos.options;
 
     this.clientId = clientId;
+    this.issuer = issuer;
   }
 
   /**
@@ -751,7 +753,11 @@ export class UserManagement {
     }
 
     try {
-      await jwtVerify(accessToken, jwks);
+      await jwtVerify(
+        accessToken,
+        jwks,
+        this.issuer ? { issuer: this.issuer } : undefined,
+      );
       return true;
     } catch (e) {
       // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
