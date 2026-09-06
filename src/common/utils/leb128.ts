@@ -9,6 +9,11 @@ const CONTINUATION_BIT = 0x80;
 const DATA_BITS_MASK = 0x7f;
 const DATA_BITS_PER_BYTE = 7;
 const MAX_BYTES_FOR_UINT32 = 5;
+// The 5th byte is read at this shift; a uint32 only has 32 - 28 = 4 data bits
+// left for it, so its 7-bit payload must not exceed 0x0F. A larger payload
+// encodes a value above MAX_UINT32.
+const FINAL_BYTE_SHIFT = (MAX_BYTES_FOR_UINT32 - 1) * DATA_BITS_PER_BYTE;
+const FINAL_BYTE_MAX_DATA = 0x0f;
 
 /**
  * Encodes an unsigned 32-bit integer into LEB128 format.
@@ -63,6 +68,16 @@ export function decodeUInt32(
 
     if (bytesRead > MAX_BYTES_FOR_UINT32) {
       throw new Error('LEB128 sequence exceeds maximum length for uint32');
+    }
+
+    // On the final (5th) byte only 4 of its 7 data bits fit in a uint32. Reject a
+    // larger payload instead of letting the 32-bit `<<` below silently drop the
+    // overflowing bits and return a wrong value for an out-of-range encoding.
+    if (
+      shift === FINAL_BYTE_SHIFT &&
+      (byte & DATA_BITS_MASK) > FINAL_BYTE_MAX_DATA
+    ) {
+      throw new Error('LEB128 sequence exceeds uint32 range');
     }
 
     result |= (byte & DATA_BITS_MASK) << shift;
