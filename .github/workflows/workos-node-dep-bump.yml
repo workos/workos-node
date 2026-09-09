@@ -110,6 +110,11 @@ jobs:
             cat /tmp/repos.txt
           fi
 
+      - name: Configure Socket Firewall
+        uses: workos/setup-socket-firewall@ca93dd8aa351f54f4729fe3377a9be23c631c25d
+        with:
+          token: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
+
       - name: Bump dependencies
         env:
           GH_TOKEN: ${{ steps.generate-token.outputs.token }}
@@ -118,6 +123,8 @@ jobs:
           RELEASE_TAG: ${{ needs.check-version.outputs.tag }}
         run: |
           echo "Target major: $NEW_MAJOR | Dry run: $DRY_RUN"
+          BUMP_RECORDS=/tmp/workos-node-dep-bumps.tsv
+          : > "$BUMP_RECORDS"
 
           if [ ! -s /tmp/repos.txt ]; then
             echo "No repos to process."
@@ -199,6 +206,37 @@ jobs:
 
               git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
               git commit -m "chore!: bump @workos-inc/node to ^${NEW_MAJOR}.0.0"
+              printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+                "$REPO_NAME" "$REPO" "$WORK_DIR" "$BRANCH" "$CURRENT" "$NEW_CONSTRAINT" "$RELEASE_TAG" \
+                >> "$BUMP_RECORDS"
+
+            ) || echo "   Failed — skipping"
+
+            echo "   Done ✓"
+
+          done < /tmp/repos.txt
+
+      - name: Teardown Socket Firewall
+        uses: workos/setup-socket-firewall/teardown@ca93dd8aa351f54f4729fe3377a9be23c631c25d
+
+      - name: Push dependency bumps
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          NEW_MAJOR: ${{ needs.check-version.outputs.major }}
+        run: |
+          BUMP_RECORDS=/tmp/workos-node-dep-bumps.tsv
+
+          if [ ! -s "$BUMP_RECORDS" ]; then
+            echo "No dependency bumps to push."
+            exit 0
+          fi
+
+          while IFS=$'\t' read -r REPO_NAME REPO WORK_DIR BRANCH CURRENT NEW_CONSTRAINT RELEASE_TAG; do
+            [ -z "$REPO" ] && continue
+            echo "── $REPO_NAME ($REPO)"
+
+            (
+              cd "$WORK_DIR"
 
               # Push idempotently — force-with-lease if branch exists from a prior run
               if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
@@ -228,5 +266,4 @@ jobs:
 
             rm -rf "$WORK_DIR"
             echo "   Done ✓"
-
-          done < /tmp/repos.txt
+          done < "$BUMP_RECORDS"
