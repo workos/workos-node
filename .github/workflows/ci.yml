@@ -6,6 +6,9 @@ on:
       - 'main'
   pull_request: {}
 
+permissions:
+  contents: read
+
 defaults:
   run:
     shell: bash
@@ -19,9 +22,17 @@ jobs:
         node: [22, 24]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # 6.1.0
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
         with:
           node-version: ${{ matrix.node }}
+
+      - name: Configure Socket Firewall
+        uses: workos/setup-socket-firewall@ca93dd8aa351f54f4729fe3377a9be23c631c25d
+        with:
+          token: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
+          allow-external-fork-fallback: true
 
       - name: Install Dependencies
         run: |

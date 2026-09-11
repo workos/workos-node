@@ -35,3 +35,5 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     uses: ./.github/workflows/release.yml
+    secrets:
+      PUBLIC_SOCKET_FIREWALL_TOKEN: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
