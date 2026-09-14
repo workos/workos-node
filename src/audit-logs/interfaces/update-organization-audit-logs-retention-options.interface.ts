@@ -1,0 +1,6 @@
+export interface UpdateOrganizationAuditLogsRetentionOptions {
+  /** Unique identifier of the Organization. */
+  id: string;
+  /** The number of days Audit Log events will be retained. Valid values are `30` and `365`. */
+  retentionPeriodInDays: number;
+}

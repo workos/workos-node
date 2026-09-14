@@ -1,0 +1,8 @@
+export interface AuditLogsRetention {
+  /** The number of days Audit Log events will be retained before being permanently deleted. Valid values are 30 and 365. */
+  retentionPeriodInDays: number | null;
+}
+
+export interface AuditLogsRetentionResponse {
+  retention_period_in_days: number | null;
+}
