@@ -2,8 +2,15 @@ import fetch from 'jest-fetch-mock';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
 import { ListResponse } from '../common/interfaces';
+import {
+  fetchBody,
+  fetchMethod,
+  fetchOnce,
+  fetchURL,
+} from '../common/utils/test-utils';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
 import { WorkOS } from '../workos';
+import auditLogsRetentionFixture from './fixtures/audit-logs-retention.json';
 import {
   AuditLogExport,
   AuditLogExportOptions,
@@ -68,6 +75,70 @@ const schemaWithoutMetadata = { ...schema, metadata: undefined };
 
 describe('AuditLogs', () => {
   beforeEach(() => fetch.resetMocks());
+
+  describe('getOrganizationAuditLogsRetention', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(auditLogsRetentionFixture);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const result = await workos.auditLogs.getOrganizationAuditLogsRetention({
+        id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT/audit_logs_retention',
+      );
+      expect(result).toEqual({ retentionPeriodInDays: 30 });
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await expect(
+        workos.auditLogs.getOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('updateOrganizationAuditLogsRetention', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(auditLogsRetentionFixture);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const result =
+        await workos.auditLogs.updateOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          retentionPeriod: '1_MONTH',
+        });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT/audit_logs_retention',
+      );
+      expect(fetchBody()).toEqual({ retention_period: '1_MONTH' });
+      expect(result).toEqual({ retentionPeriodInDays: 30 });
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Unprocessable Entity' }, { status: 422 });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await expect(
+        workos.auditLogs.updateOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          retentionPeriod: '1_MONTH',
+        }),
+      ).rejects.toThrow();
+    });
+  });
 
   describe('createEvent', () => {
     describe('with an idempotency key', () => {
