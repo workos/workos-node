@@ -5,5 +5,6 @@ export * from './audit-logs-retention.interface';
 export * from './create-audit-log-event-options.interface';
 export * from './create-audit-log-schema-options.interface';
 export * from './get-organization-audit-logs-retention-options.interface';
+export * from './update-audit-logs-retention-retention-period.interface';
 export * from './update-audit-logs-retention.interface';
 export * from './update-organization-audit-logs-retention-options.interface';

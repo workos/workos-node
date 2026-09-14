@@ -115,15 +115,28 @@ describe('AuditLogs', () => {
       const result =
         await workos.auditLogs.updateOrganizationAuditLogsRetention({
           id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
-          retentionPeriodInDays: 30,
+          retentionPeriod: '1_MONTH',
         });
 
       expect(fetchMethod()).toBe('PUT');
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT/audit_logs_retention',
       );
-      expect(fetchBody()).toEqual({ retention_period_in_days: 30 });
+      expect(fetchBody()).toEqual({ retention_period: '1_MONTH' });
       expect(result).toEqual({ retentionPeriodInDays: 30 });
+    });
+
+    it('accepts the deprecated retentionPeriodInDays', async () => {
+      fetchOnce(auditLogsRetentionFixture);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.auditLogs.updateOrganizationAuditLogsRetention({
+        id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        retentionPeriodInDays: 30,
+      });
+
+      expect(fetchBody()).toEqual({ retention_period_in_days: 30 });
     });
 
     it('throws when the API responds with an error', async () => {
@@ -134,7 +147,7 @@ describe('AuditLogs', () => {
       await expect(
         workos.auditLogs.updateOrganizationAuditLogsRetention({
           id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
-          retentionPeriodInDays: 30,
+          retentionPeriod: '1_MONTH',
         }),
       ).rejects.toThrow();
     });

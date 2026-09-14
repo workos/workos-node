@@ -6,5 +6,10 @@ import type {
 export const serializeUpdateAuditLogsRetention = (
   model: UpdateAuditLogsRetention,
 ): UpdateAuditLogsRetentionResponse => ({
-  retention_period_in_days: model.retentionPeriodInDays,
+  ...('retentionPeriod' in model && {
+    retention_period: model.retentionPeriod,
+  }),
+  ...('retentionPeriodInDays' in model && {
+    retention_period_in_days: model.retentionPeriodInDays,
+  }),
 });
