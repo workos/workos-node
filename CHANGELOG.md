@@ -1,5 +1,12 @@
 # Changelog
 
+## [10.14.0](https://github.com/workos/workos-node/compare/v10.13.0...v10.14.0) (2026-09-14)
+
+
+### Features
+
+* **audit-logs:** Add Audit Log Retention methods ([#1705](https://github.com/workos/workos-node/issues/1705)) ([ab1c464](https://github.com/workos/workos-node/commit/ab1c46440885374acd5761418d8d6e588cc1267d))
+
 ## [10.13.0](https://github.com/workos/workos-node/compare/v10.12.0...v10.13.0) (2026-08-31)
 
 
