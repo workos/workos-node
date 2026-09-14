@@ -64,13 +64,11 @@ export class AuditLogs {
    * Set Retention
    *
    * Set the event retention period for the given Organization.
-   * @param options - Object containing one of retentionPeriod or retentionPeriodInDays.
+   * @param options - Object containing retentionPeriod.
    * @param options.id - Unique identifier of the Organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @param options.retentionPeriod - The period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments. Mutually exclusive with `retentionPeriodInDays`.
+   * @param options.retentionPeriod - The period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments.
    * @example "1_MONTH"
-   * @param options.retentionPeriodInDays - Deprecated, use `retentionPeriod` instead. The number of days Audit Log events will be retained. Valid values are `30` through `330` in 30-day increments and `365` through `3650` in 365-day increments. Mutually exclusive with `retentionPeriod`.
-   * @example 30
    * @returns {Promise<AuditLogsRetention>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
