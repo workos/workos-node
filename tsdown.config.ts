@@ -7,7 +7,7 @@ export default defineConfig({
   outDir: 'lib',
   clean: true,
   deps: {
-    onlyAllowBundle: ['iron-webcrypto', 'jose', 'uint8array-extras'],
+    onlyBundle: ['iron-webcrypto', 'jose', 'uint8array-extras'],
   },
   sourcemap: true,
   exports: {
