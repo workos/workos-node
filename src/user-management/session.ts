@@ -240,8 +240,9 @@ export class CookieSession {
       );
     }
 
+    const { issuer } = this.userManagement;
     try {
-      await jwtVerify(accessToken, jwks);
+      await jwtVerify(accessToken, jwks, issuer ? { issuer } : undefined);
       return true;
     } catch (e) {
       // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
