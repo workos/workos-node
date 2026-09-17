@@ -171,6 +171,11 @@ export class CookieSession {
 
       // TODO: Returning `session` here means there's some duplicated data.
       // Slim down the return type in a future major version.
+      //
+      // `user` and `impersonator` come from the refresh response, which is
+      // also what the new sealed cookie stores. The unsealed cookie holds the
+      // values from before the refresh and can be stale (e.g. a profile update
+      // or an impersonation that has since ended).
       return {
         authenticated: true,
         sealedSession: authenticationResponse.sealedSession,
@@ -183,8 +188,8 @@ export class CookieSession {
         permissions,
         entitlements,
         featureFlags,
-        user: session.user,
-        impersonator: session.impersonator,
+        user: authenticationResponse.user,
+        impersonator: authenticationResponse.impersonator,
       };
     } catch (error) {
       // Terminal authentication failures — the session is over. Surface a
