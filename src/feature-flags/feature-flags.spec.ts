@@ -494,4 +494,27 @@ describe('FeatureFlags', () => {
       });
     });
   });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce(enableFeatureFlagFixture);
+
+      await workos.featureFlags.enableFeatureFlag(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/feature-flags/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM/enable',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.featureFlags.enableFeatureFlag('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
 });

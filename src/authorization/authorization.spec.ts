@@ -3006,4 +3006,42 @@ describe('Authorization', () => {
       expect(data).toEqual([]);
     });
   });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.deleteOrganizationRole(
+        testOrgId,
+        '../../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        `/authorization/organizations/${testOrgId}/roles/..%2F..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM`,
+      );
+    });
+
+    it('preserves colons in permission slugs', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.authorization.removeOrganizationRolePermission(
+        testOrgId,
+        'org-admin',
+        { permissionSlug: 'users:read' },
+      );
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        `/authorization/organizations/${testOrgId}/roles/org-admin/permissions/users:read`,
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(
+        workos.authorization.getEnvironmentRole('..'),
+      ).rejects.toThrow(TypeError);
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
 });

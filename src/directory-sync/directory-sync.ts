@@ -20,6 +20,7 @@ import {
   serializeListDirectoriesOptions,
 } from './serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
@@ -69,7 +70,7 @@ export class DirectorySync {
    */
   async getDirectory(id: string): Promise<Directory> {
     const { data } = await this.workos.get<DirectoryResponse>(
-      `/directories/${id}`,
+      `/directories/${encodePathParameter(id)}`,
     );
 
     return deserializeDirectory(data);
@@ -88,7 +89,7 @@ export class DirectorySync {
    * @throws 403 response from the API.
    */
   async deleteDirectory(id: string) {
-    await this.workos.delete(`/directories/${id}`);
+    await this.workos.delete(`/directories/${encodePathParameter(id)}`);
   }
 
   /**
@@ -182,7 +183,7 @@ export class DirectorySync {
   ): Promise<DirectoryUserWithGroups<TCustomAttributes>> {
     const { data } = await this.workos.get<
       DirectoryUserWithGroupsResponse<TCustomAttributes>
-    >(`/directory_users/${user}`);
+    >(`/directory_users/${encodePathParameter(user)}`);
 
     return deserializeDirectoryUserWithGroups(data);
   }
@@ -201,7 +202,7 @@ export class DirectorySync {
    */
   async getGroup(group: string): Promise<DirectoryGroup> {
     const { data } = await this.workos.get<DirectoryGroupResponse>(
-      `/directory_groups/${group}`,
+      `/directory_groups/${encodePathParameter(group)}`,
     );
 
     return deserializeDirectoryGroup(data);

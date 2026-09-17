@@ -3,6 +3,7 @@ import {
   fetchOnce,
   fetchURL,
   fetchSearchParams,
+  fetchMethod,
 } from '../common/utils/test-utils';
 import { ListResponse } from '../common/interfaces/list.interface';
 import { WorkOS } from '../workos';
@@ -440,6 +441,29 @@ describe('DirectorySync', () => {
 
         expect(subject).toEqual(userWithRoles);
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce();
+
+      await workos.directorySync.deleteDirectory(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.directorySync.getGroup('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

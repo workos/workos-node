@@ -464,4 +464,40 @@ describe('Organizations', () => {
       });
     });
   });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.organizations.deleteOrganization(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('encodes identifiers passed through an options object', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.organizations.deleteItContact({
+        organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+        contactId: '../../../user_management/users/user_01VICTIM',
+      });
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/org_01EHT88Z8J8795GZNQ4ZP1J81T/it_contacts/..%2F..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.organizations.getOrganization('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
 });

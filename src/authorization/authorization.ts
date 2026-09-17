@@ -97,6 +97,7 @@ import {
   AuthorizationOrganizationMembershipResponse,
 } from '../user-management/interfaces/organization-membership.interface';
 import { deserializeAuthorizationOrganizationMembership } from '../user-management/serializers/organization-membership.serializer';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class Authorization {
   constructor(private readonly workos: WorkOS) {}
@@ -155,7 +156,7 @@ export class Authorization {
    */
   async getEnvironmentRole(slug: string): Promise<EnvironmentRole> {
     const { data } = await this.workos.get<EnvironmentRoleResponse>(
-      `/authorization/roles/${slug}`,
+      `/authorization/roles/${encodePathParameter(slug)}`,
     );
     return deserializeEnvironmentRole(data);
   }
@@ -181,7 +182,7 @@ export class Authorization {
     options: UpdateEnvironmentRoleOptions,
   ): Promise<EnvironmentRole> {
     const { data } = await this.workos.patch<EnvironmentRoleResponse>(
-      `/authorization/roles/${slug}`,
+      `/authorization/roles/${encodePathParameter(slug)}`,
       serializeUpdateEnvironmentRoleOptions(options),
     );
     return deserializeEnvironmentRole(data);
@@ -208,7 +209,7 @@ export class Authorization {
     options: SetEnvironmentRolePermissionsOptions,
   ): Promise<EnvironmentRole> {
     const { data } = await this.workos.put<EnvironmentRoleResponse>(
-      `/authorization/roles/${slug}/permissions`,
+      `/authorization/roles/${encodePathParameter(slug)}/permissions`,
       { permissions: options.permissions },
     );
     return deserializeEnvironmentRole(data);
@@ -235,7 +236,7 @@ export class Authorization {
     options: AddEnvironmentRolePermissionOptions,
   ): Promise<EnvironmentRole> {
     const { data } = await this.workos.post<EnvironmentRoleResponse>(
-      `/authorization/roles/${slug}/permissions`,
+      `/authorization/roles/${encodePathParameter(slug)}/permissions`,
       { slug: options.permissionSlug },
     );
     return deserializeEnvironmentRole(data);
@@ -263,7 +264,7 @@ export class Authorization {
     options: CreateOrganizationRoleOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.post<OrganizationRoleResponse>(
-      `/authorization/organizations/${organizationId}/roles`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles`,
       serializeCreateOrganizationRoleOptions(options),
     );
     return deserializeOrganizationRole(data);
@@ -284,7 +285,7 @@ export class Authorization {
    */
   async listOrganizationRoles(organizationId: string): Promise<RoleList> {
     const { data } = await this.workos.get<ListOrganizationRolesResponse>(
-      `/authorization/organizations/${organizationId}/roles`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles`,
     );
     return {
       object: 'list',
@@ -315,7 +316,7 @@ export class Authorization {
     slug: string,
   ): Promise<Role> {
     const { data } = await this.workos.get<OrganizationRoleResponse>(
-      `/authorization/organizations/${organizationId}/roles/${slug}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}`,
     );
     return deserializeRole(data);
   }
@@ -347,7 +348,7 @@ export class Authorization {
     options: UpdateOrganizationRoleOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.patch<OrganizationRoleResponse>(
-      `/authorization/organizations/${organizationId}/roles/${slug}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}`,
       serializeUpdateOrganizationRoleOptions(options),
     );
     return deserializeOrganizationRole(data);
@@ -378,7 +379,7 @@ export class Authorization {
     slug: string,
   ): Promise<void> {
     await this.workos.delete(
-      `/authorization/organizations/${organizationId}/roles/${slug}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}`,
     );
   }
 
@@ -408,7 +409,7 @@ export class Authorization {
     options: SetOrganizationRolePermissionsOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.put<OrganizationRoleResponse>(
-      `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}/permissions`,
       { permissions: options.permissions },
     );
     return deserializeOrganizationRole(data);
@@ -441,7 +442,7 @@ export class Authorization {
     options: AddOrganizationRolePermissionOptions,
   ): Promise<OrganizationRole> {
     const { data } = await this.workos.post<OrganizationRoleResponse>(
-      `/authorization/organizations/${organizationId}/roles/${slug}/permissions`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}/permissions`,
       { slug: options.permissionSlug },
     );
     return deserializeOrganizationRole(data);
@@ -476,7 +477,7 @@ export class Authorization {
     options: RemoveOrganizationRolePermissionOptions,
   ): Promise<void> {
     await this.workos.delete(
-      `/authorization/organizations/${organizationId}/roles/${slug}/permissions/${options.permissionSlug}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/roles/${encodePathParameter(slug)}/permissions/${encodePathParameter(options.permissionSlug)}`,
     );
   }
 
@@ -544,7 +545,7 @@ export class Authorization {
    */
   async getPermission(slug: string): Promise<Permission> {
     const { data } = await this.workos.get<PermissionResponse>(
-      `/authorization/permissions/${slug}`,
+      `/authorization/permissions/${encodePathParameter(slug)}`,
     );
     return deserializePermission(data);
   }
@@ -569,7 +570,7 @@ export class Authorization {
     options: UpdatePermissionOptions,
   ): Promise<Permission> {
     const { data } = await this.workos.patch<PermissionResponse>(
-      `/authorization/permissions/${slug}`,
+      `/authorization/permissions/${encodePathParameter(slug)}`,
       serializeUpdatePermissionOptions(options),
     );
     return deserializePermission(data);
@@ -589,7 +590,9 @@ export class Authorization {
    * @throws {NotFoundException} 404
    */
   async deletePermission(slug: string): Promise<void> {
-    await this.workos.delete(`/authorization/permissions/${slug}`);
+    await this.workos.delete(
+      `/authorization/permissions/${encodePathParameter(slug)}`,
+    );
   }
 
   /**
@@ -608,7 +611,7 @@ export class Authorization {
    */
   async getResource(resourceId: string): Promise<AuthorizationResource> {
     const { data } = await this.workos.get<AuthorizationResourceResponse>(
-      `/authorization/resources/${resourceId}`,
+      `/authorization/resources/${encodePathParameter(resourceId)}`,
     );
     return deserializeAuthorizationResource(data);
   }
@@ -651,7 +654,7 @@ export class Authorization {
     options: UpdateAuthorizationResourceOptions,
   ): Promise<AuthorizationResource> {
     const { data } = await this.workos.patch<AuthorizationResourceResponse>(
-      `/authorization/resources/${options.resourceId}`,
+      `/authorization/resources/${encodePathParameter(options.resourceId)}`,
       serializeUpdateResourceOptions(options),
     );
     return deserializeAuthorizationResource(data);
@@ -680,7 +683,10 @@ export class Authorization {
         ? { cascade_delete: cascadeDelete.toString() }
         : undefined;
 
-    await this.workos.delete(`/authorization/resources/${resourceId}`, query);
+    await this.workos.delete(
+      `/authorization/resources/${encodePathParameter(resourceId)}`,
+      query,
+    );
   }
 
   /**
@@ -749,7 +755,7 @@ export class Authorization {
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.get<AuthorizationResourceResponse>(
-      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}`,
     );
     return deserializeAuthorizationResource(data);
   }
@@ -786,7 +792,7 @@ export class Authorization {
   ): Promise<AuthorizationResource> {
     const { organizationId, resourceTypeSlug, externalId } = options;
     const { data } = await this.workos.patch<AuthorizationResourceResponse>(
-      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}`,
       serializeUpdateResourceByExternalIdOptions(options),
     );
     return deserializeAuthorizationResource(data);
@@ -829,7 +835,7 @@ export class Authorization {
         : undefined;
 
     await this.workos.delete(
-      `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}`,
+      `/authorization/organizations/${encodePathParameter(organizationId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}`,
       query,
     );
   }
@@ -848,7 +854,7 @@ export class Authorization {
     options: AuthorizationCheckOptions,
   ): Promise<AuthorizationCheckResult> {
     const { data } = await this.workos.post<AuthorizationCheckResult>(
-      `/authorization/organization_memberships/${options.organizationMembershipId}/check`,
+      `/authorization/organization_memberships/${encodePathParameter(options.organizationMembershipId)}/check`,
       serializeAuthorizationCheckOptions(options),
     );
     return data;
@@ -872,7 +878,7 @@ export class Authorization {
     options: ListRoleAssignmentsOptions,
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationMembershipId, ...queryOptions } = options;
-    const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/role_assignments`;
+    const endpoint = `/authorization/organization_memberships/${encodePathParameter(organizationMembershipId)}/role_assignments`;
     const serializedOptions = serializeListRoleAssignmentsOptions(queryOptions);
     return new AutoPaginatable(
       await fetchAndDeserialize<RoleAssignmentResponse, RoleAssignment>(
@@ -910,7 +916,7 @@ export class Authorization {
     options: ListRoleAssignmentsForResourceOptions,
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { resourceId, ...queryOptions } = options;
-    const endpoint = `/authorization/resources/${resourceId}/role_assignments`;
+    const endpoint = `/authorization/resources/${encodePathParameter(resourceId)}/role_assignments`;
     const serializedOptions =
       serializeListRoleAssignmentsForResourceOptions(queryOptions);
     return new AutoPaginatable(
@@ -960,7 +966,7 @@ export class Authorization {
   ): Promise<AutoPaginatable<RoleAssignment>> {
     const { organizationId, resourceTypeSlug, externalId, ...queryOptions } =
       options;
-    const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/role_assignments`;
+    const endpoint = `/authorization/organizations/${encodePathParameter(organizationId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}/role_assignments`;
     const serializedOptions =
       serializeListRoleAssignmentsForResourceOptions(queryOptions);
     return new AutoPaginatable(
@@ -993,7 +999,7 @@ export class Authorization {
    */
   async assignRole(options: AssignRoleOptions): Promise<RoleAssignment> {
     const { data } = await this.workos.post<RoleAssignmentResponse>(
-      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
+      `/authorization/organization_memberships/${encodePathParameter(options.organizationMembershipId)}/role_assignments`,
       serializeAssignRoleOptions(options),
     );
     return deserializeRoleAssignment(data);
@@ -1011,7 +1017,7 @@ export class Authorization {
    */
   async removeRole(options: RemoveRoleOptions): Promise<void> {
     await this.workos.deleteWithBody(
-      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments`,
+      `/authorization/organization_memberships/${encodePathParameter(options.organizationMembershipId)}/role_assignments`,
       serializeRemoveRoleOptions(options),
     );
   }
@@ -1038,7 +1044,7 @@ export class Authorization {
     options: RemoveRoleAssignmentOptions,
   ): Promise<void> {
     await this.workos.delete(
-      `/authorization/organization_memberships/${options.organizationMembershipId}/role_assignments/${options.roleAssignmentId}`,
+      `/authorization/organization_memberships/${encodePathParameter(options.organizationMembershipId)}/role_assignments/${encodePathParameter(options.roleAssignmentId)}`,
     );
   }
 
@@ -1060,7 +1066,7 @@ export class Authorization {
     options: ListGroupRoleAssignmentsOptions,
   ): Promise<AutoPaginatable<GroupRoleAssignment>> {
     const { groupId, ...paginationOptions } = options;
-    const endpoint = `/authorization/groups/${groupId}/role_assignments`;
+    const endpoint = `/authorization/groups/${encodePathParameter(groupId)}/role_assignments`;
     return new AutoPaginatable(
       await fetchAndDeserialize<
         GroupRoleAssignmentResponse,
@@ -1105,7 +1111,7 @@ export class Authorization {
     options: GetGroupRoleAssignmentOptions,
   ): Promise<GroupRoleAssignment> {
     const { data } = await this.workos.get<GroupRoleAssignmentResponse>(
-      `/authorization/groups/${options.groupId}/role_assignments/${options.roleAssignmentId}`,
+      `/authorization/groups/${encodePathParameter(options.groupId)}/role_assignments/${encodePathParameter(options.roleAssignmentId)}`,
     );
     return deserializeGroupRoleAssignment(data);
   }
@@ -1125,7 +1131,7 @@ export class Authorization {
     options: CreateGroupRoleAssignmentOptions,
   ): Promise<GroupRoleAssignment> {
     const { data } = await this.workos.post<GroupRoleAssignmentResponse>(
-      `/authorization/groups/${options.groupId}/role_assignments`,
+      `/authorization/groups/${encodePathParameter(options.groupId)}/role_assignments`,
       serializeCreateGroupRoleAssignmentOptions(options),
     );
     return deserializeGroupRoleAssignment(data);
@@ -1154,7 +1160,7 @@ export class Authorization {
     options: RemoveGroupRoleAssignmentOptions,
   ): Promise<void> {
     await this.workos.delete(
-      `/authorization/groups/${options.groupId}/role_assignments/${options.roleAssignmentId}`,
+      `/authorization/groups/${encodePathParameter(options.groupId)}/role_assignments/${encodePathParameter(options.roleAssignmentId)}`,
     );
   }
 
@@ -1172,7 +1178,7 @@ export class Authorization {
     options: RemoveGroupRoleAssignmentsOptions,
   ): Promise<void> {
     await this.workos.deleteWithBody(
-      `/authorization/groups/${options.groupId}/role_assignments`,
+      `/authorization/groups/${encodePathParameter(options.groupId)}/role_assignments`,
       serializeRemoveGroupRoleAssignmentsOptions(options),
     );
   }
@@ -1193,7 +1199,7 @@ export class Authorization {
     const { data } = await this.workos.put<
       ListResponse<GroupRoleAssignmentResponse>
     >(
-      `/authorization/groups/${options.groupId}/role_assignments`,
+      `/authorization/groups/${encodePathParameter(options.groupId)}/role_assignments`,
       serializeReplaceGroupRoleAssignmentsOptions(options),
     );
     return deserializeList(data, deserializeGroupRoleAssignment);
@@ -1221,7 +1227,7 @@ export class Authorization {
     options: ListResourcesForMembershipOptions,
   ): Promise<AutoPaginatable<AuthorizationResource>> {
     const { organizationMembershipId } = options;
-    const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/resources`;
+    const endpoint = `/authorization/organization_memberships/${encodePathParameter(organizationMembershipId)}/resources`;
     const serializedOptions =
       serializeListResourcesForMembershipOptions(options);
     return new AutoPaginatable(
@@ -1258,7 +1264,7 @@ export class Authorization {
     options: ListMembershipsForResourceOptions,
   ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { resourceId } = options;
-    const endpoint = `/authorization/resources/${resourceId}/organization_memberships`;
+    const endpoint = `/authorization/resources/${encodePathParameter(resourceId)}/organization_memberships`;
     const serializedOptions =
       serializeListMembershipsForResourceOptions(options);
     return new AutoPaginatable(
@@ -1315,7 +1321,7 @@ export class Authorization {
     options: ListMembershipsForResourceByExternalIdOptions,
   ): Promise<AutoPaginatable<AuthorizationOrganizationMembership>> {
     const { organizationId, resourceTypeSlug, externalId } = options;
-    const endpoint = `/authorization/organizations/${organizationId}/resources/${resourceTypeSlug}/${externalId}/organization_memberships`;
+    const endpoint = `/authorization/organizations/${encodePathParameter(organizationId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}/organization_memberships`;
     const serializedOptions =
       serializeListMembershipsForResourceOptions(options);
     return new AutoPaginatable(
@@ -1366,7 +1372,7 @@ export class Authorization {
     options: ListEffectivePermissionsOptions,
   ): Promise<AutoPaginatable<Permission>> {
     const { organizationMembershipId, resourceId } = options;
-    const endpoint = `/authorization/resources/${resourceId}/organization_memberships/${organizationMembershipId}/permissions`;
+    const endpoint = `/authorization/resources/${encodePathParameter(resourceId)}/organization_memberships/${encodePathParameter(organizationMembershipId)}/permissions`;
     const serializedOptions = serializeListEffectivePermissionsOptions(options);
     return new AutoPaginatable(
       await fetchAndDeserialize<PermissionResponse, Permission>(
@@ -1400,7 +1406,7 @@ export class Authorization {
     options: ListEffectivePermissionsByExternalIdOptions,
   ): Promise<AutoPaginatable<Permission>> {
     const { organizationMembershipId, resourceTypeSlug, externalId } = options;
-    const endpoint = `/authorization/organization_memberships/${organizationMembershipId}/resources/${resourceTypeSlug}/${externalId}/permissions`;
+    const endpoint = `/authorization/organization_memberships/${encodePathParameter(organizationMembershipId)}/resources/${encodePathParameter(resourceTypeSlug)}/${encodePathParameter(externalId)}/permissions`;
     const serializedOptions = serializeListEffectivePermissionsOptions(options);
     return new AutoPaginatable(
       await fetchAndDeserialize<PermissionResponse, Permission>(
