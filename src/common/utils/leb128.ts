@@ -13,7 +13,7 @@ const MAX_BYTES_FOR_UINT32 = 5;
 // left for it, so its 7-bit payload must not exceed 0x0F. A larger payload
 // encodes a value above MAX_UINT32.
 const FINAL_BYTE_SHIFT = (MAX_BYTES_FOR_UINT32 - 1) * DATA_BITS_PER_BYTE;
-const FINAL_BYTE_MAX_DATA = 0x0f;
+const FINAL_BYTE_MAX_DATA = (1 << (32 - FINAL_BYTE_SHIFT)) - 1;
 
 /**
  * Encodes an unsigned 32-bit integer into LEB128 format.

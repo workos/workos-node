@@ -274,6 +274,24 @@ describe('Vault', () => {
       expect(fetchMethod()).toBe('POST');
       expect(decrypted).toBe(originalText);
     });
+
+    it('rejects a payload whose key-length prefix overflows uint32', async () => {
+      // 12-byte IV + 16-byte tag as filler, then a 5-byte LEB128 length whose
+      // final byte (0x10) encodes 2^32, which is out of range for a uint32.
+      const payload = new Uint8Array([
+        ...new Array(28).fill(0),
+        0x80,
+        0x80,
+        0x80,
+        0x80,
+        0x10,
+      ]);
+      const encoded = Buffer.from(payload).toString('base64');
+
+      await expect(workos.vault.decrypt(encoded)).rejects.toThrow(
+        'LEB128 sequence exceeds uint32 range',
+      );
+    });
   });
   // @oagen-ignore-end
 });

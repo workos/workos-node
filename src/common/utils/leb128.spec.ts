@@ -235,7 +235,7 @@ describe('leb128', () => {
         expect(() => decodeUInt32(data)).toThrow('Truncated LEB128 encoding');
       });
 
-      test('throws for encoding that exceeds uint32 range', () => {
+      test('throws for encoding longer than 5 bytes', () => {
         // 6 bytes with continuation bits (should never happen for uint32)
         const data = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x01]);
         expect(() => decodeUInt32(data)).toThrow(
