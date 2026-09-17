@@ -5,6 +5,7 @@ import {
   fetchSearchParams,
   fetchHeaders,
   fetchBody,
+  fetchMethod,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import validateApiKeyFixture from './fixtures/validate-api-key.json';
@@ -275,6 +276,33 @@ describe('ApiKeys', () => {
           'Idempotency-Key': 'the-idempotency-key',
         });
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.apiKeys.deleteApiKey(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/api_keys/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('encodes the organization id in the API keys path', async () => {
+      fetchOnce(listOrganizationApiKeysFixture);
+
+      await workos.apiKeys.listOrganizationApiKeys({
+        organizationId: '../../user_management/users/user_01VICTIM',
+      });
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM/api_keys',
+      );
     });
   });
 });
