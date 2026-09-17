@@ -79,9 +79,39 @@ export abstract class HttpClient implements HttpClientInterface {
     path: string,
     params?: Record<string, any>,
   ) {
+    HttpClient.assertNoDotSegments(path);
     const queryString = HttpClient.getQueryString(params);
     const url = new URL([path, queryString].filter(Boolean).join('?'), baseURL);
     return url.toString();
+  }
+
+  /**
+   * Reject request paths that contain a single-dot or double-dot segment.
+   *
+   * SDK path templates never contain such segments themselves, but a
+   * caller-supplied identifier interpolated with bare `encodeURIComponent`
+   * (the form the generated modules use) passes `.` and `..` through
+   * unchanged, and the WHATWG `URL` parser then collapses them, retargeting
+   * the request to a different endpoint (for example
+   * `/organizations/../api_keys` resolves to `/api_keys`). The parser also
+   * treats the percent-encoded forms (`%2e`, case-insensitive) as dots, so
+   * those are matched as well. Encoded values never trip this check because
+   * `encodeURIComponent` turns `%` into `%25` and `/` into `%2F`, keeping
+   * each identifier inside its own segment. Fail closed before any request
+   * is built.
+   */
+  private static assertNoDotSegments(path: string): void {
+    const pathOnly = path.split(/[?#]/, 1)[0];
+
+    for (const segment of pathOnly.split('/')) {
+      const normalized = segment.replace(/%2e/gi, '.');
+
+      if (normalized === '.' || normalized === '..') {
+        throw new TypeError(
+          `Invalid request path "${path}": a path segment must not be "." or "..".`,
+        );
+      }
+    }
   }
 
   static getQueryString(queryObj?: Record<string, any>) {
