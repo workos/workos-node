@@ -70,6 +70,17 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.skip != 'true'
     runs-on: ubuntu-latest
+    env:
+      # Single source of truth for the repos this job may touch. Both the token
+      # scope (repositories: below) and the processing list are derived from it,
+      # so the two can't drift apart.
+      AUTHKIT_REPOS: |
+        authkit-astro
+        authkit-nextjs
+        authkit-react-router
+        authkit-remix
+        authkit-session
+        authkit-tanstack-start
     steps:
       - name: Generate token
         id: generate-token
@@ -78,37 +89,20 @@ jobs:
           app-id: ${{ vars.SDK_BOT_APP_ID }}
           private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
           owner: workos
-          repositories: |
-            authkit-astro
-            authkit-nextjs
-            authkit-react-router
-            authkit-remix
-            authkit-session
-            authkit-tanstack-start
+          repositories: ${{ env.AUTHKIT_REPOS }}
           permission-contents: write
           permission-pull-requests: write
 
-      - name: Discover repos
-        env:
-          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+      - name: Resolve target repos
         run: |
-          REPO_PATTERNS=("authkit-")
+          : > /tmp/repos.txt
+          while IFS= read -r REPO_NAME; do
+            [ -z "$REPO_NAME" ] && continue
+            echo "$REPO_NAME" >> /tmp/repos.txt
+          done <<< "$AUTHKIT_REPOS"
 
-          > /tmp/repos.txt
-          for PATTERN in "${REPO_PATTERNS[@]}"; do
-            gh repo list workos \
-              --limit 200 \
-              --json name \
-              --jq ".[] | select(.name | startswith(\"$PATTERN\")) | .name" \
-              >> /tmp/repos.txt
-          done
-
-          if [ ! -s /tmp/repos.txt ]; then
-            echo "No repos found matching patterns: ${REPO_PATTERNS[*]}"
-          else
-            echo "Found repos:"
-            cat /tmp/repos.txt
-          fi
+          echo "Target repos:"
+          cat /tmp/repos.txt
 
       - name: Configure Socket Firewall
         uses: workos/setup-socket-firewall@ca93dd8aa351f54f4729fe3377a9be23c631c25d
@@ -122,9 +116,19 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run || 'false' }}
           RELEASE_TAG: ${{ needs.check-version.outputs.tag }}
         run: |
+          if ! [[ "$NEW_MAJOR" =~ ^[0-9]+$ ]]; then
+            echo "Invalid target major: $NEW_MAJOR"
+            exit 1
+          fi
+
           echo "Target major: $NEW_MAJOR | Dry run: $DRY_RUN"
           BUMP_RECORDS=/tmp/workos-node-dep-bumps.tsv
           : > "$BUMP_RECORDS"
+
+          # The current constraint is read from a repo we don't control. Only a plain
+          # constraint (^1.2.3, ~1.2, 1, 1.2.3-beta.1) is accepted; anything else is
+          # skipped before the value is used anywhere.
+          VERSION_RE='^[~^]?[0-9]+(\.[0-9]+){0,2}(-[0-9A-Za-z.-]+)?$'
 
           if [ ! -s /tmp/repos.txt ]; then
             echo "No repos to process."
@@ -155,7 +159,13 @@ jobs:
               continue
             fi
 
-            # Compare majors — strip any non-numeric prefix (^, ~, >=, etc.)
+            if ! [[ "$CURRENT" =~ $VERSION_RE ]]; then
+              # %q keeps the untrusted value on a single, shell-quoted line
+              printf '   Unsupported version constraint %q — skipping\n' "$CURRENT"
+              continue
+            fi
+
+            # Compare majors — strip the range prefix (^ or ~)
             CURRENT_MAJOR=$(echo "$CURRENT" | sed 's/^[^0-9]*//' | cut -d. -f1)
 
             if ! [[ "$CURRENT_MAJOR" =~ ^[0-9]+$ ]]; then
@@ -189,9 +199,18 @@ jobs:
               cd "$WORK_DIR"
               git checkout -b "$BRANCH"
 
-              # sed preserves exact file formatting; | delimiter avoids conflicts with /
-              sed -i "s|\"@workos-inc/node\": \"${CURRENT}\"|\"@workos-inc/node\": \"${NEW_CONSTRAINT}\"|g" \
-                package.json
+              # Find which block holds the dependency, then let npm rewrite the value
+              # (it preserves the file's indentation). The version strings are passed
+              # as data only — never interpolated into a sed/jq/awk program.
+              if jq -e '.dependencies["@workos-inc/node"]' package.json >/dev/null; then
+                DEP_KEY=dependencies
+              elif jq -e '.devDependencies["@workos-inc/node"]' package.json >/dev/null; then
+                DEP_KEY=devDependencies
+              else
+                echo "   @workos-inc/node not present in clone — skipping"
+                exit 1
+              fi
+              npm pkg set "${DEP_KEY}.@workos-inc/node=${NEW_CONSTRAINT}"
 
               git config user.email "workos-sdk-bot[bot]@users.noreply.github.com"
               git config user.name "workos-sdk-bot[bot]"
@@ -199,9 +218,9 @@ jobs:
               # Regenerate lockfile based on detected package manager
               if [ -f "pnpm-lock.yaml" ]; then
                 corepack enable pnpm
-                pnpm install --lockfile-only
+                pnpm install --lockfile-only --ignore-scripts
               elif [ -f "package-lock.json" ]; then
-                npm install --package-lock-only
+                npm install --package-lock-only --ignore-scripts
               fi
 
               git add package.json package-lock.json pnpm-lock.yaml 2>/dev/null || true
