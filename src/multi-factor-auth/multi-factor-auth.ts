@@ -34,6 +34,7 @@ import {
 import { serializeEnrollAuthFactorOptions } from '../user-management/serializers';
 import { deserializeFactorWithSecrets as deserializeUMFactorWithSecrets } from '../user-management/serializers/authentication-factor.serializer';
 import { deserializeFactor as deserializeUMFactor } from '../user-management/serializers/authentication-factor.serializer';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class MultiFactorAuth {
   constructor(private readonly workos: WorkOS) {}
@@ -51,7 +52,7 @@ export class MultiFactorAuth {
    * @throws {NotFoundException} 404
    */
   async deleteFactor(id: string) {
-    await this.workos.delete(`/auth/factors/${id}`);
+    await this.workos.delete(`/auth/factors/${encodePathParameter(id)}`);
   }
 
   /**
@@ -68,7 +69,7 @@ export class MultiFactorAuth {
    */
   async getFactor(id: string): Promise<Factor> {
     const { data } = await this.workos.get<FactorResponse>(
-      `/auth/factors/${id}`,
+      `/auth/factors/${encodePathParameter(id)}`,
     );
 
     return deserializeFactor(data);
@@ -119,7 +120,7 @@ export class MultiFactorAuth {
    */
   async challengeFactor(options: ChallengeFactorOptions): Promise<Challenge> {
     const { data } = await this.workos.post<ChallengeResponse>(
-      `/auth/factors/${options.authenticationFactorId}/challenge`,
+      `/auth/factors/${encodePathParameter(options.authenticationFactorId)}/challenge`,
       {
         sms_template:
           'smsTemplate' in options ? options.smsTemplate : undefined,
@@ -143,7 +144,7 @@ export class MultiFactorAuth {
     options: VerifyChallengeOptions,
   ): Promise<VerifyResponse> {
     const { data } = await this.workos.post<VerifyResponseResponse>(
-      `/auth/challenges/${options.authenticationChallengeId}/verify`,
+      `/auth/challenges/${encodePathParameter(options.authenticationChallengeId)}/verify`,
       {
         code: options.code,
       },
@@ -168,7 +169,7 @@ export class MultiFactorAuth {
       authentication_factor: UMFactorWithSecretsResponse;
       authentication_challenge: ChallengeResponse;
     }>(
-      `/user_management/users/${payload.userId}/auth_factors`,
+      `/user_management/users/${encodePathParameter(payload.userId)}/auth_factors`,
       serializeEnrollAuthFactorOptions(payload),
     );
 
@@ -197,14 +198,14 @@ export class MultiFactorAuth {
     return new AutoPaginatable(
       await fetchAndDeserialize<UMFactorResponse, UMFactor>(
         this.workos,
-        `/user_management/users/${userId}/auth_factors`,
+        `/user_management/users/${encodePathParameter(userId)}/auth_factors`,
         deserializeUMFactor,
         restOfOptions,
       ),
       (params) =>
         fetchAndDeserialize<UMFactorResponse, UMFactor>(
           this.workos,
-          `/user_management/users/${userId}/auth_factors`,
+          `/user_management/users/${encodePathParameter(userId)}/auth_factors`,
           deserializeUMFactor,
           params,
         ),

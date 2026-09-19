@@ -1143,4 +1143,36 @@ describe('AuditLogs', () => {
       });
     });
   });
+
+  describe('path parameter encoding', () => {
+    const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+    it('keeps a traversal payload inside a single path segment', async () => {
+      const timestamp = new Date().toISOString();
+      fetchOnce({
+        object: 'audit_log_export',
+        id: 'audit_log_export_1234',
+        state: 'pending',
+        created_at: timestamp,
+        updated_at: timestamp,
+      });
+
+      await workos.auditLogs.getExport(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/audit_logs/exports/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.auditLogs.listSchemas('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
 });

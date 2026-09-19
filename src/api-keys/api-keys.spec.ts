@@ -5,6 +5,7 @@ import {
   fetchSearchParams,
   fetchHeaders,
   fetchBody,
+  fetchMethod,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import validateApiKeyFixture from './fixtures/validate-api-key.json';
@@ -275,6 +276,57 @@ describe('ApiKeys', () => {
           'Idempotency-Key': 'the-idempotency-key',
         });
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.apiKeys.deleteApiKey(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/api_keys/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('encodes the organization id in the API keys path', async () => {
+      fetchOnce(listOrganizationApiKeysFixture);
+
+      await workos.apiKeys.listOrganizationApiKeys({
+        organizationId: '../../user_management/users/user_01VICTIM',
+      });
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM/api_keys',
+      );
+    });
+
+    it('rejects a dot-only API key id before sending a request', async () => {
+      // Bare `encodeURIComponent` leaves `..` unchanged; the HttpClient guard
+      // refuses to build the URL, and the WorkOS request wrapper surfaces that
+      // TypeError as the cause of its generic error.
+      const request = workos.apiKeys.deleteApiKey('..');
+
+      await expect(request).rejects.toThrow(
+        'a path segment must not be "." or ".."',
+      );
+      await expect(request).rejects.toMatchObject({
+        cause: expect.any(TypeError),
+      });
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('rejects a dot-only organization id before sending a request', async () => {
+      await expect(
+        workos.apiKeys.listOrganizationApiKeys({ organizationId: '..' }),
+      ).rejects.toThrow('a path segment must not be "." or ".."');
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

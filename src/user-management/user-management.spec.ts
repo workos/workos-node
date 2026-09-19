@@ -2,6 +2,7 @@ import fetch from 'jest-fetch-mock';
 import {
   fetchBody,
   fetchHeaders,
+  fetchMethod,
   fetchOnce,
   fetchSearchParams,
   fetchURL,
@@ -2170,6 +2171,20 @@ describe('UserManagement', () => {
       });
     });
 
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId: '../../organizations/org_01TARGET?',
+        firstName: 'Dane',
+      });
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%3F',
+      );
+    });
+
     describe('when only one property is provided', () => {
       it('sends a updateUser request', async () => {
         fetchOnce(userFixture);
@@ -3620,6 +3635,53 @@ describe('UserManagement', () => {
       expect(() => {
         workos.userManagement.getJwksUrl('');
       }).toThrow(TypeError);
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce();
+
+      await workos.userManagement.deleteUser(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01VICTIM',
+      );
+    });
+
+    it('encodes the user id of nested user resources', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      await workos.userManagement.listUserApiKeys(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01VICTIM/api_keys',
+      );
+    });
+
+    it('encodes waitlist entry identifiers', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.userManagement.deleteWaitlistEntry(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/waitlist_entries/..%2F..%2Forganizations%2Forg_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(
+        workos.userManagement.findInvitationByToken('..'),
+      ).rejects.toThrow(TypeError);
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

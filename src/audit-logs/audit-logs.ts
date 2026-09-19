@@ -36,6 +36,7 @@ import {
   serializeCreateAuditLogSchemaOptions,
   serializeUpdateAuditLogsRetention,
 } from './serializers';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
@@ -158,7 +159,7 @@ export class AuditLogs {
    */
   async getExport(auditLogExportId: string): Promise<AuditLogExport> {
     const { data } = await this.workos.get<AuditLogExportResponse>(
-      `/audit_logs/exports/${auditLogExportId}`,
+      `/audit_logs/exports/${encodePathParameter(auditLogExportId)}`,
     );
 
     return deserializeAuditLogExport(data);
@@ -177,7 +178,7 @@ export class AuditLogs {
     options: CreateAuditLogSchemaRequestOptions = {},
   ): Promise<AuditLogSchema> {
     const { data } = await this.workos.post<CreateAuditLogSchemaResponse>(
-      `/audit_logs/actions/${schema.action}/schemas`,
+      `/audit_logs/actions/${encodePathParameter(schema.action)}/schemas`,
       serializeCreateAuditLogSchemaOptions(schema),
       options,
     );
@@ -189,7 +190,7 @@ export class AuditLogs {
     action: string,
     options?: PaginationOptions,
   ): Promise<AutoPaginatable<AuditLogSchema, PaginationOptions>> {
-    const endpoint = `/audit_logs/actions/${action}/schemas`;
+    const endpoint = `/audit_logs/actions/${encodePathParameter(action)}/schemas`;
 
     return new AutoPaginatable(
       await fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(

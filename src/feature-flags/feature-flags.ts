@@ -13,6 +13,7 @@ import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
 import { ListOrganizationFeatureFlagsOptions } from '../organizations/interfaces/list-organization-feature-flags-options.interface';
 import { ListUserFeatureFlagsOptions } from '../user-management/interfaces/list-user-feature-flags-options.interface';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class FeatureFlags {
   constructor(private readonly workos: WorkOS) {}
@@ -62,7 +63,7 @@ export class FeatureFlags {
    */
   async getFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.get<FeatureFlagResponse>(
-      `/feature-flags/${slug}`,
+      `/feature-flags/${encodePathParameter(slug)}`,
     );
 
     return deserializeFeatureFlag(data);
@@ -82,7 +83,7 @@ export class FeatureFlags {
    */
   async enableFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.put<FeatureFlagResponse>(
-      `/feature-flags/${slug}/enable`,
+      `/feature-flags/${encodePathParameter(slug)}/enable`,
       {},
     );
 
@@ -103,7 +104,7 @@ export class FeatureFlags {
    */
   async disableFeatureFlag(slug: string): Promise<FeatureFlag> {
     const { data } = await this.workos.put<FeatureFlagResponse>(
-      `/feature-flags/${slug}/disable`,
+      `/feature-flags/${encodePathParameter(slug)}/disable`,
       {},
     );
 
@@ -122,7 +123,10 @@ export class FeatureFlags {
    */
   async addFlagTarget(options: AddFlagTargetOptions): Promise<void> {
     const { slug, targetId } = options;
-    await this.workos.post(`/feature-flags/${slug}/targets/${targetId}`, {});
+    await this.workos.post(
+      `/feature-flags/${encodePathParameter(slug)}/targets/${encodePathParameter(targetId)}`,
+      {},
+    );
   }
 
   /**
@@ -137,7 +141,9 @@ export class FeatureFlags {
    */
   async removeFlagTarget(options: RemoveFlagTargetOptions): Promise<void> {
     const { slug, targetId } = options;
-    await this.workos.delete(`/feature-flags/${slug}/targets/${targetId}`);
+    await this.workos.delete(
+      `/feature-flags/${encodePathParameter(slug)}/targets/${encodePathParameter(targetId)}`,
+    );
   }
 
   /**
@@ -156,14 +162,14 @@ export class FeatureFlags {
     return new AutoPaginatable(
       await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
         this.workos,
-        `/organizations/${organizationId}/feature-flags`,
+        `/organizations/${encodePathParameter(organizationId)}/feature-flags`,
         deserializeFeatureFlag,
         paginationOptions,
       ),
       (params) =>
         fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
           this.workos,
-          `/organizations/${organizationId}/feature-flags`,
+          `/organizations/${encodePathParameter(organizationId)}/feature-flags`,
           deserializeFeatureFlag,
           params,
         ),
@@ -186,14 +192,14 @@ export class FeatureFlags {
     return new AutoPaginatable(
       await fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
         this.workos,
-        `/user_management/users/${userId}/feature-flags`,
+        `/user_management/users/${encodePathParameter(userId)}/feature-flags`,
         deserializeFeatureFlag,
         paginationOptions,
       ),
       (params) =>
         fetchAndDeserialize<FeatureFlagResponse, FeatureFlag>(
           this.workos,
-          `/user_management/users/${userId}/feature-flags`,
+          `/user_management/users/${encodePathParameter(userId)}/feature-flags`,
           deserializeFeatureFlag,
           params,
         ),
