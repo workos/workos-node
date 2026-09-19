@@ -1,7 +1,7 @@
 import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
-import { sealData } from '../common/crypto/seal';
+import { sealData, unsealData } from '../common/crypto/seal';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
@@ -464,6 +464,10 @@ describe('Session', () => {
           user: userFixture,
           accessToken,
           refreshToken,
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'test',
+          },
         });
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -517,6 +521,131 @@ describe('Session', () => {
             object: 'user',
           }),
         });
+      });
+
+      it('returns the user and impersonator from the refresh response, not the stale cookie', async () => {
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJzaWQiOiJzZXNzaW9uXzEyMyIsIm9yZ19pZCI6Im9yZ18xMjMiLCJyb2xlIjoibWVtYmVyIiwicm9sZXMiOlsibWVtYmVyIiwiYWRtaW4iXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl19.N5zveP149QhRR5zNvzGJPiCX098uXaN8VM1_lwsMg4A';
+        const refreshToken = 'def456';
+
+        const refreshedImpersonator = {
+          email: 'new-admin@example.com',
+          reason: 'escalated support case',
+        };
+
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken,
+          impersonator: refreshedImpersonator,
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        // The cookie was sealed before the user was updated and before the
+        // impersonator changed, so every identity field in it is stale.
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken,
+            impersonator: {
+              email: 'stale-admin@example.com',
+              reason: 'stale',
+            },
+            user: {
+              object: 'user',
+              id: 'user_01STALE00000000000000000',
+              email: 'stale@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        expect(response.user).toEqual(
+          expect.objectContaining({
+            id: userFixture.id,
+            email: userFixture.email,
+          }),
+        );
+        expect(response.impersonator).toEqual(refreshedImpersonator);
+
+        // The top-level fields, the nested session, and the new sealed cookie
+        // all describe the same refreshed identity.
+        expect(response.user).toEqual(response.session?.user);
+        expect(response.impersonator).toEqual(response.session?.impersonator);
+
+        const newCookie = await unsealData<{
+          user: { id: string; email: string };
+          impersonator?: { email: string; reason: string };
+        }>(response.sealedSession as string, { password: cookiePassword });
+
+        expect(newCookie.user).toEqual(response.user);
+        expect(newCookie.impersonator).toEqual(refreshedImpersonator);
+      });
+
+      it('drops the impersonator when the refresh response omits it', async () => {
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJzaWQiOiJzZXNzaW9uXzEyMyIsIm9yZ19pZCI6Im9yZ18xMjMiLCJyb2xlIjoibWVtYmVyIiwicm9sZXMiOlsibWVtYmVyIiwiYWRtaW4iXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl19.N5zveP149QhRR5zNvzGJPiCX098uXaN8VM1_lwsMg4A';
+        const refreshToken = 'def456';
+
+        // Impersonation has ended: the refresh response carries no impersonator.
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken,
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken,
+            impersonator: {
+              email: 'admin@example.com',
+              reason: 'test',
+            },
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        expect(response.impersonator).toBeUndefined();
+        expect(response.session?.impersonator).toBeUndefined();
+
+        const newCookie = await unsealData<{
+          impersonator?: { email: string; reason: string };
+        }>(response.sealedSession as string, { password: cookiePassword });
+
+        expect(newCookie.impersonator).toBeUndefined();
       });
 
       it('overwrites the cookie password if a new one is provided', async () => {
