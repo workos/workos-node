@@ -193,8 +193,18 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     const timeoutId = setTimeout(() => {
       abortController.abort();
     }, timeout);
-    // Set once the headers arrive so a timeout while reading the body still
-    // carries the request ID and Retry-After.
+    // Pass the response headers once they are known so a timeout while
+    // reading the body still carries the request ID and Retry-After.
+    const timeoutError = (responseHeaders?: Headers) =>
+      new HttpClientError({
+        message: `Request timeout after ${timeout}ms`,
+        response: {
+          status: 408,
+          headers: responseHeaders ?? new Headers(),
+          data: { error: 'Request timeout' },
+        },
+      });
+    // Set once the headers arrive.
     let res: Response | undefined;
 
     try {
@@ -211,16 +221,12 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         signal: abortController.signal,
       });
 
-      // The deadline covers the body as well as the headers (GH-1679): a
-      // server that responds promptly and then stalls the body still times
-      // out, and a timeout here is retried like any other.
-      const rawBody = await res.text();
-
-      // Clear timeout once the whole response has arrived
-      clearTimeout(timeoutId);
-
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
+        // Read the error body under the same deadline, inside the attempt,
+        // so a stalled error response is retried like any other timeout.
+        const rawBody = await res.text();
+        clearTimeout(timeoutId);
 
         let responseJson: any;
 
@@ -248,23 +254,37 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           },
         });
       }
+
+      // The deadline also covers a successful body (GH-1679), but the server
+      // has already applied this request, so the read happens outside the
+      // retry boundary: a stall surfaces from toJSON() as a 408 and is not
+      // retried. The body is read regardless of whether anyone awaits it, so
+      // an ignored response is drained and its deadline cleared.
+      const response = res;
+      const rawBody = (async () => {
+        try {
+          return await response.text();
+        } catch (error) {
+          // Checked on our own signal rather than the error's type: the
+          // AbortError a fetch implementation raises for an aborted body may
+          // come from another realm.
+          throw abortController.signal.aborted
+            ? timeoutError(response.headers)
+            : error;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      })();
+      rawBody.catch(() => undefined);
+
       return new FetchHttpClientResponse(res, rawBody);
     } catch (error) {
       // Clear timeout if request failed
       clearTimeout(timeoutId);
 
-      // Handle timeout errors. Checked on our own signal rather than the
-      // error's type: the AbortError a fetch implementation raises for an
-      // aborted body may come from another realm.
+      // Handle timeout errors
       if (abortController.signal.aborted) {
-        throw new HttpClientError({
-          message: `Request timeout after ${timeout}ms`,
-          response: {
-            status: 408,
-            headers: res?.headers ?? new Headers(),
-            data: { error: 'Request timeout' },
-          },
-        });
+        throw timeoutError(res?.headers);
       }
 
       throw error;
@@ -419,9 +439,9 @@ export class FetchHttpClientResponse
   implements HttpClientResponseInterface
 {
   _res: Response;
-  private readonly _rawBody: string;
+  private readonly _rawBody: Promise<string>;
 
-  constructor(res: Response, rawBody: string) {
+  constructor(res: Response, rawBody: Promise<string>) {
     super(
       res.status,
       FetchHttpClientResponse._transformHeadersToObject(res.headers),
@@ -442,13 +462,15 @@ export class FetchHttpClientResponse
       return null;
     }
 
+    const rawBody = await this._rawBody;
+
     try {
-      return JSON.parse(this._rawBody);
+      return JSON.parse(rawBody);
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new ParseError({
           message: error.message,
-          rawBody: this._rawBody,
+          rawBody,
           rawStatus: this._res.status,
           requestID: this._res.headers.get('X-Request-ID') ?? '',
         });

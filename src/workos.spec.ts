@@ -702,18 +702,14 @@ describe('WorkOS', () => {
     it.each([
       ['get', (workos: WorkOS) => workos.get('/path')],
       ['post', (workos: WorkOS) => workos.post('/path', {})],
-      ['delete', (workos: WorkOS) => workos.delete('/path')],
-      [
-        'deleteWithBody',
-        (workos: WorkOS) => workos.deleteWithBody('/path', { id: 'x' }),
-      ],
+      ['put', (workos: WorkOS) => workos.put('/path', {})],
+      ['patch', (workos: WorkOS) => workos.patch('/path', {})],
     ])(
-      '%s surfaces the same 408 OauthException as a timeout before the headers',
+      '%s surfaces the same 408 OauthException as a timeout before the headers, without retrying',
       async (_name, call) => {
         const { fetchFn, signals } = stalledBodyFetch();
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
           timeout: 20,
-          maxRetries: 0,
           fetchFn: fetchFn as any,
         });
 
@@ -724,24 +720,46 @@ describe('WorkOS', () => {
           message: 'Error: Request timeout',
         });
         expect(signals[0].aborted).toBe(true);
+        expect(fetchFn).toHaveBeenCalledTimes(1);
       },
     );
 
-    it('handles a body read failure that is not a timeout like a network failure before the headers', async () => {
+    it('propagates a body read failure that is not a timeout unchanged', async () => {
       const transportError = new TypeError('terminated');
       const { fetchFn } = stalledBodyFetch({
         text: () => Promise.reject(transportError),
       });
       const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
         timeout: 20,
-        maxRetries: 0,
         fetchFn: fetchFn as any,
       });
 
-      const error = await workos.post('/path', {}).catch((e) => e);
-      expect(error.message).toBe('Unexpected error: TypeError: terminated');
-      expect(error.cause).toBe(transportError);
+      await expect(workos.post('/path', {})).rejects.toBe(transportError);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
     });
+
+    it.each([
+      ['delete', (workos: WorkOS) => workos.delete('/path')],
+      [
+        'deleteWithBody',
+        (workos: WorkOS) => workos.deleteWithBody('/path', { id: 'x' }),
+      ],
+    ])(
+      '%s resolves on the headers and leaves the stalled body bounded by the deadline',
+      async (_name, call) => {
+        const { fetchFn, signals } = stalledBodyFetch();
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          timeout: 20,
+          fetchFn: fetchFn as any,
+        });
+
+        await expect(call(workos)).resolves.toBeUndefined();
+        expect(signals[0].aborted).toBe(false);
+
+        await new Promise((resolve) => setTimeout(resolve, 60));
+        expect(signals[0].aborted).toBe(true);
+      },
+    );
   });
 
   describe('when in a worker environment', () => {
