@@ -3,6 +3,8 @@ import { fetchOnce, fetchURL } from '../../common/utils/test-utils';
 import { FetchHttpClient } from './fetch-client';
 import { HttpClientError } from './http-client';
 import { ParseError } from '../exceptions/parse-error';
+import http from 'node:http';
+import { AddressInfo } from 'node:net';
 
 const fetchClient = new FetchHttpClient('https://test.workos.com', {
   headers: {
@@ -656,5 +658,713 @@ describe('FetchHttpClient with timeout', () => {
       {},
     );
     expect(result).toBeDefined();
+  });
+});
+
+describe('request timeout covers the response body (GH-1679)', () => {
+  // `fetch` in this file is the jest-fetch-mock import.
+  type FetchFn = typeof globalThis.fetch;
+
+  type FakeAttempt = {
+    signal: AbortSignal;
+    response: any;
+    releaseBody: (body: string) => void;
+    failBody: (error: Error) => void;
+    readonly textCalls: number;
+  };
+
+  type FakeAttemptPlan = {
+    status?: number;
+    headers?: Record<string, string>;
+    /** `null` for no body, `'pending'` to stall until released, else the body. */
+    body?: null | 'pending' | string;
+    /** Delay before the headers resolve. */
+    headersDelayMs?: number;
+  };
+
+  const abortError = () => {
+    const error = new Error('The operation was aborted');
+    error.name = 'AbortError';
+    return error;
+  };
+
+  /**
+   * A fetch double that honours the abort signal the way real
+   * implementations do: an abort rejects the pending headers or the pending
+   * body read with an `AbortError`.
+   */
+  function createFakeFetch(plan: FakeAttemptPlan[]) {
+    const attempts: FakeAttempt[] = [];
+
+    const fetchFn = jest.fn((_url: string, init: RequestInit) => {
+      const step = plan[Math.min(attempts.length, plan.length - 1)];
+      const signal = init.signal as AbortSignal;
+      const status = step.status ?? 200;
+      const headers = new Headers({
+        'content-type': 'application/json',
+        'x-request-id': 'req_1679',
+        ...step.headers,
+      });
+
+      let settleBody!: {
+        resolve: (body: string) => void;
+        reject: (error: Error) => void;
+      };
+      const bodyPromise = new Promise<string>((resolve, reject) => {
+        settleBody = { resolve, reject };
+      });
+      bodyPromise.catch(() => undefined);
+      signal.addEventListener('abort', () => settleBody.reject(abortError()));
+
+      let textCalls = 0;
+      const body = step.body === null ? null : { locked: false };
+      const response = {
+        ok: status < 400,
+        status,
+        statusText: status < 400 ? 'OK' : 'Error',
+        headers,
+        body,
+        get bodyUsed() {
+          return textCalls > 0;
+        },
+        text: () => {
+          textCalls++;
+          return textCalls === 1 && !body?.locked
+            ? bodyPromise
+            : Promise.reject(new TypeError('body used already'));
+        },
+      };
+
+      if (typeof step.body === 'string' && step.body !== 'pending') {
+        settleBody.resolve(step.body);
+      }
+
+      attempts.push({
+        signal,
+        response,
+        releaseBody: settleBody.resolve,
+        failBody: settleBody.reject,
+        get textCalls() {
+          return textCalls;
+        },
+      });
+
+      return new Promise<any>((resolve, reject) => {
+        signal.addEventListener('abort', () => reject(abortError()));
+        if (step.headersDelayMs) {
+          setTimeout(() => resolve(response), step.headersDelayMs);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+
+    return { fetchFn: fetchFn as unknown as FetchFn, attempts };
+  }
+
+  function createClient(
+    plan: FakeAttemptPlan[],
+    options: { maxRetries?: number; timeout?: number } = {},
+  ) {
+    const fake = createFakeFetch(plan);
+    const client = new FetchHttpClient(
+      'https://api.example.com',
+      { timeout: 100, maxRetries: 0, ...options },
+      fake.fetchFn,
+    );
+    return { client, ...fake };
+  }
+
+  function settledFlag(promise: Promise<unknown>) {
+    const state = { settled: false };
+    promise.then(
+      () => (state.settled = true),
+      () => (state.settled = true),
+    );
+    return state;
+  }
+
+  const timeout408 = {
+    message: 'Request timeout after 100ms',
+    response: { status: 408, data: { error: 'Request timeout' } },
+  };
+
+  describe('with deterministic timers', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('keeps the deadline armed after the headers arrive and fails a stalled JSON body with a 408', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      const read = res.toJSON();
+      read.catch(() => undefined);
+      const state = settledFlag(read);
+
+      await jest.advanceTimersByTimeAsync(99);
+      expect(state.settled).toBe(false);
+      expect(attempts[0].signal.aborted).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(1);
+      await expect(read).rejects.toThrow(HttpClientError);
+      await expect(read).rejects.toMatchObject(timeout408);
+      const error = await read.catch((e) => e);
+      expect(error.response.headers.get('x-request-id')).toBe('req_1679');
+      expect(attempts[0].signal.aborted).toBe(true);
+      expect(attempts[0].textCalls).toBe(1);
+    });
+
+    it('charges the wait for headers against the same deadline instead of restarting it', async () => {
+      const { client } = createClient([
+        { body: 'pending', headersDelayMs: 80 },
+      ]);
+
+      const request = client.get('/users', {});
+      await jest.advanceTimersByTimeAsync(80);
+      const res = await request;
+
+      const read = res.toJSON();
+      read.catch(() => undefined);
+      const state = settledFlag(read);
+
+      await jest.advanceTimersByTimeAsync(19);
+      expect(state.settled).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(1);
+      await expect(read).rejects.toMatchObject(timeout408);
+    });
+
+    it('does not start another attempt when a successful body times out, even with retries enabled', async () => {
+      const { client, fetchFn, attempts } = createClient(
+        [{ body: 'pending' }],
+        {
+          maxRetries: 2,
+        },
+      );
+
+      const res = await client.post('/users', { name: 'x' }, {});
+      const read = res.toJSON();
+      read.catch(() => undefined);
+
+      await jest.advanceTimersByTimeAsync(100);
+      await expect(read).rejects.toMatchObject(timeout408);
+
+      await jest.advanceTimersByTimeAsync(20_000);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+      expect(attempts).toHaveLength(1);
+      expect(
+        (fetchFn as unknown as jest.Mock).mock.calls[0][1].headers[
+          'Idempotency-Key'
+        ],
+      ).toMatch(/^retry-/);
+    });
+
+    it('reads a stalled error body inside the attempt so the retry policy applies, with a fresh deadline per attempt', async () => {
+      const { client, fetchFn, attempts } = createClient(
+        [
+          {
+            status: 503,
+            headers: { 'x-request-id': 'req_first', 'retry-after': '1' },
+            body: 'pending',
+          },
+          { status: 200, body: '{"ok":true}' },
+        ],
+        { maxRetries: 1 },
+      );
+
+      const request = client.post('/users', { name: 'x' }, {});
+      request.catch(() => undefined);
+
+      await jest.advanceTimersByTimeAsync(100);
+      expect(attempts[0].signal.aborted).toBe(true);
+      expect(attempts[0].textCalls).toBe(1);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+
+      // Retry-After from the aborted attempt's headers is honoured.
+      await jest.advanceTimersByTimeAsync(999);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+      await jest.advanceTimersByTimeAsync(1);
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+
+      const res = await request;
+      await expect(res.toJSON()).resolves.toEqual({ ok: true });
+
+      const calls = (fetchFn as unknown as jest.Mock).mock.calls;
+      expect(calls[0][1].headers['Idempotency-Key']).toBe(
+        calls[1][1].headers['Idempotency-Key'],
+      );
+
+      // The first attempt's deadline cannot touch the second attempt, and
+      // the second attempt's deadline is gone once its body is consumed.
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(attempts[1].signal.aborted).toBe(false);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('surfaces a stalled error body as a 408 carrying the response headers once retries are exhausted', async () => {
+      const { client, attempts } = createClient([
+        {
+          status: 422,
+          headers: { 'x-request-id': 'req_422' },
+          body: 'pending',
+        },
+      ]);
+
+      const request = client.get('/users', {});
+      request.catch(() => undefined);
+      await jest.advanceTimersByTimeAsync(100);
+
+      await expect(request).rejects.toMatchObject(timeout408);
+      const error = await request.catch((e) => e);
+      expect(error.response.headers.get('x-request-id')).toBe('req_422');
+      expect(attempts[0].signal.aborted).toBe(true);
+    });
+
+    it('keeps a timeout before the headers on its existing path, including retries', async () => {
+      const { client, fetchFn, attempts } = createClient(
+        [{ body: 'pending', headersDelayMs: 500 }],
+        { maxRetries: 1 },
+      );
+
+      const request = client.get('/users', {});
+      request.catch(() => undefined);
+
+      await jest.advanceTimersByTimeAsync(100);
+      expect(attempts[0].signal.aborted).toBe(true);
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+
+      // Backoff (max 1687.5ms at attempt 2) then the second attempt's deadline.
+      await jest.advanceTimersByTimeAsync(2000);
+      expect(fetchFn).toHaveBeenCalledTimes(2);
+      expect(attempts[1].signal.aborted).toBe(true);
+
+      await expect(request).rejects.toMatchObject(timeout408);
+      const error = await request.catch((e) => e);
+      expect(error.response.headers.get('x-request-id')).toBeNull();
+    });
+
+    it('still reports a complete but malformed JSON body as a ParseError and releases the deadline', async () => {
+      const { client, attempts } = createClient([{ body: '{ invalid' }]);
+
+      const res = await client.get('/users', {});
+      const error = await res.toJSON().catch((e) => e);
+
+      expect(error).toBeInstanceOf(ParseError);
+      expect(error.rawBody).toBe('{ invalid');
+      expect(error.rawStatus).toBe(200);
+      expect(error.requestID).toBe('req_1679');
+
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(attempts[0].signal.aborted).toBe(false);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('propagates a body failure that is not a timeout unchanged', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      const read = res.toJSON();
+      read.catch(() => undefined);
+      attempts[0].failBody(new TypeError('terminated'));
+
+      await expect(read).rejects.toThrow(TypeError);
+      await expect(read).rejects.toThrow('terminated');
+      await expect(read).rejects.not.toBeInstanceOf(HttpClientError);
+
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(attempts[0].signal.aborted).toBe(false);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('preserves an AbortError raised by the body before the deadline and leaves the attempt unaborted', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+      const independentAbort = abortError();
+
+      const res = await client.get('/users', {});
+      const read = res.toJSON();
+      read.catch(() => undefined);
+      attempts[0].failBody(independentAbort);
+
+      await expect(read).rejects.toBe(independentAbort);
+      expect(attempts[0].signal.aborted).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(attempts[0].signal.aborted).toBe(false);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('still reports an AbortError from an error-body read as a timeout, as it did before the headers', async () => {
+      const { client, attempts } = createClient([
+        { status: 500, body: 'pending' },
+      ]);
+
+      const request = client.get('/users', {});
+      request.catch(() => undefined);
+      await jest.advanceTimersByTimeAsync(0);
+      attempts[0].failBody(abortError());
+
+      await expect(request).rejects.toMatchObject(timeout408);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('rejects a second toJSON() while the first is pending without disarming the first read', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      const first = res.toJSON();
+      first.catch(() => undefined);
+
+      await expect(res.toJSON()).rejects.toThrow('body used already');
+      expect(jest.getTimerCount()).toBe(1);
+      expect(attempts[0].signal.aborted).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(100);
+      await expect(first).rejects.toMatchObject(timeout408);
+      expect(attempts[0].signal.aborted).toBe(true);
+    });
+
+    it('rejects toJSON() once a raw read has started and leaves that read under the deadline', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      const rawRead = (res.getRawResponse() as Response).text();
+      rawRead.catch(() => undefined);
+
+      await expect(res.toJSON()).rejects.toThrow('body used already');
+      expect(jest.getTimerCount()).toBe(1);
+
+      await jest.advanceTimersByTimeAsync(100);
+      const error = await rawRead.catch((e) => e);
+      expect(error.name).toBe('AbortError');
+      expect(attempts[0].signal.aborted).toBe(true);
+    });
+
+    it('rejects toJSON() while the raw body is locked and leaves the lock holder under the deadline', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      attempts[0].response.body.locked = true;
+
+      await expect(res.toJSON()).rejects.toThrow('body used already');
+      expect(attempts[0].textCalls).toBe(1);
+      expect(jest.getTimerCount()).toBe(1);
+
+      await jest.advanceTimersByTimeAsync(100);
+      expect(attempts[0].signal.aborted).toBe(true);
+    });
+
+    it('releases the deadline once the body is consumed and keeps single-consumption semantics', async () => {
+      const { client, attempts } = createClient([{ body: '{"ok":true}' }]);
+
+      const res = await client.get('/users', {});
+      await expect(res.toJSON()).resolves.toEqual({ ok: true });
+      expect(jest.getTimerCount()).toBe(0);
+
+      await jest.advanceTimersByTimeAsync(10_000);
+      expect(attempts[0].signal.aborted).toBe(false);
+
+      await expect(res.toJSON()).rejects.toThrow('body used already');
+    });
+
+    it('fails toJSON() immediately once the deadline has already passed', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      await jest.advanceTimersByTimeAsync(100);
+      expect(attempts[0].signal.aborted).toBe(true);
+
+      await expect(res.toJSON()).rejects.toMatchObject(timeout408);
+      expect(attempts[0].textCalls).toBe(0);
+    });
+
+    it('returns the exact original object from getRawResponse() and leaves raw reads under the same deadline', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      const res = await client.get('/users', {});
+      const raw = res.getRawResponse() as Response;
+      expect(raw).toBe(attempts[0].response);
+
+      const rawRead = raw.text();
+      rawRead.catch(() => undefined);
+      await jest.advanceTimersByTimeAsync(100);
+
+      const error = await rawRead.catch((e) => e);
+      expect(error.name).toBe('AbortError');
+      expect(error).not.toBeInstanceOf(HttpClientError);
+    });
+
+    it('leaves the deadline armed for an unread non-JSON body and releases it for an absent one', async () => {
+      const withBody = createClient([
+        { headers: { 'content-type': 'text/plain' }, body: 'pending' },
+      ]);
+      const withoutBody = createClient([
+        { headers: { 'content-type': 'text/plain' }, body: null },
+      ]);
+
+      const first = await withBody.client.get('/users', {});
+      const second = await withoutBody.client.get('/users', {});
+      await expect(first.toJSON()).resolves.toBeNull();
+      await expect(second.toJSON()).resolves.toBeNull();
+      expect(withBody.attempts[0].textCalls).toBe(0);
+      expect(jest.getTimerCount()).toBe(1);
+
+      await jest.advanceTimersByTimeAsync(100);
+      expect(withBody.attempts[0].signal.aborted).toBe(true);
+      expect(withoutBody.attempts[0].signal.aborted).toBe(false);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('bounds a low-level delete response that nobody reads', async () => {
+      const { client, attempts } = createClient([{ body: 'pending' }]);
+
+      await client.delete('/users/123', {});
+      expect(jest.getTimerCount()).toBe(1);
+
+      await jest.advanceTimersByTimeAsync(100);
+      expect(attempts[0].signal.aborted).toBe(true);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+  });
+
+  // Captured in setup-jest.ts before jest-fetch-mock replaces the global.
+  const nativeFetch = (globalThis as Record<string, unknown>)
+    .__workosNativeFetch as FetchFn;
+  // jest-fetch-mock registers a mock for the 'node-fetch' module id.
+  const nodeFetch = jest.requireActual('node-fetch') as FetchFn;
+
+  describe.each([
+    ['native fetch', nativeFetch],
+    ['node-fetch 2.7.0', nodeFetch],
+  ])('over real HTTP with %s', (_name, fetchImpl) => {
+    let server: http.Server;
+    let baseURL: string;
+    let handler: (req: http.IncomingMessage, res: http.ServerResponse) => void;
+    let requestCount: number;
+    const openResponses: http.ServerResponse[] = [];
+
+    const sleep = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
+    function stallBody(status: number, head = '{"ok":') {
+      handler = (_req, res) => {
+        res.writeHead(status, {
+          'content-type': 'application/json',
+          'x-request-id': 'req_real',
+          'retry-after': '0',
+        });
+        res.write(head);
+        // Hold the body open until the test tears the connection down.
+      };
+    }
+
+    function respond(status: number, body: string) {
+      handler = (_req, res) => {
+        res.writeHead(status, {
+          'content-type': 'application/json',
+          'x-request-id': 'req_real',
+          'retry-after': '0',
+        });
+        res.end(body);
+      };
+    }
+
+    function createClient(maxRetries = 0) {
+      const signals: AbortSignal[] = [];
+      const rawResponses: unknown[] = [];
+      const fetchFn: FetchFn = async (url, init) => {
+        signals.push(init!.signal as AbortSignal);
+        const response = await fetchImpl(url, init);
+        rawResponses.push(response);
+        return response;
+      };
+      const client = new FetchHttpClient(
+        baseURL,
+        { timeout: 100, maxRetries },
+        fetchFn,
+      );
+      return { client, signals, rawResponses };
+    }
+
+    beforeAll(async () => {
+      server = http.createServer((req, res) => {
+        requestCount++;
+        openResponses.push(res);
+        handler(req, res);
+      });
+      await new Promise<void>((resolve) =>
+        server.listen(0, '127.0.0.1', resolve),
+      );
+      const { port } = server.address() as AddressInfo;
+      baseURL = `http://127.0.0.1:${port}`;
+    });
+
+    afterAll(async () => {
+      server.closeAllConnections();
+      await new Promise((resolve) => server.close(resolve));
+    });
+
+    beforeEach(() => {
+      requestCount = 0;
+    });
+
+    afterEach(() => {
+      for (const res of openResponses) {
+        res.destroy();
+      }
+      openResponses.length = 0;
+    });
+
+    it('times out a successful JSON body that stalls after the headers', async () => {
+      stallBody(200);
+      const { client, signals } = createClient();
+
+      const res = await client.get('/users', {});
+      expect(res.getStatusCode()).toBe(200);
+
+      const error = await res.toJSON().catch((e) => e);
+      expect(error).toBeInstanceOf(HttpClientError);
+      expect(error).toMatchObject(timeout408);
+      expect(error.response.headers.get('x-request-id')).toBe('req_real');
+      expect(signals[0].aborted).toBe(true);
+      expect(requestCount).toBe(1);
+    });
+
+    it('times out a stalled error body inside the attempt and retries it with a fresh deadline', async () => {
+      // First attempt stalls its 503 body; the retry gets a clean 200.
+      handler = (_req, res) => {
+        if (requestCount === 1) {
+          res.writeHead(503, {
+            'content-type': 'application/json',
+            'retry-after': '0',
+          });
+          res.write('{"error":');
+          return;
+        }
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end('{"ok":true}');
+      };
+      const { client, signals } = createClient(1);
+
+      const res = await client.get('/users', {});
+      await expect(res.toJSON()).resolves.toEqual({ ok: true });
+      expect(requestCount).toBe(2);
+      expect(signals[0].aborted).toBe(true);
+      expect(signals[1].aborted).toBe(false);
+    });
+
+    it('surfaces a stalled error body as a 408 carrying the response headers when not retried', async () => {
+      stallBody(422);
+      const { client, signals } = createClient();
+
+      const error = await client.get('/users', {}).catch((e) => e);
+      expect(error).toBeInstanceOf(HttpClientError);
+      expect(error).toMatchObject(timeout408);
+      expect(error.response.headers.get('x-request-id')).toBe('req_real');
+      expect(signals[0].aborted).toBe(true);
+    });
+
+    it('delivers a body that completes in time and disarms the deadline', async () => {
+      respond(200, '{"ok":true}');
+      const { client, signals } = createClient();
+
+      const res = await client.get('/users', {});
+      await expect(res.toJSON()).resolves.toEqual({ ok: true });
+
+      await sleep(150);
+      expect(signals[0].aborted).toBe(false);
+    });
+
+    it('reports a connection dropped mid-body before the deadline as its own error', async () => {
+      handler = (_req, res) => {
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.write('{"ok":');
+        setTimeout(() => res.destroy(), 10);
+      };
+      const { client } = createClient();
+
+      const res = await client.get('/users', {});
+      const error = await res.toJSON().catch((e) => e);
+      // The implementation's own error (undici raises it in Jest's outer
+      // realm, so no instanceof Error here), not a timeout or parse error.
+      expect(typeof error.message).toBe('string');
+      expect(error).not.toBeInstanceOf(HttpClientError);
+      expect(error).not.toBeInstanceOf(ParseError);
+      expect(error.name).not.toBe('AbortError');
+    });
+
+    it("hands back the implementation's own response for raw access, still under the deadline", async () => {
+      stallBody(200);
+      const { client, rawResponses, signals } = createClient();
+
+      const res = await client.get('/users', {});
+      const raw = res.getRawResponse() as Response;
+      expect(raw).toBe(rawResponses[0]);
+
+      const error = await raw.text().catch((e) => e);
+      expect(error.name).toBe('AbortError');
+      expect(error).not.toBeInstanceOf(HttpClientError);
+      expect(signals[0].aborted).toBe(true);
+    });
+
+    it('rejects a competing toJSON() and still aborts the first read at the deadline', async () => {
+      stallBody(200);
+      const { client, signals } = createClient();
+
+      const res = await client.get('/users', {});
+      const first = res.toJSON();
+      first.catch(() => undefined);
+
+      await expect(res.toJSON()).rejects.toMatchObject({ name: 'TypeError' });
+      expect(signals[0].aborted).toBe(false);
+
+      await expect(first).rejects.toMatchObject(timeout408);
+      expect(signals[0].aborted).toBe(true);
+    });
+
+    it('rejects toJSON() after a raw read has started and still aborts that read at the deadline', async () => {
+      stallBody(200);
+      const { client, signals } = createClient();
+
+      const res = await client.get('/users', {});
+      const rawRead = (res.getRawResponse() as Response).text();
+      rawRead.catch(() => undefined);
+
+      await expect(res.toJSON()).rejects.toMatchObject({ name: 'TypeError' });
+      expect(signals[0].aborted).toBe(false);
+
+      const error = await rawRead.catch((e) => e);
+      expect(error.name).toBe('AbortError');
+      expect(signals[0].aborted).toBe(true);
+    });
+
+    if (fetchImpl === nativeFetch) {
+      // Only the Web stream body can be locked by a reader.
+      it('rejects toJSON() while the raw body is locked and still aborts the reader at the deadline', async () => {
+        stallBody(200);
+        const { client, signals } = createClient();
+
+        const res = await client.get('/users', {});
+        const reader = (res.getRawResponse() as Response).body!.getReader();
+        await reader.read();
+
+        await expect(res.toJSON()).rejects.toMatchObject({
+          name: 'TypeError',
+        });
+        expect(signals[0].aborted).toBe(false);
+
+        const error = await reader.read().catch((e) => e);
+        expect(error.name).toBe('AbortError');
+        expect(signals[0].aborted).toBe(true);
+      });
+    }
+
+    it('lets an unread response reach its deadline', async () => {
+      stallBody(200);
+      const { client, signals } = createClient();
+
+      await client.delete('/users/123', {});
+      await sleep(200);
+      expect(signals[0].aborted).toBe(true);
+    });
   });
 });

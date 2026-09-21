@@ -12,6 +12,7 @@ import { WorkOS } from './index';
 import { WorkOS as WorkOSWorker } from './index.worker';
 import { RateLimitExceededException } from './common/exceptions/rate-limit-exceeded.exception';
 import { FetchHttpClient } from './common/net/fetch-client';
+import { HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 
 jest.mock('./common/utils/runtime-info', () => ({
@@ -663,6 +664,125 @@ describe('WorkOS', () => {
       expect(error.requestID).toBe('req_test');
       expect(error.rawStatus).toBe(200);
     });
+  });
+
+  describe('when the request times out while the response body is streaming (GH-1679)', () => {
+    const abortError = () => {
+      const error = new Error('Aborted');
+      error.name = 'AbortError';
+      return error;
+    };
+
+    /**
+     * Resolves headers immediately; the body read stalls until the abort
+     * signal fires, as real Fetch implementations behave.
+     */
+    function stalledBodyFetch({ text }: { text?: () => Promise<string> } = {}) {
+      const signals: AbortSignal[] = [];
+      const textMock = jest.fn(text);
+      const fetchFn = jest.fn(async (_url: any, init: any) => {
+        const signal = init.signal as AbortSignal;
+        signals.push(signal);
+        return {
+          ok: true,
+          status: 200,
+          headers: new Headers({
+            'X-Request-ID': 'req_body',
+            'content-type': 'application/json',
+          }),
+          body: {},
+          text:
+            text !== undefined
+              ? textMock
+              : () =>
+                  new Promise<string>((_resolve, reject) => {
+                    signal.addEventListener('abort', () =>
+                      reject(abortError()),
+                    );
+                  }),
+        };
+      });
+      return { fetchFn, signals, textMock };
+    }
+
+    const sleep = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
+    it('surfaces the same 408 OauthException as a timeout before the headers', async () => {
+      const { fetchFn, signals } = stalledBodyFetch();
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        timeout: 20,
+        fetchFn: fetchFn as any,
+      });
+
+      await expect(workos.get('/path')).rejects.toMatchObject({
+        name: 'OauthException',
+        status: 408,
+        requestID: 'req_body',
+        message: 'Error: Request timeout',
+      });
+      expect(signals[0].aborted).toBe(true);
+    });
+
+    it('propagates a body read failure that is not a timeout unchanged', async () => {
+      const { fetchFn } = stalledBodyFetch({
+        text: () => Promise.reject(new TypeError('terminated')),
+      });
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        timeout: 20,
+        fetchFn: fetchFn as any,
+      });
+
+      const error = await workos.post('/path', {}).catch((e) => e);
+      expect(error).toBeInstanceOf(TypeError);
+      expect(error.message).toBe('terminated');
+    });
+
+    it('propagates a non-timeout HttpClientError from the body read as the same object', async () => {
+      const transportError = new HttpClientError({
+        message: 'stream failed',
+        response: {
+          status: 401,
+          headers: new Headers(),
+          data: { error: 'stream failed' },
+        },
+      });
+      const { fetchFn } = stalledBodyFetch({
+        text: () => Promise.reject(transportError),
+      });
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        timeout: 20,
+        fetchFn: fetchFn as any,
+      });
+
+      await expect(workos.get('/path')).rejects.toBe(transportError);
+    });
+
+    it.each([
+      ['delete', (workos: WorkOS) => workos.delete('/path')],
+      [
+        'deleteWithBody',
+        (workos: WorkOS) => workos.deleteWithBody('/path', { id: 'x' }),
+      ],
+    ])(
+      '%s resolves without reading the body and leaves the deadline as a bounded fallback',
+      async (_name, call) => {
+        const { fetchFn, signals, textMock } = stalledBodyFetch({
+          text: () => new Promise(() => undefined),
+        });
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          timeout: 20,
+          fetchFn: fetchFn as any,
+        });
+
+        await expect(call(workos)).resolves.toBeUndefined();
+        expect(textMock).not.toHaveBeenCalled();
+        expect(signals[0].aborted).toBe(false);
+
+        await sleep(60);
+        expect(signals[0].aborted).toBe(true);
+      },
+    );
   });
 
   describe('when in a worker environment', () => {
