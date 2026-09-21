@@ -985,9 +985,25 @@ describe('request timeout covers the response body (GH-1679)', () => {
       const res = await client.get('/users', {});
       await expect(res.toJSON()).resolves.toBeNull();
       expect(attempts[0].textCalls).toBe(1);
-
-      await jest.advanceTimersByTimeAsync(0);
       expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('fails toJSON() with a 408 for a stalled non-JSON body instead of resolving to null early', async () => {
+      const { client, attempts } = createClient([
+        { headers: { 'content-type': 'text/plain' }, body: 'pending' },
+      ]);
+
+      const res = await client.get('/users', {});
+      const read = res.toJSON();
+      read.catch(() => undefined);
+      const state = settledFlag(read);
+
+      await jest.advanceTimersByTimeAsync(99);
+      expect(state.settled).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(1);
+      await expect(read).rejects.toMatchObject(timeout408);
+      expect(attempts[0].signal.aborted).toBe(true);
     });
 
     it('bounds a stalled body that nobody reads without failing the call', async () => {

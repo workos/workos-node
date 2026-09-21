@@ -455,14 +455,16 @@ export class FetchHttpClientResponse
   }
 
   async toJSON(): Promise<any | null> {
+    // Awaited before the content-type check so a stalled non-JSON body still
+    // surfaces its timeout instead of resolving to null early.
+    const rawBody = await this._rawBody;
+
     const contentType = this._res.headers.get('content-type');
     const isJsonResponse = contentType?.includes('application/json');
 
     if (!isJsonResponse) {
       return null;
     }
-
-    const rawBody = await this._rawBody;
 
     try {
       return JSON.parse(rawBody);

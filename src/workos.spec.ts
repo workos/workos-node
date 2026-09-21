@@ -704,6 +704,11 @@ describe('WorkOS', () => {
       ['post', (workos: WorkOS) => workos.post('/path', {})],
       ['put', (workos: WorkOS) => workos.put('/path', {})],
       ['patch', (workos: WorkOS) => workos.patch('/path', {})],
+      ['delete', (workos: WorkOS) => workos.delete('/path')],
+      [
+        'deleteWithBody',
+        (workos: WorkOS) => workos.deleteWithBody('/path', { id: 'x' }),
+      ],
     ])(
       '%s surfaces the same 408 OauthException as a timeout before the headers, without retrying',
       async (_name, call) => {
@@ -737,29 +742,6 @@ describe('WorkOS', () => {
       await expect(workos.post('/path', {})).rejects.toBe(transportError);
       expect(fetchFn).toHaveBeenCalledTimes(1);
     });
-
-    it.each([
-      ['delete', (workos: WorkOS) => workos.delete('/path')],
-      [
-        'deleteWithBody',
-        (workos: WorkOS) => workos.deleteWithBody('/path', { id: 'x' }),
-      ],
-    ])(
-      '%s resolves on the headers and leaves the stalled body bounded by the deadline',
-      async (_name, call) => {
-        const { fetchFn, signals } = stalledBodyFetch();
-        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
-          timeout: 20,
-          fetchFn: fetchFn as any,
-        });
-
-        await expect(call(workos)).resolves.toBeUndefined();
-        expect(signals[0].aborted).toBe(false);
-
-        await new Promise((resolve) => setTimeout(resolve, 60));
-        expect(signals[0].aborted).toBe(true);
-      },
-    );
   });
 
   describe('when in a worker environment', () => {

@@ -364,8 +364,10 @@ export class WorkOS {
   ): Promise<void> {
     this.requireApiKey(path);
 
+    let res: HttpClientResponseInterface;
+
     try {
-      await this.client.delete(path, {
+      res = await this.client.delete(path, {
         params: query,
       });
     } catch (error) {
@@ -373,6 +375,8 @@ export class WorkOS {
 
       throw error;
     }
+
+    await this.readResponseJSON(path, res);
   }
 
   async deleteWithBody<Entity = any>(
@@ -381,13 +385,17 @@ export class WorkOS {
   ): Promise<void> {
     this.requireApiKey(path);
 
+    let res: HttpClientResponseInterface;
+
     try {
-      await this.client.deleteWithBody(path, entity, {});
+      res = await this.client.deleteWithBody(path, entity, {});
     } catch (error) {
       this.handleHttpError({ path, error });
 
       throw error;
     }
+
+    await this.readResponseJSON(path, res);
   }
 
   /**
