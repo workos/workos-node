@@ -191,11 +191,24 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     const timeout = this.options?.timeout ?? DEFAULT_FETCH_TIMEOUT; // Default 60 seconds
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => {
-      abortController?.abort();
+      abortController.abort();
     }, timeout);
+    // Pass the response headers once they are known so a timeout while
+    // reading the body still carries the request ID and Retry-After.
+    const timeoutError = (responseHeaders?: Headers) =>
+      new HttpClientError({
+        message: `Request timeout after ${timeout}ms`,
+        response: {
+          status: 408,
+          headers: responseHeaders ?? new Headers(),
+          data: { error: 'Request timeout' },
+        },
+      });
+    // Set once the headers arrive.
+    let res: Response | undefined;
 
     try {
-      const res = await this._fetchFn(url, {
+      res = await this._fetchFn(url, {
         method,
         headers: {
           Accept: 'application/json, text/plain, */*',
@@ -205,17 +218,15 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           'User-Agent': (userAgent || 'workos-node').toString(),
         },
         body: requestBody,
-        signal: abortController?.signal,
+        signal: abortController.signal,
       });
-
-      // Clear timeout if request completed successfully
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
 
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
+        // Read the error body under the same deadline, inside the attempt,
+        // so a stalled error response is retried like any other timeout.
         const rawBody = await res.text();
+        clearTimeout(timeoutId);
 
         let responseJson: any;
 
@@ -243,23 +254,37 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           },
         });
       }
-      return new FetchHttpClientResponse(res);
+
+      // The deadline also covers a successful body (GH-1679), but the server
+      // has already applied this request, so the read happens outside the
+      // retry boundary: a stall surfaces from toJSON() as a 408 and is not
+      // retried. The body is read regardless of whether anyone awaits it, so
+      // an ignored response is drained and its deadline cleared.
+      const response = res;
+      const rawBody = (async () => {
+        try {
+          return await response.text();
+        } catch (error) {
+          // Checked on our own signal rather than the error's type: the
+          // AbortError a fetch implementation raises for an aborted body may
+          // come from another realm.
+          throw abortController.signal.aborted
+            ? timeoutError(response.headers)
+            : error;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      })();
+      rawBody.catch(() => undefined);
+
+      return new FetchHttpClientResponse(res, rawBody);
     } catch (error) {
       // Clear timeout if request failed
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      clearTimeout(timeoutId);
 
       // Handle timeout errors
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new HttpClientError({
-          message: `Request timeout after ${timeout}ms`,
-          response: {
-            status: 408,
-            headers: new Headers(),
-            data: { error: 'Request timeout' },
-          },
-        });
+      if (abortController.signal.aborted) {
+        throw timeoutError(res?.headers);
       }
 
       throw error;
@@ -414,13 +439,15 @@ export class FetchHttpClientResponse
   implements HttpClientResponseInterface
 {
   _res: Response;
+  private readonly _rawBody: Promise<string>;
 
-  constructor(res: Response) {
+  constructor(res: Response, rawBody: Promise<string>) {
     super(
       res.status,
       FetchHttpClientResponse._transformHeadersToObject(res.headers),
     );
     this._res = res;
+    this._rawBody = rawBody;
   }
 
   getRawResponse(): Response {
@@ -428,14 +455,16 @@ export class FetchHttpClientResponse
   }
 
   async toJSON(): Promise<any | null> {
+    // Awaited before the content-type check so a stalled non-JSON body still
+    // surfaces its timeout instead of resolving to null early.
+    const rawBody = await this._rawBody;
+
     const contentType = this._res.headers.get('content-type');
     const isJsonResponse = contentType?.includes('application/json');
 
     if (!isJsonResponse) {
       return null;
     }
-
-    const rawBody = await this._res.text();
 
     try {
       return JSON.parse(rawBody);

@@ -60,6 +60,12 @@ await workos.get('/organizations', { maxRetries: 0 });
 
 Set `maxRetries: 0` to disable automatic retries entirely.
 
+The request timeout (`timeout`, 60 seconds by default) covers each attempt from
+the request being sent to the response body being fully read, so a server that
+returns headers promptly but stalls the body still times out. A timeout while
+reading a successful response body is reported as a 408 but is not
+automatically retried, because the server has already applied the request.
+
 ### Access token issuer validation
 
 Session helpers (`authenticateWithSessionCookie`, `loadSealedSession(...).authenticate()`)
