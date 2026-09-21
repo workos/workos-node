@@ -257,7 +257,7 @@ export class WorkOS {
       throw error;
     }
 
-    return { data: await this.readResponseJSON(path, res) };
+    return { data: await res.toJSON() };
   }
 
   async get<Result = any>(
@@ -291,7 +291,7 @@ export class WorkOS {
       throw error;
     }
 
-    return { data: await this.readResponseJSON(path, res) };
+    return { data: await res.toJSON() };
   }
 
   async put<Result = any, Entity = any>(
@@ -323,7 +323,7 @@ export class WorkOS {
       throw error;
     }
 
-    return { data: await this.readResponseJSON(path, res) };
+    return { data: await res.toJSON() };
   }
 
   async patch<Result = any, Entity = any>(
@@ -355,7 +355,7 @@ export class WorkOS {
       throw error;
     }
 
-    return { data: await this.readResponseJSON(path, res) };
+    return { data: await res.toJSON() };
   }
 
   async delete(
@@ -385,28 +385,6 @@ export class WorkOS {
       await this.client.deleteWithBody(path, entity, {});
     } catch (error) {
       this.handleHttpError({ path, error });
-
-      throw error;
-    }
-  }
-
-  /**
-   * Consume a successful response body. The request deadline covers the body,
-   * so a stall while it is still streaming surfaces from the transport as a
-   * 408 `HttpClientError` and is translated like a timeout before the headers.
-   * Everything else (a `ParseError` for malformed JSON, a network failure
-   * mid-body, any other error a custom transport raises) propagates unchanged.
-   */
-  private async readResponseJSON(
-    path: string,
-    response: HttpClientResponseInterface,
-  ): Promise<any> {
-    try {
-      return await response.toJSON();
-    } catch (error) {
-      if (error instanceof HttpClientError && error.response.status === 408) {
-        this.handleHttpError({ path, error });
-      }
 
       throw error;
     }

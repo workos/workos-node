@@ -17,140 +17,6 @@ import { ParseError } from '../exceptions/parse-error';
 type FetchHttpClientOptions = HttpClientOptions;
 
 const DEFAULT_FETCH_TIMEOUT = 60_000; // 60 seconds
-
-/**
- * Deadline for one request attempt, from the initial `fetch()` through to
- * the last byte of the response body.
- */
-interface RequestTimeout {
-  /**
-   * Run one step of the attempt (the `fetch()` itself or a body read) under
-   * the deadline. A step interrupted by the deadline, or started after it has
-   * passed, rejects with the SDK's 408 `HttpClientError`; any other failure
-   * propagates unchanged, including an `AbortError` raised for some other
-   * reason while the deadline is still running. Pass the response `headers`
-   * once they are known so the request ID and `Retry-After` survive the
-   * translation. `abortIsTimeout` keeps the pre-existing request-path
-   * behaviour of treating any `AbortError` as the timeout.
-   */
-  guard<T>(operation: () => Promise<T>, options?: GuardOptions): Promise<T>;
-  /** Disarm the deadline. Idempotent. */
-  release(): void;
-  /**
-   * Stop the armed deadline from keeping the process alive on its own while
-   * no SDK read is awaiting it. `guard()` references it again.
-   */
-  unref(): void;
-}
-
-/**
- * The deadline armed by `fetchRequest()` alongside the attempt's
- * `AbortController`.
- *
- * It is disarmed when the body has been consumed or the attempt has failed,
- * not when the headers arrive, so a server that responds promptly and then
- * stalls the body still trips the configured timeout (GH-1679). Ownership
- * follows the body: `fetchRequest()` keeps it while reading error bodies and
- * hands it to `FetchHttpClientResponse` for successful responses. A body
- * nobody reads through the SDK (raw access, a discarded delete response, a
- * non-JSON response) keeps the original deadline as a bounded fallback: when
- * it fires the attempt's controller is aborted and the timer is gone.
- */
-class AttemptTimeout implements RequestTimeout {
-  private handle: ReturnType<typeof setTimeout> | null;
-  private expired = false;
-
-  constructor(
-    controller: AbortController,
-    private readonly timeoutMs: number,
-  ) {
-    this.handle = setTimeout(() => {
-      this.handle = null;
-      this.expired = true;
-      controller.abort();
-    }, timeoutMs);
-  }
-
-  async guard<T>(
-    operation: () => Promise<T>,
-    { headers, abortIsTimeout = false }: GuardOptions = {},
-  ): Promise<T> {
-    if (this.expired) {
-      throw this.timeoutError(headers);
-    }
-
-    this.setRef(true);
-
-    try {
-      return await operation();
-    } catch (error) {
-      // The deadline's own expiry is the timeout signal. A caller-supplied
-      // fetch can abort for reasons of its own; on the successful-body path
-      // that failure is theirs and passes through unchanged.
-      if (
-        this.expired ||
-        (abortIsTimeout && AttemptTimeout.isAbortError(error))
-      ) {
-        throw this.timeoutError(headers);
-      }
-      throw error;
-    }
-  }
-
-  release(): void {
-    if (this.handle !== null) {
-      clearTimeout(this.handle);
-      this.handle = null;
-    }
-  }
-
-  unref(): void {
-    this.setRef(false);
-  }
-
-  private setRef(referenced: boolean): void {
-    // Node timers can be unreferenced; browser and worker runtimes hand back
-    // a number, which has nothing to toggle.
-    const handle = this.handle as {
-      ref?: () => void;
-      unref?: () => void;
-    } | null;
-
-    if (referenced) {
-      handle?.ref?.();
-    } else {
-      handle?.unref?.();
-    }
-  }
-
-  private timeoutError(headers?: Headers): HttpClientError<{ error: string }> {
-    return new HttpClientError({
-      message: `Request timeout after ${this.timeoutMs}ms`,
-      response: {
-        status: 408,
-        headers: headers ?? new Headers(),
-        data: { error: 'Request timeout' },
-      },
-    });
-  }
-
-  private static isAbortError(error: unknown): boolean {
-    return error instanceof Error && error.name === 'AbortError';
-  }
-}
-
-type GuardOptions = {
-  headers?: Headers;
-  abortIsTimeout?: boolean;
-};
-
-/** For responses constructed outside a request attempt. */
-const NO_TIMEOUT: RequestTimeout = {
-  guard: (operation) => operation(),
-  release: () => undefined,
-  unref: () => undefined,
-};
-
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
 
@@ -324,45 +190,37 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     // Access timeout from the options with default of 60 seconds
     const timeout = this.options?.timeout ?? DEFAULT_FETCH_TIMEOUT; // Default 60 seconds
     const abortController = new AbortController();
-    // Armed for the whole attempt, body included; see AttemptTimeout.
-    const requestTimeout = new AttemptTimeout(abortController, timeout);
+    const timeoutId = setTimeout(() => {
+      abortController.abort();
+    }, timeout);
+    // Set once the headers arrive so a timeout while reading the body still
+    // carries the request ID and Retry-After.
+    let res: Response | undefined;
 
     try {
-      // As before this deadline covered the body, an AbortError from the
-      // request itself or from an error-body read is reported as a timeout.
-      const res = await requestTimeout.guard(
-        () =>
-          this._fetchFn(url, {
-            method,
-            headers: {
-              Accept: 'application/json, text/plain, */*',
-              'Content-Type': 'application/json',
-              ...this.options?.headers,
-              ...headers,
-              'User-Agent': (userAgent || 'workos-node').toString(),
-            },
-            body: requestBody,
-            signal: abortController.signal,
-          }),
-        { abortIsTimeout: true },
-      );
+      res = await this._fetchFn(url, {
+        method,
+        headers: {
+          Accept: 'application/json, text/plain, */*',
+          'Content-Type': 'application/json',
+          ...this.options?.headers,
+          ...headers,
+          'User-Agent': (userAgent || 'workos-node').toString(),
+        },
+        body: requestBody,
+        signal: abortController.signal,
+      });
+
+      // The deadline covers the body as well as the headers (GH-1679): a
+      // server that responds promptly and then stalls the body still times
+      // out, and a timeout here is retried like any other.
+      const rawBody = await res.text();
+
+      // Clear timeout once the whole response has arrived
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
-
-        // Read the error body under the same deadline: a stalled error
-        // response surfaces as a 408 here, inside the attempt, where the
-        // retry policy already handles it.
-        let rawBody: string;
-
-        try {
-          rawBody = await requestTimeout.guard(() => res.text(), {
-            headers: res.headers,
-            abortIsTimeout: true,
-          });
-        } finally {
-          requestTimeout.release();
-        }
 
         let responseJson: any;
 
@@ -390,12 +248,24 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           },
         });
       }
-      // The body is still on the wire: the deadline goes with the response.
-      return new FetchHttpClientResponse(res, requestTimeout);
+      return new FetchHttpClientResponse(res, rawBody);
     } catch (error) {
-      // Nothing took ownership of the deadline, so disarm it. Timeouts have
-      // already been translated to a 408 HttpClientError by guard().
-      requestTimeout.release();
+      // Clear timeout if request failed
+      clearTimeout(timeoutId);
+
+      // Handle timeout errors. Checked on our own signal rather than the
+      // error's type: the AbortError a fetch implementation raises for an
+      // aborted body may come from another realm.
+      if (abortController.signal.aborted) {
+        throw new HttpClientError({
+          message: `Request timeout after ${timeout}ms`,
+          response: {
+            status: 408,
+            headers: res?.headers ?? new Headers(),
+            data: { error: 'Request timeout' },
+          },
+        });
+      }
 
       throw error;
     }
@@ -549,26 +419,15 @@ export class FetchHttpClientResponse
   implements HttpClientResponseInterface
 {
   _res: Response;
-  private readonly _requestTimeout: RequestTimeout;
+  private readonly _rawBody: string;
 
-  constructor(res: Response, requestTimeout: RequestTimeout = NO_TIMEOUT) {
+  constructor(res: Response, rawBody: string) {
     super(
       res.status,
       FetchHttpClientResponse._transformHeadersToObject(res.headers),
     );
     this._res = res;
-    this._requestTimeout = requestTimeout;
-
-    if (res.body === null) {
-      // Nothing left to wait for.
-      requestTimeout.release();
-    } else {
-      // Until toJSON() reads the body, or for good if nobody does (raw
-      // access, a discarded delete response, a non-JSON response), the
-      // deadline stays armed as a bounded fallback but must not keep the
-      // process alive by itself.
-      requestTimeout.unref();
-    }
+    this._rawBody = rawBody;
   }
 
   getRawResponse(): Response {
@@ -583,33 +442,13 @@ export class FetchHttpClientResponse
       return null;
     }
 
-    let rawBody: string;
-
-    if (this._res.bodyUsed || this._res.body?.locked) {
-      // Someone else already holds the body: an earlier toJSON() or a raw
-      // consumer. Their read keeps the deadline; this call only surfaces
-      // the response's own rejection for a body that is already in use.
-      rawBody = await this._res.text();
-    } else {
-      // This call owns the read. Only the read runs under the deadline: an
-      // interrupted body is a timeout, a complete but malformed one is still
-      // a ParseError below.
-      try {
-        rawBody = await this._requestTimeout.guard(() => this._res.text(), {
-          headers: this._res.headers,
-        });
-      } finally {
-        this._requestTimeout.release();
-      }
-    }
-
     try {
-      return JSON.parse(rawBody);
+      return JSON.parse(this._rawBody);
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new ParseError({
           message: error.message,
-          rawBody,
+          rawBody: this._rawBody,
           rawStatus: this._res.status,
           requestID: this._res.headers.get('X-Request-ID') ?? '',
         });
