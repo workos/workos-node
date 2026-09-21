@@ -1,5 +1,22 @@
 # Changelog
 
+## [10.14.0](https://github.com/workos/workos-node/compare/v10.13.0...v10.14.0) (2026-09-21)
+
+
+### Features
+
+* Add optional issuer option for session token validation ([#1694](https://github.com/workos/workos-node/issues/1694)) ([02effa7](https://github.com/workos/workos-node/commit/02effa74892462bac8e57549124166b705118224))
+* **audit-logs:** Add Audit Log Retention methods ([#1705](https://github.com/workos/workos-node/issues/1705)) ([ab1c464](https://github.com/workos/workos-node/commit/ab1c46440885374acd5761418d8d6e588cc1267d))
+
+
+### Bug Fixes
+
+* **ci:** harden dep-bump workflow against sed injection ([#1709](https://github.com/workos/workos-node/issues/1709)) ([6e1e1fe](https://github.com/workos/workos-node/commit/6e1e1fe3421a924217385b59a6f763851c6f2993))
+* encode caller-supplied path parameters in legacy modules ([#1710](https://github.com/workos/workos-node/issues/1710)) ([1fe77c6](https://github.com/workos/workos-node/commit/1fe77c60b73aa8a2cfc6b11d8513078cefcf7a4a))
+* keep request timeouts active while reading response bodies ([#1711](https://github.com/workos/workos-node/issues/1711)) ([26eaed6](https://github.com/workos/workos-node/commit/26eaed6bd12fae5aeea9830cfee05a130c0429a7))
+* reject 5-byte LEB128 encodings that overflow uint32 in decodeUInt32 ([#1690](https://github.com/workos/workos-node/issues/1690)) ([fb303c9](https://github.com/workos/workos-node/commit/fb303c98af39ae4559e8ec7d0922fbd788238018))
+* **session:** return refreshed user and impersonator from refresh() ([#1708](https://github.com/workos/workos-node/issues/1708)) ([855063b](https://github.com/workos/workos-node/commit/855063bb3311a13f946f629ea1b8d949f3c790d3))
+
 ## [10.13.0](https://github.com/workos/workos-node/compare/v10.12.0...v10.13.0) (2026-08-31)
 
 
