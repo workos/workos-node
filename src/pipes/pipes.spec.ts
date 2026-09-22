@@ -25,6 +25,7 @@ function expectDataIntegration(result: any) {
   expect(result.id).toBe('data_integration_01EHZNVPK3SFK441A1RGBFSHRT');
   expect(result.slug).toBe('github');
   expect(result.integrationType).toBe('github');
+  expect(result.ownership).toBe('user');
   expect(result.description).toBe('Production GitHub app');
   expect(result.enabled).toBe(true);
   expect(result.state).toBe('valid');
@@ -32,6 +33,9 @@ function expectDataIntegration(result: any) {
   expect(result.redirectUri).toBe(
     'https://api.workos.com/data-integrations/github/dik_01EHZNVPK3SFK441A1RGBFSHRT/callback',
   );
+  expect(result.authMethods).toEqual(['oauth']);
+  expect(result.installation).toBeNull();
+  expect(result.config).toEqual({ account: 'myorg-myaccount' });
   expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
   expect(result.updatedAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
 }
@@ -39,12 +43,19 @@ function expectDataIntegration(result: any) {
 function expectConnectedAccount(result: any) {
   expect(result.object).toBe('connected_account');
   expect(result.id).toBe('data_installation_01EHZNVPK3SFK441A1RGBFSHRT');
+  expect(result.connectionRole).toBe('compatibility');
+  expect(result.accountIdentifier).toBe('workspace_123');
+  expect(result.accountDisplayName).toBe('Acme production');
   expect(result.userId).toBe('user_01EHZNVPK3SFK441A1RGBFSHRT');
   expect(result.organizationId).toBeNull();
   expect(result.scopes).toEqual(['repo', 'user:email']);
   expect(result.state).toBe('connected');
   expect(result.createdAt).toBe('2024-01-16T14:20:00.000Z');
   expect(result.updatedAt).toBe('2024-01-16T14:20:00.000Z');
+}
+
+function expectDataIntegrationsListResponse(result: any) {
+  expect(result.object).toBe('list');
 }
 
 describe('Pipes', () => {
@@ -56,6 +67,7 @@ describe('Pipes', () => {
 
       const { data, listMetadata } = await workos.pipes.listDataIntegrations({
         order: 'desc',
+        ownership: 'user',
       });
 
       expect(fetchMethod()).toBe('GET');
@@ -184,6 +196,32 @@ describe('Pipes', () => {
     });
   });
 
+  describe('updateDataIntegrationClientCredentials', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.updateDataIntegrationClientCredentials({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+        clientId: 'client_id_01234',
+        clientSecret: 'test_client_secret',
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/client-credentials',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          user_id: 'user_id_01234',
+          client_id: 'client_id_01234',
+          client_secret: 'test_client_secret',
+        }),
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
   describe('createDataIntegrationCredential', () => {
     it('sends the correct request and returns result', async () => {
       fetchOnce(dataIntegrationCredentialsResponseFixture);
@@ -201,6 +239,61 @@ describe('Pipes', () => {
         expect.objectContaining({ user_id: 'user_id_01234' }),
       );
       expect(result).toBeDefined();
+    });
+  });
+
+  describe('getOrganizationDataIntegration', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(dataIntegrationFixture);
+
+      const result = await workos.pipes.getOrganizationDataIntegration({
+        slug: 'test_slug',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/organization',
+      );
+      expectDataIntegration(result);
+    });
+  });
+
+  describe('updateOrganizationDataIntegration', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationFixture);
+
+      const result = await workos.pipes.updateOrganizationDataIntegration({
+        slug: 'test_slug',
+        enabled: true,
+        credentials: { type: 'custom' },
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/organization',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          enabled: true,
+          credentials: { type: 'custom' },
+        }),
+      );
+      expectDataIntegration(result);
+    });
+  });
+
+  describe('deleteOrganizationDataIntegration', () => {
+    it('sends a DELETE request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.pipes.deleteOrganizationDataIntegration({
+        slug: 'test_slug',
+      });
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/test_slug/organization',
+      );
     });
   });
 
@@ -224,6 +317,104 @@ describe('Pipes', () => {
     });
   });
 
+  describe('getOrganizationConnectedAccount', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.getOrganizationConnectedAccount({
+        organizationId: 'test_organizationId',
+        slug: 'test_slug',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/connected_accounts/test_slug',
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
+  describe('createOrganizationConnectedAccount', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.createOrganizationConnectedAccount({
+        organizationId: 'test_organizationId',
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/connected_accounts/test_slug',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({ user_id: 'user_id_01234' }),
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
+  describe('updateOrganizationConnectedAccount', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(connectedAccountFixture);
+
+      const result = await workos.pipes.updateOrganizationConnectedAccount({
+        organizationId: 'test_organizationId',
+        slug: 'test_slug',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
+        userId: 'user_id_01234',
+      });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/connected_accounts/test_slug',
+      );
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({ user_id: 'user_id_01234' }),
+      );
+      expectConnectedAccount(result);
+    });
+  });
+
+  describe('deleteOrganizationConnectedAccount', () => {
+    it('sends a DELETE request', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.pipes.deleteOrganizationConnectedAccount({
+        organizationId: 'test_organizationId',
+        slug: 'test_slug',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/connected_accounts/test_slug',
+      );
+    });
+  });
+
+  describe('listOrganizationDataProviders', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(dataIntegrationsListResponseFixture);
+
+      const result = await workos.pipes.listOrganizationDataProviders({
+        organizationId: 'test_organizationId',
+        supportsMultipleConnections: true,
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/test_organizationId/data_providers',
+      );
+      expectDataIntegrationsListResponse(result);
+    });
+  });
+
   describe('getUserConnectedAccount', () => {
     it('returns the expected result', async () => {
       fetchOnce(connectedAccountFixture);
@@ -232,6 +423,8 @@ describe('Pipes', () => {
         userId: 'test_userId',
         slug: 'test_slug',
         organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
       });
 
       expect(fetchMethod()).toBe('GET');
@@ -276,6 +469,8 @@ describe('Pipes', () => {
         userId: 'test_userId',
         slug: 'test_slug',
         organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
         accessToken: 'test_access_token',
         refreshToken: 'test_refresh_token',
       });
@@ -302,6 +497,8 @@ describe('Pipes', () => {
         userId: 'test_userId',
         slug: 'test_slug',
         organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        supportsMultipleConnections: true,
+        connectedAccountId: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
       });
 
       expect(fetchMethod()).toBe('DELETE');
@@ -310,6 +507,8 @@ describe('Pipes', () => {
       );
       expect(fetchSearchParams()).toEqual({
         organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        supports_multiple_connections: 'true',
+        connected_account_id: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
       });
       expect(fetchSearchParams()).not.toHaveProperty('query');
     });
@@ -322,13 +521,14 @@ describe('Pipes', () => {
       const result = await workos.pipes.listUserDataProviders({
         userId: 'test_userId',
         organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        supportsMultipleConnections: true,
       });
 
       expect(fetchMethod()).toBe('GET');
       expect(new URL(String(fetchURL())).pathname).toBe(
         '/user_management/users/test_userId/data_providers',
       );
-      expect(result.object).toBe('list');
+      expectDataIntegrationsListResponse(result);
     });
   });
 });

@@ -18,6 +18,7 @@ export const deserializeDataIntegrationsListResponseData = (
   credentialsType: response.credentials_type,
   scopes: response.scopes ?? null,
   authMethods: response.auth_methods,
+  connectionOwner: response.connection_owner,
   ownership: response.ownership,
   createdAt: response.created_at,
   updatedAt: response.updated_at,
@@ -27,4 +28,10 @@ export const deserializeDataIntegrationsListResponseData = (
           response.connected_account,
         )
       : null,
+  connectedAccounts:
+    response.connected_accounts != null
+      ? response.connected_accounts.map(
+          deserializeDataIntegrationsListResponseDataConnectedAccount,
+        )
+      : undefined,
 });
