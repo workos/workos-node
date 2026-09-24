@@ -90,5 +90,8 @@ when the current spec no longer emits them. Preserve compatibility files rather
 than deleting them to make the directory match the manifest.
 
 The credential response types retain hand-maintained compatibility fields and
-metadata typing. The two direct-query DELETE methods are protected with
+metadata typing. The `DataIntegrationCredentialsResponseCredential` alias files
+(interface, serializer, and fixture) re-export the generated
+`DataIntegrationVendedCredential` component under its published name and, like
+the legacy DTOs, stay outside the manifest. The two direct-query DELETE methods are protected with
 `@oagen-ignore` regions until the Node emitter's helper-signature fix is available.

@@ -350,6 +350,73 @@ describe('Pipes request contracts', () => {
       });
     },
   );
+
+  it.each(['listUserDataProviders', 'listOrganizationDataProviders'] as const)(
+    '%s keeps standard connections alongside the compatibility connection',
+    async (method) => {
+      const [provider] = providersFixture.data;
+      const compatibilityAccount = provider.connected_account;
+      const standardAccount = {
+        ...compatibilityAccount,
+        id: 'data_installation_standard',
+        connection_role: 'standard',
+        account_identifier: 'workspace_456',
+        account_display_name: 'Acme staging',
+      };
+      fetchOnce({
+        ...providersFixture,
+        data: [
+          {
+            ...provider,
+            connected_accounts: [compatibilityAccount, standardAccount],
+          },
+          {
+            ...provider,
+            id: 'data_integration_standard_only',
+            connected_account: null,
+            connected_accounts: [standardAccount],
+          },
+        ],
+      });
+
+      const result = await workos.pipes[method]({
+        userId,
+        organizationId,
+        supportsMultipleConnections: true,
+      });
+
+      const [withPeers, standardOnly] = result.data;
+      expect(withPeers.connectedAccount?.id).toBe(compatibilityAccount.id);
+      expect(
+        withPeers.connectedAccounts?.map(
+          ({ id, connectionRole, accountIdentifier }) => ({
+            id,
+            connectionRole,
+            accountIdentifier,
+          }),
+        ),
+      ).toEqual([
+        {
+          id: compatibilityAccount.id,
+          connectionRole: 'compatibility',
+          accountIdentifier: 'workspace_123',
+        },
+        {
+          id: 'data_installation_standard',
+          connectionRole: 'standard',
+          accountIdentifier: 'workspace_456',
+        },
+      ]);
+
+      expect(standardOnly.connectedAccount).toBeNull();
+      expect(standardOnly.connectedAccounts).toHaveLength(1);
+      expect(standardOnly.connectedAccounts?.[0]).toMatchObject({
+        id: 'data_installation_standard',
+        connectionRole: 'standard',
+        accountDisplayName: 'Acme staging',
+      });
+    },
+  );
 });
 
 describe('Pipes credential response variants', () => {
