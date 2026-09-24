@@ -2,4 +2,7 @@
 
 import type { CreateDataIntegration } from './create-data-integration.interface';
 
-export type CreateDataIntegrationOptions = CreateDataIntegration;
+// Keep an interface so existing consumers can extend or augment it.
+export interface CreateDataIntegrationOptions extends CreateDataIntegration {
+  provider: string;
+}

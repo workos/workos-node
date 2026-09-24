@@ -40,6 +40,7 @@ export * from './data-integration-installation-connection-role.interface';
 export * from './data-integration-installation.interface';
 export * from './data-integration-ownership.interface';
 export * from './data-integration-state.interface';
+export * from './data-integration-vended-credential.interface';
 export * from './data-integration.interface';
 export * from './data-integrations-get-data-integration-authorize-url-request-connection-owner.interface';
 export * from './data-integrations-get-data-integration-authorize-url-request.interface';

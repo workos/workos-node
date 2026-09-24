@@ -603,6 +603,8 @@ export class Pipes {
     return deserializeConnectedAccount(data);
   }
 
+  // @oagen-ignore-start
+  // Keep direct-query DELETE calls until the emitter fix is available.
   /**
    * Delete an organization connected account
    *
@@ -634,6 +636,8 @@ export class Pipes {
       },
     );
   }
+
+  // @oagen-ignore-end
 
   /**
    * List providers for an organization
@@ -817,6 +821,8 @@ export class Pipes {
     return deserializeConnectedAccount(data);
   }
 
+  // @oagen-ignore-start
+  // Keep direct-query DELETE calls until the emitter fix is available.
   /**
    * Delete a connected account
    *
@@ -851,6 +857,8 @@ export class Pipes {
       },
     );
   }
+
+  // @oagen-ignore-end
 
   /**
    * List providers for a user
