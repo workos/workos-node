@@ -7,10 +7,12 @@ export interface UpdateOrganizationConnectedAccountOptions {
   organizationId: string;
   /** The slug identifier of the provider (e.g., `github`, `slack`, `notion`). */
   slug: string;
-  /** Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered. */
+  /** Accepted for compatibility; does not change update targeting. Supply `connectedAccountId` to select a connection. */
   supportsMultipleConnections?: boolean;
   /** A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update. */
   connectedAccountId?: string;
+  /** Set to `reauthorize` with `connectedAccountId` to update an exact connection. Omit both for compatibility behavior. */
+  connectionIntent?: 'reauthorize';
   /** The OAuth access token for the connected account. */
   accessToken?: string;
   /** The OAuth refresh token for the connected account. */

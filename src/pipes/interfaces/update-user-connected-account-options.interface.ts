@@ -9,10 +9,12 @@ export interface UpdateUserConnectedAccountOptions {
   slug: string;
   /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization. */
   organizationId?: string;
-  /** Set to `true` to use the plural connection contract. Defaults to the compatibility connection. */
+  /** Accepted for compatibility; does not change update targeting. Supply `connectedAccountId` to select a connection. */
   supportsMultipleConnections?: boolean;
   /** Select the connected account to update. */
   connectedAccountId?: string;
+  /** Set to `reauthorize` with `connectedAccountId` to update an exact connection. Omit both for compatibility behavior. */
+  connectionIntent?: 'reauthorize';
   /** The OAuth access token for the connected account. */
   accessToken?: string;
   /** The OAuth refresh token for the connected account. */

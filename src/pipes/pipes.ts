@@ -5,6 +5,12 @@ import type { ListDataIntegrationsOptions } from './interfaces/list-data-integra
 import { AutoPaginatable } from '../common/utils/pagination';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import type { CreateDataIntegrationOptions } from './interfaces/create-data-integration-options.interface';
+import type { CreateDataIntegrationApiKeyOptions } from './interfaces/create-data-integration-api-key-options.interface';
+import type { CreateDataIntegrationClientCredentialOptions } from './interfaces/create-data-integration-client-credential-options.interface';
+import type { DataIntegrationsCreateApiKeyConnectionRequestResponse } from './interfaces/data-integrations-create-api-key-connection-request.interface';
+import type { DataIntegrationsCreateClientCredentialsConnectionRequestResponse } from './interfaces/data-integrations-create-client-credentials-connection-request.interface';
+import type { CreateConnectedAccountResponse } from './interfaces/create-connected-account.interface';
+import type { CreateOrganizationConnectedAccountResponse } from './interfaces/create-organization-connected-account.interface';
 import type { GetDataIntegrationOptions } from './interfaces/get-data-integration-options.interface';
 import type { UpdateDataIntegrationOptions } from './interfaces/update-data-integration-options.interface';
 import type { DeleteDataIntegrationOptions } from './interfaces/delete-data-integration-options.interface';
@@ -66,6 +72,10 @@ import { deserializeDataIntegrationCredentialsResponse } from './serializers/dat
 import { deserializeDataIntegrationAccessTokenResponse } from './serializers/data-integration-access-token-response.serializer';
 import { deserializeDataIntegrationsListResponse } from './serializers/data-integrations-list-response.serializer';
 import { serializeCreateDataIntegration } from './serializers/create-data-integration.serializer';
+import { serializeDataIntegrationsCreateApiKeyConnectionRequest } from './serializers/data-integrations-create-api-key-connection-request.serializer';
+import { serializeDataIntegrationsCreateClientCredentialsConnectionRequest } from './serializers/data-integrations-create-client-credentials-connection-request.serializer';
+import { serializeCreateConnectedAccount } from './serializers/create-connected-account.serializer';
+import { serializeCreateOrganizationConnectedAccount } from './serializers/create-organization-connected-account.serializer';
 import { serializeUpdateDataIntegration } from './serializers/update-data-integration.serializer';
 import { serializeDataIntegrationsUpsertApiKeyRequest } from './serializers/data-integrations-upsert-api-key-request.serializer';
 import { serializeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest } from './serializers/data-integrations-get-data-integration-authorize-url-request.serializer';
@@ -229,6 +239,31 @@ export class Pipes {
   }
 
   /**
+   * Create another API key connected account
+   *
+   * Requires `connectionIntent: 'add'` and does not accept an account selector.
+   * Until additional connections are available, this creates the first connection
+   * or returns 404 `multiple_connections_unavailable` if one already exists.
+   * Use `updateDataIntegrationApiKey` to rotate the compatibility connection or
+   * update an exact connection.
+   */
+  async createDataIntegrationApiKey(
+    options: CreateDataIntegrationApiKeyOptions,
+  ): Promise<ConnectedAccount> {
+    const { slug, ...payload } = options;
+    const { data } = await this.workos.post<
+      ConnectedAccountResponse,
+      DataIntegrationsCreateApiKeyConnectionRequestResponse
+    >(
+      `/data-integrations/${encodeURIComponent(slug)}/api-key`,
+      serializeDataIntegrationsCreateApiKeyConnectionRequest(payload),
+    );
+    return deserializeConnectedAccount(data);
+  }
+
+  // @oagen-ignore-start
+  // Preserve serialization while the emitter passes union request bodies through unchanged.
+  /**
    * Upsert an API key for a connected account
    *
    * Creates or updates an API-key-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored API key is rotated to the new value.
@@ -266,6 +301,8 @@ export class Pipes {
     );
     return deserializeConnectedAccount(data);
   }
+
+  // @oagen-ignore-end
 
   /**
    * Get authorization URL
@@ -305,6 +342,33 @@ export class Pipes {
   }
 
   /**
+   * Create another client credentials connected account
+   *
+   * Requires `connectionIntent: 'add'` and does not accept an account selector.
+   * Until additional connections are available, this creates the first connection
+   * or returns 404 `multiple_connections_unavailable` if one already exists.
+   * Use `updateDataIntegrationClientCredentials` to rotate the compatibility
+   * connection or update an exact connection.
+   */
+  async createDataIntegrationClientCredential(
+    options: CreateDataIntegrationClientCredentialOptions,
+  ): Promise<ConnectedAccount> {
+    const { slug, ...payload } = options;
+    const { data } = await this.workos.post<
+      ConnectedAccountResponse,
+      DataIntegrationsCreateClientCredentialsConnectionRequestResponse
+    >(
+      `/data-integrations/${encodeURIComponent(slug)}/client-credentials`,
+      serializeDataIntegrationsCreateClientCredentialsConnectionRequest(
+        payload,
+      ),
+    );
+    return deserializeConnectedAccount(data);
+  }
+
+  // @oagen-ignore-start
+  // Preserve serialization while the emitter passes union request bodies through unchanged.
+  /**
    * Upsert client credentials for a connected account
    *
    * Creates or updates a client-credentials-based installation for the specified integration, owned by the user or, when `connection_owner` is `organization`, shared by the organization. If an installation already exists, the stored client credentials are rotated to the new values.
@@ -333,10 +397,12 @@ export class Pipes {
     return deserializeConnectedAccount(data);
   }
 
+  // @oagen-ignore-end
+
   /**
    * Vend credentials for a connected account
    *
-   * Returns credentials for a user-owned or organization-owned connected account. OAuth and client-credentials installations return an access token; API-key installations return the stored secret. Client-credentials responses also include provider metadata.
+   * Returns credentials for a user-owned or organization-owned connected account. OAuth and client-credentials installations return an access token; API-key installations return the stored secret. Every active credential includes provider-declared, non-secret `config` from the connection snapshot with current defaults. Client-credentials responses also include provider token `metadata`.
    * @param options - Object containing userId.
    * @param options.slug - The identifier of the integration.
    * @example "github"
@@ -525,7 +591,7 @@ export class Pipes {
   /**
    * Import an organization connected account
    *
-   * Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+   * Imports an organization-owned [connected account](https://workos.com/docs/reference/pipes/connected-account) by providing OAuth tokens directly. Omit `connectionIntent` for compatibility behavior or set it to `add` to explicitly create a connection. Additional connection creation is subject to API availability.
    * @param options - The request options.
    * @param options.organizationId - An [Organization](https://workos.com/docs/reference/organization) identifier.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
@@ -544,12 +610,12 @@ export class Pipes {
     const { organizationId, slug, ...payload } = options;
     const { data } = await this.workos.post<
       ConnectedAccountResponse,
-      OrganizationConnectedAccountResponse
+      CreateOrganizationConnectedAccountResponse
     >(
       `/organizations/${encodeURIComponent(
         organizationId,
       )}/connected_accounts/${encodeURIComponent(slug)}`,
-      serializeOrganizationConnectedAccount(payload),
+      serializeCreateOrganizationConnectedAccount(payload),
     );
     return deserializeConnectedAccount(data);
   }
@@ -563,10 +629,10 @@ export class Pipes {
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
    * @param options.slug - The slug identifier of the provider (e.g., `github`, `slack`, `notion`).
    * @example "github"
-   * @param options.supportsMultipleConnections - Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
-   * @example true
+   * @param options.supportsMultipleConnections - Accepted for compatibility; does not change update targeting.
    * @param options.connectedAccountId - A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
    * @example "data_installation_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @param options.connectionIntent - Set to `reauthorize` with `connectedAccountId`, or omit both to update the compatibility connection.
    * @returns {Promise<ConnectedAccount>}
    * @throws {BadRequestException} 400
    * @throws {UnauthorizedException} 401
@@ -583,6 +649,7 @@ export class Pipes {
       slug,
       supportsMultipleConnections,
       connectedAccountId,
+      connectionIntent,
       ...payload
     } = options;
     const { data } = await this.workos.put<
@@ -597,6 +664,7 @@ export class Pipes {
         query: {
           supports_multiple_connections: supportsMultipleConnections,
           connected_account_id: connectedAccountId,
+          connection_intent: connectionIntent,
         },
       },
     );
@@ -718,7 +786,7 @@ export class Pipes {
   /**
    * Import a connected account
    *
-   * Imports a [connected account](https://workos.com/docs/reference/pipes/connected-account) for a user by providing OAuth tokens directly. Use this to migrate existing connections or set up connections without going through the OAuth flow.
+   * Imports a [connected account](https://workos.com/docs/reference/pipes/connected-account) for a user by providing OAuth tokens directly. Omit `connectionIntent` for compatibility behavior or set it to `add` to explicitly create a connection. Additional connection creation is subject to API availability.
    * @param options - The request body.
    * @param options.userId - A [User](https://workos.com/docs/reference/authkit/user) identifier.
    * @example "user_01EHZNVPK3SFK441A1RGBFSHRT"
@@ -748,12 +816,12 @@ export class Pipes {
     const { userId, slug, organizationId, ...payload } = options;
     const { data } = await this.workos.post<
       ConnectedAccountResponse,
-      ConnectedAccountInputResponse
+      CreateConnectedAccountResponse
     >(
       `/user_management/users/${encodeURIComponent(
         userId,
       )}/connected_accounts/${encodeURIComponent(slug)}`,
-      serializeConnectedAccountInput(payload),
+      serializeCreateConnectedAccount(payload),
       { query: { organization_id: organizationId } },
     );
     return deserializeConnectedAccount(data);
@@ -770,10 +838,10 @@ export class Pipes {
    * @example "github"
    * @param options.organizationId - An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization.
    * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
-   * @param options.supportsMultipleConnections - Set to `true` to use the plural connection contract. When omitted or `false`, only the compatibility connection is considered.
-   * @example true
+   * @param options.supportsMultipleConnections - Accepted for compatibility; does not change update targeting.
    * @param options.connectedAccountId - A [connected account](https://workos.com/docs/reference/pipes/connected-account) identifier. Use this to select the connection to update.
    * @example "data_installation_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @param options.connectionIntent - Set to `reauthorize` with `connectedAccountId`, or omit both to update the compatibility connection.
    * @param options.accessToken - The OAuth access token for the connected account.
    * @example "gho_16C7e42F292c6912E7710c838347Ae178B4a"
    * @param options.refreshToken - The OAuth refresh token for the connected account.
@@ -800,6 +868,7 @@ export class Pipes {
       organizationId,
       supportsMultipleConnections,
       connectedAccountId,
+      connectionIntent,
       ...payload
     } = options;
     const { data } = await this.workos.put<
@@ -815,6 +884,7 @@ export class Pipes {
           organization_id: organizationId,
           supports_multiple_connections: supportsMultipleConnections,
           connected_account_id: connectedAccountId,
+          connection_intent: connectionIntent,
         },
       },
     );

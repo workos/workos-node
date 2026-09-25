@@ -17,12 +17,14 @@ export const deserializeDataIntegrationVendedCredential = (
         expiresAt: response.expires_at,
         scopes: response.scopes,
         missingScopes: response.missing_scopes,
+        config: response.config,
       };
     case 'api_key':
       return {
         authMethod: 'api_key',
         object: response.object,
         value: response.value,
+        config: response.config,
       };
     case 'client_credentials':
       return {
@@ -33,6 +35,7 @@ export const deserializeDataIntegrationVendedCredential = (
         scopes: response.scopes,
         missingScopes: response.missing_scopes,
         metadata: response.metadata,
+        config: response.config,
       };
     default:
       throw new Error(

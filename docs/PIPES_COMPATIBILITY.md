@@ -75,6 +75,47 @@ connection and may be `null` even when standard connections exist. With plural
 opt-in, credential vending without an account selector can return HTTP 409
 `account_selection_required` when several connections match.
 
+## Explicit connection creation and reauthorization
+
+Use `createDataIntegrationApiKey` or
+`createDataIntegrationClientCredential` to POST an API-key or client-credentials
+connection. Both require `connectionIntent: 'add'` and take no account selector.
+POST requests use the SDK's existing idempotency-key handling for retries.
+
+The existing `updateDataIntegrationApiKey` and
+`updateDataIntegrationClientCredentials` methods still use PUT. They keep
+compatibility upsert behavior when intent and selector are omitted. To update
+an exact connection, supply `connectedAccountId`; an explicit
+`connectionIntent: 'reauthorize'` is optional, but requires that selector.
+Do not send `add` intent to PUT.
+
+OAuth imports (`createUserConnectedAccount` and
+`createOrganizationConnectedAccount`) accept `connectionIntent: 'add'` in the
+body. Omitting it keeps compatibility behavior. Their update counterparts accept
+`connectionIntent: 'reauthorize'` and the account selector in the query.
+`supportsMultipleConnections` remains accepted on updates, but it does not select
+the update target.
+
+Creating additional connections is still subject to API availability. The
+current contract allows `add` for the owner's first connection and otherwise
+returns HTTP 404 `multiple_connections_unavailable` until additional creation is
+enabled. The SDK propagates that error; it does not fall back to rotating an
+existing connection.
+
+## Provider configuration
+
+`createDataIntegrationCredential` preserves `credential.config` for OAuth,
+API-key, and client-credentials results. It contains provider-declared,
+non-secret integration- and installation-scope snapshot values plus current
+defaults. It is separate from client-credentials token `metadata`.
+
+Connected-account detail and provider-list results also preserve `config` for
+all authentication methods. Those maps contain stored, non-secret
+installation-scope values, rather than the combined/defaulted credential config.
+Secret and undeclared values are filtered by the API, not guessed or filtered by
+the SDK. An empty map stays empty; missing config from older API responses stays
+`undefined`. The legacy `getAccessToken` response is unchanged.
+
 ## Generation boundaries
 
 `ConnectedAccountDto` and `DataIntegrationCredentialsDto` remain published
@@ -95,3 +136,10 @@ metadata typing. The `DataIntegrationCredentialsResponseCredential` alias files
 `DataIntegrationVendedCredential` component under its published name and, like
 the legacy DTOs, stay outside the manifest. The two direct-query DELETE methods are protected with
 `@oagen-ignore` regions until the Node emitter's helper-signature fix is available.
+
+API-key and client-credentials PUT options also retain their published flat
+interfaces and explicit snake_case serializers. The current emitter passes the
+new union request bodies through unchanged, which would send camelCase keys from
+the SDK. These interfaces, serializers, and method regions are protected until
+that emission path is fixed. They remain in the manifest where the spec still
+emits the corresponding paths.

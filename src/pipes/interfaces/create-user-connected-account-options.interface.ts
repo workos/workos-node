@@ -19,4 +19,6 @@ export interface CreateUserConnectedAccountOptions {
   scopes?: string[];
   /** Explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided. */
   state?: ConnectedAccountInputState;
+  /** Explicitly create a connection. Omit for compatibility behavior. Until additional connections are available, `add` returns 404 `multiple_connections_unavailable` if the owner already has a connection. */
+  connectionIntent?: 'add';
 }
