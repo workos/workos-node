@@ -80,7 +80,8 @@ opt-in, credential vending without an account selector can return HTTP 409
 Use `createDataIntegrationApiKey` or
 `createDataIntegrationClientCredential` to POST an API-key or client-credentials
 connection. Both require `connectionIntent: 'add'` and take no account selector.
-POST requests use the SDK's existing idempotency-key handling for retries.
+POST requests use the SDK's existing idempotency-key handling for retries once
+the API honors `Idempotency-Key` on these routes.
 
 The existing `updateDataIntegrationApiKey` and
 `updateDataIntegrationClientCredentials` methods still use PUT. They keep
