@@ -10,5 +10,7 @@ export const serializeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest = (
 ): DataIntegrationsGetDataIntegrationAuthorizeUrlRequestResponse => ({
   user_id: model.userId,
   organization_id: model.organizationId,
+  connection_owner: model.connectionOwner,
   return_to: model.returnTo,
+  config: model.config,
 });

@@ -4,19 +4,27 @@ import type {
   CreateDataIntegration,
   CreateDataIntegrationResponse,
 } from '../interfaces/create-data-integration.interface';
-import { serializeDataIntegrationCredentialsDto } from './data-integration-credentials-dto.serializer';
+import { serializeDataIntegrationCredentialsInput } from './data-integration-credentials-input.serializer';
+import { serializeApiKeyInstallation } from './api-key-installation.serializer';
 import { serializeCustomProviderDefinition } from './custom-provider-definition.serializer';
 
 export const serializeCreateDataIntegration = (
   model: CreateDataIntegration,
 ): CreateDataIntegrationResponse => ({
   provider: model.provider,
+  ownership: model.ownership,
+  auth_methods: model.authMethods,
+  config: model.config,
+  api_key:
+    model.apiKey != null
+      ? serializeApiKeyInstallation(model.apiKey)
+      : undefined,
   description: model.description,
   enabled: model.enabled,
   scopes: model.scopes,
   credentials:
     model.credentials != null
-      ? serializeDataIntegrationCredentialsDto(model.credentials)
+      ? serializeDataIntegrationCredentialsInput(model.credentials)
       : undefined,
   custom_provider:
     model.customProvider != null

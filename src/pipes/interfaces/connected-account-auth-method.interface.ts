@@ -3,6 +3,7 @@
 export const ConnectedAccountAuthMethod = {
   OAuth: 'oauth',
   ApiKey: 'api_key',
+  ClientCredentials: 'client_credentials',
 } as const;
 
 export type ConnectedAccountAuthMethod =

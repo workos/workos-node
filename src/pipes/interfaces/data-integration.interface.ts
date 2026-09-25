@@ -5,10 +5,16 @@ import type {
   DataIntegrationCredentialResponse,
 } from './data-integration-credential.interface';
 import type {
+  DataIntegrationInstallation,
+  DataIntegrationInstallationResponse,
+} from './data-integration-installation.interface';
+import type {
   DataIntegrationCustomProvider,
   DataIntegrationCustomProviderResponse,
 } from './data-integration-custom-provider.interface';
+import type { DataIntegrationOwnership } from './data-integration-ownership.interface';
 import type { DataIntegrationState } from './data-integration-state.interface';
+import type { DataIntegrationAuthMethods } from './data-integration-auth-methods.interface';
 
 export interface DataIntegration {
   /** Distinguishes the Data Integration object. */
@@ -19,6 +25,8 @@ export interface DataIntegration {
   slug: string;
   /** The integration type derived from the provider. */
   integrationType: string;
+  /** Who owns the Data Integration: `user` when users connect their own accounts, `organization` when organizations connect. Fixed at creation. */
+  ownership?: DataIntegrationOwnership;
   /** An optional description of the Data Integration. */
   description: string | null;
   /** Whether the Data Integration is enabled. */
@@ -27,10 +35,16 @@ export interface DataIntegration {
   state: DataIntegrationState;
   /** The OAuth scopes configured for the Data Integration. `null` when the provider's configured scopes are used. */
   scopes: string[] | null;
-  /** The OAuth redirect URI to register with the provider when configuring the custom application. */
+  /** The OAuth redirect URI to register with the provider when configuring the custom application. Empty for `api_key` and `client_credentials` integrations, which run no authorization redirect. */
   redirectUri: string;
-  /** The credentials configured for the Data Integration. */
-  credentials: DataIntegrationCredential;
+  /** How accounts authenticate with the provider for this Data Integration. */
+  authMethods?: DataIntegrationAuthMethods[];
+  /** The integration-level OAuth app credentials. `null` for `api_key` and `client_credentials` integrations, which hold no integration-level credentials (secrets are installed per-tenant). */
+  credentials: DataIntegrationCredential | null;
+  /** The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses. */
+  installation?: DataIntegrationInstallation | null;
+  /** Provider-specific config values set on the Data Integration (e.g. a Snowflake `account`), keyed by config field. Only fields the provider declares are accepted. */
+  config?: Record<string, string>;
   /** The OAuth definition when this is a custom provider; `null` for built-in providers. */
   customProvider: DataIntegrationCustomProvider | null;
   /** An ISO 8601 timestamp. */
@@ -44,12 +58,16 @@ export interface DataIntegrationResponse {
   id: string;
   slug: string;
   integration_type: string;
+  ownership?: DataIntegrationOwnership;
   description: string | null;
   enabled: boolean;
   state: DataIntegrationState;
   scopes: string[] | null;
   redirect_uri: string;
-  credentials: DataIntegrationCredentialResponse;
+  auth_methods?: DataIntegrationAuthMethods[];
+  credentials: DataIntegrationCredentialResponse | null;
+  installation?: DataIntegrationInstallationResponse | null;
+  config?: Record<string, string>;
   custom_provider: DataIntegrationCustomProviderResponse | null;
   created_at: string;
   updated_at: string;

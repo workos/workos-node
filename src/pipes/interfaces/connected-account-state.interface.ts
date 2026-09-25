@@ -3,6 +3,7 @@
 export const ConnectedAccountState = {
   Connected: 'connected',
   NeedsReauthorization: 'needs_reauthorization',
+  Disconnected: 'disconnected',
 } as const;
 
 export type ConnectedAccountState =

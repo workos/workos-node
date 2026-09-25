@@ -1,5 +1,9 @@
 {
   "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
   "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
-  "return_to": "https://example.com/callback"
+  "connection_owner": "user",
+  "return_to": "https://example.com/callback",
+  "config": {
+    "subdomain": "acme"
+  }
 }

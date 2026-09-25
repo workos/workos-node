@@ -5,6 +5,7 @@ import type {
   DataIntegrationsListResponseDataConnectedAccountResponse,
 } from './data-integrations-list-response-data-connected-account.interface';
 import type { DataIntegrationsListResponseDataAuthMethods } from './data-integrations-list-response-data-auth-methods.interface';
+import type { DataIntegrationsListResponseDataConnectionOwner } from './data-integrations-list-response-data-connection-owner.interface';
 import type { DataIntegrationsListResponseDataOwnership } from './data-integrations-list-response-data-ownership.interface';
 
 export interface DataIntegrationsListResponseData {
@@ -24,16 +25,23 @@ export interface DataIntegrationsListResponseData {
   credentialsType: string;
   /** The OAuth scopes configured for this provider, or `null` if none are configured. */
   scopes: string[] | null;
-  /** The authentication methods supported by this provider (`oauth`, `api_key`, or both). Defaults to `["oauth"]` if absent. */
+  /** The authentication methods supported by this provider (`oauth`, `api_key`, `client_credentials`, or a combination). Defaults to `["oauth"]` if absent. */
   authMethods?: DataIntegrationsListResponseDataAuthMethods[];
-  /** Whether the provider is owned by a user or organization. */
+  /** Who owns connections made through this provider: `user` for connections owned by individual users, or `organization` for a connection shared by every member of the organization. A provider row can exist before any connected account does. */
+  connectionOwner?: DataIntegrationsListResponseDataConnectionOwner;
+  /**
+   * Use `connection_owner` instead. Legacy spelling of the same value: `userland_user` corresponds to `connection_owner: "user"` and `organization` to `connection_owner: "organization"`.
+   * @deprecated
+   */
   ownership: DataIntegrationsListResponseDataOwnership;
   /** The timestamp when the provider was created. */
   createdAt: string;
   /** The timestamp when the provider was last updated. */
   updatedAt: string;
-  /** The user's [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` if the user has not connected. */
+  /** The user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection. */
   connectedAccount: DataIntegrationsListResponseDataConnectedAccount | null;
+  /** The user's connected accounts for this provider in the requested ownership context. This contains only the compatibility connection unless `supports_multiple_connections` is `true`. */
+  connectedAccounts?: DataIntegrationsListResponseDataConnectedAccount[];
 }
 
 export interface DataIntegrationsListResponseDataResponse {
@@ -46,8 +54,10 @@ export interface DataIntegrationsListResponseDataResponse {
   credentials_type: string;
   scopes: string[] | null;
   auth_methods?: DataIntegrationsListResponseDataAuthMethods[];
+  connection_owner?: DataIntegrationsListResponseDataConnectionOwner;
   ownership: DataIntegrationsListResponseDataOwnership;
   created_at: string;
   updated_at: string;
   connected_account: DataIntegrationsListResponseDataConnectedAccountResponse | null;
+  connected_accounts?: DataIntegrationsListResponseDataConnectedAccountResponse[];
 }

@@ -2,4 +2,9 @@
 
 import type { PaginationOptions } from '../../common/interfaces/pagination-options.interface';
 
-export type ListDataIntegrationsOptions = PaginationOptions;
+import type { PipesOwnership } from './pipes-ownership.interface';
+
+export interface ListDataIntegrationsOptions extends PaginationOptions {
+  /** Filter integrations by who owns their connected accounts. */
+  ownership?: PipesOwnership;
+}
