@@ -6,6 +6,7 @@ import {
   DirectoryGroup,
   DirectoryGroupResponse,
   DirectoryResponse,
+  DirectorySyncResponse,
   DirectoryUserWithGroups,
   DirectoryUserWithGroupsResponse,
   ListDirectoriesOptions,
@@ -74,6 +75,29 @@ export class DirectorySync {
     );
 
     return deserializeDirectory(data);
+  }
+
+  /**
+   * Request an asynchronous sync of a directory.
+   *
+   * Currently supports Google Workspace directories in active or validating
+   * state. Manual requests share a five-minute cooldown across the API,
+   * Dashboard, Admin Portal, and MCP. A queued response does not indicate
+   * that the sync has started or completed.
+   *
+   * @param id - Unique identifier for the Directory.
+   * @throws {ConflictException} A sync is already running (409).
+   * @throws {UnprocessableEntityException} Unsupported provider or state (422).
+   * @throws {RateLimitExceededException} Cooldown active; inspect retryAfter (429).
+   * @throws {GenericServerException} Directory syncing is paused (503).
+   */
+  async syncDirectory(id: string): Promise<DirectorySyncResponse> {
+    const { data } = await this.workos.post<DirectorySyncResponse, undefined>(
+      `/directories/${encodePathParameter(id)}/sync`,
+      undefined,
+    );
+
+    return data;
   }
 
   /**
