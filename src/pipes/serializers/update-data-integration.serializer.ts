@@ -4,7 +4,8 @@ import type {
   UpdateDataIntegration,
   UpdateDataIntegrationResponse,
 } from '../interfaces/update-data-integration.interface';
-import { serializeDataIntegrationCredentialsDto } from './data-integration-credentials-dto.serializer';
+import { serializeDataIntegrationCredentialsInput } from './data-integration-credentials-input.serializer';
+import { serializeApiKeyInstallation } from './api-key-installation.serializer';
 import { serializeUpdateCustomProviderDefinition } from './update-custom-provider-definition.serializer';
 
 export const serializeUpdateDataIntegration = (
@@ -13,9 +14,13 @@ export const serializeUpdateDataIntegration = (
   description: model.description,
   enabled: model.enabled,
   scopes: model.scopes,
+  api_key:
+    model.apiKey != null
+      ? serializeApiKeyInstallation(model.apiKey)
+      : undefined,
   credentials:
     model.credentials != null
-      ? serializeDataIntegrationCredentialsDto(model.credentials)
+      ? serializeDataIntegrationCredentialsInput(model.credentials)
       : undefined,
   custom_provider:
     model.customProvider != null

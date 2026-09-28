@@ -5,4 +5,6 @@ export interface ListUserDataProvidersOptions {
   userId: string;
   /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to filter connections for a specific organization. */
   organizationId?: string;
+  /** Set to `true` to include all connected accounts rather than only the compatibility connection. */
+  supportsMultipleConnections?: boolean;
 }

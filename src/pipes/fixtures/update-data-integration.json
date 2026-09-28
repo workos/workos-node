@@ -7,6 +7,11 @@
     "client_id": "Iv1.abc123",
     "client_secret": "secret_…"
   },
+  "api_key": {
+    "secret": "sk-1234567890abcdef",
+    "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
+    "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT"
+  },
   "custom_provider": {
     "name": "My OAuth App",
     "authorization_url": "https://provider.example.com/oauth/authorize",

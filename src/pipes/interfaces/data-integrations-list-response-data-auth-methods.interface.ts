@@ -3,6 +3,7 @@
 export const DataIntegrationsListResponseDataAuthMethods = {
   OAuth: 'oauth',
   ApiKey: 'api_key',
+  ClientCredentials: 'client_credentials',
 } as const;
 
 export type DataIntegrationsListResponseDataAuthMethods =

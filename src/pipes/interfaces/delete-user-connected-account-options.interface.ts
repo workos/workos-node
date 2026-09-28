@@ -7,4 +7,8 @@ export interface DeleteUserConnectedAccountOptions {
   slug: string;
   /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter if the connection is scoped to an organization. */
   organizationId?: string;
+  /** Set to `true` to use the plural connection contract. Defaults to the compatibility connection. */
+  supportsMultipleConnections?: boolean;
+  /** Select the connected account to delete. */
+  connectedAccountId?: string;
 }

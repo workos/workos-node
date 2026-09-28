@@ -5,11 +5,11 @@ import type { CustomProviderDefinitionAuthenticateVia } from './custom-provider-
 export interface CustomProviderDefinition {
   /** A descriptive name for the custom provider. */
   name: string;
-  /** The provider's OAuth authorization endpoint. */
-  authorizationUrl: string;
-  /** The provider's OAuth token endpoint. */
-  tokenUrl: string;
-  /** The endpoint used to refresh tokens, if different from the token endpoint. */
+  /** The provider's OAuth authorization endpoint. Required for OAuth providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare. */
+  authorizationUrl?: string;
+  /** The provider's OAuth token endpoint. Required for OAuth and `client_credentials` providers; omit for `api_key` providers. Must be a static URL: `${config.…}` placeholders are resolved against a provider's declared config fields, which custom providers cannot declare. */
+  tokenUrl?: string;
+  /** The endpoint used to refresh tokens, if different from the token endpoint. Must be a static URL, like the other endpoints. */
   refreshTokenUrl?: string | null;
   /** Whether PKCE is used during the authorization code flow. Defaults to `true`. */
   pkceEnabled?: boolean;
@@ -29,8 +29,8 @@ export interface CustomProviderDefinition {
 
 export interface CustomProviderDefinitionResponse {
   name: string;
-  authorization_url: string;
-  token_url: string;
+  authorization_url?: string;
+  token_url?: string;
   refresh_token_url?: string | null;
   pkce_enabled?: boolean;
   request_scope_separator?: string;

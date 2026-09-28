@@ -1,11 +1,19 @@
 {
   "object": "connected_account",
   "id": "data_installation_01EHZNVPK3SFK441A1RGBFSHRT",
+  "connection_role": "compatibility",
+  "account_identifier": "workspace_123",
+  "account_display_name": "Acme production",
   "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
   "organization_id": "test_organizationId",
   "scopes": ["repo", "user:email"],
   "auth_method": "oauth",
   "api_key_last_4": null,
+  "client_id": "3MVG9dZJodJWxft2VoStSCVwPFsx0eDcpVc",
+  "client_secret_last_4": "cdef",
+  "config": {
+    "instance_url": "https://example.my.salesforce.com"
+  },
   "state": "connected",
   "created_at": "test_createdAt",
   "updated_at": "test_updatedAt",

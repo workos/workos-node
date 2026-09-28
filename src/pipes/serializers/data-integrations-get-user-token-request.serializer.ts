@@ -10,4 +10,7 @@ export const serializeDataIntegrationsGetUserTokenRequest = (
 ): DataIntegrationsGetUserTokenRequestResponse => ({
   user_id: model.userId,
   organization_id: model.organizationId,
+  connected_account_id: model.connectedAccountId,
+  connection_owner: model.connectionOwner,
+  supports_multiple_connections: model.supportsMultipleConnections,
 });

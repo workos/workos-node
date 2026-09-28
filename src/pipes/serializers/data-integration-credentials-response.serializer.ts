@@ -4,17 +4,28 @@ import type {
   DataIntegrationCredentialsResponse,
   DataIntegrationCredentialsResponseWire,
 } from '../interfaces/data-integration-credentials-response.interface';
-import { deserializeDataIntegrationCredentialsResponseCredential } from './data-integration-credentials-response-credential.serializer';
+import { deserializeDataIntegrationVendedCredential } from './data-integration-vended-credential.serializer';
 
 export const deserializeDataIntegrationCredentialsResponse = (
   response: DataIntegrationCredentialsResponseWire,
-): DataIntegrationCredentialsResponse => ({
-  active: response.active,
-  credential:
-    response.credential != null
-      ? deserializeDataIntegrationCredentialsResponseCredential(
+): DataIntegrationCredentialsResponse => {
+  switch (response.active) {
+    case true:
+      return {
+        active: true,
+        credential: deserializeDataIntegrationVendedCredential(
           response.credential,
-        )
-      : undefined,
-  error: response.error,
-});
+        ),
+      };
+    case false:
+      return {
+        active: false,
+        error: response.error,
+      };
+    default:
+      throw new Error(
+        'Unknown active: ' +
+          String((response as Record<string, unknown>).active),
+      );
+  }
+};

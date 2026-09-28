@@ -5,6 +5,7 @@ import type {
   DataIntegrationResponse,
 } from '../interfaces/data-integration.interface';
 import { deserializeDataIntegrationCredential } from './data-integration-credential.serializer';
+import { deserializeDataIntegrationInstallation } from './data-integration-installation.serializer';
 import { deserializeDataIntegrationCustomProvider } from './data-integration-custom-provider.serializer';
 
 export const deserializeDataIntegration = (
@@ -14,12 +15,22 @@ export const deserializeDataIntegration = (
   id: response.id,
   slug: response.slug,
   integrationType: response.integration_type,
+  ownership: response.ownership,
   description: response.description ?? null,
   enabled: response.enabled,
   state: response.state,
   scopes: response.scopes ?? null,
   redirectUri: response.redirect_uri,
-  credentials: deserializeDataIntegrationCredential(response.credentials),
+  authMethods: response.auth_methods,
+  credentials:
+    response.credentials != null
+      ? deserializeDataIntegrationCredential(response.credentials)
+      : null,
+  installation:
+    response.installation != null
+      ? deserializeDataIntegrationInstallation(response.installation)
+      : null,
+  config: response.config,
   customProvider:
     response.custom_provider != null
       ? deserializeDataIntegrationCustomProvider(response.custom_provider)
