@@ -1,5 +1,16 @@
 # Changelog
 
+## [11.0.0](https://github.com/workos/workos-node/compare/v10.14.0...v11.0.0) (2026-09-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **pipes:** Support organization-owned and multiple connections ([#1712](https://github.com/workos/workos-node/issues/1712))
+
+### Features
+
+* **pipes:** Support organization-owned and multiple connections ([#1712](https://github.com/workos/workos-node/issues/1712)) ([9c3e40d](https://github.com/workos/workos-node/commit/9c3e40d5ade28753a1d6fde57add708c5da7f0ee))
+
 ## [10.14.0](https://github.com/workos/workos-node/compare/v10.13.0...v10.14.0) (2026-09-21)
 
 
