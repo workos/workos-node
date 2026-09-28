@@ -58,6 +58,16 @@ use `connectionOwner`, which defaults to `user`. Organization-owned requests nee
 an `organizationId`; the supplied `userId` identifies the acting member rather
 than making that member the owner.
 
+## Connection provenance
+
+`ConnectedAccount` includes `establishedByUserId` and `stateReason`. Both are
+optional in the wire type and deserialize to `null` when an older API response
+omits them. `establishedByUserId` is `null` for developer-managed connections,
+connections established before provenance was recorded, and after the
+establishing member's membership ends; in that last case `stateReason` is
+`establishing_member_membership_ended`. Keep branching on `state`, and treat a
+`stateReason` value the SDK doesn't list as an unknown reason.
+
 ## Multiple connections are opt-in
 
 Omitting `supportsMultipleConnections`, or passing `false`, keeps the
