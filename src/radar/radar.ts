@@ -93,12 +93,12 @@ export class Radar {
    * @example "block"
    * @param options.entry - The value to add to the list. Must match the format of the list type (e.g. a valid IP address for `ip_address`, a valid email for `email`).
    * @example "198.51.100.42"
-   * @returns {Promise<RadarListEntryAlreadyPresentResponse>}
+   * @returns {Promise<RadarListEntryAlreadyPresentResponse | null>}
    * @throws {BadRequestException} 400
    */
   async addListEntry(
     options: AddListEntryOptions,
-  ): Promise<RadarListEntryAlreadyPresentResponse> {
+  ): Promise<RadarListEntryAlreadyPresentResponse | null> {
     const { type, action, ...payload } = options;
     const { data } = await this.workos.post<
       RadarListEntryAlreadyPresentResponseWire,
@@ -107,6 +107,11 @@ export class Radar {
       `/radar/lists/${encodeURIComponent(type)}/${encodeURIComponent(action)}`,
       serializeRadarStandaloneUpdateRadarListRequest(payload),
     );
+    if (!data) {
+      // Adding an entry successfully returns 204 No Content,
+      // so we can't deserialize the response.
+      return null;
+    }
     return deserializeRadarListEntryAlreadyPresentResponse(data);
   }
 
