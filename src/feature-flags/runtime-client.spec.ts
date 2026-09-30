@@ -3,7 +3,7 @@ import { fetchOnce, fetchURL } from '../common/utils/test-utils';
 import { UnauthorizedException } from '../common/exceptions';
 import { WorkOS } from '../workos';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
-import { FlagPollResponse } from './interfaces';
+import { FlagPollResponse, FlagPollResponseV2 } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -22,6 +22,32 @@ const pollResponse: FlagPollResponse = {
       users: [{ id: 'user_123', enabled: true }],
       organizations: [],
     },
+  },
+};
+
+const normalizedFlags: FlagPollResponseV2['flags'] = {
+  'flag-a': {
+    slug: 'flag-a',
+    enabled: true,
+    default_value: true,
+    off_value: false,
+    rules: [],
+  },
+  'flag-b': {
+    slug: 'flag-b',
+    enabled: true,
+    default_value: false,
+    off_value: false,
+    rules: [
+      {
+        id: 'v1:user',
+        kind: 'conditions',
+        value: true,
+        conditions: [
+          { target_type: 'user', operator: 'one_of', values: ['user_123'] },
+        ],
+      },
+    ],
   },
 };
 
@@ -178,12 +204,12 @@ describe('FeatureFlagsRuntimeClient', () => {
   });
 
   describe('getFlag', () => {
-    it('returns raw flag entry', async () => {
+    it('returns normalized flag configuration', async () => {
       const client = createClientAndWait();
       await jest.advanceTimersByTimeAsync(0);
       await client.waitUntilReady();
 
-      expect(client.getFlag('flag-a')).toEqual(pollResponse['flag-a']);
+      expect(client.getFlag('flag-a')).toEqual(normalizedFlags['flag-a']);
       expect(client.getFlag('unknown')).toBeUndefined();
 
       client.close();
@@ -266,8 +292,8 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(changes).toEqual([
         {
           key: 'flag-a',
-          previous: pollResponse['flag-a'],
-          current: updatedResponse['flag-a'],
+          previous: normalizedFlags['flag-a'],
+          current: { ...normalizedFlags['flag-a'], enabled: false },
         },
       ]);
 
@@ -301,8 +327,25 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(changes).toEqual([
         {
           key: 'flag-b',
-          previous: pollResponse['flag-b'],
-          current: updatedResponse['flag-b'],
+          previous: normalizedFlags['flag-b'],
+          current: {
+            ...normalizedFlags['flag-b'],
+            rules: [
+              ...normalizedFlags['flag-b'].rules,
+              {
+                id: 'v1:workspace',
+                kind: 'conditions',
+                value: true,
+                conditions: [
+                  {
+                    target_type: 'workspace',
+                    operator: 'one_of',
+                    values: ['ws_123'],
+                  },
+                ],
+              },
+            ],
+          },
         },
       ]);
 
@@ -324,7 +367,7 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(changes).toEqual([
         {
           key: 'flag-b',
-          previous: pollResponse['flag-b'],
+          previous: normalizedFlags['flag-b'],
           current: null,
         },
       ]);

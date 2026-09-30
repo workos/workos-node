@@ -1,4 +1,4 @@
-import { FlagPollEntry } from './flag-poll-response.interface';
+import { FlagPollResponse } from './flag-poll-response.interface';
 
 export interface RuntimeClientLogger {
   debug(...args: unknown[]): void;
@@ -9,7 +9,8 @@ export interface RuntimeClientLogger {
 
 export interface RuntimeClientOptions {
   pollingIntervalMs?: number;
-  bootstrapFlags?: Record<string, FlagPollEntry>;
+  /** A legacy flat payload or a versioned v2 envelope, as returned by polling. */
+  bootstrapFlags?: FlagPollResponse;
   requestTimeoutMs?: number;
   logger?: RuntimeClientLogger;
 }

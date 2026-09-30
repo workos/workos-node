@@ -1,5 +1,6 @@
 import { Evaluator } from './evaluator';
 import { InMemoryStore } from './in-memory-store';
+import { toV2 } from './payload';
 import {
   EvaluationContext,
   FlagPollEntry,
@@ -64,12 +65,14 @@ describe('Evaluator', () => {
       error: jest.fn(),
     };
     evaluator = new Evaluator(store, logger);
-    store.swap({
+    const payload = toV2({
       'enabled-flag': enabledFlag,
       'disabled-flag': disabledFlag,
       'targeted-flag': targetedFlag,
       'default-on-flag': defaultOnFlag,
     });
+    if (!payload) throw new Error('Invalid legacy test payload');
+    store.swap(payload.flags);
   });
 
   describe('isEnabled', () => {
