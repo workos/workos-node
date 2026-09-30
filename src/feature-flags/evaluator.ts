@@ -2,7 +2,7 @@ import { InMemoryStore } from './in-memory-store';
 import {
   EvaluationContext,
   EvaluationResource,
-  FlagPollEntry,
+  FlagPollEntryV2,
   RuntimeClientLogger,
 } from './interfaces';
 
@@ -44,17 +44,16 @@ export class Evaluator {
     // per flag.
     const normalizedContext = this.normalizeContext(context);
     const flags = this.store.getAll();
-    const result: Record<string, boolean> = {};
-
-    for (const slug of Object.keys(flags)) {
-      result[slug] = this.evaluate(flags[slug], normalizedContext, false);
-    }
-
-    return result;
+    return Object.fromEntries(
+      Object.entries(flags).map(([slug, flag]) => [
+        slug,
+        this.evaluate(flag, normalizedContext, false),
+      ]),
+    );
   }
 
   private evaluate(
-    entry: FlagPollEntry | undefined,
+    entry: FlagPollEntryV2 | undefined,
     normalizedContext: Map<string, string>,
     defaultValue: boolean,
   ): boolean {
@@ -63,18 +62,31 @@ export class Evaluator {
     }
 
     if (!entry.enabled) {
-      return false;
+      return this.servedValue(entry.off_value, defaultValue);
     }
 
-    // Evaluation is enable-only: any enabled target matching the context
-    // turns the flag on, with no precedence between target types.
-    for (const [targetType, targetId] of normalizedContext) {
-      if (this.hasEnabledTarget(entry, targetType, targetId)) {
-        return true;
+    for (const rule of entry.rules) {
+      if (rule.kind !== 'conditions' || !rule.conditions?.length) continue;
+      const matches = rule.conditions.every((condition) => {
+        if (
+          condition.operator !== 'one_of' ||
+          !condition.target_type ||
+          !Array.isArray(condition.values)
+        )
+          return false;
+        const id = normalizedContext.get(condition.target_type);
+        return id !== undefined && condition.values.includes(id);
+      });
+      if (matches) {
+        return this.servedValue(rule.value, defaultValue);
       }
     }
 
-    return entry.default_value;
+    return this.servedValue(entry.default_value, defaultValue);
+  }
+
+  private servedValue(value: unknown, defaultValue: boolean): boolean {
+    return typeof value === 'boolean' ? value : defaultValue;
   }
 
   /**
@@ -85,6 +97,14 @@ export class Evaluator {
    */
   private normalizeContext(context: EvaluationContext): Map<string, string> {
     const normalized = new Map<string, string>();
+    if (
+      typeof context !== 'object' ||
+      context === null ||
+      Array.isArray(context)
+    ) {
+      this.logger?.warn('Ignoring invalid evaluation context');
+      return normalized;
+    }
     const record: Record<string, unknown> = context;
 
     const legacyEntries: Array<[string, string]> = [];
@@ -160,30 +180,5 @@ export class Evaluator {
     }
 
     return normalized;
-  }
-
-  /**
-   * A target participates in evaluation only while its `enabled` is true. A
-   * `false` value is reserved for future disabled overrides and is treated
-   * as if the target were absent.
-   */
-  private hasEnabledTarget(
-    entry: FlagPollEntry,
-    targetType: string,
-    targetId: string,
-  ): boolean {
-    if (targetType === 'user') {
-      return entry.targets.users.some((t) => t.id === targetId && t.enabled);
-    }
-
-    if (targetType === 'organization') {
-      return entry.targets.organizations.some(
-        (t) => t.id === targetId && t.enabled,
-      );
-    }
-
-    return (entry.targets.custom_targets ?? []).some(
-      (t) => t.type === targetType && t.id === targetId && t.enabled,
-    );
   }
 }

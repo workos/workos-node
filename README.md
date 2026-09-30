@@ -136,6 +136,30 @@ const { accessToken } = await workos.userManagement.authenticateWithCode({
 });
 ```
 
+## Feature flag runtime
+
+The runtime client requests the v2 flag payload and evaluates rules in array order:
+when a flag is off it serves `off_value`; otherwise the first matching rule wins,
+then `default_value`. A matching rule can serve `false`. Conditions within a rule
+must all match; `one_of` matches an exact ID for its target type.
+
+`isEnabled(key, context, defaultValue)` keeps the same API. Unknown rule kinds and
+condition operators do not match. If the selected value is not a boolean, the
+caller-provided default applies (`false` when omitted). `getAllFlags` also uses
+`false` for values this SDK cannot interpret.
+
+Older APIs that return the flat v1 payload remain supported. `bootstrapFlags`
+accepts either that legacy map or the complete `{ version: 2, flags: { ... } }`
+envelope. Unrecognized bootstrap data is ignored and readiness resolves; polling
+can populate the cache afterward. Failed polls retain the last good snapshot.
+
+**Configuration shape change:** `getFlag()` and the `previous` / `current`
+snapshots in `change` events now return v2 entries with `off_value` and `rules`,
+including when the API returns v1. Code inspecting `targets` must switch to
+`rules`. Keep the versioned envelope when saving v2 bootstrap data; a bare map of
+v2 entries is not a bootstrap payload. Reordering rules emits a change event;
+reordering IDs within the same condition does not.
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.

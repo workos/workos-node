@@ -1,17 +1,17 @@
-import { FlagPollEntry, FlagPollResponse } from './interfaces';
+import { FlagPollEntryV2, FlagPollResponseV2 } from './interfaces';
 
 export class InMemoryStore {
-  private flags: FlagPollResponse = {};
+  private flags: FlagPollResponseV2['flags'] = {};
 
-  swap(newFlags: FlagPollResponse): void {
+  swap(newFlags: FlagPollResponseV2['flags']): void {
     this.flags = { ...newFlags };
   }
 
-  get(slug: string): FlagPollEntry | undefined {
-    return this.flags[slug];
+  get(slug: string): FlagPollEntryV2 | undefined {
+    return Object.hasOwn(this.flags, slug) ? this.flags[slug] : undefined;
   }
 
-  getAll(): FlagPollResponse {
+  getAll(): FlagPollResponseV2['flags'] {
     return { ...this.flags };
   }
 
