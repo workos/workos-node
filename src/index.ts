@@ -23,6 +23,7 @@ export * from './directory-sync/interfaces';
 export * from './events/interfaces';
 export * from './feature-flags/interfaces';
 export { FeatureFlagsRuntimeClient } from './feature-flags/runtime-client';
+export { CreateRuleWithTargetsError } from './feature-flags/create-rule-with-targets-error';
 export * from './groups/interfaces';
 export * from './multi-factor-auth/interfaces';
 export * from './organizations/interfaces';
