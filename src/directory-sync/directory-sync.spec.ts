@@ -194,6 +194,81 @@ describe('DirectorySync', () => {
     });
   });
 
+  describe('syncDirectory', () => {
+    const client = new WorkOS('sk_test', { maxRetries: 0 });
+
+    it('returns the queued response from a 202 without sending a request body', async () => {
+      fetchOnce({ status: 'queued' }, { status: 202 });
+
+      const result = await client.directorySync.syncDirectory('directory_123');
+
+      expect(result).toEqual({ status: 'queued' });
+      expect(fetchURL()).toBe(
+        'https://api.workos.com/directories/directory_123/sync',
+      );
+      expect(fetchMethod()).toBe('POST');
+      expect(fetch.mock.calls[0][1]?.body).toBe('');
+    });
+
+    it('encodes the directory ID as a single path segment', async () => {
+      fetchOnce({ status: 'queued' }, { status: 202 });
+
+      await client.directorySync.syncDirectory(
+        'directory/with?reserved#characters',
+      );
+
+      expect(fetchURL()).toContain(
+        '/directories/directory%2Fwith%3Freserved%23characters/sync',
+      );
+    });
+
+    it('exposes the cooldown through the existing rate-limit exception', async () => {
+      fetchOnce(
+        {
+          code: 'directory_sync_rate_limited',
+          message: 'Wait before requesting another sync.',
+          retry_after_seconds: 120,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': '120', 'X-Request-ID': 'req_sync' },
+        },
+      );
+
+      await expect(
+        client.directorySync.syncDirectory('directory_123'),
+      ).rejects.toMatchObject({
+        name: 'RateLimitExceededException',
+        status: 429,
+        retryAfter: 120,
+        requestID: 'req_sync',
+      });
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it.each([
+      [409, 'directory_sync_in_progress'],
+      [422, 'directory_sync_unsupported'],
+      [503, 'directory_sync_disabled'],
+    ])(
+      'propagates a %s response instead of reporting a queued sync',
+      async (status, code) => {
+        fetchOnce(
+          { code, message: 'The sync was not queued.' },
+          { status: Number(status) },
+        );
+
+        await expect(
+          client.directorySync.syncDirectory('directory_123'),
+        ).rejects.toMatchObject({
+          status,
+          code,
+        });
+        expect(fetch).toHaveBeenCalledTimes(1);
+      },
+    );
+  });
+
   describe('deleteDirectory', () => {
     it('sends a request to delete the directory', async () => {
       fetchOnce({}, { status: 202 });
