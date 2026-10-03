@@ -37,6 +37,25 @@ describe('AutoPaginatable', () => {
     expect(mockApiCall).not.toHaveBeenCalled();
   });
 
+  it('returns initial data when limit and a before cursor are specified', async () => {
+    const initialData: List<TestObject> = {
+      object: 'list',
+      data: [{ id: 'u1' }, { id: 'u2' }],
+      listMetadata: { before: 'u1' },
+    };
+
+    const paginatable = new AutoPaginatable<TestObject, PaginationOptions>(
+      initialData,
+      mockApiCall,
+      { limit: 2, before: 'u3' },
+    );
+
+    const result = await paginatable.autoPagination();
+
+    expect(result).toEqual(initialData.data);
+    expect(mockApiCall).not.toHaveBeenCalled();
+  });
+
   it('paginates through all pages', async () => {
     const initialData: List<TestObject> = {
       object: 'list',
@@ -84,6 +103,63 @@ describe('AutoPaginatable', () => {
       limit: 100,
       after: 'cursor2',
     });
+    for (const call of mockApiCall.mock.calls) {
+      expect(call[0]).not.toHaveProperty('before');
+    }
+  });
+
+  it('paginates backward when a before cursor is specified', async () => {
+    const initialData: List<TestObject> = {
+      object: 'list',
+      data: [{ id: 'u3' }, { id: 'u4' }],
+      listMetadata: { before: 'u3', after: 'u5' },
+    };
+
+    mockApiCall
+      .mockResolvedValueOnce({
+        object: 'list',
+        data: [{ id: 'u3' }, { id: 'u4' }],
+        listMetadata: { before: 'u3', after: 'u5' },
+      })
+      .mockResolvedValueOnce({
+        object: 'list',
+        data: [{ id: 'u1' }, { id: 'u2' }],
+        listMetadata: { before: null },
+      });
+
+    const paginatable = new AutoPaginatable<TestObject, PaginationOptions>(
+      initialData,
+      mockApiCall,
+      { before: 'u5', order: 'desc' },
+    );
+
+    const resultPromise = paginatable.autoPagination();
+
+    await jest.advanceTimersByTimeAsync(350);
+
+    const result = await resultPromise;
+
+    expect(result).toEqual([
+      { id: 'u4' },
+      { id: 'u3' },
+      { id: 'u2' },
+      { id: 'u1' },
+    ]);
+
+    expect(mockApiCall).toHaveBeenCalledTimes(2);
+    expect(mockApiCall).toHaveBeenNthCalledWith(1, {
+      limit: 100,
+      before: 'u5',
+      order: 'desc',
+    });
+    expect(mockApiCall).toHaveBeenNthCalledWith(2, {
+      limit: 100,
+      before: 'u3',
+      order: 'desc',
+    });
+    for (const call of mockApiCall.mock.calls) {
+      expect(call[0]).not.toHaveProperty('after');
+    }
   });
 
   it('respects rate limiting between requests', async () => {
