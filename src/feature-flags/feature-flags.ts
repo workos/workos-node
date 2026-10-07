@@ -12,7 +12,10 @@ import {
   FlagRuleResponse,
   FlagTargetMembership,
   FlagTargetMembershipResponse,
+  FlagTargetResource,
+  FlagTargetResourceResponse,
   ListFlagRulesOptions,
+  ListFlagTargetsOptions,
   ListFeatureFlagsOptions,
   RemoveFlagTargetOptions,
   RuntimeClientOptions,
@@ -21,6 +24,7 @@ import {
   deserializeFeatureFlag,
   deserializeFlagRule,
   deserializeFlagTargetMembership,
+  deserializeFlagTargetResource,
 } from './serializers';
 import { CreateRuleWithTargetsError } from './create-rule-with-targets-error';
 import { ListResponse, PaginationOptions } from '../common/interfaces';
@@ -37,7 +41,7 @@ export class FeatureFlags {
   /** Append an empty rule to a flag. Duplicate target type/value pairs return 409. */
   async createFlagRule(options: CreateFlagRuleOptions): Promise<FlagRule> {
     const { data } = await this.workos.post<FlagRuleResponse>('/flag_rules', {
-      feature_flag: options.featureFlag,
+      flag_slug: options.flagSlug,
       target_type: options.targetType,
       value: options.value,
     });
@@ -52,7 +56,7 @@ export class FeatureFlags {
       const { data } = await this.workos.get<ListResponse<FlagRuleResponse>>(
         '/flag_rules',
         {
-          query: { feature_flag: options.featureFlag, limit, before, after },
+          query: { flag_slug: options.flagSlug, limit, before, after },
         },
       );
       return deserializeList(data, deserializeFlagRule);
@@ -82,6 +86,38 @@ export class FeatureFlags {
       { rule_id: options.ruleId, target_id: options.targetId },
     );
     return deserializeFlagTargetMembership(data);
+  }
+
+  /** Get a membership, or a legacy target while the compatibility contract is enabled. */
+  async getFlagTarget(id: string): Promise<FlagTargetResource> {
+    const { data } = await this.workos.get<FlagTargetResourceResponse>(
+      `/flag_targets/${encodePathParameter(id)}`,
+    );
+    return deserializeFlagTargetResource(data);
+  }
+
+  /** List targets with combined filters; the team's contract selects their shape. */
+  async listFlagTargets(
+    options: ListFlagTargetsOptions = {},
+  ): Promise<AutoPaginatable<FlagTargetResource, ListFlagTargetsOptions>> {
+    const fetchPage = async ({ limit, before, after }: PaginationOptions) => {
+      const { data } = await this.workos.get<
+        ListResponse<FlagTargetResourceResponse>
+      >('/flag_targets', {
+        query: {
+          rule_id: options.ruleId,
+          flag_slug: options.flagSlug,
+          target_type: options.targetType,
+          target_id: options.targetId,
+          order: options.order ?? 'desc',
+          limit,
+          before,
+          after,
+        },
+      });
+      return deserializeList(data, deserializeFlagTargetResource);
+    };
+    return new AutoPaginatable(await fetchPage(options), fetchPage, options);
   }
 
   /** Delete a membership by its flag_target ID, not the targeted entity's ID. */
