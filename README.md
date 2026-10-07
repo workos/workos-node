@@ -264,3 +264,46 @@ can move to using the stable version.
 - [Admin Portal Guide](https://workos.com/docs/admin-portal/guide)
 - [Magic Link Guide](https://workos.com/docs/magic-link/guide)
 - [Domain Verification Guide](https://workos.com/docs/domain-verification/guide)
+
+### Feature flag events
+
+The Events API and `webhooks.constructEvent` support the namespaced feature flag
+lifecycle events:
+
+- `feature_flags.flag.created`, `feature_flags.flag.updated`, `feature_flags.flag.deleted`
+- `feature_flags.flag_rule.created`, `feature_flags.flag_rule.updated`, `feature_flags.flag_rule.deleted`
+- `feature_flags.flag_target.created`, `feature_flags.flag_target.deleted`
+
+Use these names in `events.listEvents({ events: [...] })`. The returned `Event`
+union narrows by `event`; event data and context use camelCase fields.
+
+```ts
+const { data: events } = await workos.events.listEvents({
+  events: [
+    'feature_flags.flag_target.created',
+    'feature_flags.flag_rule.updated',
+  ],
+});
+
+for (const event of events) {
+  if (event.event === 'feature_flags.flag_target.created') {
+    if ('ruleId' in event.data) {
+      console.log(event.data.ruleId, event.data.targetId);
+    } else {
+      console.log(event.data.valueType, event.data.value);
+    }
+  }
+}
+```
+
+Flag events include `environmentId`, nullable `description`, and a nullable
+`owner` with `email`, `firstName`, and `lastName`. Updated flag context includes
+optional `previousAttributes.data`. Rule context can omit `actor` for system
+changes. Target events preserve both legacy values and rule memberships, including
+persisted events emitted before the membership API rollout. Historical `flag.*`
+event data and context remain unchanged.
+
+SDK parsing support does not enable event delivery. Coordinate availability with
+the feature flag event launch. Webhook endpoint subscription enums must be
+regenerated after these names are published in the API specification; rule update
+webhook registration is also a launch prerequisite.
