@@ -142,7 +142,7 @@ Create an empty rule, then add memberships using the rule's ID:
 
 ```ts
 const rule = await workos.featureFlags.createFlagRule({
-  featureFlag: 'new-checkout',
+  flagSlug: 'new-checkout',
   targetType: 'organization',
   value: true,
 });
@@ -155,10 +155,30 @@ const membership = await workos.featureFlags.createFlagTarget({
 await workos.featureFlags.deleteFlagTarget(membership.id);
 ```
 
+The `flagSlug` option is sent as `flag_slug` to the API for rule creation and
+listing. Membership creation sends only `rule_id` and `target_id`; the rule
+supplies the flag, target type, and served value.
+
+Use `getFlagTarget(membership.id)` to read a target or combine filters when listing:
+
+```ts
+const members = await workos.featureFlags.listFlagTargets({
+  ruleId: rule.id,
+  flagSlug: 'new-checkout',
+  targetType: 'organization',
+  order: 'asc',
+});
+const allMembers = await members.autoPagination();
+```
+
+Target lists also accept `targetId`, `limit`, `before`, and `after`. The SDK
+defaults target lists to descending creation order, so `after` advances through
+the results. Rule lists always follow evaluation order.
+
 Rules are appended in evaluation order. `targetType` can be `organization`,
 `user`, or a registered custom target type. A duplicate rule with the same
 target type and value returns a conflict; it does not reuse the existing rule.
-Use `listFlagRules({ featureFlag: 'new-checkout' })` to find existing rules,
+Use `listFlagRules({ flagSlug: 'new-checkout' })` to find existing rules,
 `getFlagRule(rule.id)` to inspect one, or `deleteFlagRule(rule.id)` to delete a
 rule and its memberships. Rule lists support `limit`, `before`, `after`, and
 `autoPagination()` and always follow the server's evaluation order.
@@ -170,7 +190,7 @@ import { CreateRuleWithTargetsError } from '@workos-inc/node';
 
 try {
   const { rule, targets } = await workos.featureFlags.createRuleWithTargets({
-    featureFlag: 'new-checkout',
+    flagSlug: 'new-checkout',
     targetType: 'organization',
     value: true,
     targetIds: ['org_first', 'org_second'],
@@ -178,7 +198,12 @@ try {
 } catch (error) {
   if (error instanceof CreateRuleWithTargetsError) {
     // Save these IDs to reconcile or resume membership creation.
-    console.error(error.rule.id, error.targets, error.failedTargetId, error.cause);
+    console.error(
+      error.rule.id,
+      error.targets,
+      error.failedTargetId,
+      error.cause,
+    );
   }
   throw error;
 }
@@ -200,9 +225,20 @@ rules; existing integrations do not need to change. The new REST membership
 type is `FlagTargetMembership`; the existing `FlagTarget` polling type is
 unchanged.
 
-Rule endpoints require the targeting-rules rollout. The membership methods and
-convenience helper also require an API deployment that accepts `rule_id` on
-`POST /flag_targets`.
+Rule endpoints require `feature-flags-targeting-rules`. Membership creation and
+`createRuleWithTargets` additionally require `feature-flags-legacy-target-contract`
+to be off. The compatibility flag takes precedence: while it is on, the target
+API retains its legacy contract. With both flags off, `/flag_targets` returns 404.
+
+`getFlagTarget()` and `listFlagTargets()` return `FlagTargetResource`: a
+`FlagTargetMembership` with `ruleId` in membership mode, or a `LegacyFlagTarget`
+with `value` and `valueType` in compatibility mode. Narrow using
+`'ruleId' in target` before accessing the contract-specific fields.
+
+Release these methods only after the API deployment that supports these
+contracts. Before enabling rule authoring for a team, verify v2-capable runtime
+SDKs and `rule-based-flag-evaluation` in each affected environment. Keep rule
+authoring off for teams using the legacy compatibility contract during migration.
 
 ## SDK Versioning
 

@@ -9,6 +9,7 @@ export * from './flag-poll-response.interface';
 export * from './flag-rule.interface';
 export * from './flag-target-membership.interface';
 export * from './list-flag-rules-options.interface';
+export * from './list-flag-targets-options.interface';
 export * from './list-feature-flags-options.interface';
 export * from './remove-flag-target-options.interface';
 export * from './runtime-client-options.interface';

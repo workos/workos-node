@@ -24,3 +24,21 @@ export interface FlagTargetMembershipResponse {
   created_at: string;
   updated_at: string;
 }
+
+/** Returned while the team's temporary legacy target contract is enabled. */
+export interface LegacyFlagTarget extends Omit<FlagTargetMembership, 'ruleId'> {
+  valueType: 'boolean';
+  value: boolean;
+}
+
+export interface LegacyFlagTargetResponse extends Omit<
+  FlagTargetMembershipResponse,
+  'rule_id'
+> {
+  value_type: 'boolean';
+  value: boolean;
+}
+
+export type FlagTargetResource = FlagTargetMembership | LegacyFlagTarget;
+export type FlagTargetResourceResponse =
+  FlagTargetMembershipResponse | LegacyFlagTargetResponse;

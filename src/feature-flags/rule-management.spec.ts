@@ -9,7 +9,11 @@ import {
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import { CreateRuleWithTargetsError } from './create-rule-with-targets-error';
-import { FlagRuleResponse, FlagTargetMembershipResponse } from './interfaces';
+import {
+  FlagRuleResponse,
+  FlagTargetMembershipResponse,
+  LegacyFlagTargetResponse,
+} from './interfaces';
 
 const workos = new WorkOS('sk_test_rule_management', { maxRetries: 0 });
 
@@ -40,6 +44,20 @@ const target: FlagTargetMembershipResponse = {
   updated_at: '2026-10-01T00:00:00.000Z',
 };
 
+const legacyTarget: LegacyFlagTargetResponse = {
+  object: target.object,
+  id: 'flag_target_legacy',
+  flag_id: target.flag_id,
+  flag_slug: target.flag_slug,
+  environment_id: target.environment_id,
+  target_type: target.target_type,
+  target_id: 'org_legacy',
+  value_type: 'boolean',
+  value: false,
+  created_at: target.created_at,
+  updated_at: target.updated_at,
+};
+
 describe('Feature flag rule management', () => {
   beforeEach(() => fetch.resetMocks());
 
@@ -51,7 +69,7 @@ describe('Feature flag rule management', () => {
     fetchOnce({ ...rule, target_type: targetType, value }, { status: 201 });
 
     const result = await workos.featureFlags.createFlagRule({
-      featureFlag: 'new-checkout',
+      flagSlug: 'new-checkout',
       targetType,
       value,
     });
@@ -59,7 +77,7 @@ describe('Feature flag rule management', () => {
     expect(new URL(String(fetchURL())).pathname).toBe('/flag_rules');
     expect(fetchMethod()).toBe('POST');
     expect(fetchBody()).toEqual({
-      feature_flag: 'new-checkout',
+      flag_slug: 'new-checkout',
       target_type: targetType,
       value,
     });
@@ -93,7 +111,7 @@ describe('Feature flag rule management', () => {
     });
 
     const page = await workos.featureFlags.listFlagRules({
-      featureFlag: 'new-checkout',
+      flagSlug: 'new-checkout',
     });
     expect(page.listMetadata).toEqual({ before: null, after: rule.id });
     const all = await page.autoPagination();
@@ -109,21 +127,21 @@ describe('Feature flag rule management', () => {
         return Object.fromEntries(request.searchParams);
       }),
     ).toEqual([
-      { feature_flag: 'new-checkout' },
-      { feature_flag: 'new-checkout', limit: '100' },
-      { feature_flag: 'new-checkout', limit: '100', after: rule.id },
+      { flag_slug: 'new-checkout' },
+      { flag_slug: 'new-checkout', limit: '100' },
+      { flag_slug: 'new-checkout', limit: '100', after: rule.id },
     ]);
   });
 
   it('passes an explicit page limit and before cursor', async () => {
     fetchOnce({ object: 'list', data: [], list_metadata: {} });
     await workos.featureFlags.listFlagRules({
-      featureFlag: 'a flag & more',
+      flagSlug: 'a flag & more',
       limit: 10,
       before: rule.id,
     });
     expect(fetchSearchParams()).toEqual({
-      feature_flag: 'a flag & more',
+      flag_slug: 'a flag & more',
       limit: '10',
       before: rule.id,
     });
@@ -176,6 +194,105 @@ describe('Feature flag rule management', () => {
     });
   });
 
+  it.each([target, legacyTarget])(
+    'reads either target contract without inventing fields',
+    async (response) => {
+      fetchOnce(response);
+      const result = await workos.featureFlags.getFlagTarget(
+        'target/with?reserved#chars',
+      );
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/flag_targets/target%2Fwith%3Freserved%23chars',
+      );
+      expect(fetchMethod()).toBe('GET');
+      expect(result).toMatchObject({
+        id: response.id,
+        flagSlug: response.flag_slug,
+        targetId: response.target_id,
+      });
+      if ('rule_id' in response) {
+        expect(result).toHaveProperty('ruleId', response.rule_id);
+        expect(result).not.toHaveProperty('value');
+        expect(result).not.toHaveProperty('valueType');
+      } else {
+        expect(result).toHaveProperty('value', false);
+        expect(result).toHaveProperty('valueType', 'boolean');
+        expect(result).not.toHaveProperty('ruleId');
+      }
+    },
+  );
+
+  it('keeps all target filters across automatic pagination and deserializes both contracts', async () => {
+    const first = {
+      object: 'list',
+      data: [target],
+      list_metadata: { before: null, after: target.id },
+    };
+    fetchOnce(first);
+    fetchOnce(first);
+    fetchOnce({
+      object: 'list',
+      data: [legacyTarget],
+      list_metadata: { before: target.id, after: null },
+    });
+    const page = await workos.featureFlags.listFlagTargets({
+      ruleId: rule.id,
+      flagSlug: rule.flag_slug,
+      targetType: 'organization',
+    });
+    expect(page.listMetadata).toEqual({ before: null, after: target.id });
+    const results = await page.autoPagination();
+    expect(results.map(({ id }) => id)).toEqual([target.id, legacyTarget.id]);
+    expect(results[0]).toHaveProperty('ruleId', rule.id);
+    expect(results[1]).toHaveProperty('value', false);
+    const filters = {
+      rule_id: rule.id,
+      flag_slug: rule.flag_slug,
+      target_type: 'organization',
+      order: 'desc',
+    };
+    expect(
+      fetch.mock.calls.map(([url]) => {
+        const request = new URL(String(url));
+        expect(request.pathname).toBe('/flag_targets');
+        return Object.fromEntries(request.searchParams);
+      }),
+    ).toEqual([
+      filters,
+      { ...filters, limit: '100' },
+      { ...filters, limit: '100', after: target.id },
+    ]);
+  });
+
+  it('passes target page cursors and explicit ordering', async () => {
+    fetchOnce({ object: 'list', data: [], list_metadata: {} });
+    await workos.featureFlags.listFlagTargets({
+      flagSlug: 'a flag & more',
+      ruleId: rule.id,
+      targetType: 'organization',
+      targetId: target.target_id,
+      limit: 10,
+      before: target.id,
+      order: 'asc',
+    });
+    expect(fetchSearchParams()).toEqual({
+      flag_slug: 'a flag & more',
+      rule_id: rule.id,
+      target_type: 'organization',
+      target_id: target.target_id,
+      limit: '10',
+      before: target.id,
+      order: 'asc',
+    });
+  });
+
+  it('lists targets without requiring a filter', async () => {
+    fetchOnce({ object: 'list', data: [], list_metadata: {} });
+    const page = await workos.featureFlags.listFlagTargets();
+    expect(page.data).toEqual([]);
+    expect(fetchSearchParams()).toEqual({ order: 'desc' });
+  });
+
   it('deletes a membership by its encoded membership ID', async () => {
     fetchOnce({}, { status: 204 });
     await workos.featureFlags.deleteFlagTarget('target/with?reserved#chars');
@@ -195,7 +312,7 @@ describe('Feature flag rule management', () => {
       );
 
       const result = await workos.featureFlags.createRuleWithTargets({
-        featureFlag: 'new-checkout',
+        flagSlug: 'new-checkout',
         targetType: 'organization',
         value: false,
         targetIds: [target.target_id, 'org_second'],
@@ -212,7 +329,7 @@ describe('Feature flag rule management', () => {
           path: '/flag_rules',
           method: 'POST',
           body: {
-            feature_flag: 'new-checkout',
+            flag_slug: 'new-checkout',
             target_type: 'organization',
             value: false,
           },
@@ -238,7 +355,7 @@ describe('Feature flag rule management', () => {
     it('supports an empty rule', async () => {
       fetchOnce(rule, { status: 201 });
       const result = await workos.featureFlags.createRuleWithTargets({
-        featureFlag: 'new-checkout',
+        flagSlug: 'new-checkout',
         targetType: 'organization',
         value: false,
         targetIds: [],
@@ -258,7 +375,7 @@ describe('Feature flag rule management', () => {
       );
       await expect(
         workos.featureFlags.createRuleWithTargets({
-          featureFlag: 'new-checkout',
+          flagSlug: 'new-checkout',
           targetType: 'organization',
           value: false,
           targetIds: [target.target_id],
@@ -277,7 +394,7 @@ describe('Feature flag rule management', () => {
       fetchOnce({ message: 'Target belongs to another rule' }, { status: 409 });
       const error = await workos.featureFlags
         .createRuleWithTargets({
-          featureFlag: 'new-checkout',
+          flagSlug: 'new-checkout',
           targetType: 'organization',
           value: false,
           targetIds: [target.target_id, 'org_conflict', 'org_never_attempted'],
