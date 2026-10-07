@@ -16,6 +16,8 @@ export * from './common/interfaces';
 export * from './common/utils/pagination';
 export * from './directory-sync/interfaces';
 export * from './events/interfaces';
+export * from './feature-flags/interfaces';
+export { CreateRuleWithTargetsError } from './feature-flags/create-rule-with-targets-error';
 export * from './organizations/interfaces';
 export * from './organization-domains/interfaces';
 export * from './passwordless/interfaces';

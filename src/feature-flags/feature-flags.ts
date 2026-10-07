@@ -2,13 +2,33 @@ import { AutoPaginatable } from '../common/utils/pagination';
 import { WorkOS } from '../workos';
 import {
   AddFlagTargetOptions,
+  CreateFlagRuleOptions,
+  CreateFlagTargetOptions,
+  CreateRuleWithTargetsOptions,
+  CreateRuleWithTargetsResult,
   FeatureFlag,
   FeatureFlagResponse,
+  FlagRule,
+  FlagRuleResponse,
+  FlagTargetMembership,
+  FlagTargetMembershipResponse,
+  FlagTargetResource,
+  FlagTargetResourceResponse,
+  ListFlagRulesOptions,
+  ListFlagTargetsOptions,
   ListFeatureFlagsOptions,
   RemoveFlagTargetOptions,
   RuntimeClientOptions,
 } from './interfaces';
-import { deserializeFeatureFlag } from './serializers';
+import {
+  deserializeFeatureFlag,
+  deserializeFlagRule,
+  deserializeFlagTargetMembership,
+  deserializeFlagTargetResource,
+} from './serializers';
+import { CreateRuleWithTargetsError } from './create-rule-with-targets-error';
+import { ListResponse, PaginationOptions } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
 import { ListOrganizationFeatureFlagsOptions } from '../organizations/interfaces/list-organization-feature-flags-options.interface';
@@ -17,6 +37,118 @@ import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class FeatureFlags {
   constructor(private readonly workos: WorkOS) {}
+
+  /** Append an empty rule to a flag. Duplicate target type/value pairs return 409. */
+  async createFlagRule(options: CreateFlagRuleOptions): Promise<FlagRule> {
+    const { data } = await this.workos.post<FlagRuleResponse>('/flag_rules', {
+      flag_slug: options.flagSlug,
+      target_type: options.targetType,
+      value: options.value,
+    });
+    return deserializeFlagRule(data);
+  }
+
+  /** List a flag's rules in evaluation order. */
+  async listFlagRules(
+    options: ListFlagRulesOptions,
+  ): Promise<AutoPaginatable<FlagRule, ListFlagRulesOptions>> {
+    const fetchPage = async ({ limit, before, after }: PaginationOptions) => {
+      const { data } = await this.workos.get<ListResponse<FlagRuleResponse>>(
+        '/flag_rules',
+        {
+          query: { flag_slug: options.flagSlug, limit, before, after },
+        },
+      );
+      return deserializeList(data, deserializeFlagRule);
+    };
+    return new AutoPaginatable(await fetchPage(options), fetchPage, options);
+  }
+
+  /** Get a rule in the current environment. */
+  async getFlagRule(id: string): Promise<FlagRule> {
+    const { data } = await this.workos.get<FlagRuleResponse>(
+      `/flag_rules/${encodePathParameter(id)}`,
+    );
+    return deserializeFlagRule(data);
+  }
+
+  /** Delete a rule and all its target memberships. */
+  async deleteFlagRule(id: string): Promise<void> {
+    await this.workos.delete(`/flag_rules/${encodePathParameter(id)}`);
+  }
+
+  /** Add a membership to a rule. The rule supplies the target type and value. */
+  async createFlagTarget(
+    options: CreateFlagTargetOptions,
+  ): Promise<FlagTargetMembership> {
+    const { data } = await this.workos.post<FlagTargetMembershipResponse>(
+      '/flag_targets',
+      { rule_id: options.ruleId, target_id: options.targetId },
+    );
+    return deserializeFlagTargetMembership(data);
+  }
+
+  /** Get a membership, or a legacy target while the compatibility contract is enabled. */
+  async getFlagTarget(id: string): Promise<FlagTargetResource> {
+    const { data } = await this.workos.get<FlagTargetResourceResponse>(
+      `/flag_targets/${encodePathParameter(id)}`,
+    );
+    return deserializeFlagTargetResource(data);
+  }
+
+  /** List targets with combined filters; the team's contract selects their shape. */
+  async listFlagTargets(
+    options: ListFlagTargetsOptions = {},
+  ): Promise<AutoPaginatable<FlagTargetResource, ListFlagTargetsOptions>> {
+    const fetchPage = async ({ limit, before, after }: PaginationOptions) => {
+      const { data } = await this.workos.get<
+        ListResponse<FlagTargetResourceResponse>
+      >('/flag_targets', {
+        query: {
+          rule_id: options.ruleId,
+          flag_slug: options.flagSlug,
+          target_type: options.targetType,
+          target_id: options.targetId,
+          order: options.order ?? 'desc',
+          limit,
+          before,
+          after,
+        },
+      });
+      return deserializeList(data, deserializeFlagTargetResource);
+    };
+    return new AutoPaginatable(await fetchPage(options), fetchPage, options);
+  }
+
+  /** Delete a membership by its flag_target ID, not the targeted entity's ID. */
+  async deleteFlagTarget(id: string): Promise<void> {
+    await this.workos.delete(`/flag_targets/${encodePathParameter(id)}`);
+  }
+
+  // @oagen-ignore-start
+  /**
+   * Create a rule, then add its targets sequentially in input order.
+   * This is not atomic: on failure, the rule and completed memberships remain.
+   * A CreateRuleWithTargetsError exposes the rule, confirmed targets, failed
+   * target ID, and original error. No later targets are attempted.
+   */
+  async createRuleWithTargets(
+    options: CreateRuleWithTargetsOptions,
+  ): Promise<CreateRuleWithTargetsResult> {
+    const rule = await this.createFlagRule(options);
+    const targets: FlagTargetMembership[] = [];
+    for (const targetId of options.targetIds) {
+      try {
+        targets.push(
+          await this.createFlagTarget({ ruleId: rule.id, targetId }),
+        );
+      } catch (cause) {
+        throw new CreateRuleWithTargetsError(rule, targets, targetId, cause);
+      }
+    }
+    return { rule, targets };
+  }
+  // @oagen-ignore-end
 
   /**
    * List feature flags
@@ -114,6 +246,9 @@ export class FeatureFlags {
   /**
    * Add a feature flag target
    *
+   * @deprecated For rule-based targeting, use createFlagRule and createFlagTarget.
+   * This compatibility helper remains supported.
+   *
    * Enables a feature flag for a specific target in the current environment. Currently, supported targets include users and organizations.
    * @params options - Object containing slug and targetId.
    * @returns {Promise<void>}
@@ -131,6 +266,9 @@ export class FeatureFlags {
 
   /**
    * Remove a feature flag target
+   *
+   * @deprecated For rule-based targeting, use deleteFlagTarget with a membership ID.
+   * This compatibility helper remains supported.
    *
    * Removes a target from the feature flag's target list in the current environment. Currently, supported targets include users and organizations.
    * @params options - Object containing slug and targetId.
