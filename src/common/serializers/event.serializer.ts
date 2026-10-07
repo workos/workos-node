@@ -33,6 +33,15 @@ import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-mana
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
 import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
 import { deserializePermission } from '../../authorization/serializers/permission.serializer';
+import {
+  deserializeFlagRule,
+  deserializeFlagTargetResource,
+} from '../../feature-flags/serializers';
+import {
+  deserializeFeatureFlagEventData,
+  deserializeFeatureFlagRuleContext,
+  deserializeFeatureFlagUpdatedContext,
+} from './feature-flag-event.serializer';
 import { deserializeFeatureFlag } from '../../feature-flags/serializers/feature-flag.serializer';
 import { deserializeGroup } from '../../groups/serializers';
 import {
@@ -271,6 +280,44 @@ export const deserializeEvent = (event: EventResponse): Event => {
         ...eventBase,
         event: event.event,
         data: deserializeApiKey(event.data),
+      };
+    case 'feature_flags.flag.created':
+    case 'feature_flags.flag.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFeatureFlagEventData(event.data),
+        context: {
+          clientId: event.context.client_id,
+          actor: event.context.actor,
+        },
+      };
+    case 'feature_flags.flag.updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFeatureFlagEventData(event.data),
+        context: deserializeFeatureFlagUpdatedContext(event.context),
+      };
+    case 'feature_flags.flag_rule.created':
+    case 'feature_flags.flag_rule.updated':
+    case 'feature_flags.flag_rule.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFlagRule(event.data),
+        context: deserializeFeatureFlagRuleContext(event.context),
+      };
+    case 'feature_flags.flag_target.created':
+    case 'feature_flags.flag_target.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFlagTargetResource(event.data),
+        context: {
+          clientId: event.context.client_id,
+          actor: event.context.actor,
+        },
       };
     case 'flag.created':
     case 'flag.updated':

@@ -55,6 +55,10 @@ import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 import {
   FeatureFlag,
   FeatureFlagResponse,
+  FlagRule,
+  FlagRuleResponse,
+  FlagTargetResource,
+  FlagTargetResourceResponse,
 } from '../../feature-flags/interfaces';
 import { Group, GroupResponse } from '../../groups/interfaces';
 import { ConnectedAccountState } from '../../pipes/interfaces';
@@ -718,6 +722,165 @@ export interface ApiKeyRevokedEventResponse extends EventResponseBase {
   data: SerializedApiKey;
 }
 
+export type FeatureFlagEventData = Omit<FeatureFlag, 'description'> & {
+  environmentId: string;
+  description: string | null;
+  owner: {
+    email: string;
+    firstName: string | null;
+    lastName: string | null;
+  } | null;
+};
+
+export type FeatureFlagEventResponseData = Omit<
+  FeatureFlagResponse,
+  'description'
+> & {
+  environment_id: string;
+  description: string | null;
+  owner: {
+    email: string;
+    first_name: string | null;
+    last_name: string | null;
+  } | null;
+};
+
+export type FeatureFlagActor = {
+  id: string;
+  source: 'api' | 'dashboard' | 'admin_portal' | 'system';
+  name: string | null;
+};
+
+export type FeatureFlagContext = { clientId: string; actor: FeatureFlagActor };
+export type FeatureFlagContextResponse = {
+  client_id: string;
+  actor: FeatureFlagActor;
+};
+export type FeatureFlagRuleContext = {
+  clientId: string;
+  actor?: FeatureFlagActor;
+};
+export type FeatureFlagRuleContextResponse = {
+  client_id: string;
+  actor?: FeatureFlagActor;
+};
+export type FeatureFlagUpdatedContext = FeatureFlagContext & {
+  previousAttributes?: {
+    data?: Partial<
+      Pick<
+        FeatureFlagEventData,
+        'name' | 'description' | 'tags' | 'enabled' | 'defaultValue'
+      >
+    >;
+  };
+};
+export type FeatureFlagUpdatedContextResponse = FeatureFlagContextResponse & {
+  previous_attributes?: {
+    data?: Partial<
+      Pick<
+        FeatureFlagEventResponseData,
+        'name' | 'description' | 'tags' | 'enabled' | 'default_value'
+      >
+    >;
+  };
+};
+
+export interface FeatureFlagsFlagCreatedEvent extends EventBase {
+  event: 'feature_flags.flag.created';
+  data: FeatureFlagEventData;
+  context: FeatureFlagContext;
+}
+
+export interface FeatureFlagsFlagCreatedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag.created';
+  data: FeatureFlagEventResponseData;
+  context: FeatureFlagContextResponse;
+}
+
+export interface FeatureFlagsFlagUpdatedEvent extends EventBase {
+  event: 'feature_flags.flag.updated';
+  data: FeatureFlagEventData;
+  context: FeatureFlagUpdatedContext;
+}
+
+export interface FeatureFlagsFlagUpdatedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag.updated';
+  data: FeatureFlagEventResponseData;
+  context: FeatureFlagUpdatedContextResponse;
+}
+
+export interface FeatureFlagsFlagDeletedEvent extends EventBase {
+  event: 'feature_flags.flag.deleted';
+  data: FeatureFlagEventData;
+  context: FeatureFlagContext;
+}
+
+export interface FeatureFlagsFlagDeletedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag.deleted';
+  data: FeatureFlagEventResponseData;
+  context: FeatureFlagContextResponse;
+}
+
+export interface FeatureFlagsFlagRuleCreatedEvent extends EventBase {
+  event: 'feature_flags.flag_rule.created';
+  data: FlagRule;
+  context: FeatureFlagRuleContext;
+}
+
+export interface FeatureFlagsFlagRuleCreatedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag_rule.created';
+  data: FlagRuleResponse;
+  context: FeatureFlagRuleContextResponse;
+}
+
+export interface FeatureFlagsFlagRuleUpdatedEvent extends EventBase {
+  event: 'feature_flags.flag_rule.updated';
+  data: FlagRule;
+  context: FeatureFlagRuleContext;
+}
+
+export interface FeatureFlagsFlagRuleUpdatedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag_rule.updated';
+  data: FlagRuleResponse;
+  context: FeatureFlagRuleContextResponse;
+}
+
+export interface FeatureFlagsFlagRuleDeletedEvent extends EventBase {
+  event: 'feature_flags.flag_rule.deleted';
+  data: FlagRule;
+  context: FeatureFlagRuleContext;
+}
+
+export interface FeatureFlagsFlagRuleDeletedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag_rule.deleted';
+  data: FlagRuleResponse;
+  context: FeatureFlagRuleContextResponse;
+}
+
+export interface FeatureFlagsFlagTargetCreatedEvent extends EventBase {
+  event: 'feature_flags.flag_target.created';
+  data: FlagTargetResource;
+  context: FeatureFlagContext;
+}
+
+export interface FeatureFlagsFlagTargetCreatedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag_target.created';
+  data: FlagTargetResourceResponse;
+  context: FeatureFlagContextResponse;
+}
+
+export interface FeatureFlagsFlagTargetDeletedEvent extends EventBase {
+  event: 'feature_flags.flag_target.deleted';
+  data: FlagTargetResource;
+  context: FeatureFlagContext;
+}
+
+export interface FeatureFlagsFlagTargetDeletedEventResponse extends EventResponseBase {
+  event: 'feature_flags.flag_target.deleted';
+  data: FlagTargetResourceResponse;
+  context: FeatureFlagContextResponse;
+}
+
 export interface FlagCreatedEvent extends EventBase {
   event: 'flag.created';
   data: FeatureFlag;
@@ -1079,6 +1242,14 @@ export type Event =
   | OrganizationDomainDeletedEvent
   | ApiKeyCreatedEvent
   | ApiKeyRevokedEvent
+  | FeatureFlagsFlagCreatedEvent
+  | FeatureFlagsFlagUpdatedEvent
+  | FeatureFlagsFlagDeletedEvent
+  | FeatureFlagsFlagRuleCreatedEvent
+  | FeatureFlagsFlagRuleUpdatedEvent
+  | FeatureFlagsFlagRuleDeletedEvent
+  | FeatureFlagsFlagTargetCreatedEvent
+  | FeatureFlagsFlagTargetDeletedEvent
   | FlagCreatedEvent
   | FlagUpdatedEvent
   | FlagDeletedEvent
@@ -1165,6 +1336,14 @@ export type EventResponse =
   | OrganizationDomainDeletedEventResponse
   | ApiKeyCreatedEventResponse
   | ApiKeyRevokedEventResponse
+  | FeatureFlagsFlagCreatedEventResponse
+  | FeatureFlagsFlagUpdatedEventResponse
+  | FeatureFlagsFlagDeletedEventResponse
+  | FeatureFlagsFlagRuleCreatedEventResponse
+  | FeatureFlagsFlagRuleUpdatedEventResponse
+  | FeatureFlagsFlagRuleDeletedEventResponse
+  | FeatureFlagsFlagTargetCreatedEventResponse
+  | FeatureFlagsFlagTargetDeletedEventResponse
   | FlagCreatedEventResponse
   | FlagUpdatedEventResponse
   | FlagDeletedEventResponse
