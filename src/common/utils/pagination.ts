@@ -24,39 +24,23 @@ export class AutoPaginatable<
     return this.list.listMetadata;
   }
 
-  private get direction(): 'forward' | 'backward' {
-    return this.options.before && !this.options.after ? 'backward' : 'forward';
-  }
-
   private async *generatePages(
     params: PaginationOptions,
   ): AsyncGenerator<ResourceType[]> {
-    const { before, after, ...options } = this.options;
+    const { before, ...options } = this.options;
     const result = await this.apiCall({
       ...options,
       limit: 100,
-      ...(this.direction === 'backward'
-        ? { before: params.before }
-        : { after: params.after }),
+      ...(params.before ? { before } : {}),
+      after: params.after,
     });
 
-    yield this.direction === 'backward'
-      ? [...result.data].reverse()
-      : result.data;
+    yield result.data;
 
-    const nextCursor =
-      this.direction === 'backward'
-        ? result.listMetadata.before
-        : result.listMetadata.after;
-
-    if (nextCursor) {
+    if (result.listMetadata.after) {
       // Delay of 4rps to respect list users rate limits
       await new Promise((resolve) => setTimeout(resolve, 350));
-      yield* this.generatePages(
-        this.direction === 'backward'
-          ? { before: nextCursor }
-          : { after: nextCursor },
-      );
+      yield* this.generatePages({ after: result.listMetadata.after });
     }
   }
 
