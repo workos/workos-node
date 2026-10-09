@@ -4,7 +4,8 @@ export type WidgetScope =
   | 'widgets:domain-verification:manage'
   | 'widgets:dsync:manage'
   | 'widgets:api-keys:manage'
-  | 'widgets:audit-log-streaming:manage';
+  | 'widgets:audit-log-streaming:manage'
+  | 'widgets:pipes:manage';
 export interface GetTokenOptions {
   organizationId: string;
   userId?: string;
