@@ -14,7 +14,7 @@ describe('Actions', () => {
   });
 
   const makeSigHeader = (payload: unknown, secret: string) => {
-    const timestamp = Date.now() * 1000;
+    const timestamp = Date.now();
     const unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
     const signatureHash = crypto
       .createHmac('sha256', secret)

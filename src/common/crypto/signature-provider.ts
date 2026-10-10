@@ -30,7 +30,12 @@ export class SignatureProvider {
       );
     }
 
-    if (parseInt(timestamp, 10) < Date.now() - tolerance) {
+    const timestampMs = Number(timestamp);
+    if (!/^\d+$/.test(timestamp) || !Number.isSafeInteger(timestampMs)) {
+      throw new SignatureVerificationException('Invalid timestamp');
+    }
+
+    if (Math.abs(Date.now() - timestampMs) > tolerance) {
       throw new SignatureVerificationException(
         'Timestamp outside the tolerance zone',
       );
