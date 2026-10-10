@@ -13,7 +13,7 @@ describe('SignatureProvider', () => {
   beforeEach(() => {
     payload = mockWebhook;
     secret = 'secret';
-    timestamp = Date.now() * 1000;
+    timestamp = Date.now();
     const unhashedString = `${timestamp}.${JSON.stringify(payload)}`;
     signatureHash = crypto
       .createHmac('sha256', secret)
@@ -23,6 +23,73 @@ describe('SignatureProvider', () => {
   });
 
   describe('verifyHeader', () => {
+    it.each([
+      'not-a-timestamp',
+      '',
+      '123junk',
+      'Infinity',
+      '1e12',
+      '1.5',
+      '9007199254740992',
+    ])('rejects malformed timestamp %s', async (value) => {
+      const hash = await signatureProvider.computeSignature(
+        value,
+        payload,
+        secret,
+      );
+      await expect(
+        signatureProvider.verifyHeader({
+          payload,
+          secret,
+          sigHeader: `t=${value},v1=${hash}`,
+        }),
+      ).rejects.toThrow('Invalid timestamp');
+    });
+
+    it.each([-180000, 0, 180000])(
+      'accepts timestamp offset %s within tolerance',
+      async (offset) => {
+        const now = 1791600000000;
+        jest.spyOn(Date, 'now').mockReturnValue(now);
+        const value = String(now + offset);
+        const hash = await signatureProvider.computeSignature(
+          value,
+          payload,
+          secret,
+        );
+        await expect(
+          signatureProvider.verifyHeader({
+            payload,
+            secret,
+            sigHeader: `t=${value},v1=${hash}`,
+            tolerance: 180000,
+          }),
+        ).resolves.toBe(true);
+      },
+    );
+
+    it.each([-180001, 180001])(
+      'rejects timestamp offset %s outside tolerance',
+      async (offset) => {
+        const now = 1791600000000;
+        jest.spyOn(Date, 'now').mockReturnValue(now);
+        const value = String(now + offset);
+        const hash = await signatureProvider.computeSignature(
+          value,
+          payload,
+          secret,
+        );
+        await expect(
+          signatureProvider.verifyHeader({
+            payload,
+            secret,
+            sigHeader: `t=${value},v1=${hash}`,
+            tolerance: 180000,
+          }),
+        ).rejects.toThrow('Timestamp outside the tolerance zone');
+      },
+    );
+
     it('returns true when the signature is valid', async () => {
       const sigHeader = `t=${timestamp}, v1=${signatureHash}`;
       const options = { payload, sigHeader, secret };
