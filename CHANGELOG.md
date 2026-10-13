@@ -1,5 +1,13 @@
 # Changelog
 
+## [11.0.1](https://github.com/workos/workos-node/compare/v11.0.0...v11.0.1) (2026-10-13)
+
+
+### Bug Fixes
+
+* drop before cursor on follow-up autoPagination requests ([#1720](https://github.com/workos/workos-node/issues/1720)) ([14d5e40](https://github.com/workos/workos-node/commit/14d5e40bba62176547b4d458f2d420a1a10ea89e))
+* reject malformed and future webhook timestamps ([#1723](https://github.com/workos/workos-node/issues/1723)) ([ad8bff2](https://github.com/workos/workos-node/commit/ad8bff226e9b37435f0c62390318d4819f76b3d1))
+
 ## [11.0.0](https://github.com/workos/workos-node/compare/v10.14.0...v11.0.0) (2026-09-28)
 
 
