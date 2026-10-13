@@ -34,10 +34,19 @@ export interface ConnectedAccount {
   /**
    * The state of the connected account:
    * - `connected`: The connection is active and tokens are valid.
-   * - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed.
+   * - `needs_reauthorization`: The user needs to reauthorize the connection, typically because required scopes have changed. `state_reason` explains why when WorkOS invalidated the connection itself.
    * - `disconnected`: The connection has been disconnected.
    */
   state: ConnectedAccountState;
+  /** The [User](https://workos.com/docs/reference/authkit/user) whose authorization established this connection. `null` when the connection is developer-managed or its establisher is unknown, and when the establishing member lost access to the organization — in which case `state_reason` is `establishing_member_membership_ended`. */
+  establishedByUserId?: string | null;
+  /**
+   * Why WorkOS put the connection in its current `state`, or `null` when there is no WorkOS-recorded reason:
+   * - `establishing_member_membership_ended`: The member who established this organization-owned connection is no longer an active member of the organization, so its credentials were cleared. An organization admin must provide new credentials.
+   *
+   * Additional values may be added; treat an unrecognized value as an unknown reason.
+   */
+  stateReason?: 'establishing_member_membership_ended' | null;
   /** The timestamp when the connection was created. */
   createdAt: string;
   /** The timestamp when the connection was last updated. */
@@ -59,6 +68,8 @@ export interface ConnectedAccountResponse {
   client_secret_last_4?: string | null;
   config?: Record<string, string>;
   state: ConnectedAccountState;
+  established_by_user_id?: string | null;
+  state_reason?: 'establishing_member_membership_ended' | null;
   created_at: string;
   updated_at: string;
 }
