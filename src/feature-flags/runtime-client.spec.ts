@@ -3,53 +3,39 @@ import { fetchOnce, fetchURL } from '../common/utils/test-utils';
 import { UnauthorizedException } from '../common/exceptions';
 import { WorkOS } from '../workos';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
-import { FlagPollResponse, FlagPollResponseV2 } from './interfaces';
+import { FlagPollResponseV2 } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-const pollResponse: FlagPollResponse = {
-  'flag-a': {
-    slug: 'flag-a',
-    enabled: true,
-    default_value: true,
-    targets: { users: [], organizations: [] },
-  },
-  'flag-b': {
-    slug: 'flag-b',
-    enabled: true,
-    default_value: false,
-    targets: {
-      users: [{ id: 'user_123', enabled: true }],
-      organizations: [],
+const pollResponse: FlagPollResponseV2 = {
+  version: 2,
+  flags: {
+    'flag-a': {
+      slug: 'flag-a',
+      enabled: true,
+      default_value: true,
+      off_value: false,
+      rules: [],
+    },
+    'flag-b': {
+      slug: 'flag-b',
+      enabled: true,
+      default_value: false,
+      off_value: false,
+      rules: [
+        {
+          id: 'rule_user',
+          kind: 'conditions',
+          value: true,
+          conditions: [
+            { target_type: 'user', operator: 'one_of', values: ['user_123'] },
+          ],
+        },
+      ],
     },
   },
 };
-
-const normalizedFlags: FlagPollResponseV2['flags'] = {
-  'flag-a': {
-    slug: 'flag-a',
-    enabled: true,
-    default_value: true,
-    off_value: false,
-    rules: [],
-  },
-  'flag-b': {
-    slug: 'flag-b',
-    enabled: true,
-    default_value: false,
-    off_value: false,
-    rules: [
-      {
-        id: 'v1:user',
-        kind: 'conditions',
-        value: true,
-        conditions: [
-          { target_type: 'user', operator: 'one_of', values: ['user_123'] },
-        ],
-      },
-    ],
-  },
-};
+const { 'flag-a': flagA, 'flag-b': flagB } = pollResponse.flags;
 
 describe('FeatureFlagsRuntimeClient', () => {
   beforeEach(() => {
@@ -204,12 +190,12 @@ describe('FeatureFlagsRuntimeClient', () => {
   });
 
   describe('getFlag', () => {
-    it('returns normalized flag configuration', async () => {
+    it('returns flag configuration', async () => {
       const client = createClientAndWait();
       await jest.advanceTimersByTimeAsync(0);
       await client.waitUntilReady();
 
-      expect(client.getFlag('flag-a')).toEqual(normalizedFlags['flag-a']);
+      expect(client.getFlag('flag-a')).toEqual(flagA);
       expect(client.getFlag('unknown')).toBeUndefined();
 
       client.close();
@@ -276,14 +262,9 @@ describe('FeatureFlagsRuntimeClient', () => {
       const changes: unknown[] = [];
       client.on('change', (change) => changes.push(change));
 
-      const updatedResponse: FlagPollResponse = {
-        'flag-a': {
-          slug: 'flag-a',
-          enabled: false,
-          default_value: true,
-          targets: { users: [], organizations: [] },
-        },
-        'flag-b': pollResponse['flag-b'],
+      const updatedResponse: FlagPollResponseV2 = {
+        version: 2,
+        flags: { 'flag-a': { ...flagA, enabled: false }, 'flag-b': flagB },
       };
 
       fetchOnce(updatedResponse);
@@ -292,15 +273,15 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(changes).toEqual([
         {
           key: 'flag-a',
-          previous: normalizedFlags['flag-a'],
-          current: { ...normalizedFlags['flag-a'], enabled: false },
+          previous: flagA,
+          current: { ...flagA, enabled: false },
         },
       ]);
 
       client.close();
     });
 
-    it('emits change when only custom targets change', async () => {
+    it('emits change when only custom target rules change', async () => {
       const client = createClientAndWait();
       await jest.advanceTimersByTimeAsync(0);
       await client.waitUntilReady();
@@ -308,45 +289,33 @@ describe('FeatureFlagsRuntimeClient', () => {
       const changes: unknown[] = [];
       client.on('change', (change) => changes.push(change));
 
-      const updatedResponse: FlagPollResponse = {
-        'flag-a': pollResponse['flag-a'],
-        'flag-b': {
-          ...pollResponse['flag-b'],
-          targets: {
-            ...pollResponse['flag-b'].targets,
-            custom_targets: [
-              { type: 'workspace', id: 'ws_123', enabled: true },
-            ],
-          },
-        },
-      };
-
-      fetchOnce(updatedResponse);
-      await jest.advanceTimersByTimeAsync(35_000);
-
-      expect(changes).toEqual([
-        {
-          key: 'flag-b',
-          previous: normalizedFlags['flag-b'],
-          current: {
-            ...normalizedFlags['flag-b'],
-            rules: [
-              ...normalizedFlags['flag-b'].rules,
+      const updatedFlagB = {
+        ...flagB,
+        rules: [
+          ...flagB.rules,
+          {
+            id: 'rule_workspace',
+            kind: 'conditions',
+            value: true,
+            conditions: [
               {
-                id: 'v1:workspace',
-                kind: 'conditions',
-                value: true,
-                conditions: [
-                  {
-                    target_type: 'workspace',
-                    operator: 'one_of',
-                    values: ['ws_123'],
-                  },
-                ],
+                target_type: 'workspace',
+                operator: 'one_of',
+                values: ['ws_123'],
               },
             ],
           },
-        },
+        ],
+      };
+
+      fetchOnce({
+        version: 2,
+        flags: { 'flag-a': flagA, 'flag-b': updatedFlagB },
+      });
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(changes).toEqual([
+        { key: 'flag-b', previous: flagB, current: updatedFlagB },
       ]);
 
       client.close();
@@ -361,13 +330,13 @@ describe('FeatureFlagsRuntimeClient', () => {
       client.on('change', (change) => changes.push(change));
 
       // Second poll returns only flag-a
-      fetchOnce({ 'flag-a': pollResponse['flag-a'] });
+      fetchOnce({ version: 2, flags: { 'flag-a': flagA } });
       await jest.advanceTimersByTimeAsync(35_000);
 
       expect(changes).toEqual([
         {
           key: 'flag-b',
-          previous: normalizedFlags['flag-b'],
+          previous: flagB,
           current: null,
         },
       ]);
@@ -378,12 +347,16 @@ describe('FeatureFlagsRuntimeClient', () => {
 
   describe('bootstrap flags', () => {
     it('first poll replaces bootstrap data', async () => {
-      const bootstrapFlags: FlagPollResponse = {
-        'bootstrap-flag': {
-          slug: 'bootstrap-flag',
-          enabled: true,
-          default_value: true,
-          targets: { users: [], organizations: [] },
+      const bootstrapFlags: FlagPollResponseV2 = {
+        version: 2,
+        flags: {
+          'bootstrap-flag': {
+            slug: 'bootstrap-flag',
+            enabled: true,
+            default_value: true,
+            off_value: false,
+            rules: [],
+          },
         },
       };
 

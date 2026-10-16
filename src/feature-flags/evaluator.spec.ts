@@ -1,59 +1,50 @@
 import { Evaluator } from './evaluator';
 import { InMemoryStore } from './in-memory-store';
-import { toV2 } from './payload';
 import {
   EvaluationContext,
-  FlagPollEntry,
+  FlagPollEntryV2,
   RuntimeClientLogger,
 } from './interfaces';
+
+const membershipRule = (targetType: string, values: string[]) => ({
+  id: `rule_${targetType}`,
+  kind: 'conditions',
+  value: true,
+  conditions: [{ target_type: targetType, operator: 'one_of', values }],
+});
 
 describe('Evaluator', () => {
   let store: InMemoryStore;
   let evaluator: Evaluator;
   let logger: jest.Mocked<RuntimeClientLogger>;
 
-  const enabledFlag: FlagPollEntry = {
+  const enabledFlag: FlagPollEntryV2 = {
     slug: 'enabled-flag',
     enabled: true,
     default_value: true,
-    targets: { users: [], organizations: [] },
+    off_value: false,
+    rules: [],
   };
 
-  const disabledFlag: FlagPollEntry = {
+  const disabledFlag: FlagPollEntryV2 = {
     slug: 'disabled-flag',
     enabled: false,
     default_value: true,
-    targets: { users: [], organizations: [] },
+    off_value: false,
+    rules: [],
   };
 
-  const targetedFlag: FlagPollEntry = {
+  const targetedFlag: FlagPollEntryV2 = {
     slug: 'targeted-flag',
     enabled: true,
     default_value: false,
-    targets: {
-      organizations: [{ id: 'org_123', enabled: true }],
-      users: [
-        { id: 'user_456', enabled: true },
-        { id: 'user_blocked', enabled: false },
-      ],
-      custom_targets: [
-        { type: 'workspace', id: 'ws_123', enabled: true },
-        { type: 'workspace', id: 'ws_off', enabled: false },
-        { type: 'region', id: 'us-east-1', enabled: true },
-      ],
-    },
-  };
-
-  // Simulates a default-on flag with a disabled override, which the API
-  // cannot produce yet: the row must not turn the flag off.
-  const defaultOnFlag: FlagPollEntry = {
-    slug: 'default-on-flag',
-    enabled: true,
-    default_value: true,
-    targets: {
-      users: [{ id: 'user_blocked', enabled: false }],
-      organizations: [],
-    },
+    off_value: false,
+    rules: [
+      membershipRule('organization', ['org_123']),
+      membershipRule('user', ['user_456']),
+      membershipRule('workspace', ['ws_123']),
+      membershipRule('region', ['us-east-1']),
+    ],
   };
 
   beforeEach(() => {
@@ -65,14 +56,11 @@ describe('Evaluator', () => {
       error: jest.fn(),
     };
     evaluator = new Evaluator(store, logger);
-    const payload = toV2({
+    store.swap({
       'enabled-flag': enabledFlag,
       'disabled-flag': disabledFlag,
       'targeted-flag': targetedFlag,
-      'default-on-flag': defaultOnFlag,
     });
-    if (!payload) throw new Error('Invalid legacy test payload');
-    store.swap(payload.flags);
   });
 
   describe('isEnabled', () => {
@@ -85,39 +73,19 @@ describe('Evaluator', () => {
       expect(evaluator.isEnabled('disabled-flag')).toBe(false);
     });
 
-    it('returns true for a matching enabled organization target', () => {
+    it('returns true for a matching organization rule', () => {
       expect(
         evaluator.isEnabled('targeted-flag', { organizationId: 'org_123' }),
       ).toBe(true);
     });
 
-    it('returns true for a matching enabled user target', () => {
+    it('returns true for a matching user rule', () => {
       expect(evaluator.isEnabled('targeted-flag', { userId: 'user_456' })).toBe(
         true,
       );
     });
 
-    it('treats targets with enabled=false as not present', () => {
-      // No enabled match, so the flag falls back to its default value —
-      // false here, but crucially the target does not force the flag off.
-      expect(
-        evaluator.isEnabled('targeted-flag', { userId: 'user_blocked' }),
-      ).toBe(false);
-      expect(
-        evaluator.isEnabled('default-on-flag', { userId: 'user_blocked' }),
-      ).toBe(true);
-    });
-
-    it('matches any enabled target with no precedence between types', () => {
-      expect(
-        evaluator.isEnabled('targeted-flag', {
-          userId: 'user_blocked',
-          organizationId: 'org_123',
-        }),
-      ).toBe(true);
-    });
-
-    it('falls back to organization target when user target does not match', () => {
+    it('falls back to the organization rule when the user rule does not match', () => {
       expect(
         evaluator.isEnabled('targeted-flag', {
           userId: 'user_other',
@@ -126,7 +94,7 @@ describe('Evaluator', () => {
       ).toBe(true);
     });
 
-    it('returns default_value when no target matches', () => {
+    it('returns default_value when no rule matches', () => {
       expect(
         evaluator.isEnabled('targeted-flag', { userId: 'user_other' }),
       ).toBe(false);
@@ -138,7 +106,7 @@ describe('Evaluator', () => {
   });
 
   describe('typed evaluation contexts', () => {
-    it('matches custom targets by exact type and id', () => {
+    it('matches custom target rules by exact type and id', () => {
       expect(
         evaluator.isEnabled('targeted-flag', { workspace: { id: 'ws_123' } }),
       ).toBe(true);
@@ -160,23 +128,6 @@ describe('Evaluator', () => {
       expect(
         evaluator.isEnabled('targeted-flag', {
           organization: { id: 'org_123' },
-        }),
-      ).toBe(true);
-    });
-
-    it('treats custom targets with enabled=false as not present', () => {
-      expect(
-        evaluator.isEnabled('targeted-flag', { workspace: { id: 'ws_off' } }),
-      ).toBe(false);
-    });
-
-    it('evaluates safely when the payload has no custom_targets field', () => {
-      expect(
-        evaluator.isEnabled('enabled-flag', { workspace: { id: 'ws_123' } }),
-      ).toBe(true);
-      expect(
-        evaluator.isEnabled('default-on-flag', {
-          workspace: { id: 'ws_123' },
         }),
       ).toBe(true);
     });
@@ -248,7 +199,6 @@ describe('Evaluator', () => {
         'enabled-flag': true,
         'disabled-flag': false,
         'targeted-flag': true,
-        'default-on-flag': true,
       });
     });
 
@@ -259,7 +209,6 @@ describe('Evaluator', () => {
         'enabled-flag': true,
         'disabled-flag': false,
         'targeted-flag': true,
-        'default-on-flag': true,
       });
     });
 
@@ -276,7 +225,6 @@ describe('Evaluator', () => {
         'enabled-flag': true,
         'disabled-flag': false,
         'targeted-flag': false,
-        'default-on-flag': true,
       });
     });
   });

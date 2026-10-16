@@ -8,7 +8,6 @@ import {
   EvaluationContext,
   FlagChange,
   FlagPollEntryV2,
-  FlagPollResponse,
   FlagPollResponseV2,
   RuntimeClientOptions,
   RuntimeClientLogger,
@@ -134,7 +133,6 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     return this.evaluator.getAllFlags(context);
   }
 
-  /** Returns normalized v2 configuration, including for legacy poll responses. */
   getFlag(flagKey: string): FlagPollEntryV2 | undefined {
     return this.store.get(flagKey);
   }
@@ -204,14 +202,14 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     this.scheduleNextPoll();
   }
 
-  private async fetchWithTimeout(): Promise<FlagPollResponse> {
+  private async fetchWithTimeout(): Promise<unknown> {
     this.pollAbortController = new AbortController();
     const { signal } = this.pollAbortController;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const fetchPromise = this.workos
-      .get<FlagPollResponse>('/sdk/feature-flags?payload_version=2')
+      .get<unknown>('/sdk/feature-flags?payload_version=2')
       .then(({ data }) => data);
 
     const timeoutPromise = new Promise<never>((_, reject) => {

@@ -5,7 +5,6 @@ import {
   EvaluationContext,
   FlagChange,
   FlagPollEntryV2,
-  FlagPollResponse,
   FlagPollResponseV2,
 } from './interfaces';
 
@@ -32,6 +31,14 @@ const flag: FlagPollEntryV2 = {
   rules: [exclusion, inclusion],
 };
 const payload: FlagPollResponseV2 = { version: 2, flags: { flag } };
+const legacyPayload = {
+  flag: {
+    slug: 'flag',
+    enabled: true,
+    default_value: true,
+    targets: { users: [{ id: 'user_1', enabled: true }], organizations: [] },
+  },
+};
 
 describe('v2 runtime payloads', () => {
   beforeEach(() => {
@@ -71,14 +78,14 @@ describe('v2 runtime payloads', () => {
       'invalid entry',
       { version: 2, flags: { flag: { ...flag, rules: null } } },
     ],
-    ['invalid legacy entry', { flag: { slug: 'flag', targets: null } }],
+    ['legacy flat', legacyPayload],
     ['null', null],
     ['array', []],
     ['scalar', false],
   ])(
     'ignores %s bootstrap data, resolves readiness, and then polls',
     async (_name, input) => {
-      const bootstrapFlags: FlagPollResponse = JSON.parse(
+      const bootstrapFlags: FlagPollResponseV2 = JSON.parse(
         JSON.stringify(input),
       );
       const client = workos.featureFlags.createRuntimeClient({
@@ -518,6 +525,7 @@ describe('v2 runtime payloads', () => {
       'malformed payload',
       { version: 2, flags: { flag: { ...flag, rules: null } } },
     ],
+    ['legacy flat payload', legacyPayload],
   ])(
     'keeps the last good snapshot after %s and recovers on the next poll',
     async (_name, failure) => {
@@ -553,148 +561,40 @@ describe('v2 runtime payloads', () => {
     },
   );
 
-  it('converts legacy enabled targets to one true rule per type with stable change detection', async () => {
-    const legacy = {
-      flag: {
-        slug: 'flag',
-        enabled: true,
-        default_value: false,
-        targets: {
-          users: [
-            { id: 'user_1', enabled: true },
-            { id: 'user_off', enabled: false },
-          ],
-          organizations: [{ id: 'org_off', enabled: false }],
-          custom_targets: [
-            { type: 'workspace', id: 'ws_1', enabled: true },
-            { type: 'region', id: 'east', enabled: true },
-            { type: 'workspace', id: 'ws_2', enabled: true },
-            { type: 'workspace', id: 'ws_off', enabled: false },
-          ],
-        },
-      },
-    };
-    fetchOnce(legacy);
-    const client = workos.featureFlags.createRuntimeClient();
-    const changes: FlagChange[] = [];
-    client.on('change', (change) => changes.push(change));
-    await jest.advanceTimersByTimeAsync(0);
-    expect(client.getFlag('flag')).toEqual({
-      slug: 'flag',
-      enabled: true,
-      default_value: false,
-      off_value: false,
-      rules: [
-        {
-          id: 'v1:region',
-          kind: 'conditions',
-          value: true,
-          conditions: [
-            { target_type: 'region', operator: 'one_of', values: ['east'] },
-          ],
-        },
-        {
-          id: 'v1:user',
-          kind: 'conditions',
-          value: true,
-          conditions: [
-            { target_type: 'user', operator: 'one_of', values: ['user_1'] },
-          ],
-        },
-        {
-          id: 'v1:workspace',
-          kind: 'conditions',
-          value: true,
-          conditions: [
-            {
-              target_type: 'workspace',
-              operator: 'one_of',
-              values: ['ws_1', 'ws_2'],
-            },
-          ],
-        },
-      ],
+  it('accepts an empty bootstrap snapshot', async () => {
+    const client = workos.featureFlags.createRuntimeClient({
+      bootstrapFlags: { version: 2, flags: {} },
     });
-    expect(client.isEnabled('flag', { workspace: { id: 'ws_2' } })).toBe(true);
-    expect(client.isEnabled('flag', { workspace: { id: 'ws_off' } })).toBe(
-      false,
-    );
-    fetchOnce({
-      flag: {
-        ...legacy.flag,
-        targets: {
-          ...legacy.flag.targets,
-          custom_targets: [...legacy.flag.targets.custom_targets].reverse(),
-        },
-      },
-    });
-    await jest.advanceTimersByTimeAsync(30_000);
-    expect(changes).toEqual([]);
-    // An API upgrade can start returning rules without restarting the SDK.
-    fetchOnce(payload);
-    await jest.advanceTimersByTimeAsync(30_000);
-    expect(client.isEnabled('flag', { organizationId: 'org_1' })).toBe(false);
-    // A rollback to an older API still replaces and evaluates the snapshot.
-    fetchOnce(legacy);
-    await jest.advanceTimersByTimeAsync(30_000);
-    expect(client.isEnabled('flag', { workspace: { id: 'ws_2' } })).toBe(true);
-    expect(client.getStats().pollErrorCount).toBe(0);
+    await client.waitUntilReady();
+    expect(client.getAllFlags()).toEqual({});
+    expect(client.isEnabled('absent', {}, true)).toBe(true);
     client.close();
   });
 
-  it.each([1, 2])(
-    'accepts an empty v%s bootstrap snapshot',
-    async (version) => {
-      const bootstrapFlags: FlagPollResponse =
-        version === 1 ? {} : { version: 2, flags: {} };
-      const client = workos.featureFlags.createRuntimeClient({
-        bootstrapFlags,
-      });
-      await client.waitUntilReady();
-      expect(client.getAllFlags()).toEqual({});
-      expect(client.isEnabled('absent', {}, true)).toBe(true);
-      client.close();
-    },
-  );
-
-  it.each([1, 2])(
-    'preserves reserved-looking flag slugs in v%s payloads',
-    async (version) => {
-      const entries = ['version', 'flags', '__proto__', 'constructor'].map(
-        (slug) => [
-          slug,
-          version === 1
-            ? {
-                slug,
-                enabled: true,
-                default_value: true,
-                targets: { users: [], organizations: [] },
-              }
-            : { ...flag, slug },
-        ],
-      );
-      const flags = Object.fromEntries(entries);
-      fetchOnce(version === 1 ? flags : { version: 2, flags });
-      const client = workos.featureFlags.createRuntimeClient();
-      const changes: FlagChange[] = [];
-      client.on('change', (change) => changes.push(change));
-      expect(client.getFlag('constructor')).toBeUndefined();
-      expect(client.isEnabled('toString', {}, true)).toBe(true);
-      await jest.advanceTimersByTimeAsync(0);
-      expect(client.getAllFlags()).toEqual(
-        JSON.parse(
-          '{"version":true,"flags":true,"__proto__":true,"constructor":true}',
-        ),
-      );
-      expect(client.getFlag('__proto__')?.slug).toBe('__proto__');
-      fetchOnce({ version: 2, flags: {} });
-      await jest.advanceTimersByTimeAsync(30_000);
-      expect(changes).toHaveLength(4);
-      expect(changes.every((change) => change.current === null)).toBe(true);
-      expect(client.getFlag('constructor')).toBeUndefined();
-      client.close();
-    },
-  );
+  it('preserves reserved-looking flag slugs', async () => {
+    const entries = ['version', 'flags', '__proto__', 'constructor'].map(
+      (slug) => [slug, { ...flag, slug }],
+    );
+    fetchOnce({ version: 2, flags: Object.fromEntries(entries) });
+    const client = workos.featureFlags.createRuntimeClient();
+    const changes: FlagChange[] = [];
+    client.on('change', (change) => changes.push(change));
+    expect(client.getFlag('constructor')).toBeUndefined();
+    expect(client.isEnabled('toString', {}, true)).toBe(true);
+    await jest.advanceTimersByTimeAsync(0);
+    expect(client.getAllFlags()).toEqual(
+      JSON.parse(
+        '{"version":true,"flags":true,"__proto__":true,"constructor":true}',
+      ),
+    );
+    expect(client.getFlag('__proto__')?.slug).toBe('__proto__');
+    fetchOnce({ version: 2, flags: {} });
+    await jest.advanceTimersByTimeAsync(30_000);
+    expect(changes).toHaveLength(4);
+    expect(changes.every((change) => change.current === null)).toBe(true);
+    expect(client.getFlag('constructor')).toBeUndefined();
+    client.close();
+  });
 
   it('does not mark a malformed initial poll ready or emit changes on recovery', async () => {
     fetchOnce({ version: 99, flags: {} });
