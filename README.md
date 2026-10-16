@@ -138,27 +138,27 @@ const { accessToken } = await workos.userManagement.authenticateWithCode({
 
 ## Feature flag runtime
 
-The runtime client requests the v2 flag payload and evaluates rules in array order:
-when a flag is off it serves `off_value`; otherwise the first matching rule wins,
-then `default_value`. A matching rule can serve `false`. Conditions within a rule
-must all match; `one_of` matches an exact ID for its target type.
+The runtime client polls the v2 flag payload and evaluates flags locally. When a
+flag is off it serves `off_value`. Otherwise rules are evaluated in array order:
+the first matching rule's `value` wins, and `default_value` applies when no rule
+matches. A matching rule can serve `false`. Every condition in a rule must match;
+`one_of` matches an exact ID for its target type. Unknown rule kinds and condition
+operators never match.
 
-`isEnabled(key, context, defaultValue)` keeps the same API. Unknown rule kinds and
-condition operators do not match. If the selected value is not a boolean, the
-caller-provided default applies (`false` when omitted). `getAllFlags` also uses
-`false` for values this SDK cannot interpret.
+`isEnabled(key, context, defaultValue)` returns `defaultValue` (`false` when
+omitted) if the flag is missing or the served value is not a boolean.
+`getAllFlags` uses `false` in that case.
 
-Older APIs that return the flat v1 payload remain supported. `bootstrapFlags`
-accepts either that legacy map or the complete `{ version: 2, flags: { ... } }`
-envelope. Unrecognized bootstrap data is ignored and readiness resolves; polling
-can populate the cache afterward. Failed polls retain the last good snapshot.
+`getFlag(key)` returns the flag's `FlagPollEntryV2`: `slug`, `enabled`,
+`default_value`, `off_value` and `rules`. The `previous` and `current` values in
+`change` events have the same shape. Reordering rules emits a `change` event;
+reordering IDs within a condition does not.
 
-**Configuration shape change:** `getFlag()` and the `previous` / `current`
-snapshots in `change` events now return v2 entries with `off_value` and `rules`,
-including when the API returns v1. Code inspecting `targets` must switch to
-`rules`. Keep the versioned envelope when saving v2 bootstrap data; a bare map of
-v2 entries is not a bootstrap payload. Reordering rules emits a change event;
-reordering IDs within the same condition does not.
+To start from saved configuration, pass a `FlagPollResponseV2`
+(`{ version: 2, flags: { [slug]: FlagPollEntryV2 } }`) as `bootstrapFlags`.
+Unrecognized bootstrap data, including a bare map of entries without the
+envelope, is ignored and readiness still resolves; polling populates the cache
+afterward. Failed polls keep the last good snapshot.
 
 ## SDK Versioning
 
