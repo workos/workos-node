@@ -249,9 +249,7 @@ rule.
 The legacy `addFlagTarget({ slug, targetId })` and
 `removeFlagTarget({ slug, targetId })` helpers remain supported on their alias
 routes. Their deprecation annotations guide new integrations toward explicit
-rules; existing integrations do not need to change. The new REST membership
-type is `FlagTargetMembership`; the existing `FlagTarget` polling type is
-unchanged.
+rules; existing integrations do not need to change.
 
 Rule endpoints require `feature-flags-targeting-rules`. Membership creation and
 `createRuleWithTargets` additionally require `feature-flags-legacy-target-contract`
@@ -259,7 +257,7 @@ to be off. The compatibility flag takes precedence: while it is on, the target
 API retains its legacy contract. With both flags off, `/flag_targets` returns 404.
 
 `getFlagTarget()` and `listFlagTargets()` return `FlagTargetResource`: a
-`FlagTargetMembership` with `ruleId` in membership mode, or a `LegacyFlagTarget`
+`FlagTarget` with `ruleId` in membership mode, or a `LegacyFlagTarget`
 with `value` and `valueType` in compatibility mode. Narrow using
 `'ruleId' in target` before accessing the contract-specific fields.
 

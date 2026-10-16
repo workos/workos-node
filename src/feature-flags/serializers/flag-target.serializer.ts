@@ -1,6 +1,6 @@
 import {
-  FlagTargetMembership,
-  FlagTargetMembershipResponse,
+  FlagTarget,
+  FlagTargetResponse,
   FlagTargetResource,
   FlagTargetResourceResponse,
 } from '../interfaces';
@@ -17,9 +17,9 @@ const deserializeTargetFields = (target: FlagTargetResourceResponse) => ({
   updatedAt: target.updated_at,
 });
 
-export const deserializeFlagTargetMembership = (
-  target: FlagTargetMembershipResponse,
-): FlagTargetMembership => ({
+export const deserializeFlagTarget = (
+  target: FlagTargetResponse,
+): FlagTarget => ({
   ...deserializeTargetFields(target),
   ruleId: target.rule_id,
 });
@@ -28,7 +28,7 @@ export const deserializeFlagTargetResource = (
   target: FlagTargetResourceResponse,
 ): FlagTargetResource =>
   'rule_id' in target
-    ? deserializeFlagTargetMembership(target)
+    ? deserializeFlagTarget(target)
     : {
         ...deserializeTargetFields(target),
         valueType: target.value_type,

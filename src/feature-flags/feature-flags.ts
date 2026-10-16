@@ -10,8 +10,8 @@ import {
   FeatureFlagResponse,
   FlagRule,
   FlagRuleResponse,
-  FlagTargetMembership,
-  FlagTargetMembershipResponse,
+  FlagTarget,
+  FlagTargetResponse,
   FlagTargetResource,
   FlagTargetResourceResponse,
   ListFlagRulesOptions,
@@ -23,7 +23,7 @@ import {
 import {
   deserializeFeatureFlag,
   deserializeFlagRule,
-  deserializeFlagTargetMembership,
+  deserializeFlagTarget,
   deserializeFlagTargetResource,
 } from './serializers';
 import { CreateRuleWithTargetsError } from './create-rule-with-targets-error';
@@ -80,12 +80,12 @@ export class FeatureFlags {
   /** Add a membership to a rule. The rule supplies the target type and value. */
   async createFlagTarget(
     options: CreateFlagTargetOptions,
-  ): Promise<FlagTargetMembership> {
-    const { data } = await this.workos.post<FlagTargetMembershipResponse>(
+  ): Promise<FlagTarget> {
+    const { data } = await this.workos.post<FlagTargetResponse>(
       '/flag_targets',
       { rule_id: options.ruleId, target_id: options.targetId },
     );
-    return deserializeFlagTargetMembership(data);
+    return deserializeFlagTarget(data);
   }
 
   /** Get a membership, or a legacy target while the compatibility contract is enabled. */
@@ -136,7 +136,7 @@ export class FeatureFlags {
     options: CreateRuleWithTargetsOptions,
   ): Promise<CreateRuleWithTargetsResult> {
     const rule = await this.createFlagRule(options);
-    const targets: FlagTargetMembership[] = [];
+    const targets: FlagTarget[] = [];
     for (const targetId of options.targetIds) {
       try {
         targets.push(

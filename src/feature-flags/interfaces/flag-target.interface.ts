@@ -1,5 +1,5 @@
-/** A REST target membership. The polling payload uses the separate FlagTarget type. */
-export interface FlagTargetMembership {
+/** A target's membership in a flag rule. */
+export interface FlagTarget {
   object: 'flag_target';
   id: string;
   ruleId: string;
@@ -12,7 +12,7 @@ export interface FlagTargetMembership {
   updatedAt: string;
 }
 
-export interface FlagTargetMembershipResponse {
+export interface FlagTargetResponse {
   object: 'flag_target';
   id: string;
   rule_id: string;
@@ -26,19 +26,19 @@ export interface FlagTargetMembershipResponse {
 }
 
 /** Returned while the team's temporary legacy target contract is enabled. */
-export interface LegacyFlagTarget extends Omit<FlagTargetMembership, 'ruleId'> {
+export interface LegacyFlagTarget extends Omit<FlagTarget, 'ruleId'> {
   valueType: 'boolean';
   value: boolean;
 }
 
 export interface LegacyFlagTargetResponse extends Omit<
-  FlagTargetMembershipResponse,
+  FlagTargetResponse,
   'rule_id'
 > {
   value_type: 'boolean';
   value: boolean;
 }
 
-export type FlagTargetResource = FlagTargetMembership | LegacyFlagTarget;
+export type FlagTargetResource = FlagTarget | LegacyFlagTarget;
 export type FlagTargetResourceResponse =
-  FlagTargetMembershipResponse | LegacyFlagTargetResponse;
+  FlagTargetResponse | LegacyFlagTargetResponse;

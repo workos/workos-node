@@ -11,7 +11,7 @@ import { WorkOS } from '../workos';
 import { CreateRuleWithTargetsError } from './create-rule-with-targets-error';
 import {
   FlagRuleResponse,
-  FlagTargetMembershipResponse,
+  FlagTargetResponse,
   LegacyFlagTargetResponse,
 } from './interfaces';
 
@@ -31,7 +31,7 @@ const rule: FlagRuleResponse = {
   updated_at: '2026-10-01T00:00:00.000Z',
 };
 
-const target: FlagTargetMembershipResponse = {
+const target: FlagTargetResponse = {
   object: 'flag_target',
   id: 'flag_target_01H00000000000000000000001',
   rule_id: rule.id,

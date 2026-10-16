@@ -7,7 +7,7 @@ export * from './feature-flag.interface';
 export * from './flag-change.interface';
 export * from './flag-poll-response.interface';
 export * from './flag-rule.interface';
-export * from './flag-target-membership.interface';
+export * from './flag-target.interface';
 export * from './list-flag-rules-options.interface';
 export * from './list-flag-targets-options.interface';
 export * from './list-feature-flags-options.interface';

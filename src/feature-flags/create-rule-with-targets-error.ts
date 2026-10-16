@@ -1,4 +1,4 @@
-import { FlagRule, FlagTargetMembership } from './interfaces';
+import { FlagRule, FlagTarget } from './interfaces';
 
 /** A rule was created, but adding one of its targets failed. */
 export class CreateRuleWithTargetsError extends Error {
@@ -7,7 +7,7 @@ export class CreateRuleWithTargetsError extends Error {
   constructor(
     readonly rule: FlagRule,
     /** Memberships confirmed by the API before the failure. */
-    readonly targets: FlagTargetMembership[],
+    readonly targets: FlagTarget[],
     readonly failedTargetId: string,
     cause: unknown,
   ) {
