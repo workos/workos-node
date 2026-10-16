@@ -149,13 +149,13 @@ operators never match.
 omitted) if the flag is missing or the served value is not a boolean.
 `getAllFlags` uses `false` in that case.
 
-`getFlag(key)` returns the flag's `FlagPollEntryV2`: `slug`, `enabled`,
+`getFlag(key)` returns the flag's `FlagPollEntry`: `slug`, `enabled`,
 `default_value`, `off_value` and `rules`. The `previous` and `current` values in
 `change` events have the same shape. Reordering rules emits a `change` event;
 reordering IDs within a condition does not.
 
-To start from saved configuration, pass a `FlagPollResponseV2`
-(`{ version: 2, flags: { [slug]: FlagPollEntryV2 } }`) as `bootstrapFlags`.
+To start from saved configuration, pass a `FlagPollResponse`
+(`{ version: 2, flags: { [slug]: FlagPollEntry } }`) as `bootstrapFlags`.
 Unrecognized bootstrap data, including a bare map of entries without the
 envelope, is ignored and readiness still resolves; polling populates the cache
 afterward. Failed polls keep the last good snapshot.

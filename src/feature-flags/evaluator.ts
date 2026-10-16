@@ -2,7 +2,7 @@ import { InMemoryStore } from './in-memory-store';
 import {
   EvaluationContext,
   EvaluationResource,
-  FlagPollEntryV2,
+  FlagPollEntry,
   RuntimeClientLogger,
 } from './interfaces';
 
@@ -53,7 +53,7 @@ export class Evaluator {
   }
 
   private evaluate(
-    entry: FlagPollEntryV2 | undefined,
+    entry: FlagPollEntry | undefined,
     normalizedContext: Map<string, string>,
     defaultValue: boolean,
   ): boolean {

@@ -4,8 +4,8 @@ import { WorkOS } from '../workos';
 import {
   EvaluationContext,
   FlagChange,
-  FlagPollEntryV2,
-  FlagPollResponseV2,
+  FlagPollEntry,
+  FlagPollResponse,
 } from './interfaces';
 
 const workos = new WorkOS('sk_test_example');
@@ -23,14 +23,14 @@ const inclusion = {
   value: true,
   conditions: [{ target_type: 'user', operator: 'one_of', values: ['user_1'] }],
 };
-const flag: FlagPollEntryV2 = {
+const flag: FlagPollEntry = {
   slug: 'flag',
   enabled: true,
   default_value: true,
   off_value: false,
   rules: [exclusion, inclusion],
 };
-const payload: FlagPollResponseV2 = { version: 2, flags: { flag } };
+const payload: FlagPollResponse = { version: 2, flags: { flag } };
 const legacyPayload = {
   flag: {
     slug: 'flag',
@@ -40,7 +40,7 @@ const legacyPayload = {
   },
 };
 
-describe('v2 runtime payloads', () => {
+describe('runtime client rules', () => {
   beforeEach(() => {
     fetch.resetMocks();
     jest.useFakeTimers();
@@ -85,7 +85,7 @@ describe('v2 runtime payloads', () => {
   ])(
     'ignores %s bootstrap data, resolves readiness, and then polls',
     async (_name, input) => {
-      const bootstrapFlags: FlagPollResponseV2 = JSON.parse(
+      const bootstrapFlags: FlagPollResponse = JSON.parse(
         JSON.stringify(input),
       );
       const client = workos.featureFlags.createRuntimeClient({
@@ -105,7 +105,7 @@ describe('v2 runtime payloads', () => {
 
   const cases: Array<{
     name: string;
-    config: Partial<FlagPollEntryV2>;
+    config: Partial<FlagPollEntry>;
     context?: EvaluationContext;
     fallback?: boolean;
     expected: boolean;
@@ -379,7 +379,7 @@ describe('v2 runtime payloads', () => {
     client.close();
   });
 
-  it('replaces v2 bootstrap data wholesale on the first poll without change events', async () => {
+  it('replaces bootstrap data wholesale on the first poll without change events', async () => {
     const client = workos.featureFlags.createRuntimeClient({
       bootstrapFlags: payload,
     });
@@ -452,7 +452,7 @@ describe('v2 runtime payloads', () => {
       },
     ],
     ['removed rule', { ...flag, rules: [inclusion] }],
-  ])('emits complete v2 snapshots when %s changes', async (_name, current) => {
+  ])('emits complete snapshots when %s changes', async (_name, current) => {
     fetchOnce(payload);
     const client = workos.featureFlags.createRuntimeClient();
     const changes: FlagChange[] = [];
@@ -617,7 +617,7 @@ describe('v2 runtime payloads', () => {
     client.close();
   });
 
-  it('retains the v2 snapshot and stops polling after a 401', async () => {
+  it('retains the snapshot and stops polling after a 401', async () => {
     fetchOnce(payload);
     const client = workos.featureFlags.createRuntimeClient();
     const failures: Error[] = [];

@@ -3,11 +3,11 @@ import { fetchOnce, fetchURL } from '../common/utils/test-utils';
 import { UnauthorizedException } from '../common/exceptions';
 import { WorkOS } from '../workos';
 import { FeatureFlagsRuntimeClient } from './runtime-client';
-import { FlagPollResponseV2 } from './interfaces';
+import { FlagPollResponse } from './interfaces';
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
-const pollResponse: FlagPollResponseV2 = {
+const pollResponse: FlagPollResponse = {
   version: 2,
   flags: {
     'flag-a': {
@@ -262,7 +262,7 @@ describe('FeatureFlagsRuntimeClient', () => {
       const changes: unknown[] = [];
       client.on('change', (change) => changes.push(change));
 
-      const updatedResponse: FlagPollResponseV2 = {
+      const updatedResponse: FlagPollResponse = {
         version: 2,
         flags: { 'flag-a': { ...flagA, enabled: false }, 'flag-b': flagB },
       };
@@ -347,7 +347,7 @@ describe('FeatureFlagsRuntimeClient', () => {
 
   describe('bootstrap flags', () => {
     it('first poll replaces bootstrap data', async () => {
-      const bootstrapFlags: FlagPollResponseV2 = {
+      const bootstrapFlags: FlagPollResponse = {
         version: 2,
         flags: {
           'bootstrap-flag': {

@@ -1,4 +1,4 @@
-export interface FlagConditionV2 {
+export interface FlagPollCondition {
   // Future operators may carry different operands. Unsupported conditions
   // never match, even if another condition in the rule matches.
   operator: string;
@@ -6,24 +6,24 @@ export interface FlagConditionV2 {
   values?: unknown;
 }
 
-export interface FlagRuleV2 {
+export interface FlagPollRule {
   id: string;
   kind: string;
   // Future multivariate values must fall back to the caller's boolean default.
   value: unknown;
-  conditions?: FlagConditionV2[];
+  conditions?: FlagPollCondition[];
 }
 
-export interface FlagPollEntryV2 {
+export interface FlagPollEntry {
   slug: string;
   enabled: boolean;
   default_value: unknown;
   off_value: unknown;
   /** Evaluated in array order; the first matching rule wins. */
-  rules: FlagRuleV2[];
+  rules: FlagPollRule[];
 }
 
-export interface FlagPollResponseV2 {
+export interface FlagPollResponse {
   version: 2;
-  flags: Record<string, FlagPollEntryV2>;
+  flags: Record<string, FlagPollEntry>;
 }

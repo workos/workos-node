@@ -2,7 +2,7 @@ import { Evaluator } from './evaluator';
 import { InMemoryStore } from './in-memory-store';
 import {
   EvaluationContext,
-  FlagPollEntryV2,
+  FlagPollEntry,
   RuntimeClientLogger,
 } from './interfaces';
 
@@ -18,7 +18,7 @@ describe('Evaluator', () => {
   let evaluator: Evaluator;
   let logger: jest.Mocked<RuntimeClientLogger>;
 
-  const enabledFlag: FlagPollEntryV2 = {
+  const enabledFlag: FlagPollEntry = {
     slug: 'enabled-flag',
     enabled: true,
     default_value: true,
@@ -26,7 +26,7 @@ describe('Evaluator', () => {
     rules: [],
   };
 
-  const disabledFlag: FlagPollEntryV2 = {
+  const disabledFlag: FlagPollEntry = {
     slug: 'disabled-flag',
     enabled: false,
     default_value: true,
@@ -34,7 +34,7 @@ describe('Evaluator', () => {
     rules: [],
   };
 
-  const targetedFlag: FlagPollEntryV2 = {
+  const targetedFlag: FlagPollEntry = {
     slug: 'targeted-flag',
     enabled: true,
     default_value: false,

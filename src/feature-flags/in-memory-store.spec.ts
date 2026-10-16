@@ -1,10 +1,10 @@
 import { InMemoryStore } from './in-memory-store';
-import { FlagPollEntryV2 } from './interfaces';
+import { FlagPollEntry } from './interfaces';
 
 describe('InMemoryStore', () => {
   let store: InMemoryStore;
 
-  const flagA: FlagPollEntryV2 = {
+  const flagA: FlagPollEntry = {
     slug: 'flag-a',
     enabled: true,
     default_value: true,
@@ -12,7 +12,7 @@ describe('InMemoryStore', () => {
     rules: [],
   };
 
-  const flagB: FlagPollEntryV2 = {
+  const flagB: FlagPollEntry = {
     slug: 'flag-b',
     enabled: false,
     default_value: false,

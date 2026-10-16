@@ -3,12 +3,12 @@ import { WorkOS } from '../workos';
 import { UnauthorizedException } from '../common/exceptions';
 import { InMemoryStore } from './in-memory-store';
 import { Evaluator } from './evaluator';
-import { toV2 } from './payload';
+import { parseFlagPollResponse } from './payload';
 import {
   EvaluationContext,
   FlagChange,
-  FlagPollEntryV2,
-  FlagPollResponseV2,
+  FlagPollEntry,
+  FlagPollResponse,
   RuntimeClientOptions,
   RuntimeClientLogger,
   RuntimeClientStats,
@@ -80,7 +80,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     this.readyPromise.catch(() => {});
 
     if (options.bootstrapFlags !== undefined) {
-      const bootstrap = toV2(options.bootstrapFlags);
+      const bootstrap = parseFlagPollResponse(options.bootstrapFlags);
       if (bootstrap) this.store.swap(bootstrap.flags);
       this.stats.flagCount = this.store.size;
       this.resolveReady();
@@ -133,7 +133,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     return this.evaluator.getAllFlags(context);
   }
 
-  getFlag(flagKey: string): FlagPollEntryV2 | undefined {
+  getFlag(flagKey: string): FlagPollEntry | undefined {
     return this.store.get(flagKey);
   }
 
@@ -164,7 +164,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       this.stats.pollCount++;
       this.stats.lastPollAt = new Date();
 
-      const data = toV2(await this.fetchWithTimeout());
+      const data = parseFlagPollResponse(await this.fetchWithTimeout());
       if (!data) throw new Error('Unsupported feature flag payload');
 
       this.store.swap(data.flags);
@@ -263,8 +263,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
   }
 
   private emitChanges(
-    previous: FlagPollResponseV2['flags'],
-    current: FlagPollResponseV2['flags'],
+    previous: FlagPollResponse['flags'],
+    current: FlagPollResponse['flags'],
   ): void {
     if (!previous || !current) {
       return;
@@ -290,13 +290,13 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
   }
 
   private hasEntryChanged(
-    a: FlagPollEntryV2 | undefined,
-    b: FlagPollEntryV2 | undefined,
+    a: FlagPollEntry | undefined,
+    b: FlagPollEntry | undefined,
   ): boolean {
     if (!a || !b) return a !== b;
 
     // Rule order determines precedence. Condition and membership order do not.
-    const signature = (entry: FlagPollEntryV2): string =>
+    const signature = (entry: FlagPollEntry): string =>
       JSON.stringify([
         entry.enabled,
         entry.default_value,

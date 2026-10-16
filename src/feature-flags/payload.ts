@@ -1,15 +1,15 @@
 import {
-  FlagConditionV2,
-  FlagPollEntryV2,
-  FlagPollResponseV2,
-  FlagRuleV2,
+  FlagPollCondition,
+  FlagPollEntry,
+  FlagPollResponse,
+  FlagPollRule,
 } from './interfaces';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-function isCondition(value: unknown): value is FlagConditionV2 {
+function isCondition(value: unknown): value is FlagPollCondition {
   return (
     isRecord(value) &&
     typeof value.operator === 'string' &&
@@ -17,7 +17,7 @@ function isCondition(value: unknown): value is FlagConditionV2 {
   );
 }
 
-function isRule(value: unknown): value is FlagRuleV2 {
+function isRule(value: unknown): value is FlagPollRule {
   return (
     isRecord(value) &&
     typeof value.id === 'string' &&
@@ -27,7 +27,7 @@ function isRule(value: unknown): value is FlagRuleV2 {
   );
 }
 
-function isV2Entry(value: unknown): value is FlagPollEntryV2 {
+function isEntry(value: unknown): value is FlagPollEntry {
   return (
     isRecord(value) &&
     typeof value.slug === 'string' &&
@@ -41,7 +41,9 @@ function isV2Entry(value: unknown): value is FlagPollEntryV2 {
 
 /** Validate a payload before swapping the store. Unknown shapes leave the last
  * good snapshot intact; bootstrap callers can still be ready. */
-export function toV2(response: unknown): FlagPollResponseV2 | undefined {
+export function parseFlagPollResponse(
+  response: unknown,
+): FlagPollResponse | undefined {
   if (
     !isRecord(response) ||
     response.version !== 2 ||
@@ -50,9 +52,9 @@ export function toV2(response: unknown): FlagPollResponseV2 | undefined {
     return undefined;
   }
 
-  const entries: Array<[string, FlagPollEntryV2]> = [];
+  const entries: Array<[string, FlagPollEntry]> = [];
   for (const [slug, entry] of Object.entries(response.flags)) {
-    if (!isV2Entry(entry)) return undefined;
+    if (!isEntry(entry)) return undefined;
     entries.push([slug, entry]);
   }
   return { version: 2, flags: Object.fromEntries(entries) };
