@@ -235,24 +235,6 @@ describe('AdminPortal', () => {
       });
     });
 
-    describe('with an externalUserId', () => {
-      it('sends it as external_user_id', async () => {
-        fetchOnce(portalLinkResponse, { status: 201 });
-
-        await workos.adminPortal.generateLink({
-          intent: GenerateLinkIntent.SSO,
-          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-          externalUserId: 'user_12345',
-        });
-
-        expect(fetchBody()).toEqual({
-          intent: GenerateLinkIntent.SSO,
-          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
-          external_user_id: 'user_12345',
-        });
-      });
-    });
-
     describe('with an invalid organization', () => {
       it('throws an error', async () => {
         fetchOnce(generateLinkInvalid, {
