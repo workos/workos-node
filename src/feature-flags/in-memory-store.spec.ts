@@ -1,24 +1,23 @@
 import { InMemoryStore } from './in-memory-store';
-import { FlagPollEntry } from './interfaces';
+import { FlagPollEntryV2 } from './interfaces';
 
 describe('InMemoryStore', () => {
   let store: InMemoryStore;
 
-  const flagA: FlagPollEntry = {
+  const flagA: FlagPollEntryV2 = {
     slug: 'flag-a',
     enabled: true,
     default_value: true,
-    targets: { users: [], organizations: [] },
+    off_value: false,
+    rules: [],
   };
 
-  const flagB: FlagPollEntry = {
+  const flagB: FlagPollEntryV2 = {
     slug: 'flag-b',
     enabled: false,
     default_value: false,
-    targets: {
-      users: [{ id: 'user_123', enabled: true }],
-      organizations: [],
-    },
+    off_value: false,
+    rules: [],
   };
 
   beforeEach(() => {

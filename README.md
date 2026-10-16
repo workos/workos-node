@@ -136,6 +136,30 @@ const { accessToken } = await workos.userManagement.authenticateWithCode({
 });
 ```
 
+## Feature flag runtime
+
+The runtime client polls the v2 flag payload and evaluates flags locally. When a
+flag is off it serves `off_value`. Otherwise rules are evaluated in array order:
+the first matching rule's `value` wins, and `default_value` applies when no rule
+matches. A matching rule can serve `false`. Every condition in a rule must match;
+`one_of` matches an exact ID for its target type. Unknown rule kinds and condition
+operators never match.
+
+`isEnabled(key, context, defaultValue)` returns `defaultValue` (`false` when
+omitted) if the flag is missing or the served value is not a boolean.
+`getAllFlags` uses `false` in that case.
+
+`getFlag(key)` returns the flag's `FlagPollEntryV2`: `slug`, `enabled`,
+`default_value`, `off_value` and `rules`. The `previous` and `current` values in
+`change` events have the same shape. Reordering rules emits a `change` event;
+reordering IDs within a condition does not.
+
+To start from saved configuration, pass a `FlagPollResponseV2`
+(`{ version: 2, flags: { [slug]: FlagPollEntryV2 } }`) as `bootstrapFlags`.
+Unrecognized bootstrap data, including a bare map of entries without the
+envelope, is ignored and readiness still resolves; polling populates the cache
+afterward. Failed polls keep the last good snapshot.
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.
