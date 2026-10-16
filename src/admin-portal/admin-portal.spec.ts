@@ -1,5 +1,5 @@
 import fetch from 'jest-fetch-mock';
-import { fetchBody, fetchOnce } from '../common/utils/test-utils';
+import { fetchBody, fetchOnce, fetchURL } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 import generateLinkInvalid from './fixtures/generate-link-invalid.json';
 import portalLinkResponse from './fixtures/portal-link-response.json';
@@ -193,26 +193,20 @@ describe('AdminPortal', () => {
       });
     });
 
-    describe('with an invalid organization', () => {
-      it('throws an error', async () => {
-        fetchOnce(generateLinkInvalid, {
-          status: 400,
-          headers: { 'X-Request-ID': 'a-request-id' },
+    describe('with an externalUserId', () => {
+      it('sends it as external_user_id', async () => {
+        fetchOnce(portalLinkResponse, { status: 201 });
+
+        await workos.adminPortal.generateLink({
+          intent: GenerateLinkIntent.SSO,
+          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+          externalUserId: 'user_12345',
         });
 
-        await expect(
-          workos.adminPortal.generateLink({
-            intent: GenerateLinkIntent.SSO,
-            organization: 'bogus-id',
-            returnUrl: 'https://www.example.com',
-          }),
-        ).rejects.toThrow(
-          'Could not find an organization with the id, bogus-id.',
-        );
         expect(fetchBody()).toEqual({
           intent: GenerateLinkIntent.SSO,
-          organization: 'bogus-id',
-          return_url: 'https://www.example.com',
+          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+          external_user_id: 'user_12345',
         });
       });
     });
@@ -239,6 +233,66 @@ describe('AdminPortal', () => {
           return_url: 'https://www.example.com',
         });
       });
+    });
+
+    describe('with an externalUserId', () => {
+      it('sends it as external_user_id', async () => {
+        fetchOnce(portalLinkResponse, { status: 201 });
+
+        await workos.adminPortal.generateLink({
+          intent: GenerateLinkIntent.SSO,
+          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+          externalUserId: 'user_12345',
+        });
+
+        expect(fetchBody()).toEqual({
+          intent: GenerateLinkIntent.SSO,
+          organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+          external_user_id: 'user_12345',
+        });
+      });
+    });
+
+    describe('with an invalid organization', () => {
+      it('throws an error', async () => {
+        fetchOnce(generateLinkInvalid, {
+          status: 400,
+          headers: { 'X-Request-ID': 'a-request-id' },
+        });
+
+        await expect(
+          workos.adminPortal.generateLink({
+            intent: GenerateLinkIntent.SSO,
+            organization: 'bogus-id',
+            returnUrl: 'https://www.example.com',
+          }),
+        ).rejects.toThrow(
+          'Could not find an organization with the id, bogus-id.',
+        );
+        expect(fetchBody()).toEqual({
+          intent: GenerateLinkIntent.SSO,
+          organization: 'bogus-id',
+          return_url: 'https://www.example.com',
+        });
+      });
+    });
+  });
+
+  describe('revokeLink', () => {
+    it('sends a revoke_link request', async () => {
+      fetchOnce();
+
+      const resp = await workos.adminPortal.revokeLink({
+        organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+        externalUserId: 'user_12345',
+      });
+
+      expect(fetchURL()).toContain('/portal/revoke_link');
+      expect(fetchBody()).toEqual({
+        organization: 'org_01EHQMYV6MBK39QC5PZXHY59C3',
+        external_user_id: 'user_12345',
+      });
+      expect(resp).toBeUndefined();
     });
   });
 });
