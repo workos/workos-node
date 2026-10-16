@@ -9,5 +9,6 @@
       "provider_type": "GoogleSAML"
     }
   },
-  "admin_emails": ["admin@example.com"]
+  "admin_emails": ["admin@example.com"],
+  "external_user_id": "user_12345"
 }
