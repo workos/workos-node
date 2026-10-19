@@ -81,7 +81,13 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
 
     if (options.bootstrapFlags !== undefined) {
       const bootstrap = parseFlagPollResponse(options.bootstrapFlags);
-      if (bootstrap) this.store.swap(bootstrap.flags);
+      if (bootstrap) {
+        this.store.swap(bootstrap.flags);
+      } else {
+        this.logger?.warn(
+          'Ignoring bootstrapFlags: expected a v2 flag payload ({ version: 2, flags }). Flags will load on the first successful poll.',
+        );
+      }
       this.stats.flagCount = this.store.size;
       this.resolveReady();
     }

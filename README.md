@@ -157,8 +157,8 @@ reordering IDs within a condition does not.
 To start from saved configuration, pass a `FlagPollResponse`
 (`{ version: 2, flags: { [slug]: FlagPollEntry } }`) as `bootstrapFlags`.
 Unrecognized bootstrap data, including a bare map of entries without the
-envelope, is ignored and readiness still resolves; polling populates the cache
-afterward. Failed polls keep the last good snapshot.
+envelope, is ignored with a warning to `logger` and readiness still resolves;
+polling populates the cache afterward. Failed polls keep the last good snapshot.
 
 ## SDK Versioning
 

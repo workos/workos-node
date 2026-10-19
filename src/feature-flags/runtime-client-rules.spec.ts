@@ -6,6 +6,7 @@ import {
   FlagChange,
   FlagPollEntry,
   FlagPollResponse,
+  RuntimeClientLogger,
 } from './interfaces';
 
 const workos = new WorkOS('sk_test_example');
@@ -39,6 +40,12 @@ const legacyPayload = {
     targets: { users: [{ id: 'user_1', enabled: true }], organizations: [] },
   },
 };
+const createLogger = (): jest.Mocked<RuntimeClientLogger> => ({
+  debug: jest.fn(),
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+});
 
 describe('runtime client rules', () => {
   beforeEach(() => {
@@ -79,20 +86,27 @@ describe('runtime client rules', () => {
       { version: 2, flags: { flag: { ...flag, rules: null } } },
     ],
     ['legacy flat', legacyPayload],
+    ['bare entry map', { flag }],
     ['null', null],
     ['array', []],
     ['scalar', false],
   ])(
-    'ignores %s bootstrap data, resolves readiness, and then polls',
+    'ignores %s bootstrap data with a warning, resolves readiness, and then polls',
     async (_name, input) => {
       const bootstrapFlags: FlagPollResponse = JSON.parse(
         JSON.stringify(input),
       );
+      const logger = createLogger();
       const client = workos.featureFlags.createRuntimeClient({
         bootstrapFlags,
+        logger,
       });
       await client.waitUntilReady();
 
+      expect(logger.warn).toHaveBeenCalledTimes(1);
+      expect(logger.warn).toHaveBeenCalledWith(
+        expect.stringContaining('Ignoring bootstrapFlags'),
+      );
       expect(client.getStats().flagCount).toBe(0);
       expect(client.isEnabled('flag', {}, true)).toBe(true);
 
@@ -561,7 +575,25 @@ describe('runtime client rules', () => {
     },
   );
 
-  it('accepts an empty bootstrap snapshot', async () => {
+  it.each<[string, FlagPollResponse]>([
+    ['an empty', { version: 2, flags: {} }],
+    ['a populated', payload],
+  ])(
+    'accepts %s bootstrap snapshot without a warning',
+    async (_name, input) => {
+      const logger = createLogger();
+      const client = workos.featureFlags.createRuntimeClient({
+        bootstrapFlags: input,
+        logger,
+      });
+      await client.waitUntilReady();
+      expect(logger.warn).not.toHaveBeenCalled();
+      expect(client.getStats().flagCount).toBe(Object.keys(input.flags).length);
+      client.close();
+    },
+  );
+
+  it('serves defaults from an empty bootstrap snapshot', async () => {
     const client = workos.featureFlags.createRuntimeClient({
       bootstrapFlags: { version: 2, flags: {} },
     });
