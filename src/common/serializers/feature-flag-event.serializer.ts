@@ -7,6 +7,17 @@ import {
   FeatureFlagUpdatedContextResponse,
 } from '../interfaces';
 
+const deserializeFeatureFlagOwner = (
+  owner: FeatureFlagEventResponseData['owner'],
+): FeatureFlagEventData['owner'] =>
+  owner === null
+    ? null
+    : {
+        email: owner.email,
+        firstName: owner.first_name,
+        lastName: owner.last_name,
+      };
+
 export const deserializeFeatureFlagEventData = (
   flag: FeatureFlagEventResponseData,
 ): FeatureFlagEventData => ({
@@ -16,14 +27,7 @@ export const deserializeFeatureFlagEventData = (
   slug: flag.slug,
   name: flag.name,
   description: flag.description,
-  owner:
-    flag.owner === null
-      ? null
-      : {
-          email: flag.owner.email,
-          firstName: flag.owner.first_name,
-          lastName: flag.owner.last_name,
-        },
+  owner: deserializeFeatureFlagOwner(flag.owner),
   tags: flag.tags,
   enabled: flag.enabled,
   defaultValue: flag.default_value,
@@ -59,6 +63,9 @@ export const deserializeFeatureFlagUpdatedContext = (
                       ? {}
                       : { description: data.description }),
                     ...(data.tags === undefined ? {} : { tags: data.tags }),
+                    ...(data.owner === undefined
+                      ? {}
+                      : { owner: deserializeFeatureFlagOwner(data.owner) }),
                     ...(data.enabled === undefined
                       ? {}
                       : { enabled: data.enabled }),

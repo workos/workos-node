@@ -769,7 +769,7 @@ export type FeatureFlagUpdatedContext = FeatureFlagContext & {
     data?: Partial<
       Pick<
         FeatureFlagEventData,
-        'name' | 'description' | 'tags' | 'enabled' | 'defaultValue'
+        'name' | 'description' | 'tags' | 'owner' | 'enabled' | 'defaultValue'
       >
     >;
   };
@@ -779,7 +779,7 @@ export type FeatureFlagUpdatedContextResponse = FeatureFlagContextResponse & {
     data?: Partial<
       Pick<
         FeatureFlagEventResponseData,
-        'name' | 'description' | 'tags' | 'enabled' | 'default_value'
+        'name' | 'description' | 'tags' | 'owner' | 'enabled' | 'default_value'
       >
     >;
   };

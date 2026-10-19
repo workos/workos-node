@@ -174,6 +174,60 @@ const cases: EventCase[] = [
       },
     },
   },
+  {
+    name: 'feature_flags.flag.updated with a previous owner',
+    response: {
+      ...eventBase,
+      event: 'feature_flags.flag.updated',
+      data: flag,
+      context: {
+        ...responseContext,
+        previous_attributes: {
+          data: {
+            owner: {
+              email: 'previous@example.com',
+              first_name: null,
+              last_name: 'Owner',
+            },
+          },
+        },
+      },
+    },
+    expected: {
+      data: expectedFlag,
+      context: {
+        ...expectedContext,
+        previousAttributes: {
+          data: {
+            owner: {
+              email: 'previous@example.com',
+              firstName: null,
+              lastName: 'Owner',
+            },
+          },
+        },
+      },
+    },
+  },
+  {
+    name: 'feature_flags.flag.updated with no previous owner',
+    response: {
+      ...eventBase,
+      event: 'feature_flags.flag.updated',
+      data: flag,
+      context: {
+        ...responseContext,
+        previous_attributes: { data: { owner: null } },
+      },
+    },
+    expected: {
+      data: expectedFlag,
+      context: {
+        ...expectedContext,
+        previousAttributes: { data: { owner: null } },
+      },
+    },
+  },
   ...ruleEvents.map((event): EventCase => {
     const withActor = event !== 'feature_flags.flag_rule.created';
     return {
