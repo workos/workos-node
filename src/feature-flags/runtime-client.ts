@@ -171,7 +171,11 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       this.stats.lastPollAt = new Date();
 
       const data = parseFlagPollResponse(await this.fetchWithTimeout());
-      if (!data) throw new Error('Unsupported feature flag payload');
+      if (!data) {
+        throw new Error(
+          "Feature flag poll returned a payload this SDK can't read; keeping the last good flags",
+        );
+      }
 
       this.store.swap(data.flags);
       this.stats.lastSuccessfulPollAt = new Date();

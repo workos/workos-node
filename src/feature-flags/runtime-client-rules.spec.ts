@@ -601,6 +601,9 @@ describe('runtime client rules', () => {
         lastSuccessfulPollAt,
       });
       expect(errors).toHaveLength(1);
+      if (typeof failure !== 'string') {
+        expect(errors[0].message).toContain("can't read");
+      }
       expect(changes).toEqual([]);
       fetchOnce({ version: 2, flags: {} });
       await jest.advanceTimersByTimeAsync(30_000);

@@ -158,7 +158,11 @@ To start from saved configuration, pass a `FlagPollResponse`
 (`{ version: 2, flags: { [slug]: FlagPollEntry } }`) as `bootstrapFlags`.
 Unrecognized bootstrap data, including a bare map of entries without the
 envelope, is ignored with a warning to `logger` and readiness still resolves;
-polling populates the cache afterward. Failed polls keep the last good snapshot.
+polling populates the cache afterward.
+
+A failed poll, including one that returns a payload the SDK can't read, emits
+`error`, keeps the last good snapshot, and retries with backoff. A 401 stops
+polling and also emits `failed`.
 
 ## SDK Versioning
 
