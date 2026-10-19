@@ -6,10 +6,14 @@ import {
   RuntimeClientLogger,
 } from './interfaces';
 
-const membershipRule = (targetType: string, values: string[]) => ({
+const membershipRule = (
+  targetType: string,
+  values: string[],
+  value: boolean = true,
+) => ({
   id: `rule_${targetType}`,
   kind: 'conditions',
-  value: true,
+  value,
   conditions: [{ target_type: targetType, operator: 'one_of', values }],
 });
 
@@ -93,15 +97,63 @@ describe('Evaluator', () => {
         }),
       ).toBe(true);
     });
+  });
 
-    it('returns default_value when no rule matches', () => {
-      expect(
-        evaluator.isEnabled('targeted-flag', { userId: 'user_other' }),
-      ).toBe(false);
+  describe('served values', () => {
+    const context = { userId: 'user_456', organizationId: 'org_123' };
+    const evaluate = (flag: Omit<FlagPollEntry, 'slug'>): boolean => {
+      store.swap({ flag: { slug: 'flag', ...flag } });
+      return evaluator.isEnabled('flag', context);
+    };
 
+    it('serves off_value when the flag is off, even if a rule matches', () => {
       expect(
-        evaluator.isEnabled('enabled-flag', { userId: 'user_other' }),
+        evaluate({
+          enabled: false,
+          default_value: false,
+          off_value: true,
+          rules: [membershipRule('user', ['user_456'], false)],
+        }),
       ).toBe(true);
+    });
+
+    it('serves default_value when no rule matches', () => {
+      expect(
+        evaluate({
+          enabled: true,
+          default_value: true,
+          off_value: false,
+          rules: [membershipRule('user', ['user_other'], false)],
+        }),
+      ).toBe(true);
+    });
+
+    it('serves the first matching rule when it is true', () => {
+      expect(
+        evaluate({
+          enabled: true,
+          default_value: false,
+          off_value: false,
+          rules: [
+            membershipRule('user', ['user_456'], true),
+            membershipRule('organization', ['org_123'], false),
+          ],
+        }),
+      ).toBe(true);
+    });
+
+    it('serves the first matching rule when it is false', () => {
+      expect(
+        evaluate({
+          enabled: true,
+          default_value: true,
+          off_value: false,
+          rules: [
+            membershipRule('user', ['user_456'], false),
+            membershipRule('organization', ['org_123'], true),
+          ],
+        }),
+      ).toBe(false);
     });
   });
 
