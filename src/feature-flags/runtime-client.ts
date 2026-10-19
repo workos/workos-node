@@ -39,6 +39,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
   private closed = false;
   private initialized = false;
   private consecutiveErrors = 0;
+  private warnedUnobservedError = false;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private pollAbortController: AbortController | null = null;
 
@@ -196,7 +197,17 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
 
       this.consecutiveErrors++;
       this.stats.pollErrorCount++;
-      this.emit('error', err);
+      // A background poll has no caller to throw to. Emitting 'error' with no
+      // listener throws, which would skip the retry below and surface as an
+      // unhandled rejection, so an unobserved failure is reported instead.
+      if (this.listenerCount('error') > 0) {
+        this.emit('error', err);
+      } else if (!this.logger && !this.warnedUnobservedError) {
+        this.warnedUnobservedError = true;
+        this.workos.emitWarning(
+          `Feature flag sync failed and no 'error' listener or logger is attached; keeping the last good flags and retrying. ${err.message}`,
+        );
+      }
       this.logger?.error('Poll failed', err);
 
       if (err instanceof UnauthorizedException) {

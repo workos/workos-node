@@ -558,20 +558,111 @@ describe('FeatureFlagsRuntimeClient', () => {
     });
 
     it('throws on an error event when no listener is attached', () => {
-      // poll()'s catch block emits 'error'. With no listener, the emitter must
-      // throw (Node semantics) rather than silently drop it — the behavior
-      // eventemitter3 lacked and the old emit() override restored. Every other
-      // error test attaches a listener first, so this is the only guard against
-      // re-introducing silent error-dropping. Asserted on the inherited emit
-      // directly: via the real poll path the throw would surface as an
-      // unhandled promise rejection (poll runs in a setTimeout), which can't be
-      // observed deterministically.
+      // With no listener, the emitter must throw (Node semantics) rather than
+      // silently drop an 'error' — the behavior eventemitter3 lacked. poll()
+      // checks for listeners before emitting; the tests below cover that path.
       const client = workos.featureFlags.createRuntimeClient();
 
       const boom = new Error('boom');
       expect(() => client.emit('error', boom)).toThrow(boom);
 
       client.close();
+    });
+
+    it('keeps polling when a poll fails with no error listener', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(client.getStats()).toMatchObject({
+        pollCount: 2,
+        pollErrorCount: 1,
+        flagCount: 2,
+      });
+      expect(client.isEnabled('flag-a')).toBe(true);
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('rejects waitUntilReady and emits failed on 401 with no error listener', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetchOnce(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { 'X-Request-ID': 'req_123' } },
+      );
+
+      const client = workos.featureFlags.createRuntimeClient();
+      const failures: unknown[] = [];
+      client.on('failed', (err) => failures.push(err));
+      let readyError: unknown;
+      client.waitUntilReady().catch((err) => {
+        readyError = err;
+      });
+
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(readyError).toBeInstanceOf(UnauthorizedException);
+      expect(failures).toHaveLength(1);
+      expect(fetch.mock.calls.length).toBe(1);
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('warns once when polls fail with no error listener or logger', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(client.getStats().pollErrorCount).toBe(2);
+      expect(emitWarning).toHaveBeenCalledTimes(1);
+      expect(emitWarning).toHaveBeenCalledWith(
+        expect.stringContaining("no 'error' listener or logger"),
+      );
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('logs instead of warning when a logger is attached', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      const logger = {
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      };
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient({ logger });
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(logger.error).toHaveBeenCalledWith(
+        'Poll failed',
+        expect.any(Error),
+      );
+      expect(emitWarning).not.toHaveBeenCalled();
+
+      client.close();
+      emitWarning.mockRestore();
     });
   });
 });

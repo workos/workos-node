@@ -162,7 +162,8 @@ polling populates the cache afterward.
 
 A failed poll, including one that returns a payload the SDK can't read, emits
 `error`, keeps the last good snapshot, and retries with backoff. A 401 stops
-polling and also emits `failed`.
+polling and also emits `failed`. Attach an `error` listener or a `logger` to see
+failures; with neither, the client warns once and keeps polling.
 
 ## SDK Versioning
 
