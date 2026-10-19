@@ -251,20 +251,10 @@ The legacy `addFlagTarget({ slug, targetId })` and
 routes. Their deprecation annotations guide new integrations toward explicit
 rules; existing integrations do not need to change.
 
-Rule endpoints require `feature-flags-targeting-rules`. Membership creation and
-`createRuleWithTargets` additionally require `feature-flags-legacy-target-contract`
-to be off. The compatibility flag takes precedence: while it is on, the target
-API retains its legacy contract. With both flags off, `/flag_targets` returns 404.
-
 `getFlagTarget()` and `listFlagTargets()` return `FlagTargetResource`: a
-`FlagTarget` with `ruleId` in membership mode, or a `LegacyFlagTarget`
-with `value` and `valueType` in compatibility mode. Narrow using
-`'ruleId' in target` before accessing the contract-specific fields.
-
-Release these methods only after the API deployment that supports these
-contracts. Before enabling rule authoring for a team, verify v2-capable runtime
-SDKs and `rule-based-flag-evaluation` in each affected environment. Keep rule
-authoring off for teams using the legacy compatibility contract during migration.
+`FlagTarget` with `ruleId`, or a `LegacyFlagTarget` with `value` and
+`valueType` while the environment still uses the legacy target contract. Narrow
+using `'ruleId' in target` before accessing the contract-specific fields.
 
 ## SDK Versioning
 
