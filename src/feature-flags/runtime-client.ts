@@ -3,13 +3,12 @@ import { WorkOS } from '../workos';
 import { UnauthorizedException } from '../common/exceptions';
 import { InMemoryStore } from './in-memory-store';
 import { Evaluator } from './evaluator';
+import { parseFlagPollResponse } from './payload';
 import {
   EvaluationContext,
   FlagChange,
-  FlagCustomTarget,
   FlagPollEntry,
   FlagPollResponse,
-  FlagTarget,
   RuntimeClientOptions,
   RuntimeClientLogger,
   RuntimeClientStats,
@@ -80,8 +79,15 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     // Prevent unhandled rejection if no one awaits waitUntilReady
     this.readyPromise.catch(() => {});
 
-    if (options.bootstrapFlags) {
-      this.store.swap(options.bootstrapFlags);
+    if (options.bootstrapFlags !== undefined) {
+      const bootstrap = parseFlagPollResponse(options.bootstrapFlags);
+      if (bootstrap) {
+        this.store.swap(bootstrap.flags);
+      } else {
+        this.logger?.warn(
+          'Ignoring bootstrapFlags: expected a v2 flag payload ({ version: 2, flags }). Flags will load on the first successful poll.',
+        );
+      }
       this.stats.flagCount = this.store.size;
       this.resolveReady();
     }
@@ -164,15 +170,20 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       this.stats.pollCount++;
       this.stats.lastPollAt = new Date();
 
-      const data = await this.fetchWithTimeout();
+      const data = parseFlagPollResponse(await this.fetchWithTimeout());
+      if (!data) {
+        throw new Error(
+          "Feature flag poll returned a payload this SDK can't read; keeping the last good flags",
+        );
+      }
 
-      this.store.swap(data);
+      this.store.swap(data.flags);
       this.stats.lastSuccessfulPollAt = new Date();
       this.stats.flagCount = this.store.size;
       this.consecutiveErrors = 0;
 
       if (this.initialized) {
-        this.emitChanges(previousFlags, data);
+        this.emitChanges(previousFlags, data.flags);
       }
       this.initialized = true;
       this.resolveReady();
@@ -201,14 +212,14 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     this.scheduleNextPoll();
   }
 
-  private async fetchWithTimeout(): Promise<FlagPollResponse> {
+  private async fetchWithTimeout(): Promise<unknown> {
     this.pollAbortController = new AbortController();
     const { signal } = this.pollAbortController;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const fetchPromise = this.workos
-      .get<FlagPollResponse>('/sdk/feature-flags')
+      .get<unknown>('/sdk/feature-flags?payload_version=2')
       .then(({ data }) => data);
 
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -262,8 +273,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
   }
 
   private emitChanges(
-    previous: FlagPollResponse,
-    current: FlagPollResponse,
+    previous: FlagPollResponse['flags'],
+    current: FlagPollResponse['flags'],
   ): void {
     if (!previous || !current) {
       return;
@@ -275,8 +286,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     ]);
 
     for (const key of allKeys) {
-      const prev = previous[key];
-      const curr = current[key];
+      const prev = Object.hasOwn(previous, key) ? previous[key] : undefined;
+      const curr = Object.hasOwn(current, key) ? current[key] : undefined;
 
       if (this.hasEntryChanged(prev, curr)) {
         this.emit('change', {
@@ -292,38 +303,31 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     a: FlagPollEntry | undefined,
     b: FlagPollEntry | undefined,
   ): boolean {
-    if (!a || !b) {
-      return a !== b;
-    }
+    if (!a || !b) return a !== b;
 
-    if (a.enabled !== b.enabled || a.default_value !== b.default_value) {
-      return true;
-    }
-
-    const targetsChanged = (xs: FlagTarget[], ys: FlagTarget[]): boolean => {
-      if (xs.length !== ys.length) return true;
-      const map = new Map(ys.map((t) => [t.id, t.enabled]));
-      return xs.some((t) => map.get(t.id) !== t.enabled);
-    };
-
-    // Type slugs cannot contain ':', so the first ':' unambiguously ends the
-    // type in this composite key even though target IDs may contain ':'.
-    const customTargetsChanged = (
-      xs: FlagCustomTarget[],
-      ys: FlagCustomTarget[],
-    ): boolean => {
-      if (xs.length !== ys.length) return true;
-      const map = new Map(ys.map((t) => [`${t.type}:${t.id}`, t.enabled]));
-      return xs.some((t) => map.get(`${t.type}:${t.id}`) !== t.enabled);
-    };
-
-    return (
-      targetsChanged(a.targets.users, b.targets.users) ||
-      targetsChanged(a.targets.organizations, b.targets.organizations) ||
-      customTargetsChanged(
-        a.targets.custom_targets ?? [],
-        b.targets.custom_targets ?? [],
-      )
-    );
+    // Rule order determines precedence. Condition and membership order do not.
+    const signature = (entry: FlagPollEntry): string =>
+      JSON.stringify([
+        entry.enabled,
+        entry.default_value,
+        entry.off_value,
+        entry.rules.map((rule) => [
+          rule.id,
+          rule.kind,
+          rule.value,
+          rule.conditions
+            ?.map((condition) =>
+              JSON.stringify([
+                condition.operator,
+                condition.target_type,
+                Array.isArray(condition.values)
+                  ? [...new Set(condition.values)].sort()
+                  : condition.values,
+              ]),
+            )
+            .sort(),
+        ]),
+      ]);
+    return signature(a) !== signature(b);
   }
 }

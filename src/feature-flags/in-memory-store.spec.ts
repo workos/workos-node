@@ -8,17 +8,16 @@ describe('InMemoryStore', () => {
     slug: 'flag-a',
     enabled: true,
     default_value: true,
-    targets: { users: [], organizations: [] },
+    off_value: false,
+    rules: [],
   };
 
   const flagB: FlagPollEntry = {
     slug: 'flag-b',
     enabled: false,
     default_value: false,
-    targets: {
-      users: [{ id: 'user_123', enabled: true }],
-      organizations: [],
-    },
+    off_value: false,
+    rules: [],
   };
 
   beforeEach(() => {
