@@ -40,6 +40,36 @@ const legacyPayload = {
     targets: { users: [{ id: 'user_1', enabled: true }], organizations: [] },
   },
 };
+const malformedMembership = {
+  version: 2,
+  flags: {
+    flag: {
+      ...flag,
+      rules: [
+        {
+          ...inclusion,
+          conditions: [
+            { target_type: 'user', operator: 'one_of', values: 'user_1' },
+          ],
+        },
+      ],
+    },
+  },
+};
+const membershipWithoutValues = {
+  version: 2,
+  flags: {
+    flag: {
+      ...flag,
+      rules: [
+        {
+          ...inclusion,
+          conditions: [{ target_type: 'user', operator: 'one_of' }],
+        },
+      ],
+    },
+  },
+};
 const createLogger = (): jest.Mocked<RuntimeClientLogger> => ({
   debug: jest.fn(),
   info: jest.fn(),
@@ -87,6 +117,8 @@ describe('runtime client rules', () => {
     ],
     ['legacy flat', legacyPayload],
     ['bare entry map', { flag }],
+    ['malformed membership', malformedMembership],
+    ['membership without values', membershipWithoutValues],
     ['null', null],
     ['array', []],
     ['scalar', false],
@@ -299,6 +331,7 @@ describe('runtime client rules', () => {
         ],
       },
       context: { userId: 'user_1' },
+      fallback: true,
       expected: false,
     },
     {
@@ -350,19 +383,20 @@ describe('runtime client rules', () => {
       expected: true,
     },
     {
-      name: 'malformed membership is nonmatching',
+      name: 'membership IDs that are not strings never match',
       config: {
         default_value: false,
         rules: [
           {
             ...inclusion,
             conditions: [
-              { target_type: 'user', operator: 'one_of', values: 'user_1' },
+              { target_type: 'user', operator: 'one_of', values: [1] },
             ],
           },
         ],
       },
-      context: { userId: 'user_1' },
+      context: { userId: '1' },
+      fallback: true,
       expected: false,
     },
   ];
@@ -540,6 +574,7 @@ describe('runtime client rules', () => {
       { version: 2, flags: { flag: { ...flag, rules: null } } },
     ],
     ['legacy flat payload', legacyPayload],
+    ['malformed membership', malformedMembership],
   ])(
     'keeps the last good snapshot after %s and recovers on the next poll',
     async (_name, failure) => {

@@ -13,7 +13,11 @@ function isCondition(value: unknown): value is FlagPollCondition {
   return (
     isRecord(value) &&
     typeof value.operator === 'string' &&
-    (value.target_type === undefined || typeof value.target_type === 'string')
+    (value.target_type === undefined ||
+      typeof value.target_type === 'string') &&
+    // `one_of` always carries a list of IDs. Other operators may carry
+    // different operands; they pass through and never match.
+    (value.operator !== 'one_of' || Array.isArray(value.values))
   );
 }
 
