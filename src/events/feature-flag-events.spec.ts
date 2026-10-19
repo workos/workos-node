@@ -296,6 +296,21 @@ const cases: EventCase[] = [
       },
     },
   })),
+  ...[{ data: { value: true } }, {}, { data: {} }].map(
+    (previous): EventCase => ({
+      name: `feature_flags.flag_rule.updated previous ${JSON.stringify(previous)}`,
+      response: {
+        ...eventBase,
+        event: 'feature_flags.flag_rule.updated',
+        data: rule,
+        context: { ...responseContext, previous_attributes: previous },
+      },
+      expected: {
+        data: expectedRule,
+        context: { ...expectedContext, previousAttributes: previous },
+      },
+    }),
+  ),
 ];
 
 const workos = new WorkOS('sk_test_feature_flag_events');

@@ -40,6 +40,7 @@ import {
 import {
   deserializeFeatureFlagEventData,
   deserializeFeatureFlagRuleContext,
+  deserializeFeatureFlagRuleUpdatedContext,
   deserializeFeatureFlagUpdatedContext,
 } from './feature-flag-event.serializer';
 import { deserializeFeatureFlag } from '../../feature-flags/serializers/feature-flag.serializer';
@@ -300,13 +301,19 @@ export const deserializeEvent = (event: EventResponse): Event => {
         context: deserializeFeatureFlagUpdatedContext(event.context),
       };
     case 'feature_flags.flag_rule.created':
-    case 'feature_flags.flag_rule.updated':
     case 'feature_flags.flag_rule.deleted':
       return {
         ...eventBase,
         event: event.event,
         data: deserializeFlagRule(event.data),
         context: deserializeFeatureFlagRuleContext(event.context),
+      };
+    case 'feature_flags.flag_rule.updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeFlagRule(event.data),
+        context: deserializeFeatureFlagRuleUpdatedContext(event.context),
       };
     case 'feature_flags.flag_target.created':
     case 'feature_flags.flag_target.deleted':

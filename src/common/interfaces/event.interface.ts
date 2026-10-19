@@ -764,6 +764,13 @@ export type FeatureFlagRuleContextResponse = {
   client_id: string;
   actor?: FeatureFlagActor;
 };
+export type FeatureFlagRuleUpdatedContext = FeatureFlagRuleContext & {
+  previousAttributes?: { data?: Partial<Pick<FlagRule, 'value'>> };
+};
+export type FeatureFlagRuleUpdatedContextResponse =
+  FeatureFlagRuleContextResponse & {
+    previous_attributes?: { data?: Partial<Pick<FlagRuleResponse, 'value'>> };
+  };
 export type FeatureFlagUpdatedContext = FeatureFlagContext & {
   previousAttributes?: {
     data?: Partial<
@@ -836,13 +843,13 @@ export interface FeatureFlagsFlagRuleCreatedEventResponse extends EventResponseB
 export interface FeatureFlagsFlagRuleUpdatedEvent extends EventBase {
   event: 'feature_flags.flag_rule.updated';
   data: FlagRule;
-  context: FeatureFlagRuleContext;
+  context: FeatureFlagRuleUpdatedContext;
 }
 
 export interface FeatureFlagsFlagRuleUpdatedEventResponse extends EventResponseBase {
   event: 'feature_flags.flag_rule.updated';
   data: FlagRuleResponse;
-  context: FeatureFlagRuleContextResponse;
+  context: FeatureFlagRuleUpdatedContextResponse;
 }
 
 export interface FeatureFlagsFlagRuleDeletedEvent extends EventBase {

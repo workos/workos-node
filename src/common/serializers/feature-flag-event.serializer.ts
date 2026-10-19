@@ -3,6 +3,8 @@ import {
   FeatureFlagEventResponseData,
   FeatureFlagRuleContext,
   FeatureFlagRuleContextResponse,
+  FeatureFlagRuleUpdatedContext,
+  FeatureFlagRuleUpdatedContextResponse,
   FeatureFlagUpdatedContext,
   FeatureFlagUpdatedContextResponse,
 } from '../interfaces';
@@ -41,6 +43,27 @@ export const deserializeFeatureFlagRuleContext = (
   clientId: context.client_id,
   ...(context.actor === undefined ? {} : { actor: context.actor }),
 });
+
+export const deserializeFeatureFlagRuleUpdatedContext = (
+  context: FeatureFlagRuleUpdatedContextResponse,
+): FeatureFlagRuleUpdatedContext => {
+  const previous = context.previous_attributes;
+  const data = previous?.data;
+  return {
+    ...deserializeFeatureFlagRuleContext(context),
+    ...(previous === undefined
+      ? {}
+      : {
+          previousAttributes: {
+            ...(data === undefined
+              ? {}
+              : {
+                  data: data.value === undefined ? {} : { value: data.value },
+                }),
+          },
+        }),
+  };
+};
 
 export const deserializeFeatureFlagUpdatedContext = (
   context: FeatureFlagUpdatedContextResponse,

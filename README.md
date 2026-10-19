@@ -289,10 +289,10 @@ for (const event of events) {
 
 Flag events include `environmentId`, nullable `description`, and a nullable
 `owner` with `email`, `firstName`, and `lastName`. Updated flag context includes
-optional `previousAttributes.data`. Rule context can omit `actor` for system
-changes. Target event data is a `FlagTarget` with `ruleId`, or a
-`LegacyFlagTarget` with `value` and `valueType`. The `flag.*` events keep their
-existing data shape.
+optional `previousAttributes.data`, and updated rule context includes the rule's
+previous `value` there. Rule context can omit `actor` for system changes. Target
+event data is a `FlagTarget` with `ruleId`, or a `LegacyFlagTarget` with `value`
+and `valueType`. The `flag.*` events keep their existing data shape.
 
 ## SDK Versioning
 
