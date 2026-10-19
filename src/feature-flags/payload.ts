@@ -43,8 +43,9 @@ function isEntry(value: unknown): value is FlagPollEntry {
   );
 }
 
-/** Validate a payload before swapping the store. Unknown shapes leave the last
- * good snapshot intact; bootstrap callers can still be ready. */
+/** Validate a payload before swapping the store. One invalid entry rejects the
+ * whole payload, so the store never holds a partial snapshot and the last good
+ * one stays intact; bootstrap callers can still be ready. */
 export function parseFlagPollResponse(
   response: unknown,
 ): FlagPollResponse | undefined {
