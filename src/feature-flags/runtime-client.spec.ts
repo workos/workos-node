@@ -614,6 +614,13 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(readyError).toBeInstanceOf(UnauthorizedException);
       expect(failures).toHaveLength(1);
       expect(fetch.mock.calls.length).toBe(1);
+      expect(emitWarning).toHaveBeenCalledTimes(1);
+      expect(emitWarning).toHaveBeenCalledWith(
+        expect.stringContaining('stopped after a 401'),
+      );
+      expect(emitWarning).not.toHaveBeenCalledWith(
+        expect.stringContaining('retrying'),
+      );
 
       client.close();
       emitWarning.mockRestore();
@@ -635,6 +642,33 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(emitWarning).toHaveBeenCalledWith(
         expect.stringContaining("no 'error' listener or logger"),
       );
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('warns about a 401 after an earlier unobserved failure', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+      fetchOnce(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { 'X-Request-ID': 'req_123' } },
+      );
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(emitWarning).toHaveBeenCalledTimes(2);
+      expect(emitWarning).toHaveBeenLastCalledWith(
+        expect.stringContaining('stopped after a 401'),
+      );
+
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(60_000);
+      expect(fetch.mock.calls.length).toBe(2);
 
       client.close();
       emitWarning.mockRestore();

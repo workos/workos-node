@@ -202,11 +202,17 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
       // unhandled rejection, so an unobserved failure is reported instead.
       if (this.listenerCount('error') > 0) {
         this.emit('error', err);
-      } else if (!this.logger && !this.warnedUnobservedError) {
-        this.warnedUnobservedError = true;
-        this.workos.emitWarning(
-          `Feature flag sync failed and no 'error' listener or logger is attached; keeping the last good flags and retrying. ${err.message}`,
-        );
+      } else if (!this.logger) {
+        if (err instanceof UnauthorizedException) {
+          this.workos.emitWarning(
+            `Feature flag sync stopped after a 401 and no 'error' listener or logger is attached; keeping the last good flags. Recreate the client with a valid API key to resume. ${err.message}`,
+          );
+        } else if (!this.warnedUnobservedError) {
+          this.warnedUnobservedError = true;
+          this.workos.emitWarning(
+            `Feature flag sync failed and no 'error' listener or logger is attached; keeping the last good flags and retrying. ${err.message}`,
+          );
+        }
       }
       this.logger?.error('Poll failed', err);
 
