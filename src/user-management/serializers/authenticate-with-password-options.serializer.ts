@@ -18,4 +18,5 @@ export const serializeAuthenticateWithPasswordOptions = (
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
   radar_auth_attempt_id: options.radarAuthAttemptId,
+  signals_id: options.signalsId,
 });

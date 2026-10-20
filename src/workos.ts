@@ -20,6 +20,7 @@ import {
   WorkOSOptions,
   WorkOSResponseError,
 } from './common/interfaces';
+import { Agents } from './agents/agents';
 import { ApiKeys } from './api-keys/api-keys';
 import { Connect } from './connect/connect';
 import { DirectorySync } from './directory-sync/directory-sync';
@@ -48,7 +49,6 @@ import { Authorization } from './authorization/authorization';
 import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
-import { ParseError } from './common/exceptions/parse-error';
 import { getEnv } from './common/utils/env';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 
@@ -70,6 +70,7 @@ export class WorkOS {
   private readonly hasApiKey: boolean;
 
   readonly actions: Actions;
+  readonly agents = new Agents(this);
   readonly apiKeys = new ApiKeys(this);
   readonly auditLogs = new AuditLogs(this);
   readonly authorization = new Authorization(this);
@@ -204,6 +205,7 @@ export class WorkOS {
     return new FetchHttpClient(this.baseURL, {
       ...options.config,
       timeout: options.timeout,
+      maxRetries: options.maxRetries,
       headers,
     }) as HttpClient;
   }
@@ -248,18 +250,14 @@ export class WorkOS {
       res = await this.client.post<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await this.readResponseJSON(path, res) };
   }
 
   async get<Result = any>(
@@ -285,6 +283,7 @@ export class WorkOS {
       res = await this.client.get(path, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -292,12 +291,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await this.readResponseJSON(path, res) };
   }
 
   async put<Result = any, Entity = any>(
@@ -321,6 +315,7 @@ export class WorkOS {
       res = await this.client.put<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -328,12 +323,7 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await this.readResponseJSON(path, res) };
   }
 
   async patch<Result = any, Entity = any>(
@@ -357,6 +347,7 @@ export class WorkOS {
       res = await this.client.patch<Entity>(path, entity, {
         params: options.query,
         headers: requestHeaders,
+        maxRetries: options.maxRetries,
       });
     } catch (error) {
       this.handleHttpError({ path, error });
@@ -364,15 +355,13 @@ export class WorkOS {
       throw error;
     }
 
-    try {
-      return { data: await res.toJSON() };
-    } catch (error) {
-      await this.handleParseError(error, res);
-      throw error;
-    }
+    return { data: await this.readResponseJSON(path, res) };
   }
 
-  async delete(path: string, query?: any): Promise<void> {
+  async delete(
+    path: string,
+    query?: Record<string, string | number | boolean | undefined>,
+  ): Promise<void> {
     this.requireApiKey(path);
 
     try {
@@ -401,27 +390,31 @@ export class WorkOS {
     }
   }
 
+  /**
+   * Consume a successful response body. The request deadline covers the body,
+   * so a stall while it is still streaming surfaces from the transport as a
+   * 408 `HttpClientError` and is translated like a timeout before the headers.
+   * Everything else (a `ParseError` for malformed JSON, a network failure
+   * mid-body) propagates unchanged.
+   */
+  private async readResponseJSON(
+    path: string,
+    response: HttpClientResponseInterface,
+  ): Promise<any> {
+    try {
+      return await response.toJSON();
+    } catch (error) {
+      if (error instanceof HttpClientError) {
+        this.handleHttpError({ path, error });
+      }
+
+      throw error;
+    }
+  }
+
   emitWarning(warning: string) {
     // tslint:disable-next-line:no-console
     console.warn(`WorkOS: ${warning}`);
-  }
-
-  private async handleParseError(
-    error: unknown,
-    res: HttpClientResponseInterface,
-  ) {
-    if (error instanceof SyntaxError) {
-      const rawResponse = res.getRawResponse() as Response;
-      const requestID = rawResponse.headers.get('X-Request-ID') ?? '';
-      const rawStatus = rawResponse.status;
-      const rawBody = await rawResponse.text();
-      throw new ParseError({
-        message: error.message,
-        rawBody,
-        rawStatus,
-        requestID,
-      });
-    }
   }
 
   private handleHttpError({ path, error }: { path: string; error: unknown }) {
@@ -434,7 +427,7 @@ export class WorkOS {
     if (response) {
       const { status, data, headers } = response;
 
-      const requestID = headers['X-Request-ID'] ?? '';
+      const requestID = headers.get('X-Request-ID') ?? '';
       const {
         code,
         error_description: errorDescription,
@@ -453,6 +446,7 @@ export class WorkOS {
         case 422: {
           throw new UnprocessableEntityException({
             code,
+            error,
             errors,
             message,
             requestID,

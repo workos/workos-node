@@ -2,8 +2,15 @@ import fetch from 'jest-fetch-mock';
 import { UnauthorizedException } from '../common/exceptions';
 import { BadRequestException } from '../common/exceptions/bad-request.exception';
 import { ListResponse } from '../common/interfaces';
+import {
+  fetchBody,
+  fetchMethod,
+  fetchOnce,
+  fetchURL,
+} from '../common/utils/test-utils';
 import { mockWorkOsResponse } from '../common/utils/workos-mock-response';
 import { WorkOS } from '../workos';
+import auditLogsRetentionFixture from './fixtures/audit-logs-retention.json';
 import {
   AuditLogExport,
   AuditLogExportOptions,
@@ -68,6 +75,70 @@ const schemaWithoutMetadata = { ...schema, metadata: undefined };
 
 describe('AuditLogs', () => {
   beforeEach(() => fetch.resetMocks());
+
+  describe('getOrganizationAuditLogsRetention', () => {
+    it('returns the expected result', async () => {
+      fetchOnce(auditLogsRetentionFixture);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const result = await workos.auditLogs.getOrganizationAuditLogsRetention({
+        id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT/audit_logs_retention',
+      );
+      expect(result).toEqual({ retentionPeriodInDays: 30 });
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await expect(
+        workos.auditLogs.getOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('updateOrganizationAuditLogsRetention', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(auditLogsRetentionFixture);
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      const result =
+        await workos.auditLogs.updateOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          retentionPeriod: '1_MONTH',
+        });
+
+      expect(fetchMethod()).toBe('PUT');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/organizations/org_01EHZNVPK3SFK441A1RGBFSHRT/audit_logs_retention',
+      );
+      expect(fetchBody()).toEqual({ retention_period: '1_MONTH' });
+      expect(result).toEqual({ retentionPeriodInDays: 30 });
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Unprocessable Entity' }, { status: 422 });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await expect(
+        workos.auditLogs.updateOrganizationAuditLogsRetention({
+          id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          retentionPeriod: '1_MONTH',
+        }),
+      ).rejects.toThrow();
+    });
+  });
 
   describe('createEvent', () => {
     describe('with an idempotency key', () => {
@@ -1070,6 +1141,38 @@ describe('AuditLogs', () => {
         expect(result.listMetadata.before).toBe('cursor_before');
         expect(result.listMetadata.after).toBe('cursor_after');
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+    it('keeps a traversal payload inside a single path segment', async () => {
+      const timestamp = new Date().toISOString();
+      fetchOnce({
+        object: 'audit_log_export',
+        id: 'audit_log_export_1234',
+        state: 'pending',
+        created_at: timestamp,
+        updated_at: timestamp,
+      });
+
+      await workos.auditLogs.getExport(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/audit_logs/exports/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.auditLogs.listSchemas('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

@@ -7,16 +7,38 @@ import {
   ResponseHeaders,
 } from '../interfaces/http-client.interface';
 
+export interface HttpClientOptions extends RequestInit {
+  /** Per-request timeout in milliseconds. */
+  timeout?: number;
+  /**
+   * Maximum number of retries for transient failures. Set to `0` to disable
+   * automatic retries entirely. Defaults to {@link DEFAULT_MAX_RETRY_ATTEMPTS}.
+   */
+  maxRetries?: number;
+}
+
+export const DEFAULT_MAX_RETRY_ATTEMPTS = 3;
+
+/**
+ * Upper bound on a server-provided `Retry-After` delay. Caps how long a
+ * single retry can sleep so an aggressive proxy or an HTTP-date far in the
+ * future can't hang the caller indefinitely.
+ */
+export const MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS = 60_000;
+
 export abstract class HttpClient implements HttpClientInterface {
-  readonly MAX_RETRY_ATTEMPTS = 3;
+  readonly MAX_RETRY_ATTEMPTS: number;
   readonly BACKOFF_MULTIPLIER = 1.5;
   readonly MINIMUM_SLEEP_TIME_IN_MILLISECONDS = 500;
-  readonly RETRY_STATUS_CODES = [408, 500, 502, 504];
+  readonly MAXIMUM_SLEEP_TIME_IN_MILLISECONDS = 8_000;
+  readonly RETRY_STATUS_CODES = [408, 429, 500, 502, 503, 504];
 
   constructor(
     readonly baseURL: string,
-    readonly options?: RequestInit,
-  ) {}
+    readonly options?: HttpClientOptions,
+  ) {
+    this.MAX_RETRY_ATTEMPTS = options?.maxRetries ?? DEFAULT_MAX_RETRY_ATTEMPTS;
+  }
 
   abstract get(
     path: string,
@@ -57,9 +79,39 @@ export abstract class HttpClient implements HttpClientInterface {
     path: string,
     params?: Record<string, any>,
   ) {
+    HttpClient.assertNoDotSegments(path);
     const queryString = HttpClient.getQueryString(params);
     const url = new URL([path, queryString].filter(Boolean).join('?'), baseURL);
     return url.toString();
+  }
+
+  /**
+   * Reject request paths that contain a single-dot or double-dot segment.
+   *
+   * SDK path templates never contain such segments themselves, but a
+   * caller-supplied identifier interpolated with bare `encodeURIComponent`
+   * (the form the generated modules use) passes `.` and `..` through
+   * unchanged, and the WHATWG `URL` parser then collapses them, retargeting
+   * the request to a different endpoint (for example
+   * `/organizations/../api_keys` resolves to `/api_keys`). The parser also
+   * treats the percent-encoded forms (`%2e`, case-insensitive) as dots, so
+   * those are matched as well. Encoded values never trip this check because
+   * `encodeURIComponent` turns `%` into `%25` and `/` into `%2F`, keeping
+   * each identifier inside its own segment. Fail closed before any request
+   * is built.
+   */
+  private static assertNoDotSegments(path: string): void {
+    const pathOnly = path.split(/[?#]/, 1)[0];
+
+    for (const segment of pathOnly.split('/')) {
+      const normalized = segment.replace(/%2e/gi, '.');
+
+      if (normalized === '.' || normalized === '..') {
+        throw new TypeError(
+          `Invalid request path "${path}": a path segment must not be "." or "..".`,
+        );
+      }
+    }
   }
 
   static getQueryString(queryObj?: Record<string, any>) {
@@ -93,21 +145,74 @@ export abstract class HttpClient implements HttpClientInterface {
     return JSON.stringify(entity);
   }
 
-  static isPathRetryable(path: string): boolean {
-    return path.startsWith('/vault/') || path.startsWith('/audit_logs/events');
+  /**
+   * Generate a random idempotency key used to make retried write requests
+   * safe. Mirrors the behavior of the other WorkOS SDKs (Kotlin, Go), which
+   * attach an `Idempotency-Key` header to POST requests that did not already
+   * specify one, so a retried request is not applied more than once.
+   */
+  static generateIdempotencyKey(): string {
+    return `retry-${globalThis.crypto.randomUUID()}`;
+  }
+
+  /**
+   * Parse a `Retry-After` header value into milliseconds. Supports both the
+   * delay-seconds form (e.g. `120`) and the HTTP-date form. The result is
+   * capped at {@link MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS}. Returns
+   * `null` when the value is absent or unparseable so the caller falls back
+   * to the computed exponential backoff.
+   */
+  static parseRetryAfter(
+    headerValue: string | null | undefined,
+  ): number | null {
+    if (headerValue == null) {
+      return null;
+    }
+
+    const trimmed = headerValue.trim();
+    if (trimmed === '') {
+      return null;
+    }
+
+    // RFC 9110 delay-seconds: a non-negative decimal integer. Using a strict
+    // pattern instead of Number() avoids honoring exotic forms like
+    // `Infinity`, hex, or exponent notation.
+    if (/^\d+$/.test(trimmed)) {
+      return Math.min(
+        Number(trimmed) * 1000,
+        MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS,
+      );
+    }
+
+    const asDate = Date.parse(trimmed);
+    if (!Number.isNaN(asDate)) {
+      const delta = asDate - Date.now();
+      return delta < 0
+        ? 0
+        : Math.min(delta, MAXIMUM_RETRY_AFTER_TIME_IN_MILLISECONDS);
+    }
+
+    return null;
   }
 
   private getSleepTimeInMilliseconds(retryAttempt: number): number {
-    const sleepTime =
+    const sleepTime = Math.min(
       this.MINIMUM_SLEEP_TIME_IN_MILLISECONDS *
-      Math.pow(this.BACKOFF_MULTIPLIER, retryAttempt);
+        Math.pow(this.BACKOFF_MULTIPLIER, retryAttempt),
+      this.MAXIMUM_SLEEP_TIME_IN_MILLISECONDS,
+    );
     const jitter = Math.random() + 0.5;
     return sleepTime * jitter;
   }
 
-  sleep = (retryAttempt: number) =>
+  sleep = (retryAttempt: number, retryAfterMs?: number | null) =>
     new Promise((resolve) =>
-      setTimeout(resolve, this.getSleepTimeInMilliseconds(retryAttempt)),
+      setTimeout(
+        resolve,
+        retryAfterMs != null
+          ? retryAfterMs
+          : this.getSleepTimeInMilliseconds(retryAttempt),
+      ),
     );
 }
 
@@ -131,14 +236,14 @@ export abstract class HttpClientResponse implements HttpClientResponseInterface 
 
   abstract getRawResponse(): unknown;
 
-  abstract toJSON(): any | null;
+  abstract toJSON(): Promise<any | null>;
 }
 
 // tslint:disable-next-line
 export class HttpClientError<T> extends Error {
   readonly name: string = 'HttpClientError';
   readonly message: string = 'The request could not be completed.';
-  readonly response: { status: number; headers: any; data: T };
+  readonly response: { status: number; headers: Headers; data: T };
 
   constructor({
     message,

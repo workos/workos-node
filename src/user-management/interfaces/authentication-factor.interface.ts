@@ -1,3 +1,8 @@
+import { FactorType } from '../../multi-factor-auth/interfaces/factor.interface';
+import {
+  Sms,
+  SmsResponse,
+} from '../../multi-factor-auth/interfaces/sms.interface';
 import {
   Totp,
   TotpResponse,
@@ -5,13 +10,16 @@ import {
   TotpWithSecretsResponse,
 } from '../../multi-factor-auth/interfaces/totp.interface';
 
+export type AuthenticationFactorType = FactorType;
+
 export interface AuthenticationFactor {
   object: 'authentication_factor';
   id: string;
   createdAt: string;
   updatedAt: string;
-  type: 'totp';
-  totp: Totp;
+  type: AuthenticationFactorType;
+  sms?: Sms;
+  totp?: Totp;
   userId: string;
 }
 
@@ -30,8 +38,9 @@ export interface AuthenticationFactorResponse {
   id: string;
   created_at: string;
   updated_at: string;
-  type: 'totp';
-  totp: TotpResponse;
+  type: AuthenticationFactorType;
+  sms?: SmsResponse;
+  totp?: TotpResponse;
   user_id: string;
 }
 

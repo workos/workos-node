@@ -20,7 +20,15 @@ import { deserializeOrganizationDomain } from '../../organization-domains/serial
 import { deserializeOrganizationMembership } from '../../user-management/serializers/organization-membership.serializer';
 import { deserializeRoleEvent } from '../../user-management/serializers/role.serializer';
 import { deserializeSession } from '../../user-management/serializers/session.serializer';
-import { Event, EventBase, EventResponse } from '../interfaces';
+import {
+  Event,
+  EventBase,
+  EventResponse,
+  PipesConnectedAccount,
+  PipesConnectedAccountResponse,
+  PipesConnectionFailed,
+  PipesConnectionFailedResponse,
+} from '../interfaces';
 import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-management/serializers/authentication-radar-risk-event-serializer';
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
 import { deserializeOrganizationRoleEvent } from '../../authorization/serializers/organization-role.serializer';
@@ -40,6 +48,36 @@ import {
   deserializeVaultByokKeyVerificationCompletedEvent,
 } from '../../vault/serializers/vault-event.serializer';
 import { deserializeOrganizationDomainVerificationFailed } from '../../organization-domains/serializers/organization-domain-verification-failed.serializer';
+
+const deserializePipesConnectedAccount = (
+  connectedAccount: PipesConnectedAccountResponse,
+): PipesConnectedAccount => ({
+  object: connectedAccount.object,
+  id: connectedAccount.id,
+  dataIntegrationId: connectedAccount.data_integration_id,
+  providerSlug: connectedAccount.provider_slug,
+  userId: connectedAccount.user_id,
+  organizationId: connectedAccount.organization_id,
+  scopes: connectedAccount.scopes,
+  state: connectedAccount.state,
+  createdAt: connectedAccount.created_at,
+  updatedAt: connectedAccount.updated_at,
+});
+
+const deserializePipesConnectionFailed = (
+  connectionFailed: PipesConnectionFailedResponse,
+): PipesConnectionFailed => ({
+  object: connectionFailed.object,
+  dataIntegrationId: connectionFailed.data_integration_id,
+  providerSlug: connectionFailed.provider_slug,
+  userId: connectionFailed.user_id,
+  organizationId: connectionFailed.organization_id,
+  errorCode: connectionFailed.error_code,
+  errorReason: connectionFailed.error_reason,
+  providerError: connectionFailed.provider_error,
+  providerErrorDescription: connectionFailed.provider_error_description,
+  createdAt: connectionFailed.created_at,
+});
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
@@ -260,6 +298,20 @@ export const deserializeEvent = (event: EventResponse): Event => {
           groupId: event.data.group_id,
           organizationMembershipId: event.data.organization_membership_id,
         },
+      };
+    case 'pipes.connected_account.connected':
+    case 'pipes.connected_account.disconnected':
+    case 'pipes.connected_account.reauthorization_needed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePipesConnectedAccount(event.data),
+      };
+    case 'pipes.connected_account.connection_failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePipesConnectionFailed(event.data),
       };
     case 'vault.data.created':
       return {

@@ -1,5 +1,149 @@
 # Changelog
 
+## [11.0.0](https://github.com/workos/workos-node/compare/v10.14.0...v11.0.0) (2026-09-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **pipes:** Support organization-owned and multiple connections ([#1712](https://github.com/workos/workos-node/issues/1712))
+
+### Features
+
+* **pipes:** Support organization-owned and multiple connections ([#1712](https://github.com/workos/workos-node/issues/1712)) ([9c3e40d](https://github.com/workos/workos-node/commit/9c3e40d5ade28753a1d6fde57add708c5da7f0ee))
+
+## [10.14.0](https://github.com/workos/workos-node/compare/v10.13.0...v10.14.0) (2026-09-21)
+
+
+### Features
+
+* Add optional issuer option for session token validation ([#1694](https://github.com/workos/workos-node/issues/1694)) ([02effa7](https://github.com/workos/workos-node/commit/02effa74892462bac8e57549124166b705118224))
+* **audit-logs:** Add Audit Log Retention methods ([#1705](https://github.com/workos/workos-node/issues/1705)) ([ab1c464](https://github.com/workos/workos-node/commit/ab1c46440885374acd5761418d8d6e588cc1267d))
+
+
+### Bug Fixes
+
+* **ci:** harden dep-bump workflow against sed injection ([#1709](https://github.com/workos/workos-node/issues/1709)) ([6e1e1fe](https://github.com/workos/workos-node/commit/6e1e1fe3421a924217385b59a6f763851c6f2993))
+* encode caller-supplied path parameters in legacy modules ([#1710](https://github.com/workos/workos-node/issues/1710)) ([1fe77c6](https://github.com/workos/workos-node/commit/1fe77c60b73aa8a2cfc6b11d8513078cefcf7a4a))
+* keep request timeouts active while reading response bodies ([#1711](https://github.com/workos/workos-node/issues/1711)) ([26eaed6](https://github.com/workos/workos-node/commit/26eaed6bd12fae5aeea9830cfee05a130c0429a7))
+* reject 5-byte LEB128 encodings that overflow uint32 in decodeUInt32 ([#1690](https://github.com/workos/workos-node/issues/1690)) ([fb303c9](https://github.com/workos/workos-node/commit/fb303c98af39ae4559e8ec7d0922fbd788238018))
+* **session:** return refreshed user and impersonator from refresh() ([#1708](https://github.com/workos/workos-node/issues/1708)) ([855063b](https://github.com/workos/workos-node/commit/855063bb3311a13f946f629ea1b8d949f3c790d3))
+
+## [10.13.0](https://github.com/workos/workos-node/compare/v10.12.0...v10.13.0) (2026-08-31)
+
+
+### Features
+
+* Add Agent Blueprints API support ([#1687](https://github.com/workos/workos-node/issues/1687)) ([364e223](https://github.com/workos/workos-node/commit/364e223f2063ce5341986091107b9bd971eadd2f))
+* Add Waitlists API support ([#1689](https://github.com/workos/workos-node/issues/1689)) ([0faa84f](https://github.com/workos/workos-node/commit/0faa84f3dc1aec556a1c93c3a21eb887e7840f50))
+
+## [10.12.0](https://github.com/workos/workos-node/compare/v10.11.0...v10.12.0) (2026-08-27)
+
+
+### Features
+
+* Add IT Contacts API ([#1681](https://github.com/workos/workos-node/issues/1681)) ([5237aa2](https://github.com/workos/workos-node/commit/5237aa256f21419fc6dceed993ae6beda0bb0da4))
+
+
+### Bug Fixes
+
+* **events:** Type Pipes connected account events ([#1686](https://github.com/workos/workos-node/issues/1686)) ([b880c76](https://github.com/workos/workos-node/commit/b880c7648f6f1867a88b5c4c793f61bad6389129))
+* Surface the error field and request ID on 422 exceptions ([#1656](https://github.com/workos/workos-node/issues/1656)) ([2bc92ef](https://github.com/workos/workos-node/commit/2bc92ef69d5325562fbc2bd7ad67200a0b0eace7))
+
+## [10.11.0](https://github.com/workos/workos-node/compare/v10.10.0...v10.11.0) (2026-08-21)
+
+
+### Features
+
+* Evaluate custom targets in the feature flags runtime client ([#1674](https://github.com/workos/workos-node/issues/1674)) ([f30c3fa](https://github.com/workos/workos-node/commit/f30c3fa4233185ac965dbaec9a13f02f7db2ecbe))
+
+## [10.10.0](https://github.com/workos/workos-node/compare/v10.9.0...v10.10.0) (2026-08-13)
+
+
+### Features
+
+* expose authentication method on action contexts ([#1671](https://github.com/workos/workos-node/issues/1671)) ([6739820](https://github.com/workos/workos-node/commit/6739820bca718e9312f6e803cd19659cce03d631))
+
+## [10.9.0](https://github.com/workos/workos-node/compare/v10.8.0...v10.9.0) (2026-07-30)
+
+
+### Features
+
+* Add linkClaimAttemptToExternalUser to Agents module ([#1652](https://github.com/workos/workos-node/issues/1652)) ([5e4813f](https://github.com/workos/workos-node/commit/5e4813f8f47e1d4c7d8bacd792d7e7939a9a6d64))
+* Add user API key methods ([#1655](https://github.com/workos/workos-node/issues/1655)) ([17e41e0](https://github.com/workos/workos-node/commit/17e41e09d59fe8fdfd62c524418ce49c7c19f9de))
+* Distinguish transient from terminal failures in CookieSession.refresh() ([#1663](https://github.com/workos/workos-node/issues/1663)) ([2c570a5](https://github.com/workos/workos-node/commit/2c570a56f12f156bee11ebbf6781e77cfb3cbb48))
+
+
+### Bug Fixes
+
+* `totp` on list-path `AuthenticationFactor` is now optional to match the API ([#1665](https://github.com/workos/workos-node/issues/1665)) ([53a506b](https://github.com/workos/workos-node/commit/53a506ba1f69452dd0ca42f8667914aab81e12d4))
+* delete requests drop query params passed via `{query: ...}` ([#1668](https://github.com/workos/workos-node/issues/1668)) ([08a8a73](https://github.com/workos/workos-node/commit/08a8a7329dca7774ece76fb1dcdd274f738b772e))
+
+## [10.8.0](https://github.com/workos/workos-node/compare/v10.7.0...v10.8.0) (2026-07-16)
+
+
+### Features
+
+* Add agent registration read and credential validation methods ([#1642](https://github.com/workos/workos-node/issues/1642)) ([d4274fc](https://github.com/workos/workos-node/commit/d4274fcb52760d2ccf6070d8b61c8717dfddb206))
+* Add API-key installation support to Pipes ([#1649](https://github.com/workos/workos-node/issues/1649)) ([6e6996d](https://github.com/workos/workos-node/commit/6e6996d24309e515bd457e964f6edc63e796c884))
+* Add configurable automatic retries to the HTTP client ([#1659](https://github.com/workos/workos-node/issues/1659)) ([366b0cd](https://github.com/workos/workos-node/commit/366b0cd3c7c7731d0d8a40c93c3a740d3faa0cfb))
+* Generate Pipes off the OpenAPI spec ([#1625](https://github.com/workos/workos-node/issues/1625)) ([5abfdb1](https://github.com/workos/workos-node/commit/5abfdb1b7891989eec145b6cc8994cb1116bd7dd))
+* **pipes:** Add Data Integration operations and models ([#1653](https://github.com/workos/workos-node/issues/1653)) ([4b76690](https://github.com/workos/workos-node/commit/4b76690bd144bdd9469af173e869dc759c173078))
+* Surface agent registration id on API key validation ([#1644](https://github.com/workos/workos-node/issues/1644)) ([b03cdd0](https://github.com/workos/workos-node/commit/b03cdd0975364272c818a9c32281993f1f4a7a5b))
+
+
+### Bug Fixes
+
+* ApiKey.owner type missing user variant and organizationId ([#1650](https://github.com/workos/workos-node/issues/1650)) ([f896a1f](https://github.com/workos/workos-node/commit/f896a1f39c1abc0e8fcd04ec9eee8d9c7e706a94))
+
+## [10.7.0](https://github.com/workos/workos-node/compare/v10.6.0...v10.7.0) (2026-06-25)
+
+
+### Features
+
+* Add source to role assignments to distinguish group grants ([#1646](https://github.com/workos/workos-node/issues/1646)) ([574f5ca](https://github.com/workos/workos-node/commit/574f5cabb4c5c13f22841d16096a6ce49796018e))
+
+## [10.6.0](https://github.com/workos/workos-node/compare/v10.5.0...v10.6.0) (2026-06-25)
+
+
+### Features
+
+* **user-management:** add max_age parameter to getAuthorizationUrl ([#1643](https://github.com/workos/workos-node/issues/1643)) ([730404e](https://github.com/workos/workos-node/commit/730404e3c753b3250da0c777929b24e9f955ba70))
+
+## [10.5.0](https://github.com/workos/workos-node/compare/v10.4.1...v10.5.0) (2026-06-24)
+
+
+### Features
+
+* Add signalsId to user management APIs ([#1618](https://github.com/workos/workos-node/issues/1618)) ([b6e7944](https://github.com/workos/workos-node/commit/b6e7944796945b20d4a75177c9ea0a4d34ea20d8))
+
+## [10.4.1](https://github.com/workos/workos-node/compare/v10.4.0...v10.4.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **events:** Add resourceTypeSlug to RoleEvent deserialization ([#1638](https://github.com/workos/workos-node/issues/1638)) ([d478595](https://github.com/workos/workos-node/commit/d4785958cdaf1ee2d7857022fb4e89ff4e9518b5))
+
+## [10.4.0](https://github.com/workos/workos-node/compare/v10.3.0...v10.4.0) (2026-06-18)
+
+
+### Features
+
+* **user-management:** Add invitationToken to getAuthorizationUrl options ([#1612](https://github.com/workos/workos-node/issues/1612)) ([a2d516f](https://github.com/workos/workos-node/commit/a2d516fef5c7cf70aaf69b165f581ffe6dad5360))
+
+## [10.3.0](https://github.com/workos/workos-node/compare/v10.2.1...v10.3.0) (2026-06-17)
+
+
+### Features
+
+* **authorization:** Add group role assignment endpoints ([#1619](https://github.com/workos/workos-node/issues/1619)) ([df60af3](https://github.com/workos/workos-node/commit/df60af3ba4fc2ea94fd0a7acd26daef9f56c3781))
+
+## [10.2.1](https://github.com/workos/workos-node/compare/v10.2.0...v10.2.1) (2026-06-16)
+
+
+### Bug Fixes
+
+* Prevent handleParseError from double-reading response body ([#1622](https://github.com/workos/workos-node/issues/1622)) ([e1cdb7f](https://github.com/workos/workos-node/commit/e1cdb7f45f550bc77a28737991b42b9fd2862f06))
+
 ## [10.2.0](https://github.com/workos/workos-node/compare/v10.1.0...v10.2.0) (2026-06-02)
 
 

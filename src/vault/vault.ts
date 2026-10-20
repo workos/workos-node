@@ -305,11 +305,9 @@ export class Vault {
   async deleteObject(options: DeleteVaultObjectOptions): Promise<void> {
     const { id } = options;
     await this.workos.delete(`/vault/v1/kv/${encodeURIComponent(id)}`, {
-      query: {
-        ...(options.versionCheck !== undefined && {
-          version_check: options.versionCheck,
-        }),
-      },
+      ...(options.versionCheck !== undefined && {
+        version_check: options.versionCheck,
+      }),
     });
   }
 

@@ -16,20 +16,77 @@ import {
   AuditLogSchemaResponse,
 } from './interfaces/audit-log-schema.interface';
 import {
+  AuditLogsRetention,
+  AuditLogsRetentionResponse,
+} from './interfaces/audit-logs-retention.interface';
+import {
   CreateAuditLogSchemaResponse,
   CreateAuditLogSchemaRequestOptions,
   CreateAuditLogSchemaOptions,
 } from './interfaces/create-audit-log-schema-options.interface';
+import { GetOrganizationAuditLogsRetentionOptions } from './interfaces/get-organization-audit-logs-retention-options.interface';
+import { UpdateAuditLogsRetentionResponse } from './interfaces/update-audit-logs-retention.interface';
+import { UpdateOrganizationAuditLogsRetentionOptions } from './interfaces/update-organization-audit-logs-retention-options.interface';
 import {
   deserializeAuditLogExport,
   deserializeAuditLogSchema,
+  deserializeAuditLogsRetention,
   serializeAuditLogExportOptions,
   serializeCreateAuditLogEventOptions,
   serializeCreateAuditLogSchemaOptions,
+  serializeUpdateAuditLogsRetention,
 } from './serializers';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class AuditLogs {
   constructor(private readonly workos: WorkOS) {}
+
+  /**
+   * Get Retention
+   *
+   * Get the configured event retention period for the given Organization.
+   * @param options - The request options.
+   * @param options.id - Unique identifier of the Organization.
+   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @returns {Promise<AuditLogsRetention>}
+   * @throws {NotFoundException} 404
+   */
+  async getOrganizationAuditLogsRetention(
+    options: GetOrganizationAuditLogsRetentionOptions,
+  ): Promise<AuditLogsRetention> {
+    const { id } = options;
+    const { data } = await this.workos.get<AuditLogsRetentionResponse>(
+      `/organizations/${encodeURIComponent(id)}/audit_logs_retention`,
+    );
+    return deserializeAuditLogsRetention(data);
+  }
+
+  /**
+   * Set Retention
+   *
+   * Set the event retention period for the given Organization.
+   * @param options - Object containing retentionPeriod.
+   * @param options.id - Unique identifier of the Organization.
+   * @example "org_01EHZNVPK3SFK441A1RGBFSHRT"
+   * @param options.retentionPeriod - The period Audit Log events will be retained. Valid values are `1_MONTH` through `11_MONTHS` in one-month increments and `1_YEAR` through `10_YEARS` in one-year increments.
+   * @example "1_MONTH"
+   * @returns {Promise<AuditLogsRetention>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async updateOrganizationAuditLogsRetention(
+    options: UpdateOrganizationAuditLogsRetentionOptions,
+  ): Promise<AuditLogsRetention> {
+    const { id, ...payload } = options;
+    const { data } = await this.workos.put<
+      AuditLogsRetentionResponse,
+      UpdateAuditLogsRetentionResponse
+    >(
+      `/organizations/${encodeURIComponent(id)}/audit_logs_retention`,
+      serializeUpdateAuditLogsRetention(payload),
+    );
+    return deserializeAuditLogsRetention(data);
+  }
 
   /**
    * Create Event
@@ -102,7 +159,7 @@ export class AuditLogs {
    */
   async getExport(auditLogExportId: string): Promise<AuditLogExport> {
     const { data } = await this.workos.get<AuditLogExportResponse>(
-      `/audit_logs/exports/${auditLogExportId}`,
+      `/audit_logs/exports/${encodePathParameter(auditLogExportId)}`,
     );
 
     return deserializeAuditLogExport(data);
@@ -121,7 +178,7 @@ export class AuditLogs {
     options: CreateAuditLogSchemaRequestOptions = {},
   ): Promise<AuditLogSchema> {
     const { data } = await this.workos.post<CreateAuditLogSchemaResponse>(
-      `/audit_logs/actions/${schema.action}/schemas`,
+      `/audit_logs/actions/${encodePathParameter(schema.action)}/schemas`,
       serializeCreateAuditLogSchemaOptions(schema),
       options,
     );
@@ -133,7 +190,7 @@ export class AuditLogs {
     action: string,
     options?: PaginationOptions,
   ): Promise<AutoPaginatable<AuditLogSchema, PaginationOptions>> {
-    const endpoint = `/audit_logs/actions/${action}/schemas`;
+    const endpoint = `/audit_logs/actions/${encodePathParameter(action)}/schemas`;
 
     return new AutoPaginatable(
       await fetchAndDeserialize<AuditLogSchemaResponse, AuditLogSchema>(

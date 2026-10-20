@@ -1,17 +1,17 @@
 import { FlagPollEntry, FlagPollResponse } from './interfaces';
 
 export class InMemoryStore {
-  private flags: FlagPollResponse = {};
+  private flags: FlagPollResponse['flags'] = {};
 
-  swap(newFlags: FlagPollResponse): void {
+  swap(newFlags: FlagPollResponse['flags']): void {
     this.flags = { ...newFlags };
   }
 
   get(slug: string): FlagPollEntry | undefined {
-    return this.flags[slug];
+    return Object.hasOwn(this.flags, slug) ? this.flags[slug] : undefined;
   }
 
-  getAll(): FlagPollResponse {
+  getAll(): FlagPollResponse['flags'] {
     return { ...this.flags };
   }
 

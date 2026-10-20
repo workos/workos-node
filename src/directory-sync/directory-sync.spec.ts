@@ -168,4 +168,29 @@ describe('DirectorySync', () => {
       ).rejects.toThrow();
     });
   });
+
+  // @oagen-ignore-start
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce();
+
+      await workos.directorySync.deleteDirectory({
+        id: '../../user_management/users/user_01VICTIM',
+      });
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.directorySync.getGroup({ id: '..' })).rejects.toThrow(
+        'a path segment must not be "." or ".."',
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
+    });
+  });
+  // @oagen-ignore-end
 });

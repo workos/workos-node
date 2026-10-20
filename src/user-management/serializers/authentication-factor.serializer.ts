@@ -4,6 +4,7 @@ import {
   AuthenticationFactorWithSecrets,
   AuthenticationFactorWithSecretsResponse,
 } from '../interfaces/authentication-factor.interface';
+import { deserializeSms } from '../../multi-factor-auth/serializers/sms.serializer';
 import {
   deserializeTotp,
   deserializeTotpWithSecrets,
@@ -17,7 +18,8 @@ export const deserializeFactor = (
   createdAt: factor.created_at,
   updatedAt: factor.updated_at,
   type: factor.type,
-  totp: deserializeTotp(factor.totp),
+  ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
+  ...(factor.totp ? { totp: deserializeTotp(factor.totp) } : {}),
   userId: factor.user_id,
 });
 

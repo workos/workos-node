@@ -3,8 +3,7 @@ import { ListEffectivePermissionsOptions } from '../interfaces/list-effective-pe
 import { ListEffectivePermissionsByExternalIdOptions } from '../interfaces/list-effective-permissions-by-external-id-options.interface';
 
 type ListEffectivePermissionsQueryOptions =
-  | ListEffectivePermissionsOptions
-  | ListEffectivePermissionsByExternalIdOptions;
+  ListEffectivePermissionsOptions | ListEffectivePermissionsByExternalIdOptions;
 
 export const serializeListEffectivePermissionsOptions = (
   options: ListEffectivePermissionsQueryOptions,

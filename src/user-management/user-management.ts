@@ -1,4 +1,6 @@
 import { sealData, unsealData } from '../common/crypto/seal';
+import { List, ListResponse } from '../common/interfaces';
+import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
 import { getEnv } from '../common/utils/env';
@@ -18,12 +20,16 @@ import {
   CreateMagicAuthResponse,
   CreateMagicAuthResponseResponse,
   CreatePasswordResetOptions,
+  CreateUserApiKeyOptions,
+  CreateUserApiKeyRequestOptions,
   CreateUserOptions,
   CreateUserResponse,
   CreateUserResponseResponse,
   EmailVerification,
   EmailVerificationResponse,
   ListSessionsOptions,
+  ListUserApiKeysOptions,
+  SerializedListUserApiKeysOptions,
   ListUsersOptions,
   LogoutURLOptions,
   MagicAuth,
@@ -50,8 +56,20 @@ import {
   SessionResponse,
   UpdateUserOptions,
   User,
+  UserApiKey,
+  UserApiKeyWithValue,
   UserResponse,
   VerifyEmailOptions,
+  SerializedUserApiKey,
+  SerializedUserApiKeyWithValue,
+  CreateWaitlistEntryOptions,
+  ListWaitlistEntriesOptions,
+  SerializedCreateWaitlistEntryOptions,
+  SerializedListWaitlistEntriesOptions,
+  Waitlist,
+  WaitlistEntry,
+  WaitlistEntryResponse,
+  WaitlistResponse,
 } from './interfaces';
 import {
   AuthenticateWithEmailVerificationOptions,
@@ -144,10 +162,14 @@ import {
   serializeAuthenticateWithTotpOptions,
   serializeCreateMagicAuthOptions,
   serializeCreatePasswordResetOptions,
+  serializeCreateUserApiKeyOptions,
   serializeCreateUserOptions,
   serializeListSessionsOptions,
+  serializeListUserApiKeysOptions,
   serializeResetPasswordOptions,
   serializeUpdateUserOptions,
+  deserializeUserApiKey,
+  deserializeUserApiKeyWithValue,
 } from './serializers';
 import { serializeAuthenticateWithEmailVerificationOptions } from './serializers/authenticate-with-email-verification.serializer';
 import { serializeAuthenticateWithOrganizationSelectionOptions } from './serializers/authenticate-with-organization-selection-options.serializer';
@@ -164,22 +186,26 @@ import { serializeResendInvitationOptions } from './serializers/resend-invitatio
 import { deserializeOrganizationMembership } from './serializers/organization-membership.serializer';
 import { serializeSendInvitationOptions } from './serializers/send-invitation-options.serializer';
 import { serializeUpdateOrganizationMembershipOptions } from './serializers/update-organization-membership-options.serializer';
+import { deserializeWaitlist } from './serializers/waitlist.serializer';
+import { deserializeWaitlistEntry } from './serializers/waitlist-entry.serializer';
+import { serializeCreateWaitlistEntryOptions } from './serializers/create-waitlist-entry-options.serializer';
+import { serializeListWaitlistEntriesOptions } from './serializers/list-waitlist-entries-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
 import { Group, GroupResponse } from '../groups/interfaces';
 import { deserializeGroup } from '../groups/serializers';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class UserManagement {
   // @oagen-ignore-start
   private _jwks:
-    | ReturnType<typeof import('jose').createRemoteJWKSet>
-    | undefined;
+    ReturnType<typeof import('jose').createRemoteJWKSet> | undefined;
   public clientId: string | undefined;
+  public issuer: string | string[] | undefined;
 
   constructor(private readonly workos: WorkOS) {
-    const { clientId } = workos.options;
-
-    this.clientId = clientId;
+    this.clientId = workos.clientId;
+    this.issuer = workos.options.issuer;
   }
 
   /**
@@ -242,7 +268,7 @@ export class UserManagement {
    */
   async getUser(userId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/users/${userId}`,
+      `/user_management/users/${encodePathParameter(userId)}`,
     );
 
     return deserializeUser(data);
@@ -262,7 +288,7 @@ export class UserManagement {
    */
   async getUserByExternalId(externalId: string): Promise<User> {
     const { data } = await this.workos.get<UserResponse>(
-      `/user_management/users/external_id/${externalId}`,
+      `/user_management/users/external_id/${encodePathParameter(externalId)}`,
     );
 
     return deserializeUser(data);
@@ -726,7 +752,11 @@ export class UserManagement {
     }
 
     try {
-      await jwtVerify(accessToken, jwks);
+      await jwtVerify(
+        accessToken,
+        jwks,
+        this.issuer ? { issuer: this.issuer } : undefined,
+      );
       return true;
     } catch (e) {
       // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
@@ -830,7 +860,7 @@ export class UserManagement {
     emailVerificationId: string,
   ): Promise<EmailVerification> {
     const { data } = await this.workos.get<EmailVerificationResponse>(
-      `/user_management/email_verification/${emailVerificationId}`,
+      `/user_management/email_verification/${encodePathParameter(emailVerificationId)}`,
     );
 
     return deserializeEmailVerification(data);
@@ -849,7 +879,7 @@ export class UserManagement {
     userId,
   }: SendVerificationEmailOptions): Promise<{ user: User }> {
     const { data } = await this.workos.post<{ user: UserResponse }>(
-      `/user_management/users/${userId}/email_verification/send`,
+      `/user_management/users/${encodePathParameter(userId)}/email_verification/send`,
       {},
     );
 
@@ -865,7 +895,7 @@ export class UserManagement {
    */
   async getMagicAuth(magicAuthId: string): Promise<MagicAuth> {
     const { data } = await this.workos.get<MagicAuthResponse>(
-      `/user_management/magic_auth/${magicAuthId}`,
+      `/user_management/magic_auth/${encodePathParameter(magicAuthId)}`,
     );
 
     return deserializeMagicAuth(data);
@@ -920,9 +950,12 @@ export class UserManagement {
     const { data } = await this.workos.post<
       { user: UserResponse },
       SerializedVerifyEmailOptions
-    >(`/user_management/users/${userId}/email_verification/confirm`, {
-      code,
-    });
+    >(
+      `/user_management/users/${encodePathParameter(userId)}/email_verification/confirm`,
+      {
+        code,
+      },
+    );
 
     return { user: deserializeUser(data.user) };
   }
@@ -936,7 +969,7 @@ export class UserManagement {
    */
   async getPasswordReset(passwordResetId: string): Promise<PasswordReset> {
     const { data } = await this.workos.get<PasswordResetResponse>(
-      `/user_management/password_reset/${passwordResetId}`,
+      `/user_management/password_reset/${encodePathParameter(passwordResetId)}`,
     );
 
     return deserializePasswordReset(data);
@@ -994,7 +1027,7 @@ export class UserManagement {
    */
   async updateUser(payload: UpdateUserOptions): Promise<User> {
     const { data } = await this.workos.put<UserResponse>(
-      `/user_management/users/${payload.userId}`,
+      `/user_management/users/${encodePathParameter(payload.userId)}`,
       serializeUpdateUserOptions(payload),
     );
 
@@ -1017,14 +1050,14 @@ export class UserManagement {
     return new AutoPaginatable(
       await fetchAndDeserialize<SessionResponse, Session>(
         this.workos,
-        `/user_management/users/${userId}/sessions`,
+        `/user_management/users/${encodePathParameter(userId)}/sessions`,
         deserializeSession,
         options ? serializeListSessionsOptions(options) : undefined,
       ),
       (params) =>
         fetchAndDeserialize<SessionResponse, Session>(
           this.workos,
-          `/user_management/users/${userId}/sessions`,
+          `/user_management/users/${encodePathParameter(userId)}/sessions`,
           deserializeSession,
           params,
         ),
@@ -1040,7 +1073,72 @@ export class UserManagement {
    * @throws {NotFoundException} 404
    */
   async deleteUser(userId: string) {
-    await this.workos.delete(`/user_management/users/${userId}`);
+    await this.workos.delete(
+      `/user_management/users/${encodePathParameter(userId)}`,
+    );
+  }
+
+  /**
+   * List API keys for a user
+   *
+   * Get a list of API keys owned by a specific user.
+   * @param userId - Unique identifier of the user.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<UserApiKey, SerializedListUserApiKeysOptions>>}
+   * @throws {NotFoundException} 404
+   */
+  async listUserApiKeys(
+    userId: string,
+    options?: ListUserApiKeysOptions,
+  ): Promise<AutoPaginatable<UserApiKey, SerializedListUserApiKeysOptions>> {
+    const serializedOptions = options
+      ? serializeListUserApiKeysOptions(options)
+      : undefined;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
+        this.workos,
+        `/user_management/users/${encodePathParameter(userId)}/api_keys`,
+        deserializeUserApiKey,
+        serializedOptions,
+      ),
+      (params) =>
+        fetchAndDeserialize<SerializedUserApiKey, UserApiKey>(
+          this.workos,
+          `/user_management/users/${encodePathParameter(userId)}/api_keys`,
+          deserializeUserApiKey,
+          params,
+        ),
+      serializedOptions,
+    );
+  }
+
+  /**
+   * Create an API key for a user
+   *
+   * Create a new API key owned by a user. The user must have an active membership in the specified organization.
+   * @param userId - Unique identifier of the user.
+   * @param options - Object containing the API key properties.
+   * @returns {Promise<UserApiKeyWithValue>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async createUserApiKey(
+    userId: string,
+    options: CreateUserApiKeyOptions,
+    requestOptions: CreateUserApiKeyRequestOptions = {},
+  ): Promise<UserApiKeyWithValue> {
+    const { data } = await this.workos.post<
+      SerializedUserApiKeyWithValue,
+      ReturnType<typeof serializeCreateUserApiKeyOptions>
+    >(
+      `/user_management/users/${encodePathParameter(userId)}/api_keys`,
+      serializeCreateUserApiKeyOptions(options),
+      requestOptions,
+    );
+
+    return deserializeUserApiKeyWithValue(data);
   }
 
   /**
@@ -1056,7 +1154,7 @@ export class UserManagement {
     }
 
     const { data } = await this.workos.get<RawIdentityResponse[]>(
-      `/user_management/users/${userId}/identities`,
+      `/user_management/users/${encodePathParameter(userId)}/identities`,
     );
 
     return deserializeIdentities(data);
@@ -1073,7 +1171,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.get<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
     );
 
     return deserializeOrganizationMembership(data);
@@ -1167,7 +1265,7 @@ export class UserManagement {
       OrganizationMembershipResponse,
       SerializedUpdateOrganizationMembershipOptions
     >(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
       serializeUpdateOrganizationMembershipOptions(options),
     );
 
@@ -1185,7 +1283,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<void> {
     await this.workos.delete(
-      `/user_management/organization_memberships/${organizationMembershipId}`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}`,
     );
   }
 
@@ -1207,7 +1305,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.put<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}/deactivate`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/deactivate`,
       {},
     );
 
@@ -1232,7 +1330,7 @@ export class UserManagement {
     organizationMembershipId: string,
   ): Promise<OrganizationMembership> {
     const { data } = await this.workos.put<OrganizationMembershipResponse>(
-      `/user_management/organization_memberships/${organizationMembershipId}/reactivate`,
+      `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/reactivate`,
       {},
     );
 
@@ -1243,7 +1341,7 @@ export class UserManagement {
     options: ListGroupsForOrganizationMembershipOptions,
   ): Promise<AutoPaginatable<Group>> {
     const { organizationMembershipId, ...paginationOptions } = options;
-    const endpoint = `/user_management/organization_memberships/${organizationMembershipId}/groups`;
+    const endpoint = `/user_management/organization_memberships/${encodePathParameter(organizationMembershipId)}/groups`;
 
     return new AutoPaginatable(
       await fetchAndDeserialize<GroupResponse, Group>(
@@ -1265,7 +1363,7 @@ export class UserManagement {
 
   async getInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
-      `/user_management/invitations/${invitationId}`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}`,
     );
 
     return deserializeInvitation(data);
@@ -1280,7 +1378,7 @@ export class UserManagement {
    */
   async findInvitationByToken(invitationToken: string): Promise<Invitation> {
     const { data } = await this.workos.get<InvitationResponse>(
-      `/user_management/invitations/by_token/${invitationToken}`,
+      `/user_management/invitations/by_token/${encodePathParameter(invitationToken)}`,
     );
 
     return deserializeInvitation(data);
@@ -1349,7 +1447,7 @@ export class UserManagement {
    */
   async acceptInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.post<InvitationResponse, any>(
-      `/user_management/invitations/${invitationId}/accept`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/accept`,
       null,
     );
 
@@ -1365,7 +1463,7 @@ export class UserManagement {
    */
   async revokeInvitation(invitationId: string): Promise<Invitation> {
     const { data } = await this.workos.post<InvitationResponse, any>(
-      `/user_management/invitations/${invitationId}/revoke`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/revoke`,
       null,
     );
 
@@ -1390,11 +1488,156 @@ export class UserManagement {
       InvitationResponse,
       SerializedResendInvitationOptions
     >(
-      `/user_management/invitations/${invitationId}/resend`,
+      `/user_management/invitations/${encodePathParameter(invitationId)}/resend`,
       options ? serializeResendInvitationOptions(options) : {},
     );
 
     return deserializeInvitation(data);
+  }
+
+  /**
+   * List waitlists
+   *
+   * Get a list of the waitlists in the environment. All waitlists are
+   * returned in a single response — this endpoint is not paginated.
+   * @returns {Promise<List<Waitlist>>}
+   */
+  async listWaitlists(): Promise<List<Waitlist>> {
+    const { data } = await this.workos.get<ListResponse<WaitlistResponse>>(
+      '/user_management/waitlists',
+    );
+
+    return deserializeList(data, deserializeWaitlist);
+  }
+
+  /**
+   * Get a waitlist
+   *
+   * Get the details of an existing waitlist. The literal id `default`
+   * is accepted and resolves to the environment's default waitlist.
+   * @returns {Promise<Waitlist>}
+   * @throws {NotFoundException} 404
+   */
+  async getWaitlist(waitlistId: string): Promise<Waitlist> {
+    const { data } = await this.workos.get<WaitlistResponse>(
+      `/user_management/waitlists/${encodePathParameter(waitlistId)}`,
+    );
+
+    return deserializeWaitlist(data);
+  }
+
+  /**
+   * List waitlist entries
+   *
+   * Get a list of the entries on a waitlist matching the criteria specified.
+   * The literal id `default` is accepted and resolves to the environment's
+   * default waitlist.
+   * @param waitlistId - The unique ID of the waitlist.
+   * @param options - Pagination and filter options.
+   * @returns {Promise<AutoPaginatable<WaitlistEntry, SerializedListWaitlistEntriesOptions>>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async listWaitlistEntries(
+    waitlistId: string,
+    options?: ListWaitlistEntriesOptions,
+  ): Promise<
+    AutoPaginatable<WaitlistEntry, SerializedListWaitlistEntriesOptions>
+  > {
+    return new AutoPaginatable(
+      await fetchAndDeserialize<WaitlistEntryResponse, WaitlistEntry>(
+        this.workos,
+        `/user_management/waitlists/${encodePathParameter(waitlistId)}/entries`,
+        deserializeWaitlistEntry,
+        options ? serializeListWaitlistEntriesOptions(options) : undefined,
+      ),
+      (params) =>
+        fetchAndDeserialize<WaitlistEntryResponse, WaitlistEntry>(
+          this.workos,
+          `/user_management/waitlists/${encodePathParameter(waitlistId)}/entries`,
+          deserializeWaitlistEntry,
+          params,
+        ),
+      options ? serializeListWaitlistEntriesOptions(options) : undefined,
+    );
+  }
+
+  /**
+   * Create a waitlist entry
+   *
+   * Add an email address to a waitlist. Adding an email address that is
+   * already on the waitlist returns the existing entry unchanged. The
+   * literal id `default` is accepted and resolves to the environment's
+   * default waitlist.
+   * @param waitlistId - The unique ID of the waitlist.
+   * @param payload - Object containing email and optional fields.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async createWaitlistEntry(
+    waitlistId: string,
+    payload: CreateWaitlistEntryOptions,
+  ): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<
+      WaitlistEntryResponse,
+      SerializedCreateWaitlistEntryOptions
+    >(
+      `/user_management/waitlists/${encodePathParameter(waitlistId)}/entries`,
+      serializeCreateWaitlistEntryOptions(payload),
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Approve a waitlist entry
+   *
+   * Approve a waitlist entry, create an invitation for its email address,
+   * and send the invitation email.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async approveWaitlistEntry(waitlistEntryId: string): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<WaitlistEntryResponse, null>(
+      `/user_management/waitlist_entries/${encodePathParameter(waitlistEntryId)}/approve`,
+      null,
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Deny a waitlist entry
+   *
+   * Deny a pending waitlist entry.
+   * @returns {Promise<WaitlistEntry>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async denyWaitlistEntry(waitlistEntryId: string): Promise<WaitlistEntry> {
+    const { data } = await this.workos.post<WaitlistEntryResponse, null>(
+      `/user_management/waitlist_entries/${encodePathParameter(waitlistEntryId)}/deny`,
+      null,
+    );
+
+    return deserializeWaitlistEntry(data);
+  }
+
+  /**
+   * Delete a waitlist entry
+   *
+   * Remove the entry from the waitlist. Its email address can join again
+   * unless a user with that email now exists in the environment. Deleting
+   * the entry does not revoke an invitation created by approving it.
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
+  async deleteWaitlistEntry(waitlistEntryId: string): Promise<void> {
+    await this.workos.delete(
+      `/user_management/waitlist_entries/${encodePathParameter(waitlistEntryId)}`,
+    );
   }
 
   /**
@@ -1431,7 +1674,9 @@ export class UserManagement {
       codeChallengeMethod,
       clientId,
       domainHint,
+      invitationToken,
       loginHint,
+      maxAge,
       organizationId,
       provider,
       providerQueryParams,
@@ -1462,7 +1707,9 @@ export class UserManagement {
       code_challenge_method: codeChallengeMethod,
       organization_id: organizationId,
       domain_hint: domainHint,
+      invitation_token: invitationToken,
       login_hint: loginHint,
+      max_age: maxAge?.toString(),
       provider,
       provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,
@@ -1514,6 +1761,7 @@ export class UserManagement {
       connectionId,
       domainHint,
       loginHint,
+      maxAge,
       organizationId,
       provider,
       providerQueryParams,
@@ -1549,6 +1797,7 @@ export class UserManagement {
       organization_id: organizationId,
       domain_hint: domainHint,
       login_hint: loginHint,
+      max_age: maxAge?.toString(),
       provider,
       provider_query_params: providerQueryParams,
       provider_scopes: providerScopes,

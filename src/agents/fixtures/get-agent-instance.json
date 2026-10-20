@@ -1,0 +1,10 @@
+{
+  "object": "agent_instance",
+  "id": "agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "agent_blueprint_id": "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "organization_id": "org_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "organization_membership_id": "om_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "type": "delegated",
+  "created_at": "2023-07-18T02:07:19.911Z",
+  "updated_at": "2023-07-18T02:07:19.911Z"
+}

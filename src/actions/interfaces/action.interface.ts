@@ -3,6 +3,7 @@ import {
   OrganizationResponse,
 } from '../../organizations/interfaces';
 import {
+  AuthenticationMethod,
   Invitation,
   InvitationResponse,
   OrganizationMembership,
@@ -17,6 +18,7 @@ interface AuthenticationActionContext {
   user: User;
   organization?: Organization;
   organizationMembership?: OrganizationMembership;
+  authenticationMethod?: AuthenticationMethod;
   ipAddress?: string;
   userAgent?: string;
   deviceFingerprint?: string;
@@ -36,14 +38,14 @@ interface UserRegistrationActionContext {
   object: 'user_registration_action_context';
   userData: UserData;
   invitation?: Invitation;
+  authenticationMethod?: AuthenticationMethod;
   ipAddress?: string;
   userAgent?: string;
   deviceFingerprint?: string;
 }
 
 export type ActionContext =
-  | AuthenticationActionContext
-  | UserRegistrationActionContext;
+  AuthenticationActionContext | UserRegistrationActionContext;
 
 interface AuthenticationActionPayload {
   id: string;
@@ -51,6 +53,7 @@ interface AuthenticationActionPayload {
   user: UserResponse;
   organization?: OrganizationResponse;
   organization_membership?: OrganizationMembershipResponse;
+  authentication_method?: AuthenticationMethod;
   ip_address?: string;
   user_agent?: string;
   device_fingerprint?: string;
@@ -70,11 +73,11 @@ export interface UserRegistrationActionPayload {
   object: 'user_registration_action_context';
   user_data: UserDataPayload;
   invitation?: InvitationResponse;
+  authentication_method?: AuthenticationMethod;
   ip_address?: string;
   user_agent?: string;
   device_fingerprint?: string;
 }
 
 export type ActionPayload =
-  | AuthenticationActionPayload
-  | UserRegistrationActionPayload;
+  AuthenticationActionPayload | UserRegistrationActionPayload;

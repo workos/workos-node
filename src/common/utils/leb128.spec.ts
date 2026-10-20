@@ -235,12 +235,34 @@ describe('leb128', () => {
         expect(() => decodeUInt32(data)).toThrow('Truncated LEB128 encoding');
       });
 
-      test('throws for encoding that exceeds uint32 range', () => {
+      test('throws for encoding longer than 5 bytes', () => {
         // 6 bytes with continuation bits (should never happen for uint32)
         const data = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x80, 0x01]);
         expect(() => decodeUInt32(data)).toThrow(
           'LEB128 sequence exceeds maximum length for uint32',
         );
+      });
+
+      test('throws for a 5-byte encoding whose final byte overflows uint32', () => {
+        // 5 bytes, but the final byte carries data bits above bit 31
+        // (0x10 -> 2^32). Without a range check the 32-bit shift silently drops
+        // the overflow and returns 0 instead of rejecting the value.
+        const data = new Uint8Array([0x80, 0x80, 0x80, 0x80, 0x10]);
+        expect(() => decodeUInt32(data)).toThrow(
+          'LEB128 sequence exceeds uint32 range',
+        );
+      });
+
+      test('throws when the final byte uses all 7 data bits', () => {
+        const data = new Uint8Array([0xff, 0xff, 0xff, 0xff, 0x7f]);
+        expect(() => decodeUInt32(data)).toThrow(
+          'LEB128 sequence exceeds uint32 range',
+        );
+      });
+
+      test('accepts MAX_UINT32 whose final byte is exactly 0x0f', () => {
+        const data = new Uint8Array([0xff, 0xff, 0xff, 0xff, 0x0f]);
+        expect(decodeUInt32(data).value).toBe(4294967295);
       });
     });
   });

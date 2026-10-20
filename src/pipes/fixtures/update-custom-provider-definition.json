@@ -1,0 +1,15 @@
+{
+  "name": "My OAuth App",
+  "authorization_url": "https://provider.example.com/oauth/authorize",
+  "token_url": "https://provider.example.com/oauth/token",
+  "refresh_token_url": "https://provider.example.com/oauth/token",
+  "pkce_enabled": true,
+  "request_scope_separator": " ",
+  "scopes_required": false,
+  "client_secret_required": true,
+  "additional_authorization_parameters": {
+    "prompt": "consent"
+  },
+  "token_body_content_type": "application/x-www-form-urlencoded",
+  "authenticate_via": "request_body"
+}

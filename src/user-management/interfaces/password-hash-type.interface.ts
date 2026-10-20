@@ -1,6 +1,2 @@
 export type PasswordHashType =
-  | 'bcrypt'
-  | 'firebase-scrypt'
-  | 'ssha'
-  | 'scrypt'
-  | 'argon2';
+  'bcrypt' | 'firebase-scrypt' | 'ssha' | 'scrypt' | 'argon2';

@@ -37,6 +37,51 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS('sk_1234');
 ```
 
+### Automatic retries
+
+The SDK automatically retries requests that fail with a transient error — a
+network error, a request timeout (408), a rate limit (429), or a server error
+(500, 502, 503, 504) — using exponential backoff with jitter. When the API
+responds with a `Retry-After` header, the SDK waits for that duration instead
+(capped at 60 seconds). Retried `POST` requests are automatically assigned an
+`Idempotency-Key` header (unless one is already set) so a retried write is not
+applied twice.
+
+The default is 3 retries. Configure it client-wide, or per request on the
+low-level HTTP methods:
+
+```ts
+// Client-wide: up to 5 retries per request
+const workos = new WorkOS('sk_1234', { maxRetries: 5 });
+
+// Per-request override: disable retries for this call only
+await workos.get('/organizations', { maxRetries: 0 });
+```
+
+Set `maxRetries: 0` to disable automatic retries entirely.
+
+The request timeout (`timeout`, 60 seconds by default) covers each attempt from
+the request being sent to the response body being fully read, so a server that
+returns headers promptly but stalls the body still times out. A timeout while
+reading a successful response body is reported as a 408 but is not
+automatically retried, because the server has already applied the request.
+
+### Access token issuer validation
+
+Session helpers (`authenticateWithSessionCookie`, `loadSealedSession(...).authenticate()`)
+verify the access token signature against the WorkOS JWKS. To also enforce the
+token's `iss` claim, pass the expected issuer when creating the client:
+
+```ts
+const workos = new WorkOS('sk_1234', {
+  clientId: 'client_...',
+  issuer: 'https://api.workos.com/user_management/client_...',
+});
+```
+
+`issuer` also accepts an array when tokens from more than one issuer should be
+accepted. When `issuer` is not set, the `iss` claim is not validated.
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:
@@ -90,6 +135,36 @@ const { accessToken } = await workos.userManagement.authenticateWithCode({
   clientId: 'client_...',
 });
 ```
+
+## Feature flag runtime
+
+The runtime client polls the v2 flag payload and evaluates flags locally. When a
+flag is off it serves `off_value`. Otherwise rules are evaluated in array order:
+the first matching rule's `value` wins, and `default_value` applies when no rule
+matches. A matching rule can serve `false`. Every condition in a rule must match;
+`one_of` matches an exact ID for its target type. Unknown rule kinds and condition
+operators never match.
+
+`isEnabled(key, context, defaultValue)` returns `defaultValue` (`false` when
+omitted) if the flag is missing or the served value is not a boolean.
+`getAllFlags` uses `false` in that case.
+
+`getFlag(key)` returns the flag's `FlagPollEntry`: `slug`, `enabled`,
+`default_value`, `off_value` and `rules`. The `previous` and `current` values in
+`change` events have the same shape. Reordering rules emits a `change` event;
+reordering IDs within a condition does not.
+
+To start from saved configuration, pass a `FlagPollResponse`
+(`{ version: 2, flags: { [slug]: FlagPollEntry } }`) as `bootstrapFlags`.
+Unrecognized bootstrap data, including a bare map of entries without the
+envelope, is ignored with a warning to `logger` and readiness still resolves;
+polling populates the cache afterward.
+
+A failed poll, including one that returns a payload the SDK can't read, emits
+`error`, keeps the last good snapshot, and retries with backoff. A 401 stops
+polling and also emits `failed`. Attach an `error` listener or a `logger` to see
+failures; with neither, the client warns once and keeps polling, and warns again
+if a 401 stops it.
 
 ## SDK Versioning
 

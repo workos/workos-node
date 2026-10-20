@@ -1,10 +1,15 @@
 import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
-import { sealData } from '../common/crypto/seal';
+import { sealData, unsealData } from '../common/crypto/seal';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
+import {
+  GenericServerException,
+  OauthException,
+  RateLimitExceededException,
+} from '../common/exceptions';
 
 jest.mock('jose', () => ({
   ...jest.requireActual('jose'),
@@ -159,6 +164,122 @@ describe('Session', () => {
         accessToken,
       });
     });
+
+    describe('issuer validation', () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const accessToken =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInJvbGVzIjpbIm1lbWJlciIsImFkbWluIl0sInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.TNUzJYn6lzLWFFsiWiKEgIshyUs-bKJQf1VxwNr1cGI';
+
+      let sessionData: string;
+
+      beforeAll(async () => {
+        sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+      });
+
+      beforeEach(() => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockReset()
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      });
+
+      it('does not validate the issuer claim by default', async () => {
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          undefined,
+        );
+      });
+
+      it('validates the issuer claim when issuer is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          { issuer: 'https://auth.example.com' },
+        );
+      });
+
+      it('validates the issuer claim when a list of issuers is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: ['https://auth.example.com', 'https://api.workos.com'],
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await session.authenticate();
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.any(Function),
+          { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
+        );
+      });
+
+      it('returns invalid_jwt when the issuer claim does not match', async () => {
+        const error = new Error('unexpected "iss" claim value');
+        (error as Error & { code: string }).code =
+          'ERR_JWT_CLAIM_VALIDATION_FAILED';
+        jest.mocked(jose.jwtVerify).mockRejectedValue(error);
+
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+        const session = workosWithIssuer.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await expect(session.authenticate()).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      });
+    });
   });
 
   describe('refresh', () => {
@@ -175,6 +296,161 @@ describe('Session', () => {
       expect(response).toEqual({
         authenticated: false,
         reason: 'invalid_session_cookie',
+        retryable: false,
+      });
+    });
+
+    describe('when the refresh fails', () => {
+      const accessToken =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+      async function loadSession() {
+        const workosNoRetries = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            maxRetries: 0,
+          },
+        );
+
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        return workosNoRetries.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+      }
+
+      it('returns a terminal, non-retryable result for invalid_grant', async () => {
+        fetchOnce(
+          {
+            error: 'invalid_grant',
+            error_description: 'Invalid refresh token.',
+          },
+          { status: 400 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'invalid_grant',
+          retryable: false,
+        });
+      });
+
+      it('returns a terminal, non-retryable result for sso_required', async () => {
+        fetchOnce(
+          {
+            error: 'sso_required',
+            error_description: 'User must authenticate via SSO.',
+          },
+          { status: 403 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'sso_required',
+          retryable: false,
+        });
+      });
+
+      it('returns a terminal, non-retryable result for mfa_enrollment', async () => {
+        fetchOnce(
+          {
+            code: 'mfa_enrollment',
+            message: 'User must enroll in MFA.',
+          },
+          { status: 403 },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'mfa_enrollment',
+          retryable: false,
+        });
+      });
+
+      it('returns a retryable result with retryAfter for a 429', async () => {
+        fetchOnce(
+          {
+            error: 'too_many_requests',
+            error_description: 'Could not process refresh token. Please retry.',
+          },
+          { status: 429, headers: { 'Retry-After': '1' } },
+        );
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'rate_limit_exceeded',
+          retryable: true,
+          retryAfter: 1,
+          error: expect.any(RateLimitExceededException),
+        });
+      });
+
+      it('returns a retryable timeout result for a 408', async () => {
+        fetchOnce({ error: 'Request timeout' }, { status: 408 });
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'timeout',
+          retryable: true,
+          error: expect.any(OauthException),
+        });
+      });
+
+      it('returns a retryable server_error result for a 5xx', async () => {
+        fetchOnce({ message: 'Service unavailable' }, { status: 503 });
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'server_error',
+          retryable: true,
+          error: expect.any(GenericServerException),
+        });
+      });
+
+      it('returns a retryable network_error result for a network failure', async () => {
+        fetch.mockRejectOnce(new TypeError('Network request failed'));
+
+        const session = await loadSession();
+        const response = await session.refresh();
+
+        expect(response).toEqual({
+          authenticated: false,
+          reason: 'network_error',
+          retryable: true,
+          error: expect.any(Error),
+        });
       });
     });
 
@@ -188,6 +464,10 @@ describe('Session', () => {
           user: userFixture,
           accessToken,
           refreshToken,
+          impersonator: {
+            email: 'admin@example.com',
+            reason: 'test',
+          },
         });
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
@@ -241,6 +521,131 @@ describe('Session', () => {
             object: 'user',
           }),
         });
+      });
+
+      it('returns the user and impersonator from the refresh response, not the stale cookie', async () => {
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJzaWQiOiJzZXNzaW9uXzEyMyIsIm9yZ19pZCI6Im9yZ18xMjMiLCJyb2xlIjoibWVtYmVyIiwicm9sZXMiOlsibWVtYmVyIiwiYWRtaW4iXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl19.N5zveP149QhRR5zNvzGJPiCX098uXaN8VM1_lwsMg4A';
+        const refreshToken = 'def456';
+
+        const refreshedImpersonator = {
+          email: 'new-admin@example.com',
+          reason: 'escalated support case',
+        };
+
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken,
+          impersonator: refreshedImpersonator,
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        // The cookie was sealed before the user was updated and before the
+        // impersonator changed, so every identity field in it is stale.
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken,
+            impersonator: {
+              email: 'stale-admin@example.com',
+              reason: 'stale',
+            },
+            user: {
+              object: 'user',
+              id: 'user_01STALE00000000000000000',
+              email: 'stale@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        expect(response.user).toEqual(
+          expect.objectContaining({
+            id: userFixture.id,
+            email: userFixture.email,
+          }),
+        );
+        expect(response.impersonator).toEqual(refreshedImpersonator);
+
+        // The top-level fields, the nested session, and the new sealed cookie
+        // all describe the same refreshed identity.
+        expect(response.user).toEqual(response.session?.user);
+        expect(response.impersonator).toEqual(response.session?.impersonator);
+
+        const newCookie = await unsealData<{
+          user: { id: string; email: string };
+          impersonator?: { email: string; reason: string };
+        }>(response.sealedSession as string, { password: cookiePassword });
+
+        expect(newCookie.user).toEqual(response.user);
+        expect(newCookie.impersonator).toEqual(refreshedImpersonator);
+      });
+
+      it('drops the impersonator when the refresh response omits it', async () => {
+        const accessToken =
+          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJzaWQiOiJzZXNzaW9uXzEyMyIsIm9yZ19pZCI6Im9yZ18xMjMiLCJyb2xlIjoibWVtYmVyIiwicm9sZXMiOlsibWVtYmVyIiwiYWRtaW4iXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl19.N5zveP149QhRR5zNvzGJPiCX098uXaN8VM1_lwsMg4A';
+        const refreshToken = 'def456';
+
+        // Impersonation has ended: the refresh response carries no impersonator.
+        fetchOnce({
+          user: userFixture,
+          accessToken,
+          refreshToken,
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+        const sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken,
+            impersonator: {
+              email: 'admin@example.com',
+              reason: 'test',
+            },
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        const response = await session.refresh();
+
+        expect(response.authenticated).toBe(true);
+        if (!response.authenticated) {
+          throw new Error('Expected successful response');
+        }
+
+        expect(response.impersonator).toBeUndefined();
+        expect(response.session?.impersonator).toBeUndefined();
+
+        const newCookie = await unsealData<{
+          impersonator?: { email: string; reason: string };
+        }>(response.sealedSession as string, { password: cookiePassword });
+
+        expect(newCookie.impersonator).toBeUndefined();
       });
 
       it('overwrites the cookie password if a new one is provided', async () => {

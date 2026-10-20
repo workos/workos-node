@@ -1,0 +1,18 @@
+{
+  "object": "agent_blueprint",
+  "id": "agent_blueprint_01EHWNCE74X7JSDV0X3SZ3KJNY",
+  "name": "Prospecting Agent",
+  "description": "Finds and qualifies sales prospects.",
+  "permissions": ["crm:read", "email:send"],
+  "invocable_by": {
+    "role_slugs": ["manager"],
+    "organization_ids": ["org_01EHWNCE74X7JSDV0X3SZ3KJNY"]
+  },
+  "session_settings": {
+    "max_age_seconds": 3600,
+    "access_token_ttl_seconds": 300,
+    "refresh_token_ttl_seconds": 3600
+  },
+  "created_at": "2023-07-18T02:07:19.911Z",
+  "updated_at": "2023-07-18T02:07:19.911Z"
+}

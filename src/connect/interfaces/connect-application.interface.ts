@@ -114,9 +114,7 @@ export interface ConnectApplicationM2MResponse {
 }
 
 export type ConnectApplication =
-  | ConnectApplicationOAuth
-  | ConnectApplicationM2M;
+  ConnectApplicationOAuth | ConnectApplicationM2M;
 
 export type ConnectApplicationResponse =
-  | ConnectApplicationOAuthResponse
-  | ConnectApplicationM2MResponse;
+  ConnectApplicationOAuthResponse | ConnectApplicationM2MResponse;

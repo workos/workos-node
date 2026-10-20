@@ -1,5 +1,10 @@
 import fetch from 'jest-fetch-mock';
-import { fetchOnce, fetchURL, fetchBody } from '../common/utils/test-utils';
+import {
+  fetchOnce,
+  fetchURL,
+  fetchBody,
+  fetchMethod,
+} from '../common/utils/test-utils';
 import { UnprocessableEntityException } from '../common/exceptions';
 
 import { WorkOS } from '../workos';
@@ -520,6 +525,26 @@ describe('MFA', () => {
               issuer: 'WorkOS',
               user: 'some_user',
             },
+            userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          },
+          {
+            object: 'authentication_factor',
+            id: 'auth_factor_5678',
+            createdAt: '2022-03-15T20:39:19.892Z',
+            updatedAt: '2022-03-15T20:39:19.892Z',
+            type: 'sms',
+            sms: {
+              phoneNumber: '+15555555555',
+            },
+            userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          },
+          {
+            object: 'authentication_factor',
+            id: 'auth_factor_9012',
+            createdAt: '2022-03-15T20:39:19.892Z',
+            updatedAt: '2022-03-15T20:39:19.892Z',
+            type: 'generic_otp',
+            userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           },
         ],
         listMetadata: {
@@ -527,6 +552,31 @@ describe('MFA', () => {
           after: null,
         },
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce();
+
+      await workos.multiFactorAuth.deleteFactor(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/auth/factors/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.multiFactorAuth.deleteFactor('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

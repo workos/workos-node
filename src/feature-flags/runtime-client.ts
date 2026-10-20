@@ -1,17 +1,24 @@
-import { EventEmitter } from 'eventemitter3';
+import { EventEmitter } from './event-emitter';
 import { WorkOS } from '../workos';
 import { UnauthorizedException } from '../common/exceptions';
 import { InMemoryStore } from './in-memory-store';
 import { Evaluator } from './evaluator';
+import { parseFlagPollResponse } from './payload';
 import {
   EvaluationContext,
+  FlagChange,
   FlagPollEntry,
   FlagPollResponse,
-  FlagTarget,
   RuntimeClientOptions,
   RuntimeClientLogger,
   RuntimeClientStats,
 } from './interfaces';
+
+interface RuntimeClientEvents {
+  change: [FlagChange];
+  error: [Error];
+  failed: [Error];
+}
 
 const DEFAULT_POLLING_INTERVAL_MS = 30_000;
 const MIN_POLLING_INTERVAL_MS = 5_000;
@@ -22,7 +29,7 @@ const INITIAL_RETRY_MS = 1_000;
 const MAX_RETRY_MS = 60_000;
 const BACKOFF_MULTIPLIER = 2;
 
-export class FeatureFlagsRuntimeClient extends EventEmitter {
+export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents> {
   private readonly store: InMemoryStore;
   private readonly evaluator: Evaluator;
   private readonly pollingIntervalMs: number;
@@ -32,6 +39,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
   private closed = false;
   private initialized = false;
   private consecutiveErrors = 0;
+  private warnedUnobservedError = false;
   private pollTimer: ReturnType<typeof setTimeout> | null = null;
   private pollAbortController: AbortController | null = null;
 
@@ -63,7 +71,7 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     this.logger = options.logger;
 
     this.store = new InMemoryStore();
-    this.evaluator = new Evaluator(this.store);
+    this.evaluator = new Evaluator(this.store, this.logger);
 
     this.readyPromise = new Promise<void>((resolve, reject) => {
       this.readyResolve = resolve;
@@ -72,8 +80,15 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     // Prevent unhandled rejection if no one awaits waitUntilReady
     this.readyPromise.catch(() => {});
 
-    if (options.bootstrapFlags) {
-      this.store.swap(options.bootstrapFlags);
+    if (options.bootstrapFlags !== undefined) {
+      const bootstrap = parseFlagPollResponse(options.bootstrapFlags);
+      if (bootstrap) {
+        this.store.swap(bootstrap.flags);
+      } else {
+        this.logger?.warn(
+          'Ignoring bootstrapFlags: expected a v2 flag payload ({ version: 2, flags }). Flags will load on the first successful poll.',
+        );
+      }
       this.stats.flagCount = this.store.size;
       this.resolveReady();
     }
@@ -101,16 +116,6 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     return Promise.race([this.readyPromise, timeoutPromise]).finally(() => {
       clearTimeout(timeoutId);
     });
-  }
-
-  // eventemitter3 silently drops 'error' events with no listeners.
-  // Restore Node's EventEmitter behavior: throw so poll failures
-  // are never silently swallowed.
-  override emit(event: string | symbol, ...args: unknown[]): boolean {
-    if (event === 'error' && this.listenerCount(event as string) === 0) {
-      throw args[0] instanceof Error ? args[0] : new Error(String(args[0]));
-    }
-    return super.emit(event, ...args);
   }
 
   close(): void {
@@ -166,15 +171,20 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
       this.stats.pollCount++;
       this.stats.lastPollAt = new Date();
 
-      const data = await this.fetchWithTimeout();
+      const data = parseFlagPollResponse(await this.fetchWithTimeout());
+      if (!data) {
+        throw new Error(
+          "Feature flag poll returned a payload this SDK can't read; keeping the last good flags",
+        );
+      }
 
-      this.store.swap(data);
+      this.store.swap(data.flags);
       this.stats.lastSuccessfulPollAt = new Date();
       this.stats.flagCount = this.store.size;
       this.consecutiveErrors = 0;
 
       if (this.initialized) {
-        this.emitChanges(previousFlags, data);
+        this.emitChanges(previousFlags, data.flags);
       }
       this.initialized = true;
       this.resolveReady();
@@ -183,15 +193,33 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     } catch (error) {
       if (this.closed) return;
 
+      const err = error instanceof Error ? error : new Error(String(error));
+
       this.consecutiveErrors++;
       this.stats.pollErrorCount++;
-      this.emit('error', error);
-      this.logger?.error('Poll failed', error);
+      // A background poll has no caller to throw to. Emitting 'error' with no
+      // listener throws, which would skip the retry below and surface as an
+      // unhandled rejection, so an unobserved failure is reported instead.
+      if (this.listenerCount('error') > 0) {
+        this.emit('error', err);
+      } else if (!this.logger) {
+        if (err instanceof UnauthorizedException) {
+          this.workos.emitWarning(
+            `Feature flag sync stopped after a 401 and no 'error' listener or logger is attached; keeping the last good flags. Recreate the client with a valid API key to resume. ${err.message}`,
+          );
+        } else if (!this.warnedUnobservedError) {
+          this.warnedUnobservedError = true;
+          this.workos.emitWarning(
+            `Feature flag sync failed and no 'error' listener or logger is attached; keeping the last good flags and retrying. ${err.message}`,
+          );
+        }
+      }
+      this.logger?.error('Poll failed', err);
 
-      if (error instanceof UnauthorizedException) {
-        this.emit('failed', error);
+      if (err instanceof UnauthorizedException) {
+        this.emit('failed', err);
         if (!this.initialized && this.readyReject) {
-          this.readyReject(error);
+          this.readyReject(err);
           this.readyReject = null;
         }
         return;
@@ -201,14 +229,14 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     this.scheduleNextPoll();
   }
 
-  private async fetchWithTimeout(): Promise<FlagPollResponse> {
+  private async fetchWithTimeout(): Promise<unknown> {
     this.pollAbortController = new AbortController();
     const { signal } = this.pollAbortController;
 
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const fetchPromise = this.workos
-      .get<FlagPollResponse>('/sdk/feature-flags')
+      .get<unknown>('/sdk/feature-flags?payload_version=2')
       .then(({ data }) => data);
 
     const timeoutPromise = new Promise<never>((_, reject) => {
@@ -262,8 +290,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
   }
 
   private emitChanges(
-    previous: FlagPollResponse,
-    current: FlagPollResponse,
+    previous: FlagPollResponse['flags'],
+    current: FlagPollResponse['flags'],
   ): void {
     if (!previous || !current) {
       return;
@@ -275,8 +303,8 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     ]);
 
     for (const key of allKeys) {
-      const prev = previous[key];
-      const curr = current[key];
+      const prev = Object.hasOwn(previous, key) ? previous[key] : undefined;
+      const curr = Object.hasOwn(current, key) ? current[key] : undefined;
 
       if (this.hasEntryChanged(prev, curr)) {
         this.emit('change', {
@@ -292,23 +320,31 @@ export class FeatureFlagsRuntimeClient extends EventEmitter {
     a: FlagPollEntry | undefined,
     b: FlagPollEntry | undefined,
   ): boolean {
-    if (!a || !b) {
-      return a !== b;
-    }
+    if (!a || !b) return a !== b;
 
-    if (a.enabled !== b.enabled || a.default_value !== b.default_value) {
-      return true;
-    }
-
-    const targetsChanged = (xs: FlagTarget[], ys: FlagTarget[]): boolean => {
-      if (xs.length !== ys.length) return true;
-      const map = new Map(ys.map((t) => [t.id, t.enabled]));
-      return xs.some((t) => map.get(t.id) !== t.enabled);
-    };
-
-    return (
-      targetsChanged(a.targets.users, b.targets.users) ||
-      targetsChanged(a.targets.organizations, b.targets.organizations)
-    );
+    // Rule order determines precedence. Condition and membership order do not.
+    const signature = (entry: FlagPollEntry): string =>
+      JSON.stringify([
+        entry.enabled,
+        entry.default_value,
+        entry.off_value,
+        entry.rules.map((rule) => [
+          rule.id,
+          rule.kind,
+          rule.value,
+          rule.conditions
+            ?.map((condition) =>
+              JSON.stringify([
+                condition.operator,
+                condition.target_type,
+                Array.isArray(condition.values)
+                  ? [...new Set(condition.values)].sort()
+                  : condition.values,
+              ]),
+            )
+            .sort(),
+        ]),
+      ]);
+    return signature(a) !== signature(b);
   }
 }

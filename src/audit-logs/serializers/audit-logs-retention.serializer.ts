@@ -1,0 +1,10 @@
+import type {
+  AuditLogsRetention,
+  AuditLogsRetentionResponse,
+} from '../interfaces/audit-logs-retention.interface';
+
+export const deserializeAuditLogsRetention = (
+  response: AuditLogsRetentionResponse,
+): AuditLogsRetention => ({
+  retentionPeriodInDays: response.retention_period_in_days ?? null,
+});

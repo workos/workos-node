@@ -57,6 +57,7 @@ import {
   FeatureFlagResponse,
 } from '../../feature-flags/interfaces';
 import { Group, GroupResponse } from '../../groups/interfaces';
+import { ConnectedAccountState } from '../../pipes/interfaces';
 import {
   VaultDataCreatedEventData,
   VaultDataCreatedEventResponseData,
@@ -817,6 +818,100 @@ export interface GroupMemberRemovedEventResponse extends EventResponseBase {
   data: GroupMemberEventResponseData;
 }
 
+export type PipesConnectedAccountState = ConnectedAccountState | 'disconnected';
+
+export interface PipesConnectedAccount {
+  object: 'connected_account';
+  id: string;
+  dataIntegrationId: string;
+  providerSlug: string;
+  userId: string | null;
+  organizationId: string | null;
+  scopes: string[];
+  state: PipesConnectedAccountState;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PipesConnectedAccountResponse {
+  object: 'connected_account';
+  id: string;
+  data_integration_id: string;
+  provider_slug: string;
+  user_id: string | null;
+  organization_id: string | null;
+  scopes: string[];
+  state: PipesConnectedAccountState;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PipesConnectionFailed {
+  object: 'connection_failed';
+  dataIntegrationId: string;
+  providerSlug: string;
+  userId: string | null;
+  organizationId: string | null;
+  errorCode: string;
+  errorReason: string | null;
+  providerError: string | null;
+  providerErrorDescription: string | null;
+  createdAt: string;
+}
+
+export interface PipesConnectionFailedResponse {
+  object: 'connection_failed';
+  data_integration_id: string;
+  provider_slug: string;
+  user_id: string | null;
+  organization_id: string | null;
+  error_code: string;
+  error_reason: string | null;
+  provider_error: string | null;
+  provider_error_description: string | null;
+  created_at: string;
+}
+
+export interface PipesConnectedAccountConnectedEvent extends EventBase {
+  event: 'pipes.connected_account.connected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesConnectedAccountConnectedEventResponse extends EventResponseBase {
+  event: 'pipes.connected_account.connected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesConnectedAccountConnectionFailedEvent extends EventBase {
+  event: 'pipes.connected_account.connection_failed';
+  data: PipesConnectionFailed;
+}
+
+export interface PipesConnectedAccountConnectionFailedEventResponse extends EventResponseBase {
+  event: 'pipes.connected_account.connection_failed';
+  data: PipesConnectionFailedResponse;
+}
+
+export interface PipesConnectedAccountDisconnectedEvent extends EventBase {
+  event: 'pipes.connected_account.disconnected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesConnectedAccountDisconnectedEventResponse extends EventResponseBase {
+  event: 'pipes.connected_account.disconnected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesConnectedAccountReauthorizationNeededEvent extends EventBase {
+  event: 'pipes.connected_account.reauthorization_needed';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesConnectedAccountReauthorizationNeededEventResponse extends EventResponseBase {
+  event: 'pipes.connected_account.reauthorization_needed';
+  data: PipesConnectedAccountResponse;
+}
+
 export interface VaultDataCreatedEvent extends EventBase {
   event: 'vault.data.created';
   data: VaultDataCreatedEventData;
@@ -993,6 +1088,10 @@ export type Event =
   | GroupDeletedEvent
   | GroupMemberAddedEvent
   | GroupMemberRemovedEvent
+  | PipesConnectedAccountConnectedEvent
+  | PipesConnectedAccountConnectionFailedEvent
+  | PipesConnectedAccountDisconnectedEvent
+  | PipesConnectedAccountReauthorizationNeededEvent
   | VaultDataCreatedEvent
   | VaultDataUpdatedEvent
   | VaultDataReadEvent
@@ -1075,6 +1174,10 @@ export type EventResponse =
   | GroupDeletedEventResponse
   | GroupMemberAddedEventResponse
   | GroupMemberRemovedEventResponse
+  | PipesConnectedAccountConnectedEventResponse
+  | PipesConnectedAccountConnectionFailedEventResponse
+  | PipesConnectedAccountDisconnectedEventResponse
+  | PipesConnectedAccountReauthorizationNeededEventResponse
   | VaultDataCreatedEventResponse
   | VaultDataUpdatedEventResponse
   | VaultDataReadEventResponse

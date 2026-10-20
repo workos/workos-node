@@ -6,12 +6,15 @@ import {
   RequestOptions,
   ResponseHeaders,
 } from '../interfaces/http-client.interface';
-import { HttpClient, HttpClientError, HttpClientResponse } from './http-client';
+import {
+  HttpClient,
+  HttpClientError,
+  HttpClientOptions,
+  HttpClientResponse,
+} from './http-client';
 import { ParseError } from '../exceptions/parse-error';
 
-interface FetchHttpClientOptions extends RequestInit {
-  timeout?: number;
-}
+type FetchHttpClientOptions = HttpClientOptions;
 
 const DEFAULT_FETCH_TIMEOUT = 60_000; // 60 seconds
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
@@ -47,16 +50,13 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'GET',
-        null,
-        options.headers,
-      );
-    } else {
-      return await this.fetchRequest(resourceURL, 'GET', null, options.headers);
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'GET',
+      null,
+      options.headers,
+      options.maxRetries,
+    );
   }
 
   async post<Entity = any>(
@@ -70,27 +70,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'POST',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'POST',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'POST',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async put<Entity = any>(
@@ -104,27 +93,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'PUT',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'PUT',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'PUT',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async patch<Entity = any>(
@@ -138,27 +116,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'PATCH',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'PATCH',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'PATCH',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   async delete(
@@ -171,21 +138,13 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'DELETE',
-        null,
-        options.headers,
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'DELETE',
-        null,
-        options.headers,
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'DELETE',
+      null,
+      options.headers,
+      options.maxRetries,
+    );
   }
 
   async deleteWithBody<Entity = any>(
@@ -199,27 +158,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       options.params,
     );
 
-    if (HttpClient.isPathRetryable(path)) {
-      return await this.fetchRequestWithRetry(
-        resourceURL,
-        'DELETE',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    } else {
-      return await this.fetchRequest(
-        resourceURL,
-        'DELETE',
-        HttpClient.getBody(entity),
-        {
-          ...HttpClient.getContentTypeHeader(entity),
-          ...options.headers,
-        },
-      );
-    }
+    return await this.fetchRequestWithRetry(
+      resourceURL,
+      'DELETE',
+      HttpClient.getBody(entity),
+      {
+        ...HttpClient.getContentTypeHeader(entity),
+        ...options.headers,
+      },
+      options.maxRetries,
+    );
   }
 
   private async fetchRequest(
@@ -243,11 +191,24 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     const timeout = this.options?.timeout ?? DEFAULT_FETCH_TIMEOUT; // Default 60 seconds
     const abortController = new AbortController();
     const timeoutId = setTimeout(() => {
-      abortController?.abort();
+      abortController.abort();
     }, timeout);
+    // Pass the response headers once they are known so a timeout while
+    // reading the body still carries the request ID and Retry-After.
+    const timeoutError = (responseHeaders?: Headers) =>
+      new HttpClientError({
+        message: `Request timeout after ${timeout}ms`,
+        response: {
+          status: 408,
+          headers: responseHeaders ?? new Headers(),
+          data: { error: 'Request timeout' },
+        },
+      });
+    // Set once the headers arrive.
+    let res: Response | undefined;
 
     try {
-      const res = await this._fetchFn(url, {
+      res = await this._fetchFn(url, {
         method,
         headers: {
           Accept: 'application/json, text/plain, */*',
@@ -257,17 +218,15 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           'User-Agent': (userAgent || 'workos-node').toString(),
         },
         body: requestBody,
-        signal: abortController?.signal,
+        signal: abortController.signal,
       });
-
-      // Clear timeout if request completed successfully
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
 
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
+        // Read the error body under the same deadline, inside the attempt,
+        // so a stalled error response is retried like any other timeout.
         const rawBody = await res.text();
+        clearTimeout(timeoutId);
 
         let responseJson: any;
 
@@ -280,6 +239,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
               rawBody,
               requestID,
               rawStatus: res.status,
+              rawHeaders: res.headers,
             });
           }
           throw error;
@@ -294,23 +254,37 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           },
         });
       }
-      return new FetchHttpClientResponse(res);
+
+      // The deadline also covers a successful body (GH-1679), but the server
+      // has already applied this request, so the read happens outside the
+      // retry boundary: a stall surfaces from toJSON() as a 408 and is not
+      // retried. The body is read regardless of whether anyone awaits it, so
+      // an ignored response is drained and its deadline cleared.
+      const response = res;
+      const rawBody = (async () => {
+        try {
+          return await response.text();
+        } catch (error) {
+          // Checked on our own signal rather than the error's type: the
+          // AbortError a fetch implementation raises for an aborted body may
+          // come from another realm.
+          throw abortController.signal.aborted
+            ? timeoutError(response.headers)
+            : error;
+        } finally {
+          clearTimeout(timeoutId);
+        }
+      })();
+      rawBody.catch(() => undefined);
+
+      return new FetchHttpClientResponse(res, rawBody);
     } catch (error) {
       // Clear timeout if request failed
-      if (timeoutId) {
-        clearTimeout(timeoutId);
-      }
+      clearTimeout(timeoutId);
 
       // Handle timeout errors
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new HttpClientError({
-          message: `Request timeout after ${timeout}ms`,
-          response: {
-            status: 408,
-            headers: {},
-            data: { error: 'Request timeout' },
-          },
-        });
+      if (abortController.signal.aborted) {
+        throw timeoutError(res?.headers);
       }
 
       throw error;
@@ -322,7 +296,21 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     method: string,
     body?: any,
     headers?: RequestHeaders,
+    maxRetries?: number,
   ): Promise<HttpClientResponseInterface> {
+    const maxRetryAttempts = maxRetries ?? this.MAX_RETRY_ATTEMPTS;
+
+    // Attach an idempotency key to retryable POST requests that don't have
+    // one so retried calls are not applied more than once by the API.
+    // POST-only to match the Kotlin and Go SDKs and the API, which honors
+    // `Idempotency-Key` on create (POST) endpoints. Generated once so every
+    // attempt shares the same key.
+    const requestHeaders = FetchHttpClient.withIdempotencyKey(
+      method,
+      headers,
+      maxRetryAttempts,
+    );
+
     let response: HttpClientResponseInterface;
     let retryAttempts = 1;
 
@@ -330,14 +318,19 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       let requestError: any = null;
 
       try {
-        response = await this.fetchRequest(url, method, body, headers);
+        response = await this.fetchRequest(url, method, body, requestHeaders);
       } catch (e) {
         requestError = e;
       }
 
-      if (this.shouldRetryRequest(requestError, retryAttempts)) {
+      if (
+        this.shouldRetryRequest(requestError, retryAttempts, maxRetryAttempts)
+      ) {
         retryAttempts++;
-        await this.sleep(retryAttempts);
+        await this.sleep(
+          retryAttempts,
+          FetchHttpClient.getRetryAfterMs(requestError),
+        );
         return makeRequest();
       }
 
@@ -351,8 +344,12 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     return makeRequest();
   }
 
-  private shouldRetryRequest(requestError: any, retryAttempt: number): boolean {
-    if (retryAttempt > this.MAX_RETRY_ATTEMPTS) {
+  private shouldRetryRequest(
+    requestError: any,
+    retryAttempt: number,
+    maxRetryAttempts: number,
+  ): boolean {
+    if (retryAttempt > maxRetryAttempts) {
       return false;
     }
 
@@ -367,9 +364,72 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       ) {
         return true;
       }
+
+      // A retryable status can arrive with a non-JSON body (e.g. an HTML error
+      // page from a proxy), which `fetchRequest` surfaces as a `ParseError`.
+      // Retry those based on the underlying status.
+      if (
+        requestError instanceof ParseError &&
+        this.RETRY_STATUS_CODES.includes(requestError.rawStatus)
+      ) {
+        return true;
+      }
     }
 
     return false;
+  }
+
+  private static withIdempotencyKey(
+    method: string,
+    headers: RequestHeaders | undefined,
+    maxRetryAttempts: number,
+  ): RequestHeaders | undefined {
+    if (
+      method !== 'POST' ||
+      maxRetryAttempts <= 0 ||
+      FetchHttpClient.hasHeader(headers, 'Idempotency-Key')
+    ) {
+      return headers;
+    }
+
+    return {
+      ...headers,
+      'Idempotency-Key': HttpClient.generateIdempotencyKey(),
+    };
+  }
+
+  private static hasHeader(
+    headers: RequestHeaders | undefined,
+    name: string,
+  ): boolean {
+    if (!headers) {
+      return false;
+    }
+
+    const target = name.toLowerCase();
+    return Object.keys(headers).some((key) => key.toLowerCase() === target);
+  }
+
+  private static getRetryAfterMs(requestError: any): number | null {
+    let headers: any;
+
+    if (requestError instanceof HttpClientError) {
+      headers = requestError.response?.headers;
+    } else if (requestError instanceof ParseError) {
+      headers = requestError.rawHeaders;
+    } else {
+      return null;
+    }
+
+    let value: string | null | undefined;
+
+    if (headers && typeof headers.get === 'function') {
+      value = headers.get('Retry-After');
+    } else if (headers && typeof headers === 'object') {
+      value = headers['Retry-After'] ?? headers['retry-after'];
+    }
+
+    return HttpClient.parseRetryAfter(value);
   }
 }
 
@@ -379,24 +439,46 @@ export class FetchHttpClientResponse
   implements HttpClientResponseInterface
 {
   _res: Response;
+  private readonly _rawBody: Promise<string>;
 
-  constructor(res: Response) {
+  constructor(res: Response, rawBody: Promise<string>) {
     super(
       res.status,
       FetchHttpClientResponse._transformHeadersToObject(res.headers),
     );
     this._res = res;
+    this._rawBody = rawBody;
   }
 
   getRawResponse(): Response {
     return this._res;
   }
 
-  toJSON(): Promise<any> | null {
+  async toJSON(): Promise<any | null> {
+    // Awaited before the content-type check so a stalled non-JSON body still
+    // surfaces its timeout instead of resolving to null early.
+    const rawBody = await this._rawBody;
+
     const contentType = this._res.headers.get('content-type');
     const isJsonResponse = contentType?.includes('application/json');
 
-    return isJsonResponse ? this._res.json() : null;
+    if (!isJsonResponse) {
+      return null;
+    }
+
+    try {
+      return JSON.parse(rawBody);
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new ParseError({
+          message: error.message,
+          rawBody,
+          rawStatus: this._res.status,
+          requestID: this._res.headers.get('X-Request-ID') ?? '',
+        });
+      }
+      throw error;
+    }
   }
 
   static _transformHeadersToObject(headers: Headers): ResponseHeaders {

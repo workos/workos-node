@@ -10,6 +10,7 @@ export interface RoleResponse {
 export interface RoleEvent {
   object: 'role';
   slug: string;
+  resourceTypeSlug: string;
   permissions: string[];
   createdAt: string;
   updatedAt: string;
@@ -18,6 +19,7 @@ export interface RoleEvent {
 export interface RoleEventResponse {
   object: 'role';
   slug: string;
+  resource_type_slug: string;
   permissions: string[];
   created_at: string;
   updated_at: string;

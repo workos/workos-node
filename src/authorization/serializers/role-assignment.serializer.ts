@@ -15,6 +15,10 @@ export const deserializeRoleAssignment = (
     externalId: response.resource.external_id,
     resourceTypeSlug: response.resource.resource_type_slug,
   },
+  source: {
+    type: response.source.type,
+    groupRoleAssignmentId: response.source.group_role_assignment_id,
+  },
   createdAt: response.created_at,
   updatedAt: response.updated_at,
 });

@@ -1,0 +1,25 @@
+// @oagen-ignore-file
+// Preserve the published DTO interface independently of generated input models.
+
+import type { ConnectedAccountInputState } from './connected-account-input-state.interface';
+
+export interface ConnectedAccountDto {
+  /** The OAuth access token for the connected account. */
+  accessToken?: string;
+  /** The OAuth refresh token for the connected account. */
+  refreshToken?: string;
+  /** The ISO-8601 timestamp when the access token expires. Required when `access_token` is provided for tokens that expire. */
+  expiresAt?: Date;
+  /** The OAuth scopes granted for this connection. */
+  scopes?: string[];
+  /** Explicitly set the state of the connected account. When omitted, the state is derived from the token combination provided. */
+  state?: ConnectedAccountInputState;
+}
+
+export interface ConnectedAccountDtoResponse {
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: string;
+  scopes?: string[];
+  state?: ConnectedAccountInputState;
+}

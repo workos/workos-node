@@ -1,0 +1,13 @@
+{
+  "object": "waitlist_entry",
+  "id": "wl_user_01E4ZCR3C56J083X43JQXF3JK5",
+  "email": "marcelina.davis@example.com",
+  "state": "pending",
+  "approved_at": null,
+  "additional_fields": {
+    "company": "Example Corp"
+  },
+  "waitlist_id": "waitlist_01E4ZCR3C56J083X43JQXF3JK5",
+  "created_at": "2026-01-15T12:00:00.000Z",
+  "updated_at": "2026-01-15T12:00:00.000Z"
+}

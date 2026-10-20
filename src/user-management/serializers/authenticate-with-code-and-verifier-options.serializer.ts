@@ -14,4 +14,5 @@ export const serializeAuthenticateWithCodeAndVerifierOptions = (
   invitation_token: options.invitationToken,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
+  signals_id: options.signalsId,
 });

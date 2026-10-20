@@ -1,5 +1,10 @@
 import fetch from 'jest-fetch-mock';
-import { fetchOnce, fetchURL, fetchBody } from '../common/utils/test-utils';
+import {
+  fetchOnce,
+  fetchURL,
+  fetchBody,
+  fetchMethod,
+} from '../common/utils/test-utils';
 
 import createSession from './fixtures/create-session.json';
 import { WorkOS } from '../workos';
@@ -46,6 +51,31 @@ describe('Passwordless', () => {
           `/passwordless/sessions/${sessionId}/send`,
         );
       });
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce({ success: true });
+
+      await workos.passwordless.sendSession(
+        '../../user_management/users/user_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/passwordless/sessions/..%2F..%2Fuser_management%2Fusers%2Fuser_01VICTIM/send',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(workos.passwordless.sendSession('..')).rejects.toThrow(
+        TypeError,
+      );
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

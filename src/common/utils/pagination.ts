@@ -27,9 +27,11 @@ export class AutoPaginatable<
   private async *generatePages(
     params: PaginationOptions,
   ): AsyncGenerator<ResourceType[]> {
+    const { before, ...options } = this.options;
     const result = await this.apiCall({
-      ...this.options,
+      ...options,
       limit: 100,
+      ...(params.before ? { before } : {}),
       after: params.after,
     });
 
@@ -54,6 +56,7 @@ export class AutoPaginatable<
     const results: ResourceType[] = [];
 
     for await (const page of this.generatePages({
+      before: this.options.before,
       after: this.options.after,
     })) {
       results.push(...page);

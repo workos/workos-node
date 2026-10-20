@@ -8,6 +8,7 @@ import {
   SerializedCreatePasswordlessSessionOptions,
 } from './interfaces';
 import { deserializePasswordlessSession } from './serializers/passwordless-session.serializer';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class Passwordless {
   constructor(private readonly workos: WorkOS) {}
@@ -31,7 +32,7 @@ export class Passwordless {
 
   async sendSession(sessionId: string): Promise<SendSessionResponse> {
     const { data } = await this.workos.post(
-      `/passwordless/sessions/${sessionId}/send`,
+      `/passwordless/sessions/${encodePathParameter(sessionId)}/send`,
       {},
     );
     return data;

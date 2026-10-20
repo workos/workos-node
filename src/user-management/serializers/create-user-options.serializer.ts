@@ -15,4 +15,5 @@ export const serializeCreateUserOptions = (
   metadata: options.metadata,
   ip_address: options.ipAddress,
   user_agent: options.userAgent,
+  signals_id: options.signalsId,
 });

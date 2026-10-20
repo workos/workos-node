@@ -1,6 +1,8 @@
 import fetch from 'jest-fetch-mock';
 import {
   fetchBody,
+  fetchHeaders,
+  fetchMethod,
   fetchOnce,
   fetchSearchParams,
   fetchURL,
@@ -13,12 +15,18 @@ import invitationFixture from './fixtures/invitation.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import listSessionsFixture from './fixtures/list-sessions.json';
+import listUserApiKeysFixture from './fixtures/list-user-api-keys.json';
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
 import organizationMembershipFixture from './fixtures/organization-membership.json';
 import passwordResetFixture from './fixtures/password_reset.json';
 import userFixture from './fixtures/user.json';
+import createUserApiKeyFixture from './fixtures/create-user-api-key.json';
 import identityFixture from './fixtures/identity.json';
+import waitlistFixture from './fixtures/waitlist.json';
+import listWaitlistsFixture from './fixtures/list-waitlists.json';
+import waitlistEntryFixture from './fixtures/waitlist-entry.json';
+import listWaitlistEntriesFixture from './fixtures/list-waitlist-entries.json';
 import * as jose from 'jose';
 import { sealData } from '../common/crypto/seal';
 
@@ -33,6 +41,8 @@ const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationId = 'invitation_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const invitationToken = 'Z1uX3RbwcIl5fIGJJJCXXisdI';
+const waitlistId = 'waitlist_01E4ZCR3C56J083X43JQXF3JK5';
+const waitlistEntryId = 'wl_user_01E4ZCR3C56J083X43JQXF3JK5';
 const magicAuthId = 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const passwordResetId = 'password_reset_01H5JQDV7R7ATEYZDEG0W5PRYS';
 
@@ -207,6 +217,19 @@ describe('UserManagement', () => {
 
       expect(user.radarAuthAttemptId).toBeUndefined();
     });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.createUser({
+        email: 'test01@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
   });
 
   describe('authenticateUserWithMagicAuth', () => {
@@ -239,6 +262,21 @@ describe('UserManagement', () => {
 
       expect(fetchBody()).toMatchObject({
         radar_auth_attempt_id: 'radar_auth_attempt_01ABC',
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithMagicAuth({
+        clientId: 'proj_whatever',
+        code: '123456',
+        email: userFixture.email,
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -324,6 +362,21 @@ describe('UserManagement', () => {
       });
     });
 
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithPassword({
+        clientId: 'proj_whatever',
+        email: 'test01@example.com',
+        password: 'extra-secure',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
+
     describe('when sealSession = true', () => {
       beforeEach(() => {
         fetchOnce({
@@ -397,6 +450,20 @@ describe('UserManagement', () => {
             email: 'test01@example.com',
           },
         });
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCode({
+        clientId: 'proj_whatever',
+        code: 'or this',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -715,6 +782,21 @@ describe('UserManagement', () => {
         user: {
           email: 'test01@example.com',
         },
+      });
+    });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce({ user: userFixture });
+
+      await workos.userManagement.authenticateWithCodeAndVerifier({
+        clientId: 'proj_whatever',
+        code: 'auth_code_123',
+        codeVerifier: 'required_code_verifier',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
       });
     });
 
@@ -1644,6 +1726,148 @@ describe('UserManagement', () => {
         accessToken,
       });
     });
+
+    describe('issuer validation', () => {
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+      const accessToken =
+        'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.YVNjR8S2xGn2jAoLuEcBQNJ1_xY3OzjRE1-BK0zjfQE';
+      let sessionData: string;
+
+      beforeAll(async () => {
+        sessionData = await sealData(
+          {
+            accessToken,
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+      });
+
+      beforeEach(() => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockReset()
+          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      });
+
+      it('does not validate the issuer claim by default', async () => {
+        await workos.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          undefined,
+        );
+      });
+
+      it('validates the issuer claim when issuer is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+
+        await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          { issuer: 'https://auth.example.com' },
+        );
+      });
+
+      it('validates the issuer claim when a list of issuers is configured', async () => {
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: ['https://auth.example.com', 'https://api.workos.com'],
+          },
+        );
+
+        await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+          sessionData,
+          cookiePassword,
+        });
+
+        expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+        expect(jose.jwtVerify).toHaveBeenCalledWith(
+          accessToken,
+          expect.anything(),
+          { issuer: ['https://auth.example.com', 'https://api.workos.com'] },
+        );
+      });
+
+      it('validates the issuer claim when clientId comes from WORKOS_CLIENT_ID', async () => {
+        const OLD_ENV = process.env;
+        process.env = { ...OLD_ENV, WORKOS_CLIENT_ID: 'client_from_env' };
+
+        try {
+          const workosWithIssuer = new WorkOS(
+            'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+            { issuer: 'https://auth.example.com' },
+          );
+
+          expect(workosWithIssuer.userManagement.clientId).toBe(
+            'client_from_env',
+          );
+
+          await workosWithIssuer.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          });
+
+          expect(jose.jwtVerify).toHaveBeenCalledTimes(1);
+          expect(jose.jwtVerify).toHaveBeenCalledWith(
+            accessToken,
+            expect.anything(),
+            { issuer: 'https://auth.example.com' },
+          );
+        } finally {
+          process.env = OLD_ENV;
+        }
+      });
+
+      it('returns invalid_jwt when the issuer claim does not match', async () => {
+        const error = new Error('unexpected "iss" claim value');
+        (error as Error & { code: string }).code =
+          'ERR_JWT_CLAIM_VALIDATION_FAILED';
+        jest.mocked(jose.jwtVerify).mockRejectedValue(error);
+
+        const workosWithIssuer = new WorkOS(
+          'sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+          {
+            clientId: 'client_123',
+            issuer: 'https://auth.example.com',
+          },
+        );
+
+        await expect(
+          workosWithIssuer.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          }),
+        ).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      });
+    });
   });
 
   describe('getSessionFromCookie', () => {
@@ -1847,6 +2071,19 @@ describe('UserManagement', () => {
 
       expect(response.radarAuthAttemptId).toBeUndefined();
     });
+
+    it('sends signals_id when provided', async () => {
+      fetchOnce(magicAuthFixture);
+
+      await workos.userManagement.createMagicAuth({
+        email: 'bob.loblaw@example.com',
+        signalsId: 'signals_01ABC',
+      });
+
+      expect(fetchBody()).toMatchObject({
+        signals_id: 'signals_01ABC',
+      });
+    });
   });
 
   describe('getPasswordReset', () => {
@@ -1932,6 +2169,20 @@ describe('UserManagement', () => {
         email: 'test01@example.com',
         profilePictureUrl: 'https://example.com/profile_picture.jpg',
       });
+    });
+
+    it('encodes the userId so it cannot escape the route template', async () => {
+      fetchOnce(userFixture);
+
+      await workos.userManagement.updateUser({
+        userId: '../../organizations/org_01TARGET?',
+        firstName: 'Dane',
+      });
+
+      const url = new URL(fetchURL() as string);
+      expect(url.pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01TARGET%3F',
+      );
     });
 
     describe('when only one property is provided', () => {
@@ -2041,6 +2292,117 @@ describe('UserManagement', () => {
 
       expect(fetchURL()).toContain(`/user_management/users/${userId}`);
       expect(resp).toBeUndefined();
+    });
+  });
+
+  describe('listUserApiKeys', () => {
+    it('returns API keys for the user', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      const { data, object, listMetadata } =
+        await workos.userManagement.listUserApiKeys(userId);
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}/api_keys`);
+      expect(object).toEqual('list');
+      expect(listMetadata).toEqual({
+        before: null,
+        after: null,
+      });
+      expect(data).toEqual([
+        {
+          object: 'api_key',
+          id: 'api_key_01EHZNVPK3SFK441A1RGBFSHRT',
+          owner: {
+            type: 'user',
+            id: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+            organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+          },
+          name: 'Production API Key',
+          obfuscatedValue: 'sk_...3456',
+          lastUsedAt: null,
+          expiresAt: null,
+          permissions: ['posts:read', 'posts:write'],
+          createdAt: '2026-01-15T12:00:00.000Z',
+          updatedAt: '2026-01-15T12:00:00.000Z',
+        },
+      ]);
+    });
+
+    it('serializes pagination and organization filters', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      await workos.userManagement.listUserApiKeys(userId, {
+        limit: 10,
+        before: 'api_key_before_id',
+        after: 'api_key_after_id',
+        order: 'asc',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        limit: '10',
+        before: 'api_key_before_id',
+        after: 'api_key_after_id',
+        order: 'asc',
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      });
+    });
+  });
+
+  describe('createUserApiKey', () => {
+    it('creates an API key for the user', async () => {
+      fetchOnce(createUserApiKeyFixture, { status: 201 });
+
+      const apiKey = await workos.userManagement.createUserApiKey(userId, {
+        name: 'Production API Key',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        permissions: ['posts:read', 'posts:write'],
+        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
+      });
+
+      expect(fetchURL()).toContain(`/user_management/users/${userId}/api_keys`);
+      expect(fetchBody()).toEqual({
+        name: 'Production API Key',
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        permissions: ['posts:read', 'posts:write'],
+        expires_at: '2030-01-01T00:00:00.000Z',
+      });
+      expect(apiKey).toEqual({
+        object: 'api_key',
+        id: 'api_key_01EHZNVPK3SFK441A1RGBFSHRT',
+        owner: {
+          type: 'user',
+          id: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        },
+        name: 'Production API Key',
+        obfuscatedValue: 'sk_...3456',
+        lastUsedAt: null,
+        expiresAt: '2030-01-01T00:00:00.000Z',
+        permissions: ['posts:read', 'posts:write'],
+        createdAt: '2026-01-15T12:00:00.000Z',
+        updatedAt: '2026-01-15T12:00:00.000Z',
+        value: 'test_api_key_value',
+      });
+    });
+
+    it('supports idempotency keys', async () => {
+      fetchOnce(createUserApiKeyFixture, { status: 201 });
+
+      await workos.userManagement.createUserApiKey(
+        userId,
+        {
+          name: 'Production API Key',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        },
+        {
+          idempotencyKey: 'the-idempotency-key',
+        },
+      );
+
+      expect(fetchHeaders()).toMatchObject({
+        'Idempotency-Key': 'the-idempotency-key',
+      });
     });
   });
 
@@ -2589,6 +2951,213 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('listWaitlists', () => {
+    it('lists waitlists', async () => {
+      fetchOnce(listWaitlistsFixture);
+      const waitlists = await workos.userManagement.listWaitlists();
+
+      expect(fetchURL()).toContain('/user_management/waitlists');
+      expect(waitlists).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist',
+            id: waitlistId,
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+  });
+
+  describe('getWaitlist', () => {
+    it('sends a Get Waitlist request', async () => {
+      fetchOnce(waitlistFixture);
+      const waitlist = await workos.userManagement.getWaitlist(waitlistId);
+
+      expect(fetchURL()).toContain(`/user_management/waitlists/${waitlistId}`);
+      expect(waitlist).toMatchObject({
+        object: 'waitlist',
+        id: waitlistId,
+      });
+    });
+
+    it('accepts the default waitlist alias', async () => {
+      fetchOnce(waitlistFixture);
+      await workos.userManagement.getWaitlist('default');
+
+      expect(fetchURL()).toContain('/user_management/waitlists/default');
+    });
+  });
+
+  describe('listWaitlistEntries', () => {
+    it('lists waitlist entries', async () => {
+      fetchOnce(listWaitlistEntriesFixture);
+      const waitlistEntries =
+        await workos.userManagement.listWaitlistEntries(waitlistId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(waitlistEntries).toMatchObject({
+        object: 'list',
+        data: [
+          {
+            object: 'waitlist_entry',
+            id: waitlistEntryId,
+            email: 'marcelina.davis@example.com',
+            state: 'pending',
+            approvedAt: null,
+            additionalFields: {
+              company: 'Example Corp',
+            },
+            waitlistId,
+          },
+        ],
+        listMetadata: {
+          before: null,
+          after: null,
+        },
+      });
+    });
+
+    it('sends the correct params when filtering', async () => {
+      fetchOnce(listWaitlistEntriesFixture);
+      await workos.userManagement.listWaitlistEntries(waitlistId, {
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: 10,
+      });
+
+      expect(fetchSearchParams()).toEqual({
+        state: 'pending',
+        email: 'marcelina.davis@example.com',
+        limit: '10',
+        order: 'desc',
+      });
+    });
+  });
+
+  describe('createWaitlistEntry', () => {
+    it('sends a Create Waitlist Entry request', async () => {
+      fetchOnce(waitlistEntryFixture, { status: 201 });
+      const waitlistEntry = await workos.userManagement.createWaitlistEntry(
+        waitlistId,
+        {
+          email: 'marcelina.davis@example.com',
+        },
+      );
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlists/${waitlistId}/entries`,
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+      });
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        email: 'marcelina.davis@example.com',
+      });
+    });
+
+    it('sends the correct params when provided', async () => {
+      fetchOnce(waitlistEntryFixture, { status: 201 });
+      await workos.userManagement.createWaitlistEntry('default', {
+        email: 'marcelina.davis@example.com',
+        additionalFields: {
+          company: 'Example Corp',
+        },
+        sendConfirmationEmail: true,
+      });
+
+      expect(fetchURL()).toContain(
+        '/user_management/waitlists/default/entries',
+      );
+      expect(fetchBody()).toEqual({
+        email: 'marcelina.davis@example.com',
+        additional_fields: {
+          company: 'Example Corp',
+        },
+        send_confirmation_email: true,
+      });
+    });
+
+    it('throws when the email belongs to an existing user', async () => {
+      fetchOnce(
+        {
+          message: 'An account with that email already exists.',
+          code: 'user_already_exists',
+        },
+        { status: 422 },
+      );
+
+      await expect(
+        workos.userManagement.createWaitlistEntry(waitlistId, {
+          email: 'marcelina.davis@example.com',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('approveWaitlistEntry', () => {
+    it('sends an Approve Waitlist Entry request', async () => {
+      fetchOnce({
+        ...waitlistEntryFixture,
+        state: 'approved',
+        approved_at: '2026-01-16T12:00:00.000Z',
+      });
+      const waitlistEntry =
+        await workos.userManagement.approveWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}/approve`,
+      );
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        state: 'approved',
+        approvedAt: '2026-01-16T12:00:00.000Z',
+      });
+    });
+  });
+
+  describe('denyWaitlistEntry', () => {
+    it('sends a Deny Waitlist Entry request', async () => {
+      fetchOnce({
+        ...waitlistEntryFixture,
+        state: 'denied',
+      });
+      const waitlistEntry =
+        await workos.userManagement.denyWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}/deny`,
+      );
+      expect(waitlistEntry).toMatchObject({
+        object: 'waitlist_entry',
+        id: waitlistEntryId,
+        state: 'denied',
+      });
+    });
+  });
+
+  describe('deleteWaitlistEntry', () => {
+    it('sends a Delete Waitlist Entry request', async () => {
+      fetchOnce({}, { status: 204 });
+      const response =
+        await workos.userManagement.deleteWaitlistEntry(waitlistEntryId);
+
+      expect(fetchURL()).toContain(
+        `/user_management/waitlist_entries/${waitlistEntryId}`,
+      );
+      expect(response).toBeUndefined();
+    });
+  });
+
   describe('revokeSession', () => {
     it('sends a Revoke Session request', async () => {
       const sessionId = 'session_12345';
@@ -2619,6 +3188,21 @@ describe('UserManagement', () => {
         });
 
         expect(url).toContain('screen_hint=sign-up');
+      });
+    });
+
+    describe('with an invitationToken', () => {
+      it('generates an authorize url with the invitation_token', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          invitationToken: 'invitation_token_123',
+        });
+
+        expect(url).toContain('invitation_token=invitation_token_123');
       });
     });
 
@@ -2835,6 +3419,22 @@ describe('UserManagement', () => {
       });
     });
 
+    describe('with maxAge', () => {
+      it('generates an authorize url with the provided max age', () => {
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        const url = workos.userManagement.getAuthorizationUrl({
+          maxAge: 3600,
+          connectionId: 'connection_123',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          state: 'custom state',
+        });
+
+        expect(url).toContain('max_age=3600');
+      });
+    });
+
     describe('with prompt', () => {
       it('generates an authorize url with the provided prompt', () => {
         const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
@@ -2944,6 +3544,18 @@ describe('UserManagement', () => {
       expect(result.url).toContain('domain_hint=example.com');
     });
 
+    it('includes max age when provided', async () => {
+      const result =
+        await publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
+          provider: 'authkit',
+          clientId: 'proj_123',
+          redirectUri: 'example.com/auth/workos/callback',
+          maxAge: 3600,
+        });
+
+      expect(result.url).toContain('max_age=3600');
+    });
+
     it('throws error when missing provider/connection/organization', async () => {
       await expect(
         publicWorkos.userManagement.getAuthorizationUrlWithPKCE({
@@ -3023,6 +3635,53 @@ describe('UserManagement', () => {
       expect(() => {
         workos.userManagement.getJwksUrl('');
       }).toThrow(TypeError);
+    });
+  });
+
+  describe('path parameter encoding', () => {
+    it('keeps a traversal payload inside a single path segment', async () => {
+      fetchOnce();
+
+      await workos.userManagement.deleteUser(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(fetchMethod()).toBe('DELETE');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01VICTIM',
+      );
+    });
+
+    it('encodes the user id of nested user resources', async () => {
+      fetchOnce(listUserApiKeysFixture);
+
+      await workos.userManagement.listUserApiKeys(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/users/..%2F..%2Forganizations%2Forg_01VICTIM/api_keys',
+      );
+    });
+
+    it('encodes waitlist entry identifiers', async () => {
+      fetchOnce({}, { status: 204 });
+
+      await workos.userManagement.deleteWaitlistEntry(
+        '../../organizations/org_01VICTIM',
+      );
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/user_management/waitlist_entries/..%2F..%2Forganizations%2Forg_01VICTIM',
+      );
+    });
+
+    it('rejects a dot-only segment before sending a request', async () => {
+      await expect(
+        workos.userManagement.findInvitationByToken('..'),
+      ).rejects.toThrow(TypeError);
+
+      expect(fetch).not.toHaveBeenCalled();
     });
   });
 });

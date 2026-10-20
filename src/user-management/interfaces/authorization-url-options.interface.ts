@@ -12,7 +12,12 @@ interface UserManagementAuthorizationURLBaseOptions {
   connectionId?: string;
   organizationId?: string;
   domainHint?: string;
+  invitationToken?: string;
   loginHint?: string;
+  /**
+   * Maximum allowable elapsed time, in seconds, since the user last actively authenticated.
+   */
+  maxAge?: number;
   provider?: string;
   providerQueryParams?: Record<string, string | boolean | number>;
   providerScopes?: string[];

@@ -22,9 +22,7 @@ type PublicUserManagementMethods =
  * SSO method names available without API key.
  */
 type PublicSSOMethods =
-  | 'getAuthorizationUrl'
-  | 'getAuthorizationUrlWithPKCE'
-  | 'getProfileAndToken';
+  'getAuthorizationUrl' | 'getAuthorizationUrlWithPKCE' | 'getProfileAndToken';
 
 /**
  * Subset of UserManagement methods available without an API key.

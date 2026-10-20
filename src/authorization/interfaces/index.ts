@@ -30,5 +30,12 @@ export * from './list-role-assignments-for-resource-by-external-id-options.inter
 export * from './assign-role-options.interface';
 export * from './remove-role-options.interface';
 export * from './remove-role-assignment-options.interface';
+export * from './group-role-assignment.interface';
+export * from './list-group-role-assignments-options.interface';
+export * from './get-group-role-assignment-options.interface';
+export * from './create-group-role-assignment-options.interface';
+export * from './remove-group-role-assignment-options.interface';
+export * from './remove-group-role-assignments-options.interface';
+export * from './replace-group-role-assignments-options.interface';
 export * from './list-effective-permissions-options.interface';
 export * from './list-effective-permissions-by-external-id-options.interface';

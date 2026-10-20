@@ -23,6 +23,7 @@ import {
   deserializeProfileAndToken,
   serializeListConnectionsOptions,
 } from './serializers';
+import { encodePathParameter } from '../common/utils/encode-path-parameter';
 
 export class SSO {
   constructor(private readonly workos: WorkOS) {}
@@ -70,7 +71,7 @@ export class SSO {
    * @throws {NotFoundException} 404
    */
   async deleteConnection(id: string) {
-    await this.workos.delete(`/connections/${id}`);
+    await this.workos.delete(`/connections/${encodePathParameter(id)}`);
   }
 
   // @oagen-ignore-start
@@ -206,7 +207,7 @@ export class SSO {
    */
   async getConnection(id: string): Promise<Connection> {
     const { data } = await this.workos.get<ConnectionResponse>(
-      `/connections/${id}`,
+      `/connections/${encodePathParameter(id)}`,
     );
 
     return deserializeConnection(data);

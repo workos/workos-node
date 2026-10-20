@@ -77,6 +77,8 @@ export const CreateWebhookEndpointEvents = {
   PermissionDeleted: 'permission.deleted',
   PermissionUpdated: 'permission.updated',
   PipesConnectedAccountConnected: 'pipes.connected_account.connected',
+  PipesConnectedAccountConnectionFailed:
+    'pipes.connected_account.connection_failed',
   PipesConnectedAccountDisconnected: 'pipes.connected_account.disconnected',
   PipesConnectedAccountReauthorizationNeeded:
     'pipes.connected_account.reauthorization_needed',
