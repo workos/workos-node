@@ -157,7 +157,7 @@ describe('AdminPortal', () => {
         });
       });
 
-      describe('with intentOptions and adminEmails', () => {
+      describe('with intentOptions and itContactEmails', () => {
         it('serializes the new parameters correctly', async () => {
           fetchOnce(portalLinkResponse, { status: 201 });
 
@@ -171,7 +171,7 @@ describe('AdminPortal', () => {
                 providerType: 'GoogleSAML',
               },
             },
-            adminEmails: ['admin@example.com'],
+            itContactEmails: ['it-contact@example.com'],
           });
 
           expect(fetchBody()).toEqual({
@@ -184,7 +184,7 @@ describe('AdminPortal', () => {
                 provider_type: 'GoogleSAML',
               },
             },
-            admin_emails: ['admin@example.com'],
+            it_contact_emails: ['it-contact@example.com'],
           });
           expect(link).toEqual(
             'https://setup.workos.com?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
