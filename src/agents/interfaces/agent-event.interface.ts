@@ -1,7 +1,74 @@
 import type {
+  AgentBlueprint,
+  SerializedAgentBlueprint,
+} from './agent-blueprint.interface';
+import type { AgentInstanceType } from './agent-instance.interface';
+import type {
   AgentRegistrationKind,
   AgentRegistrationStatus,
 } from './agent-registration.interface';
+
+// agent.blueprint.created / agent.blueprint.updated (identical shapes)
+export interface AgentBlueprintEventData extends AgentBlueprint {
+  invocableAs: {
+    instanceTypes: AgentInstanceType[];
+  };
+}
+
+export interface AgentBlueprintEventResponseData extends SerializedAgentBlueprint {
+  invocable_as: {
+    instance_types: AgentInstanceType[];
+  };
+}
+
+// agent.blueprint.deleted
+export interface AgentBlueprintDeletedEventData {
+  object: 'agent_blueprint';
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AgentBlueprintDeletedEventResponseData {
+  object: 'agent_blueprint';
+  id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// agent.instance.session.revoked
+export interface AgentInstanceSessionEventData {
+  object: 'agent_instance_session';
+  id: string;
+  agentInstanceId: string;
+  organizationId: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AgentInstanceSessionEventResponseData {
+  object: 'agent_instance_session';
+  id: string;
+  agent_instance_id: string;
+  organization_id: string;
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+// agent.instance.session.created
+export interface AgentInstanceSessionCreatedEventData extends AgentInstanceSessionEventData {
+  permissionSlugs: string[];
+}
+
+export interface AgentInstanceSessionCreatedEventResponseData extends AgentInstanceSessionEventResponseData {
+  permission_slugs: string[];
+}
 
 export type AgentRegistrationMethod = 'anonymous' | 'service_auth' | 'id_jag';
 

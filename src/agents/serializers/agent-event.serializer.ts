@@ -1,4 +1,12 @@
 import {
+  AgentBlueprintDeletedEventData,
+  AgentBlueprintDeletedEventResponseData,
+  AgentBlueprintEventData,
+  AgentBlueprintEventResponseData,
+  AgentInstanceSessionCreatedEventData,
+  AgentInstanceSessionCreatedEventResponseData,
+  AgentInstanceSessionEventData,
+  AgentInstanceSessionEventResponseData,
   AgentRegistrationClaimAttemptCreatedEventData,
   AgentRegistrationClaimAttemptCreatedEventResponseData,
   AgentRegistrationClaimCompletedEventData,
@@ -13,7 +21,47 @@ import {
   AgentRegistrationLifecycleEventResponseData,
   AgentRegistrationOrganizationSwitchedEventData,
   AgentRegistrationOrganizationSwitchedEventResponseData,
-} from '../interfaces/agent-registration-event.interface';
+} from '../interfaces/agent-event.interface';
+import { deserializeAgentBlueprint } from './agent-blueprint.serializer';
+
+export const deserializeAgentBlueprintEvent = (
+  data: AgentBlueprintEventResponseData,
+): AgentBlueprintEventData => ({
+  ...deserializeAgentBlueprint(data),
+  invocableAs: {
+    instanceTypes: data.invocable_as.instance_types,
+  },
+});
+
+export const deserializeAgentBlueprintDeletedEvent = (
+  data: AgentBlueprintDeletedEventResponseData,
+): AgentBlueprintDeletedEventData => ({
+  object: data.object,
+  id: data.id,
+  name: data.name,
+  createdAt: data.created_at,
+  updatedAt: data.updated_at,
+});
+
+export const deserializeAgentInstanceSessionEvent = (
+  data: AgentInstanceSessionEventResponseData,
+): AgentInstanceSessionEventData => ({
+  object: data.object,
+  id: data.id,
+  agentInstanceId: data.agent_instance_id,
+  organizationId: data.organization_id,
+  expiresAt: data.expires_at,
+  revokedAt: data.revoked_at,
+  createdAt: data.created_at,
+  updatedAt: data.updated_at,
+});
+
+export const deserializeAgentInstanceSessionCreatedEvent = (
+  data: AgentInstanceSessionCreatedEventResponseData,
+): AgentInstanceSessionCreatedEventData => ({
+  ...deserializeAgentInstanceSessionEvent(data),
+  permissionSlugs: data.permission_slugs,
+});
 
 export const deserializeAgentRegistrationCreatedEvent = (
   data: AgentRegistrationCreatedEventResponseData,

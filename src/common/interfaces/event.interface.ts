@@ -1,4 +1,12 @@
 import {
+  AgentBlueprintDeletedEventData,
+  AgentBlueprintDeletedEventResponseData,
+  AgentBlueprintEventData,
+  AgentBlueprintEventResponseData,
+  AgentInstanceSessionCreatedEventData,
+  AgentInstanceSessionCreatedEventResponseData,
+  AgentInstanceSessionEventData,
+  AgentInstanceSessionEventResponseData,
   AgentRegistrationClaimAttemptCreatedEventData,
   AgentRegistrationClaimAttemptCreatedEventResponseData,
   AgentRegistrationClaimCompletedEventData,
@@ -11,7 +19,11 @@ import {
   AgentRegistrationLifecycleEventResponseData,
   AgentRegistrationOrganizationSwitchedEventData,
   AgentRegistrationOrganizationSwitchedEventResponseData,
-} from '../../agents/interfaces/agent-registration-event.interface';
+} from '../../agents/interfaces/agent-event.interface';
+import {
+  AgentInstance,
+  SerializedAgentInstance,
+} from '../../agents/interfaces/agent-instance.interface';
 import {
   DirectoryUser,
   DirectoryUserResponse,
@@ -105,6 +117,76 @@ interface EventResponseBase {
   id: string;
   created_at: string;
   context?: Record<string, unknown>;
+}
+
+export interface AgentBlueprintCreatedEvent extends EventBase {
+  event: 'agent.blueprint.created';
+  data: AgentBlueprintEventData;
+}
+
+export interface AgentBlueprintCreatedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.created';
+  data: AgentBlueprintEventResponseData;
+}
+
+export interface AgentBlueprintDeletedEvent extends EventBase {
+  event: 'agent.blueprint.deleted';
+  data: AgentBlueprintDeletedEventData;
+}
+
+export interface AgentBlueprintDeletedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.deleted';
+  data: AgentBlueprintDeletedEventResponseData;
+}
+
+export interface AgentBlueprintUpdatedEvent extends EventBase {
+  event: 'agent.blueprint.updated';
+  data: AgentBlueprintEventData;
+}
+
+export interface AgentBlueprintUpdatedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.updated';
+  data: AgentBlueprintEventResponseData;
+}
+
+export interface AgentInstanceCreatedEvent extends EventBase {
+  event: 'agent.instance.created';
+  data: AgentInstance;
+}
+
+export interface AgentInstanceCreatedEventResponse extends EventResponseBase {
+  event: 'agent.instance.created';
+  data: SerializedAgentInstance;
+}
+
+export interface AgentInstanceDeletedEvent extends EventBase {
+  event: 'agent.instance.deleted';
+  data: AgentInstance;
+}
+
+export interface AgentInstanceDeletedEventResponse extends EventResponseBase {
+  event: 'agent.instance.deleted';
+  data: SerializedAgentInstance;
+}
+
+export interface AgentInstanceSessionCreatedEvent extends EventBase {
+  event: 'agent.instance.session.created';
+  data: AgentInstanceSessionCreatedEventData;
+}
+
+export interface AgentInstanceSessionCreatedEventResponse extends EventResponseBase {
+  event: 'agent.instance.session.created';
+  data: AgentInstanceSessionCreatedEventResponseData;
+}
+
+export interface AgentInstanceSessionRevokedEvent extends EventBase {
+  event: 'agent.instance.session.revoked';
+  data: AgentInstanceSessionEventData;
+}
+
+export interface AgentInstanceSessionRevokedEventResponse extends EventResponseBase {
+  event: 'agent.instance.session.revoked';
+  data: AgentInstanceSessionEventResponseData;
 }
 
 export interface AgentRegistrationCreatedEvent extends EventBase {
@@ -1122,6 +1204,13 @@ export interface UnknownEvent extends EventBase {
 }
 
 export type Event =
+  | AgentBlueprintCreatedEvent
+  | AgentBlueprintDeletedEvent
+  | AgentBlueprintUpdatedEvent
+  | AgentInstanceCreatedEvent
+  | AgentInstanceDeletedEvent
+  | AgentInstanceSessionCreatedEvent
+  | AgentInstanceSessionRevokedEvent
   | AgentRegistrationCreatedEvent
   | AgentRegistrationClaimAttemptCreatedEvent
   | AgentRegistrationClaimCompletedEvent
@@ -1217,6 +1306,13 @@ export type Event =
   | VaultByokKeyVerificationCompletedEvent;
 
 export type EventResponse =
+  | AgentBlueprintCreatedEventResponse
+  | AgentBlueprintDeletedEventResponse
+  | AgentBlueprintUpdatedEventResponse
+  | AgentInstanceCreatedEventResponse
+  | AgentInstanceDeletedEventResponse
+  | AgentInstanceSessionCreatedEventResponse
+  | AgentInstanceSessionRevokedEventResponse
   | AgentRegistrationCreatedEventResponse
   | AgentRegistrationClaimAttemptCreatedEventResponse
   | AgentRegistrationClaimCompletedEventResponse

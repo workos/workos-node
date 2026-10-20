@@ -1,6 +1,20 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchSearchParams } from '../common/utils/test-utils';
 import {
+  AgentBlueprintCreatedEvent,
+  AgentBlueprintCreatedEventResponse,
+  AgentBlueprintDeletedEvent,
+  AgentBlueprintDeletedEventResponse,
+  AgentBlueprintUpdatedEvent,
+  AgentBlueprintUpdatedEventResponse,
+  AgentInstanceCreatedEvent,
+  AgentInstanceCreatedEventResponse,
+  AgentInstanceDeletedEvent,
+  AgentInstanceDeletedEventResponse,
+  AgentInstanceSessionCreatedEvent,
+  AgentInstanceSessionCreatedEventResponse,
+  AgentInstanceSessionRevokedEvent,
+  AgentInstanceSessionRevokedEventResponse,
   AgentRegistrationClaimAttemptCreatedEvent,
   AgentRegistrationClaimAttemptCreatedEventResponse,
   AgentRegistrationClaimCompletedEvent,
@@ -191,6 +205,274 @@ describe('Event', () => {
         object: 'list',
         data: [event],
         listMetadata: {},
+      });
+    });
+
+    describe('agent blueprint and instance events', () => {
+      it('accepts event filters and deserializes payloads', async () => {
+        const responseBase = {
+          created_at: '2026-10-20T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+        };
+        const eventBase = {
+          createdAt: '2026-10-20T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+        };
+
+        const blueprintCreatedResponse: AgentBlueprintCreatedEventResponse = {
+          ...responseBase,
+          id: 'event_blueprint_created',
+          event: 'agent.blueprint.created',
+          data: {
+            object: 'agent_blueprint',
+            id: 'agent_blueprint_123',
+            name: 'Prospecting Agent',
+            description: null,
+            permissions: ['crm:read', 'email:send'],
+            invocable_by: {
+              role_slugs: ['manager'],
+              organization_ids: ['org_123'],
+            },
+            invocable_as: { instance_types: ['delegated', 'autonomous'] },
+            session_settings: {
+              max_age_seconds: 3600,
+              access_token_ttl_seconds: 300,
+              refresh_token_ttl_seconds: 3600,
+            },
+            created_at: '2026-10-20T11:00:00.000Z',
+            updated_at: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const blueprintUpdatedResponse: AgentBlueprintUpdatedEventResponse = {
+          ...blueprintCreatedResponse,
+          id: 'event_blueprint_updated',
+          event: 'agent.blueprint.updated',
+          data: {
+            ...blueprintCreatedResponse.data,
+            description: 'Finds and qualifies sales prospects.',
+            invocable_as: { instance_types: ['delegated'] },
+            updated_at: '2026-10-20T11:30:00.000Z',
+          },
+        };
+        const blueprintDeletedResponse: AgentBlueprintDeletedEventResponse = {
+          ...responseBase,
+          id: 'event_blueprint_deleted',
+          event: 'agent.blueprint.deleted',
+          data: {
+            object: 'agent_blueprint',
+            id: 'agent_blueprint_123',
+            name: 'Prospecting Agent',
+            created_at: '2026-10-20T11:00:00.000Z',
+            updated_at: '2026-10-20T11:30:00.000Z',
+          },
+        };
+        const instanceCreatedResponse: AgentInstanceCreatedEventResponse = {
+          ...responseBase,
+          id: 'event_instance_created',
+          event: 'agent.instance.created',
+          data: {
+            object: 'agent_instance',
+            id: 'agent_123',
+            agent_blueprint_id: 'agent_blueprint_123',
+            organization_id: 'org_123',
+            organization_membership_id: 'om_123',
+            type: 'delegated',
+            created_at: '2026-10-20T11:00:00.000Z',
+            updated_at: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const instanceDeletedResponse: AgentInstanceDeletedEventResponse = {
+          ...responseBase,
+          id: 'event_instance_deleted',
+          event: 'agent.instance.deleted',
+          data: {
+            ...instanceCreatedResponse.data,
+            id: 'agent_456',
+            organization_membership_id: null,
+            type: 'autonomous',
+          },
+        };
+        const sessionCreatedResponse: AgentInstanceSessionCreatedEventResponse =
+          {
+            ...responseBase,
+            id: 'event_session_created',
+            event: 'agent.instance.session.created',
+            data: {
+              object: 'agent_instance_session',
+              id: 'agent_session_123',
+              agent_instance_id: 'agent_123',
+              organization_id: 'org_123',
+              expires_at: '2026-10-20T13:00:00.000Z',
+              revoked_at: null,
+              permission_slugs: ['crm:read'],
+              created_at: '2026-10-20T12:00:00.000Z',
+              updated_at: '2026-10-20T12:00:00.000Z',
+            },
+          };
+        const sessionRevokedResponse: AgentInstanceSessionRevokedEventResponse =
+          {
+            id: 'event_session_revoked',
+            created_at: '2026-10-20T12:30:00.000Z',
+            event: 'agent.instance.session.revoked',
+            data: {
+              object: 'agent_instance_session',
+              id: 'agent_session_123',
+              agent_instance_id: 'agent_123',
+              organization_id: 'org_123',
+              expires_at: '2026-10-20T13:00:00.000Z',
+              revoked_at: '2026-10-20T12:30:00.000Z',
+              created_at: '2026-10-20T12:00:00.000Z',
+              updated_at: '2026-10-20T12:30:00.000Z',
+            },
+          };
+
+        const blueprintCreated: AgentBlueprintCreatedEvent = {
+          ...eventBase,
+          id: 'event_blueprint_created',
+          event: 'agent.blueprint.created',
+          data: {
+            object: 'agent_blueprint',
+            id: 'agent_blueprint_123',
+            name: 'Prospecting Agent',
+            description: null,
+            permissions: ['crm:read', 'email:send'],
+            invocableBy: {
+              roleSlugs: ['manager'],
+              organizationIds: ['org_123'],
+            },
+            invocableAs: { instanceTypes: ['delegated', 'autonomous'] },
+            sessionSettings: {
+              maxAgeSeconds: 3600,
+              accessTokenTtlSeconds: 300,
+              refreshTokenTtlSeconds: 3600,
+            },
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const blueprintUpdated: AgentBlueprintUpdatedEvent = {
+          ...blueprintCreated,
+          id: 'event_blueprint_updated',
+          event: 'agent.blueprint.updated',
+          data: {
+            ...blueprintCreated.data,
+            description: 'Finds and qualifies sales prospects.',
+            invocableAs: { instanceTypes: ['delegated'] },
+            updatedAt: '2026-10-20T11:30:00.000Z',
+          },
+        };
+        const blueprintDeleted: AgentBlueprintDeletedEvent = {
+          ...eventBase,
+          id: 'event_blueprint_deleted',
+          event: 'agent.blueprint.deleted',
+          data: {
+            object: 'agent_blueprint',
+            id: 'agent_blueprint_123',
+            name: 'Prospecting Agent',
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:30:00.000Z',
+          },
+        };
+        const instanceCreated: AgentInstanceCreatedEvent = {
+          ...eventBase,
+          id: 'event_instance_created',
+          event: 'agent.instance.created',
+          data: {
+            object: 'agent_instance',
+            id: 'agent_123',
+            agentBlueprintId: 'agent_blueprint_123',
+            organizationId: 'org_123',
+            organizationMembershipId: 'om_123',
+            type: 'delegated',
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const instanceDeleted: AgentInstanceDeletedEvent = {
+          ...eventBase,
+          id: 'event_instance_deleted',
+          event: 'agent.instance.deleted',
+          data: {
+            ...instanceCreated.data,
+            id: 'agent_456',
+            organizationMembershipId: null,
+            type: 'autonomous',
+          },
+        };
+        const sessionCreated: AgentInstanceSessionCreatedEvent = {
+          ...eventBase,
+          id: 'event_session_created',
+          event: 'agent.instance.session.created',
+          data: {
+            object: 'agent_instance_session',
+            id: 'agent_session_123',
+            agentInstanceId: 'agent_123',
+            organizationId: 'org_123',
+            expiresAt: '2026-10-20T13:00:00.000Z',
+            revokedAt: null,
+            permissionSlugs: ['crm:read'],
+            createdAt: '2026-10-20T12:00:00.000Z',
+            updatedAt: '2026-10-20T12:00:00.000Z',
+          },
+        };
+        const sessionRevoked: AgentInstanceSessionRevokedEvent = {
+          id: 'event_session_revoked',
+          createdAt: '2026-10-20T12:30:00.000Z',
+          context: undefined,
+          event: 'agent.instance.session.revoked',
+          data: {
+            object: 'agent_instance_session',
+            id: 'agent_session_123',
+            agentInstanceId: 'agent_123',
+            organizationId: 'org_123',
+            expiresAt: '2026-10-20T13:00:00.000Z',
+            revokedAt: '2026-10-20T12:30:00.000Z',
+            createdAt: '2026-10-20T12:00:00.000Z',
+            updatedAt: '2026-10-20T12:30:00.000Z',
+          },
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [
+            blueprintCreatedResponse,
+            blueprintUpdatedResponse,
+            blueprintDeletedResponse,
+            instanceCreatedResponse,
+            instanceDeletedResponse,
+            sessionCreatedResponse,
+            sessionRevokedResponse,
+          ],
+          list_metadata: {},
+        });
+
+        const events: EventName[] = [
+          'agent.blueprint.created',
+          'agent.blueprint.deleted',
+          'agent.blueprint.updated',
+          'agent.instance.created',
+          'agent.instance.deleted',
+          'agent.instance.session.created',
+          'agent.instance.session.revoked',
+        ];
+        const list = await workos.events.listEvents({ events });
+
+        expect(fetchSearchParams()).toMatchObject({
+          events: events.join(','),
+        });
+        expect(list).toEqual({
+          object: 'list',
+          data: [
+            blueprintCreated,
+            blueprintUpdated,
+            blueprintDeleted,
+            instanceCreated,
+            instanceDeleted,
+            sessionCreated,
+            sessionRevoked,
+          ],
+          listMetadata: {},
+        });
       });
     });
 
