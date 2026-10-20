@@ -20,6 +20,8 @@ export interface DirectoryUser<
   firstName: string | null;
   email: string | null;
   lastName: string | null;
+  /** The full name of the user, as provided by the identity provider. */
+  name: string | null;
   state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
@@ -41,6 +43,7 @@ export interface DirectoryUserResponse<
   first_name: string | null;
   email: string | null;
   last_name: string | null;
+  name: string | null;
   state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
