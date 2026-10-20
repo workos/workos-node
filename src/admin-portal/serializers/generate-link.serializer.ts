@@ -20,7 +20,7 @@ export const deserializeGenerateLink = (
     response.intent_options != null
       ? deserializeIntentOptions(response.intent_options)
       : undefined,
-  adminEmails: response.admin_emails,
+  itContactEmails: response.it_contact_emails,
 });
 
 export const serializeGenerateLink = (
@@ -34,5 +34,5 @@ export const serializeGenerateLink = (
     model.intentOptions != null
       ? serializeIntentOptions(model.intentOptions)
       : undefined,
-  admin_emails: model.adminEmails,
+  it_contact_emails: model.itContactEmails,
 });

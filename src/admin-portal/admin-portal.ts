@@ -23,7 +23,7 @@ export class AdminPortal {
     returnUrl,
     successUrl,
     intentOptions,
-    adminEmails,
+    itContactEmails,
   }: {
     intent?: GenerateLinkIntent;
     organization: string;
@@ -35,7 +35,7 @@ export class AdminPortal {
         providerType?: string;
       };
     };
-    adminEmails?: string[];
+    itContactEmails?: string[];
   }): Promise<{ link: string }> {
     const { data } = await this.workos.post('/portal/generate_link', {
       intent,
@@ -50,7 +50,7 @@ export class AdminPortal {
             },
           }
         : undefined,
-      admin_emails: adminEmails,
+      it_contact_emails: itContactEmails,
     });
 
     return data;
