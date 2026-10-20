@@ -1,4 +1,17 @@
 import {
+  deserializeAgentBlueprintDeletedEvent,
+  deserializeAgentBlueprintEvent,
+  deserializeAgentInstanceSessionCreatedEvent,
+  deserializeAgentInstanceSessionEvent,
+  deserializeAgentRegistrationClaimAttemptCreatedEvent,
+  deserializeAgentRegistrationClaimCompletedEvent,
+  deserializeAgentRegistrationCreatedEvent,
+  deserializeAgentRegistrationCredentialIssuedEvent,
+  deserializeAgentRegistrationLifecycleEvent,
+  deserializeAgentRegistrationOrganizationSwitchedEvent,
+} from '../../agents/serializers/agent-event.serializer';
+import { deserializeAgentInstance } from '../../agents/serializers/agent-instance.serializer';
+import {
   deserializeDeletedEventDirectory,
   deserializeDirectoryUser,
   deserializeEventDirectory,
@@ -87,6 +100,77 @@ export const deserializeEvent = (event: EventResponse): Event => {
   };
 
   switch (event.event) {
+    case 'agent.blueprint.created':
+    case 'agent.blueprint.updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentBlueprintEvent(event.data),
+      };
+    case 'agent.blueprint.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentBlueprintDeletedEvent(event.data),
+      };
+    case 'agent.instance.created':
+    case 'agent.instance.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentInstance(event.data),
+      };
+    case 'agent.instance.session.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentInstanceSessionCreatedEvent(event.data),
+      };
+    case 'agent.instance.session.revoked':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentInstanceSessionEvent(event.data),
+      };
+    case 'agent.registration.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationCreatedEvent(event.data),
+      };
+    case 'agent.registration.claim.attempt.created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationClaimAttemptCreatedEvent(event.data),
+      };
+    case 'agent.registration.claim.completed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationClaimCompletedEvent(event.data),
+      };
+    case 'agent.registration.credential.issued':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationCredentialIssuedEvent(event.data),
+      };
+    case 'agent.registration.organization.switched':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationOrganizationSwitchedEvent(event.data),
+      };
+    case 'agent.registration.refreshed':
+    case 'agent.registration.expired':
+    case 'agent.registration.revoked':
+    case 'agent.registration.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeAgentRegistrationLifecycleEvent(event.data),
+      };
     case 'authentication.email_verification_succeeded':
     case 'authentication.magic_auth_failed':
     case 'authentication.magic_auth_succeeded':
