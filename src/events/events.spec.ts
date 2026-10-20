@@ -1,9 +1,28 @@
 import fetch from 'jest-fetch-mock';
 import { fetchOnce, fetchSearchParams } from '../common/utils/test-utils';
 import {
+  AgentRegistrationClaimAttemptCreatedEvent,
+  AgentRegistrationClaimAttemptCreatedEventResponse,
+  AgentRegistrationClaimCompletedEvent,
+  AgentRegistrationClaimCompletedEventResponse,
+  AgentRegistrationCreatedEvent,
+  AgentRegistrationCreatedEventResponse,
+  AgentRegistrationCredentialIssuedEvent,
+  AgentRegistrationCredentialIssuedEventResponse,
+  AgentRegistrationDeletedEvent,
+  AgentRegistrationDeletedEventResponse,
+  AgentRegistrationExpiredEvent,
+  AgentRegistrationExpiredEventResponse,
+  AgentRegistrationOrganizationSwitchedEvent,
+  AgentRegistrationOrganizationSwitchedEventResponse,
+  AgentRegistrationRefreshedEvent,
+  AgentRegistrationRefreshedEventResponse,
+  AgentRegistrationRevokedEvent,
+  AgentRegistrationRevokedEventResponse,
   DsyncUserUpdatedEvent,
   DsyncUserUpdatedEventResponse,
   Event,
+  EventName,
   EventResponse,
   FlagCreatedEvent,
   FlagCreatedEventResponse,
@@ -172,6 +191,296 @@ describe('Event', () => {
         object: 'list',
         data: [event],
         listMetadata: {},
+      });
+    });
+
+    describe('agent registration events', () => {
+      it('accepts event filters and deserializes payloads', async () => {
+        const responseBase = {
+          created_at: '2026-10-20T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+        };
+        const eventBase = {
+          createdAt: '2026-10-20T12:00:00.000Z',
+          context: { client_id: 'client_123' },
+        };
+
+        const createdResponse: AgentRegistrationCreatedEventResponse = {
+          ...responseBase,
+          id: 'event_created',
+          event: 'agent.registration.created',
+          data: {
+            object: 'agent_registration',
+            id: 'agent_reg_123',
+            agent_identity: {
+              object: 'agent_identity',
+              id: 'agent_identity_123',
+              userland_user_id: null,
+            },
+            organization_id: 'org_123',
+            status: 'unverified',
+            kind: 'anonymous',
+            method: 'anonymous',
+            created_at: '2026-10-20T11:00:00.000Z',
+            updated_at: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const claimAttemptCreatedResponse: AgentRegistrationClaimAttemptCreatedEventResponse =
+          {
+            ...responseBase,
+            id: 'event_claim_attempt_created',
+            event: 'agent.registration.claim.attempt.created',
+            data: {
+              object: 'agent_registration_claim_attempt',
+              id: 'agent_reg_claim_attempt_123',
+              agent_registration_id: 'agent_reg_123',
+              agent_registration_claim_id: 'agent_reg_claim_123',
+              login_hint: 'jane@example.com',
+              expires_at: '2026-10-20T11:05:00.000Z',
+              created_at: '2026-10-20T11:00:00.000Z',
+              updated_at: '2026-10-20T11:00:00.000Z',
+            },
+          };
+        const claimCompletedResponse: AgentRegistrationClaimCompletedEventResponse =
+          {
+            ...responseBase,
+            id: 'event_claim_completed',
+            event: 'agent.registration.claim.completed',
+            data: {
+              object: 'agent_registration_claim',
+              id: 'agent_reg_claim_123',
+              agent_registration_id: 'agent_reg_123',
+              completed_by_attempt_id: 'agent_reg_claim_attempt_123',
+              claimed_by: { user_id: 'user_123', organization_id: null },
+              completed_at: '2026-10-20T11:02:00.000Z',
+              created_at: '2026-10-20T11:00:00.000Z',
+              updated_at: '2026-10-20T11:02:00.000Z',
+            },
+          };
+        const apiKeyIssuedResponse: AgentRegistrationCredentialIssuedEventResponse =
+          {
+            ...responseBase,
+            id: 'event_api_key_issued',
+            event: 'agent.registration.credential.issued',
+            data: {
+              object: 'agent_registration_credential',
+              id: 'agent_reg_credential_123',
+              agent_registration_id: 'agent_reg_123',
+              detail: { kind: 'api_key', api_key_id: 'api_key_123' },
+              created_at: '2026-10-20T11:03:00.000Z',
+              updated_at: '2026-10-20T11:03:00.000Z',
+            },
+          };
+        const accessTokenIssuedResponse: AgentRegistrationCredentialIssuedEventResponse =
+          {
+            ...apiKeyIssuedResponse,
+            id: 'event_access_token_issued',
+            data: {
+              ...apiKeyIssuedResponse.data,
+              id: 'agent_reg_credential_456',
+              detail: {
+                kind: 'access_token',
+                jti: 'jti_123',
+                expires_at: null,
+              },
+            },
+          };
+        const organizationSwitchedResponse: AgentRegistrationOrganizationSwitchedEventResponse =
+          {
+            ...responseBase,
+            id: 'event_organization_switched',
+            event: 'agent.registration.organization.switched',
+            data: {
+              agent_registration_id: 'agent_reg_123',
+              from_organization_id: 'org_123',
+              to_organization_id: 'org_456',
+            },
+          };
+        const lifecycleData = { agent_registration_id: 'agent_reg_123' };
+        const refreshedResponse: AgentRegistrationRefreshedEventResponse = {
+          ...responseBase,
+          id: 'event_refreshed',
+          event: 'agent.registration.refreshed',
+          data: lifecycleData,
+        };
+        const expiredResponse: AgentRegistrationExpiredEventResponse = {
+          ...responseBase,
+          id: 'event_expired',
+          event: 'agent.registration.expired',
+          data: lifecycleData,
+        };
+        const revokedResponse: AgentRegistrationRevokedEventResponse = {
+          ...responseBase,
+          id: 'event_revoked',
+          event: 'agent.registration.revoked',
+          data: lifecycleData,
+        };
+        const deletedResponse: AgentRegistrationDeletedEventResponse = {
+          id: 'event_deleted',
+          created_at: '2026-10-20T12:00:00.000Z',
+          event: 'agent.registration.deleted',
+          data: lifecycleData,
+        };
+
+        const created: AgentRegistrationCreatedEvent = {
+          ...eventBase,
+          id: 'event_created',
+          event: 'agent.registration.created',
+          data: {
+            object: 'agent_registration',
+            id: 'agent_reg_123',
+            agentIdentity: {
+              object: 'agent_identity',
+              id: 'agent_identity_123',
+              userlandUserId: null,
+            },
+            organizationId: 'org_123',
+            status: 'unverified',
+            kind: 'anonymous',
+            method: 'anonymous',
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const claimAttemptCreated: AgentRegistrationClaimAttemptCreatedEvent = {
+          ...eventBase,
+          id: 'event_claim_attempt_created',
+          event: 'agent.registration.claim.attempt.created',
+          data: {
+            object: 'agent_registration_claim_attempt',
+            id: 'agent_reg_claim_attempt_123',
+            agentRegistrationId: 'agent_reg_123',
+            agentRegistrationClaimId: 'agent_reg_claim_123',
+            loginHint: 'jane@example.com',
+            expiresAt: '2026-10-20T11:05:00.000Z',
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:00:00.000Z',
+          },
+        };
+        const claimCompleted: AgentRegistrationClaimCompletedEvent = {
+          ...eventBase,
+          id: 'event_claim_completed',
+          event: 'agent.registration.claim.completed',
+          data: {
+            object: 'agent_registration_claim',
+            id: 'agent_reg_claim_123',
+            agentRegistrationId: 'agent_reg_123',
+            completedByAttemptId: 'agent_reg_claim_attempt_123',
+            claimedBy: { userId: 'user_123', organizationId: null },
+            completedAt: '2026-10-20T11:02:00.000Z',
+            createdAt: '2026-10-20T11:00:00.000Z',
+            updatedAt: '2026-10-20T11:02:00.000Z',
+          },
+        };
+        const apiKeyIssued: AgentRegistrationCredentialIssuedEvent = {
+          ...eventBase,
+          id: 'event_api_key_issued',
+          event: 'agent.registration.credential.issued',
+          data: {
+            object: 'agent_registration_credential',
+            id: 'agent_reg_credential_123',
+            agentRegistrationId: 'agent_reg_123',
+            detail: { kind: 'api_key', apiKeyId: 'api_key_123' },
+            createdAt: '2026-10-20T11:03:00.000Z',
+            updatedAt: '2026-10-20T11:03:00.000Z',
+          },
+        };
+        const accessTokenIssued: AgentRegistrationCredentialIssuedEvent = {
+          ...apiKeyIssued,
+          id: 'event_access_token_issued',
+          data: {
+            ...apiKeyIssued.data,
+            id: 'agent_reg_credential_456',
+            detail: { kind: 'access_token', jti: 'jti_123', expiresAt: null },
+          },
+        };
+        const organizationSwitched: AgentRegistrationOrganizationSwitchedEvent =
+          {
+            ...eventBase,
+            id: 'event_organization_switched',
+            event: 'agent.registration.organization.switched',
+            data: {
+              agentRegistrationId: 'agent_reg_123',
+              fromOrganizationId: 'org_123',
+              toOrganizationId: 'org_456',
+            },
+          };
+        const lifecycle = { agentRegistrationId: 'agent_reg_123' };
+        const refreshed: AgentRegistrationRefreshedEvent = {
+          ...eventBase,
+          id: 'event_refreshed',
+          event: 'agent.registration.refreshed',
+          data: lifecycle,
+        };
+        const expired: AgentRegistrationExpiredEvent = {
+          ...eventBase,
+          id: 'event_expired',
+          event: 'agent.registration.expired',
+          data: lifecycle,
+        };
+        const revoked: AgentRegistrationRevokedEvent = {
+          ...eventBase,
+          id: 'event_revoked',
+          event: 'agent.registration.revoked',
+          data: lifecycle,
+        };
+        const deleted: AgentRegistrationDeletedEvent = {
+          id: 'event_deleted',
+          createdAt: '2026-10-20T12:00:00.000Z',
+          context: undefined,
+          event: 'agent.registration.deleted',
+          data: lifecycle,
+        };
+
+        fetchOnce({
+          object: 'list',
+          data: [
+            createdResponse,
+            claimAttemptCreatedResponse,
+            claimCompletedResponse,
+            apiKeyIssuedResponse,
+            accessTokenIssuedResponse,
+            organizationSwitchedResponse,
+            refreshedResponse,
+            expiredResponse,
+            revokedResponse,
+            deletedResponse,
+          ],
+          list_metadata: {},
+        });
+
+        const events: EventName[] = [
+          'agent.registration.created',
+          'agent.registration.claim.attempt.created',
+          'agent.registration.claim.completed',
+          'agent.registration.credential.issued',
+          'agent.registration.organization.switched',
+          'agent.registration.refreshed',
+          'agent.registration.expired',
+          'agent.registration.revoked',
+          'agent.registration.deleted',
+        ];
+        const list = await workos.events.listEvents({ events });
+
+        expect(fetchSearchParams()).toMatchObject({
+          events: events.join(','),
+        });
+        expect(list).toEqual({
+          object: 'list',
+          data: [
+            created,
+            claimAttemptCreated,
+            claimCompleted,
+            apiKeyIssued,
+            accessTokenIssued,
+            organizationSwitched,
+            refreshed,
+            expired,
+            revoked,
+            deleted,
+          ],
+          listMetadata: {},
+        });
       });
     });
 

@@ -1,4 +1,18 @@
 import {
+  AgentRegistrationClaimAttemptCreatedEventData,
+  AgentRegistrationClaimAttemptCreatedEventResponseData,
+  AgentRegistrationClaimCompletedEventData,
+  AgentRegistrationClaimCompletedEventResponseData,
+  AgentRegistrationCreatedEventData,
+  AgentRegistrationCreatedEventResponseData,
+  AgentRegistrationCredentialIssuedEventData,
+  AgentRegistrationCredentialIssuedEventResponseData,
+  AgentRegistrationLifecycleEventData,
+  AgentRegistrationLifecycleEventResponseData,
+  AgentRegistrationOrganizationSwitchedEventData,
+  AgentRegistrationOrganizationSwitchedEventResponseData,
+} from '../../agents/interfaces/agent-registration-event.interface';
+import {
   DirectoryUser,
   DirectoryUserResponse,
   DirectoryGroup,
@@ -91,6 +105,96 @@ interface EventResponseBase {
   id: string;
   created_at: string;
   context?: Record<string, unknown>;
+}
+
+export interface AgentRegistrationCreatedEvent extends EventBase {
+  event: 'agent.registration.created';
+  data: AgentRegistrationCreatedEventData;
+}
+
+export interface AgentRegistrationCreatedEventResponse extends EventResponseBase {
+  event: 'agent.registration.created';
+  data: AgentRegistrationCreatedEventResponseData;
+}
+
+export interface AgentRegistrationClaimAttemptCreatedEvent extends EventBase {
+  event: 'agent.registration.claim.attempt.created';
+  data: AgentRegistrationClaimAttemptCreatedEventData;
+}
+
+export interface AgentRegistrationClaimAttemptCreatedEventResponse extends EventResponseBase {
+  event: 'agent.registration.claim.attempt.created';
+  data: AgentRegistrationClaimAttemptCreatedEventResponseData;
+}
+
+export interface AgentRegistrationClaimCompletedEvent extends EventBase {
+  event: 'agent.registration.claim.completed';
+  data: AgentRegistrationClaimCompletedEventData;
+}
+
+export interface AgentRegistrationClaimCompletedEventResponse extends EventResponseBase {
+  event: 'agent.registration.claim.completed';
+  data: AgentRegistrationClaimCompletedEventResponseData;
+}
+
+export interface AgentRegistrationCredentialIssuedEvent extends EventBase {
+  event: 'agent.registration.credential.issued';
+  data: AgentRegistrationCredentialIssuedEventData;
+}
+
+export interface AgentRegistrationCredentialIssuedEventResponse extends EventResponseBase {
+  event: 'agent.registration.credential.issued';
+  data: AgentRegistrationCredentialIssuedEventResponseData;
+}
+
+export interface AgentRegistrationOrganizationSwitchedEvent extends EventBase {
+  event: 'agent.registration.organization.switched';
+  data: AgentRegistrationOrganizationSwitchedEventData;
+}
+
+export interface AgentRegistrationOrganizationSwitchedEventResponse extends EventResponseBase {
+  event: 'agent.registration.organization.switched';
+  data: AgentRegistrationOrganizationSwitchedEventResponseData;
+}
+
+export interface AgentRegistrationRefreshedEvent extends EventBase {
+  event: 'agent.registration.refreshed';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationRefreshedEventResponse extends EventResponseBase {
+  event: 'agent.registration.refreshed';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationExpiredEvent extends EventBase {
+  event: 'agent.registration.expired';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationExpiredEventResponse extends EventResponseBase {
+  event: 'agent.registration.expired';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationRevokedEvent extends EventBase {
+  event: 'agent.registration.revoked';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationRevokedEventResponse extends EventResponseBase {
+  event: 'agent.registration.revoked';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationDeletedEvent extends EventBase {
+  event: 'agent.registration.deleted';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationDeletedEventResponse extends EventResponseBase {
+  event: 'agent.registration.deleted';
+  data: AgentRegistrationLifecycleEventResponseData;
 }
 
 export interface AuthenticationEmailVerificationSucceededEvent extends EventBase {
@@ -1018,6 +1122,15 @@ export interface UnknownEvent extends EventBase {
 }
 
 export type Event =
+  | AgentRegistrationCreatedEvent
+  | AgentRegistrationClaimAttemptCreatedEvent
+  | AgentRegistrationClaimCompletedEvent
+  | AgentRegistrationCredentialIssuedEvent
+  | AgentRegistrationOrganizationSwitchedEvent
+  | AgentRegistrationRefreshedEvent
+  | AgentRegistrationExpiredEvent
+  | AgentRegistrationRevokedEvent
+  | AgentRegistrationDeletedEvent
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
   | AuthenticationOAuthFailedEvent
@@ -1104,6 +1217,15 @@ export type Event =
   | VaultByokKeyVerificationCompletedEvent;
 
 export type EventResponse =
+  | AgentRegistrationCreatedEventResponse
+  | AgentRegistrationClaimAttemptCreatedEventResponse
+  | AgentRegistrationClaimCompletedEventResponse
+  | AgentRegistrationCredentialIssuedEventResponse
+  | AgentRegistrationOrganizationSwitchedEventResponse
+  | AgentRegistrationRefreshedEventResponse
+  | AgentRegistrationExpiredEventResponse
+  | AgentRegistrationRevokedEventResponse
+  | AgentRegistrationDeletedEventResponse
   | AuthenticationEmailVerificationSucceededEventResponse
   | AuthenticationMagicAuthFailedEventResponse
   | AuthenticationMagicAuthSucceededEventResponse
