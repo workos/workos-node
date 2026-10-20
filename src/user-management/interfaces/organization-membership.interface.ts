@@ -1,4 +1,5 @@
 import { RoleResponse } from '../../roles/interfaces/';
+import { User, UserResponse } from './user.interface';
 
 export type OrganizationMembershipStatus = 'active' | 'inactive' | 'pending';
 
@@ -20,6 +21,11 @@ export interface OrganizationMembership extends BaseOrganizationMembership {
   /** The primary role assigned to the user within the organization. */
   role: RoleResponse;
   roles?: RoleResponse[];
+  /**
+   * The user who holds this membership. Returned by the Organization
+   * Membership API endpoints; absent from event and action payloads.
+   */
+  user?: User;
 }
 
 export type AuthorizationOrganizationMembership = BaseOrganizationMembership;
@@ -40,6 +46,7 @@ export interface BaseOrganizationMembershipResponse {
 export interface OrganizationMembershipResponse extends BaseOrganizationMembershipResponse {
   role: RoleResponse;
   roles?: RoleResponse[];
+  user?: UserResponse;
 }
 
 export type AuthorizationOrganizationMembershipResponse =
