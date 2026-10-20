@@ -1,0 +1,7 @@
+{
+  "users": {
+    "active": 42,
+    "inactive": 3
+  },
+  "groups": 5
+}

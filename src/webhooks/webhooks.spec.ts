@@ -43,8 +43,8 @@ describe('Webhook signatures', () => {
       lastName: 'Lunchford',
       firstName: 'Blair',
       directoryId: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
-      createdAt: '2021-06-25T19:07:33.155Z',
-      updatedAt: '2021-06-25T19:07:33.155Z',
+      createdAt: new Date('2021-06-25T19:07:33.155Z'),
+      updatedAt: new Date('2021-06-25T19:07:33.155Z'),
       rawAttributes: {
         name: {
           givenName: 'Blair',

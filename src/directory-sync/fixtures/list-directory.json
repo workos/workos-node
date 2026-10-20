@@ -1,0 +1,27 @@
+{
+  "data": [
+    {
+      "object": "directory",
+      "id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+      "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
+      "external_key": "sPa12dwRQ",
+      "type": "gsuite directory",
+      "state": "linked",
+      "name": "Foo Corp",
+      "domain": "foo-corp.com",
+      "metadata": {
+        "users": {
+          "active": 42,
+          "inactive": 3
+        },
+        "groups": 5
+      },
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}
