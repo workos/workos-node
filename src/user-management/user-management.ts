@@ -192,6 +192,7 @@ import { serializeCreateWaitlistEntryOptions } from './serializers/create-waitli
 import { serializeListWaitlistEntriesOptions } from './serializers/list-waitlist-entries-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
+import { AccessTokenClaims } from './interfaces/access-token-claims.interface';
 import { Group, GroupResponse } from '../groups/interfaces';
 import { deserializeGroup } from '../groups/serializers';
 import { encodePathParameter } from '../common/utils/encode-path-parameter';
@@ -744,7 +745,22 @@ export class UserManagement {
     };
   }
 
-  private async isValidJwt(accessToken: string): Promise<boolean> {
+  /**
+   * Verify an access token and return its claims.
+   *
+   * Checks the token's signature against the environment's JWKS and its
+   * expiry, plus the issuer when one was configured on the client. Resolves to
+   * `null` when the token fails any of those checks or is not a JWT. Errors
+   * that are not JWT validation failures, such as a network error while
+   * fetching the JWKS, propagate.
+   *
+   * @param accessToken - The access token to verify, for example from an `Authorization: Bearer` header.
+   * @returns {Promise<AccessTokenClaims | null>} The token's claims, or `null` when the token is invalid.
+   * @throws {Error} When no client ID was provided when initializing WorkOS.
+   */
+  async verifyAccessToken(
+    accessToken: string,
+  ): Promise<AccessTokenClaims | null> {
     const jwks = await this.getJWKS();
     const { jwtVerify } = await getJose();
     if (!jwks) {
@@ -752,12 +768,12 @@ export class UserManagement {
     }
 
     try {
-      await jwtVerify(
+      const { payload } = await jwtVerify<AccessTokenClaims>(
         accessToken,
         jwks,
         this.issuer ? { issuer: this.issuer } : undefined,
       );
-      return true;
+      return payload;
     } catch (e) {
       // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
       // Network errors, crypto failures, etc. should propagate
@@ -767,10 +783,14 @@ export class UserManagement {
         typeof e.code === 'string' &&
         (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
       ) {
-        return false;
+        return null;
       }
       throw e;
     }
+  }
+
+  private async isValidJwt(accessToken: string): Promise<boolean> {
+    return (await this.verifyAccessToken(accessToken)) !== null;
   }
 
   private async prepareAuthenticationResponse({

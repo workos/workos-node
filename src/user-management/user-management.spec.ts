@@ -1870,6 +1870,93 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('verifyAccessToken', () => {
+    const accessToken = 'eyJhbGciOiJSUzI1NiJ9.e30.signature';
+
+    beforeEach(() => {
+      jest
+        .mocked(jose.createRemoteJWKSet)
+        .mockReturnValue(
+          {} as unknown as ReturnType<typeof jose.createRemoteJWKSet>,
+        );
+    });
+
+    it('returns the claims of a valid access token', async () => {
+      const payload = {
+        iss: 'https://api.workos.com/user_management/proj_123',
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        org_id: 'org_123',
+        role: 'member',
+        permissions: ['posts:create'],
+        exp: 1735684500,
+        iat: 1735683600,
+      };
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue({ payload } as unknown as jose.JWTVerifyResult &
+          jose.ResolvedKey);
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).resolves.toEqual(payload);
+      expect(jose.jwtVerify).toHaveBeenCalledWith(
+        accessToken,
+        expect.anything(),
+        undefined,
+      );
+    });
+
+    it('enforces the configured issuer', async () => {
+      const workosWithIssuer = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        clientId: 'proj_123',
+        issuer: 'https://auth.example.com',
+      });
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue({ payload: {} } as unknown as jose.JWTVerifyResult &
+          jose.ResolvedKey);
+
+      await workosWithIssuer.userManagement.verifyAccessToken(accessToken);
+
+      expect(jose.jwtVerify).toHaveBeenCalledWith(
+        accessToken,
+        expect.anything(),
+        { issuer: 'https://auth.example.com' },
+      );
+    });
+
+    it('returns null when the token fails verification', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        const error = new Error('"exp" claim timestamp check failed');
+        (error as Error & { code: string }).code = 'ERR_JWT_EXPIRED';
+        throw error;
+      });
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).resolves.toBeNull();
+    });
+
+    it('rethrows errors that are not JWT validation failures', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        throw new Error('Network error: JWKS fetch failed');
+      });
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).rejects.toThrow('Network error: JWKS fetch failed');
+    });
+
+    it('throws when no client ID is configured', async () => {
+      const workosNoClientId = new WorkOS('sk_test_no_client_id');
+
+      await expect(
+        workosNoClientId.userManagement.verifyAccessToken(accessToken),
+      ).rejects.toThrow('Must provide clientId to initialize JWKS');
+    });
+  });
+
   describe('getSessionFromCookie', () => {
     const OLD_ENV = process.env;
 
