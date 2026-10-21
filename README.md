@@ -93,7 +93,7 @@ configured, and returns the token's claims, or `null` when the token is invalid:
 const claims = await workos.userManagement.verifyAccessToken(accessToken);
 
 if (!claims) {
-  // Reject the request.
+  throw new Error('Invalid access token');
 }
 
 console.log(claims.sub, claims.org_id, claims.permissions);

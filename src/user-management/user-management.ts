@@ -749,7 +749,8 @@ export class UserManagement {
    * Verify an access token and return its claims.
    *
    * Checks the token's signature against the environment's JWKS and its
-   * expiry, plus the issuer when one was configured on the client. Resolves to
+   * expiry, plus the issuer when one was configured on the client, and that
+   * the payload carries the claims of a WorkOS access token. Resolves to
    * `null` when the token fails any of those checks or is not a JWT. Errors
    * that are not JWT validation failures, such as a network error while
    * fetching the JWKS, propagate.
@@ -761,6 +762,44 @@ export class UserManagement {
   async verifyAccessToken(
     accessToken: string,
   ): Promise<AccessTokenClaims | null> {
+    const payload = await this.verifyJwt(accessToken);
+
+    if (
+      payload === null ||
+      !UserManagement.hasRequiredAccessTokenClaims(payload)
+    ) {
+      return null;
+    }
+
+    return payload;
+  }
+
+  /**
+   * A verified payload is only a WorkOS access token if it carries every
+   * claim `AccessTokenClaims` guarantees. A token signed by the same JWKS for
+   * another purpose (e.g. an agent credential) lacks `sid` and is rejected
+   * rather than returned with missing values.
+   */
+  private static hasRequiredAccessTokenClaims(
+    payload: import('jose').JWTPayload,
+  ): payload is AccessTokenClaims {
+    return (
+      typeof payload.sub === 'string' &&
+      typeof payload.sid === 'string' &&
+      typeof payload.iss === 'string' &&
+      typeof payload.exp === 'number' &&
+      typeof payload.iat === 'number'
+    );
+  }
+
+  /**
+   * Verify a JWT's signature, expiry and, when configured, issuer against the
+   * environment's JWKS. Resolves to the payload, or `null` when jose rejects
+   * the token; errors that are not JWT validation failures propagate.
+   */
+  private async verifyJwt(
+    accessToken: string,
+  ): Promise<import('jose').JWTPayload | null> {
     const jwks = await this.getJWKS();
     const { jwtVerify } = await getJose();
     if (!jwks) {
@@ -768,7 +807,7 @@ export class UserManagement {
     }
 
     try {
-      const { payload } = await jwtVerify<AccessTokenClaims>(
+      const { payload } = await jwtVerify(
         accessToken,
         jwks,
         this.issuer ? { issuer: this.issuer } : undefined,
@@ -790,7 +829,7 @@ export class UserManagement {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    return (await this.verifyAccessToken(accessToken)) !== null;
+    return (await this.verifyJwt(accessToken)) !== null;
   }
 
   private async prepareAuthenticationResponse({

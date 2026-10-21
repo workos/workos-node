@@ -1926,6 +1926,21 @@ describe('UserManagement', () => {
       );
     });
 
+    it('returns null when the token lacks the claims of an access token', async () => {
+      jest.mocked(jose.jwtVerify).mockResolvedValue({
+        payload: {
+          iss: 'https://api.workos.com/user_management/proj_123',
+          sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          exp: 1735684500,
+          iat: 1735683600,
+        },
+      } as unknown as jose.JWTVerifyResult & jose.ResolvedKey);
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).resolves.toBeNull();
+    });
+
     it('returns null when the token fails verification', async () => {
       jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
         const error = new Error('"exp" claim timestamp check failed');
