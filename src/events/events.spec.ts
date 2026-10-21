@@ -1758,7 +1758,7 @@ describe('Unknown events', () => {
       switch (event.event) {
         case 'user.created':
           // The known payload type is intact: `data` is `User`, not a union.
-          return `user:${event.data.email}`;
+          return `user:${event.data.email.toLowerCase()}`;
         default: {
           // @ts-expect-error `Event` includes `UnknownEvent`, so `event` is not `never` here.
           const unhandled: never = event;
