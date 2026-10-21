@@ -37,10 +37,12 @@ import {
   Event,
   EventBase,
   EventResponse,
+  KnownEvent,
   PipesConnectedAccount,
   PipesConnectedAccountResponse,
   PipesConnectionFailed,
   PipesConnectionFailedResponse,
+  UnknownEventResponse,
 } from '../interfaces';
 import { deserializeAuthenticationRadarRiskDetectedEvent } from '../../user-management/serializers/authentication-radar-risk-event-serializer';
 import { deserializeApiKey } from '../../api-keys/serializers/api-key.serializer';
@@ -99,6 +101,29 @@ export const deserializeEvent = (event: EventResponse): Event => {
     context: event.context,
   };
 
+  const knownEvent = deserializeKnownEvent(event, eventBase);
+  if (knownEvent) {
+    return knownEvent;
+  }
+
+  // Pass through events this version of the SDK does not recognize.
+  const unknownEvent = event as UnknownEventResponse;
+  return {
+    ...eventBase,
+    event: unknownEvent.event,
+    data: unknownEvent.data,
+  };
+};
+
+// Returns `undefined` for an event name this version of the SDK does not
+// recognize. Typed against `KnownEvent` rather than `Event`: the grouped cases
+// below return object literals whose `event` is a union of literals, and
+// TypeScript would otherwise also match them against `UnknownEvent`, whose
+// `data: never` rejects every payload.
+function deserializeKnownEvent(
+  event: EventResponse,
+  eventBase: EventBase,
+): KnownEvent | undefined {
   switch (event.event) {
     case 'agent.blueprint.created':
     case 'agent.blueprint.updated':
@@ -458,10 +483,6 @@ export const deserializeEvent = (event: EventResponse): Event => {
         data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
       };
     default:
-      return {
-        ...eventBase,
-        event: (event as { event: string }).event,
-        data: (event as { data: Record<string, unknown> }).data,
-      } as Event;
+      return undefined;
   }
-};
+}

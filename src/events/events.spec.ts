@@ -38,6 +38,7 @@ import {
   Event,
   EventName,
   EventResponse,
+  UnknownEvent,
   FlagCreatedEvent,
   FlagCreatedEventResponse,
   GroupCreatedEvent,
@@ -1713,5 +1714,74 @@ describe('Event', () => {
         });
       });
     });
+  });
+});
+
+describe('Unknown events', () => {
+  beforeEach(() => fetch.resetMocks());
+
+  const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+  const unknownEventResponse = {
+    id: 'event_01HUNKNOWN',
+    event: 'widget.frobnicated',
+    created_at: '2026-10-20T12:00:00.000Z',
+    data: {
+      object: 'widget',
+      id: 'widget_123',
+      frobnicated_at: '2026-10-20T12:00:00.000Z',
+    },
+  };
+
+  it('passes through an event this version of the SDK does not recognize', async () => {
+    fetchOnce({
+      object: 'list',
+      data: [unknownEventResponse],
+      list_metadata: {},
+    });
+
+    const list = await workos.events.listEvents({
+      events: ['widget.frobnicated' as EventName],
+    });
+
+    expect(list.data).toEqual([
+      {
+        id: 'event_01HUNKNOWN',
+        event: 'widget.frobnicated',
+        createdAt: '2026-10-20T12:00:00.000Z',
+        context: undefined,
+        data: unknownEventResponse.data,
+      },
+    ]);
+  });
+
+  it('surfaces UnknownEvent to exhaustive switches without widening known payloads', () => {
+    const describeEvent = (event: Event): string => {
+      switch (event.event) {
+        case 'user.created':
+          // The known payload type is intact: `data` is `User`, not a union.
+          return `user:${event.data.email.toLowerCase()}`;
+        default: {
+          // @ts-expect-error `Event` includes `UnknownEvent`, so `event` is not `never` here.
+          const unhandled: never = event;
+          return `unknown:${(unhandled as UnknownEvent).event}`;
+        }
+      }
+    };
+
+    const unknownEvent: UnknownEvent = {
+      id: 'event_01HUNKNOWN',
+      event: 'widget.frobnicated',
+      createdAt: '2026-10-20T12:00:00.000Z',
+      context: undefined,
+      data: unknownEventResponse.data as never,
+    };
+
+    expect(describeEvent(unknownEvent)).toBe('unknown:widget.frobnicated');
+
+    // `never` is assignable to any type, so the raw payload can be read by
+    // annotating it rather than casting.
+    const payload: Record<string, unknown> = unknownEvent.data;
+    expect(payload).toEqual(unknownEventResponse.data);
   });
 });

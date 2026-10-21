@@ -1198,12 +1198,34 @@ export interface VaultByokKeyVerificationCompletedEventResponse extends EventRes
   data: VaultByokKeyVerificationCompletedEventResponseData;
 }
 
+/**
+ * An event whose name this version of the SDK does not recognize.
+ *
+ * The API adds event types over time, so `Event` includes this member to make
+ * that possibility visible to the compiler: an exhaustive `switch` over
+ * `event.event` can no longer assume every case is covered.
+ *
+ * `data` is deliberately typed `never`. TypeScript keeps a union member whose
+ * discriminant is `string` in every narrowed branch, so any other type here
+ * would widen `event.data` in known branches (for example `User` would become
+ * `User | Record<string, unknown>`). `never` is absorbed by those unions and
+ * leaves the known payload types intact. At runtime the payload is passed
+ * through unchanged (snake_case keys, no deserialization); since `never` is
+ * assignable to every type, read it by annotating the shape you expect:
+ * `const payload: Record<string, unknown> = event.data;`.
+ */
 export interface UnknownEvent extends EventBase {
   event: string;
-  data: Record<string, unknown>;
+  data: never;
 }
 
-export type Event =
+export interface UnknownEventResponse extends EventResponseBase {
+  event: string;
+  data: never;
+}
+
+/** Every event type this version of the SDK knows how to deserialize. */
+export type KnownEvent =
   | AgentBlueprintCreatedEvent
   | AgentBlueprintDeletedEvent
   | AgentBlueprintUpdatedEvent
@@ -1305,7 +1327,9 @@ export type Event =
   | VaultDekDecryptedEvent
   | VaultByokKeyVerificationCompletedEvent;
 
-export type EventResponse =
+export type Event = KnownEvent | UnknownEvent;
+
+export type KnownEventResponse =
   | AgentBlueprintCreatedEventResponse
   | AgentBlueprintDeletedEventResponse
   | AgentBlueprintUpdatedEventResponse
@@ -1407,4 +1431,7 @@ export type EventResponse =
   | VaultDekDecryptedEventResponse
   | VaultByokKeyVerificationCompletedEventResponse;
 
-export type EventName = Event['event'];
+export type EventResponse = KnownEventResponse | UnknownEventResponse;
+
+/** The names of the events this version of the SDK knows; excludes `UnknownEvent`. */
+export type EventName = KnownEvent['event'];
