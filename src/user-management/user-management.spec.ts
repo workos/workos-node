@@ -1891,6 +1891,7 @@ describe('UserManagement', () => {
         permissions: ['posts:create'],
         exp: 1735684500,
         iat: 1735683600,
+        auth_time: 1735683600,
       };
       jest
         .mocked(jose.jwtVerify)
@@ -1926,19 +1927,57 @@ describe('UserManagement', () => {
       );
     });
 
-    it('returns null when the token lacks the claims of an access token', async () => {
-      jest.mocked(jose.jwtVerify).mockResolvedValue({
-        payload: {
-          iss: 'https://api.workos.com/user_management/proj_123',
-          sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
-          exp: 1735684500,
-          iat: 1735683600,
-        },
-      } as unknown as jose.JWTVerifyResult & jose.ResolvedKey);
+    describe('token family checks', () => {
+      const userClaims = {
+        iss: 'https://api.workos.com/user_management/proj_123',
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        exp: 1735684500,
+        iat: 1735683600,
+        auth_time: 1735683600,
+      };
 
-      await expect(
-        workos.userManagement.verifyAccessToken(accessToken),
-      ).resolves.toBeNull();
+      const verifyPayload = (payload: Record<string, unknown>) => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload } as unknown as jose.JWTVerifyResult &
+            jose.ResolvedKey);
+        return workos.userManagement.verifyAccessToken(accessToken);
+      };
+
+      it('accepts a token that classifies its subject as a user', async () => {
+        const payload = { ...userClaims, sub_profile: 'user' };
+
+        await expect(verifyPayload(payload)).resolves.toEqual(payload);
+      });
+
+      it('returns null when the token lacks sid', async () => {
+        const { sid: _sid, ...payload } = userClaims;
+
+        await expect(verifyPayload(payload)).resolves.toBeNull();
+      });
+
+      it('returns null when the token lacks auth_time', async () => {
+        const { auth_time: _authTime, ...payload } = userClaims;
+
+        await expect(verifyPayload(payload)).resolves.toBeNull();
+      });
+
+      it('returns null for an agent access token', async () => {
+        await expect(
+          verifyPayload({
+            ...userClaims,
+            sub: 'agent_instance_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            sub_profile: 'ai_agent',
+          }),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a widget session token', async () => {
+        await expect(
+          verifyPayload({ ...userClaims, sub_type: 'authkit' }),
+        ).resolves.toBeNull();
+      });
     });
 
     it('returns null when the token fails verification', async () => {
@@ -1969,6 +2008,144 @@ describe('UserManagement', () => {
       await expect(
         workosNoClientId.userManagement.verifyAccessToken(accessToken),
       ).rejects.toThrow('Must provide clientId to initialize JWKS');
+    });
+
+    describe('with signed tokens', () => {
+      const { jwtVerify } = jest.requireActual<typeof jose>('jose');
+      const issuer = 'https://auth.example.com';
+      const kid = 'key_01';
+      const claims = {
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        org_id: 'org_123',
+        auth_time: 1735683600,
+      };
+
+      type PrivateKey = Awaited<
+        ReturnType<typeof jose.generateKeyPair>
+      >['privateKey'];
+      let privateKey: PrivateKey;
+      let otherPrivateKey: PrivateKey;
+      let jwks: ReturnType<typeof jose.createLocalJWKSet>;
+      let workosWithKeys: WorkOS;
+
+      const sign = (
+        key: PrivateKey | Uint8Array,
+        header: jose.JWTHeaderParameters,
+        tokenIssuer = issuer,
+      ) =>
+        new jose.SignJWT(claims)
+          .setProtectedHeader(header)
+          .setIssuer(tokenIssuer)
+          .setIssuedAt()
+          .setExpirationTime('1h')
+          .sign(key);
+
+      beforeAll(async () => {
+        const [primary, other] = await Promise.all([
+          jose.generateKeyPair('RS256'),
+          jose.generateKeyPair('RS256'),
+        ]);
+        privateKey = primary.privateKey;
+        otherPrivateKey = other.privateKey;
+        const jwk = await jose.exportJWK(primary.publicKey);
+        jwks = jose.createLocalJWKSet({
+          keys: [{ ...jwk, kid, alg: 'RS256' }],
+        });
+      });
+
+      beforeEach(() => {
+        // Verify for real against a local JWKS standing in for the remote one.
+        jest.mocked(jose.jwtVerify).mockImplementation(jwtVerify);
+        jest
+          .mocked(jose.createRemoteJWKSet)
+          .mockReturnValue(
+            jwks as unknown as ReturnType<typeof jose.createRemoteJWKSet>,
+          );
+        workosWithKeys = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          clientId: 'proj_123',
+          issuer,
+        });
+      });
+
+      it('returns the claims of a token signed by the environment', async () => {
+        const token = await sign(privateKey, { alg: 'RS256', kid });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toMatchObject({
+          ...claims,
+          iss: issuer,
+          exp: expect.any(Number),
+          iat: expect.any(Number),
+        });
+      });
+
+      it('returns null for a token signed by a key the JWKS does not have', async () => {
+        const token = await sign(otherPrivateKey, {
+          alg: 'RS256',
+          kid: 'key_02',
+        });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token whose signature does not verify', async () => {
+        const token = await sign(otherPrivateKey, { alg: 'RS256' });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token signed with a shared secret', async () => {
+        const token = await sign(new TextEncoder().encode('shared-secret'), {
+          alg: 'HS256',
+        });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for an unsigned token', async () => {
+        const encode = (value: object) =>
+          jose.base64url.encode(JSON.stringify(value));
+        const token = `${encode({ alg: 'none' })}.${encode({
+          ...claims,
+          iss: issuer,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        })}.`;
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token from another issuer', async () => {
+        const token = await sign(
+          privateKey,
+          { alg: 'RS256', kid },
+          'https://auth.other.example.com',
+        );
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('rethrows when the JWKS cannot be fetched', async () => {
+        jest.mocked(jose.createRemoteJWKSet).mockReturnValue((() => {
+          throw new jose.errors.JWKSTimeout();
+        }) as unknown as ReturnType<typeof jose.createRemoteJWKSet>);
+        const token = await sign(privateKey, { alg: 'RS256', kid });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).rejects.toThrow(jose.errors.JWKSTimeout);
+      });
     });
   });
 

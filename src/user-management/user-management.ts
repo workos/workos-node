@@ -750,10 +750,12 @@ export class UserManagement {
    *
    * Checks the token's signature against the environment's JWKS and its
    * expiry, plus the issuer when one was configured on the client, and that
-   * the payload carries the claims of a WorkOS access token. Resolves to
-   * `null` when the token fails any of those checks or is not a JWT. Errors
-   * that are not JWT validation failures, such as a network error while
-   * fetching the JWKS, propagate.
+   * the payload carries the claims of a WorkOS user access token. Tokens the
+   * environment signed for another purpose, such as agent or widget session
+   * tokens, are rejected. Resolves to `null` when the token fails any of
+   * those checks, is not a JWT, or was signed by a key the JWKS does not
+   * have. Errors that are not JWT validation failures, such as a network
+   * error while fetching the JWKS, propagate.
    *
    * @param accessToken - The access token to verify, for example from an `Authorization: Bearer` header.
    * @returns {Promise<AccessTokenClaims | null>} The token's claims, or `null` when the token is invalid.
@@ -775,10 +777,18 @@ export class UserManagement {
   }
 
   /**
-   * A verified payload is only a WorkOS access token if it carries every
-   * claim `AccessTokenClaims` guarantees. A token signed by the same JWKS for
-   * another purpose (e.g. an agent credential) lacks `sid` and is rejected
-   * rather than returned with missing values.
+   * Several token families are signed with an environment's key pair, so a
+   * valid signature alone does not prove a token is a user access token. This
+   * mirrors how the API identifies one: `sid` and `auth_time` are always
+   * minted together on user access tokens, agent tokens classify themselves
+   * with a `sub_profile` other than `user`, and widget session tokens carry
+   * `sub_type`. The registered claims `AccessTokenClaims` guarantees are
+   * checked too, so a token is rejected rather than returned with missing
+   * values.
+   *
+   * Consent tokens for interactive Connect grants also mint `sid` and
+   * `auth_time`. The API excludes those by resolving `sid` to a live
+   * session, which cannot be done offline here.
    */
   private static hasRequiredAccessTokenClaims(
     payload: import('jose').JWTPayload,
@@ -788,7 +798,10 @@ export class UserManagement {
       typeof payload.sid === 'string' &&
       typeof payload.iss === 'string' &&
       typeof payload.exp === 'number' &&
-      typeof payload.iat === 'number'
+      typeof payload.iat === 'number' &&
+      typeof payload.auth_time === 'number' &&
+      (payload.sub_profile === undefined || payload.sub_profile === 'user') &&
+      payload.sub_type === undefined
     );
   }
 
@@ -814,18 +827,35 @@ export class UserManagement {
       );
       return payload;
     } catch (e) {
-      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
-      // Network errors, crypto failures, etc. should propagate
-      if (
-        e instanceof Error &&
-        'code' in e &&
-        typeof e.code === 'string' &&
-        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
-      ) {
+      if (UserManagement.isJwtValidationError(e)) {
         return null;
       }
       throw e;
     }
+  }
+
+  /**
+   * Whether a jose error means the presented token is invalid, as opposed to
+   * a failure to verify it at all. Network errors, JWKS timeouts and crypto
+   * failures propagate so they surface as errors rather than as rejected
+   * tokens.
+   */
+  private static isJwtValidationError(e: unknown): boolean {
+    if (!(e instanceof Error) || !('code' in e) || typeof e.code !== 'string') {
+      return false;
+    }
+
+    return (
+      // Malformed tokens, bad signatures and failed claim checks.
+      e.code.startsWith('ERR_JWT_') ||
+      e.code.startsWith('ERR_JWS_') ||
+      // Signed by a key the environment's JWKS does not have, for example a
+      // token from another environment.
+      e.code === 'ERR_JWKS_NO_MATCHING_KEY' ||
+      // An `alg` a JWKS cannot verify, such as `none` or HS256.
+      e.code === 'ERR_JOSE_NOT_SUPPORTED' ||
+      e.code === 'ERR_JOSE_ALG_NOT_ALLOWED'
+    );
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {

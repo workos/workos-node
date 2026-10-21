@@ -19,6 +19,6 @@ export interface AccessTokenClaims extends UserManagementAccessToken {
   /** When the token was issued, in seconds since the Unix epoch. */
   iat: number;
   /** When the user last actively authenticated, in seconds since the Unix epoch. */
-  auth_time?: number;
+  auth_time: number;
   [claim: string]: unknown;
 }

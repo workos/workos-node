@@ -87,7 +87,9 @@ accepted. When `issuer` is not set, the `iss` claim is not validated.
 To verify an access token your application received elsewhere, for example from
 an `Authorization: Bearer` header, use `verifyAccessToken`. It checks the
 signature against the WorkOS JWKS and the expiry, plus the issuer when one is
-configured, and returns the token's claims, or `null` when the token is invalid:
+configured, and that the token is a user access token rather than one WorkOS
+signed for another purpose, such as an agent or widget token. It returns the
+token's claims, or `null` when the token is invalid:
 
 ```ts
 const claims = await workos.userManagement.verifyAccessToken(accessToken);
