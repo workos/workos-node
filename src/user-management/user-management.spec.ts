@@ -2466,7 +2466,27 @@ describe('UserManagement', () => {
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         status: 'active',
+        user: {
+          object: 'user',
+          id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          email: 'test01@example.com',
+          emailVerified: true,
+          firstName: 'Test 01',
+          lastName: 'User',
+        },
       });
+    });
+
+    it('omits user when the response does not include one', async () => {
+      fetchOnce(
+        { ...organizationMembershipFixture, user: undefined },
+        { status: 200 },
+      );
+      const organizationMembership =
+        await workos.userManagement.getOrganizationMembership(
+          organizationMembershipId,
+        );
+      expect(organizationMembership).not.toHaveProperty('user');
     });
   });
 
@@ -2490,6 +2510,10 @@ describe('UserManagement', () => {
             organizationName: 'Example Organization',
             userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             status: 'active',
+            user: {
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
           },
         ],
         listMetadata: {
