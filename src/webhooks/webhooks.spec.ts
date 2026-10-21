@@ -42,6 +42,7 @@ describe('Webhook signatures', () => {
       object: 'directory_user',
       lastName: 'Lunchford',
       firstName: 'Blair',
+      name: 'Blair Lunchford',
       directoryId: 'directory_01F9M7F68PZP8QXP8G7X5QRHS7',
       createdAt: new Date('2021-06-25T19:07:33.155Z'),
       updatedAt: new Date('2021-06-25T19:07:33.155Z'),
