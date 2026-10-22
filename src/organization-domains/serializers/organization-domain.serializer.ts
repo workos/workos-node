@@ -15,8 +15,8 @@ export const deserializeOrganizationDomain = (
   ...(organizationDomain.verification_prefix !== undefined && {
     verificationPrefix: organizationDomain.verification_prefix,
   }),
-  createdAt: organizationDomain.created_at,
-  updatedAt: organizationDomain.updated_at,
+  createdAt: new Date(organizationDomain.created_at),
+  updatedAt: new Date(organizationDomain.updated_at),
 });
 
 export const serializeOrganizationDomain = (
@@ -34,6 +34,6 @@ export const serializeOrganizationDomain = (
   ...(organizationDomain.verificationPrefix !== undefined && {
     verification_prefix: organizationDomain.verificationPrefix,
   }),
-  created_at: organizationDomain.createdAt,
-  updated_at: organizationDomain.updatedAt,
+  created_at: organizationDomain.createdAt.toISOString(),
+  updated_at: organizationDomain.updatedAt.toISOString(),
 });

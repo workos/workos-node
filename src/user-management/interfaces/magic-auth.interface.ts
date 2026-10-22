@@ -8,13 +8,13 @@ export interface MagicAuth {
   /** The email address of the user. */
   email: string;
   /** The timestamp when the Magic Auth code expires. */
-  expiresAt: string;
+  expiresAt: Date;
   /** The code used to verify the Magic Auth code. */
   code: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface MagicAuthEvent {
@@ -22,9 +22,9 @@ export interface MagicAuthEvent {
   id: string;
   userId: string;
   email: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface MagicAuthResponse {

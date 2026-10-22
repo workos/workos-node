@@ -13,8 +13,8 @@ export const deserializeOrganization = (
   ...(typeof organization.stripe_customer_id === 'undefined'
     ? undefined
     : { stripeCustomerId: organization.stripe_customer_id }),
-  createdAt: organization.created_at,
-  updatedAt: organization.updated_at,
+  createdAt: new Date(organization.created_at),
+  updatedAt: new Date(organization.updated_at),
   externalId: organization.external_id ?? null,
   metadata: organization.metadata ?? {},
 });

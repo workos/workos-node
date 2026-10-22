@@ -21,9 +21,9 @@ export interface Connection {
   domains: ConnectionDomain[];
   type: ConnectionType;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface ConnectionResponse {

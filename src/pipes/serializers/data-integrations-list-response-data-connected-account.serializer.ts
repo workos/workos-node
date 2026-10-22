@@ -22,7 +22,7 @@ export const deserializeDataIntegrationsListResponseDataConnectedAccount = (
   clientSecretLast4: response.client_secret_last_4 ?? null,
   config: response.config,
   state: response.state,
-  createdAt: response.created_at,
-  updatedAt: response.updated_at,
+  createdAt: new Date(response.created_at),
+  updatedAt: new Date(response.updated_at),
   userlandUserId: response.userland_user_id ?? null,
 });

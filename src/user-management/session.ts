@@ -11,11 +11,14 @@ import {
   AuthenticationResponse,
   RefreshSessionFailureReason,
   RefreshSessionResponse,
-  SessionCookieData,
   TerminalRefreshSessionFailureReason,
 } from './interfaces';
 import { UserManagement } from './user-management';
 import { unsealData } from '../common/crypto/seal';
+import {
+  deserializeSessionCookieData,
+  SealedSessionCookieData,
+} from './serializers/session-cookie-data.serializer';
 import { getJose } from '../utils/jose';
 
 type RefreshOptions = {
@@ -61,9 +64,11 @@ export class CookieSession {
 
     // unsealData returns {} for known seal errors (expired, bad hmac, etc.)
     // Unknown errors propagate - don't catch them as "invalid session"
-    const session = await unsealData<SessionCookieData>(this.sessionData, {
-      password: this.cookiePassword,
-    });
+    const session = deserializeSessionCookieData(
+      await unsealData<SealedSessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      }),
+    );
 
     if (!session.accessToken) {
       return {
@@ -118,9 +123,11 @@ export class CookieSession {
    */
   async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
     const { decodeJwt } = await getJose();
-    const session = await unsealData<SessionCookieData>(this.sessionData, {
-      password: this.cookiePassword,
-    });
+    const session = deserializeSessionCookieData(
+      await unsealData<SealedSessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      }),
+    );
 
     if (!session.refreshToken || !session.user) {
       return {

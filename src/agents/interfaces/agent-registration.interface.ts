@@ -13,9 +13,9 @@ export interface AgentIdentity {
   /** The Userland user the agent identity is associated with, if any. */
   userlandUserId: string | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedAgentIdentity {
@@ -30,13 +30,13 @@ export interface AgentRegistrationClaimCompletion {
   /** Unique identifier of the claim completion. */
   id: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
   /** An ISO 8601 timestamp. */
-  expiresAt: string;
+  expiresAt: Date;
   /** An ISO 8601 timestamp of when the registration was claimed. */
-  claimedAt: string;
+  claimedAt: Date;
 }
 
 export interface SerializedAgentRegistrationClaimCompletion {
@@ -54,11 +54,11 @@ export interface AgentRegistrationClaim {
   /** The completion of the claim, or `null` if it has not been claimed. */
   claimCompletion: AgentRegistrationClaimCompletion | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
   /** An ISO 8601 timestamp. */
-  expiresAt: string;
+  expiresAt: Date;
 }
 
 export interface SerializedAgentRegistrationClaim {
@@ -81,12 +81,13 @@ export interface AgentRegistration {
   status: AgentRegistrationStatus;
   /** The kind of registration. */
   kind: AgentRegistrationKind;
+  revokedAt: Date | null;
   /** The claim state of the registration, or `null` if it has none. */
   claim: AgentRegistrationClaim | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedAgentRegistration {
@@ -95,6 +96,7 @@ export interface SerializedAgentRegistration {
   organization_id: string;
   status: AgentRegistrationStatus;
   kind: AgentRegistrationKind;
+  revoked_at: string | null;
   claim: SerializedAgentRegistrationClaim | null;
   created_at: string;
   updated_at: string;

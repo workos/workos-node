@@ -1,4 +1,8 @@
 import { sealData, unsealData } from '../common/crypto/seal';
+import {
+  deserializeSessionCookieData,
+  SealedSessionCookieData,
+} from './serializers/session-cookie-data.serializer';
 import { List, ListResponse } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
@@ -701,9 +705,11 @@ export class UserManagement {
       };
     }
 
-    const session = await unsealData<SessionCookieData>(sessionData, {
-      password: cookiePassword,
-    });
+    const session = deserializeSessionCookieData(
+      await unsealData<SealedSessionCookieData>(sessionData, {
+        password: cookiePassword,
+      }),
+    );
 
     if (!session.accessToken) {
       return {
@@ -932,9 +938,11 @@ export class UserManagement {
     }
 
     if (sessionData) {
-      return unsealData<SessionCookieData>(sessionData, {
-        password: cookiePassword,
-      });
+      return deserializeSessionCookieData(
+        await unsealData<SealedSessionCookieData>(sessionData, {
+          password: cookiePassword,
+        }),
+      );
     }
 
     return undefined;

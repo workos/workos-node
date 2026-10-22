@@ -13,13 +13,13 @@ export interface AgentInstanceSession {
   /** The lifecycle status of the session. */
   status: AgentInstanceSessionStatus;
   /** An ISO 8601 timestamp of when the session expires. */
-  expiresAt: string;
+  expiresAt: Date;
   /** An ISO 8601 timestamp of when the session was revoked, or `null`. */
-  revokedAt: string | null;
+  revokedAt: Date | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedAgentInstanceSession {

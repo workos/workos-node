@@ -109,7 +109,7 @@ import {
 
 export interface EventBase {
   id: string;
-  createdAt: string;
+  createdAt: Date;
   context: Record<string, unknown> | undefined;
 }
 
@@ -1015,8 +1015,8 @@ export interface PipesConnectedAccount {
   organizationId: string | null;
   scopes: string[];
   state: PipesConnectedAccountState;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface PipesConnectedAccountResponse {
@@ -1042,7 +1042,7 @@ export interface PipesConnectionFailed {
   errorReason: string | null;
   providerError: string | null;
   providerErrorDescription: string | null;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export interface PipesConnectionFailedResponse {

@@ -15,8 +15,8 @@ export type AuthenticationFactorType = FactorType;
 export interface AuthenticationFactor {
   object: 'authentication_factor';
   id: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   type: AuthenticationFactorType;
   sms?: Sms;
   totp?: Totp;
@@ -26,8 +26,8 @@ export interface AuthenticationFactor {
 export interface AuthenticationFactorWithSecrets {
   object: 'authentication_factor';
   id: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   type: 'totp';
   totp: TotpWithSecrets;
   userId: string;

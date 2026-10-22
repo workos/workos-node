@@ -12,10 +12,10 @@ export const deserializeEmailVerification = (
   id: emailVerification.id,
   userId: emailVerification.user_id,
   email: emailVerification.email,
-  expiresAt: emailVerification.expires_at,
+  expiresAt: new Date(emailVerification.expires_at),
   code: emailVerification.code,
-  createdAt: emailVerification.created_at,
-  updatedAt: emailVerification.updated_at,
+  createdAt: new Date(emailVerification.created_at),
+  updatedAt: new Date(emailVerification.updated_at),
 });
 
 export const deserializeEmailVerificationEvent = (
@@ -25,7 +25,7 @@ export const deserializeEmailVerificationEvent = (
   id: emailVerification.id,
   userId: emailVerification.user_id,
   email: emailVerification.email,
-  expiresAt: emailVerification.expires_at,
-  createdAt: emailVerification.created_at,
-  updatedAt: emailVerification.updated_at,
+  expiresAt: new Date(emailVerification.expires_at),
+  createdAt: new Date(emailVerification.created_at),
+  updatedAt: new Date(emailVerification.updated_at),
 });

@@ -14,6 +14,6 @@ export const deserializeFeatureFlag = (
   tags: featureFlag.tags,
   enabled: featureFlag.enabled,
   defaultValue: featureFlag.default_value,
-  createdAt: featureFlag.created_at,
-  updatedAt: featureFlag.updated_at,
+  createdAt: new Date(featureFlag.created_at),
+  updatedAt: new Date(featureFlag.updated_at),
 });

@@ -39,8 +39,8 @@ export const deserializeAgentBlueprintDeletedEvent = (
   object: data.object,
   id: data.id,
   name: data.name,
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 export const deserializeAgentInstanceSessionEvent = (
@@ -50,10 +50,10 @@ export const deserializeAgentInstanceSessionEvent = (
   id: data.id,
   agentInstanceId: data.agent_instance_id,
   organizationId: data.organization_id,
-  expiresAt: data.expires_at,
-  revokedAt: data.revoked_at,
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  expiresAt: new Date(data.expires_at),
+  revokedAt: data.revoked_at != null ? new Date(data.revoked_at) : null,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 export const deserializeAgentInstanceSessionCreatedEvent = (
@@ -77,8 +77,8 @@ export const deserializeAgentRegistrationCreatedEvent = (
   status: data.status,
   kind: data.kind,
   method: data.method,
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 export const deserializeAgentRegistrationClaimAttemptCreatedEvent = (
@@ -89,9 +89,9 @@ export const deserializeAgentRegistrationClaimAttemptCreatedEvent = (
   agentRegistrationId: data.agent_registration_id,
   agentRegistrationClaimId: data.agent_registration_claim_id,
   loginHint: data.login_hint,
-  expiresAt: data.expires_at,
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  expiresAt: new Date(data.expires_at),
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 export const deserializeAgentRegistrationClaimCompletedEvent = (
@@ -105,9 +105,9 @@ export const deserializeAgentRegistrationClaimCompletedEvent = (
     userId: data.claimed_by.user_id,
     organizationId: data.claimed_by.organization_id,
   },
-  completedAt: data.completed_at,
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  completedAt: new Date(data.completed_at),
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 const deserializeAgentRegistrationCredentialDetail = (
@@ -120,7 +120,8 @@ const deserializeAgentRegistrationCredentialDetail = (
       return {
         kind: detail.kind,
         jti: detail.jti,
-        expiresAt: detail.expires_at,
+        expiresAt:
+          detail.expires_at != null ? new Date(detail.expires_at) : null,
       };
   }
 };
@@ -132,8 +133,8 @@ export const deserializeAgentRegistrationCredentialIssuedEvent = (
   id: data.id,
   agentRegistrationId: data.agent_registration_id,
   detail: deserializeAgentRegistrationCredentialDetail(data.detail),
-  createdAt: data.created_at,
-  updatedAt: data.updated_at,
+  createdAt: new Date(data.created_at),
+  updatedAt: new Date(data.updated_at),
 });
 
 export const deserializeAgentRegistrationOrganizationSwitchedEvent = (

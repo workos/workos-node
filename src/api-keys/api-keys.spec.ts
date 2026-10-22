@@ -44,9 +44,10 @@ describe('ApiKeys', () => {
           name: 'Test Api Key',
           obfuscatedValue: 'sk_…PRYS',
           lastUsedAt: null,
+          expiresAt: null,
           permissions: ['read', 'write'],
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       });
     });
@@ -69,9 +70,10 @@ describe('ApiKeys', () => {
           name: 'Test User Api Key',
           obfuscatedValue: 'sk_…PRYS',
           lastUsedAt: null,
+          expiresAt: null,
           permissions: ['read', 'write'],
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       });
     });
@@ -150,10 +152,11 @@ describe('ApiKeys', () => {
         },
         name: 'Production Key',
         obfuscatedValue: 'sk_\u2026PRYS',
-        lastUsedAt: '2023-07-20T10:30:00.000Z',
+        lastUsedAt: new Date('2023-07-20T10:30:00.000Z'),
+        expiresAt: null,
         permissions: ['read', 'write'],
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
 
@@ -252,9 +255,10 @@ describe('ApiKeys', () => {
         obfuscatedValue: 'sk_\u20269789',
         value: 'sk_live_abc123xyz789',
         lastUsedAt: null,
+        expiresAt: null,
         permissions: ['read', 'write'],
-        createdAt: '2023-07-20T02:07:19.911Z',
-        updatedAt: '2023-07-20T02:07:19.911Z',
+        createdAt: new Date('2023-07-20T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-20T02:07:19.911Z'),
       });
     });
 

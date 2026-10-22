@@ -93,7 +93,7 @@ describe('Event', () => {
 
   const event: Event = {
     id: 'event_01234ABCD',
-    createdAt: '2020-05-06 04:21:48.649164',
+    createdAt: new Date('2020-05-06 04:21:48.649164'),
     context: {
       client_id: 'client_01234ABCD',
     },
@@ -106,8 +106,8 @@ describe('Event', () => {
       type: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
-      createdAt: '2020-05-06 04:21:48.649164',
-      updatedAt: '2020-05-06 04:21:48.649164',
+      createdAt: new Date('2020-05-06 04:21:48.649164'),
+      updatedAt: new Date('2020-05-06 04:21:48.649164'),
     },
   };
 
@@ -216,7 +216,7 @@ describe('Event', () => {
           context: { client_id: 'client_123' },
         };
         const eventBase = {
-          createdAt: '2026-10-20T12:00:00.000Z',
+          createdAt: new Date('2026-10-20T12:00:00.000Z'),
           context: { client_id: 'client_123' },
         };
 
@@ -347,8 +347,8 @@ describe('Event', () => {
               accessTokenTtlSeconds: 300,
               refreshTokenTtlSeconds: 3600,
             },
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:00:00.000Z',
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:00:00.000Z'),
           },
         };
         const blueprintUpdated: AgentBlueprintUpdatedEvent = {
@@ -359,7 +359,7 @@ describe('Event', () => {
             ...blueprintCreated.data,
             description: 'Finds and qualifies sales prospects.',
             invocableAs: { instanceTypes: ['delegated'] },
-            updatedAt: '2026-10-20T11:30:00.000Z',
+            updatedAt: new Date('2026-10-20T11:30:00.000Z'),
           },
         };
         const blueprintDeleted: AgentBlueprintDeletedEvent = {
@@ -370,8 +370,8 @@ describe('Event', () => {
             object: 'agent_blueprint',
             id: 'agent_blueprint_123',
             name: 'Prospecting Agent',
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:30:00.000Z',
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:30:00.000Z'),
           },
         };
         const instanceCreated: AgentInstanceCreatedEvent = {
@@ -385,8 +385,8 @@ describe('Event', () => {
             organizationId: 'org_123',
             organizationMembershipId: 'om_123',
             type: 'delegated',
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:00:00.000Z',
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:00:00.000Z'),
           },
         };
         const instanceDeleted: AgentInstanceDeletedEvent = {
@@ -409,16 +409,16 @@ describe('Event', () => {
             id: 'agent_session_123',
             agentInstanceId: 'agent_123',
             organizationId: 'org_123',
-            expiresAt: '2026-10-20T13:00:00.000Z',
+            expiresAt: new Date('2026-10-20T13:00:00.000Z'),
             revokedAt: null,
             permissionSlugs: ['crm:read'],
-            createdAt: '2026-10-20T12:00:00.000Z',
-            updatedAt: '2026-10-20T12:00:00.000Z',
+            createdAt: new Date('2026-10-20T12:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T12:00:00.000Z'),
           },
         };
         const sessionRevoked: AgentInstanceSessionRevokedEvent = {
           id: 'event_session_revoked',
-          createdAt: '2026-10-20T12:30:00.000Z',
+          createdAt: new Date('2026-10-20T12:30:00.000Z'),
           context: undefined,
           event: 'agent.instance.session.revoked',
           data: {
@@ -426,10 +426,10 @@ describe('Event', () => {
             id: 'agent_session_123',
             agentInstanceId: 'agent_123',
             organizationId: 'org_123',
-            expiresAt: '2026-10-20T13:00:00.000Z',
-            revokedAt: '2026-10-20T12:30:00.000Z',
-            createdAt: '2026-10-20T12:00:00.000Z',
-            updatedAt: '2026-10-20T12:30:00.000Z',
+            expiresAt: new Date('2026-10-20T13:00:00.000Z'),
+            revokedAt: new Date('2026-10-20T12:30:00.000Z'),
+            createdAt: new Date('2026-10-20T12:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T12:30:00.000Z'),
           },
         };
 
@@ -484,7 +484,7 @@ describe('Event', () => {
           context: { client_id: 'client_123' },
         };
         const eventBase = {
-          createdAt: '2026-10-20T12:00:00.000Z',
+          createdAt: new Date('2026-10-20T12:00:00.000Z'),
           context: { client_id: 'client_123' },
         };
 
@@ -621,8 +621,8 @@ describe('Event', () => {
             status: 'unverified',
             kind: 'anonymous',
             method: 'anonymous',
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:00:00.000Z',
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:00:00.000Z'),
           },
         };
         const claimAttemptCreated: AgentRegistrationClaimAttemptCreatedEvent = {
@@ -635,9 +635,9 @@ describe('Event', () => {
             agentRegistrationId: 'agent_reg_123',
             agentRegistrationClaimId: 'agent_reg_claim_123',
             loginHint: 'jane@example.com',
-            expiresAt: '2026-10-20T11:05:00.000Z',
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:00:00.000Z',
+            expiresAt: new Date('2026-10-20T11:05:00.000Z'),
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:00:00.000Z'),
           },
         };
         const claimCompleted: AgentRegistrationClaimCompletedEvent = {
@@ -650,9 +650,9 @@ describe('Event', () => {
             agentRegistrationId: 'agent_reg_123',
             completedByAttemptId: 'agent_reg_claim_attempt_123',
             claimedBy: { userId: 'user_123', organizationId: null },
-            completedAt: '2026-10-20T11:02:00.000Z',
-            createdAt: '2026-10-20T11:00:00.000Z',
-            updatedAt: '2026-10-20T11:02:00.000Z',
+            completedAt: new Date('2026-10-20T11:02:00.000Z'),
+            createdAt: new Date('2026-10-20T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:02:00.000Z'),
           },
         };
         const apiKeyIssued: AgentRegistrationCredentialIssuedEvent = {
@@ -664,8 +664,8 @@ describe('Event', () => {
             id: 'agent_reg_credential_123',
             agentRegistrationId: 'agent_reg_123',
             detail: { kind: 'api_key', apiKeyId: 'api_key_123' },
-            createdAt: '2026-10-20T11:03:00.000Z',
-            updatedAt: '2026-10-20T11:03:00.000Z',
+            createdAt: new Date('2026-10-20T11:03:00.000Z'),
+            updatedAt: new Date('2026-10-20T11:03:00.000Z'),
           },
         };
         const accessTokenIssued: AgentRegistrationCredentialIssuedEvent = {
@@ -709,7 +709,7 @@ describe('Event', () => {
         };
         const deleted: AgentRegistrationDeletedEvent = {
           id: 'event_deleted',
-          createdAt: '2026-10-20T12:00:00.000Z',
+          createdAt: new Date('2026-10-20T12:00:00.000Z'),
           context: undefined,
           event: 'agent.registration.deleted',
           data: lifecycle,
@@ -815,7 +815,7 @@ describe('Event', () => {
           };
         const connected: PipesConnectedAccountConnectedEvent = {
           id: 'event_connected',
-          createdAt: '2026-08-25T12:00:00.000Z',
+          createdAt: new Date('2026-08-25T12:00:00.000Z'),
           context: { client_id: 'client_123' },
           event: 'pipes.connected_account.connected',
           data: {
@@ -827,8 +827,8 @@ describe('Event', () => {
             organizationId: null,
             scopes: ['repo', 'user:email'],
             state: 'connected',
-            createdAt: '2026-08-25T11:00:00.000Z',
-            updatedAt: '2026-08-25T12:00:00.000Z',
+            createdAt: new Date('2026-08-25T11:00:00.000Z'),
+            updatedAt: new Date('2026-08-25T12:00:00.000Z'),
           },
         };
         const disconnected: PipesConnectedAccountDisconnectedEvent = {
@@ -839,7 +839,7 @@ describe('Event', () => {
         };
         const connectionFailed: PipesConnectedAccountConnectionFailedEvent = {
           id: 'event_connection_failed',
-          createdAt: '2026-08-25T13:00:00.000Z',
+          createdAt: new Date('2026-08-25T13:00:00.000Z'),
           context: undefined,
           event: 'pipes.connected_account.connection_failed',
           data: {
@@ -853,7 +853,7 @@ describe('Event', () => {
             providerError: 'access_denied',
             providerErrorDescription:
               'The user denied the authorization request.',
-            createdAt: '2026-08-25T13:00:00.000Z',
+            createdAt: new Date('2026-08-25T13:00:00.000Z'),
           },
         };
 
@@ -909,7 +909,7 @@ describe('Event', () => {
 
         const expected: FlagCreatedEvent = {
           id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
-          createdAt: '2025-08-28T17:56:31.027Z',
+          createdAt: new Date('2025-08-28T17:56:31.027Z'),
           context: {
             client_id: 'client_07FA3DZGSL941Z4YPH6XGHTY3S',
           },
@@ -923,8 +923,8 @@ describe('Event', () => {
             tags: [],
             enabled: false,
             defaultValue: false,
-            createdAt: '2025-08-28T17:56:30.985Z',
-            updatedAt: '2025-08-28T17:56:30.985Z',
+            createdAt: new Date('2025-08-28T17:56:30.985Z'),
+            updatedAt: new Date('2025-08-28T17:56:30.985Z'),
           },
         };
 
@@ -966,7 +966,7 @@ describe('Event', () => {
 
         const expected: GroupCreatedEvent = {
           id: 'event_01K43DMGDK941Z4YPH6XGHTY3S',
-          createdAt: '2026-04-20T12:00:00.000Z',
+          createdAt: new Date('2026-04-20T12:00:00.000Z'),
           context: { client_id: 'client_01234ABCD' },
           event: 'group.created',
           data: {
@@ -1011,7 +1011,7 @@ describe('Event', () => {
 
         const expected: GroupMemberAddedEvent = {
           id: 'event_01K43DMGDK941Z4YPH6XGHTY3T',
-          createdAt: '2026-04-20T12:00:00.000Z',
+          createdAt: new Date('2026-04-20T12:00:00.000Z'),
           context: { client_id: 'client_01234ABCD' },
           event: 'group.member_added',
           data: {
@@ -1051,7 +1051,7 @@ describe('Event', () => {
 
         const expected: GroupMemberRemovedEvent = {
           id: 'event_01K43DMGDK941Z4YPH6XGHTY3U',
-          createdAt: '2026-04-20T12:00:00.000Z',
+          createdAt: new Date('2026-04-20T12:00:00.000Z'),
           context: { client_id: 'client_01234ABCD' },
           event: 'group.member_removed',
           data: {
@@ -1097,7 +1097,7 @@ describe('Event', () => {
 
         const expected: VaultDataCreatedEvent = {
           id: 'event_01VAULT00001',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: { client_id: 'client_01234ABCD' },
           event: 'vault.data.created',
           data: {
@@ -1144,7 +1144,7 @@ describe('Event', () => {
 
         const expected: VaultDataUpdatedEvent = {
           id: 'event_01VAULT00002',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.data.updated',
           data: {
@@ -1190,7 +1190,7 @@ describe('Event', () => {
 
         const expected: VaultDataReadEvent = {
           id: 'event_01VAULT00003',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.data.read',
           data: {
@@ -1234,7 +1234,7 @@ describe('Event', () => {
 
         const expected: VaultDataDeletedEvent = {
           id: 'event_01VAULT00004',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.data.deleted',
           data: {
@@ -1276,7 +1276,7 @@ describe('Event', () => {
 
         const expected: VaultNamesListedEvent = {
           id: 'event_01VAULT00005',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.names.listed',
           data: {
@@ -1318,7 +1318,7 @@ describe('Event', () => {
 
         const expected: VaultMetadataReadEvent = {
           id: 'event_01VAULT00006',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.metadata.read',
           data: {
@@ -1362,7 +1362,7 @@ describe('Event', () => {
 
         const expected: VaultKekCreatedEvent = {
           id: 'event_01VAULT00007',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.kek.created',
           data: {
@@ -1407,7 +1407,7 @@ describe('Event', () => {
 
         const expected: VaultDekReadEvent = {
           id: 'event_01VAULT00008',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.dek.read',
           data: {
@@ -1450,7 +1450,7 @@ describe('Event', () => {
 
         const expected: VaultByokKeyVerificationCompletedEvent = {
           id: 'event_01VAULT00010',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.byok_key.verification_completed',
           data: {
@@ -1492,7 +1492,7 @@ describe('Event', () => {
 
         const expected: VaultDekDecryptedEvent = {
           id: 'event_01VAULT00009',
-          createdAt: '2026-03-24T12:00:00.000Z',
+          createdAt: new Date('2026-03-24T12:00:00.000Z'),
           context: undefined,
           event: 'vault.dek.decrypted',
           data: {
@@ -1525,7 +1525,7 @@ describe('Event', () => {
       describe('with a role', () => {
         const directoryUserUpdated: DsyncUserUpdatedEvent = {
           id: 'event_01234ABCD',
-          createdAt: '2020-05-06 04:21:48.649164',
+          createdAt: new Date('2020-05-06 04:21:48.649164'),
           context: undefined,
           event: 'dsync.user.updated',
           data: {
@@ -1628,13 +1628,13 @@ describe('Event', () => {
             state: OrganizationDomainState.Pending,
             domain: 'example.com',
             object: 'organization_domain',
-            createdAt: '2026-04-06T06:24:06.749Z',
-            updatedAt: '2026-04-06T06:24:06.749Z',
+            createdAt: new Date('2026-04-06T06:24:06.749Z'),
+            updatedAt: new Date('2026-04-06T06:24:06.749Z'),
             organizationId: 'org_01TESTORGANIZATION',
             verificationStrategy: OrganizationDomainVerificationStrategy.Manual,
           },
           context: {},
-          createdAt: '2026-04-06T06:24:06.776Z',
+          createdAt: new Date('2026-04-06T06:24:06.776Z'),
         };
 
         fetchOnce({
@@ -1686,15 +1686,15 @@ describe('Event', () => {
               state: OrganizationDomainState.Failed,
               domain: 'example.com',
               object: 'organization_domain',
-              createdAt: '2026-03-07T02:24:56.621Z',
-              updatedAt: '2026-04-06T02:25:00.494Z',
+              createdAt: new Date('2026-03-07T02:24:56.621Z'),
+              updatedAt: new Date('2026-04-06T02:25:00.494Z'),
               organizationId: 'org_01TESTORGANIZATION',
               verificationToken: 'FAKETOKEN',
               verificationStrategy: OrganizationDomainVerificationStrategy.Dns,
             },
           },
           context: {},
-          createdAt: '2026-04-06T02:26:05.430Z',
+          createdAt: new Date('2026-04-06T02:26:05.430Z'),
         };
 
         fetchOnce({
@@ -1748,7 +1748,7 @@ describe('Unknown events', () => {
       {
         id: 'event_01HUNKNOWN',
         event: 'widget.frobnicated',
-        createdAt: '2026-10-20T12:00:00.000Z',
+        createdAt: new Date('2026-10-20T12:00:00.000Z'),
         context: undefined,
         data: unknownEventResponse.data,
       },
@@ -1772,7 +1772,7 @@ describe('Unknown events', () => {
     const unknownEvent: UnknownEvent = {
       id: 'event_01HUNKNOWN',
       event: 'widget.frobnicated',
-      createdAt: '2026-10-20T12:00:00.000Z',
+      createdAt: new Date('2026-10-20T12:00:00.000Z'),
       context: undefined,
       data: unknownEventResponse.data as never,
     };

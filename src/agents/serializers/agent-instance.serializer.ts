@@ -15,8 +15,8 @@ export function deserializeAgentInstance(
     organizationId: instance.organization_id,
     organizationMembershipId: instance.organization_membership_id,
     type: instance.type,
-    createdAt: instance.created_at,
-    updatedAt: instance.updated_at,
+    createdAt: new Date(instance.created_at),
+    updatedAt: new Date(instance.updated_at),
   };
 }
 

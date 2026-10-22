@@ -2,6 +2,10 @@ import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
 import { sealData, unsealData } from '../common/crypto/seal';
+import {
+  deserializeSessionCookieData,
+  SealedSessionCookieData,
+} from './serializers/session-cookie-data.serializer';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
@@ -94,6 +98,8 @@ describe('Session', () => {
             object: 'user',
             id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             email: 'test@example.com',
+            createdAt: '2023-07-18T02:07:19.911Z',
+            updatedAt: '2023-07-18T02:07:19.911Z',
           },
         },
         { password: cookiePassword },
@@ -133,6 +139,8 @@ describe('Session', () => {
             object: 'user',
             id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             email: 'test@example.com',
+            createdAt: '2023-07-18T02:07:19.911Z',
+            updatedAt: '2023-07-18T02:07:19.911Z',
           },
         },
         { password: cookiePassword },
@@ -160,6 +168,9 @@ describe('Session', () => {
           object: 'user',
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           email: 'test@example.com',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+          lastSignInAt: null,
         },
         accessToken,
       });
@@ -586,10 +597,12 @@ describe('Session', () => {
         expect(response.user).toEqual(response.session?.user);
         expect(response.impersonator).toEqual(response.session?.impersonator);
 
-        const newCookie = await unsealData<{
-          user: { id: string; email: string };
-          impersonator?: { email: string; reason: string };
-        }>(response.sealedSession as string, { password: cookiePassword });
+        const newCookie = deserializeSessionCookieData(
+          await unsealData<SealedSessionCookieData>(
+            response.sealedSession as string,
+            { password: cookiePassword },
+          ),
+        );
 
         expect(newCookie.user).toEqual(response.user);
         expect(newCookie.impersonator).toEqual(refreshedImpersonator);

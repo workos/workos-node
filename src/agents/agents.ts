@@ -463,7 +463,7 @@ export class Agents {
       return {
         valid: true,
         registrationId: claims.registrationId,
-        expiresAt: new Date(claims.expiresAt * 1000).toISOString(),
+        expiresAt: new Date(claims.expiresAt * 1000),
         claims,
       };
     }

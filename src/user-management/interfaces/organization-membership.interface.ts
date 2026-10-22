@@ -10,8 +10,8 @@ export interface BaseOrganizationMembership {
   status: OrganizationMembershipStatus;
   userId: string;
   directoryManaged: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   customAttributes: Record<string, unknown>;
 }
 

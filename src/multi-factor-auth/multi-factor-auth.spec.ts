@@ -28,8 +28,8 @@ describe('MFA', () => {
       const factor: Factor = {
         object: 'authentication_factor',
         id: 'auth_factor_1234',
-        createdAt: '2022-03-15T20:39:19.892Z',
-        updatedAt: '2022-03-15T20:39:19.892Z',
+        createdAt: new Date('2022-03-15T20:39:19.892Z'),
+        updatedAt: new Date('2022-03-15T20:39:19.892Z'),
         type: 'totp',
         totp: {
           issuer: 'WorkOS',
@@ -75,8 +75,8 @@ describe('MFA', () => {
         const factor: Factor = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
           type: 'generic_otp',
         };
 
@@ -107,8 +107,8 @@ describe('MFA', () => {
         const factor: FactorWithSecrets = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
           type: 'totp',
           totp: {
             issuer: 'WorkOS',
@@ -154,8 +154,8 @@ describe('MFA', () => {
         const factor: Factor = {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
           type: 'sms',
           sms: {
             phoneNumber: '+15555555555',
@@ -221,9 +221,9 @@ describe('MFA', () => {
         const challenge: Challenge = {
           object: 'authentication_challenge',
           id: 'auth_challenge_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
-          expiresAt: '2022-03-15T21:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
+          expiresAt: new Date('2022-03-15T21:39:19.892Z'),
           code: '12345',
           authenticationFactorId: 'auth_factor_1234',
         };
@@ -257,9 +257,9 @@ describe('MFA', () => {
         const challenge: Challenge = {
           object: 'authentication_challenge',
           id: 'auth_challenge_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
-          expiresAt: '2022-03-15T21:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
+          expiresAt: new Date('2022-03-15T21:39:19.892Z'),
           code: '12345',
           authenticationFactorId: 'auth_factor_1234',
         };
@@ -300,9 +300,9 @@ describe('MFA', () => {
           challenge: {
             object: 'authentication_challenge',
             id: 'auth_challenge_1234',
-            createdAt: '2022-03-15T20:39:19.892Z',
-            updatedAt: '2022-03-15T20:39:19.892Z',
-            expiresAt: '2022-03-15T21:39:19.892Z',
+            createdAt: new Date('2022-03-15T20:39:19.892Z'),
+            updatedAt: new Date('2022-03-15T20:39:19.892Z'),
+            expiresAt: new Date('2022-03-15T21:39:19.892Z'),
             code: '12345',
             authenticationFactorId: 'auth_factor_1234',
           },
@@ -476,8 +476,8 @@ describe('MFA', () => {
         authenticationFactor: {
           object: 'authentication_factor',
           id: 'auth_factor_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
           type: 'totp',
           totp: {
             issuer: 'WorkOS',
@@ -490,9 +490,9 @@ describe('MFA', () => {
         authenticationChallenge: {
           object: 'authentication_challenge',
           id: 'auth_challenge_1234',
-          createdAt: '2022-03-15T20:39:19.892Z',
-          updatedAt: '2022-03-15T20:39:19.892Z',
-          expiresAt: '2022-03-15T21:39:19.892Z',
+          createdAt: new Date('2022-03-15T20:39:19.892Z'),
+          updatedAt: new Date('2022-03-15T20:39:19.892Z'),
+          expiresAt: new Date('2022-03-15T21:39:19.892Z'),
           code: '12345',
           authenticationFactorId: 'auth_factor_1234',
         },
@@ -518,8 +518,8 @@ describe('MFA', () => {
           {
             object: 'authentication_factor',
             id: 'auth_factor_1234',
-            createdAt: '2022-03-15T20:39:19.892Z',
-            updatedAt: '2022-03-15T20:39:19.892Z',
+            createdAt: new Date('2022-03-15T20:39:19.892Z'),
+            updatedAt: new Date('2022-03-15T20:39:19.892Z'),
             type: 'totp',
             totp: {
               issuer: 'WorkOS',
@@ -530,8 +530,8 @@ describe('MFA', () => {
           {
             object: 'authentication_factor',
             id: 'auth_factor_5678',
-            createdAt: '2022-03-15T20:39:19.892Z',
-            updatedAt: '2022-03-15T20:39:19.892Z',
+            createdAt: new Date('2022-03-15T20:39:19.892Z'),
+            updatedAt: new Date('2022-03-15T20:39:19.892Z'),
             type: 'sms',
             sms: {
               phoneNumber: '+15555555555',
@@ -541,8 +541,8 @@ describe('MFA', () => {
           {
             object: 'authentication_factor',
             id: 'auth_factor_9012',
-            createdAt: '2022-03-15T20:39:19.892Z',
-            updatedAt: '2022-03-15T20:39:19.892Z',
+            createdAt: new Date('2022-03-15T20:39:19.892Z'),
+            updatedAt: new Date('2022-03-15T20:39:19.892Z'),
             type: 'generic_otp',
             userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           },

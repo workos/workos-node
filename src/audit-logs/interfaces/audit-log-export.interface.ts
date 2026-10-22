@@ -3,8 +3,8 @@ export interface AuditLogExport {
   id: string;
   state: 'pending' | 'ready' | 'error';
   url?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AuditLogExportResponse {

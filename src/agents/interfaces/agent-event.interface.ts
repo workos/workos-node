@@ -26,8 +26,8 @@ export interface AgentBlueprintDeletedEventData {
   object: 'agent_blueprint';
   id: string;
   name: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentBlueprintDeletedEventResponseData {
@@ -44,10 +44,10 @@ export interface AgentInstanceSessionEventData {
   id: string;
   agentInstanceId: string;
   organizationId: string;
-  expiresAt: string;
-  revokedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: Date;
+  revokedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentInstanceSessionEventResponseData {
@@ -85,8 +85,8 @@ export interface AgentRegistrationCreatedEventData {
   status: AgentRegistrationStatus;
   kind: AgentRegistrationKind;
   method: AgentRegistrationMethod;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentRegistrationCreatedEventResponseData {
@@ -112,9 +112,9 @@ export interface AgentRegistrationClaimAttemptCreatedEventData {
   agentRegistrationId: string;
   agentRegistrationClaimId: string;
   loginHint: string;
-  expiresAt: string;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentRegistrationClaimAttemptCreatedEventResponseData {
@@ -138,9 +138,9 @@ export interface AgentRegistrationClaimCompletedEventData {
     userId: string;
     organizationId: string | null;
   };
-  completedAt: string;
-  createdAt: string;
-  updatedAt: string;
+  completedAt: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentRegistrationClaimCompletedEventResponseData {
@@ -160,7 +160,7 @@ export interface AgentRegistrationClaimCompletedEventResponseData {
 // agent.registration.credential.issued
 export type AgentRegistrationCredentialDetail =
   | { kind: 'api_key'; apiKeyId: string }
-  | { kind: 'access_token'; jti: string; expiresAt: string | null };
+  | { kind: 'access_token'; jti: string; expiresAt: Date | null };
 
 export type AgentRegistrationCredentialDetailResponse =
   | { kind: 'api_key'; api_key_id: string }
@@ -171,8 +171,8 @@ export interface AgentRegistrationCredentialIssuedEventData {
   id: string;
   agentRegistrationId: string;
   detail: AgentRegistrationCredentialDetail;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AgentRegistrationCredentialIssuedEventResponseData {

@@ -39,9 +39,9 @@ export interface ConnectedAccount {
    */
   state: ConnectedAccountState;
   /** The timestamp when the connection was created. */
-  createdAt: string;
+  createdAt: Date;
   /** The timestamp when the connection was last updated. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface ConnectedAccountResponse {

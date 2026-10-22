@@ -12,6 +12,6 @@ export const deserializeConnection = (
   type: connection.connection_type,
   state: connection.state,
   domains: connection.domains,
-  createdAt: connection.created_at,
-  updatedAt: connection.updated_at,
+  createdAt: new Date(connection.created_at),
+  updatedAt: new Date(connection.updated_at),
 });

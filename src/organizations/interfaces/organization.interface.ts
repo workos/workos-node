@@ -20,9 +20,9 @@ export interface Organization {
   /** The Stripe customer ID of the Organization. */
   stripeCustomerId?: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
   /** The external ID of the Organization. */
   externalId: string | null;
   /** Object containing [metadata](https://workos.com/docs/authkit/metadata) key/value pairs associated with the Organization. */

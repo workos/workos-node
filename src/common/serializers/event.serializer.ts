@@ -75,8 +75,8 @@ const deserializePipesConnectedAccount = (
   organizationId: connectedAccount.organization_id,
   scopes: connectedAccount.scopes,
   state: connectedAccount.state,
-  createdAt: connectedAccount.created_at,
-  updatedAt: connectedAccount.updated_at,
+  createdAt: new Date(connectedAccount.created_at),
+  updatedAt: new Date(connectedAccount.updated_at),
 });
 
 const deserializePipesConnectionFailed = (
@@ -91,13 +91,13 @@ const deserializePipesConnectionFailed = (
   errorReason: connectionFailed.error_reason,
   providerError: connectionFailed.provider_error,
   providerErrorDescription: connectionFailed.provider_error_description,
-  createdAt: connectionFailed.created_at,
+  createdAt: new Date(connectionFailed.created_at),
 });
 
 export const deserializeEvent = (event: EventResponse): Event => {
   const eventBase: EventBase = {
     id: event.id,
-    createdAt: event.created_at,
+    createdAt: new Date(event.created_at),
     context: event.context,
   };
 
