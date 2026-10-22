@@ -2411,12 +2411,28 @@ describe('Event', () => {
           updatedAt: new Date('2026-10-20T11:00:00.000Z'),
         };
 
+        // Entries that have not been approved carry a null approval time.
+        const pendingWaitlistUser = {
+          ...waitlistUser,
+          state: 'pending' as const,
+          approved_at: null,
+        };
+        const expectedPendingWaitlistUser = {
+          ...expectedWaitlistUser,
+          state: 'pending' as const,
+          approvedAt: null,
+        };
+
         await expectDeserialized(
-          { ...base, event: 'waitlist_user.created', data: waitlistUser },
+          {
+            ...base,
+            event: 'waitlist_user.created',
+            data: pendingWaitlistUser,
+          },
           {
             ...expectedBase,
             event: 'waitlist_user.created',
-            data: expectedWaitlistUser,
+            data: expectedPendingWaitlistUser,
           },
         );
         await expectDeserialized(
@@ -2428,11 +2444,15 @@ describe('Event', () => {
           },
         );
         await expectDeserialized(
-          { ...base, event: 'waitlist_user.denied', data: waitlistUser },
+          {
+            ...base,
+            event: 'waitlist_user.denied',
+            data: { ...pendingWaitlistUser, state: 'denied' },
+          },
           {
             ...expectedBase,
             event: 'waitlist_user.denied',
-            data: expectedWaitlistUser,
+            data: { ...expectedPendingWaitlistUser, state: 'denied' },
           },
         );
       });
