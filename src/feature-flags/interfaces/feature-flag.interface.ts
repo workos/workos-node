@@ -16,9 +16,9 @@ export interface FeatureFlag {
   /** The value returned for users and organizations who don't match any configured targeting rules. */
   defaultValue: boolean;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface FeatureFlagResponse {

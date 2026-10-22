@@ -8,11 +8,11 @@ export interface Invitation {
   /** The state of the invitation. */
   state: 'pending' | 'accepted' | 'expired' | 'revoked';
   /** The timestamp when the invitation was accepted, or null if not yet accepted. */
-  acceptedAt: string | null;
+  acceptedAt: Date | null;
   /** The timestamp when the invitation was revoked, or null if not revoked. */
-  revokedAt: string | null;
+  revokedAt: Date | null;
   /** The timestamp when the invitation expires. */
-  expiresAt: string;
+  expiresAt: Date;
   /** The ID of the [organization](https://workos.com/docs/reference/organization) that the recipient will join. */
   organizationId: string | null;
   /** The ID of the user who invited the recipient, if provided. */
@@ -26,9 +26,9 @@ export interface Invitation {
   /** The URL where the recipient can accept the invitation. */
   acceptInvitationUrl: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface InvitationEvent {
@@ -36,15 +36,15 @@ export interface InvitationEvent {
   id: string;
   email: string;
   state: 'pending' | 'accepted' | 'expired' | 'revoked';
-  acceptedAt: string | null;
-  revokedAt: string | null;
-  expiresAt: string;
+  acceptedAt: Date | null;
+  revokedAt: Date | null;
+  expiresAt: Date;
   organizationId: string | null;
   inviterUserId: string | null;
   acceptedUserId: string | null;
   roleSlug: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface InvitationResponse {

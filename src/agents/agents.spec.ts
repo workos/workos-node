@@ -34,8 +34,8 @@ const EXPECTED_BLUEPRINT = {
     accessTokenTtlSeconds: 300,
     refreshTokenTtlSeconds: 3600,
   },
-  createdAt: '2023-07-18T02:07:19.911Z',
-  updatedAt: '2023-07-18T02:07:19.911Z',
+  createdAt: new Date('2023-07-18T02:07:19.911Z'),
+  updatedAt: new Date('2023-07-18T02:07:19.911Z'),
 };
 
 jest.mock('jose', () => ({
@@ -171,28 +171,46 @@ describe('Agents', () => {
         agentIdentity: {
           id: 'agent_identity_01EHZNVPK3SFK441A1RGBFSHRT',
           userlandUserId: null,
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
         organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
         status: 'unverified',
         kind: 'anonymous',
+        revokedAt: null,
         claim: {
           id: 'agent_reg_claim_01EHZNVPK3SFK441A1RGBFSHRT',
           claimCompletion: {
             id: 'agent_reg_claim_attempt_01EHZNVPK3SFK441A1RGBFSHRT',
-            createdAt: '2023-07-18T02:07:19.911Z',
-            updatedAt: '2023-07-18T02:07:19.911Z',
-            expiresAt: '2099-01-01T00:00:00.000Z',
-            claimedAt: '2023-07-18T02:08:00.000Z',
+            createdAt: new Date('2023-07-18T02:07:19.911Z'),
+            updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+            expiresAt: new Date('2099-01-01T00:00:00.000Z'),
+            claimedAt: new Date('2023-07-18T02:08:00.000Z'),
           },
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
-          expiresAt: '2099-01-01T00:00:00.000Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+          expiresAt: new Date('2099-01-01T00:00:00.000Z'),
         },
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
+    });
+
+    it('deserializes revokedAt for a revoked registration', async () => {
+      fetchOnce({
+        ...getAgentRegistrationFixture,
+        status: 'revoked',
+        revoked_at: '2023-07-19T09:00:00.000Z',
+      });
+
+      const registration = await workos.agents.getRegistration(
+        'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
+      );
+
+      expect(registration.status).toBe('revoked');
+      expect(registration.revokedAt).toEqual(
+        new Date('2023-07-19T09:00:00.000Z'),
+      );
     });
 
     it('encodes the registration id in the request path', async () => {
@@ -224,7 +242,7 @@ describe('Agents', () => {
         expect(validation).toEqual({
           valid: true,
           registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
-          expiresAt: '2099-01-01T00:00:00.000Z',
+          expiresAt: new Date('2099-01-01T00:00:00.000Z'),
           claims: null,
         });
       });
@@ -285,7 +303,7 @@ describe('Agents', () => {
         expect(validation).toEqual({
           valid: true,
           registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
-          expiresAt: '2100-01-01T00:00:00.000Z',
+          expiresAt: new Date('2100-01-01T00:00:00.000Z'),
           claims: EXPECTED_CLAIMS,
         });
       });
@@ -412,7 +430,7 @@ describe('Agents', () => {
         expect(validation).toEqual({
           valid: true,
           registrationId: 'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
-          expiresAt: '2099-01-01T00:00:00.000Z',
+          expiresAt: new Date('2099-01-01T00:00:00.000Z'),
           claims: EXPECTED_CLAIMS,
         });
       });
@@ -747,8 +765,8 @@ describe('Agents', () => {
           organizationId: 'org_01EHWNCE74X7JSDV0X3SZ3KJNY',
           organizationMembershipId: null,
           type: 'autonomous',
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       ]);
     });
@@ -773,8 +791,8 @@ describe('Agents', () => {
         organizationId: 'org_01EHWNCE74X7JSDV0X3SZ3KJNY',
         organizationMembershipId: 'om_01EHWNCE74X7JSDV0X3SZ3KJNY',
         type: 'delegated',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -814,10 +832,10 @@ describe('Agents', () => {
           id: 'agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY',
           agentInstanceId: 'agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY',
           status: 'active',
-          expiresAt: '2099-01-01T00:00:00.000Z',
+          expiresAt: new Date('2099-01-01T00:00:00.000Z'),
           revokedAt: null,
-          createdAt: '2023-07-18T02:07:19.911Z',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       ]);
     });
@@ -840,10 +858,10 @@ describe('Agents', () => {
         id: 'agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY',
         agentInstanceId: 'agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY',
         status: 'active',
-        expiresAt: '2099-01-01T00:00:00.000Z',
+        expiresAt: new Date('2099-01-01T00:00:00.000Z'),
         revokedAt: null,
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -869,10 +887,10 @@ describe('Agents', () => {
         id: 'agent_instance_session_01EHWNCE74X7JSDV0X3SZ3KJNY',
         agentInstanceId: 'agent_instance_01EHWNCE74X7JSDV0X3SZ3KJNY',
         status: 'revoked',
-        expiresAt: '2099-01-01T00:00:00.000Z',
-        revokedAt: '2023-07-18T02:08:00.000Z',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2099-01-01T00:00:00.000Z'),
+        revokedAt: new Date('2023-07-18T02:08:00.000Z'),
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });

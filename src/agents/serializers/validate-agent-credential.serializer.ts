@@ -37,7 +37,8 @@ export function deserializeAgentCredentialValidation(
   return {
     valid: true,
     registrationId: validation.registration_id,
-    expiresAt: validation.expires_at,
+    expiresAt:
+      validation.expires_at != null ? new Date(validation.expires_at) : null,
     claims: null,
   };
 }

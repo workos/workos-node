@@ -14,8 +14,8 @@ export const deserializeSession = (session: SessionResponse): Session => ({
   }),
   authMethod: session.auth_method,
   status: session.status,
-  expiresAt: session.expires_at,
-  endedAt: session.ended_at,
-  createdAt: session.created_at,
-  updatedAt: session.updated_at,
+  expiresAt: new Date(session.expires_at),
+  endedAt: session.ended_at != null ? new Date(session.ended_at) : null,
+  createdAt: new Date(session.created_at),
+  updatedAt: new Date(session.updated_at),
 });

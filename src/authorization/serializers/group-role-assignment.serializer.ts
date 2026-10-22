@@ -15,6 +15,6 @@ export const deserializeGroupRoleAssignment = (
     externalId: response.resource.external_id,
     resourceTypeSlug: response.resource.resource_type_slug,
   },
-  createdAt: response.created_at,
-  updatedAt: response.updated_at,
+  createdAt: new Date(response.created_at),
+  updatedAt: new Date(response.updated_at),
 });

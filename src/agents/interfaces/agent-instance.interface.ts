@@ -20,9 +20,9 @@ export interface AgentInstance {
   /** How the instance was minted. */
   type: AgentInstanceType;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedAgentInstance {

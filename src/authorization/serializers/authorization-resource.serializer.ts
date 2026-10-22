@@ -14,6 +14,6 @@ export const deserializeAuthorizationResource = (
   resourceTypeSlug: resource.resource_type_slug,
   organizationId: resource.organization_id,
   parentResourceId: resource.parent_resource_id,
-  createdAt: resource.created_at,
-  updatedAt: resource.updated_at,
+  createdAt: new Date(resource.created_at),
+  updatedAt: new Date(resource.updated_at),
 });

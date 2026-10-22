@@ -11,8 +11,8 @@ export type FactorType = 'sms' | 'totp' | 'generic_otp' | 'webauthn';
 export interface Factor {
   object: 'authentication_factor';
   id: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   type: FactorType;
   sms?: Sms;
   totp?: Totp;
@@ -21,8 +21,8 @@ export interface Factor {
 export interface FactorWithSecrets {
   object: 'authentication_factor';
   id: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   type: FactorType;
   sms?: Sms;
   totp?: TotpWithSecrets;

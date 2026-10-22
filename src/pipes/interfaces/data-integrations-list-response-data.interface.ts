@@ -35,9 +35,9 @@ export interface DataIntegrationsListResponseData {
    */
   ownership: DataIntegrationsListResponseDataOwnership;
   /** The timestamp when the provider was created. */
-  createdAt: string;
+  createdAt: Date;
   /** The timestamp when the provider was last updated. */
-  updatedAt: string;
+  updatedAt: Date;
   /** The user's compatibility [connected account](https://workos.com/docs/reference/pipes/connected-account) for this provider, or `null` when the compatibility slot is empty. This legacy field never selects a standard connection. */
   connectedAccount: DataIntegrationsListResponseDataConnectedAccount | null;
   /** The user's connected accounts for this provider in the requested ownership context. This contains only the compatibility connection unless `supports_multiple_connections` is `true`. */

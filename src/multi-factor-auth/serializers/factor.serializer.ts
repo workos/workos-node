@@ -10,8 +10,8 @@ import { deserializeTotp, deserializeTotpWithSecrets } from './totp.serializer';
 export const deserializeFactor = (factor: FactorResponse): Factor => ({
   object: factor.object,
   id: factor.id,
-  createdAt: factor.created_at,
-  updatedAt: factor.updated_at,
+  createdAt: new Date(factor.created_at),
+  updatedAt: new Date(factor.updated_at),
   type: factor.type,
   ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
   ...(factor.totp ? { totp: deserializeTotp(factor.totp) } : {}),
@@ -22,8 +22,8 @@ export const deserializeFactorWithSecrets = (
 ): FactorWithSecrets => ({
   object: factor.object,
   id: factor.id,
-  createdAt: factor.created_at,
-  updatedAt: factor.updated_at,
+  createdAt: new Date(factor.created_at),
+  updatedAt: new Date(factor.updated_at),
   type: factor.type,
   ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
   ...(factor.totp ? { totp: deserializeTotpWithSecrets(factor.totp) } : {}),

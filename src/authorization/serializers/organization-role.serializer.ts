@@ -15,8 +15,8 @@ export const deserializeRole = (role: OrganizationRoleResponse): Role => ({
   permissions: role.permissions,
   resourceTypeSlug: role.resource_type_slug,
   type: role.type,
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
+  createdAt: new Date(role.created_at),
+  updatedAt: new Date(role.updated_at),
 });
 
 export const deserializeOrganizationRole = (
@@ -30,8 +30,8 @@ export const deserializeOrganizationRole = (
   permissions: role.permissions,
   resourceTypeSlug: role.resource_type_slug,
   type: 'OrganizationRole',
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
+  createdAt: new Date(role.created_at),
+  updatedAt: new Date(role.updated_at),
 });
 
 export const deserializeOrganizationRoleEvent = (
@@ -44,6 +44,6 @@ export const deserializeOrganizationRoleEvent = (
   description: event.description,
   resourceTypeSlug: event.resource_type_slug,
   permissions: event.permissions,
-  createdAt: event.created_at,
-  updatedAt: event.updated_at,
+  createdAt: new Date(event.created_at),
+  updatedAt: new Date(event.updated_at),
 });

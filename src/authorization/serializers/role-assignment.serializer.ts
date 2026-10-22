@@ -19,6 +19,6 @@ export const deserializeRoleAssignment = (
     type: response.source.type,
     groupRoleAssignmentId: response.source.group_role_assignment_id,
   },
-  createdAt: response.created_at,
-  updatedAt: response.updated_at,
+  createdAt: new Date(response.created_at),
+  updatedAt: new Date(response.updated_at),
 });

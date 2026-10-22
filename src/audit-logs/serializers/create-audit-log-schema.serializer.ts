@@ -35,5 +35,5 @@ export const deserializeAuditLogSchema = (
   metadata: auditLogSchema.metadata
     ? deserializeMetadata(auditLogSchema.metadata)
     : undefined,
-  createdAt: auditLogSchema.created_at,
+  createdAt: new Date(auditLogSchema.created_at),
 });

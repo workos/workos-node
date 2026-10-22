@@ -72,7 +72,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
-        lastSignInAt: '2023-07-18T02:07:19.911Z',
+        lastSignInAt: new Date('2023-07-18T02:07:19.911Z'),
         locale: 'en-US',
       });
     });
@@ -96,7 +96,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
-        lastSignInAt: '2023-07-18T02:07:19.911Z',
+        lastSignInAt: new Date('2023-07-18T02:07:19.911Z'),
         locale: 'en-US',
         externalId,
       });
@@ -162,8 +162,8 @@ describe('UserManagement', () => {
         lastName: 'User',
         emailVerified: true,
         profilePictureUrl: 'https://example.com/profile_picture.jpg',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
 
@@ -2231,18 +2231,30 @@ describe('UserManagement', () => {
           object: 'user',
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           email: 'test@example.com',
+          createdAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: '2023-07-18T02:07:19.911Z',
         },
       };
       const sessionData = await sealData(sessionCookieData, {
         password: cookiePassword,
       });
 
+      // Timestamps round-trip through the sealed cookie as strings and are
+      // revived to `Date` on the way out.
       await expect(
         workos.userManagement.getSessionFromCookie({
           sessionData,
           cookiePassword,
         }),
-      ).resolves.toEqual(sessionCookieData);
+      ).resolves.toEqual({
+        ...sessionCookieData,
+        user: {
+          ...sessionCookieData.user,
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+          lastSignInAt: null,
+        },
+      });
     });
   });
 
@@ -2258,10 +2270,10 @@ describe('UserManagement', () => {
         id: 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2280,7 +2292,7 @@ describe('UserManagement', () => {
 
       expect(resp).toMatchObject({
         user: {
-          createdAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
           email: 'test01@example.com',
           emailVerified: true,
           name: 'Test 01 User',
@@ -2288,7 +2300,7 @@ describe('UserManagement', () => {
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           lastName: 'User',
           object: 'user',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       });
     });
@@ -2324,10 +2336,10 @@ describe('UserManagement', () => {
         id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2348,10 +2360,10 @@ describe('UserManagement', () => {
         id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
 
@@ -2424,8 +2436,8 @@ describe('UserManagement', () => {
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
           'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
-        expiresAt: '2023-07-18T02:07:19.911Z',
-        createdAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2449,8 +2461,8 @@ describe('UserManagement', () => {
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
           'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
-        expiresAt: '2023-07-18T02:07:19.911Z',
-        createdAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2593,10 +2605,10 @@ describe('UserManagement', () => {
             ipAddress: '192.168.65.1',
             authMethod: 'oauth',
             status: 'active',
-            expiresAt: '2026-07-22T22:59:48.743Z',
+            expiresAt: new Date('2026-07-22T22:59:48.743Z'),
             endedAt: null,
-            createdAt: '2025-07-23T04:59:48.738Z',
-            updatedAt: '2025-07-23T04:59:48.738Z',
+            createdAt: new Date('2025-07-23T04:59:48.738Z'),
+            updatedAt: new Date('2025-07-23T04:59:48.738Z'),
           },
         ],
         listMetadata: {
@@ -2645,8 +2657,8 @@ describe('UserManagement', () => {
           lastUsedAt: null,
           expiresAt: null,
           permissions: ['posts:read', 'posts:write'],
-          createdAt: '2026-01-15T12:00:00.000Z',
-          updatedAt: '2026-01-15T12:00:00.000Z',
+          createdAt: new Date('2026-01-15T12:00:00.000Z'),
+          updatedAt: new Date('2026-01-15T12:00:00.000Z'),
         },
       ]);
     });
@@ -2701,10 +2713,10 @@ describe('UserManagement', () => {
         name: 'Production API Key',
         obfuscatedValue: 'sk_...3456',
         lastUsedAt: null,
-        expiresAt: '2030-01-01T00:00:00.000Z',
+        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
         permissions: ['posts:read', 'posts:write'],
-        createdAt: '2026-01-15T12:00:00.000Z',
-        updatedAt: '2026-01-15T12:00:00.000Z',
+        createdAt: new Date('2026-01-15T12:00:00.000Z'),
+        updatedAt: new Date('2026-01-15T12:00:00.000Z'),
         value: 'test_api_key_value',
       });
     });
@@ -3467,7 +3479,7 @@ describe('UserManagement', () => {
         object: 'waitlist_entry',
         id: waitlistEntryId,
         state: 'approved',
-        approvedAt: '2026-01-16T12:00:00.000Z',
+        approvedAt: new Date('2026-01-16T12:00:00.000Z'),
       });
     });
   });

@@ -7,6 +7,6 @@ export interface OrganizationRole {
   permissions: string[];
   resourceTypeSlug: string;
   type: 'OrganizationRole';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

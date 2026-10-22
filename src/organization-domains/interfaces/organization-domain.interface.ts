@@ -28,9 +28,9 @@ export interface OrganizationDomain {
   /** The prefix used in DNS verification. */
   verificationPrefix?: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface OrganizationDomainResponse {

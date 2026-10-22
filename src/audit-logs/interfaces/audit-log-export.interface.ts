@@ -5,8 +5,8 @@ export interface AuditLogExport {
   id: string;
   state: AuditLogExportState;
   url?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface AuditLogExportResponse {

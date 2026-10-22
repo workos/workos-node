@@ -168,8 +168,8 @@ describe('Groups', () => {
       expect(data[0].organizationId).toBe('org_01EHZNVPK3SFK441A1RGBFSHRT');
       expect(data[0].status).toBe('active');
       expect(data[0].directoryManaged).toBe(false);
-      expect(data[0].createdAt).toBe('2026-01-15T12:00:00.000Z');
-      expect(data[0].updatedAt).toBe('2026-01-15T12:00:00.000Z');
+      expect(data[0].createdAt).toEqual(new Date('2026-01-15T12:00:00.000Z'));
+      expect(data[0].updatedAt).toEqual(new Date('2026-01-15T12:00:00.000Z'));
       expect(data[0].customAttributes).toEqual({
         department: 'Engineering',
         title: 'Developer Experience Engineer',

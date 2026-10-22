@@ -9,10 +9,11 @@ export const deserializeUser = (user: UserResponse): User => ({
   firstName: user.first_name,
   profilePictureUrl: user.profile_picture_url,
   lastName: user.last_name,
-  lastSignInAt: user.last_sign_in_at,
+  lastSignInAt:
+    user.last_sign_in_at != null ? new Date(user.last_sign_in_at) : null,
   locale: user.locale,
-  createdAt: user.created_at,
-  updatedAt: user.updated_at,
+  createdAt: new Date(user.created_at),
+  updatedAt: new Date(user.updated_at),
   externalId: user.external_id ?? null,
   metadata: user.metadata ?? {},
 });

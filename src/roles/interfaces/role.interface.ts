@@ -12,8 +12,8 @@ export interface RoleEvent {
   slug: string;
   resourceTypeSlug: string;
   permissions: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface RoleEventResponse {
@@ -45,8 +45,8 @@ export interface OrganizationRoleEvent {
   description: string | null;
   resourceTypeSlug: string;
   permissions: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ListOrganizationRolesResponse {

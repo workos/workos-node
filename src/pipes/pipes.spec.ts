@@ -50,8 +50,8 @@ function expectConnectedAccount(result: any) {
   expect(result.organizationId).toBeNull();
   expect(result.scopes).toEqual(['repo', 'user:email']);
   expect(result.state).toBe('connected');
-  expect(result.createdAt).toBe('2024-01-16T14:20:00.000Z');
-  expect(result.updatedAt).toBe('2024-01-16T14:20:00.000Z');
+  expect(result.createdAt).toEqual(new Date('2024-01-16T14:20:00.000Z'));
+  expect(result.updatedAt).toEqual(new Date('2024-01-16T14:20:00.000Z'));
 }
 
 function expectDataIntegrationsListResponse(result: any) {
