@@ -35,6 +35,7 @@ exports[`SSO SSO getProfileAndToken with all information provided sends a reques
   "idpId": "123",
   "lastName": "bar",
   "name": "foo bar",
+  "object": "profile",
   "organizationId": "org_123",
   "rawAttributes": {
     "email": "foo@test.com",
@@ -70,6 +71,7 @@ exports[`SSO SSO getProfileAndToken without a groups attribute sends a request t
   "idpId": "123",
   "lastName": "bar",
   "name": "foo bar",
+  "object": "profile",
   "organizationId": "org_123",
   "rawAttributes": {
     "email": "foo@test.com",
