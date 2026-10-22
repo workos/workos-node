@@ -8,9 +8,9 @@ import {
 const deserializeAuthenticationEventSso = (
   sso: AuthenticationEventSsoResponse,
 ): AuthenticationEventSso => ({
-  connectionId: sso.connection_id,
-  organizationId: sso.organization_id,
-  ...(sso.session_id !== undefined && { sessionId: sso.session_id }),
+  connectionId: sso.connection_id ?? null,
+  organizationId: sso.organization_id ?? null,
+  sessionId: sso.session_id ?? null,
 });
 
 export const deserializeAuthenticationEvent = (

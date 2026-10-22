@@ -60,3 +60,4 @@ export * from './user-api-key-with-value.interface';
 export * from './verify-email-options.interface';
 export * from './waitlist.interface';
 export * from './waitlist-entry.interface';
+export * from './waitlist-user-event.interface';

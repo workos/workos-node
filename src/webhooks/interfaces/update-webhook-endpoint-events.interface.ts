@@ -30,6 +30,8 @@ export const UpdateWebhookEndpointEvents = {
   AuthenticationPasswordSucceeded: 'authentication.password_succeeded',
   AuthenticationPasskeyFailed: 'authentication.passkey_failed',
   AuthenticationPasskeySucceeded: 'authentication.passkey_succeeded',
+  AuthenticationReauthenticationSucceeded:
+    'authentication.reauthentication_succeeded',
   AuthenticationSSOFailed: 'authentication.sso_failed',
   AuthenticationSSOStarted: 'authentication.sso_started',
   AuthenticationSSOSucceeded: 'authentication.sso_succeeded',
@@ -37,6 +39,7 @@ export const UpdateWebhookEndpointEvents = {
   AuthenticationRadarRiskDetected: 'authentication.radar_risk_detected',
   ApiKeyCreated: 'api_key.created',
   ApiKeyRevoked: 'api_key.revoked',
+  ApiKeyUpdated: 'api_key.updated',
   ConnectionActivated: 'connection.activated',
   ConnectionDeactivated: 'connection.deactivated',
   ConnectionSAMLCertificateRenewalRequired:
@@ -94,12 +97,20 @@ export const UpdateWebhookEndpointEvents = {
   PermissionCreated: 'permission.created',
   PermissionDeleted: 'permission.deleted',
   PermissionUpdated: 'permission.updated',
+  PipesAccountConnectionAddFailed: 'pipes.account_connection.add_failed',
+  PipesAccountConnectionConnected: 'pipes.account_connection.connected',
+  PipesAccountConnectionConnectionFailed:
+    'pipes.account_connection.connection_failed',
+  PipesAccountConnectionDisconnected: 'pipes.account_connection.disconnected',
+  PipesAccountConnectionReauthorizationNeeded:
+    'pipes.account_connection.reauthorization_needed',
   PipesConnectedAccountConnected: 'pipes.connected_account.connected',
   PipesConnectedAccountConnectionFailed:
     'pipes.connected_account.connection_failed',
   PipesConnectedAccountDisconnected: 'pipes.connected_account.disconnected',
   PipesConnectedAccountReauthorizationNeeded:
     'pipes.connected_account.reauthorization_needed',
+  RadarChallengeCreated: 'radar.challenge_created',
   SessionCreated: 'session.created',
   SessionRevoked: 'session.revoked',
   WaitlistUserApproved: 'waitlist_user.approved',

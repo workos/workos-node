@@ -1714,6 +1714,729 @@ describe('Event', () => {
         });
       });
     });
+
+    describe('events added with the October 2026 spec sync', () => {
+      const createdAt = '2026-10-20T12:00:00.000Z';
+      const base = { id: 'event_01NEWEVENT', created_at: createdAt };
+      const expectedBase = {
+        id: 'event_01NEWEVENT',
+        createdAt: new Date(createdAt),
+        context: undefined,
+      };
+
+      const expectDeserialized = async (
+        response: EventResponse,
+        expected: Event,
+      ) => {
+        fetchOnce({ object: 'list', data: [response], list_metadata: {} });
+
+        const list = await workos.events.listEvents({
+          events: [response.event as EventName],
+        });
+
+        expect(list).toEqual({
+          object: 'list',
+          data: [expected],
+          listMetadata: {},
+        });
+      };
+
+      it('deserializes action.*.denied events', async () => {
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'action.authentication.denied',
+            data: {
+              action_endpoint_id: 'action_endpoint_01',
+              action_execution_id: 'action_execution_01',
+              type: 'authentication',
+              verdict: 'Deny',
+              user_id: 'user_01',
+              organization_id: 'org_01',
+              email: 'jane@example.com',
+              ip_address: '192.0.2.1',
+              user_agent: 'Mozilla/5.0',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'action.authentication.denied',
+            data: {
+              actionEndpointId: 'action_endpoint_01',
+              actionExecutionId: 'action_execution_01',
+              type: 'authentication',
+              verdict: 'Deny',
+              userId: 'user_01',
+              organizationId: 'org_01',
+              email: 'jane@example.com',
+              ipAddress: '192.0.2.1',
+              userAgent: 'Mozilla/5.0',
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'action.user_registration.denied',
+            data: {
+              action_endpoint_id: 'action_endpoint_01',
+              action_execution_id: 'action_execution_02',
+              type: 'user_registration',
+              verdict: 'Deny',
+              organization_id: null,
+              email: 'jane@example.com',
+              ip_address: null,
+              user_agent: null,
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'action.user_registration.denied',
+            data: {
+              actionEndpointId: 'action_endpoint_01',
+              actionExecutionId: 'action_execution_02',
+              type: 'user_registration',
+              verdict: 'Deny',
+              organizationId: null,
+              email: 'jane@example.com',
+              ipAddress: null,
+              userAgent: null,
+            },
+          },
+        );
+      });
+
+      it('deserializes api_key.updated events with previous attributes', async () => {
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'api_key.updated',
+            data: {
+              object: 'api_key',
+              id: 'api_key_01',
+              owner: { type: 'organization', id: 'org_01' },
+              name: 'Production Key',
+              obfuscated_value: 'sk_…PRYS',
+              last_used_at: null,
+              expires_at: '2027-01-01T00:00:00.000Z',
+              permissions: ['widgets:users-table:manage'],
+              created_at: '2026-01-01T00:00:00.000Z',
+              updated_at: '2026-10-20T12:00:00.000Z',
+              previous_attributes: { expires_at: null },
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'api_key.updated',
+            data: {
+              object: 'api_key',
+              id: 'api_key_01',
+              owner: { type: 'organization', id: 'org_01' },
+              name: 'Production Key',
+              obfuscatedValue: 'sk_…PRYS',
+              lastUsedAt: null,
+              expiresAt: new Date('2027-01-01T00:00:00.000Z'),
+              permissions: ['widgets:users-table:manage'],
+              createdAt: new Date('2026-01-01T00:00:00.000Z'),
+              updatedAt: new Date('2026-10-20T12:00:00.000Z'),
+              previousAttributes: { expiresAt: null },
+            },
+          },
+        );
+      });
+
+      it('deserializes the added authentication.* events', async () => {
+        const error = { code: 'invalid_code', message: 'The code is invalid.' };
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'authentication.email_verification_failed',
+            data: {
+              type: 'email_verification',
+              status: 'failed',
+              ip_address: '192.0.2.1',
+              user_agent: 'Mozilla/5.0',
+              user_id: 'user_01',
+              email: 'jane@example.com',
+              error,
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'authentication.email_verification_failed',
+            data: {
+              type: 'email_verification',
+              status: 'failed',
+              ipAddress: '192.0.2.1',
+              userAgent: 'Mozilla/5.0',
+              userId: 'user_01',
+              email: 'jane@example.com',
+              error,
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'authentication.mfa_failed',
+            data: {
+              type: 'mfa',
+              status: 'failed',
+              ip_address: null,
+              user_agent: null,
+              user_id: 'user_01',
+              email: 'jane@example.com',
+              error,
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'authentication.mfa_failed',
+            data: {
+              type: 'mfa',
+              status: 'failed',
+              ipAddress: null,
+              userAgent: null,
+              userId: 'user_01',
+              email: 'jane@example.com',
+              error,
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'authentication.reauthentication_succeeded',
+            data: {
+              type: 'reauthentication',
+              status: 'succeeded',
+              ip_address: null,
+              user_agent: null,
+              user_id: 'user_01',
+              email: 'jane@example.com',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'authentication.reauthentication_succeeded',
+            data: {
+              type: 'reauthentication',
+              status: 'succeeded',
+              ipAddress: null,
+              userAgent: null,
+              userId: 'user_01',
+              email: 'jane@example.com',
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'authentication.sso_started',
+            data: {
+              type: 'sso',
+              status: 'started',
+              ip_address: null,
+              user_agent: null,
+              user_id: null,
+              email: null,
+              sso: {
+                organization_id: 'org_01',
+                connection_id: 'conn_01',
+                session_id: null,
+              },
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'authentication.sso_started',
+            data: {
+              type: 'sso',
+              status: 'started',
+              ipAddress: null,
+              userAgent: null,
+              userId: null,
+              email: null,
+              sso: {
+                organizationId: 'org_01',
+                connectionId: 'conn_01',
+                sessionId: null,
+              },
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'authentication.sso_timed_out',
+            data: {
+              type: 'sso',
+              status: 'timed_out',
+              ip_address: null,
+              user_agent: null,
+              user_id: null,
+              email: null,
+              sso: {
+                organization_id: null,
+                connection_id: 'conn_01',
+                session_id: null,
+              },
+              error: {
+                code: 'sso_timeout',
+                message: 'The SSO flow timed out.',
+              },
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'authentication.sso_timed_out',
+            data: {
+              type: 'sso',
+              status: 'timed_out',
+              ipAddress: null,
+              userAgent: null,
+              userId: null,
+              email: null,
+              sso: {
+                organizationId: null,
+                connectionId: 'conn_01',
+                sessionId: null,
+              },
+              error: {
+                code: 'sso_timeout',
+                message: 'The SSO flow timed out.',
+              },
+            },
+          },
+        );
+      });
+
+      it('deserializes connection.saml_certificate_* events', async () => {
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'connection.saml_certificate_renewal_required',
+            data: {
+              connection: { id: 'conn_01', organization_id: 'org_01' },
+              certificate: {
+                certificate_type: 'ResponseSigning',
+                expiry_date: '2026-11-01T00:00:00.000Z',
+                is_expired: false,
+              },
+              days_until_expiry: 12,
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'connection.saml_certificate_renewal_required',
+            data: {
+              connection: { id: 'conn_01', organizationId: 'org_01' },
+              certificate: {
+                certificateType: 'ResponseSigning',
+                expiryDate: new Date('2026-11-01T00:00:00.000Z'),
+                isExpired: false,
+              },
+              daysUntilExpiry: 12,
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'connection.saml_certificate_renewed',
+            data: {
+              connection: { id: 'conn_01' },
+              certificate: {
+                certificate_type: 'ResponseEncryption',
+                expiry_date: '2027-11-01T00:00:00.000Z',
+              },
+              renewed_at: '2026-10-20T11:00:00.000Z',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'connection.saml_certificate_renewed',
+            data: {
+              connection: { id: 'conn_01' },
+              certificate: {
+                certificateType: 'ResponseEncryption',
+                expiryDate: new Date('2027-11-01T00:00:00.000Z'),
+              },
+              renewedAt: new Date('2026-10-20T11:00:00.000Z'),
+            },
+          },
+        );
+      });
+
+      it('deserializes dsync.token.* events', async () => {
+        const token = {
+          object: 'directory_token' as const,
+          id: 'directory_token_01',
+          directory_id: 'directory_01',
+          organization_id: 'org_01',
+          token_suffix: 'ab12',
+          created_at: '2026-10-20T11:00:00.000Z',
+        };
+        const expectedToken = {
+          object: 'directory_token' as const,
+          id: 'directory_token_01',
+          directoryId: 'directory_01',
+          organizationId: 'org_01',
+          tokenSuffix: 'ab12',
+          createdAt: new Date('2026-10-20T11:00:00.000Z'),
+        };
+
+        await expectDeserialized(
+          { ...base, event: 'dsync.token.created', data: token },
+          {
+            ...expectedBase,
+            event: 'dsync.token.created',
+            data: expectedToken,
+          },
+        );
+        await expectDeserialized(
+          { ...base, event: 'dsync.token.revoked', data: token },
+          {
+            ...expectedBase,
+            event: 'dsync.token.revoked',
+            data: expectedToken,
+          },
+        );
+      });
+
+      it('deserializes pipes.account_connection.* events', async () => {
+        const account = {
+          object: 'connected_account' as const,
+          id: 'connected_account_01',
+          data_integration_id: 'data_integration_01',
+          provider_slug: 'github',
+          user_id: 'user_01',
+          organization_id: null,
+          scopes: ['repo'],
+          state: 'connected' as const,
+          created_at: '2026-10-20T11:00:00.000Z',
+          updated_at: '2026-10-20T11:00:00.000Z',
+        };
+        const expectedAccount = {
+          object: 'connected_account' as const,
+          id: 'connected_account_01',
+          dataIntegrationId: 'data_integration_01',
+          providerSlug: 'github',
+          userId: 'user_01',
+          organizationId: null,
+          scopes: ['repo'],
+          state: 'connected' as const,
+          createdAt: new Date('2026-10-20T11:00:00.000Z'),
+          updatedAt: new Date('2026-10-20T11:00:00.000Z'),
+        };
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'pipes.account_connection.connected',
+            data: account,
+          },
+          {
+            ...expectedBase,
+            event: 'pipes.account_connection.connected',
+            data: expectedAccount,
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'pipes.account_connection.disconnected',
+            data: account,
+          },
+          {
+            ...expectedBase,
+            event: 'pipes.account_connection.disconnected',
+            data: expectedAccount,
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'pipes.account_connection.reauthorization_needed',
+            data: account,
+          },
+          {
+            ...expectedBase,
+            event: 'pipes.account_connection.reauthorization_needed',
+            data: expectedAccount,
+          },
+        );
+
+        const failure = {
+          object: 'connection_failed' as const,
+          data_integration_id: 'data_integration_01',
+          provider_slug: 'github',
+          user_id: 'user_01',
+          organization_id: null,
+          account_identifier: 'octocat',
+          error_code: 'access_denied',
+          error_reason: 'The user cancelled the flow.',
+          provider_error: 'access_denied',
+          provider_error_description: null,
+          created_at: '2026-10-20T11:00:00.000Z',
+        };
+        const expectedFailure = {
+          object: 'connection_failed' as const,
+          dataIntegrationId: 'data_integration_01',
+          providerSlug: 'github',
+          userId: 'user_01',
+          organizationId: null,
+          accountIdentifier: 'octocat',
+          errorCode: 'access_denied',
+          errorReason: 'The user cancelled the flow.',
+          providerError: 'access_denied',
+          providerErrorDescription: null,
+          createdAt: new Date('2026-10-20T11:00:00.000Z'),
+        };
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'pipes.account_connection.add_failed',
+            data: failure,
+          },
+          {
+            ...expectedBase,
+            event: 'pipes.account_connection.add_failed',
+            data: expectedFailure,
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'pipes.account_connection.connection_failed',
+            data: failure,
+          },
+          {
+            ...expectedBase,
+            event: 'pipes.account_connection.connection_failed',
+            data: expectedFailure,
+          },
+        );
+      });
+
+      it('deserializes radar.challenge_created events', async () => {
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'radar.challenge_created',
+            data: {
+              type: 'email',
+              radar_challenge_id: 'radar_challenge_01',
+              user_id: 'user_01',
+              email: 'jane@example.com',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'radar.challenge_created',
+            data: {
+              type: 'email',
+              radarChallengeId: 'radar_challenge_01',
+              userId: 'user_01',
+              email: 'jane@example.com',
+            },
+          },
+        );
+      });
+
+      it('deserializes resource_export.* events', async () => {
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'resource_export.created',
+            data: {
+              id: 'resource_export_01',
+              resource_type: 'auditLogEvents',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'resource_export.created',
+            data: {
+              id: 'resource_export_01',
+              resourceType: 'auditLogEvents',
+            },
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'resource_export.completed',
+            data: {
+              id: 'resource_export_01',
+              resource_type: 'auditLogEvents',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'resource_export.completed',
+            data: {
+              id: 'resource_export_01',
+              resourceType: 'auditLogEvents',
+            },
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'resource_export.downloaded',
+            data: {
+              id: 'resource_export_01',
+              resource_type: 'auditLogEvents',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'resource_export.downloaded',
+            data: {
+              id: 'resource_export_01',
+              resourceType: 'auditLogEvents',
+            },
+          },
+        );
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'resource_export.failed',
+            data: {
+              id: 'resource_export_01',
+              resource_type: 'auditLogEvents',
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'resource_export.failed',
+            data: {
+              id: 'resource_export_01',
+              resourceType: 'auditLogEvents',
+            },
+          },
+        );
+      });
+
+      it('deserializes the added vault.* events', async () => {
+        const actor = {
+          actor_id: 'user_01',
+          actor_source: 'dashboard' as const,
+          actor_name: 'Jane Doe',
+        };
+        const expectedActor = {
+          actorId: 'user_01',
+          actorSource: 'dashboard' as const,
+          actorName: 'Jane Doe',
+        };
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'vault.kek.deleted',
+            data: { ...actor, key_name: 'primary', key_id: 'key_01' },
+          },
+          {
+            ...expectedBase,
+            event: 'vault.kek.deleted',
+            data: { ...expectedActor, keyName: 'primary', keyId: 'key_01' },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'vault.dek.rekeyed',
+            data: {
+              ...actor,
+              key_ids: ['key_01', 'key_02'],
+              key_context: { organization_id: 'org_01' },
+            },
+          },
+          {
+            ...expectedBase,
+            event: 'vault.dek.rekeyed',
+            data: {
+              ...expectedActor,
+              keyIds: ['key_01', 'key_02'],
+              keyContext: { organization_id: 'org_01' },
+            },
+          },
+        );
+
+        await expectDeserialized(
+          {
+            ...base,
+            event: 'vault.byok_key.deleted',
+            data: { organization_id: 'org_01', key_provider: 'AWS_KMS' },
+          },
+          {
+            ...expectedBase,
+            event: 'vault.byok_key.deleted',
+            data: { organizationId: 'org_01', keyProvider: 'AWS_KMS' },
+          },
+        );
+      });
+
+      it('deserializes waitlist_user.* events', async () => {
+        const waitlistUser = {
+          object: 'waitlist_user' as const,
+          id: 'waitlist_user_01',
+          email: 'jane@example.com',
+          state: 'approved' as const,
+          approved_at: '2026-10-20T11:00:00.000Z',
+          additional_fields: { company: 'Acme' },
+          waitlist_id: 'waitlist_01',
+          created_at: '2026-10-19T11:00:00.000Z',
+          updated_at: '2026-10-20T11:00:00.000Z',
+        };
+        const expectedWaitlistUser = {
+          object: 'waitlist_user' as const,
+          id: 'waitlist_user_01',
+          email: 'jane@example.com',
+          state: 'approved' as const,
+          approvedAt: new Date('2026-10-20T11:00:00.000Z'),
+          additionalFields: { company: 'Acme' },
+          waitlistId: 'waitlist_01',
+          createdAt: new Date('2026-10-19T11:00:00.000Z'),
+          updatedAt: new Date('2026-10-20T11:00:00.000Z'),
+        };
+
+        await expectDeserialized(
+          { ...base, event: 'waitlist_user.created', data: waitlistUser },
+          {
+            ...expectedBase,
+            event: 'waitlist_user.created',
+            data: expectedWaitlistUser,
+          },
+        );
+        await expectDeserialized(
+          { ...base, event: 'waitlist_user.approved', data: waitlistUser },
+          {
+            ...expectedBase,
+            event: 'waitlist_user.approved',
+            data: expectedWaitlistUser,
+          },
+        );
+        await expectDeserialized(
+          { ...base, event: 'waitlist_user.denied', data: waitlistUser },
+          {
+            ...expectedBase,
+            event: 'waitlist_user.denied',
+            data: expectedWaitlistUser,
+          },
+        );
+      });
+    });
   });
 });
 

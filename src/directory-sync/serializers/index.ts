@@ -7,4 +7,5 @@ export * from './directory-metadata-user.serializer';
 export * from './directory-user.serializer';
 export * from './directory-user-with-groups-email.serializer';
 export * from './event-directory.serializer';
+export * from './directory-token.serializer';
 export * from './slim-role.serializer';

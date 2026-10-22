@@ -79,6 +79,38 @@ import {
 } from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
 import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 import {
+  ApiKeyUpdatedEventData,
+  SerializedApiKeyUpdatedEventData,
+} from '../../api-keys/interfaces/api-key-event.interface';
+import {
+  ActionAuthenticationDeniedEventData,
+  ActionAuthenticationDeniedEventResponseData,
+  ActionUserRegistrationDeniedEventData,
+  ActionUserRegistrationDeniedEventResponseData,
+} from '../../actions/interfaces/action-event.interface';
+import {
+  ConnectionSamlCertificateRenewalRequiredEventData,
+  ConnectionSamlCertificateRenewalRequiredEventResponseData,
+  ConnectionSamlCertificateRenewedEventData,
+  ConnectionSamlCertificateRenewedEventResponseData,
+} from '../../sso/interfaces/connection-event.interface';
+import {
+  DirectoryToken,
+  DirectoryTokenResponse,
+} from '../../directory-sync/interfaces/directory-token.interface';
+import {
+  RadarChallengeCreatedEventData,
+  RadarChallengeCreatedEventResponseData,
+} from '../../radar/interfaces/radar-event.interface';
+import {
+  ResourceExportEventData,
+  ResourceExportEventResponseData,
+} from './resource-export-event.interface';
+import {
+  WaitlistUserEventData,
+  WaitlistUserEventResponseData,
+} from '../../user-management/interfaces/waitlist-user-event.interface';
+import {
   FeatureFlag,
   FeatureFlagResponse,
 } from '../../feature-flags/interfaces';
@@ -105,6 +137,12 @@ import {
   VaultDekDecryptedEventResponseData,
   VaultByokKeyVerificationCompletedEventData,
   VaultByokKeyVerificationCompletedEventResponseData,
+  VaultByokKeyDeletedEventData,
+  VaultByokKeyDeletedEventResponseData,
+  VaultDekRekeyedEventData,
+  VaultDekRekeyedEventResponseData,
+  VaultKekDeletedEventData,
+  VaultKekDeletedEventResponseData,
 } from '../../vault/interfaces/vault-event.interface';
 
 export interface EventBase {
@@ -1038,6 +1076,7 @@ export interface PipesConnectionFailed {
   providerSlug: string;
   userId: string | null;
   organizationId: string | null;
+  accountIdentifier?: string | null;
   errorCode: string;
   errorReason: string | null;
   providerError: string | null;
@@ -1051,6 +1090,7 @@ export interface PipesConnectionFailedResponse {
   provider_slug: string;
   user_id: string | null;
   organization_id: string | null;
+  account_identifier?: string | null;
   error_code: string;
   error_reason: string | null;
   provider_error: string | null;
@@ -1198,6 +1238,286 @@ export interface VaultByokKeyVerificationCompletedEventResponse extends EventRes
   data: VaultByokKeyVerificationCompletedEventResponseData;
 }
 
+export interface ActionAuthenticationDeniedEvent extends EventBase {
+  event: 'action.authentication.denied';
+  data: ActionAuthenticationDeniedEventData;
+}
+
+export interface ActionAuthenticationDeniedEventResponse extends EventResponseBase {
+  event: 'action.authentication.denied';
+  data: ActionAuthenticationDeniedEventResponseData;
+}
+
+export interface ActionUserRegistrationDeniedEvent extends EventBase {
+  event: 'action.user_registration.denied';
+  data: ActionUserRegistrationDeniedEventData;
+}
+
+export interface ActionUserRegistrationDeniedEventResponse extends EventResponseBase {
+  event: 'action.user_registration.denied';
+  data: ActionUserRegistrationDeniedEventResponseData;
+}
+
+export interface ApiKeyUpdatedEvent extends EventBase {
+  event: 'api_key.updated';
+  data: ApiKeyUpdatedEventData;
+}
+
+export interface ApiKeyUpdatedEventResponse extends EventResponseBase {
+  event: 'api_key.updated';
+  data: SerializedApiKeyUpdatedEventData;
+}
+
+export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationEmailVerificationFailedEventResponse extends EventResponseBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMfaFailedEvent extends EventBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMfaFailedEventResponse extends EventResponseBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationReauthenticationSucceededEvent extends EventBase {
+  event: 'authentication.reauthentication_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationReauthenticationSucceededEventResponse extends EventResponseBase {
+  event: 'authentication.reauthentication_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationSSOStartedEvent extends EventBase {
+  event: 'authentication.sso_started';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOStartedEventResponse extends EventResponseBase {
+  event: 'authentication.sso_started';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationSSOTimedOutEvent extends EventBase {
+  event: 'authentication.sso_timed_out';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOTimedOutEventResponse extends EventResponseBase {
+  event: 'authentication.sso_timed_out';
+  data: AuthenticationEventResponse;
+}
+
+export interface ConnectionSamlCertificateRenewalRequiredEvent extends EventBase {
+  event: 'connection.saml_certificate_renewal_required';
+  data: ConnectionSamlCertificateRenewalRequiredEventData;
+}
+
+export interface ConnectionSamlCertificateRenewalRequiredEventResponse extends EventResponseBase {
+  event: 'connection.saml_certificate_renewal_required';
+  data: ConnectionSamlCertificateRenewalRequiredEventResponseData;
+}
+
+export interface ConnectionSamlCertificateRenewedEvent extends EventBase {
+  event: 'connection.saml_certificate_renewed';
+  data: ConnectionSamlCertificateRenewedEventData;
+}
+
+export interface ConnectionSamlCertificateRenewedEventResponse extends EventResponseBase {
+  event: 'connection.saml_certificate_renewed';
+  data: ConnectionSamlCertificateRenewedEventResponseData;
+}
+
+export interface DsyncTokenCreatedEvent extends EventBase {
+  event: 'dsync.token.created';
+  data: DirectoryToken;
+}
+
+export interface DsyncTokenCreatedEventResponse extends EventResponseBase {
+  event: 'dsync.token.created';
+  data: DirectoryTokenResponse;
+}
+
+export interface DsyncTokenRevokedEvent extends EventBase {
+  event: 'dsync.token.revoked';
+  data: DirectoryToken;
+}
+
+export interface DsyncTokenRevokedEventResponse extends EventResponseBase {
+  event: 'dsync.token.revoked';
+  data: DirectoryTokenResponse;
+}
+
+export interface PipesAccountConnectionAddFailedEvent extends EventBase {
+  event: 'pipes.account_connection.add_failed';
+  data: PipesConnectionFailed;
+}
+
+export interface PipesAccountConnectionAddFailedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.add_failed';
+  data: PipesConnectionFailedResponse;
+}
+
+export interface PipesAccountConnectionConnectedEvent extends EventBase {
+  event: 'pipes.account_connection.connected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionConnectedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.connected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesAccountConnectionConnectionFailedEvent extends EventBase {
+  event: 'pipes.account_connection.connection_failed';
+  data: PipesConnectionFailed;
+}
+
+export interface PipesAccountConnectionConnectionFailedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.connection_failed';
+  data: PipesConnectionFailedResponse;
+}
+
+export interface PipesAccountConnectionDisconnectedEvent extends EventBase {
+  event: 'pipes.account_connection.disconnected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionDisconnectedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.disconnected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesAccountConnectionReauthorizationNeededEvent extends EventBase {
+  event: 'pipes.account_connection.reauthorization_needed';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionReauthorizationNeededEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.reauthorization_needed';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface RadarChallengeCreatedEvent extends EventBase {
+  event: 'radar.challenge_created';
+  data: RadarChallengeCreatedEventData;
+}
+
+export interface RadarChallengeCreatedEventResponse extends EventResponseBase {
+  event: 'radar.challenge_created';
+  data: RadarChallengeCreatedEventResponseData;
+}
+
+export interface ResourceExportCompletedEvent extends EventBase {
+  event: 'resource_export.completed';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportCompletedEventResponse extends EventResponseBase {
+  event: 'resource_export.completed';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportCreatedEvent extends EventBase {
+  event: 'resource_export.created';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportCreatedEventResponse extends EventResponseBase {
+  event: 'resource_export.created';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportDownloadedEvent extends EventBase {
+  event: 'resource_export.downloaded';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportDownloadedEventResponse extends EventResponseBase {
+  event: 'resource_export.downloaded';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportFailedEvent extends EventBase {
+  event: 'resource_export.failed';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportFailedEventResponse extends EventResponseBase {
+  event: 'resource_export.failed';
+  data: ResourceExportEventResponseData;
+}
+
+export interface VaultByokKeyDeletedEvent extends EventBase {
+  event: 'vault.byok_key.deleted';
+  data: VaultByokKeyDeletedEventData;
+}
+
+export interface VaultByokKeyDeletedEventResponse extends EventResponseBase {
+  event: 'vault.byok_key.deleted';
+  data: VaultByokKeyDeletedEventResponseData;
+}
+
+export interface VaultDekRekeyedEvent extends EventBase {
+  event: 'vault.dek.rekeyed';
+  data: VaultDekRekeyedEventData;
+}
+
+export interface VaultDekRekeyedEventResponse extends EventResponseBase {
+  event: 'vault.dek.rekeyed';
+  data: VaultDekRekeyedEventResponseData;
+}
+
+export interface VaultKekDeletedEvent extends EventBase {
+  event: 'vault.kek.deleted';
+  data: VaultKekDeletedEventData;
+}
+
+export interface VaultKekDeletedEventResponse extends EventResponseBase {
+  event: 'vault.kek.deleted';
+  data: VaultKekDeletedEventResponseData;
+}
+
+export interface WaitlistUserApprovedEvent extends EventBase {
+  event: 'waitlist_user.approved';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserApprovedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.approved';
+  data: WaitlistUserEventResponseData;
+}
+
+export interface WaitlistUserCreatedEvent extends EventBase {
+  event: 'waitlist_user.created';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserCreatedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.created';
+  data: WaitlistUserEventResponseData;
+}
+
+export interface WaitlistUserDeniedEvent extends EventBase {
+  event: 'waitlist_user.denied';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserDeniedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.denied';
+  data: WaitlistUserEventResponseData;
+}
+
 /**
  * An event whose name this version of the SDK does not recognize.
  *
@@ -1325,7 +1645,35 @@ export type KnownEvent =
   | VaultKekCreatedEvent
   | VaultDekReadEvent
   | VaultDekDecryptedEvent
-  | VaultByokKeyVerificationCompletedEvent;
+  | VaultByokKeyVerificationCompletedEvent
+  | ActionAuthenticationDeniedEvent
+  | ActionUserRegistrationDeniedEvent
+  | ApiKeyUpdatedEvent
+  | AuthenticationEmailVerificationFailedEvent
+  | AuthenticationMfaFailedEvent
+  | AuthenticationReauthenticationSucceededEvent
+  | AuthenticationSSOStartedEvent
+  | AuthenticationSSOTimedOutEvent
+  | ConnectionSamlCertificateRenewalRequiredEvent
+  | ConnectionSamlCertificateRenewedEvent
+  | DsyncTokenCreatedEvent
+  | DsyncTokenRevokedEvent
+  | PipesAccountConnectionAddFailedEvent
+  | PipesAccountConnectionConnectedEvent
+  | PipesAccountConnectionConnectionFailedEvent
+  | PipesAccountConnectionDisconnectedEvent
+  | PipesAccountConnectionReauthorizationNeededEvent
+  | RadarChallengeCreatedEvent
+  | ResourceExportCompletedEvent
+  | ResourceExportCreatedEvent
+  | ResourceExportDownloadedEvent
+  | ResourceExportFailedEvent
+  | VaultByokKeyDeletedEvent
+  | VaultDekRekeyedEvent
+  | VaultKekDeletedEvent
+  | WaitlistUserApprovedEvent
+  | WaitlistUserCreatedEvent
+  | WaitlistUserDeniedEvent;
 
 export type Event = KnownEvent | UnknownEvent;
 
@@ -1429,7 +1777,35 @@ export type KnownEventResponse =
   | VaultKekCreatedEventResponse
   | VaultDekReadEventResponse
   | VaultDekDecryptedEventResponse
-  | VaultByokKeyVerificationCompletedEventResponse;
+  | VaultByokKeyVerificationCompletedEventResponse
+  | ActionAuthenticationDeniedEventResponse
+  | ActionUserRegistrationDeniedEventResponse
+  | ApiKeyUpdatedEventResponse
+  | AuthenticationEmailVerificationFailedEventResponse
+  | AuthenticationMfaFailedEventResponse
+  | AuthenticationReauthenticationSucceededEventResponse
+  | AuthenticationSSOStartedEventResponse
+  | AuthenticationSSOTimedOutEventResponse
+  | ConnectionSamlCertificateRenewalRequiredEventResponse
+  | ConnectionSamlCertificateRenewedEventResponse
+  | DsyncTokenCreatedEventResponse
+  | DsyncTokenRevokedEventResponse
+  | PipesAccountConnectionAddFailedEventResponse
+  | PipesAccountConnectionConnectedEventResponse
+  | PipesAccountConnectionConnectionFailedEventResponse
+  | PipesAccountConnectionDisconnectedEventResponse
+  | PipesAccountConnectionReauthorizationNeededEventResponse
+  | RadarChallengeCreatedEventResponse
+  | ResourceExportCompletedEventResponse
+  | ResourceExportCreatedEventResponse
+  | ResourceExportDownloadedEventResponse
+  | ResourceExportFailedEventResponse
+  | VaultByokKeyDeletedEventResponse
+  | VaultDekRekeyedEventResponse
+  | VaultKekDeletedEventResponse
+  | WaitlistUserApprovedEventResponse
+  | WaitlistUserCreatedEventResponse
+  | WaitlistUserDeniedEventResponse;
 
 export type EventResponse = KnownEventResponse | UnknownEventResponse;
 

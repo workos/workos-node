@@ -112,3 +112,33 @@ export interface VaultByokKeyVerificationCompletedEventResponseData {
   key_provider: VaultByokKeyProvider;
   verified: boolean;
 }
+
+export interface VaultKekDeletedEventData extends VaultActor {
+  keyName: string;
+  keyId: string;
+}
+
+export interface VaultKekDeletedEventResponseData extends VaultActorResponse {
+  key_name: string;
+  key_id: string;
+}
+
+export interface VaultDekRekeyedEventData extends VaultActor {
+  keyIds: string[];
+  keyContext: KeyContext;
+}
+
+export interface VaultDekRekeyedEventResponseData extends VaultActorResponse {
+  key_ids: string[];
+  key_context: KeyContext;
+}
+
+export interface VaultByokKeyDeletedEventData {
+  organizationId: string;
+  keyProvider: VaultByokKeyProvider;
+}
+
+export interface VaultByokKeyDeletedEventResponseData {
+  organization_id: string;
+  key_provider: VaultByokKeyProvider;
+}
