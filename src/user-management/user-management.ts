@@ -852,6 +852,9 @@ export class UserManagement {
       // Signed by a key the environment's JWKS does not have, for example a
       // token from another environment.
       e.code === 'ERR_JWKS_NO_MATCHING_KEY' ||
+      // No `kid` to pick between the keys of a JWKS mid-rotation. WorkOS
+      // always sets `kid` and the API rejects tokens without one.
+      e.code === 'ERR_JWKS_MULTIPLE_MATCHING_KEYS' ||
       // An `alg` a JWKS cannot verify, such as `none` or HS256.
       e.code === 'ERR_JOSE_NOT_SUPPORTED' ||
       e.code === 'ERR_JOSE_ALG_NOT_ALLOWED'

@@ -2026,6 +2026,8 @@ describe('UserManagement', () => {
       >['privateKey'];
       let privateKey: PrivateKey;
       let otherPrivateKey: PrivateKey;
+      let primaryJwk: jose.JWK;
+      let otherJwk: jose.JWK;
       let jwks: ReturnType<typeof jose.createLocalJWKSet>;
       let workosWithKeys: WorkOS;
 
@@ -2048,10 +2050,17 @@ describe('UserManagement', () => {
         ]);
         privateKey = primary.privateKey;
         otherPrivateKey = other.privateKey;
-        const jwk = await jose.exportJWK(primary.publicKey);
-        jwks = jose.createLocalJWKSet({
-          keys: [{ ...jwk, kid, alg: 'RS256' }],
-        });
+        primaryJwk = {
+          ...(await jose.exportJWK(primary.publicKey)),
+          kid,
+          alg: 'RS256',
+        };
+        otherJwk = {
+          ...(await jose.exportJWK(other.publicKey)),
+          kid: 'key_02',
+          alg: 'RS256',
+        };
+        jwks = jose.createLocalJWKSet({ keys: [primaryJwk] });
       });
 
       beforeEach(() => {
@@ -2134,6 +2143,41 @@ describe('UserManagement', () => {
         await expect(
           workosWithKeys.userManagement.verifyAccessToken(token),
         ).resolves.toBeNull();
+      });
+
+      describe('when the JWKS holds more than one key', () => {
+        beforeEach(() => {
+          // A JWKS mid-rotation: both keys are active.
+          const rotatingJwks = jose.createLocalJWKSet({
+            keys: [primaryJwk, otherJwk],
+          });
+          jest
+            .mocked(jose.createRemoteJWKSet)
+            .mockReturnValue(
+              rotatingJwks as unknown as ReturnType<
+                typeof jose.createRemoteJWKSet
+              >,
+            );
+        });
+
+        it('returns the claims of a token signed with either key', async () => {
+          const token = await sign(otherPrivateKey, {
+            alg: 'RS256',
+            kid: 'key_02',
+          });
+
+          await expect(
+            workosWithKeys.userManagement.verifyAccessToken(token),
+          ).resolves.toMatchObject({ ...claims, iss: issuer });
+        });
+
+        it('returns null for a token without a kid', async () => {
+          const token = await sign(privateKey, { alg: 'RS256' });
+
+          await expect(
+            workosWithKeys.userManagement.verifyAccessToken(token),
+          ).resolves.toBeNull();
+        });
       });
 
       it('rethrows when the JWKS cannot be fetched', async () => {
