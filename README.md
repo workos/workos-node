@@ -82,6 +82,25 @@ const workos = new WorkOS('sk_1234', {
 `issuer` also accepts an array when tokens from more than one issuer should be
 accepted. When `issuer` is not set, the `iss` claim is not validated.
 
+### Verifying access tokens
+
+To verify an access token your application received elsewhere, for example from
+an `Authorization: Bearer` header, use `verifyAccessToken`. It checks the
+signature against the WorkOS JWKS and the expiry, plus the issuer when one is
+configured, and that the token is a user access token rather than one WorkOS
+signed for another purpose, such as an agent or widget token. It returns the
+token's claims, or `null` when the token is invalid:
+
+```ts
+const claims = await workos.userManagement.verifyAccessToken(accessToken);
+
+if (!claims) {
+  throw new Error('Invalid access token');
+}
+
+console.log(claims.sub, claims.org_id, claims.permissions);
+```
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:
