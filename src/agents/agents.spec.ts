@@ -196,6 +196,23 @@ describe('Agents', () => {
       });
     });
 
+    it('deserializes revokedAt for a revoked registration', async () => {
+      fetchOnce({
+        ...getAgentRegistrationFixture,
+        status: 'revoked',
+        revoked_at: '2023-07-19T09:00:00.000Z',
+      });
+
+      const registration = await workos.agents.getRegistration(
+        'agent_reg_01EHZNVPK3SFK441A1RGBFSHRT',
+      );
+
+      expect(registration.status).toBe('revoked');
+      expect(registration.revokedAt).toEqual(
+        new Date('2023-07-19T09:00:00.000Z'),
+      );
+    });
+
     it('encodes the registration id in the request path', async () => {
       fetchOnce(getAgentRegistrationFixture);
 

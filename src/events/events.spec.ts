@@ -93,7 +93,7 @@ describe('Event', () => {
 
   const event: Event = {
     id: 'event_01234ABCD',
-    createdAt: new Date('2020-05-06 04:21:48.649164'),
+    createdAt: new Date('2020-05-06T04:21:48.649Z'),
     context: {
       client_id: 'client_01234ABCD',
     },
@@ -106,14 +106,14 @@ describe('Event', () => {
       type: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
-      createdAt: new Date('2020-05-06 04:21:48.649164'),
-      updatedAt: new Date('2020-05-06 04:21:48.649164'),
+      createdAt: new Date('2020-05-06T04:21:48.649Z'),
+      updatedAt: new Date('2020-05-06T04:21:48.649Z'),
     },
   };
 
   const eventResponse: EventResponse = {
     id: 'event_01234ABCD',
-    created_at: '2020-05-06 04:21:48.649164',
+    created_at: '2020-05-06T04:21:48.649Z',
     context: {
       client_id: 'client_01234ABCD',
     },
@@ -126,8 +126,8 @@ describe('Event', () => {
       connection_type: ConnectionType.OktaSAML,
       state: 'active',
       domains: [],
-      created_at: '2020-05-06 04:21:48.649164',
-      updated_at: '2020-05-06 04:21:48.649164',
+      created_at: '2020-05-06T04:21:48.649Z',
+      updated_at: '2020-05-06T04:21:48.649Z',
     },
   };
 
@@ -1525,7 +1525,7 @@ describe('Event', () => {
       describe('with a role', () => {
         const directoryUserUpdated: DsyncUserUpdatedEvent = {
           id: 'event_01234ABCD',
-          createdAt: new Date('2020-05-06 04:21:48.649164'),
+          createdAt: new Date('2020-05-06T04:21:48.649Z'),
           context: undefined,
           event: 'dsync.user.updated',
           data: {
@@ -1547,14 +1547,14 @@ describe('Event', () => {
             previousAttributes: {
               role: { slug: 'member' },
             },
-            createdAt: new Date('2021-10-27 15:21:50.640959'),
-            updatedAt: new Date('2021-12-13 12:15:45.531847'),
+            createdAt: new Date('2021-10-27T15:21:50.640Z'),
+            updatedAt: new Date('2021-12-13T12:15:45.531Z'),
           },
         };
 
         const directoryUserUpdatedResponse: DsyncUserUpdatedEventResponse = {
           id: 'event_01234ABCD',
-          created_at: '2020-05-06 04:21:48.649164',
+          created_at: '2020-05-06T04:21:48.649Z',
           event: 'dsync.user.updated',
           data: {
             object: 'directory_user',
@@ -1575,8 +1575,8 @@ describe('Event', () => {
             previous_attributes: {
               role: { slug: 'member' },
             },
-            created_at: '2021-10-27 15:21:50.640959',
-            updated_at: '2021-12-13 12:15:45.531847',
+            created_at: '2021-10-27T15:21:50.640Z',
+            updated_at: '2021-12-13T12:15:45.531Z',
           },
         };
         const directoryUserEventsListResponse: ListResponse<EventResponse> = {
