@@ -13,3 +13,4 @@ export * from './radar-standalone-response-verdict.interface';
 export * from './radar-standalone-response.interface';
 export * from './radar-standalone-update-radar-attempt-request.interface';
 export * from './radar-standalone-update-radar-list-request.interface';
+export * from './radar-event.interface';

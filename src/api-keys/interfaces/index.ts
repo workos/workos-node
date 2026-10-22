@@ -1,4 +1,5 @@
 export * from './api-key.interface';
+export * from './api-key-event.interface';
 export * from './create-organization-api-key-options.interface';
 export * from './created-api-key.interface';
 export * from './list-organization-api-keys-options.interface';

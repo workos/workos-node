@@ -12,6 +12,7 @@ export * from './directory-user-with-groups-state.interface';
 export * from './directory-user.interface';
 export * from './directory.interface';
 export * from './event-directory.interface';
+export * from './directory-token.interface';
 export * from './get-directory-options.interface';
 export * from './get-user-options.interface';
 export * from './list-directories-options.interface';

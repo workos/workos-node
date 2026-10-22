@@ -61,8 +61,24 @@ import {
   deserializeVaultDekReadEvent,
   deserializeVaultDekDecryptedEvent,
   deserializeVaultByokKeyVerificationCompletedEvent,
+  deserializeVaultByokKeyDeletedEvent,
+  deserializeVaultDekRekeyedEvent,
+  deserializeVaultKekDeletedEvent,
 } from '../../vault/serializers/vault-event.serializer';
 import { deserializeOrganizationDomainVerificationFailed } from '../../organization-domains/serializers/organization-domain-verification-failed.serializer';
+import {
+  deserializeActionAuthenticationDeniedEvent,
+  deserializeActionUserRegistrationDeniedEvent,
+} from '../../actions/serializers/action-event.serializer';
+import { deserializeApiKeyUpdatedEvent } from '../../api-keys/serializers/api-key-event.serializer';
+import {
+  deserializeConnectionSamlCertificateRenewalRequiredEvent,
+  deserializeConnectionSamlCertificateRenewedEvent,
+} from '../../sso/serializers/connection-event.serializer';
+import { deserializeDirectoryToken } from '../../directory-sync/serializers/directory-token.serializer';
+import { deserializeRadarChallengeCreatedEvent } from '../../radar/serializers/radar-event.serializer';
+import { deserializeResourceExportEvent } from './resource-export-event.serializer';
+import { deserializeWaitlistUserEvent } from '../../user-management/serializers/waitlist-user-event.serializer';
 
 const deserializePipesConnectedAccount = (
   connectedAccount: PipesConnectedAccountResponse,
@@ -87,6 +103,9 @@ const deserializePipesConnectionFailed = (
   providerSlug: connectionFailed.provider_slug,
   userId: connectionFailed.user_id,
   organizationId: connectionFailed.organization_id,
+  ...(connectionFailed.account_identifier !== undefined && {
+    accountIdentifier: connectionFailed.account_identifier,
+  }),
   errorCode: connectionFailed.error_code,
   errorReason: connectionFailed.error_reason,
   providerError: connectionFailed.provider_error,
@@ -196,9 +215,11 @@ function deserializeKnownEvent(
         event: event.event,
         data: deserializeAgentRegistrationLifecycleEvent(event.data),
       };
+    case 'authentication.email_verification_failed':
     case 'authentication.email_verification_succeeded':
     case 'authentication.magic_auth_failed':
     case 'authentication.magic_auth_succeeded':
+    case 'authentication.mfa_failed':
     case 'authentication.mfa_succeeded':
     case 'authentication.oauth_failed':
     case 'authentication.oauth_succeeded':
@@ -206,8 +227,11 @@ function deserializeKnownEvent(
     case 'authentication.passkey_succeeded':
     case 'authentication.password_failed':
     case 'authentication.password_succeeded':
+    case 'authentication.reauthentication_succeeded':
     case 'authentication.sso_failed':
+    case 'authentication.sso_started':
     case 'authentication.sso_succeeded':
+    case 'authentication.sso_timed_out':
       return {
         ...eventBase,
         event: event.event,
@@ -481,6 +505,101 @@ function deserializeKnownEvent(
         ...eventBase,
         event: event.event,
         data: deserializeVaultByokKeyVerificationCompletedEvent(event.data),
+      };
+    case 'action.authentication.denied':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeActionAuthenticationDeniedEvent(event.data),
+      };
+    case 'action.user_registration.denied':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeActionUserRegistrationDeniedEvent(event.data),
+      };
+    case 'api_key.updated':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeApiKeyUpdatedEvent(event.data),
+      };
+    case 'connection.saml_certificate_renewal_required':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeConnectionSamlCertificateRenewalRequiredEvent(
+          event.data,
+        ),
+      };
+    case 'connection.saml_certificate_renewed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeConnectionSamlCertificateRenewedEvent(event.data),
+      };
+    case 'dsync.token.created':
+    case 'dsync.token.revoked':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeDirectoryToken(event.data),
+      };
+    case 'pipes.account_connection.connected':
+    case 'pipes.account_connection.disconnected':
+    case 'pipes.account_connection.reauthorization_needed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePipesConnectedAccount(event.data),
+      };
+    case 'pipes.account_connection.add_failed':
+    case 'pipes.account_connection.connection_failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializePipesConnectionFailed(event.data),
+      };
+    case 'radar.challenge_created':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeRadarChallengeCreatedEvent(event.data),
+      };
+    case 'resource_export.completed':
+    case 'resource_export.created':
+    case 'resource_export.downloaded':
+    case 'resource_export.failed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeResourceExportEvent(event.data),
+      };
+    case 'vault.byok_key.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultByokKeyDeletedEvent(event.data),
+      };
+    case 'vault.dek.rekeyed':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultDekRekeyedEvent(event.data),
+      };
+    case 'vault.kek.deleted':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeVaultKekDeletedEvent(event.data),
+      };
+    case 'waitlist_user.approved':
+    case 'waitlist_user.created':
+    case 'waitlist_user.denied':
+      return {
+        ...eventBase,
+        event: event.event,
+        data: deserializeWaitlistUserEvent(event.data),
       };
     default:
       return undefined;

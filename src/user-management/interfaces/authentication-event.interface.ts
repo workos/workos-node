@@ -4,21 +4,29 @@ interface AuthenticationEventError {
 }
 
 export interface AuthenticationEventSso {
-  connectionId: string;
-  organizationId: string;
-  sessionId?: string;
+  connectionId: string | null;
+  organizationId: string | null;
+  sessionId: string | null;
 }
 
 export interface AuthenticationEventSsoResponse {
-  connection_id: string;
-  organization_id: string;
-  session_id?: string;
+  connection_id: string | null;
+  organization_id: string | null;
+  session_id: string | null;
 }
 
-type AuthenticationEventType =
-  'sso' | 'password' | 'oauth' | 'mfa' | 'magic_auth' | 'email_verification';
+export type AuthenticationEventType =
+  | 'sso'
+  | 'password'
+  | 'oauth'
+  | 'mfa'
+  | 'magic_auth'
+  | 'email_verification'
+  | 'passkey'
+  | 'reauthentication';
 
-type AuthenticationEventStatus = 'failed' | 'succeeded';
+export type AuthenticationEventStatus =
+  'failed' | 'succeeded' | 'started' | 'timed_out';
 
 export type AuthenticationEvent = {
   email: string | null;
