@@ -8,22 +8,34 @@ import { FlagPollResponse } from './interfaces';
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
 const pollResponse: FlagPollResponse = {
-  'flag-a': {
-    slug: 'flag-a',
-    enabled: true,
-    default_value: true,
-    targets: { users: [], organizations: [] },
-  },
-  'flag-b': {
-    slug: 'flag-b',
-    enabled: true,
-    default_value: false,
-    targets: {
-      users: [{ id: 'user_123', enabled: true }],
-      organizations: [],
+  version: 2,
+  flags: {
+    'flag-a': {
+      slug: 'flag-a',
+      enabled: true,
+      default_value: true,
+      off_value: false,
+      rules: [],
+    },
+    'flag-b': {
+      slug: 'flag-b',
+      enabled: true,
+      default_value: false,
+      off_value: false,
+      rules: [
+        {
+          id: 'rule_user',
+          kind: 'conditions',
+          value: true,
+          conditions: [
+            { target_type: 'user', operator: 'one_of', values: ['user_123'] },
+          ],
+        },
+      ],
     },
   },
 };
+const { 'flag-a': flagA, 'flag-b': flagB } = pollResponse.flags;
 
 describe('FeatureFlagsRuntimeClient', () => {
   beforeEach(() => {
@@ -178,12 +190,12 @@ describe('FeatureFlagsRuntimeClient', () => {
   });
 
   describe('getFlag', () => {
-    it('returns raw flag entry', async () => {
+    it('returns flag configuration', async () => {
       const client = createClientAndWait();
       await jest.advanceTimersByTimeAsync(0);
       await client.waitUntilReady();
 
-      expect(client.getFlag('flag-a')).toEqual(pollResponse['flag-a']);
+      expect(client.getFlag('flag-a')).toEqual(flagA);
       expect(client.getFlag('unknown')).toBeUndefined();
 
       client.close();
@@ -251,13 +263,8 @@ describe('FeatureFlagsRuntimeClient', () => {
       client.on('change', (change) => changes.push(change));
 
       const updatedResponse: FlagPollResponse = {
-        'flag-a': {
-          slug: 'flag-a',
-          enabled: false,
-          default_value: true,
-          targets: { users: [], organizations: [] },
-        },
-        'flag-b': pollResponse['flag-b'],
+        version: 2,
+        flags: { 'flag-a': { ...flagA, enabled: false }, 'flag-b': flagB },
       };
 
       fetchOnce(updatedResponse);
@@ -266,15 +273,15 @@ describe('FeatureFlagsRuntimeClient', () => {
       expect(changes).toEqual([
         {
           key: 'flag-a',
-          previous: pollResponse['flag-a'],
-          current: updatedResponse['flag-a'],
+          previous: flagA,
+          current: { ...flagA, enabled: false },
         },
       ]);
 
       client.close();
     });
 
-    it('emits change when only custom targets change', async () => {
+    it('emits change when only custom target rules change', async () => {
       const client = createClientAndWait();
       await jest.advanceTimersByTimeAsync(0);
       await client.waitUntilReady();
@@ -282,28 +289,33 @@ describe('FeatureFlagsRuntimeClient', () => {
       const changes: unknown[] = [];
       client.on('change', (change) => changes.push(change));
 
-      const updatedResponse: FlagPollResponse = {
-        'flag-a': pollResponse['flag-a'],
-        'flag-b': {
-          ...pollResponse['flag-b'],
-          targets: {
-            ...pollResponse['flag-b'].targets,
-            custom_targets: [
-              { type: 'workspace', id: 'ws_123', enabled: true },
+      const updatedFlagB = {
+        ...flagB,
+        rules: [
+          ...flagB.rules,
+          {
+            id: 'rule_workspace',
+            kind: 'conditions',
+            value: true,
+            conditions: [
+              {
+                target_type: 'workspace',
+                operator: 'one_of',
+                values: ['ws_123'],
+              },
             ],
           },
-        },
+        ],
       };
 
-      fetchOnce(updatedResponse);
+      fetchOnce({
+        version: 2,
+        flags: { 'flag-a': flagA, 'flag-b': updatedFlagB },
+      });
       await jest.advanceTimersByTimeAsync(35_000);
 
       expect(changes).toEqual([
-        {
-          key: 'flag-b',
-          previous: pollResponse['flag-b'],
-          current: updatedResponse['flag-b'],
-        },
+        { key: 'flag-b', previous: flagB, current: updatedFlagB },
       ]);
 
       client.close();
@@ -318,13 +330,13 @@ describe('FeatureFlagsRuntimeClient', () => {
       client.on('change', (change) => changes.push(change));
 
       // Second poll returns only flag-a
-      fetchOnce({ 'flag-a': pollResponse['flag-a'] });
+      fetchOnce({ version: 2, flags: { 'flag-a': flagA } });
       await jest.advanceTimersByTimeAsync(35_000);
 
       expect(changes).toEqual([
         {
           key: 'flag-b',
-          previous: pollResponse['flag-b'],
+          previous: flagB,
           current: null,
         },
       ]);
@@ -336,11 +348,15 @@ describe('FeatureFlagsRuntimeClient', () => {
   describe('bootstrap flags', () => {
     it('first poll replaces bootstrap data', async () => {
       const bootstrapFlags: FlagPollResponse = {
-        'bootstrap-flag': {
-          slug: 'bootstrap-flag',
-          enabled: true,
-          default_value: true,
-          targets: { users: [], organizations: [] },
+        version: 2,
+        flags: {
+          'bootstrap-flag': {
+            slug: 'bootstrap-flag',
+            enabled: true,
+            default_value: true,
+            off_value: false,
+            rules: [],
+          },
         },
       };
 
@@ -542,20 +558,145 @@ describe('FeatureFlagsRuntimeClient', () => {
     });
 
     it('throws on an error event when no listener is attached', () => {
-      // poll()'s catch block emits 'error'. With no listener, the emitter must
-      // throw (Node semantics) rather than silently drop it — the behavior
-      // eventemitter3 lacked and the old emit() override restored. Every other
-      // error test attaches a listener first, so this is the only guard against
-      // re-introducing silent error-dropping. Asserted on the inherited emit
-      // directly: via the real poll path the throw would surface as an
-      // unhandled promise rejection (poll runs in a setTimeout), which can't be
-      // observed deterministically.
+      // With no listener, the emitter must throw (Node semantics) rather than
+      // silently drop an 'error' — the behavior eventemitter3 lacked. poll()
+      // checks for listeners before emitting; the tests below cover that path.
       const client = workos.featureFlags.createRuntimeClient();
 
       const boom = new Error('boom');
       expect(() => client.emit('error', boom)).toThrow(boom);
 
       client.close();
+    });
+
+    it('keeps polling when a poll fails with no error listener', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(client.getStats()).toMatchObject({
+        pollCount: 2,
+        pollErrorCount: 1,
+        flagCount: 2,
+      });
+      expect(client.isEnabled('flag-a')).toBe(true);
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('rejects waitUntilReady and emits failed on 401 with no error listener', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetchOnce(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { 'X-Request-ID': 'req_123' } },
+      );
+
+      const client = workos.featureFlags.createRuntimeClient();
+      const failures: unknown[] = [];
+      client.on('failed', (err) => failures.push(err));
+      let readyError: unknown;
+      client.waitUntilReady().catch((err) => {
+        readyError = err;
+      });
+
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(readyError).toBeInstanceOf(UnauthorizedException);
+      expect(failures).toHaveLength(1);
+      expect(fetch.mock.calls.length).toBe(1);
+      expect(emitWarning).toHaveBeenCalledTimes(1);
+      expect(emitWarning).toHaveBeenCalledWith(
+        expect.stringContaining('stopped after a 401'),
+      );
+      expect(emitWarning).not.toHaveBeenCalledWith(
+        expect.stringContaining('retrying'),
+      );
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('warns once when polls fail with no error listener or logger', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(client.getStats().pollErrorCount).toBe(2);
+      expect(emitWarning).toHaveBeenCalledTimes(1);
+      expect(emitWarning).toHaveBeenCalledWith(
+        expect.stringContaining("no 'error' listener or logger"),
+      );
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('warns about a 401 after an earlier unobserved failure', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      fetch.mockRejectOnce(new Error('Network error'));
+      fetchOnce(
+        { message: 'Unauthorized' },
+        { status: 401, headers: { 'X-Request-ID': 'req_123' } },
+      );
+
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+      await jest.advanceTimersByTimeAsync(35_000);
+
+      expect(emitWarning).toHaveBeenCalledTimes(2);
+      expect(emitWarning).toHaveBeenLastCalledWith(
+        expect.stringContaining('stopped after a 401'),
+      );
+
+      fetchOnce(pollResponse);
+      await jest.advanceTimersByTimeAsync(60_000);
+      expect(fetch.mock.calls.length).toBe(2);
+
+      client.close();
+      emitWarning.mockRestore();
+    });
+
+    it('logs instead of warning when a logger is attached', async () => {
+      const emitWarning = jest
+        .spyOn(workos, 'emitWarning')
+        .mockImplementation(() => {});
+      const logger = {
+        debug: jest.fn(),
+        info: jest.fn(),
+        warn: jest.fn(),
+        error: jest.fn(),
+      };
+      fetch.mockRejectOnce(new Error('Network error'));
+
+      const client = workos.featureFlags.createRuntimeClient({ logger });
+      await jest.advanceTimersByTimeAsync(0);
+
+      expect(logger.error).toHaveBeenCalledWith(
+        'Poll failed',
+        expect.any(Error),
+      );
+      expect(emitWarning).not.toHaveBeenCalled();
+
+      client.close();
+      emitWarning.mockRestore();
     });
   });
 });

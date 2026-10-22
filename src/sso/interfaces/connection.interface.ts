@@ -1,5 +1,8 @@
 import { ConnectionType } from './connection-type.enum';
 
+export type ConnectionState =
+  'requires_type' | 'draft' | 'active' | 'validating' | 'inactive' | 'deleting';
+
 export interface ConnectionDomain {
   object: 'connection_domain';
   id: string;
@@ -16,7 +19,7 @@ export interface Connection {
   /** A human-readable name for the Connection. This will most commonly be the organization's name. */
   name: string;
   /** Indicates whether a Connection is able to authenticate users. */
-  state: 'draft' | 'active' | 'inactive' | 'validating';
+  state: ConnectionState;
   /** List of Organization Domains. */
   domains: ConnectionDomain[];
   type: ConnectionType;
@@ -32,7 +35,7 @@ export interface ConnectionResponse {
   organization_id?: string;
   name: string;
   connection_type: ConnectionType;
-  state: 'draft' | 'active' | 'inactive' | 'validating';
+  state: ConnectionState;
   domains: ConnectionDomain[];
   created_at: string;
   updated_at: string;

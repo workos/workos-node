@@ -192,6 +192,7 @@ import { serializeCreateWaitlistEntryOptions } from './serializers/create-waitli
 import { serializeListWaitlistEntriesOptions } from './serializers/list-waitlist-entries-options.serializer';
 import { CookieSession } from './session';
 import { getJose } from '../utils/jose';
+import { AccessTokenClaims } from './interfaces/access-token-claims.interface';
 import { Group, GroupResponse } from '../groups/interfaces';
 import { deserializeGroup } from '../groups/serializers';
 import { encodePathParameter } from '../common/utils/encode-path-parameter';
@@ -744,7 +745,74 @@ export class UserManagement {
     };
   }
 
-  private async isValidJwt(accessToken: string): Promise<boolean> {
+  /**
+   * Verify an access token and return its claims.
+   *
+   * Checks the token's signature against the environment's JWKS and its
+   * expiry, plus the issuer when one was configured on the client, and that
+   * the payload carries the claims of a WorkOS user access token. Tokens the
+   * environment signed for another purpose, such as agent or widget session
+   * tokens, are rejected. Resolves to `null` when the token fails any of
+   * those checks, is not a JWT, or was signed by a key the JWKS does not
+   * have. Errors that are not JWT validation failures, such as a network
+   * error while fetching the JWKS, propagate.
+   *
+   * @param accessToken - The access token to verify, for example from an `Authorization: Bearer` header.
+   * @returns {Promise<AccessTokenClaims | null>} The token's claims, or `null` when the token is invalid.
+   * @throws {Error} When no client ID was provided when initializing WorkOS.
+   */
+  async verifyAccessToken(
+    accessToken: string,
+  ): Promise<AccessTokenClaims | null> {
+    const payload = await this.verifyJwt(accessToken);
+
+    if (
+      payload === null ||
+      !UserManagement.hasRequiredAccessTokenClaims(payload)
+    ) {
+      return null;
+    }
+
+    return payload;
+  }
+
+  /**
+   * Several token families are signed with an environment's key pair, so a
+   * valid signature alone does not prove a token is a user access token. This
+   * mirrors how the API identifies one: `sid` and `auth_time` are always
+   * minted together on user access tokens, agent tokens classify themselves
+   * with a `sub_profile` other than `user`, and widget session tokens carry
+   * `sub_type`. The registered claims `AccessTokenClaims` guarantees are
+   * checked too, so a token is rejected rather than returned with missing
+   * values.
+   *
+   * Consent tokens for interactive Connect grants also mint `sid` and
+   * `auth_time`. The API excludes those by resolving `sid` to a live
+   * session, which cannot be done offline here.
+   */
+  private static hasRequiredAccessTokenClaims(
+    payload: import('jose').JWTPayload,
+  ): payload is AccessTokenClaims {
+    return (
+      typeof payload.sub === 'string' &&
+      typeof payload.sid === 'string' &&
+      typeof payload.iss === 'string' &&
+      typeof payload.exp === 'number' &&
+      typeof payload.iat === 'number' &&
+      typeof payload.auth_time === 'number' &&
+      (payload.sub_profile === undefined || payload.sub_profile === 'user') &&
+      payload.sub_type === undefined
+    );
+  }
+
+  /**
+   * Verify a JWT's signature, expiry and, when configured, issuer against the
+   * environment's JWKS. Resolves to the payload, or `null` when jose rejects
+   * the token; errors that are not JWT validation failures propagate.
+   */
+  private async verifyJwt(
+    accessToken: string,
+  ): Promise<import('jose').JWTPayload | null> {
     const jwks = await this.getJWKS();
     const { jwtVerify } = await getJose();
     if (!jwks) {
@@ -752,25 +820,49 @@ export class UserManagement {
     }
 
     try {
-      await jwtVerify(
+      const { payload } = await jwtVerify(
         accessToken,
         jwks,
         this.issuer ? { issuer: this.issuer } : undefined,
       );
-      return true;
+      return payload;
     } catch (e) {
-      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
-      // Network errors, crypto failures, etc. should propagate
-      if (
-        e instanceof Error &&
-        'code' in e &&
-        typeof e.code === 'string' &&
-        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
-      ) {
-        return false;
+      if (UserManagement.isJwtValidationError(e)) {
+        return null;
       }
       throw e;
     }
+  }
+
+  /**
+   * Whether a jose error means the presented token is invalid, as opposed to
+   * a failure to verify it at all. Network errors, JWKS timeouts and crypto
+   * failures propagate so they surface as errors rather than as rejected
+   * tokens.
+   */
+  private static isJwtValidationError(e: unknown): boolean {
+    if (!(e instanceof Error) || !('code' in e) || typeof e.code !== 'string') {
+      return false;
+    }
+
+    return (
+      // Malformed tokens, bad signatures and failed claim checks.
+      e.code.startsWith('ERR_JWT_') ||
+      e.code.startsWith('ERR_JWS_') ||
+      // Signed by a key the environment's JWKS does not have, for example a
+      // token from another environment.
+      e.code === 'ERR_JWKS_NO_MATCHING_KEY' ||
+      // No `kid` to pick between the keys of a JWKS mid-rotation. WorkOS
+      // always sets `kid` and the API rejects tokens without one.
+      e.code === 'ERR_JWKS_MULTIPLE_MATCHING_KEYS' ||
+      // An `alg` a JWKS cannot verify, such as `none` or HS256.
+      e.code === 'ERR_JOSE_NOT_SUPPORTED' ||
+      e.code === 'ERR_JOSE_ALG_NOT_ALLOWED'
+    );
+  }
+
+  private async isValidJwt(accessToken: string): Promise<boolean> {
+    return (await this.verifyJwt(accessToken)) !== null;
   }
 
   private async prepareAuthenticationResponse({

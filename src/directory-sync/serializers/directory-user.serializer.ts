@@ -24,11 +24,12 @@ export const deserializeDirectoryUser = <
   firstName: directoryUser.first_name,
   email: directoryUser.email,
   lastName: directoryUser.last_name,
+  name: directoryUser.name ?? null,
   state: directoryUser.state,
   ...(directoryUser.role !== undefined && { role: directoryUser.role }),
   ...(directoryUser.roles !== undefined && { roles: directoryUser.roles }),
-  createdAt: directoryUser.created_at,
-  updatedAt: directoryUser.updated_at,
+  createdAt: new Date(directoryUser.created_at),
+  updatedAt: new Date(directoryUser.updated_at),
 });
 
 export const deserializeDirectoryUserWithGroups = <
@@ -53,10 +54,11 @@ export const deserializeUpdatedEventDirectoryUser = (
   firstName: directoryUser.first_name,
   email: directoryUser.email,
   lastName: directoryUser.last_name,
+  name: directoryUser.name ?? null,
   state: directoryUser.state,
   ...(directoryUser.role !== undefined && { role: directoryUser.role }),
   ...(directoryUser.roles !== undefined && { roles: directoryUser.roles }),
-  createdAt: directoryUser.created_at,
-  updatedAt: directoryUser.updated_at,
+  createdAt: new Date(directoryUser.created_at),
+  updatedAt: new Date(directoryUser.updated_at),
   previousAttributes: directoryUser.previous_attributes,
 });

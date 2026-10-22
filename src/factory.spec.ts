@@ -50,6 +50,7 @@ describe('createWorkOS', () => {
       );
       expect(typeof workos.userManagement.getLogoutUrl).toBe('function');
       expect(typeof workos.userManagement.getJwksUrl).toBe('function');
+      expect(typeof workos.userManagement.verifyAccessToken).toBe('function');
     });
 
     it('has access to public SSO methods', () => {

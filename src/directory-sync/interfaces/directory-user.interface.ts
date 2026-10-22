@@ -20,11 +20,13 @@ export interface DirectoryUser<
   firstName: string | null;
   email: string | null;
   lastName: string | null;
-  state: 'active' | 'inactive';
+  /** The full name of the user, as provided by the identity provider. */
+  name: string | null;
+  state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface DirectoryUserResponse<
@@ -41,7 +43,8 @@ export interface DirectoryUserResponse<
   first_name: string | null;
   email: string | null;
   last_name: string | null;
-  state: 'active' | 'inactive';
+  name: string | null;
+  state: 'active' | 'suspended' | 'inactive';
   role?: RoleResponse;
   roles?: RoleResponse[];
   created_at: string;

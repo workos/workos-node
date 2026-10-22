@@ -82,6 +82,25 @@ const workos = new WorkOS('sk_1234', {
 `issuer` also accepts an array when tokens from more than one issuer should be
 accepted. When `issuer` is not set, the `iss` claim is not validated.
 
+### Verifying access tokens
+
+To verify an access token your application received elsewhere, for example from
+an `Authorization: Bearer` header, use `verifyAccessToken`. It checks the
+signature against the WorkOS JWKS and the expiry, plus the issuer when one is
+configured, and that the token is a user access token rather than one WorkOS
+signed for another purpose, such as an agent or widget token. It returns the
+token's claims, or `null` when the token is invalid:
+
+```ts
+const claims = await workos.userManagement.verifyAccessToken(accessToken);
+
+if (!claims) {
+  throw new Error('Invalid access token');
+}
+
+console.log(claims.sub, claims.org_id, claims.permissions);
+```
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:
@@ -135,6 +154,36 @@ const { accessToken } = await workos.userManagement.authenticateWithCode({
   clientId: 'client_...',
 });
 ```
+
+## Feature flag runtime
+
+The runtime client polls the v2 flag payload and evaluates flags locally. When a
+flag is off it serves `off_value`. Otherwise rules are evaluated in array order:
+the first matching rule's `value` wins, and `default_value` applies when no rule
+matches. A matching rule can serve `false`. Every condition in a rule must match;
+`one_of` matches an exact ID for its target type. Unknown rule kinds and condition
+operators never match.
+
+`isEnabled(key, context, defaultValue)` returns `defaultValue` (`false` when
+omitted) if the flag is missing or the served value is not a boolean.
+`getAllFlags` uses `false` in that case.
+
+`getFlag(key)` returns the flag's `FlagPollEntry`: `slug`, `enabled`,
+`default_value`, `off_value` and `rules`. The `previous` and `current` values in
+`change` events have the same shape. Reordering rules emits a `change` event;
+reordering IDs within a condition does not.
+
+To start from saved configuration, pass a `FlagPollResponse`
+(`{ version: 2, flags: { [slug]: FlagPollEntry } }`) as `bootstrapFlags`.
+Unrecognized bootstrap data, including a bare map of entries without the
+envelope, is ignored with a warning to `logger` and readiness still resolves;
+polling populates the cache afterward.
+
+A failed poll, including one that returns a payload the SDK can't read, emits
+`error`, keeps the last good snapshot, and retries with backoff. A 401 stops
+polling and also emits `failed`. Attach an `error` listener or a `logger` to see
+failures; with neither, the client warns once and keeps polling, and warns again
+if a 401 stops it.
 
 ## SDK Versioning
 

@@ -86,7 +86,19 @@ describe('Radar', () => {
       expect(fetchBody()).toEqual(
         expect.objectContaining({ entry: 'test_entry' }),
       );
-      expect(result.message).toBe('Entry already present in list');
+      expect(result?.message).toBe('Entry already present in list');
+    });
+
+    it('returns null when the entry is added successfully', async () => {
+      fetchOnce(undefined, { status: 204, headers: { 'content-type': '' } });
+
+      const result = await workos.radar.addListEntry({
+        type: 'ip_address',
+        action: 'block',
+        entry: 'test_entry',
+      });
+
+      expect(result).toBeNull();
     });
   });
 

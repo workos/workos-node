@@ -8,7 +8,7 @@ export interface FeatureFlag {
   /** A unique key to reference the Feature Flag. */
   slug: string;
   /** A description for the Feature Flag. */
-  description: string;
+  description: string | null;
   /** Labels assigned to the Feature Flag for categorizing and filtering. */
   tags: string[];
   /** Specifies whether the Feature Flag is active for the current environment. */
@@ -26,7 +26,7 @@ export interface FeatureFlagResponse {
   id: string;
   name: string;
   slug: string;
-  description: string;
+  description: string | null;
   tags: string[];
   enabled: boolean;
   default_value: boolean;

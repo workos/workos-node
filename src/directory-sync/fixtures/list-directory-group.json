@@ -1,0 +1,21 @@
+{
+  "data": [
+    {
+      "object": "directory_group",
+      "id": "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z",
+      "idp_id": "02grqrue4294w24",
+      "directory_id": "directory_01ECAZ4NV9QMV47GW873HDCX74",
+      "organization_id": "org_01EZTR6WYX1A0DSE2CYMGXQ24Y",
+      "name": "Developers",
+      "raw_attributes": {
+        "key": {}
+      },
+      "created_at": "2026-01-15T12:00:00.000Z",
+      "updated_at": "2026-01-15T12:00:00.000Z"
+    }
+  ],
+  "list_metadata": {
+    "before": null,
+    "after": null
+  }
+}

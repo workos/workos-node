@@ -27,8 +27,8 @@ export interface GenerateLink {
   intent?: GenerateLinkIntent;
   /** Options to configure the Admin Portal based on the intent. */
   intentOptions?: IntentOptions;
-  /** The email addresses of the IT admins to grant access to the Admin Portal for the given organization. Accepts up to 20 emails. */
-  adminEmails?: string[];
+  /** The email addresses of the IT contacts to grant access to the Admin Portal for the given organization. Accepts up to 20 emails. */
+  itContactEmails?: string[];
   /** The ID of the user in your application the link is generated for. The link and any Admin Portal sessions started from it can later be revoked by this ID, for example when that user is deprovisioned from your application. */
   externalUserId?: string;
 }
@@ -39,6 +39,6 @@ export interface GenerateLinkResponse {
   organization: string;
   intent?: GenerateLinkIntent;
   intent_options?: IntentOptionsResponse;
-  admin_emails?: string[];
+  it_contact_emails?: string[];
   external_user_id?: string;
 }
