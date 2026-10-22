@@ -1,6 +1,7 @@
 export enum OrganizationDomainState {
   Verified = 'verified',
   Pending = 'pending',
+  Unverified = 'unverified',
   Failed = 'failed',
 }
 
