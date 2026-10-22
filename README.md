@@ -256,6 +256,44 @@ rules; existing integrations do not need to change.
 `valueType` while the environment still uses the legacy target contract. Narrow
 using `'ruleId' in target` before accessing the contract-specific fields.
 
+## Feature flag events
+
+The Events API and `webhooks.constructEvent` support the namespaced feature flag
+lifecycle events:
+
+- `feature_flags.flag.created`, `feature_flags.flag.updated`, `feature_flags.flag.deleted`
+- `feature_flags.flag_rule.created`, `feature_flags.flag_rule.updated`, `feature_flags.flag_rule.deleted`
+- `feature_flags.flag_target.created`, `feature_flags.flag_target.deleted`
+
+Use these names in `events.listEvents({ events: [...] })`. The returned `Event`
+union narrows by `event`; event data and context use camelCase fields.
+
+```ts
+const { data: events } = await workos.events.listEvents({
+  events: [
+    'feature_flags.flag_target.created',
+    'feature_flags.flag_rule.updated',
+  ],
+});
+
+for (const event of events) {
+  if (event.event === 'feature_flags.flag_target.created') {
+    if ('ruleId' in event.data) {
+      console.log(event.data.ruleId, event.data.targetId);
+    } else {
+      console.log(event.data.valueType, event.data.value);
+    }
+  }
+}
+```
+
+Flag events include `environmentId`, nullable `description`, and a nullable
+`owner` with `email`, `firstName`, and `lastName`. Updated flag context includes
+optional `previousAttributes.data`, and updated rule context includes the rule's
+previous `value` there. Rule context can omit `actor` for system changes. Target
+event data is a `FlagTarget` with `ruleId`, or a `LegacyFlagTarget` with `value`
+and `valueType`. The `flag.*` events keep their existing data shape.
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.
