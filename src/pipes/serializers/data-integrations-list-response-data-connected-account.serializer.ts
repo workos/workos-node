@@ -22,6 +22,8 @@ export const deserializeDataIntegrationsListResponseDataConnectedAccount = (
   clientSecretLast4: response.client_secret_last_4 ?? null,
   config: response.config,
   state: response.state,
+  establishedByUserId: response.established_by_user_id ?? null,
+  stateReason: response.state_reason ?? null,
   createdAt: response.created_at,
   updatedAt: response.updated_at,
   userlandUserId: response.userland_user_id ?? null,
