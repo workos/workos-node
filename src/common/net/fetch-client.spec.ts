@@ -688,7 +688,7 @@ describe('request timeout covers the response body (GH-1679)', () => {
   };
 
   /**
-   * A fetch double that honours the abort signal the way real
+   * A fetch double that honors the abort signal the way real
    * implementations do: an abort rejects the pending headers or the pending
    * body read with an `AbortError`.
    */
@@ -865,7 +865,7 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(attempts[0].textCalls).toBe(1);
       expect(fetchFn).toHaveBeenCalledTimes(1);
 
-      // Retry-After from the aborted attempt's headers is honoured.
+      // Retry-After from the aborted attempt's headers is honored.
       await jest.advanceTimersByTimeAsync(999);
       expect(fetchFn).toHaveBeenCalledTimes(1);
       await jest.advanceTimersByTimeAsync(1);
