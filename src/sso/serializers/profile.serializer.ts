@@ -4,24 +4,21 @@ import { Profile, ProfileResponse } from '../interfaces';
 export const deserializeProfile = <CustomAttributesType extends UnknownRecord>(
   profile: ProfileResponse<CustomAttributesType>,
 ): Profile<CustomAttributesType> => ({
+  object: profile.object,
   id: profile.id,
   idpId: profile.idp_id,
-  ...(profile.organization_id !== undefined && {
-    organizationId: profile.organization_id,
-  }),
+  organizationId: profile.organization_id ?? null,
   connectionId: profile.connection_id,
   connectionType: profile.connection_type,
   email: profile.email,
-  ...(profile.name !== undefined && { name: profile.name }),
-  ...(profile.first_name !== undefined && { firstName: profile.first_name }),
-  ...(profile.last_name !== undefined && { lastName: profile.last_name }),
+  name: profile.name ?? null,
+  firstName: profile.first_name ?? null,
+  lastName: profile.last_name ?? null,
   ...(profile.role !== undefined && { role: profile.role }),
   ...(profile.roles !== undefined && { roles: profile.roles }),
   ...(profile.groups !== undefined && { groups: profile.groups }),
   ...(profile.custom_attributes !== undefined && {
     customAttributes: profile.custom_attributes,
   }),
-  ...(profile.raw_attributes !== undefined && {
-    rawAttributes: profile.raw_attributes,
-  }),
+  rawAttributes: profile.raw_attributes,
 });
