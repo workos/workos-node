@@ -7,6 +7,7 @@ import {
   fetchMethod,
   fetchSearchParams,
   fetchBody,
+  fetchHeaders,
 } from '../common/utils/test-utils';
 import { WorkOS } from '../workos';
 
@@ -31,6 +32,86 @@ function expectConnectApplication(result: any) {
 
 describe('Connect', () => {
   beforeEach(() => fetch.resetMocks());
+
+  describe('exchangeToken', () => {
+    it('posts an RFC 8693 token exchange to the issuer and deserializes the response', async () => {
+      fetchOnce({
+        access_token: 'exchanged-token',
+        issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+        token_type: 'bearer',
+        expires_in: 300,
+        scope: 'email openid',
+      });
+
+      const result = await workos.connect.exchangeToken({
+        issuer: 'https://auth.example.com',
+        clientId: 'client_123',
+        clientSecret: 'secret_123',
+        subjectToken: 'subject-token',
+        resource: 'https://api.example.com',
+        scope: 'email openid',
+      });
+
+      expect(fetchURL()).toBe('https://auth.example.com/oauth2/token');
+      expect(fetchHeaders()).not.toHaveProperty('Authorization');
+      expect(fetchBody()).toBe(
+        new URLSearchParams({
+          client_id: 'client_123',
+          client_secret: 'secret_123',
+          grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+          subject_token: 'subject-token',
+          subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+          requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+          resource: 'https://api.example.com',
+          scope: 'email openid',
+        }).toString(),
+      );
+      expect(result).toEqual({
+        accessToken: 'exchanged-token',
+        issuedTokenType: 'urn:ietf:params:oauth:token-type:access_token',
+        tokenType: 'bearer',
+        expiresIn: 300,
+        scope: 'email openid',
+      });
+    });
+
+    it('omits scope when the response has none', async () => {
+      fetchOnce({
+        access_token: 'exchanged-token',
+        issued_token_type: 'urn:ietf:params:oauth:token-type:access_token',
+        token_type: 'bearer',
+        expires_in: 300,
+      });
+
+      const result = await workos.connect.exchangeToken({
+        issuer: 'https://auth.example.com',
+        clientId: 'client_123',
+        clientSecret: 'secret_123',
+        subjectToken: 'subject-token',
+        resource: 'https://api.example.com',
+      });
+
+      expect(fetchBody()).not.toContain('scope=');
+      expect(result).not.toHaveProperty('scope');
+    });
+
+    it('throws an OauthException for OAuth error responses', async () => {
+      fetchOnce(
+        { error: 'invalid_target', error_description: 'Unknown resource.' },
+        { status: 400 },
+      );
+
+      await expect(
+        workos.connect.exchangeToken({
+          issuer: 'https://auth.example.com',
+          clientId: 'client_123',
+          clientSecret: 'secret_123',
+          subjectToken: 'subject-token',
+          resource: 'https://nope.example.com',
+        }),
+      ).rejects.toMatchObject({ error: 'invalid_target' });
+    });
+  });
 
   describe('completeOAuth2', () => {
     it('sends the correct request and returns result', async () => {
