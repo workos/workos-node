@@ -128,6 +128,12 @@ describe('detectRuntime', () => {
     expect(loadEnv().detectRuntime()).toBe('node');
   });
 
+  it('detects Cloudflare Workers with nodejs_compat (process.release.name "node")', () => {
+    userAgent('Cloudflare-Workers');
+
+    expect(loadEnv().detectRuntime()).toBe('cloudflare');
+  });
+
   it('detects Cloudflare Workers without nodejs_compat', () => {
     userAgent('Cloudflare-Workers');
     noNodeRelease();
@@ -213,6 +219,36 @@ describe('getEnv', () => {
     process.env.WORKOS_API_KEY = 'from-process';
 
     expect(loadEnv().getEnv('WORKOS_API_KEY')).toBe('from-process');
+  });
+
+  describe('Cloudflare', () => {
+    beforeEach(() => {
+      userAgent('Cloudflare-Workers');
+    });
+
+    it('still reads process.env with nodejs_compat (previously detected as node)', () => {
+      process.env.WORKOS_API_KEY = 'from-process';
+
+      expect(loadEnv().getEnv('WORKOS_API_KEY')).toBe('from-process');
+    });
+
+    it('prefers globalThis.env over process.env', () => {
+      stub(globalThis, 'env', { WORKOS_API_KEY: 'from-global-env' });
+      process.env.WORKOS_API_KEY = 'from-process';
+
+      expect(loadEnv().getEnv('WORKOS_API_KEY')).toBe('from-global-env');
+    });
+
+    it('reads global bindings without nodejs_compat', () => {
+      noNodeRelease();
+      stub(globalThis, 'WORKOS_API_KEY', 'from-global');
+
+      expect(loadEnv().getEnv('WORKOS_API_KEY')).toBe('from-global');
+    });
+
+    it('returns the default when nothing is set', () => {
+      expect(loadEnv().getEnv('WORKOS_API_KEY', 'fallback')).toBe('fallback');
+    });
   });
 });
 

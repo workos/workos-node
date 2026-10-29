@@ -23,6 +23,8 @@ export function detectRuntime(): Runtime {
 
   // Deno and Bun report `process.release.name === 'node'` for Node
   // compatibility, so their own markers are checked before the Node check.
+  // Cloudflare Workers with nodejs_compat may do the same (not confirmed from
+  // workerd's published source), so its user-agent check also runs first.
   if (typeof global.Deno !== 'undefined') {
     detectedRuntime = 'deno';
   } else if (
@@ -32,15 +34,15 @@ export function detectRuntime(): Runtime {
   ) {
     detectedRuntime = 'bun';
   } else if (
-    typeof process !== 'undefined' &&
-    process.release?.name === 'node'
-  ) {
-    detectedRuntime = 'node';
-  } else if (
     typeof navigator !== 'undefined' &&
     navigator.userAgent?.includes('Cloudflare')
   ) {
     detectedRuntime = 'cloudflare';
+  } else if (
+    typeof process !== 'undefined' &&
+    process.release?.name === 'node'
+  ) {
+    detectedRuntime = 'node';
   } else if (typeof global !== 'undefined' && 'fastly' in global) {
     detectedRuntime = 'fastly';
   } else if (typeof global !== 'undefined' && 'EdgeRuntime' in global) {
@@ -67,7 +69,13 @@ function getEnvironmentVariable(key: string): string | undefined {
         return global.Deno.env.get(key);
 
       case 'cloudflare':
-        return global.env?.[key] ?? global[key];
+        // Workers with nodejs_compat used to be detected as 'node' and read
+        // process.env, so keep it as a fallback.
+        return (
+          global.env?.[key] ??
+          global[key] ??
+          (typeof process !== 'undefined' ? process.env?.[key] : undefined)
+        );
 
       case 'fastly':
         return global[key];
