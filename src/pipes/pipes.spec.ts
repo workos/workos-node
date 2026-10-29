@@ -198,6 +198,8 @@ describe('Pipes', () => {
         slug: 'test_slug',
         userId: 'user_id_01234',
         secret: 'test_secret',
+        accountDisplayName: 'Acme production',
+        accountIdentifier: null,
       });
 
       expect(fetchMethod()).toBe('PUT');
@@ -208,6 +210,8 @@ describe('Pipes', () => {
         expect.objectContaining({
           user_id: 'user_id_01234',
           secret: 'test_secret',
+          account_display_name: 'Acme production',
+          account_identifier: null,
         }),
       );
       expectConnectedAccount(result);
@@ -234,6 +238,40 @@ describe('Pipes', () => {
         'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
       );
     });
+
+    it('sends the code challenge and returns the completion mode', async () => {
+      fetchOnce(dataIntegrationAuthorizeUrlResponseFixture);
+
+      const result = await workos.pipes.authorizeDataIntegration({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+        returnTo: 'https://example.com/callback',
+        codeChallenge: 'test_code_challenge',
+        codeChallengeMethod: 'S256',
+      });
+
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          return_to: 'https://example.com/callback',
+          code_challenge: 'test_code_challenge',
+          code_challenge_method: 'S256',
+        }),
+      );
+      expect(result.completion).toBe('finish_required');
+    });
+
+    it('leaves completion undefined when the response omits it', async () => {
+      fetchOnce({
+        url: 'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
+      });
+
+      const result = await workos.pipes.authorizeDataIntegration({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+      });
+
+      expect(result.completion).toBeUndefined();
+    });
   });
 
   describe('updateDataIntegrationClientCredentials', () => {
@@ -245,6 +283,8 @@ describe('Pipes', () => {
         userId: 'user_id_01234',
         clientId: 'client_id_01234',
         clientSecret: 'test_client_secret',
+        accountDisplayName: 'Acme production',
+        accountIdentifier: 'workspace_123',
       });
 
       expect(fetchMethod()).toBe('PUT');
@@ -256,6 +296,8 @@ describe('Pipes', () => {
           user_id: 'user_id_01234',
           client_id: 'client_id_01234',
           client_secret: 'test_client_secret',
+          account_display_name: 'Acme production',
+          account_identifier: 'workspace_123',
         }),
       );
       expectConnectedAccount(result);

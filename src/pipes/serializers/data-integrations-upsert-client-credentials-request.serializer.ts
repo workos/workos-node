@@ -9,6 +9,8 @@ import type {
 export const serializeDataIntegrationsUpsertClientCredentialsRequest = (
   model: DataIntegrationsUpsertClientCredentialsRequest,
 ): DataIntegrationsUpsertClientCredentialsRequestResponse => ({
+  account_display_name: model.accountDisplayName,
+  account_identifier: model.accountIdentifier,
   user_id: model.userId,
   organization_id: model.organizationId,
   connected_account_id: model.connectedAccountId,
