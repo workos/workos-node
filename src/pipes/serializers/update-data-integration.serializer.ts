@@ -14,13 +14,13 @@ export const serializeUpdateDataIntegration = (
   description: model.description,
   enabled: model.enabled,
   scopes: model.scopes,
-  api_key:
-    model.apiKey != null
-      ? serializeApiKeyInstallation(model.apiKey)
-      : undefined,
   credentials:
     model.credentials != null
       ? serializeDataIntegrationCredentialsInput(model.credentials)
+      : undefined,
+  api_key:
+    model.apiKey != null
+      ? serializeApiKeyInstallation(model.apiKey)
       : undefined,
   custom_provider:
     model.customProvider != null

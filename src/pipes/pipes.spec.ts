@@ -12,6 +12,7 @@ import { WorkOS } from '../workos';
 
 import listDataIntegrationFixture from './fixtures/list-data-integration.json';
 import dataIntegrationFixture from './fixtures/data-integration.json';
+import dataIntegrationFinishConnectionResponseFixture from './fixtures/data-integration-finish-connection-response.json';
 import connectedAccountFixture from './fixtures/connected-account.json';
 import dataIntegrationAuthorizeUrlResponseFixture from './fixtures/data-integration-authorize-url-response.json';
 import dataIntegrationCredentialsResponseFixture from './fixtures/data-integration-credentials-response.json';
@@ -94,6 +95,45 @@ describe('Pipes', () => {
         expect.objectContaining({ provider: 'provider_01234' }),
       );
       expectDataIntegration(result);
+    });
+  });
+
+  describe('finishConnection', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationFinishConnectionResponseFixture);
+
+      const result = await workos.pipes.finishConnection({
+        connectCode: 'test_connect_code',
+        codeVerifier: 'test_code_verifier',
+        state: 'test_state',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/finish',
+      );
+      expect(fetchBody()).toEqual({
+        connect_code: 'test_connect_code',
+        code_verifier: 'test_code_verifier',
+        state: 'test_state',
+      });
+      expect(result.connectedAccount).toMatchObject({
+        object: 'connected_account',
+        id: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
+        accountDisplayName: 'Acme production',
+        userId: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+        state: 'connected',
+        establishedByUserId: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+        stateReason: null,
+        createdAt: new Date('2024-01-16T14:20:00.000Z'),
+        warnings: [
+          {
+            code: 'duplicate_account_display_name',
+            message:
+              'Another connection for this provider and owner has the same label.',
+          },
+        ],
+      });
     });
   });
 

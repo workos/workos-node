@@ -85,12 +85,33 @@ const deserializePipesConnectedAccount = (
 ): PipesConnectedAccount => ({
   object: connectedAccount.object,
   id: connectedAccount.id,
+  ...(connectedAccount.connection_role !== undefined && {
+    connectionRole: connectedAccount.connection_role,
+  }),
+  ...(connectedAccount.account_identifier !== undefined && {
+    accountIdentifier: connectedAccount.account_identifier,
+  }),
+  ...(connectedAccount.account_display_name !== undefined && {
+    accountDisplayName: connectedAccount.account_display_name,
+  }),
   dataIntegrationId: connectedAccount.data_integration_id,
   providerSlug: connectedAccount.provider_slug,
   userId: connectedAccount.user_id,
   organizationId: connectedAccount.organization_id,
   scopes: connectedAccount.scopes,
+  ...(connectedAccount.auth_method !== undefined && {
+    authMethod: connectedAccount.auth_method,
+  }),
+  ...(connectedAccount.api_key_last_4 !== undefined && {
+    apiKeyLast4: connectedAccount.api_key_last_4,
+  }),
   state: connectedAccount.state,
+  ...(connectedAccount.established_by_user_id !== undefined && {
+    establishedByUserId: connectedAccount.established_by_user_id,
+  }),
+  ...(connectedAccount.state_reason !== undefined && {
+    stateReason: connectedAccount.state_reason,
+  }),
   createdAt: new Date(connectedAccount.created_at),
   updatedAt: new Date(connectedAccount.updated_at),
 });

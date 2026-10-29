@@ -1,9 +1,14 @@
 {
+  "account_display_name": "Acme production",
   "user_id": "user_01EHZNVPK3SFK441A1RGBFSHRT",
   "organization_id": "org_01EHZNVPK3SFK441A1RGBFSHRT",
   "connection_owner": "user",
   "return_to": "https://example.com/callback",
+  "code_challenge": "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM",
+  "code_challenge_method": "S256",
   "config": {
     "subdomain": "acme"
-  }
+  },
+  "connection_intent": "add",
+  "connected_account_id": "data_installation_01EHZNVPK3SFK441A1RGBFSHRT"
 }

@@ -4,6 +4,7 @@ import type {
   ConnectedAccount,
   ConnectedAccountResponse,
 } from '../interfaces/connected-account.interface';
+import { deserializeConnectedAccountWarning } from './connected-account-warning.serializer';
 
 export const deserializeConnectedAccount = (
   response: ConnectedAccountResponse,
@@ -22,6 +23,12 @@ export const deserializeConnectedAccount = (
   clientSecretLast4: response.client_secret_last_4 ?? null,
   config: response.config,
   state: response.state,
+  establishedByUserId: response.established_by_user_id ?? null,
+  stateReason: response.state_reason ?? null,
   createdAt: new Date(response.created_at),
   updatedAt: new Date(response.updated_at),
+  warnings:
+    response.warnings != null
+      ? response.warnings.map(deserializeConnectedAccountWarning)
+      : undefined,
 });

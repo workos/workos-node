@@ -115,7 +115,11 @@ import {
   FeatureFlagResponse,
 } from '../../feature-flags/interfaces';
 import { Group, GroupResponse } from '../../groups/interfaces';
-import { ConnectedAccountState } from '../../pipes/interfaces';
+import {
+  ConnectedAccountAuthMethod,
+  ConnectedAccountConnectionRole,
+  ConnectedAccountState,
+} from '../../pipes/interfaces';
 import {
   VaultDataCreatedEventData,
   VaultDataCreatedEventResponseData,
@@ -1047,12 +1051,19 @@ export type PipesConnectedAccountState = ConnectedAccountState | 'disconnected';
 export interface PipesConnectedAccount {
   object: 'connected_account';
   id: string;
+  connectionRole?: ConnectedAccountConnectionRole;
+  accountIdentifier?: string | null;
+  accountDisplayName?: string | null;
   dataIntegrationId: string;
   providerSlug: string;
   userId: string | null;
   organizationId: string | null;
   scopes: string[];
+  authMethod?: ConnectedAccountAuthMethod;
+  apiKeyLast4?: string | null;
   state: PipesConnectedAccountState;
+  establishedByUserId?: string | null;
+  stateReason?: 'establishing_member_membership_ended' | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -1060,12 +1071,19 @@ export interface PipesConnectedAccount {
 export interface PipesConnectedAccountResponse {
   object: 'connected_account';
   id: string;
+  connection_role?: ConnectedAccountConnectionRole;
+  account_identifier?: string | null;
+  account_display_name?: string | null;
   data_integration_id: string;
   provider_slug: string;
   user_id: string | null;
   organization_id: string | null;
   scopes: string[];
+  auth_method?: ConnectedAccountAuthMethod;
+  api_key_last_4?: string | null;
   state: PipesConnectedAccountState;
+  established_by_user_id?: string | null;
+  state_reason?: 'establishing_member_membership_ended' | null;
   created_at: string;
   updated_at: string;
 }

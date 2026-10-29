@@ -9,4 +9,5 @@ export const deserializeDataIntegrationAuthorizeUrlResponse = (
   response: DataIntegrationAuthorizeUrlResponseWire,
 ): DataIntegrationAuthorizeUrlResponse => ({
   url: response.url,
+  completion: response.completion,
 });
