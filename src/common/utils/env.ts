@@ -21,15 +21,21 @@ export function detectRuntime(): Runtime {
 
   const global = globalThis as any;
 
-  if (typeof process !== 'undefined' && process.release?.name === 'node') {
-    detectedRuntime = 'node';
-  } else if (typeof global.Deno !== 'undefined') {
+  // Deno and Bun report `process.release.name === 'node'` for Node
+  // compatibility, so their own markers are checked before the Node check.
+  if (typeof global.Deno !== 'undefined') {
     detectedRuntime = 'deno';
   } else if (
-    typeof navigator !== 'undefined' &&
-    navigator.userAgent?.includes('Bun')
+    typeof global.Bun !== 'undefined' ||
+    (typeof process !== 'undefined' && process.versions?.bun) ||
+    (typeof navigator !== 'undefined' && navigator.userAgent?.includes('Bun'))
   ) {
     detectedRuntime = 'bun';
+  } else if (
+    typeof process !== 'undefined' &&
+    process.release?.name === 'node'
+  ) {
+    detectedRuntime = 'node';
   } else if (
     typeof navigator !== 'undefined' &&
     navigator.userAgent?.includes('Cloudflare')
