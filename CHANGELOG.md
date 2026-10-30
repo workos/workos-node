@@ -1,5 +1,18 @@
 # Changelog
 
+## [12.1.0](https://github.com/workos/workos-node/compare/v12.0.0...v12.1.0) (2026-10-30)
+
+
+### Features
+
+* **pipes:** regenerate Pipes from the spec and add finishConnection ([#1745](https://github.com/workos/workos-node/issues/1745)) ([7e19feb](https://github.com/workos/workos-node/commit/7e19feb24273a10717c17799a75ece29a63d7669))
+
+
+### Bug Fixes
+
+* detect Bun and Deno before Node ([#1744](https://github.com/workos/workos-node/issues/1744)) ([432d507](https://github.com/workos/workos-node/commit/432d507d4e37066e958e9ae6b6e6dd0763c4d680))
+* **widgets:** Add missing widget token scopes ([#1742](https://github.com/workos/workos-node/issues/1742)) ([f8b771d](https://github.com/workos/workos-node/commit/f8b771d1a14d2ab4d8ae5175e622020d1caddf72))
+
 ## [12.0.0](https://github.com/workos/workos-node/compare/v11.0.0...v12.0.0) (2026-10-23)
 
 
