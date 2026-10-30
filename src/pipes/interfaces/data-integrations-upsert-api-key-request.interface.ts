@@ -4,6 +4,10 @@
 import type { DataIntegrationsUpsertApiKeyRequestConnectionOwner } from './data-integrations-upsert-api-key-request-connection-owner.interface';
 
 export interface DataIntegrationsUpsertApiKeyRequest {
+  /** A mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers. */
+  accountDisplayName?: string | null;
+  /** A developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it. */
+  accountIdentifier?: string | null;
   /** A [User](https://workos.com/docs/reference/authkit/user) identifier. */
   userId: string;
   /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`. */
@@ -19,6 +23,8 @@ export interface DataIntegrationsUpsertApiKeyRequest {
 }
 
 export interface DataIntegrationsUpsertApiKeyRequestResponse {
+  account_display_name?: string | null;
+  account_identifier?: string | null;
   user_id: string;
   organization_id?: string;
   connected_account_id?: string;

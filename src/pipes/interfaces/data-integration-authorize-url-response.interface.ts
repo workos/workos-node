@@ -3,8 +3,11 @@
 export interface DataIntegrationAuthorizeUrlResponse {
   /** The OAuth authorization URL to redirect the user to. */
   url: string;
+  /** `finish_required` when the request included `code_challenge`: the connection will be held until your app finishes it. Omitted otherwise. If you sent `code_challenge` and this is missing, don't redirect the user. */
+  completion?: 'finish_required';
 }
 
 export interface DataIntegrationAuthorizeUrlResponseWire {
   url: string;
+  completion?: 'finish_required';
 }

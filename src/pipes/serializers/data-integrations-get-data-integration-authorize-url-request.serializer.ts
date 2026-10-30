@@ -8,9 +8,14 @@ import type {
 export const serializeDataIntegrationsGetDataIntegrationAuthorizeUrlRequest = (
   model: DataIntegrationsGetDataIntegrationAuthorizeUrlRequest,
 ): DataIntegrationsGetDataIntegrationAuthorizeUrlRequestResponse => ({
+  account_display_name: model.accountDisplayName,
   user_id: model.userId,
   organization_id: model.organizationId,
   connection_owner: model.connectionOwner,
   return_to: model.returnTo,
+  code_challenge: model.codeChallenge,
+  code_challenge_method: model.codeChallengeMethod,
   config: model.config,
+  connection_intent: model.connectionIntent,
+  connected_account_id: model.connectedAccountId,
 });

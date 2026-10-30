@@ -12,6 +12,7 @@ import { WorkOS } from '../workos';
 
 import listDataIntegrationFixture from './fixtures/list-data-integration.json';
 import dataIntegrationFixture from './fixtures/data-integration.json';
+import dataIntegrationFinishConnectionResponseFixture from './fixtures/data-integration-finish-connection-response.json';
 import connectedAccountFixture from './fixtures/connected-account.json';
 import dataIntegrationAuthorizeUrlResponseFixture from './fixtures/data-integration-authorize-url-response.json';
 import dataIntegrationCredentialsResponseFixture from './fixtures/data-integration-credentials-response.json';
@@ -97,6 +98,45 @@ describe('Pipes', () => {
     });
   });
 
+  describe('finishConnection', () => {
+    it('sends the correct request and returns result', async () => {
+      fetchOnce(dataIntegrationFinishConnectionResponseFixture);
+
+      const result = await workos.pipes.finishConnection({
+        connectCode: 'test_connect_code',
+        codeVerifier: 'test_code_verifier',
+        state: 'test_state',
+      });
+
+      expect(fetchMethod()).toBe('POST');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/data-integrations/finish',
+      );
+      expect(fetchBody()).toEqual({
+        connect_code: 'test_connect_code',
+        code_verifier: 'test_code_verifier',
+        state: 'test_state',
+      });
+      expect(result.connectedAccount).toMatchObject({
+        object: 'connected_account',
+        id: 'data_installation_01EHZNVPK3SFK441A1RGBFSHRT',
+        accountDisplayName: 'Acme production',
+        userId: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+        state: 'connected',
+        establishedByUserId: 'user_01EHZNVPK3SFK441A1RGBFSHRT',
+        stateReason: null,
+        createdAt: new Date('2024-01-16T14:20:00.000Z'),
+        warnings: [
+          {
+            code: 'duplicate_account_display_name',
+            message:
+              'Another connection for this provider and owner has the same label.',
+          },
+        ],
+      });
+    });
+  });
+
   describe('getDataIntegration', () => {
     it('returns the expected result', async () => {
       fetchOnce(dataIntegrationFixture);
@@ -158,6 +198,8 @@ describe('Pipes', () => {
         slug: 'test_slug',
         userId: 'user_id_01234',
         secret: 'test_secret',
+        accountDisplayName: 'Acme production',
+        accountIdentifier: null,
       });
 
       expect(fetchMethod()).toBe('PUT');
@@ -168,6 +210,8 @@ describe('Pipes', () => {
         expect.objectContaining({
           user_id: 'user_id_01234',
           secret: 'test_secret',
+          account_display_name: 'Acme production',
+          account_identifier: null,
         }),
       );
       expectConnectedAccount(result);
@@ -194,6 +238,40 @@ describe('Pipes', () => {
         'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
       );
     });
+
+    it('sends the code challenge and returns the completion mode', async () => {
+      fetchOnce(dataIntegrationAuthorizeUrlResponseFixture);
+
+      const result = await workos.pipes.authorizeDataIntegration({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+        returnTo: 'https://example.com/callback',
+        codeChallenge: 'test_code_challenge',
+        codeChallengeMethod: 'S256',
+      });
+
+      expect(fetchBody()).toEqual(
+        expect.objectContaining({
+          return_to: 'https://example.com/callback',
+          code_challenge: 'test_code_challenge',
+          code_challenge_method: 'S256',
+        }),
+      );
+      expect(result.completion).toBe('finish_required');
+    });
+
+    it('leaves completion undefined when the response omits it', async () => {
+      fetchOnce({
+        url: 'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
+      });
+
+      const result = await workos.pipes.authorizeDataIntegration({
+        slug: 'test_slug',
+        userId: 'user_id_01234',
+      });
+
+      expect(result.completion).toBeUndefined();
+    });
   });
 
   describe('updateDataIntegrationClientCredentials', () => {
@@ -205,6 +283,8 @@ describe('Pipes', () => {
         userId: 'user_id_01234',
         clientId: 'client_id_01234',
         clientSecret: 'test_client_secret',
+        accountDisplayName: 'Acme production',
+        accountIdentifier: 'workspace_123',
       });
 
       expect(fetchMethod()).toBe('PUT');
@@ -216,6 +296,8 @@ describe('Pipes', () => {
           user_id: 'user_id_01234',
           client_id: 'client_id_01234',
           client_secret: 'test_client_secret',
+          account_display_name: 'Acme production',
+          account_identifier: 'workspace_123',
         }),
       );
       expectConnectedAccount(result);

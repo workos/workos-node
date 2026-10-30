@@ -3,6 +3,10 @@
 import type { CreateOrganizationConnectedAccountState } from './create-organization-connected-account-state.interface';
 
 export interface CreateOrganizationConnectedAccount {
+  /** A mutable, non-unique connection label; null clears it. Not an account identifier. */
+  accountDisplayName?: string | null;
+  /** A developer-attested account identifier; null clears it. */
+  accountIdentifier?: string | null;
   /** The OAuth access token for the connected account. */
   accessToken?: string;
   /** The OAuth refresh token for the connected account. */
@@ -15,11 +19,13 @@ export interface CreateOrganizationConnectedAccount {
   state?: CreateOrganizationConnectedAccountState;
   /** The [User](https://workos.com/docs/reference/authkit/user) identifier of the organization member on whose behalf the connected account is being imported or updated. The user must be an active member of the organization. */
   userId: string;
-  /** Set to `add` to create another connected account. Omit this field for permanent compatibility behavior. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration, which creates the compatibility connection, and otherwise returns 404 `multiple_connections_unavailable`. */
+  /** Set to `add` to create another connected account. Omit this field for permanent compatibility behavior. */
   connectionIntent?: 'add';
 }
 
 export interface CreateOrganizationConnectedAccountResponse {
+  account_display_name?: string | null;
+  account_identifier?: string | null;
   access_token?: string;
   refresh_token?: string;
   expires_at?: string;

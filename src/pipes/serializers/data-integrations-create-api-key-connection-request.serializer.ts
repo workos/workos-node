@@ -8,6 +8,8 @@ import type {
 export const serializeDataIntegrationsCreateApiKeyConnectionRequest = (
   model: DataIntegrationsCreateApiKeyConnectionRequest,
 ): DataIntegrationsCreateApiKeyConnectionRequestResponse => ({
+  account_display_name: model.accountDisplayName,
+  account_identifier: model.accountIdentifier,
   user_id: model.userId,
   organization_id: model.organizationId,
   connection_owner: model.connectionOwner,

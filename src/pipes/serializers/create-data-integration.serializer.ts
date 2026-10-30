@@ -13,18 +13,18 @@ export const serializeCreateDataIntegration = (
 ): CreateDataIntegrationResponse => ({
   provider: model.provider,
   ownership: model.ownership,
-  auth_methods: model.authMethods,
-  config: model.config,
-  api_key:
-    model.apiKey != null
-      ? serializeApiKeyInstallation(model.apiKey)
-      : undefined,
   description: model.description,
   enabled: model.enabled,
   scopes: model.scopes,
+  auth_methods: model.authMethods,
+  config: model.config,
   credentials:
     model.credentials != null
       ? serializeDataIntegrationCredentialsInput(model.credentials)
+      : undefined,
+  api_key:
+    model.apiKey != null
+      ? serializeApiKeyInstallation(model.apiKey)
       : undefined,
   custom_provider:
     model.customProvider != null

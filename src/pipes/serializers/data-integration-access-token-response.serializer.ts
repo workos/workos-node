@@ -24,7 +24,8 @@ export const deserializeDataIntegrationAccessTokenResponse = (
       };
     default:
       throw new Error(
-        `Unknown active: ${String((response as Record<string, unknown>).active)}`,
+        'Unknown active: ' +
+          String((response as Record<string, unknown>).active),
       );
   }
 };

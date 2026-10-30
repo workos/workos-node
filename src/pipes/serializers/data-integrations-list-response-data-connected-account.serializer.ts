@@ -4,6 +4,7 @@ import type {
   DataIntegrationsListResponseDataConnectedAccount,
   DataIntegrationsListResponseDataConnectedAccountResponse,
 } from '../interfaces/data-integrations-list-response-data-connected-account.interface';
+import { deserializeDataIntegrationsListResponseDataConnectedAccountWarning } from './data-integrations-list-response-data-connected-account-warning.serializer';
 
 export const deserializeDataIntegrationsListResponseDataConnectedAccount = (
   response: DataIntegrationsListResponseDataConnectedAccountResponse,
@@ -22,7 +23,15 @@ export const deserializeDataIntegrationsListResponseDataConnectedAccount = (
   clientSecretLast4: response.client_secret_last_4 ?? null,
   config: response.config,
   state: response.state,
+  establishedByUserId: response.established_by_user_id ?? null,
+  stateReason: response.state_reason ?? null,
   createdAt: new Date(response.created_at),
   updatedAt: new Date(response.updated_at),
+  warnings:
+    response.warnings != null
+      ? response.warnings.map(
+          deserializeDataIntegrationsListResponseDataConnectedAccountWarning,
+        )
+      : undefined,
   userlandUserId: response.userland_user_id ?? null,
 });

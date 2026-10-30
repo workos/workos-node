@@ -882,6 +882,65 @@ describe('Event', () => {
           listMetadata: {},
         });
       });
+
+      it('deserializes the current connected account payload fields', async () => {
+        const response: PipesConnectedAccountConnectedEventResponse = {
+          id: 'event_connected',
+          created_at: '2026-10-29T12:00:00.000Z',
+          event: 'pipes.connected_account.connected',
+          data: {
+            object: 'connected_account',
+            id: 'data_installation_123',
+            connection_role: 'standard',
+            account_identifier: 'workspace_123',
+            account_display_name: 'Acme production',
+            data_integration_id: 'data_integration_123',
+            provider_slug: 'github',
+            user_id: null,
+            organization_id: 'org_123',
+            scopes: ['repo'],
+            auth_method: 'api_key',
+            api_key_last_4: 'cdef',
+            state: 'needs_reauthorization',
+            established_by_user_id: null,
+            state_reason: 'establishing_member_membership_ended',
+            created_at: '2026-10-29T11:00:00.000Z',
+            updated_at: '2026-10-29T12:00:00.000Z',
+          },
+        };
+
+        fetchOnce({ object: 'list', data: [response], list_metadata: {} });
+
+        const list = await workos.events.listEvents({
+          events: ['pipes.connected_account.connected'],
+        });
+
+        expect(list.data[0]).toEqual({
+          id: 'event_connected',
+          createdAt: new Date('2026-10-29T12:00:00.000Z'),
+          context: undefined,
+          event: 'pipes.connected_account.connected',
+          data: {
+            object: 'connected_account',
+            id: 'data_installation_123',
+            connectionRole: 'standard',
+            accountIdentifier: 'workspace_123',
+            accountDisplayName: 'Acme production',
+            dataIntegrationId: 'data_integration_123',
+            providerSlug: 'github',
+            userId: null,
+            organizationId: 'org_123',
+            scopes: ['repo'],
+            authMethod: 'api_key',
+            apiKeyLast4: 'cdef',
+            state: 'needs_reauthorization',
+            establishedByUserId: null,
+            stateReason: 'establishing_member_membership_ended',
+            createdAt: new Date('2026-10-29T11:00:00.000Z'),
+            updatedAt: new Date('2026-10-29T12:00:00.000Z'),
+          },
+        });
+      });
     });
 
     describe('feature flag events', () => {

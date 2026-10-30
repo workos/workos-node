@@ -18,6 +18,7 @@ export const deserializeDataIntegrationVendedCredential = (
           response.expires_at != null ? new Date(response.expires_at) : null,
         scopes: response.scopes,
         missingScopes: response.missing_scopes,
+        metadata: response.metadata,
         config: response.config,
       };
     case 'api_key':
