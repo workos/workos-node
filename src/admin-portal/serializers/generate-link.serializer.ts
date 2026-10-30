@@ -21,6 +21,7 @@ export const deserializeGenerateLink = (
       ? deserializeIntentOptions(response.intent_options)
       : undefined,
   itContactEmails: response.it_contact_emails,
+  externalUserId: response.external_user_id,
 });
 
 export const serializeGenerateLink = (
@@ -35,4 +36,5 @@ export const serializeGenerateLink = (
       ? serializeIntentOptions(model.intentOptions)
       : undefined,
   it_contact_emails: model.itContactEmails,
+  external_user_id: model.externalUserId,
 });
