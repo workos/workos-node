@@ -397,7 +397,8 @@ export class WorkOS {
    * Everything else (a `ParseError` for malformed JSON, a network failure
    * mid-body) propagates unchanged.
    */
-  private async readResponseJSON(
+  /** @internal */
+  async readResponseJSON(
     path: string,
     response: HttpClientResponseInterface,
   ): Promise<any> {
@@ -417,7 +418,8 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  private handleHttpError({ path, error }: { path: string; error: unknown }) {
+  /** @internal */
+  handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }
