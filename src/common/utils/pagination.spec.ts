@@ -56,6 +56,24 @@ describe('AutoPaginatable', () => {
     expect(mockApiCall).not.toHaveBeenCalled();
   });
 
+  it('returns initial data without a request when there is no next page', async () => {
+    const initialData: List<TestObject> = {
+      object: 'list',
+      data: [{ id: '1' }, { id: '2' }],
+      listMetadata: { before: null, after: null },
+    };
+
+    const paginatable = new AutoPaginatable<TestObject, PaginationOptions>(
+      initialData,
+      mockApiCall,
+    );
+
+    const result = await paginatable.autoPagination();
+
+    expect(result).toEqual(initialData.data);
+    expect(mockApiCall).not.toHaveBeenCalled();
+  });
+
   it('paginates through all pages', async () => {
     const initialData: List<TestObject> = {
       object: 'list',
@@ -88,6 +106,8 @@ describe('AutoPaginatable', () => {
     const result = await resultPromise;
 
     expect(result).toEqual([
+      { id: '1' },
+      { id: '2' },
       { id: '3' },
       { id: '4' },
       { id: '5' },
@@ -97,7 +117,7 @@ describe('AutoPaginatable', () => {
     expect(mockApiCall).toHaveBeenCalledTimes(2);
     expect(mockApiCall).toHaveBeenNthCalledWith(1, {
       limit: 100,
-      after: undefined,
+      after: 'cursor1',
     });
     expect(mockApiCall).toHaveBeenNthCalledWith(2, {
       limit: 100,
@@ -118,11 +138,6 @@ describe('AutoPaginatable', () => {
     mockApiCall
       .mockResolvedValueOnce({
         object: 'list',
-        data: [{ id: 'u11' }, { id: 'u12' }],
-        listMetadata: { before: 'u11', after: 'u12' },
-      })
-      .mockResolvedValueOnce({
-        object: 'list',
         data: [{ id: 'u13' }, { id: 'u14' }],
         listMetadata: { before: 'u13', after: 'u14' },
       })
@@ -140,7 +155,7 @@ describe('AutoPaginatable', () => {
 
     const resultPromise = paginatable.autoPagination();
 
-    await jest.advanceTimersByTimeAsync(700);
+    await jest.advanceTimersByTimeAsync(350);
 
     const result = await resultPromise;
 
@@ -152,20 +167,16 @@ describe('AutoPaginatable', () => {
       { id: 'u15' },
     ]);
 
-    expect(mockApiCall).toHaveBeenCalledTimes(3);
+    expect(mockApiCall).toHaveBeenCalledTimes(2);
     expect(mockApiCall).toHaveBeenNthCalledWith(1, {
-      limit: 100,
-      before: 'u21',
-    });
-    expect(mockApiCall).toHaveBeenNthCalledWith(2, {
       limit: 100,
       after: 'u12',
     });
-    expect(mockApiCall).toHaveBeenNthCalledWith(3, {
+    expect(mockApiCall).toHaveBeenNthCalledWith(2, {
       limit: 100,
       after: 'u14',
     });
-    for (const call of mockApiCall.mock.calls.slice(1)) {
+    for (const call of mockApiCall.mock.calls) {
       expect(call[0]).not.toHaveProperty('before');
     }
   });
@@ -233,7 +244,7 @@ describe('AutoPaginatable', () => {
     await resultPromise;
 
     expect(mockApiCall).toHaveBeenNthCalledWith(1, {
-      after: undefined,
+      after: 'cursor1',
       status: 'active',
       limit: 100,
     });
