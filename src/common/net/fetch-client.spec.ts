@@ -1141,7 +1141,11 @@ describe('request timeout covers the response body (GH-1679)', () => {
           { client_secret: 'sk_test' },
           {},
         ),
-      ).rejects.toBeInstanceOf(ParseError);
+      ).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining(`redirect (307 to ${baseURL}/stolen)`),
+        response: { status: 307 },
+      });
       expect(requestCount).toBe(1);
     });
 

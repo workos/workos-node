@@ -2,9 +2,6 @@
 import { Actions } from './actions/actions';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
-import { FetchHttpClient } from './common/net/fetch-client';
-import { HttpClient } from './common/net/http-client';
-import { WorkOSOptions } from './index.worker';
 import { Webhooks } from './webhooks/webhooks';
 import { WorkOS } from './workos';
 
@@ -34,37 +31,6 @@ export {
 } from './factory';
 
 class WorkOSWorker extends WorkOS {
-  /** @override */
-  createHttpClient(options: WorkOSOptions, userAgent: string): HttpClient {
-    const headers: Record<string, string> = {
-      'User-Agent': userAgent,
-    };
-
-    const configHeaders = options.config?.headers;
-    if (
-      configHeaders &&
-      typeof configHeaders === 'object' &&
-      !Array.isArray(configHeaders) &&
-      !(configHeaders instanceof Headers)
-    ) {
-      Object.assign(headers, configHeaders);
-    }
-
-    if (this.key) {
-      headers['Authorization'] = `Bearer ${this.key}`;
-    }
-
-    return new FetchHttpClient(
-      this.baseURL,
-      {
-        ...options.config,
-        maxRetries: options.maxRetries,
-        headers,
-      },
-      options.fetchFn,
-    );
-  }
-
   /** @override */
   createWebhookClient(): Webhooks {
     return new Webhooks(this);

@@ -225,6 +225,24 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         redirect: 'manual',
       });
 
+      // Browsers report a manual redirect as an opaque response with status 0.
+      if (
+        (res.status >= 300 && res.status < 400) ||
+        res.type === 'opaqueredirect'
+      ) {
+        clearTimeout(timeoutId);
+        const location = res.headers.get('Location');
+        const message = `WorkOS API responded with a redirect (${res.status}${location ? ` to ${location}` : ''}). Redirects are not followed; check the apiHostname, port and https options.`;
+        throw new HttpClientError({
+          message,
+          response: {
+            status: res.status,
+            headers: res.headers,
+            data: { message },
+          },
+        });
+      }
+
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
         // Read the error body under the same deadline, inside the attempt,
