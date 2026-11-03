@@ -353,7 +353,6 @@ describe('FeatureFlags', () => {
           },
         };
         fetchOnce(fixtureWithAfter);
-        fetchOnce(fixtureWithAfter);
         fetchOnce(listOrganizationFeatureFlagsFixture);
 
         const result = await workos.featureFlags.listOrganizationFeatureFlags({
@@ -362,12 +361,12 @@ describe('FeatureFlags', () => {
 
         await result.autoPagination();
 
-        const thirdCallUrl = fetch.mock.calls[2][0];
-        const thirdCallParams = Object.fromEntries(
-          new URL(String(thirdCallUrl)).searchParams,
+        const secondCallUrl = fetch.mock.calls[1][0];
+        const secondCallParams = Object.fromEntries(
+          new URL(String(secondCallUrl)).searchParams,
         );
-        expect(thirdCallParams).not.toHaveProperty('organizationId');
-        expect(thirdCallParams).toHaveProperty('after', 'flag_next_page');
+        expect(secondCallParams).not.toHaveProperty('organizationId');
+        expect(secondCallParams).toHaveProperty('after', 'flag_next_page');
       });
     });
   });

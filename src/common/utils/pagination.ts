@@ -24,23 +24,17 @@ export class AutoPaginatable<
     return this.list.listMetadata;
   }
 
-  private async *generatePages(
-    params: PaginationOptions,
-  ): AsyncGenerator<ResourceType[]> {
+  private async *generatePages(after: string): AsyncGenerator<ResourceType[]> {
+    // Follow-up pages always walk forward from the first page, so `before` is dropped
     const { before, ...options } = this.options;
-    const result = await this.apiCall({
-      ...options,
-      limit: 100,
-      ...(params.before ? { before } : {}),
-      after: params.after,
-    });
+    const result = await this.apiCall({ ...options, limit: 100, after });
 
     yield result.data;
 
     if (result.listMetadata.after) {
       // Delay of 4rps to respect list users rate limits
       await new Promise((resolve) => setTimeout(resolve, 350));
-      yield* this.generatePages({ after: result.listMetadata.after });
+      yield* this.generatePages(result.listMetadata.after);
     }
   }
 
@@ -49,16 +43,13 @@ export class AutoPaginatable<
    * Returns the first result if `options.limit` is passed to the first request.
    */
   async autoPagination(): Promise<ResourceType[]> {
-    if (this.options.limit) {
+    if (this.options.limit || !this.listMetadata.after) {
       return this.data;
     }
 
-    const results: ResourceType[] = [];
+    const results = [...this.data];
 
-    for await (const page of this.generatePages({
-      before: this.options.before,
-      after: this.options.after,
-    })) {
+    for await (const page of this.generatePages(this.listMetadata.after)) {
       results.push(...page);
     }
 

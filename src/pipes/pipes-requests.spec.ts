@@ -42,7 +42,6 @@ beforeEach(() => fetch.resetMocks());
 
 describe('Pipes request contracts', () => {
   it('preserves the ownership filter across automatic pagination', async () => {
-    fetchOnce(listDataIntegrationFixture);
     fetchOnce({
       ...listDataIntegrationFixture,
       list_metadata: { before: null, after: 'next' },
@@ -60,7 +59,6 @@ describe('Pipes request contracts', () => {
       ),
     ).toEqual([
       { ownership: 'organization', order: 'desc' },
-      { ownership: 'organization', order: 'desc', limit: '100' },
       { ownership: 'organization', order: 'desc', limit: '100', after: 'next' },
     ]);
   });
