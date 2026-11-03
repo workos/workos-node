@@ -131,7 +131,11 @@ describe('DataIntegrationAuthorizeUrlResponseSerializer', () => {
       dataIntegrationAuthorizeUrlResponseFixture as DataIntegrationAuthorizeUrlResponseWire;
     const deserialized =
       deserializeDataIntegrationAuthorizeUrlResponse(fixture);
-    expect(deserialized).toBeDefined();
+    expect(deserialized).toEqual({
+      url: fixture.url,
+      state: fixture.state,
+      completion: fixture.completion,
+    });
   });
 });
 
