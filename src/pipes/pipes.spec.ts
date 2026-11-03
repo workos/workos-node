@@ -237,6 +237,7 @@ describe('Pipes', () => {
       expect(result.url).toBe(
         'https://api.workos.com/data-integrations/q2czJKmVAraSBg8xFpT7M9uR/authorize-redirect',
       );
+      expect(result.state).toBe('01K8ZQ6Y3J4N5P7R9T2V4W6X8Z');
     });
 
     it('sends the code challenge and returns the completion mode', async () => {
