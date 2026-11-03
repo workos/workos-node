@@ -17,7 +17,8 @@ export interface AuditLogTarget {
 export interface CreateAuditLogEventOptions {
   action: string;
   version?: number;
-  occurredAt: Date;
+  /** Defaults to the time WorkOS accepts the event when omitted. */
+  occurredAt?: Date;
   actor: AuditLogActor;
   targets: AuditLogTarget[];
   context: {
@@ -30,7 +31,7 @@ export interface CreateAuditLogEventOptions {
 export interface SerializedCreateAuditLogEventOptions {
   action: string;
   version?: number;
-  occurred_at: string;
+  occurred_at?: string;
   actor: AuditLogActor;
   targets: AuditLogTarget[];
   context: {

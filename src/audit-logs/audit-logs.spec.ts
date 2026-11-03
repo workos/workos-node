@@ -141,6 +141,52 @@ describe('AuditLogs', () => {
   });
 
   describe('createEvent', () => {
+    it('omits occurred_at when occurredAt is not provided', async () => {
+      fetchOnce({ success: true });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+      const eventWithoutTimestamp: CreateAuditLogEventOptions = {
+        action: event.action,
+        actor: event.actor,
+        targets: event.targets,
+        context: event.context,
+      };
+
+      await workos.auditLogs.createEvent('org_123', eventWithoutTimestamp);
+
+      expect(fetchBody()).toMatchObject({
+        organization_id: 'org_123',
+        event: { action: event.action },
+      });
+      expect(fetchBody().event).not.toHaveProperty('occurred_at');
+    });
+
+    it('omits occurred_at when occurredAt is undefined', async () => {
+      fetchOnce({ success: true });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.auditLogs.createEvent('org_123', {
+        ...event,
+        occurredAt: undefined,
+      });
+
+      expect(fetchBody().event).not.toHaveProperty('occurred_at');
+    });
+
+    it('preserves an explicitly provided occurredAt', async () => {
+      fetchOnce({ success: true });
+
+      const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+      await workos.auditLogs.createEvent('org_123', {
+        ...event,
+        occurredAt: new Date('2026-11-03T12:34:56.789Z'),
+      });
+
+      expect(fetchBody().event.occurred_at).toBe('2026-11-03T12:34:56.789Z');
+    });
+
     describe('with an idempotency key', () => {
       it('includes an idempotency key with request', async () => {
         const workosSpy = jest.spyOn(WorkOS.prototype, 'post');

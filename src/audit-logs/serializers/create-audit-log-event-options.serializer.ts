@@ -8,7 +8,9 @@ export const serializeCreateAuditLogEventOptions = (
 ): SerializedCreateAuditLogEventOptions => ({
   action: event.action,
   version: event.version,
-  occurred_at: event.occurredAt.toISOString(),
+  ...(event.occurredAt === undefined
+    ? {}
+    : { occurred_at: event.occurredAt.toISOString() }),
   actor: event.actor,
   targets: event.targets,
   context: {
