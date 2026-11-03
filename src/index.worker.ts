@@ -54,11 +54,15 @@ class WorkOSWorker extends WorkOS {
       headers['Authorization'] = `Bearer ${this.key}`;
     }
 
-    return new FetchHttpClient(this.baseURL, {
-      ...options.config,
-      maxRetries: options.maxRetries,
-      headers,
-    });
+    return new FetchHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        maxRetries: options.maxRetries,
+        headers,
+      },
+      options.fetchFn,
+    );
   }
 
   /** @override */

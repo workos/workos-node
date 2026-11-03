@@ -219,6 +219,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         },
         body: requestBody,
         signal: abortController.signal,
+        // The API never redirects. Following one would re-send the body (which
+        // can carry client_secret) to the redirect target. 'manual' rather than
+        // 'error': Cloudflare workerd rejects 'error'.
+        redirect: 'manual',
       });
 
       if (!res.ok) {

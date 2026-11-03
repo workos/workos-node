@@ -1122,6 +1122,29 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(requestCount).toBe(1);
     });
 
+    it('does not follow a redirect, so the request body is never re-sent', async () => {
+      handler = (req, res) => {
+        if (req.url === '/stolen') {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end('{}');
+          return;
+        }
+        res.writeHead(307, { location: `${baseURL}/stolen` });
+        res.end();
+      };
+      // Default timeout: the shared 100ms one can retry a slow first request.
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(
+        client.post(
+          '/user_management/authenticate',
+          { client_secret: 'sk_test' },
+          {},
+        ),
+      ).rejects.toBeInstanceOf(ParseError);
+      expect(requestCount).toBe(1);
+    });
+
     it('does not retry a successful body that times out, even when retries are enabled', async () => {
       stallBody(200);
       const { client } = createClient(2);

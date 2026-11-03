@@ -780,6 +780,21 @@ describe('WorkOS', () => {
       ).toBeInstanceOf(SubtleCryptoProvider);
     });
 
+    it('uses the provided fetchFn', async () => {
+      const fetchFn = jest.fn(
+        async () =>
+          new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+      );
+      const workos = new WorkOSWorker('sk_test_key', { fetchFn });
+
+      await workos.get('/path');
+
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+    });
+
     it('uses console.warn to emit warnings', () => {
       const workos = new WorkOSWorker('sk_test_key');
       const warnSpy = jest.spyOn(console, 'warn');
