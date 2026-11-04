@@ -868,7 +868,7 @@ export class UserManagement {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    return (await this.verifyJwt(accessToken)) !== null;
+    return (await this.verifyAccessToken(accessToken)) !== null;
   }
 
   private async prepareAuthenticationResponse({

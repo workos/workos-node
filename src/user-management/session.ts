@@ -244,31 +244,7 @@ export class CookieSession {
   }
 
   private async isValidJwt(accessToken: string): Promise<boolean> {
-    const { jwtVerify } = await getJose();
-    const jwks = await this.userManagement.getJWKS();
-    if (!jwks) {
-      throw new Error(
-        'Missing client ID. Did you provide it when initializing WorkOS?',
-      );
-    }
-
-    const { issuer } = this.userManagement;
-    try {
-      await jwtVerify(accessToken, jwks, issuer ? { issuer } : undefined);
-      return true;
-    } catch (e) {
-      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
-      // Network errors, crypto failures, etc. should propagate
-      if (
-        e instanceof Error &&
-        'code' in e &&
-        typeof e.code === 'string' &&
-        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
-      ) {
-        return false;
-      }
-      throw e;
-    }
+    return (await this.userManagement.verifyAccessToken(accessToken)) !== null;
   }
 }
 

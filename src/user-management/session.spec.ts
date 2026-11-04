@@ -20,6 +20,17 @@ jest.mock('jose', () => ({
   jwtVerify: jest.fn(),
 }));
 
+const verifiedUserAccessToken = {
+  payload: {
+    iss: 'https://api.workos.com/user_management/client_123',
+    sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+    sid: 'session_123',
+    exp: 1735684500,
+    iat: 1735683600,
+    auth_time: 1735683600,
+  },
+} as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
+
 describe('Session', () => {
   let workos: WorkOS;
 
@@ -117,10 +128,48 @@ describe('Session', () => {
       });
     });
 
+    it.each([
+      [
+        'an agent access token',
+        { sub: 'agent_01H5JQDV7R7ATEYZDEG0W5PRYS', sub_profile: 'ai_agent' },
+      ],
+      ['a widget session token', { sub_type: 'authkit' }],
+    ])(
+      'returns a failed response if the accessToken is %s',
+      async (_family, familyClaims) => {
+        jest.mocked(jose.jwtVerify).mockResolvedValue({
+          ...verifiedUserAccessToken,
+          payload: { ...verifiedUserAccessToken.payload, ...familyClaims },
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+        const sessionData = await sealData(
+          {
+            accessToken: 'abc123',
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await expect(session.authenticate()).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      },
+    );
+
     it('returns a successful response if the sessionData is valid', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
@@ -202,7 +251,7 @@ describe('Session', () => {
         jest
           .mocked(jose.jwtVerify)
           .mockReset()
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+          .mockResolvedValue(verifiedUserAccessToken);
       });
 
       it('does not validate the issuer claim by default', async () => {
@@ -672,9 +721,7 @@ describe('Session', () => {
           refreshToken,
         });
 
-        jest
-          .mocked(jose.jwtVerify)
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+        jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
@@ -761,9 +808,7 @@ describe('Session', () => {
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
@@ -806,9 +851,7 @@ describe('Session', () => {
 
     describe('when a returnTo URL is provided', () => {
       it('returns a logout URL for the user', async () => {
-        jest
-          .mocked(jose.jwtVerify)
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+        jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 

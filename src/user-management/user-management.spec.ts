@@ -36,6 +36,17 @@ jest.mock('jose', () => ({
   createRemoteJWKSet: jest.fn(),
 }));
 
+const verifiedUserAccessToken = {
+  payload: {
+    iss: 'https://api.workos.com/user_management/client_123',
+    sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+    sid: 'session_123',
+    exp: 1735684500,
+    iat: 1735683600,
+    auth_time: 1735683600,
+  },
+} as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
+
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -1614,6 +1625,43 @@ describe('UserManagement', () => {
       ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
     });
 
+    it.each([
+      [
+        'an agent access token',
+        { sub: 'agent_01H5JQDV7R7ATEYZDEG0W5PRYS', sub_profile: 'ai_agent' },
+      ],
+      ['a widget session token', { sub_type: 'authkit' }],
+    ])(
+      'returns authenticated = false when the JWT is %s',
+      async (_family, familyClaims) => {
+        jest.mocked(jose.jwtVerify).mockResolvedValue({
+          ...verifiedUserAccessToken,
+          payload: { ...verifiedUserAccessToken.payload, ...familyClaims },
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+        const sessionData = await sealData(
+          {
+            accessToken: 'abc123',
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        await expect(
+          workos.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          }),
+        ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
+      },
+    );
+
     it('rethrows non-JWT errors (e.g., network failures)', async () => {
       jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
         // Simulate a network error (no jose error code)
@@ -1643,9 +1691,7 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
@@ -1685,9 +1731,7 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
@@ -1752,7 +1796,7 @@ describe('UserManagement', () => {
         jest
           .mocked(jose.jwtVerify)
           .mockReset()
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+          .mockResolvedValue(verifiedUserAccessToken);
       });
 
       it('does not validate the issuer claim by default', async () => {
