@@ -413,6 +413,32 @@ describe('WorkOS', () => {
         });
         expect(fetchFn).toHaveBeenCalledTimes(1);
       });
+
+      it('throws a GenericServerException for an opaque redirect from a browser fetch', async () => {
+        // Browsers hide the status and Location of a manual redirect behind
+        // an opaque response. The Response constructor rejects status 0, so
+        // this is a bare fake.
+        const fetchFn = jest.fn(
+          async () =>
+            ({
+              type: 'opaqueredirect',
+              status: 0,
+              ok: false,
+              headers: new Headers(),
+              body: null,
+            }) as unknown as Response,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn,
+        });
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          name: 'GenericServerException',
+          status: 0,
+          message: expect.stringContaining('an opaque redirect'),
+        });
+        expect(fetchFn).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('when the api responds with a 500 and no error/error_description', () => {

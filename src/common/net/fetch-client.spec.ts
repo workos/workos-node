@@ -1149,6 +1149,29 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(requestCount).toBe(1);
     });
 
+    it('releases the connection when a redirect body stalls instead of waiting on it', async () => {
+      let connectionClosed!: Promise<void>;
+      handler = (_req, res) => {
+        connectionClosed = new Promise((resolve) =>
+          res.on('close', () => resolve()),
+        );
+        res.writeHead(307, { location: `${baseURL}/elsewhere` });
+        res.write('<html>');
+        // Hold the body open; the client must not read it.
+      };
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(client.get('/users', {})).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining('redirect (307'),
+        response: { status: 307 },
+      });
+      // The request was aborted, so the server sees the connection drop
+      // rather than the SDK sitting on the deadline.
+      await connectionClosed;
+      expect(requestCount).toBe(1);
+    });
+
     it('does not retry a successful body that times out, even when retries are enabled', async () => {
       stallBody(200);
       const { client } = createClient(2);
