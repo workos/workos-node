@@ -78,14 +78,16 @@ export class CookieSession {
       };
     }
 
-    if (!(await this.isValidJwt(session.accessToken))) {
+    const claims = await this.userManagement.verifyAccessToken(
+      session.accessToken,
+    );
+
+    if (!claims) {
       return {
         authenticated: false,
         reason: AuthenticateWithSessionCookieFailureReason.INVALID_JWT,
       };
     }
-
-    const { decodeJwt } = await getJose();
 
     const {
       sid: sessionId,
@@ -95,7 +97,7 @@ export class CookieSession {
       permissions,
       entitlements,
       feature_flags: featureFlags,
-    } = decodeJwt<UserManagementAccessToken>(session.accessToken);
+    } = claims;
 
     return {
       authenticated: true,
@@ -241,10 +243,6 @@ export class CookieSession {
       sessionId: authenticationResponse.sessionId,
       returnTo,
     });
-  }
-
-  private async isValidJwt(accessToken: string): Promise<boolean> {
-    return (await this.userManagement.verifyAccessToken(accessToken)) !== null;
   }
 }
 

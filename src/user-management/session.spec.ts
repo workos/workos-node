@@ -31,6 +31,16 @@ const verifiedUserAccessToken = {
   },
 } as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
 
+function verifiedAccessToken(accessToken: string) {
+  return {
+    ...verifiedUserAccessToken,
+    payload: {
+      ...verifiedUserAccessToken.payload,
+      ...jose.decodeJwt(accessToken),
+    },
+  };
+}
+
 describe('Session', () => {
   let workos: WorkOS;
 
@@ -169,12 +179,14 @@ describe('Session', () => {
     );
 
     it('returns a successful response if the sessionData is valid', async () => {
-      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInJvbGVzIjpbIm1lbWJlciIsImFkbWluIl0sInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.TNUzJYn6lzLWFFsiWiKEgIshyUs-bKJQf1VxwNr1cGI';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {

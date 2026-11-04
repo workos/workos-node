@@ -689,14 +689,6 @@ export class UserManagement {
       throw new Error('Cookie password is required');
     }
 
-    const jwks = await this.getJWKS();
-
-    if (!jwks) {
-      throw new Error('Must provide clientId to initialize JWKS');
-    }
-
-    const { decodeJwt } = await getJose();
-
     if (!sessionData) {
       return {
         authenticated: false,
@@ -719,7 +711,9 @@ export class UserManagement {
       };
     }
 
-    if (!(await this.isValidJwt(session.accessToken))) {
+    const claims = await this.verifyAccessToken(session.accessToken);
+
+    if (!claims) {
       return {
         authenticated: false,
         reason: AuthenticateWithSessionCookieFailureReason.INVALID_JWT,
@@ -734,7 +728,7 @@ export class UserManagement {
       permissions,
       entitlements,
       feature_flags: featureFlags,
-    } = decodeJwt<UserManagementAccessToken>(session.accessToken);
+    } = claims;
 
     return {
       authenticated: true,
@@ -865,10 +859,6 @@ export class UserManagement {
       e.code === 'ERR_JOSE_NOT_SUPPORTED' ||
       e.code === 'ERR_JOSE_ALG_NOT_ALLOWED'
     );
-  }
-
-  private async isValidJwt(accessToken: string): Promise<boolean> {
-    return (await this.verifyAccessToken(accessToken)) !== null;
   }
 
   private async prepareAuthenticationResponse({

@@ -47,6 +47,16 @@ const verifiedUserAccessToken = {
   },
 } as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
 
+function verifiedAccessToken(accessToken: string) {
+  return {
+    ...verifiedUserAccessToken,
+    payload: {
+      ...verifiedUserAccessToken.payload,
+      ...jose.decodeJwt(accessToken),
+    },
+  };
+}
+
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -1691,11 +1701,13 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
-      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.YVNjR8S2xGn2jAoLuEcBQNJ1_xY3OzjRE1-BK0zjfQE';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {
@@ -1731,11 +1743,13 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
-      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iLCJtZW1iZXIiXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl0sImVudGl0bGVtZW50cyI6WyJhdWRpdC1sb2dzIl0sImZlYXR1cmVfZmxhZ3MiOlsiZGFyay1tb2RlIiwiYmV0YS1mZWF0dXJlcyJdLCJ1c2VyIjp7Im9iamVjdCI6InVzZXIiLCJpZCI6InVzZXJfMDFINUpRRFY3UjdBVEVZWkRFRzBXNVBSWVMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifX0.hsMptIB7PmbF5pxxtgTtCdUyOAhA11ZIAP-JY5zU5fE';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {
