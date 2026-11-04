@@ -1,5 +1,20 @@
 # Changelog
 
+## [12.2.0](https://github.com/workos/workos-node/compare/v12.1.0...v12.2.0) (2026-11-04)
+
+
+### Features
+
+* **connect:** add exchangeToken for RFC 8693 token exchange ([#1741](https://github.com/workos/workos-node/issues/1741)) ([fbb9a06](https://github.com/workos/workos-node/commit/fbb9a06fb9632f1fa547f244b8175be32a0b02dc))
+* **pipes:** Return state from authorizeDataIntegration ([#1750](https://github.com/workos/workos-node/issues/1750)) ([fcc2777](https://github.com/workos/workos-node/commit/fcc2777e3e086182d3264373f1dd305da5c38c29))
+
+
+### Bug Fixes
+
+* **events:** Remove the unsupported order option from listEvents ([#1747](https://github.com/workos/workos-node/issues/1747)) ([0222f79](https://github.com/workos/workos-node/commit/0222f79c343f60706fb5c35059a089e65537d175))
+* Reuse the first page in autoPagination ([#1748](https://github.com/workos/workos-node/issues/1748)) ([51b6f0b](https://github.com/workos/workos-node/commit/51b6f0b736fde81faccfbcde757e6d2f341c7a52))
+* **user-management:** Reject non-user access tokens in session cookies ([#1753](https://github.com/workos/workos-node/issues/1753)) ([fab1ea5](https://github.com/workos/workos-node/commit/fab1ea594ba78bb8558eebc47a6c5da809da1082))
+
 ## [12.1.0](https://github.com/workos/workos-node/compare/v12.0.0...v12.1.0) (2026-10-30)
 
 
