@@ -12,3 +12,4 @@ export * from './user-consent-option.serializer';
 export * from './user-consent-option-choice.serializer';
 export * from './user-management-login-request.serializer';
 export * from './user-object.serializer';
+export * from './token-exchange-response.serializer';
