@@ -56,6 +56,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       null,
       options.headers,
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -79,6 +80,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         ...options.headers,
       },
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -102,6 +104,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         ...options.headers,
       },
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -125,6 +128,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         ...options.headers,
       },
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -144,6 +148,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       null,
       options.headers,
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -167,6 +172,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         ...options.headers,
       },
       options.maxRetries,
+      options.signal,
     );
   }
 
@@ -175,7 +181,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     method: string,
     body?: any,
     headers?: RequestHeaders,
+    signal?: AbortSignal,
   ): Promise<HttpClientResponseInterface> {
+    signal?.throwIfAborted();
+
     // For methods which expect payloads, we should always pass a body value
     // even when it is empty. Without this, some JS runtimes (eg. Deno) will
     // inject a second Content-Length header.
@@ -193,17 +202,26 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     const timeoutId = setTimeout(() => {
       abortController.abort();
     }, timeout);
+    const abortRequest = () => abortController.abort();
+    signal?.addEventListener('abort', abortRequest, { once: true });
+    const release = () => {
+      clearTimeout(timeoutId);
+      signal?.removeEventListener('abort', abortRequest);
+    };
     // Pass the response headers once they are known so a timeout while
-    // reading the body still carries the request ID and Retry-After.
-    const timeoutError = (responseHeaders?: Headers) =>
-      new HttpClientError({
-        message: `Request timeout after ${timeout}ms`,
-        response: {
-          status: 408,
-          headers: responseHeaders ?? new Headers(),
-          data: { error: 'Request timeout' },
-        },
-      });
+    // reading the body still carries the request ID and Retry-After. A
+    // request the caller aborted fails with the caller's reason instead.
+    const abortError = (responseHeaders?: Headers) =>
+      signal?.aborted
+        ? signal.reason
+        : new HttpClientError({
+            message: `Request timeout after ${timeout}ms`,
+            response: {
+              status: 408,
+              headers: responseHeaders ?? new Headers(),
+              data: { error: 'Request timeout' },
+            },
+          });
     // Set once the headers arrive.
     let res: Response | undefined;
 
@@ -226,7 +244,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         // Read the error body under the same deadline, inside the attempt,
         // so a stalled error response is retried like any other timeout.
         const rawBody = await res.text();
-        clearTimeout(timeoutId);
+        release();
 
         let responseJson: any;
 
@@ -269,10 +287,10 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
           // AbortError a fetch implementation raises for an aborted body may
           // come from another realm.
           throw abortController.signal.aborted
-            ? timeoutError(response.headers)
+            ? abortError(response.headers)
             : error;
         } finally {
-          clearTimeout(timeoutId);
+          release();
         }
       })();
       rawBody.catch(() => undefined);
@@ -280,11 +298,11 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       return new FetchHttpClientResponse(res, rawBody);
     } catch (error) {
       // Clear timeout if request failed
-      clearTimeout(timeoutId);
+      release();
 
-      // Handle timeout errors
+      // Handle timeouts and aborts
       if (abortController.signal.aborted) {
-        throw timeoutError(res?.headers);
+        throw abortError(res?.headers);
       }
 
       throw error;
@@ -297,6 +315,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     body?: any,
     headers?: RequestHeaders,
     maxRetries?: number,
+    signal?: AbortSignal,
   ): Promise<HttpClientResponseInterface> {
     const maxRetryAttempts = maxRetries ?? this.MAX_RETRY_ATTEMPTS;
 
@@ -316,14 +335,24 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     const makeRequest = async (): Promise<HttpClientResponseInterface> => {
       let requestError: any = null;
+      // Tracked apart from the error: an abort can reject with a null reason.
+      let failed = false;
 
       try {
-        response = await this.fetchRequest(url, method, body, requestHeaders);
+        response = await this.fetchRequest(
+          url,
+          method,
+          body,
+          requestHeaders,
+          signal,
+        );
       } catch (e) {
         requestError = e;
+        failed = true;
       }
 
       if (
+        !signal?.aborted &&
         this.shouldRetryRequest(requestError, retryAttempts, maxRetryAttempts)
       ) {
         retryAttempts++;
@@ -334,7 +363,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         return makeRequest();
       }
 
-      if (requestError != null) {
+      if (failed) {
         throw requestError;
       }
 
