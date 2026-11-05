@@ -202,12 +202,16 @@ export class WorkOS {
       headers['Authorization'] = `Bearer ${this.key}`;
     }
 
-    return new FetchHttpClient(this.baseURL, {
-      ...options.config,
-      timeout: options.timeout,
-      maxRetries: options.maxRetries,
-      headers,
-    }) as HttpClient;
+    return new FetchHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        timeout: options.timeout,
+        maxRetries: options.maxRetries,
+        headers,
+      },
+      options.fetchFn,
+    ) as HttpClient;
   }
 
   get version() {
