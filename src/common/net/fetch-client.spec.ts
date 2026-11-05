@@ -661,6 +661,51 @@ describe('FetchHttpClient with timeout', () => {
   });
 });
 
+describe('FetchHttpClient with an abort signal', () => {
+  beforeEach(() => fetch.resetMocks());
+
+  it('aborts the request in flight and fails with the signal reason instead of retrying a timeout', async () => {
+    const mockFetch = jest.fn();
+    mockFetch.mockImplementation(
+      (_, options) =>
+        new Promise((_, reject) => {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }),
+    );
+    const client = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+    const controller = new AbortController();
+    const reason = new Error('Stop');
+
+    const request = client.get('/users', { signal: controller.signal });
+    controller.abort(reason);
+
+    await expect(request).rejects.toBe(reason);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock.calls[0][1].signal.aborted).toBe(true);
+  });
+
+  it('sends no further attempt once the signal aborts between retries', async () => {
+    fetchOnce({}, { status: 500 });
+    const controller = new AbortController();
+    const reason = new Error('Stop');
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(async () => controller.abort(reason));
+
+    await expect(
+      fetchClient.get('/organizations', { signal: controller.signal }),
+    ).rejects.toBe(reason);
+    expect(fetch.mock.calls.length).toBe(1);
+  });
+});
+
 describe('request timeout covers the response body (GH-1679)', () => {
   // `fetch` in this file is the jest-fetch-mock import.
   type FetchFn = typeof globalThis.fetch;
