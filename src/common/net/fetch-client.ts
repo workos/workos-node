@@ -335,6 +335,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     const makeRequest = async (): Promise<HttpClientResponseInterface> => {
       let requestError: any = null;
+      // Tracked apart from the error: an abort can reject with a null reason.
+      let failed = false;
 
       try {
         response = await this.fetchRequest(
@@ -346,6 +348,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         );
       } catch (e) {
         requestError = e;
+        failed = true;
       }
 
       if (
@@ -360,7 +363,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         return makeRequest();
       }
 
-      if (requestError != null) {
+      if (failed) {
         throw requestError;
       }
 

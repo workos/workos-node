@@ -692,6 +692,32 @@ describe('FetchHttpClient with an abort signal', () => {
     expect(mockFetch.mock.calls[0][1].signal.aborted).toBe(true);
   });
 
+  it('fails with a null signal reason instead of returning no response', async () => {
+    const mockFetch = jest.fn();
+    mockFetch.mockImplementation(
+      (_, options) =>
+        new Promise((_, reject) => {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }),
+    );
+    const client = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+    const controller = new AbortController();
+
+    const request = client.get('/users', { signal: controller.signal });
+    controller.abort(null);
+
+    await expect(request).rejects.toBeNull();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
   it('sends no further attempt once the signal aborts between retries', async () => {
     fetchOnce({}, { status: 500 });
     const controller = new AbortController();
