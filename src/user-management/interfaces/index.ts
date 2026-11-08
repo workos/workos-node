@@ -17,6 +17,7 @@ export * from './authentication-factor.interface';
 export * from './authentication-radar-risk-detected-event.interface';
 export * from './authentication-response.interface';
 export * from './authorization-url-options.interface';
+export * from './authorized-connect-application.interface';
 export * from './create-magic-auth-options.interface';
 export * from './create-organization-membership-options.interface';
 export * from './create-password-reset-options.interface';

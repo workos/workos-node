@@ -15,6 +15,7 @@ import invitationFixture from './fixtures/invitation.json';
 import listInvitationsFixture from './fixtures/list-invitations.json';
 import listOrganizationMembershipsFixture from './fixtures/list-organization-memberships.json';
 import listSessionsFixture from './fixtures/list-sessions.json';
+import listAuthorizedApplicationsFixture from './fixtures/list-authorized-applications.json';
 import listUserApiKeysFixture from './fixtures/list-user-api-keys.json';
 import listUsersFixture from './fixtures/list-users.json';
 import magicAuthFixture from './fixtures/magic_auth.json';
@@ -2675,6 +2676,160 @@ describe('UserManagement', () => {
         },
       });
     });
+  });
+
+  describe('listAuthorizedApplications', () => {
+    it('lists and deserializes user authorizations and nested applications', async () => {
+      fetchOnce(listAuthorizedApplicationsFixture);
+
+      const result =
+        await workos.userManagement.listAuthorizedApplications(userId);
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        `/user_management/users/${userId}/authorized_applications`,
+      );
+      expect(fetchSearchParams()).toEqual({ order: 'desc' });
+      expect(result.object).toBe('list');
+      expect(result.listMetadata).toEqual({ before: null, after: null });
+      expect(result.data).toEqual([
+        {
+          object: 'authorized_connect_application',
+          id: 'authorized_connect_app_123',
+          grantedScopes: ['openid', 'email'],
+          oauthResource: 'https://api.example.com/resource',
+          application: {
+            object: 'connect_application',
+            id: 'conn_app_123',
+            clientId: 'client_123',
+            description: null,
+            name: 'My Application',
+            scopes: ['openid', 'profile', 'email'],
+            createdAt: new Date('2026-01-15T12:00:00.000Z'),
+            updatedAt: new Date('2026-01-15T12:00:00.000Z'),
+            applicationType: 'oauth',
+            redirectUris: [
+              { uri: 'https://example.com/callback', default: true },
+            ],
+            usesPkce: true,
+            isFirstParty: true,
+          },
+        },
+      ]);
+    });
+
+    it.each(['desc', 'asc'] as const)(
+      'passes pagination parameters with %s order',
+      async (order) => {
+        fetchOnce(listAuthorizedApplicationsFixture);
+
+        await workos.userManagement.listAuthorizedApplications(userId, {
+          before: 'authorized_before',
+          after: 'authorized_after',
+          limit: 5,
+          order,
+        });
+
+        expect(fetchSearchParams()).toEqual({
+          before: 'authorized_before',
+          after: 'authorized_after',
+          limit: '5',
+          order,
+        });
+      },
+    );
+
+    it('preserves the encoded user ID and order on subsequent pages and drops before', async () => {
+      fetchOnce({
+        ...listAuthorizedApplicationsFixture,
+        list_metadata: { before: 'previous', after: 'next' },
+      });
+      fetchOnce({
+        ...listAuthorizedApplicationsFixture,
+        data: [
+          {
+            ...listAuthorizedApplicationsFixture.data[0],
+            id: 'authorized_connect_app_456',
+          },
+        ],
+      });
+
+      const encodedUserId = 'user/with ?#%';
+      const result = await workos.userManagement.listAuthorizedApplications(
+        encodedUserId,
+        { before: 'previous', order: 'asc' },
+      );
+      const data = await result.autoPagination();
+
+      expect(data.map((authorization) => authorization.id)).toEqual([
+        'authorized_connect_app_123',
+        'authorized_connect_app_456',
+      ]);
+      expect(fetch).toHaveBeenCalledTimes(2);
+      for (const [url, options] of fetch.mock.calls) {
+        expect(new URL(String(url)).pathname).toBe(
+          `/user_management/users/${encodeURIComponent(encodedUserId)}/authorized_applications`,
+        );
+        expect(options?.method).toBe('GET');
+      }
+      expect(
+        Object.fromEntries(
+          new URL(String(fetch.mock.calls[1][0])).searchParams,
+        ),
+      ).toEqual({ after: 'next', limit: '100', order: 'asc' });
+    });
+
+    it('does not fetch subsequent pages when an explicit limit is provided', async () => {
+      fetchOnce({
+        ...listAuthorizedApplicationsFixture,
+        list_metadata: { before: null, after: 'next' },
+      });
+
+      const result = await workos.userManagement.listAuthorizedApplications(
+        userId,
+        { limit: 1 },
+      );
+
+      expect(await result.autoPagination()).toEqual(result.data);
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns an empty list without fetching another page', async () => {
+      fetchOnce({
+        ...listAuthorizedApplicationsFixture,
+        data: [],
+      });
+
+      const result =
+        await workos.userManagement.listAuthorizedApplications(userId);
+
+      expect(await result.autoPagination()).toEqual([]);
+      expect(fetch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('deleteAuthorizedApplication', () => {
+    it.each(['conn_app_123', 'client_123', 'app/with ?#%'])(
+      'deletes only the user authorization for %s and accepts an empty response',
+      async (applicationId) => {
+        fetch.mockResponseOnce('', { status: 204 });
+        const encodedUserId = 'user/with ?#%';
+
+        await expect(
+          workos.userManagement.deleteAuthorizedApplication(
+            encodedUserId,
+            applicationId,
+          ),
+        ).resolves.toBeUndefined();
+
+        expect(fetchMethod()).toBe('DELETE');
+        expect(new URL(String(fetchURL())).pathname).toBe(
+          `/user_management/users/${encodeURIComponent(encodedUserId)}/authorized_applications/${encodeURIComponent(applicationId)}`,
+        );
+        expect(fetch).toHaveBeenCalledTimes(1);
+        expect(fetchBody({ raw: true })).toBeUndefined();
+      },
+    );
   });
 
   describe('deleteUser', () => {
