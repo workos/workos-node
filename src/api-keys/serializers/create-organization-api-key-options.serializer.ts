@@ -9,5 +9,6 @@ export function serializeCreateOrganizationApiKeyOptions(
   return {
     name: options.name,
     permissions: options.permissions,
+    expires_at: options.expiresAt?.toISOString(),
   };
 }
