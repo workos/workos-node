@@ -13,6 +13,10 @@ import listDirectoryFixture from './fixtures/list-directory.json';
 import directoryFixture from './fixtures/directory.json';
 import listDirectoryGroupFixture from './fixtures/list-directory-group.json';
 import directoryGroupFixture from './fixtures/directory-group.json';
+// @oagen-ignore-start
+import listDirectoryUserFixture from './fixtures/list-directory-user.json';
+import directoryUserFixture from './fixtures/directory-user.json';
+// @oagen-ignore-end
 
 const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
 
@@ -170,6 +174,167 @@ describe('DirectorySync', () => {
   });
 
   // @oagen-ignore-start
+  describe('listDirectoryUsers', () => {
+    it('lists users scoped to the directory with filters on the wire', async () => {
+      fetchOnce(listDirectoryUserFixture);
+
+      const { data, listMetadata } =
+        await workos.directorySync.listDirectoryUsers({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+          group: 'directory_group_01E1JJS84MFPPQ3G655FHTKX6Z',
+          idpId: '2836',
+          email: 'marcelina.davis@example.com',
+          limit: 10,
+        });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/directory_01ECAZ4NV9QMV47GW873HDCX74/users',
+      );
+      expect(fetchSearchParams()).toEqual({
+        group: 'directory_group_01E1JJS84MFPPQ3G655FHTKX6Z',
+        idp_id: '2836',
+        email: 'marcelina.davis@example.com',
+        limit: '10',
+        order: 'desc',
+      });
+      expect(listMetadata).toEqual({ before: null, after: null });
+      expect(data).toHaveLength(1);
+      expect(data[0].id).toBe('directory_user_01E1JG7J09H96KYP8HM9B0G5SJ');
+      expect(data[0].directoryId).toBe('directory_01ECAZ4NV9QMV47GW873HDCX74');
+      expect(data[0].name).toBe('Marcelina Davis');
+      expect(data[0]).not.toHaveProperty('groups');
+    });
+
+    it('sends only pagination when no filters are given', async () => {
+      fetchOnce(listDirectoryUserFixture);
+
+      await workos.directorySync.listDirectoryUsers({
+        directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+      });
+
+      expect(fetchSearchParams()).toEqual({ order: 'desc' });
+    });
+
+    it('encodes the directory id as a single path segment', async () => {
+      fetchOnce(listDirectoryUserFixture);
+
+      await workos.directorySync.listDirectoryUsers({
+        directoryId: '../directory_groups',
+      });
+
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/..%2Fdirectory_groups/users',
+      );
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      await expect(
+        workos.directorySync.listDirectoryUsers({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('getDirectoryUser', () => {
+    it('returns the user without groups', async () => {
+      fetchOnce(directoryUserFixture);
+
+      const result = await workos.directorySync.getDirectoryUser({
+        directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+        userId: 'directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/directory_01ECAZ4NV9QMV47GW873HDCX74/users/directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+      );
+      expect(result.id).toBe('directory_user_01E1JG7J09H96KYP8HM9B0G5SJ');
+      expect(result.customAttributes).toEqual({
+        department: 'Engineering',
+        job_title: 'Software Engineer',
+      });
+      expect(result.createdAt.toISOString()).toBe('2026-01-15T12:00:00.000Z');
+      expect(result).not.toHaveProperty('groups');
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      await expect(
+        workos.directorySync.getDirectoryUser({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+          userId: 'directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('listDirectoryGroups', () => {
+    it('lists groups scoped to the directory with the user filter on the wire', async () => {
+      fetchOnce(listDirectoryGroupFixture);
+
+      const { data, listMetadata } =
+        await workos.directorySync.listDirectoryGroups({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+          user: 'directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+        });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/directory_01ECAZ4NV9QMV47GW873HDCX74/groups',
+      );
+      expect(fetchSearchParams()).toEqual({
+        user: 'directory_user_01E1JG7J09H96KYP8HM9B0G5SJ',
+        order: 'desc',
+      });
+      expect(listMetadata).toEqual({ before: null, after: null });
+      expect(data).toHaveLength(1);
+      expectDirectoryGroup(data[0]);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      await expect(
+        workos.directorySync.listDirectoryGroups({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
+  describe('getDirectoryGroup', () => {
+    it('returns the group', async () => {
+      fetchOnce(directoryGroupFixture);
+
+      const result = await workos.directorySync.getDirectoryGroup({
+        directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+        groupId: 'directory_group_01E1JJS84MFPPQ3G655FHTKX6Z',
+      });
+
+      expect(fetchMethod()).toBe('GET');
+      expect(new URL(String(fetchURL())).pathname).toBe(
+        '/directories/directory_01ECAZ4NV9QMV47GW873HDCX74/groups/directory_group_01E1JJS84MFPPQ3G655FHTKX6Z',
+      );
+      expectDirectoryGroup(result);
+    });
+
+    it('throws when the API responds with an error', async () => {
+      fetchOnce({ message: 'Not Found' }, { status: 404 });
+
+      await expect(
+        workos.directorySync.getDirectoryGroup({
+          directoryId: 'directory_01ECAZ4NV9QMV47GW873HDCX74',
+          groupId: 'directory_group_01E1JJS84MFPPQ3G655FHTKX6Z',
+        }),
+      ).rejects.toThrow();
+    });
+  });
+
   describe('path parameter encoding', () => {
     it('keeps a traversal payload inside a single path segment', async () => {
       fetchOnce();
