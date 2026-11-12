@@ -20,21 +20,24 @@
       "component": "@workos-inc/workload-identity-github-actions",
       "package-name": "@workos-inc/workload-identity-github-actions",
       "include-component-in-tag": true,
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "initial-version": "0.1.0"
     },
     "packages/workload-identity-gcp": {
       "release-type": "node",
       "component": "@workos-inc/workload-identity-gcp",
       "package-name": "@workos-inc/workload-identity-gcp",
       "include-component-in-tag": true,
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "initial-version": "0.1.0"
     },
     "packages/workload-identity-aws": {
       "release-type": "node",
       "component": "@workos-inc/workload-identity-aws",
       "package-name": "@workos-inc/workload-identity-aws",
       "include-component-in-tag": true,
-      "changelog-path": "CHANGELOG.md"
+      "changelog-path": "CHANGELOG.md",
+      "initial-version": "0.1.0"
     }
   }
 }
