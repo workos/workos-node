@@ -1,5 +1,6 @@
 import fetch from 'jest-fetch-mock';
 import {
+  ApiKeyRequiredException,
   GenericServerException,
   OauthException,
   UnauthorizedException,
@@ -223,7 +224,50 @@ describe('workload identity', () => {
       );
     });
 
-    it('sends no machine token on calls that authenticate with a client secret', async () => {
+    it('still requires an API key for methods that send it as the client secret', async () => {
+      const { exchanges, apiRequests } = mockServers();
+      const { workos, tokenSource } = createWorkOS();
+
+      await expect(
+        workos.userManagement.authenticateWithPassword({
+          clientId: 'client_123',
+          email: 'user@example.com',
+          password: 'password',
+        }),
+      ).rejects.toBeInstanceOf(ApiKeyRequiredException);
+
+      expect(tokenSource).not.toHaveBeenCalled();
+      expect(exchanges).toHaveLength(0);
+      expect(apiRequests).toHaveLength(0);
+    });
+
+    it('times out a token source that never settles and exchanges again on the next request', async () => {
+      const { exchanges } = mockServers();
+      const tokenSource = jest
+        .fn<Promise<string>, []>()
+        .mockReturnValueOnce(new Promise<string>(() => undefined))
+        .mockResolvedValue('id-token');
+      const workos = new WorkOS({
+        maxRetries: 0,
+        timeout: 20,
+        workloadIdentity: {
+          clientId: 'client_machine',
+          tokenSource,
+          tokenEndpoint: TOKEN_ENDPOINT,
+        },
+      });
+
+      await expect(workos.get('/organizations')).rejects.toThrow(
+        'Workload identity token exchange timed out after 20ms.',
+      );
+      expect(exchanges).toHaveLength(0);
+
+      await workos.get('/organizations');
+      expect(tokenSource).toHaveBeenCalledTimes(2);
+      expect(exchanges).toHaveLength(1);
+    });
+
+    it('sends no machine token on public-client calls that skip the API key check', async () => {
       const { exchanges, apiRequests } = mockServers();
       const { workos, tokenSource } = createWorkOS();
 

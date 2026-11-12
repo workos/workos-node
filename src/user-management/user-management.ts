@@ -357,6 +357,7 @@ export class UserManagement {
   async authenticateWithMagicAuth(
     payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -382,6 +383,7 @@ export class UserManagement {
   async authenticateWithPassword(
     payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -536,6 +538,7 @@ export class UserManagement {
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -561,6 +564,7 @@ export class UserManagement {
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -586,6 +590,7 @@ export class UserManagement {
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -630,6 +635,7 @@ export class UserManagement {
   async authenticateWithRadarSmsChallenge(
     payload: AuthenticateWithRadarSmsChallengeOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -655,6 +661,7 @@ export class UserManagement {
   async authenticateWithRadarEmailChallenge(
     payload: AuthenticateWithRadarEmailChallengeOptions,
   ): Promise<AuthenticationResponse> {
+    this.workos.requireClientSecret('/user_management/authenticate');
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 

@@ -263,6 +263,17 @@ export class WorkOS {
     }
   }
 
+  /**
+   * Require an API key for methods that send it as `client_secret`. A
+   * workload identity is not a client secret, so it does not satisfy this.
+   * @throws ApiKeyRequiredException if no API key was provided
+   */
+  requireClientSecret(methodName: string): void {
+    if (!this.key) {
+      throw new ApiKeyRequiredException(methodName);
+    }
+  }
+
   async post<Result = any, Entity = any>(
     path: string,
     entity: Entity,

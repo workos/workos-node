@@ -138,7 +138,47 @@ export class WorkloadIdentityTokenProvider {
   }
 
   private async exchange(): Promise<string> {
-    const assertion = await this.tokenSource();
+    // One timeout bounds the whole exchange, `tokenSource()` included: a
+    // platform token request that never settles must not hold every later
+    // request on the shared in-flight promise.
+    const timeout = this.config.timeout ?? DEFAULT_TIMEOUT_IN_MILLISECONDS;
+    const abortController = new AbortController();
+    const timeoutId = setTimeout(() => abortController.abort(), timeout);
+
+    let assertion: string;
+    try {
+      assertion = await Promise.race([
+        this.tokenSource(),
+        new Promise<never>((_resolve, reject) => {
+          abortController.signal.addEventListener(
+            'abort',
+            () =>
+              reject(
+                new Error(
+                  `Workload identity token exchange timed out after ${timeout}ms.`,
+                ),
+              ),
+            { once: true },
+          );
+        }),
+      ]);
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+
+    try {
+      return await this.exchangeAssertion(assertion, timeout, abortController);
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  }
+
+  private async exchangeAssertion(
+    assertion: string,
+    timeout: number,
+    abortController: AbortController,
+  ): Promise<string> {
     if (typeof assertion !== 'string' || assertion === '') {
       throw new TypeError(
         'workloadIdentity.tokenSource must resolve to a non-empty string.',
@@ -169,10 +209,6 @@ export class WorkloadIdentityTokenProvider {
         'Fetch function not defined in the global scope and no replacement was provided.',
       );
     }
-
-    const timeout = this.config.timeout ?? DEFAULT_TIMEOUT_IN_MILLISECONDS;
-    const abortController = new AbortController();
-    const timeoutId = setTimeout(() => abortController.abort(), timeout);
 
     let status: number;
     let ok: boolean;
@@ -205,8 +241,6 @@ export class WorkloadIdentityTokenProvider {
       throw new Error(
         `Workload identity token exchange failed: ${this.redact(reason, assertion)}`,
       );
-    } finally {
-      clearTimeout(timeoutId);
     }
 
     let data: unknown;

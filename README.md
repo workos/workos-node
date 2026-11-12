@@ -78,10 +78,12 @@ the access token is included in errors or logged.
 `WORKOS_API_KEY` is not read from the environment. It also works in edge
 and worker runtimes: the exchange uses `fetch` only.
 
-Calls that authenticate a user with a client secret, such as
-`userManagement.authenticateWithPassword` and `sso.getProfileAndToken`, do not
-use the workload identity. Without an API key they behave as in
-[public client mode](#public-client-mode-browsermobilecli).
+A workload identity is not a client secret. Methods that send the API key as
+`client_secret`, such as `userManagement.authenticateWithPassword`, still throw
+`ApiKeyRequiredException` without an API key. The PKCE flows
+(`authenticateWithCodeAndVerifier`, `authenticateWithRefreshToken`) work as in
+[public client mode](#public-client-mode-browsermobilecli) and do not carry the
+workload token.
 
 ### Automatic retries
 
