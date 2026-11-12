@@ -38,6 +38,9 @@ export { CookieSession } from './user-management/session';
 export * from './vault/interfaces';
 export * from './webhooks/interfaces';
 export * from './widgets/interfaces';
+export * from './workload-identity';
+// Reads the file system, so it is not part of the worker entry.
+export { tokenFile } from './workload-identity/token-file';
 export * from './pkce/pkce';
 export {
   createWorkOS,
@@ -66,10 +69,6 @@ class WorkOSNode extends WorkOS {
 
     headers['User-Agent'] = userAgent;
 
-    if (this.key) {
-      headers['Authorization'] = `Bearer ${this.key}`;
-    }
-
     const opts = {
       ...options.config,
       timeout: options.timeout,
@@ -77,7 +76,9 @@ class WorkOSNode extends WorkOS {
       headers,
     };
 
-    return new FetchHttpClient(this.baseURL, opts, options.fetchFn);
+    return new FetchHttpClient(this.baseURL, opts, options.fetchFn, {
+      credentials: this.requestCredentials,
+    });
   }
 
   /** @override */

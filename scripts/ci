@@ -15,3 +15,20 @@ npm run build
 
 echo "==> Test"
 npm run test
+
+# Every package under packages/ is released on its own, so each one is
+# checked on its own. The steps above only cover the SDK.
+echo "==> Packages: Prettier"
+npm run prettier --workspaces --if-present
+
+echo "==> Packages: Lint"
+npm run lint --workspaces --if-present
+
+echo "==> Packages: Typecheck"
+npm run typecheck --workspaces --if-present
+
+echo "==> Packages: Build"
+npm run build --workspaces --if-present
+
+echo "==> Packages: Test"
+npm run test --workspaces --if-present

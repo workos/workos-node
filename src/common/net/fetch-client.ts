@@ -13,19 +13,47 @@ import {
   HttpClientResponse,
 } from './http-client';
 import { ParseError } from '../exceptions/parse-error';
+import type { Credentials, CredentialSnapshot } from './credentials';
 
 type FetchHttpClientOptions = HttpClientOptions;
+
+/**
+ * Settings the SDK sets itself. Kept apart from {@link HttpClientOptions},
+ * which carries the caller's `config`, so nothing a caller passes there can
+ * change them.
+ */
+export interface FetchHttpClientSettings {
+  /**
+   * Resolved before every HTTP attempt. The snapshot's headers authorize that
+   * attempt.
+   */
+  credentials?: Credentials;
+  /** Passed to `fetch`. Unset keeps the runtime's default. */
+  redirect?: RequestRedirect;
+}
+
+/** What one HTTP attempt reports back to the retry loop. */
+interface AttemptState {
+  /** The credential snapshot the attempt was sent with, when it had one. */
+  snapshot?: CredentialSnapshot;
+}
 
 const DEFAULT_FETCH_TIMEOUT = 60_000; // 60 seconds
 export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private readonly _fetchFn;
+  private readonly credentials?: Credentials;
+  private readonly redirect?: RequestRedirect;
 
   constructor(
     readonly baseURL: string,
     readonly options?: FetchHttpClientOptions,
     fetchFn?: typeof fetch,
+    settings: FetchHttpClientSettings = {},
   ) {
     super(baseURL, options);
+
+    this.credentials = settings.credentials;
+    this.redirect = settings.redirect;
 
     // Default to global fetch if available
     if (!fetchFn) {
@@ -175,6 +203,7 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     method: string,
     body?: any,
     headers?: RequestHeaders,
+    attempt?: AttemptState,
   ): Promise<HttpClientResponseInterface> {
     // For methods which expect payloads, we should always pass a body value
     // even when it is empty. Without this, some JS runtimes (eg. Deno) will
@@ -208,17 +237,32 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     let res: Response | undefined;
 
     try {
+      // Resolved for every attempt, under the attempt's deadline, so a retry
+      // never sends a token that expired while the request was backing off.
+      const resolving = this.resolveCredentials(
+        headers,
+        abortController.signal,
+      );
+      const snapshot = resolving ? await resolving : undefined;
+      if (attempt) {
+        attempt.snapshot = snapshot;
+      }
+
       res = await this._fetchFn(url, {
         method,
-        headers: {
-          Accept: 'application/json, text/plain, */*',
-          'Content-Type': 'application/json',
-          ...this.options?.headers,
-          ...headers,
-          'User-Agent': (userAgent || 'workos-node').toString(),
-        },
+        headers: FetchHttpClient.withCredentialHeaders(
+          {
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
+            ...this.options?.headers,
+            ...headers,
+            'User-Agent': (userAgent || 'workos-node').toString(),
+          },
+          snapshot,
+        ),
         body: requestBody,
         signal: abortController.signal,
+        ...(this.redirect && { redirect: this.redirect }),
       });
 
       if (!res.ok) {
@@ -313,14 +357,47 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
 
     let response: HttpClientResponseInterface;
     let retryAttempts = 1;
+    // One 401 recovery per logical request. It is set once and never cleared,
+    // however many transport retries follow.
+    let recoveryUsed = false;
 
     const makeRequest = async (): Promise<HttpClientResponseInterface> => {
       let requestError: any = null;
+      const attempt: AttemptState = {};
 
       try {
-        response = await this.fetchRequest(url, method, body, requestHeaders);
+        response = await this.fetchRequest(
+          url,
+          method,
+          body,
+          requestHeaders,
+          attempt,
+        );
       } catch (e) {
         requestError = e;
+      }
+
+      // The API rejected a credential that can be replaced. Invalidate the
+      // generation this attempt used (never "the current one") and resend the
+      // same request once: no backoff, and it does not count as a retry. The
+      // resend resolves again, reusing a newer token or joining the one
+      // shared exchange. Whatever comes back is handled as usual below.
+      if (
+        !recoveryUsed &&
+        this.credentials &&
+        attempt.snapshot?.recoverable &&
+        FetchHttpClient.isUnauthorized(requestError) &&
+        FetchHttpClient.isReplayable(body)
+      ) {
+        recoveryUsed = true;
+        this.credentials.invalidate(attempt.snapshot.generation);
+        requestError = null;
+
+        try {
+          response = await this.fetchRequest(url, method, body, requestHeaders);
+        } catch (e) {
+          requestError = e;
+        }
       }
 
       if (
@@ -377,6 +454,70 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     }
 
     return false;
+  }
+
+  /**
+   * The snapshot that authorizes this attempt, or nothing when the client has
+   * no credentials or the request carries its own `Authorization` header. A
+   * per-request access token keeps its precedence over the client's
+   * credentials, and a 401 on it is not recovered.
+   */
+  private resolveCredentials(
+    headers: RequestHeaders | undefined,
+    signal: AbortSignal,
+  ): Promise<CredentialSnapshot> | undefined {
+    if (
+      !this.credentials ||
+      FetchHttpClient.hasHeader(headers, 'Authorization')
+    ) {
+      return undefined;
+    }
+
+    return this.credentials.resolve({ signal });
+  }
+
+  /**
+   * Sets the snapshot's headers, replacing any header of the same name
+   * whatever its casing.
+   */
+  private static withCredentialHeaders<T extends Record<string, unknown>>(
+    headers: T,
+    snapshot: CredentialSnapshot | undefined,
+  ): T {
+    if (!snapshot) {
+      return headers;
+    }
+
+    const merged: Record<string, unknown> = headers;
+
+    for (const [name, value] of Object.entries(snapshot.headers)) {
+      const target = name.toLowerCase();
+
+      for (const existing of Object.keys(merged)) {
+        if (existing.toLowerCase() === target) {
+          delete merged[existing];
+        }
+      }
+
+      merged[name] = value;
+    }
+
+    return headers;
+  }
+
+  private static isUnauthorized(requestError: unknown): boolean {
+    return (
+      (requestError instanceof HttpClientError &&
+        requestError.response.status === 401) ||
+      (requestError instanceof ParseError && requestError.rawStatus === 401)
+    );
+  }
+
+  /** A stream can be read once, so a request with one cannot be sent again. */
+  private static isReplayable(body: unknown): boolean {
+    return !(
+      typeof ReadableStream !== 'undefined' && body instanceof ReadableStream
+    );
   }
 
   private static withIdempotencyKey(

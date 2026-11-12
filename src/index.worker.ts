@@ -23,6 +23,7 @@ export * from './admin-portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
+export * from './workload-identity';
 export * from './pkce/pkce';
 export {
   createWorkOS,
@@ -50,15 +51,16 @@ class WorkOSWorker extends WorkOS {
       Object.assign(headers, configHeaders);
     }
 
-    if (this.key) {
-      headers['Authorization'] = `Bearer ${this.key}`;
-    }
-
-    return new FetchHttpClient(this.baseURL, {
-      ...options.config,
-      maxRetries: options.maxRetries,
-      headers,
-    });
+    return new FetchHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        maxRetries: options.maxRetries,
+        headers,
+      },
+      undefined,
+      { credentials: this.requestCredentials },
+    );
   }
 
   /** @override */

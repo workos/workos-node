@@ -101,6 +101,92 @@ if (!claims) {
 console.log(claims.sub, claims.org_id, claims.permissions);
 ```
 
+## Workload identity
+
+A workload running in GitHub Actions, Google Cloud or AWS can call the WorkOS API without an API key. It exchanges the identity token its platform issues for a short-lived WorkOS access token. The SDK makes the exchange, caches the token and replaces it shortly before it expires.
+
+Install the SDK and the provider package for your platform:
+
+```
+npm install @workos-inc/node @workos-inc/workload-identity-github-actions
+```
+
+Then pass `credentials` in place of an API key:
+
+```ts
+import { WorkOS, WorkloadIdentityCredentials } from '@workos-inc/node';
+import { githubActions } from '@workos-inc/workload-identity-github-actions';
+
+const workos = new WorkOS({
+  credentials: new WorkloadIdentityCredentials({
+    clientId: 'client_...', // the M2M application that has the trust rule
+    tokenUrl: 'https://<your token endpoint>/oauth2/token',
+    environmentId: 'environment_...',
+    identityTokenProvider: githubActions('https://api.workos.com'),
+  }),
+});
+
+const organizations = await workos.organizations.listOrganizations();
+```
+
+`clientId`, `tokenUrl`, `environmentId` and `scope` default to the `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL`, `WORKOS_ENVIRONMENT_ID` and `WORKOS_WIF_SCOPE` environment variables. Those variables only fill in fields you leave out: workload identity is used only when you pass `credentials`. A client built with `credentials` ignores `WORKOS_API_KEY`, and passing both `credentials` and an API key is an error.
+
+### Platform providers
+
+Each platform has its own package. The argument is the audience the identity token is requested for, which must match the audience of the trust rule.
+
+GitHub Actions. The job needs `permissions: id-token: write`:
+
+```ts
+import { githubActions } from '@workos-inc/workload-identity-github-actions';
+
+const identityTokenProvider = githubActions('https://api.workos.com');
+```
+
+Google Cloud (Compute Engine, GKE, Cloud Run, Cloud Functions, App Engine):
+
+```ts
+import { gcpMetadata } from '@workos-inc/workload-identity-gcp';
+
+const identityTokenProvider = gcpMetadata('https://api.workos.com');
+```
+
+AWS. The region is optional when the AWS SDK can resolve one:
+
+```ts
+import { awsSts } from '@workos-inc/workload-identity-aws';
+
+const identityTokenProvider = awsSts('https://api.workos.com', 'us-east-1');
+```
+
+### Custom providers
+
+A provider is any function that returns the identity token. Use a callback for a platform without a package:
+
+```ts
+const credentials = new WorkloadIdentityCredentials({
+  identityTokenProvider: async () => {
+    const response = await fetch('https://identity.internal.example/token');
+    return response.text();
+  },
+});
+```
+
+`tokenFile` reads the token from a file and `tokenEnv` from an environment variable, on every exchange, so a rotated token is picked up:
+
+```ts
+import { tokenEnv, tokenFile } from '@workos-inc/node';
+
+tokenFile('/var/run/secrets/tokens/workos');
+tokenEnv('MY_PLATFORM_JWT');
+```
+
+`tokenFile` needs a file system, so it is not exported from `@workos-inc/node/worker`.
+
+### Errors
+
+A failed exchange throws a `WorkloadIdentityError`. Its `code` is the OAuth error code from the token endpoint (for example `invalid_grant`) or an SDK code (`exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`), `description` is the server's explanation, and `hint` says what to check. The exchange is retried on network failures, 429 and 5xx responses. An API request that gets a 401 is retried once with a new token.
+
 ## Public Client Mode (Browser/Mobile/CLI)
 
 For apps that can't securely store secrets, initialize with just a client ID:

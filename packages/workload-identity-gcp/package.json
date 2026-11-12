@@ -1,0 +1,53 @@
+{
+  "name": "@workos-inc/workload-identity-gcp",
+  "version": "0.0.0",
+  "description": "Google Cloud identity token provider for WorkOS workload identity",
+  "keywords": [
+    "workos",
+    "workload-identity",
+    "gcp",
+    "google-cloud",
+    "oidc"
+  ],
+  "homepage": "https://github.com/workos/workos-node/tree/main/packages/workload-identity-gcp",
+  "bugs": {
+    "url": "https://github.com/workos/workos-node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/workos/workos-node.git",
+    "directory": "packages/workload-identity-gcp"
+  },
+  "license": "MIT",
+  "author": "WorkOS",
+  "type": "module",
+  "files": [
+    "lib/"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "clean": "rm -rf lib",
+    "format": "prettier \"src/**/*.ts\" --write",
+    "lint": "eslint",
+    "prepublishOnly": "npm run build",
+    "prettier": "prettier \"src/**/*.ts\" --check",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22.11.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.mjs",
+  "types": "./lib/index.d.cts",
+  "exports": {
+    ".": {
+      "import": "./lib/index.mjs",
+      "require": "./lib/index.cjs"
+    },
+    "./package.json": "./package.json"
+  }
+}

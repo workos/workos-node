@@ -2,7 +2,19 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      package-path:
+        description: 'Package to publish: "." for the SDK, or a path under packages/'
+        required: false
+        default: '.'
+        type: string
   workflow_call:
+    inputs:
+      package-path:
+        description: 'Package to publish: "." for the SDK, or a path under packages/'
+        required: false
+        default: '.'
+        type: string
     secrets:
       PUBLIC_SOCKET_FIREWALL_TOKEN:
         required: true
@@ -25,17 +37,21 @@ jobs:
         with:
           token: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
 
+      # Always at the repository root: it installs every workspace package.
       - name: Install Dependencies
         run: npm install
 
       - name: Build Project
+        working-directory: ${{ inputs.package-path }}
         run: npm run build
 
       - name: Run Tests
+        working-directory: ${{ inputs.package-path }}
         run: npm run test
 
       - name: Teardown Socket Firewall
         uses: workos/setup-socket-firewall/teardown@ca93dd8aa351f54f4729fe3377a9be23c631c25d
 
       - name: Publish
+        working-directory: ${{ inputs.package-path }}
         run: npm publish --tag latest --access public --provenance

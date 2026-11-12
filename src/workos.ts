@@ -43,6 +43,8 @@ import { Groups } from './groups/groups';
 import { HttpClient, HttpClientError } from './common/net/http-client';
 import { SubtleCryptoProvider } from './common/crypto/subtle-crypto-provider';
 import { FetchHttpClient } from './common/net/fetch-client';
+import { Credentials, StaticKeyCredentials } from './common/net/credentials';
+import { WorkloadIdentityError } from './workload-identity/workload-identity-error';
 import { Widgets } from './widgets/widgets';
 import { Actions } from './actions/actions';
 import { Authorization } from './authorization/authorization';
@@ -68,6 +70,13 @@ export class WorkOS {
   readonly pkce: PKCE;
 
   private readonly hasApiKey: boolean;
+
+  /**
+   * What authorizes API requests: the `credentials` option when one is given,
+   * otherwise the API key wrapped as static credentials. Undefined for a
+   * public client, which has neither.
+   */
+  protected readonly requestCredentials?: Credentials;
 
   readonly actions: Actions;
   readonly agents = new Agents(this);
@@ -109,6 +118,12 @@ export class WorkOS {
    * @example
    * // PKCE/public client (no API key)
    * const workos = new WorkOS({ clientId: 'client_...' });
+   *
+   * @example
+   * // Workload identity (no API key)
+   * const workos = new WorkOS({
+   *   credentials: new WorkloadIdentityCredentials({ ... }),
+   * });
    */
   constructor(
     keyOrOptions?: string | WorkOSOptions,
@@ -122,11 +137,25 @@ export class WorkOS {
       this.options = maybeOptions ?? {};
     }
 
-    if (!this.key) {
+    const { credentials } = this.options;
+
+    if (credentials && this.key) {
+      throw new Error(
+        'WorkOS accepts an API key or credentials, not both. ' +
+          'Pass `apiKey` or `credentials`.',
+      );
+    }
+
+    // Explicit credentials win over the environment. A client built with
+    // them never reads or sends WORKOS_API_KEY.
+    if (!this.key && !credentials) {
       this.key = getEnv('WORKOS_API_KEY');
     }
 
     this.hasApiKey = !!this.key;
+    this.requestCredentials =
+      credentials ??
+      (this.key ? new StaticKeyCredentials(this.key) : undefined);
 
     if (this.options.https === undefined) {
       this.options.https = true;
@@ -137,7 +166,7 @@ export class WorkOS {
       this.clientId = getEnv('WORKOS_CLIENT_ID');
     }
 
-    if (!this.hasApiKey && !this.clientId) {
+    if (!this.requestCredentials && !this.clientId) {
       throw new Error(
         'WorkOS requires either an API key or a clientId. ' +
           'For server-side: new WorkOS("sk_...") or new WorkOS({ apiKey: "sk_..." }). ' +
@@ -198,16 +227,17 @@ export class WorkOS {
       Object.assign(headers, configHeaders);
     }
 
-    if (this.key) {
-      headers['Authorization'] = `Bearer ${this.key}`;
-    }
-
-    return new FetchHttpClient(this.baseURL, {
-      ...options.config,
-      timeout: options.timeout,
-      maxRetries: options.maxRetries,
-      headers,
-    }) as HttpClient;
+    return new FetchHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        timeout: options.timeout,
+        maxRetries: options.maxRetries,
+        headers,
+      },
+      undefined,
+      { credentials: this.requestCredentials },
+    ) as HttpClient;
   }
 
   get version() {
@@ -215,12 +245,13 @@ export class WorkOS {
   }
 
   /**
-   * Require API key for methods that need it.
+   * Require API key for methods that need it. Credentials passed to the
+   * constructor authorize the same methods an API key does.
    * @param methodName - Name of the method requiring API key (for error message)
-   * @throws ApiKeyRequiredException if no API key was provided
+   * @throws ApiKeyRequiredException if neither an API key nor credentials were provided
    */
   requireApiKey(methodName: string): void {
-    if (!this.hasApiKey) {
+    if (!this.hasApiKey && !this.options.credentials) {
       throw new ApiKeyRequiredException(methodName);
     }
   }
@@ -420,6 +451,11 @@ export class WorkOS {
 
   /** @internal */
   handleHttpError({ path, error }: { path: string; error: unknown }) {
+    // The request never got its credentials. Surface the typed error as is.
+    if (error instanceof WorkloadIdentityError) {
+      throw error;
+    }
+
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }

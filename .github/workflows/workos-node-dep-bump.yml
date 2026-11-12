@@ -35,6 +35,16 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "release" ]; then
             TAG="$RELEASE_TAG"
+
+            # The packages under packages/ release from this repository too,
+            # with tags like @workos-inc/workload-identity-gcp-v1.0.0. Only an
+            # SDK release (vX.Y.Z) bumps the dependency in other repos.
+            if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
+              echo "Not an SDK release ($TAG) — skipping."
+              echo "skip=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
             VERSION="${TAG#v}"
             MAJOR=$(echo "$VERSION" | cut -d. -f1)
             MINOR=$(echo "$VERSION" | cut -d. -f2)

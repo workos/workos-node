@@ -1,11 +1,40 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
   "include-component-in-tag": false,
+  "separate-pull-requests": true,
+  "plugins": [
+    {
+      "type": "node-workspace",
+      "merge": false
+    }
+  ],
   "packages": {
     ".": {
       "release-type": "node",
       "changelog-path": "CHANGELOG.md",
-      "versioning": "default"
+      "versioning": "default",
+      "exclude-paths": ["packages"]
+    },
+    "packages/workload-identity-github-actions": {
+      "release-type": "node",
+      "component": "@workos-inc/workload-identity-github-actions",
+      "package-name": "@workos-inc/workload-identity-github-actions",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/workload-identity-gcp": {
+      "release-type": "node",
+      "component": "@workos-inc/workload-identity-gcp",
+      "package-name": "@workos-inc/workload-identity-gcp",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
+    },
+    "packages/workload-identity-aws": {
+      "release-type": "node",
+      "component": "@workos-inc/workload-identity-aws",
+      "package-name": "@workos-inc/workload-identity-aws",
+      "include-component-in-tag": true,
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
