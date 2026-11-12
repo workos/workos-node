@@ -124,7 +124,7 @@ describe('gcpMetadata', () => {
     );
   });
 
-  it('never sends the request through a proxy', async () => {
+  it('WIF-GCP-03: never sends the request through a proxy', async () => {
     // Started with NODE_USE_ENV_PROXY=1, Node sends every request that uses
     // the default agent through the proxy named by HTTP_PROXY. Give the
     // default agent a proxy the same way: the provider must not use it. A
