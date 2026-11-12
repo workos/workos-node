@@ -4,7 +4,7 @@ import { AddressInfo } from 'node:net';
 import { gcpMetadata } from './index';
 
 const AUDIENCE = 'https://api.workos.com';
-const METADATA_HOST = 'http://metadata.google.internal';
+const METADATA_HOST = 'metadata.google.internal';
 
 interface Received {
   method: string;
@@ -18,7 +18,7 @@ describe('gcpMetadata', () => {
 
   async function listen(
     respond: (res: http.ServerResponse) => void,
-  ): Promise<{ baseUrl: string; received: Received[] }> {
+  ): Promise<{ baseUrl: string; port: number; received: Received[] }> {
     const received: Received[] = [];
     const server = http.createServer((req, res) => {
       received.push({
@@ -32,29 +32,34 @@ describe('gcpMetadata', () => {
     await new Promise<void>((done) => server.listen(0, '127.0.0.1', done));
     const { port } = server.address() as AddressInfo;
 
-    return { baseUrl: `http://127.0.0.1:${port}`, received };
+    return { baseUrl: `http://127.0.0.1:${port}`, port, received };
   }
 
   /**
    * Points the metadata host at a local server. The provider has no setting
    * for its base URL, so the test moves the host under it: the request the
-   * provider builds is sent unchanged apart from the origin, and anything
-   * that is not for the metadata host fails the test.
+   * provider builds is sent unchanged apart from the host and port, and
+   * anything that is not for the metadata host fails the test.
    */
   async function metadataServer(respond: (res: http.ServerResponse) => void) {
     const mock = await listen(respond);
-    const realFetch = globalThis.fetch;
+    const realRequest = http.request;
 
-    jest.spyOn(globalThis, 'fetch').mockImplementation((input, init) => {
-      const url = String(input);
-      requested.push(url);
+    jest.spyOn(http, 'request').mockImplementation(((
+      options: http.RequestOptions,
+      callback?: (res: http.IncomingMessage) => void,
+    ) => {
+      requested.push(`http://${options.host}${options.path}`);
 
-      if (!url.startsWith(`${METADATA_HOST}/`)) {
-        throw new Error(`Unexpected request to ${url}`);
+      if (options.host !== METADATA_HOST) {
+        throw new Error(`Unexpected request to ${options.host}`);
       }
 
-      return realFetch(mock.baseUrl + url.slice(METADATA_HOST.length), init);
-    });
+      return realRequest(
+        { ...options, host: '127.0.0.1', port: mock.port },
+        callback,
+      );
+    }) as typeof http.request);
 
     return mock;
   }
@@ -117,6 +122,29 @@ describe('gcpMetadata', () => {
     expect(received[0].url).toBe(
       '/computeMetadata/v1/instance/service-accounts/default/identity?audience=api%3A%2F%2Fworkos%2Fa%20b%26c&format=full',
     );
+  });
+
+  it('never sends the request through a proxy', async () => {
+    // Started with NODE_USE_ENV_PROXY=1, Node sends every request that uses
+    // the default agent through the proxy named by HTTP_PROXY. Give the
+    // default agent a proxy the same way: the provider must not use it. A
+    // Node version without the `proxyEnv` option ignores it, and there this
+    // test cannot fail.
+    const proxy = await listen(text(200, 'token-from-the-proxy'));
+    const { received } = await metadataServer(text(200, 'gcp-jwt'));
+    const defaultAgent = http.globalAgent;
+    http.globalAgent = new http.Agent({
+      proxyEnv: { HTTP_PROXY: proxy.baseUrl, http_proxy: proxy.baseUrl },
+    } as http.AgentOptions);
+
+    try {
+      await expect(gcpMetadata(AUDIENCE)()).resolves.toBe('gcp-jwt');
+    } finally {
+      http.globalAgent = defaultAgent;
+    }
+
+    expect(received).toHaveLength(1);
+    expect(proxy.received).toHaveLength(0);
   });
 
   it('requires an audience', () => {
