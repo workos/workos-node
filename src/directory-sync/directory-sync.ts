@@ -24,10 +24,19 @@ import type { ListDirectoryUsersOptions } from './interfaces/list-directory-user
 import type { GetUserOptions } from './interfaces/get-user-options.interface';
 import type {
   DefaultCustomAttributes,
+  DirectoryUser,
+  DirectoryUserResponse,
   DirectoryUserWithGroups,
   DirectoryUserWithGroupsResponse,
 } from './interfaces/directory-user.interface';
-import { deserializeDirectoryUserWithGroups } from './serializers/directory-user.serializer';
+import {
+  deserializeDirectoryUser,
+  deserializeDirectoryUserWithGroups,
+} from './serializers/directory-user.serializer';
+import type { ListUsersInDirectoryOptions } from './interfaces/list-users-in-directory-options.interface';
+import type { GetDirectoryUserOptions } from './interfaces/get-directory-user-options.interface';
+import type { ListGroupsInDirectoryOptions } from './interfaces/list-groups-in-directory-options.interface';
+import type { GetDirectoryGroupOptions } from './interfaces/get-directory-group-options.interface';
 // @oagen-ignore-end
 
 const serializeListDirectoriesOptions = (
@@ -44,6 +53,23 @@ const serializeListDirectoriesOptions = (
   if (options.search !== undefined) wire.search = options.search;
   return wire as PaginationOptions;
 };
+
+// @oagen-ignore-start
+const serializeListUsersInDirectoryOptions = (
+  options: Omit<ListUsersInDirectoryOptions, 'directoryId'>,
+): PaginationOptions => {
+  const wire: Record<string, unknown> = {
+    limit: options.limit,
+    before: options.before,
+    after: options.after,
+    order: options.order,
+    group: options.group,
+    email: options.email,
+  };
+  if (options.idpId !== undefined) wire.idp_id = options.idpId;
+  return wire as PaginationOptions;
+};
+// @oagen-ignore-end
 
 export class DirectorySync {
   constructor(private readonly workos: WorkOS) {}
@@ -121,6 +147,7 @@ export class DirectorySync {
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
+   * @deprecated Use {@link DirectorySync.listDirectoryGroups} instead.
    */
   async listGroups(
     options: ListDirectoryGroupsOptions,
@@ -154,6 +181,7 @@ export class DirectorySync {
    * @returns {Promise<DirectoryGroup>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
+   * @deprecated Use {@link DirectorySync.getDirectoryGroup} instead.
    */
   async getGroup(
     options: DirectorySyncGetGroupOptions,
@@ -179,6 +207,7 @@ export class DirectorySync {
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422
    * @throws {RateLimitExceededException} 429
+   * @deprecated Use {@link DirectorySync.listDirectoryUsers} instead.
    */
   async listUsers<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: ListDirectoryUsersOptions,
@@ -222,6 +251,7 @@ export class DirectorySync {
    * @returns {Promise<DirectoryUserWithGroups<TCustomAttributes>>}
    * @throws {AuthorizationException} 403
    * @throws {NotFoundException} 404
+   * @deprecated Use {@link DirectorySync.getDirectoryUser} instead.
    */
   async getUser<TCustomAttributes extends object = DefaultCustomAttributes>(
     options: GetUserOptions,
@@ -232,6 +262,149 @@ export class DirectorySync {
     >(`/directory_users/${encodeURIComponent(id)}`);
 
     return deserializeDirectoryUserWithGroups(data);
+  }
+  // @oagen-ignore-end
+
+  // @oagen-ignore-start
+  // Directory-scoped reads. These succeed the flat /directory_users and
+  // /directory_groups routes: users come back without the unbounded `groups`
+  // array, so the responses stay small and the routes are not rate limited
+  // the way the flat ones are. Hand-owned until oagen emits them from the spec.
+  /**
+   * List Users for a Directory
+   *
+   * Get a list of the Directory Users in a Directory, optionally filtered to the members of a Directory Group.
+   * @param options - Pagination and filter options.
+   * @param options.directoryId - Unique identifier of the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @param options.group - Filter Directory Users to the members of this Directory Group.
+   * @example "directory_group_01E64QTDNS0EGJ0FMCVY9BWGZT"
+   * @param options.idpId - Filter Directory Users by the identity provider's unique identifier.
+   * @example "2836"
+   * @param options.email - Filter Directory Users by their primary email address.
+   * @example "jane.doe@example.com"
+   * @returns {Promise<AutoPaginatable<DirectoryUser<TCustomAttributes>, PaginationOptions>>}
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async listDirectoryUsers<
+    TCustomAttributes extends object = DefaultCustomAttributes,
+  >(
+    options: ListUsersInDirectoryOptions,
+  ): Promise<
+    AutoPaginatable<DirectoryUser<TCustomAttributes>, PaginationOptions>
+  > {
+    const { directoryId, ...rest } = options;
+    const endpoint = `/directories/${encodeURIComponent(directoryId)}/users`;
+    const wire = serializeListUsersInDirectoryOptions(rest);
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        DirectoryUserResponse<TCustomAttributes>,
+        DirectoryUser<TCustomAttributes>
+      >(this.workos, endpoint, deserializeDirectoryUser, wire),
+      (params) =>
+        fetchAndDeserialize<
+          DirectoryUserResponse<TCustomAttributes>,
+          DirectoryUser<TCustomAttributes>
+        >(this.workos, endpoint, deserializeDirectoryUser, params),
+      wire,
+    );
+  }
+
+  /**
+   * Get a User for a Directory
+   *
+   * Get the details of a Directory User in a Directory.
+   * @param options - The request options.
+   * @param options.directoryId - Unique identifier of the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @param options.userId - Unique identifier for the Directory User.
+   * @example "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"
+   * @returns {Promise<DirectoryUser<TCustomAttributes>>}
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   */
+  async getDirectoryUser<
+    TCustomAttributes extends object = DefaultCustomAttributes,
+  >(
+    options: GetDirectoryUserOptions,
+  ): Promise<DirectoryUser<TCustomAttributes>> {
+    const { directoryId, userId } = options;
+    const { data } = await this.workos.get<
+      DirectoryUserResponse<TCustomAttributes>
+    >(
+      `/directories/${encodeURIComponent(
+        directoryId,
+      )}/users/${encodeURIComponent(userId)}`,
+    );
+
+    return deserializeDirectoryUser(data);
+  }
+
+  /**
+   * List Groups for a Directory
+   *
+   * Get a list of the Directory Groups in a Directory, optionally filtered to the groups a Directory User belongs to.
+   * @param options - Pagination and filter options.
+   * @param options.directoryId - Unique identifier of the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @param options.user - Filter Directory Groups to those this Directory User belongs to.
+   * @example "directory_user_01E1JG7J09H96KYP8HM9B0G5SJ"
+   * @returns {Promise<AutoPaginatable<DirectoryGroup, PaginationOptions>>}
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async listDirectoryGroups(
+    options: ListGroupsInDirectoryOptions,
+  ): Promise<AutoPaginatable<DirectoryGroup, PaginationOptions>> {
+    const { directoryId, ...wire } = options;
+    const endpoint = `/directories/${encodeURIComponent(directoryId)}/groups`;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<DirectoryGroupResponse, DirectoryGroup>(
+        this.workos,
+        endpoint,
+        deserializeDirectoryGroup,
+        wire,
+      ),
+      (params) =>
+        fetchAndDeserialize<DirectoryGroupResponse, DirectoryGroup>(
+          this.workos,
+          endpoint,
+          deserializeDirectoryGroup,
+          params,
+        ),
+      wire,
+    );
+  }
+
+  /**
+   * Get a Group for a Directory
+   *
+   * Get the details of a Directory Group in a Directory.
+   * @param options - The request options.
+   * @param options.directoryId - Unique identifier of the Directory.
+   * @example "directory_01ECAZ4NV9QMV47GW873HDCX74"
+   * @param options.groupId - Unique identifier for the Directory Group.
+   * @example "directory_group_01E1JJS84MFPPQ3G655FHTKX6Z"
+   * @returns {Promise<DirectoryGroup>}
+   * @throws {AuthorizationException} 403
+   * @throws {NotFoundException} 404
+   */
+  async getDirectoryGroup(
+    options: GetDirectoryGroupOptions,
+  ): Promise<DirectoryGroup> {
+    const { directoryId, groupId } = options;
+    const { data } = await this.workos.get<DirectoryGroupResponse>(
+      `/directories/${encodeURIComponent(
+        directoryId,
+      )}/groups/${encodeURIComponent(groupId)}`,
+    );
+
+    return deserializeDirectoryGroup(data);
   }
   // @oagen-ignore-end
 }
