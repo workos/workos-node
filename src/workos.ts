@@ -50,6 +50,8 @@ import { Vault } from './vault/vault';
 import { ConflictException } from './common/exceptions/conflict.exception';
 import { CryptoProvider } from './common/crypto/crypto-provider';
 import { getEnv } from './common/utils/env';
+import { ParseError } from './common/exceptions/parse-error';
+import { WorkloadIdentityTokenProvider } from './workload-identity/workload-identity-token-provider';
 import { version as VERSION } from '../package.json' with { type: 'json' };
 
 const DEFAULT_HOSTNAME = 'api.workos.com';
@@ -57,6 +59,14 @@ const DEFAULT_HOSTNAME = 'api.workos.com';
 const HEADER_AUTHORIZATION = 'Authorization';
 const HEADER_IDEMPOTENCY_KEY = 'Idempotency-Key';
 const HEADER_WARRANT_TOKEN = 'Warrant-Token';
+
+function isUnauthorizedResponse(error: unknown): boolean {
+  if (error instanceof HttpClientError) {
+    return error.response?.status === 401;
+  }
+
+  return error instanceof ParseError && error.rawStatus === 401;
+}
 
 /** WorkOS REST API */
 export class WorkOS {
@@ -68,6 +78,7 @@ export class WorkOS {
   readonly pkce: PKCE;
 
   private readonly hasApiKey: boolean;
+  private readonly workloadIdentity?: WorkloadIdentityTokenProvider;
 
   readonly actions: Actions;
   readonly agents = new Agents(this);
@@ -109,6 +120,12 @@ export class WorkOS {
    * @example
    * // PKCE/public client (no API key)
    * const workos = new WorkOS({ clientId: 'client_...' });
+   *
+   * @example
+   * // Workload identity (no API key)
+   * const workos = new WorkOS({
+   *   workloadIdentity: { clientId: 'client_...', tokenSource, tokenEndpoint },
+   * });
    */
   constructor(
     keyOrOptions?: string | WorkOSOptions,
@@ -122,11 +139,21 @@ export class WorkOS {
       this.options = maybeOptions ?? {};
     }
 
-    if (!this.key) {
+    const workloadIdentity = this.options.workloadIdentity;
+
+    if (workloadIdentity && this.key) {
+      throw new Error(
+        'WorkOS accepts either an API key or workloadIdentity, not both.',
+      );
+    }
+
+    // An explicit workload identity wins over WORKOS_API_KEY in the environment.
+    if (!this.key && !workloadIdentity) {
       this.key = getEnv('WORKOS_API_KEY');
     }
 
-    this.hasApiKey = !!this.key;
+    // A workload identity authenticates the same endpoints an API key does.
+    this.hasApiKey = !!this.key || !!workloadIdentity;
 
     if (this.options.https === undefined) {
       this.options.https = true;
@@ -163,6 +190,17 @@ export class WorkOS {
     this.userManagement = new UserManagement(this);
 
     const userAgent = this.createUserAgent(this.options);
+
+    if (workloadIdentity) {
+      this.workloadIdentity = new WorkloadIdentityTokenProvider(
+        workloadIdentity,
+        {
+          fetchFn: this.options.fetchFn,
+          timeout: this.options.timeout,
+          userAgent,
+        },
+      );
+    }
 
     this.client = this.createHttpClient(this.options, userAgent);
   }
@@ -244,18 +282,17 @@ export class WorkOS {
       requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
-    let res: HttpClientResponseInterface;
-
-    try {
-      res = await this.client.post<Entity>(path, entity, {
-        params: options.query,
-        headers: requestHeaders,
-        maxRetries: options.maxRetries,
-      });
-    } catch (error) {
-      this.handleHttpError({ path, error });
-      throw error;
-    }
+    const res = await this.sendRequest(
+      path,
+      requestHeaders,
+      !options.skipApiKeyCheck,
+      (headers) =>
+        this.client.post<Entity>(path, entity, {
+          params: options.query,
+          headers,
+          maxRetries: options.maxRetries,
+        }),
+    );
 
     return { data: await this.readResponseJSON(path, res) };
   }
@@ -278,18 +315,17 @@ export class WorkOS {
       requestHeaders[HEADER_WARRANT_TOKEN] = options.warrantToken;
     }
 
-    let res: HttpClientResponseInterface;
-    try {
-      res = await this.client.get(path, {
-        params: options.query,
-        headers: requestHeaders,
-        maxRetries: options.maxRetries,
-      });
-    } catch (error) {
-      this.handleHttpError({ path, error });
-
-      throw error;
-    }
+    const res = await this.sendRequest(
+      path,
+      requestHeaders,
+      !options.skipApiKeyCheck,
+      (headers) =>
+        this.client.get(path, {
+          params: options.query,
+          headers,
+          maxRetries: options.maxRetries,
+        }),
+    );
 
     return { data: await this.readResponseJSON(path, res) };
   }
@@ -309,19 +345,17 @@ export class WorkOS {
       requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
-    let res: HttpClientResponseInterface;
-
-    try {
-      res = await this.client.put<Entity>(path, entity, {
-        params: options.query,
-        headers: requestHeaders,
-        maxRetries: options.maxRetries,
-      });
-    } catch (error) {
-      this.handleHttpError({ path, error });
-
-      throw error;
-    }
+    const res = await this.sendRequest(
+      path,
+      requestHeaders,
+      !options.skipApiKeyCheck,
+      (headers) =>
+        this.client.put<Entity>(path, entity, {
+          params: options.query,
+          headers,
+          maxRetries: options.maxRetries,
+        }),
+    );
 
     return { data: await this.readResponseJSON(path, res) };
   }
@@ -341,19 +375,17 @@ export class WorkOS {
       requestHeaders[HEADER_IDEMPOTENCY_KEY] = options.idempotencyKey;
     }
 
-    let res: HttpClientResponseInterface;
-
-    try {
-      res = await this.client.patch<Entity>(path, entity, {
-        params: options.query,
-        headers: requestHeaders,
-        maxRetries: options.maxRetries,
-      });
-    } catch (error) {
-      this.handleHttpError({ path, error });
-
-      throw error;
-    }
+    const res = await this.sendRequest(
+      path,
+      requestHeaders,
+      !options.skipApiKeyCheck,
+      (headers) =>
+        this.client.patch<Entity>(path, entity, {
+          params: options.query,
+          headers,
+          maxRetries: options.maxRetries,
+        }),
+    );
 
     return { data: await this.readResponseJSON(path, res) };
   }
@@ -364,15 +396,12 @@ export class WorkOS {
   ): Promise<void> {
     this.requireApiKey(path);
 
-    try {
-      await this.client.delete(path, {
+    await this.sendRequest(path, {}, true, (headers) =>
+      this.client.delete(path, {
         params: query,
-      });
-    } catch (error) {
-      this.handleHttpError({ path, error });
-
-      throw error;
-    }
+        headers,
+      }),
+    );
   }
 
   async deleteWithBody<Entity = any>(
@@ -381,8 +410,72 @@ export class WorkOS {
   ): Promise<void> {
     this.requireApiKey(path);
 
+    await this.sendRequest(path, {}, true, (headers) =>
+      this.client.deleteWithBody(path, entity, { headers }),
+    );
+  }
+
+  /**
+   * Send one request and translate a transport failure into an SDK exception.
+   *
+   * With a workload identity the access token and environment headers are
+   * added here, unless the caller set its own `Authorization` header or the
+   * call is one that authenticates with a client secret, not an API key
+   * (`skipApiKeyCheck`): a machine token is not a client secret. A 401
+   * means the token was rejected, so it is dropped, exchanged again and the
+   * request is sent once more. The exchange runs outside the translation so
+   * its own errors (for example an `OauthException`) reach the caller as is.
+   */
+  private async sendRequest(
+    path: string,
+    headers: Record<string, string>,
+    usesWorkloadIdentity: boolean,
+    send: (
+      headers: Record<string, string>,
+    ) => Promise<HttpClientResponseInterface>,
+  ): Promise<HttpClientResponseInterface> {
+    const workloadIdentity = this.workloadIdentity;
+
+    if (
+      !workloadIdentity ||
+      !usesWorkloadIdentity ||
+      HEADER_AUTHORIZATION in headers
+    ) {
+      return this.sendTranslated(path, () => send(headers));
+    }
+
+    const accessToken = await workloadIdentity.getAccessToken();
+
     try {
-      await this.client.deleteWithBody(path, entity, {});
+      return await send({
+        ...headers,
+        ...workloadIdentity.requestHeaders(accessToken),
+      });
+    } catch (error) {
+      if (!isUnauthorizedResponse(error)) {
+        this.handleHttpError({ path, error });
+
+        throw error;
+      }
+    }
+
+    workloadIdentity.invalidate(accessToken);
+    const freshAccessToken = await workloadIdentity.getAccessToken();
+
+    return this.sendTranslated(path, () =>
+      send({
+        ...headers,
+        ...workloadIdentity.requestHeaders(freshAccessToken),
+      }),
+    );
+  }
+
+  private async sendTranslated(
+    path: string,
+    send: () => Promise<HttpClientResponseInterface>,
+  ): Promise<HttpClientResponseInterface> {
+    try {
+      return await send();
     } catch (error) {
       this.handleHttpError({ path, error });
 

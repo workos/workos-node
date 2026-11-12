@@ -1,7 +1,13 @@
 import { AppInfo } from './app-info.interface';
+import { WorkloadIdentityOptions } from './workload-identity-options.interface';
 
 export interface WorkOSOptions {
   apiKey?: string;
+  /**
+   * Authenticate with a workload identity in place of an API key. Cannot be
+   * combined with `apiKey`.
+   */
+  workloadIdentity?: WorkloadIdentityOptions;
   apiHostname?: string;
   https?: boolean;
   port?: number;

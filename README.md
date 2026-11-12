@@ -37,6 +37,52 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS('sk_1234');
 ```
 
+### Workload identity
+
+A workload that already has an identity from its platform (a CI job or a cloud
+service account, for example) can authenticate without an API key. Pass
+`workloadIdentity` in place of `apiKey`:
+
+```ts
+import { WorkOS } from '@workos-inc/node';
+
+const workos = new WorkOS({
+  workloadIdentity: {
+    // The WorkOS API machine client that trusts this workload
+    clientId: 'client_1234',
+    // Returns the platform's ID token, requested for the audience the trust expects
+    tokenSource: () => getPlatformIdToken(),
+    tokenEndpoint: 'https://<your AuthKit domain>/oauth2/token',
+    // Optional: the environment the requests act on
+    environmentId: 'environment_1234',
+    // Optional: defaults to every scope the machine client holds
+    scope: ['orgs:read'],
+  },
+});
+
+const organizations = await workos.organizations.listOrganizations();
+```
+
+On the first request the SDK exchanges the ID token for a short-lived access
+token, keeps it in memory, and exchanges again shortly before it expires or
+when the API answers 401. Concurrent requests share one exchange. `tokenSource`
+is called once per exchange and must return a fresh ID token each time, because
+an ID token is accepted only once.
+
+A failed exchange rejects the request with an `OauthException` carrying the
+token endpoint's `error` and `errorDescription`. It is not retried
+automatically; the next request starts a new exchange. Neither the ID token nor
+the access token is included in errors or logged.
+
+`workloadIdentity` cannot be combined with an API key, and when it is set
+`WORKOS_API_KEY` is not read from the environment. It also works in edge
+and worker runtimes: the exchange uses `fetch` only.
+
+Calls that authenticate a user with a client secret, such as
+`userManagement.authenticateWithPassword` and `sso.getProfileAndToken`, do not
+use the workload identity. Without an API key they behave as in
+[public client mode](#public-client-mode-browsermobilecli).
+
 ### Automatic retries
 
 The SDK automatically retries requests that fail with a transient error — a
