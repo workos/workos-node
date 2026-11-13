@@ -1713,23 +1713,26 @@ export interface WaitlistUserDeniedEventResponse extends EventResponseBase {
  * that possibility visible to the compiler: an exhaustive `switch` over
  * `event.event` can no longer assume every case is covered.
  *
- * `data` is deliberately typed `never`. TypeScript keeps a union member whose
- * discriminant is `string` in every narrowed branch, so any other type here
- * would widen `event.data` in known branches (for example `User` would become
- * `User | Record<string, unknown>`). `never` is absorbed by those unions and
- * leaves the known payload types intact. At runtime the payload is passed
- * through unchanged (snake_case keys, no deserialization); since `never` is
- * assignable to every type, read it by annotating the shape you expect:
- * `const payload: Record<string, unknown> = event.data;`.
+ * `data` and `context` are deliberately typed `never`. TypeScript keeps a union
+ * member whose discriminant is `string` in every narrowed branch, so any other
+ * type here would widen `event.data` and `event.context` in known branches (for
+ * example `User` would become `User | Record<string, unknown>`). `never` is
+ * absorbed by those unions and leaves the known types intact. At runtime both
+ * are passed through unchanged (snake_case keys, no deserialization); since
+ * `never` is assignable to every type, read them by annotating the shape you
+ * expect: `const payload: Record<string, unknown> = event.data;` and
+ * `const context: Record<string, unknown> | undefined = event.context;`.
  */
 export interface UnknownEvent extends EventBase {
   event: string;
   data: never;
+  context: never;
 }
 
 export interface UnknownEventResponse extends EventResponseBase {
   event: string;
   data: never;
+  context: never;
 }
 
 /** Every event type this version of the SDK knows how to deserialize. */
