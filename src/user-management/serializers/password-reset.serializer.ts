@@ -14,8 +14,8 @@ export const deserializePasswordReset = (
   email: passwordReset.email,
   passwordResetToken: passwordReset.password_reset_token,
   passwordResetUrl: passwordReset.password_reset_url,
-  expiresAt: passwordReset.expires_at,
-  createdAt: passwordReset.created_at,
+  expiresAt: new Date(passwordReset.expires_at),
+  createdAt: new Date(passwordReset.created_at),
 });
 
 export const deserializePasswordResetEvent = (
@@ -25,6 +25,6 @@ export const deserializePasswordResetEvent = (
   id: passwordReset.id,
   userId: passwordReset.user_id,
   email: passwordReset.email,
-  expiresAt: passwordReset.expires_at,
-  createdAt: passwordReset.created_at,
+  expiresAt: new Date(passwordReset.expires_at),
+  createdAt: new Date(passwordReset.created_at),
 });

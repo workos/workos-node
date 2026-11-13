@@ -661,6 +661,77 @@ describe('FetchHttpClient with timeout', () => {
   });
 });
 
+describe('FetchHttpClient with an abort signal', () => {
+  beforeEach(() => fetch.resetMocks());
+
+  it('aborts the request in flight and fails with the signal reason instead of retrying a timeout', async () => {
+    const mockFetch = jest.fn();
+    mockFetch.mockImplementation(
+      (_, options) =>
+        new Promise((_, reject) => {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }),
+    );
+    const client = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+    const controller = new AbortController();
+    const reason = new Error('Stop');
+
+    const request = client.get('/users', { signal: controller.signal });
+    controller.abort(reason);
+
+    await expect(request).rejects.toBe(reason);
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+    expect(mockFetch.mock.calls[0][1].signal.aborted).toBe(true);
+  });
+
+  it('fails with a null signal reason instead of returning no response', async () => {
+    const mockFetch = jest.fn();
+    mockFetch.mockImplementation(
+      (_, options) =>
+        new Promise((_, reject) => {
+          options.signal.addEventListener('abort', () => {
+            const error = new Error('AbortError');
+            error.name = 'AbortError';
+            reject(error);
+          });
+        }),
+    );
+    const client = new FetchHttpClient(
+      'https://api.example.com',
+      {},
+      mockFetch,
+    );
+    const controller = new AbortController();
+
+    const request = client.get('/users', { signal: controller.signal });
+    controller.abort(null);
+
+    await expect(request).rejects.toBeNull();
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends no further attempt once the signal aborts between retries', async () => {
+    fetchOnce({}, { status: 500 });
+    const controller = new AbortController();
+    const reason = new Error('Stop');
+    const mockSleep = jest.spyOn(fetchClient, 'sleep');
+    mockSleep.mockImplementation(async () => controller.abort(reason));
+
+    await expect(
+      fetchClient.get('/organizations', { signal: controller.signal }),
+    ).rejects.toBe(reason);
+    expect(fetch.mock.calls.length).toBe(1);
+  });
+});
+
 describe('request timeout covers the response body (GH-1679)', () => {
   // `fetch` in this file is the jest-fetch-mock import.
   type FetchFn = typeof globalThis.fetch;
@@ -688,7 +759,7 @@ describe('request timeout covers the response body (GH-1679)', () => {
   };
 
   /**
-   * A fetch double that honours the abort signal the way real
+   * A fetch double that honors the abort signal the way real
    * implementations do: an abort rejects the pending headers or the pending
    * body read with an `AbortError`.
    */
@@ -865,7 +936,7 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(attempts[0].textCalls).toBe(1);
       expect(fetchFn).toHaveBeenCalledTimes(1);
 
-      // Retry-After from the aborted attempt's headers is honoured.
+      // Retry-After from the aborted attempt's headers is honored.
       await jest.advanceTimersByTimeAsync(999);
       expect(fetchFn).toHaveBeenCalledTimes(1);
       await jest.advanceTimersByTimeAsync(1);
@@ -1119,6 +1190,56 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(error).toMatchObject(timeout408);
       expect(error.response.headers.get('x-request-id')).toBe('req_real');
       expect(signals[0].aborted).toBe(true);
+      expect(requestCount).toBe(1);
+    });
+
+    it('does not follow a redirect, so the request body is never re-sent', async () => {
+      handler = (req, res) => {
+        if (req.url === '/stolen') {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end('{}');
+          return;
+        }
+        res.writeHead(307, { location: `${baseURL}/stolen` });
+        res.end();
+      };
+      // Default timeout: the shared 100ms one can retry a slow first request.
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(
+        client.post(
+          '/user_management/authenticate',
+          { client_secret: 'sk_test' },
+          {},
+        ),
+      ).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining(`redirect (307 to ${baseURL}/stolen)`),
+        response: { status: 307 },
+      });
+      expect(requestCount).toBe(1);
+    });
+
+    it('releases the connection when a redirect body stalls instead of waiting on it', async () => {
+      let connectionClosed!: Promise<void>;
+      handler = (_req, res) => {
+        connectionClosed = new Promise((resolve) =>
+          res.on('close', () => resolve()),
+        );
+        res.writeHead(307, { location: `${baseURL}/elsewhere` });
+        res.write('<html>');
+        // Hold the body open; the client must not read it.
+      };
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(client.get('/users', {})).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining('redirect (307'),
+        response: { status: 307 },
+      });
+      // The request was aborted, so the server sees the connection drop
+      // rather than the SDK sitting on the deadline.
+      await connectionClosed;
       expect(requestCount).toBe(1);
     });
 

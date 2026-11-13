@@ -202,12 +202,16 @@ export class WorkOS {
       headers['Authorization'] = `Bearer ${this.key}`;
     }
 
-    return new FetchHttpClient(this.baseURL, {
-      ...options.config,
-      timeout: options.timeout,
-      maxRetries: options.maxRetries,
-      headers,
-    }) as HttpClient;
+    return new FetchHttpClient(
+      this.baseURL,
+      {
+        ...options.config,
+        timeout: options.timeout,
+        maxRetries: options.maxRetries,
+        headers,
+      },
+      options.fetchFn,
+    ) as HttpClient;
   }
 
   get version() {
@@ -284,8 +288,10 @@ export class WorkOS {
         params: options.query,
         headers: requestHeaders,
         maxRetries: options.maxRetries,
+        signal: options.signal,
       });
     } catch (error) {
+      options.signal?.throwIfAborted();
       this.handleHttpError({ path, error });
 
       throw error;
@@ -397,7 +403,8 @@ export class WorkOS {
    * Everything else (a `ParseError` for malformed JSON, a network failure
    * mid-body) propagates unchanged.
    */
-  private async readResponseJSON(
+  /** @internal */
+  async readResponseJSON(
     path: string,
     response: HttpClientResponseInterface,
   ): Promise<any> {
@@ -417,7 +424,8 @@ export class WorkOS {
     console.warn(`WorkOS: ${warning}`);
   }
 
-  private handleHttpError({ path, error }: { path: string; error: unknown }) {
+  /** @internal */
+  handleHttpError({ path, error }: { path: string; error: unknown }) {
     if (!(error instanceof HttpClientError)) {
       throw new Error(`Unexpected error: ${error}`, { cause: error });
     }

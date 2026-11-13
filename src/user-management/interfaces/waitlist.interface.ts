@@ -4,9 +4,9 @@ export interface Waitlist {
   /** The unique ID of the Waitlist. */
   id: string;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface WaitlistResponse {

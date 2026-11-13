@@ -2,11 +2,14 @@
 
 export const WidgetSessionTokenScopes = {
   WidgetsUsersTableManage: 'widgets:users-table:manage',
+  WidgetsUserApiKeysManageSelf: 'widgets:user-api-keys:manage-self',
+  WidgetsUserApiKeysManageAll: 'widgets:user-api-keys:manage-all',
   WidgetsDomainVerificationManage: 'widgets:domain-verification:manage',
   WidgetsSSOManage: 'widgets:sso:manage',
   WidgetsApiKeysManage: 'widgets:api-keys:manage',
   WidgetsDsyncManage: 'widgets:dsync:manage',
   WidgetsAuditLogStreamingManage: 'widgets:audit-log-streaming:manage',
+  WidgetsPipesManage: 'widgets:pipes:manage',
 } as const;
 
 export type WidgetSessionTokenScopes =

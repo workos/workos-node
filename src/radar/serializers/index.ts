@@ -6,3 +6,4 @@ export * from './radar-standalone-delete-radar-list-entry-request.serializer';
 export * from './radar-standalone-response.serializer';
 export * from './radar-standalone-update-radar-attempt-request.serializer';
 export * from './radar-standalone-update-radar-list-request.serializer';
+export * from './radar-event.serializer';

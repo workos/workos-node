@@ -24,10 +24,10 @@ export interface Session {
   impersonator?: Impersonator;
   authMethod: AuthMethod;
   status: SessionStatus;
-  expiresAt: string;
-  endedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
+  expiresAt: Date;
+  endedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SessionResponse {

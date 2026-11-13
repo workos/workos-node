@@ -8,6 +8,8 @@ import type {
 export const serializeCreateConnectedAccount = (
   model: CreateConnectedAccount,
 ): CreateConnectedAccountResponse => ({
+  account_display_name: model.accountDisplayName,
+  account_identifier: model.accountIdentifier,
   access_token: model.accessToken,
   refresh_token: model.refreshToken,
   expires_at:

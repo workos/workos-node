@@ -5,6 +5,6 @@ export const deserializeRoleEvent = (role: RoleEventResponse): RoleEvent => ({
   slug: role.slug,
   resourceTypeSlug: role.resource_type_slug,
   permissions: role.permissions,
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
+  createdAt: new Date(role.created_at),
+  updatedAt: new Date(role.updated_at),
 });

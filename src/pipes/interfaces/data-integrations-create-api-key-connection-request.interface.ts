@@ -3,6 +3,10 @@
 import type { DataIntegrationsCreateApiKeyConnectionRequestConnectionOwner } from './data-integrations-create-api-key-connection-request-connection-owner.interface';
 
 export interface DataIntegrationsCreateApiKeyConnectionRequest {
+  /** A mutable, non-unique label. Omit to preserve an existing label; null clears it. Labels are never account identifiers. */
+  accountDisplayName?: string | null;
+  /** A developer-attested provider account identifier, never inferred from a label or credential. Omit to preserve an existing identifier; null clears it. */
+  accountIdentifier?: string | null;
   /** A [User](https://workos.com/docs/reference/authkit/user) identifier. */
   userId: string;
   /** An [Organization](https://workos.com/docs/reference/organization) identifier. Optional parameter to scope the connection to a specific organization. Required when `connection_owner` is `organization`. */
@@ -11,11 +15,13 @@ export interface DataIntegrationsCreateApiKeyConnectionRequest {
   connectionOwner?: DataIntegrationsCreateApiKeyConnectionRequestConnectionOwner;
   /** The API key secret to store for this integration. */
   secret: string;
-  /** Must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. Creating an additional connection is not yet available: until it is, `add` succeeds only when the owner has no connection for this integration and otherwise returns 404 `multiple_connections_unavailable`. */
+  /** Must be `add`: this endpoint only creates another connection. The first connection for an owner shape fills the compatibility slot; later connections are standard. */
   connectionIntent: 'add';
 }
 
 export interface DataIntegrationsCreateApiKeyConnectionRequestResponse {
+  account_display_name?: string | null;
+  account_identifier?: string | null;
   user_id: string;
   organization_id?: string;
   connection_owner?: DataIntegrationsCreateApiKeyConnectionRequestConnectionOwner;

@@ -746,8 +746,8 @@ describe('Authorization', () => {
         resourceTypeSlug: 'document',
         organizationId: testOrgId,
         parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -834,8 +834,8 @@ describe('Authorization', () => {
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
         parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -863,8 +863,8 @@ describe('Authorization', () => {
         externalId: 'doc-456',
         name: 'Q4 Budget Report',
         resourceTypeSlug: 'document',
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -895,8 +895,8 @@ describe('Authorization', () => {
         name: 'Q4 Budget Report',
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -932,8 +932,8 @@ describe('Authorization', () => {
         description: null,
         resourceTypeSlug: 'document',
         parentResourceId: 'authz_resource_01HXYZ123ABC456DEF789XYZ',
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -1321,8 +1321,8 @@ describe('Authorization', () => {
         name: 'Q4 Budget Report',
         resourceTypeSlug: 'document',
         organizationId: testOrgId,
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -1442,8 +1442,8 @@ describe('Authorization', () => {
         description: 'Financial report for Q4 2025',
         resourceTypeSlug: 'document',
         organizationId: testOrgId,
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -1679,8 +1679,8 @@ describe('Authorization', () => {
           type: 'direct',
           groupRoleAssignmentId: null,
         },
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
       expect(result.listMetadata).toEqual({
         before: null,
@@ -1829,8 +1829,8 @@ describe('Authorization', () => {
           type: 'direct',
           groupRoleAssignmentId: null,
         },
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
       expect(result.listMetadata).toEqual({
         before: null,
@@ -1927,8 +1927,8 @@ describe('Authorization', () => {
           type: 'direct',
           groupRoleAssignmentId: null,
         },
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
       expect(result.listMetadata).toEqual({
         before: null,
@@ -2033,8 +2033,8 @@ describe('Authorization', () => {
           type: 'direct',
           groupRoleAssignmentId: null,
         },
-        createdAt: '2024-01-15T09:30:00.000Z',
-        updatedAt: '2024-01-15T09:30:00.000Z',
+        createdAt: new Date('2024-01-15T09:30:00.000Z'),
+        updatedAt: new Date('2024-01-15T09:30:00.000Z'),
       });
     });
 
@@ -2054,8 +2054,12 @@ describe('Authorization', () => {
         resource_type_slug: 'document',
       });
       expect(assignment.resource.externalId).toBe('doc-123');
-      expect(assignment.createdAt).toBe('2024-01-15T09:30:00.000Z');
-      expect(assignment.updatedAt).toBe('2024-01-15T09:30:00.000Z');
+      expect(assignment.createdAt).toEqual(
+        new Date('2024-01-15T09:30:00.000Z'),
+      );
+      expect(assignment.updatedAt).toEqual(
+        new Date('2024-01-15T09:30:00.000Z'),
+      );
     });
 
     it('body only includes resource_id when resourceId is provided', async () => {
@@ -2817,8 +2821,8 @@ describe('Authorization', () => {
           externalId: 'workspace-123',
           resourceTypeSlug: 'workspace',
         },
-        createdAt: '2026-01-15T12:00:00.000Z',
-        updatedAt: '2026-01-15T12:00:00.000Z',
+        createdAt: new Date('2026-01-15T12:00:00.000Z'),
+        updatedAt: new Date('2026-01-15T12:00:00.000Z'),
       });
     });
   });

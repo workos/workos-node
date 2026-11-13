@@ -14,9 +14,11 @@ export function deserializeApiKey(apiKey: SerializedApiKey): ApiKey {
         : apiKey.owner,
     name: apiKey.name,
     obfuscatedValue: apiKey.obfuscated_value,
-    lastUsedAt: apiKey.last_used_at,
+    lastUsedAt:
+      apiKey.last_used_at != null ? new Date(apiKey.last_used_at) : null,
+    expiresAt: apiKey.expires_at != null ? new Date(apiKey.expires_at) : null,
     permissions: apiKey.permissions,
-    createdAt: apiKey.created_at,
-    updatedAt: apiKey.updated_at,
+    createdAt: new Date(apiKey.created_at),
+    updatedAt: new Date(apiKey.updated_at),
   };
 }

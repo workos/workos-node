@@ -2,6 +2,7 @@
 
 import type { DataIntegrationInstallationConnectionRole } from './data-integration-installation-connection-role.interface';
 
+/** The tenant installation created when an API key was supplied at creation time; `null` otherwise. Not populated on list/get responses. */
 export interface DataIntegrationInstallation {
   /** Unique identifier of the installation. */
   id: string;

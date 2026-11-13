@@ -36,6 +36,27 @@ jest.mock('jose', () => ({
   createRemoteJWKSet: jest.fn(),
 }));
 
+const verifiedUserAccessToken = {
+  payload: {
+    iss: 'https://api.workos.com/user_management/client_123',
+    sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+    sid: 'session_123',
+    exp: 1735684500,
+    iat: 1735683600,
+    auth_time: 1735683600,
+  },
+} as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
+
+function verifiedAccessToken(accessToken: string) {
+  return {
+    ...verifiedUserAccessToken,
+    payload: {
+      ...verifiedUserAccessToken.payload,
+      ...jose.decodeJwt(accessToken),
+    },
+  };
+}
+
 const userId = 'user_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const organizationMembershipId = 'om_01H5JQDV7R7ATEYZDEG0W5PRYS';
 const emailVerificationId = 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS';
@@ -72,7 +93,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
-        lastSignInAt: '2023-07-18T02:07:19.911Z',
+        lastSignInAt: new Date('2023-07-18T02:07:19.911Z'),
         locale: 'en-US',
       });
     });
@@ -96,7 +117,7 @@ describe('UserManagement', () => {
         firstName: 'Test 01',
         lastName: 'User',
         emailVerified: true,
-        lastSignInAt: '2023-07-18T02:07:19.911Z',
+        lastSignInAt: new Date('2023-07-18T02:07:19.911Z'),
         locale: 'en-US',
         externalId,
       });
@@ -162,8 +183,8 @@ describe('UserManagement', () => {
         lastName: 'User',
         emailVerified: true,
         profilePictureUrl: 'https://example.com/profile_picture.jpg',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
 
@@ -1614,6 +1635,43 @@ describe('UserManagement', () => {
       ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
     });
 
+    it.each([
+      [
+        'an agent access token',
+        { sub: 'agent_01H5JQDV7R7ATEYZDEG0W5PRYS', sub_profile: 'ai_agent' },
+      ],
+      ['a widget session token', { sub_type: 'authkit' }],
+    ])(
+      'returns authenticated = false when the JWT is %s',
+      async (_family, familyClaims) => {
+        jest.mocked(jose.jwtVerify).mockResolvedValue({
+          ...verifiedUserAccessToken,
+          payload: { ...verifiedUserAccessToken.payload, ...familyClaims },
+        });
+
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+        const sessionData = await sealData(
+          {
+            accessToken: 'abc123',
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        await expect(
+          workos.userManagement.authenticateWithSessionCookie({
+            sessionData,
+            cookiePassword,
+          }),
+        ).resolves.toEqual({ authenticated: false, reason: 'invalid_jwt' });
+      },
+    );
+
     it('rethrows non-JWT errors (e.g., network failures)', async () => {
       jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
         // Simulate a network error (no jose error code)
@@ -1643,13 +1701,13 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.YVNjR8S2xGn2jAoLuEcBQNJ1_xY3OzjRE1-BK0zjfQE';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {
@@ -1685,13 +1743,13 @@ describe('UserManagement', () => {
     });
 
     it('returns the JWT claims when provided a valid JWT with multiple roles', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6ImFkbWluIiwicm9sZXMiOlsiYWRtaW4iLCJtZW1iZXIiXSwicGVybWlzc2lvbnMiOlsicG9zdHM6Y3JlYXRlIiwicG9zdHM6ZGVsZXRlIl0sImVudGl0bGVtZW50cyI6WyJhdWRpdC1sb2dzIl0sImZlYXR1cmVfZmxhZ3MiOlsiZGFyay1tb2RlIiwiYmV0YS1mZWF0dXJlcyJdLCJ1c2VyIjp7Im9iamVjdCI6InVzZXIiLCJpZCI6InVzZXJfMDFINUpRRFY3UjdBVEVZWkRFRzBXNVBSWVMiLCJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20ifX0.hsMptIB7PmbF5pxxtgTtCdUyOAhA11ZIAP-JY5zU5fE';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {
@@ -1752,7 +1810,7 @@ describe('UserManagement', () => {
         jest
           .mocked(jose.jwtVerify)
           .mockReset()
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+          .mockResolvedValue(verifiedUserAccessToken);
       });
 
       it('does not validate the issuer claim by default', async () => {
@@ -1870,6 +1928,329 @@ describe('UserManagement', () => {
     });
   });
 
+  describe('verifyAccessToken', () => {
+    const accessToken = 'eyJhbGciOiJSUzI1NiJ9.e30.signature';
+
+    beforeEach(() => {
+      jest
+        .mocked(jose.createRemoteJWKSet)
+        .mockReturnValue(
+          {} as unknown as ReturnType<typeof jose.createRemoteJWKSet>,
+        );
+    });
+
+    it('returns the claims of a valid access token', async () => {
+      const payload = {
+        iss: 'https://api.workos.com/user_management/proj_123',
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        org_id: 'org_123',
+        role: 'member',
+        permissions: ['posts:create'],
+        exp: 1735684500,
+        iat: 1735683600,
+        auth_time: 1735683600,
+      };
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue({ payload } as unknown as jose.JWTVerifyResult &
+          jose.ResolvedKey);
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).resolves.toEqual(payload);
+      expect(jose.jwtVerify).toHaveBeenCalledWith(
+        accessToken,
+        expect.anything(),
+        undefined,
+      );
+    });
+
+    it('enforces the configured issuer', async () => {
+      const workosWithIssuer = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+        clientId: 'proj_123',
+        issuer: 'https://auth.example.com',
+      });
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue({ payload: {} } as unknown as jose.JWTVerifyResult &
+          jose.ResolvedKey);
+
+      await workosWithIssuer.userManagement.verifyAccessToken(accessToken);
+
+      expect(jose.jwtVerify).toHaveBeenCalledWith(
+        accessToken,
+        expect.anything(),
+        { issuer: 'https://auth.example.com' },
+      );
+    });
+
+    describe('token family checks', () => {
+      const userClaims = {
+        iss: 'https://api.workos.com/user_management/proj_123',
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        exp: 1735684500,
+        iat: 1735683600,
+        auth_time: 1735683600,
+      };
+
+      const verifyPayload = (payload: Record<string, unknown>) => {
+        jest
+          .mocked(jose.jwtVerify)
+          .mockResolvedValue({ payload } as unknown as jose.JWTVerifyResult &
+            jose.ResolvedKey);
+        return workos.userManagement.verifyAccessToken(accessToken);
+      };
+
+      it('accepts a token that classifies its subject as a user', async () => {
+        const payload = { ...userClaims, sub_profile: 'user' };
+
+        await expect(verifyPayload(payload)).resolves.toEqual(payload);
+      });
+
+      it('returns null when the token lacks sid', async () => {
+        const { sid: _sid, ...payload } = userClaims;
+
+        await expect(verifyPayload(payload)).resolves.toBeNull();
+      });
+
+      it('returns null when the token lacks auth_time', async () => {
+        const { auth_time: _authTime, ...payload } = userClaims;
+
+        await expect(verifyPayload(payload)).resolves.toBeNull();
+      });
+
+      it('returns null for an agent access token', async () => {
+        await expect(
+          verifyPayload({
+            ...userClaims,
+            sub: 'agent_instance_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            sub_profile: 'ai_agent',
+          }),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a widget session token', async () => {
+        await expect(
+          verifyPayload({ ...userClaims, sub_type: 'authkit' }),
+        ).resolves.toBeNull();
+      });
+    });
+
+    it('returns null when the token fails verification', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        const error = new Error('"exp" claim timestamp check failed');
+        (error as Error & { code: string }).code = 'ERR_JWT_EXPIRED';
+        throw error;
+      });
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).resolves.toBeNull();
+    });
+
+    it('rethrows errors that are not JWT validation failures', async () => {
+      jest.mocked(jose.jwtVerify).mockImplementationOnce(() => {
+        throw new Error('Network error: JWKS fetch failed');
+      });
+
+      await expect(
+        workos.userManagement.verifyAccessToken(accessToken),
+      ).rejects.toThrow('Network error: JWKS fetch failed');
+    });
+
+    it('throws when no client ID is configured', async () => {
+      const workosNoClientId = new WorkOS('sk_test_no_client_id');
+
+      await expect(
+        workosNoClientId.userManagement.verifyAccessToken(accessToken),
+      ).rejects.toThrow('Must provide clientId to initialize JWKS');
+    });
+
+    describe('with signed tokens', () => {
+      const { jwtVerify } = jest.requireActual<typeof jose>('jose');
+      const issuer = 'https://auth.example.com';
+      const kid = 'key_01';
+      const claims = {
+        sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+        sid: 'session_123',
+        org_id: 'org_123',
+        auth_time: 1735683600,
+      };
+
+      type PrivateKey = Awaited<
+        ReturnType<typeof jose.generateKeyPair>
+      >['privateKey'];
+      let privateKey: PrivateKey;
+      let otherPrivateKey: PrivateKey;
+      let primaryJwk: jose.JWK;
+      let otherJwk: jose.JWK;
+      let jwks: ReturnType<typeof jose.createLocalJWKSet>;
+      let workosWithKeys: WorkOS;
+
+      const sign = (
+        key: PrivateKey | Uint8Array,
+        header: jose.JWTHeaderParameters,
+        tokenIssuer = issuer,
+      ) =>
+        new jose.SignJWT(claims)
+          .setProtectedHeader(header)
+          .setIssuer(tokenIssuer)
+          .setIssuedAt()
+          .setExpirationTime('1h')
+          .sign(key);
+
+      beforeAll(async () => {
+        const [primary, other] = await Promise.all([
+          jose.generateKeyPair('RS256'),
+          jose.generateKeyPair('RS256'),
+        ]);
+        privateKey = primary.privateKey;
+        otherPrivateKey = other.privateKey;
+        primaryJwk = {
+          ...(await jose.exportJWK(primary.publicKey)),
+          kid,
+          alg: 'RS256',
+        };
+        otherJwk = {
+          ...(await jose.exportJWK(other.publicKey)),
+          kid: 'key_02',
+          alg: 'RS256',
+        };
+        jwks = jose.createLocalJWKSet({ keys: [primaryJwk] });
+      });
+
+      beforeEach(() => {
+        // Verify for real against a local JWKS standing in for the remote one.
+        jest.mocked(jose.jwtVerify).mockImplementation(jwtVerify);
+        jest
+          .mocked(jose.createRemoteJWKSet)
+          .mockReturnValue(
+            jwks as unknown as ReturnType<typeof jose.createRemoteJWKSet>,
+          );
+        workosWithKeys = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          clientId: 'proj_123',
+          issuer,
+        });
+      });
+
+      it('returns the claims of a token signed by the environment', async () => {
+        const token = await sign(privateKey, { alg: 'RS256', kid });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toMatchObject({
+          ...claims,
+          iss: issuer,
+          exp: expect.any(Number),
+          iat: expect.any(Number),
+        });
+      });
+
+      it('returns null for a token signed by a key the JWKS does not have', async () => {
+        const token = await sign(otherPrivateKey, {
+          alg: 'RS256',
+          kid: 'key_02',
+        });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token whose signature does not verify', async () => {
+        const token = await sign(otherPrivateKey, { alg: 'RS256' });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token signed with a shared secret', async () => {
+        const token = await sign(new TextEncoder().encode('shared-secret'), {
+          alg: 'HS256',
+        });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for an unsigned token', async () => {
+        const encode = (value: object) =>
+          jose.base64url.encode(JSON.stringify(value));
+        const token = `${encode({ alg: 'none' })}.${encode({
+          ...claims,
+          iss: issuer,
+          exp: Math.floor(Date.now() / 1000) + 3600,
+        })}.`;
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      it('returns null for a token from another issuer', async () => {
+        const token = await sign(
+          privateKey,
+          { alg: 'RS256', kid },
+          'https://auth.other.example.com',
+        );
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).resolves.toBeNull();
+      });
+
+      describe('when the JWKS holds more than one key', () => {
+        beforeEach(() => {
+          // A JWKS mid-rotation: both keys are active.
+          const rotatingJwks = jose.createLocalJWKSet({
+            keys: [primaryJwk, otherJwk],
+          });
+          jest
+            .mocked(jose.createRemoteJWKSet)
+            .mockReturnValue(
+              rotatingJwks as unknown as ReturnType<
+                typeof jose.createRemoteJWKSet
+              >,
+            );
+        });
+
+        it('returns the claims of a token signed with either key', async () => {
+          const token = await sign(otherPrivateKey, {
+            alg: 'RS256',
+            kid: 'key_02',
+          });
+
+          await expect(
+            workosWithKeys.userManagement.verifyAccessToken(token),
+          ).resolves.toMatchObject({ ...claims, iss: issuer });
+        });
+
+        it('returns null for a token without a kid', async () => {
+          const token = await sign(privateKey, { alg: 'RS256' });
+
+          await expect(
+            workosWithKeys.userManagement.verifyAccessToken(token),
+          ).resolves.toBeNull();
+        });
+      });
+
+      it('rethrows when the JWKS cannot be fetched', async () => {
+        jest.mocked(jose.createRemoteJWKSet).mockReturnValue((() => {
+          throw new jose.errors.JWKSTimeout();
+        }) as unknown as ReturnType<typeof jose.createRemoteJWKSet>);
+        const token = await sign(privateKey, { alg: 'RS256', kid });
+
+        await expect(
+          workosWithKeys.userManagement.verifyAccessToken(token),
+        ).rejects.toThrow(jose.errors.JWKSTimeout);
+      });
+    });
+  });
+
   describe('getSessionFromCookie', () => {
     const OLD_ENV = process.env;
 
@@ -1908,18 +2289,30 @@ describe('UserManagement', () => {
           object: 'user',
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           email: 'test@example.com',
+          createdAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: '2023-07-18T02:07:19.911Z',
         },
       };
       const sessionData = await sealData(sessionCookieData, {
         password: cookiePassword,
       });
 
+      // Timestamps round-trip through the sealed cookie as strings and are
+      // revived to `Date` on the way out.
       await expect(
         workos.userManagement.getSessionFromCookie({
           sessionData,
           cookiePassword,
         }),
-      ).resolves.toEqual(sessionCookieData);
+      ).resolves.toEqual({
+        ...sessionCookieData,
+        user: {
+          ...sessionCookieData.user,
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+          lastSignInAt: null,
+        },
+      });
     });
   });
 
@@ -1935,10 +2328,10 @@ describe('UserManagement', () => {
         id: 'email_verification_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -1957,7 +2350,7 @@ describe('UserManagement', () => {
 
       expect(resp).toMatchObject({
         user: {
-          createdAt: '2023-07-18T02:07:19.911Z',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
           email: 'test01@example.com',
           emailVerified: true,
           name: 'Test 01 User',
@@ -1965,7 +2358,7 @@ describe('UserManagement', () => {
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           lastName: 'User',
           object: 'user',
-          updatedAt: '2023-07-18T02:07:19.911Z',
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
         },
       });
     });
@@ -2001,10 +2394,10 @@ describe('UserManagement', () => {
         id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2025,10 +2418,10 @@ describe('UserManagement', () => {
         id: 'magic_auth_01H5JQDV7R7ATEYZDEG0W5PRYS',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         email: 'dane@workos.com',
-        expiresAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
         code: '123456',
-        createdAt: '2023-07-18T02:07:19.911Z',
-        updatedAt: '2023-07-18T02:07:19.911Z',
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
+        updatedAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
 
@@ -2101,8 +2494,8 @@ describe('UserManagement', () => {
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
           'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
-        expiresAt: '2023-07-18T02:07:19.911Z',
-        createdAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2126,8 +2519,8 @@ describe('UserManagement', () => {
         passwordResetToken: 'Z1uX3RbwcIl5fIGJJJCXXisdI',
         passwordResetUrl:
           'https://your-app.com/reset-password?token=Z1uX3RbwcIl5fIGJJJCXXisdI',
-        expiresAt: '2023-07-18T02:07:19.911Z',
-        createdAt: '2023-07-18T02:07:19.911Z',
+        expiresAt: new Date('2023-07-18T02:07:19.911Z'),
+        createdAt: new Date('2023-07-18T02:07:19.911Z'),
       });
     });
   });
@@ -2270,10 +2663,10 @@ describe('UserManagement', () => {
             ipAddress: '192.168.65.1',
             authMethod: 'oauth',
             status: 'active',
-            expiresAt: '2026-07-22T22:59:48.743Z',
+            expiresAt: new Date('2026-07-22T22:59:48.743Z'),
             endedAt: null,
-            createdAt: '2025-07-23T04:59:48.738Z',
-            updatedAt: '2025-07-23T04:59:48.738Z',
+            createdAt: new Date('2025-07-23T04:59:48.738Z'),
+            updatedAt: new Date('2025-07-23T04:59:48.738Z'),
           },
         ],
         listMetadata: {
@@ -2322,8 +2715,8 @@ describe('UserManagement', () => {
           lastUsedAt: null,
           expiresAt: null,
           permissions: ['posts:read', 'posts:write'],
-          createdAt: '2026-01-15T12:00:00.000Z',
-          updatedAt: '2026-01-15T12:00:00.000Z',
+          createdAt: new Date('2026-01-15T12:00:00.000Z'),
+          updatedAt: new Date('2026-01-15T12:00:00.000Z'),
         },
       ]);
     });
@@ -2378,10 +2771,10 @@ describe('UserManagement', () => {
         name: 'Production API Key',
         obfuscatedValue: 'sk_...3456',
         lastUsedAt: null,
-        expiresAt: '2030-01-01T00:00:00.000Z',
+        expiresAt: new Date('2030-01-01T00:00:00.000Z'),
         permissions: ['posts:read', 'posts:write'],
-        createdAt: '2026-01-15T12:00:00.000Z',
-        updatedAt: '2026-01-15T12:00:00.000Z',
+        createdAt: new Date('2026-01-15T12:00:00.000Z'),
+        updatedAt: new Date('2026-01-15T12:00:00.000Z'),
         value: 'test_api_key_value',
       });
     });
@@ -2466,7 +2859,27 @@ describe('UserManagement', () => {
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
         organizationId: 'organization_01H5JQDV7R7ATEYZDEG0W5PRYS',
         status: 'active',
+        user: {
+          object: 'user',
+          id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+          email: 'test01@example.com',
+          emailVerified: true,
+          firstName: 'Test 01',
+          lastName: 'User',
+        },
       });
+    });
+
+    it('omits user when the response does not include one', async () => {
+      fetchOnce(
+        { ...organizationMembershipFixture, user: undefined },
+        { status: 200 },
+      );
+      const organizationMembership =
+        await workos.userManagement.getOrganizationMembership(
+          organizationMembershipId,
+        );
+      expect(organizationMembership).not.toHaveProperty('user');
     });
   });
 
@@ -2490,6 +2903,10 @@ describe('UserManagement', () => {
             organizationName: 'Example Organization',
             userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             status: 'active',
+            user: {
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test01@example.com',
+            },
           },
         ],
         listMetadata: {
@@ -3120,7 +3537,7 @@ describe('UserManagement', () => {
         object: 'waitlist_entry',
         id: waitlistEntryId,
         state: 'approved',
-        approvedAt: '2026-01-16T12:00:00.000Z',
+        approvedAt: new Date('2026-01-16T12:00:00.000Z'),
       });
     });
   });

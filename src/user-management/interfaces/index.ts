@@ -1,3 +1,4 @@
+export * from './access-token-claims.interface';
 export * from './authenticate-with-code-options.interface';
 export * from './authenticate-with-code-and-verifier-options.interface';
 export * from './authenticate-with-email-verification-options.interface';
@@ -59,3 +60,4 @@ export * from './user-api-key-with-value.interface';
 export * from './verify-email-options.interface';
 export * from './waitlist.interface';
 export * from './waitlist-entry.interface';
+export * from './waitlist-user-event.interface';

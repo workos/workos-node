@@ -16,9 +16,9 @@ export interface GroupRoleAssignment {
   /** The resource the role is assigned on. */
   resource: RoleAssignmentResource;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface GroupRoleAssignmentResponse {

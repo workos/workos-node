@@ -1,9 +1,9 @@
 export interface Challenge {
   object: 'authentication_challenge';
   id: string;
-  createdAt: string;
-  updatedAt: string;
-  expiresAt?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  expiresAt?: Date;
   code?: string;
   authenticationFactorId: string;
 }

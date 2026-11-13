@@ -2,6 +2,7 @@
 
 import type { DataIntegrationCustomProviderAuthenticateVia } from './data-integration-custom-provider-authenticate-via.interface';
 
+/** The OAuth definition when this is a custom provider; `null` for built-in providers. */
 export interface DataIntegrationCustomProvider {
   /** A descriptive name for the custom provider. */
   name: string;

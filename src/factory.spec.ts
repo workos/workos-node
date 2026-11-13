@@ -50,6 +50,7 @@ describe('createWorkOS', () => {
       );
       expect(typeof workos.userManagement.getLogoutUrl).toBe('function');
       expect(typeof workos.userManagement.getJwksUrl).toBe('function');
+      expect(typeof workos.userManagement.verifyAccessToken).toBe('function');
     });
 
     it('has access to public SSO methods', () => {
@@ -70,6 +71,21 @@ describe('createWorkOS', () => {
       expect(workos.key).toBe('sk_test_123');
       expect(workos.clientId).toBe('client_123');
       expect(workos.baseURL).toBeDefined();
+    });
+
+    it('uses the provided fetchFn', async () => {
+      const fetchFn = jest.fn(
+        async () =>
+          new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+      );
+      const workos = createWorkOS({ apiKey: 'sk_test_123', fetchFn });
+
+      await workos.get('/path');
+
+      expect(fetchFn).toHaveBeenCalledTimes(1);
     });
 
     it('has access to all services', () => {

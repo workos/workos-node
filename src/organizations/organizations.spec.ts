@@ -235,10 +235,13 @@ describe('Organizations', () => {
         {
           object: 'organization_domain',
           id: 'org_domain_01EHT88Z8WZEFWYPM6EC9BX2R8',
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
           domain: 'example.com',
           state: 'verified',
           verificationStrategy: 'dns',
           verificationToken: 'xB8SeACdKJQP9DP4CahU4YuQZ',
+          createdAt: new Date('2024-01-15T09:30:00.000Z'),
+          updatedAt: new Date('2024-01-15T09:30:00.000Z'),
         },
       ]);
     });
@@ -387,8 +390,8 @@ describe('Organizations', () => {
             object: 'it_contact',
             id: 'it_contact_01HXYZ123456789ABCDEFGHIJ',
             email: 'it-contact@example.com',
-            createdAt: '2026-01-15T12:00:00.000Z',
-            updatedAt: '2026-01-15T12:00:00.000Z',
+            createdAt: new Date('2026-01-15T12:00:00.000Z'),
+            updatedAt: new Date('2026-01-15T12:00:00.000Z'),
           },
         ]);
         expect(listMetadata).toEqual({ before: null, after: null });

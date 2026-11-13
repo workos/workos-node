@@ -12,8 +12,8 @@ describe('deserializeFactor', () => {
       {
         object: 'authentication_factor',
         id: 'auth_factor_1234',
-        createdAt: '2022-03-15T20:39:19.892Z',
-        updatedAt: '2022-03-15T20:39:19.892Z',
+        createdAt: new Date('2022-03-15T20:39:19.892Z'),
+        updatedAt: new Date('2022-03-15T20:39:19.892Z'),
         type: 'totp',
         totp: {
           issuer: 'WorkOS',
@@ -24,8 +24,8 @@ describe('deserializeFactor', () => {
       {
         object: 'authentication_factor',
         id: 'auth_factor_5678',
-        createdAt: '2022-03-15T20:39:19.892Z',
-        updatedAt: '2022-03-15T20:39:19.892Z',
+        createdAt: new Date('2022-03-15T20:39:19.892Z'),
+        updatedAt: new Date('2022-03-15T20:39:19.892Z'),
         type: 'sms',
         sms: {
           phoneNumber: '+15555555555',
@@ -35,8 +35,8 @@ describe('deserializeFactor', () => {
       {
         object: 'authentication_factor',
         id: 'auth_factor_9012',
-        createdAt: '2022-03-15T20:39:19.892Z',
-        updatedAt: '2022-03-15T20:39:19.892Z',
+        createdAt: new Date('2022-03-15T20:39:19.892Z'),
+        updatedAt: new Date('2022-03-15T20:39:19.892Z'),
         type: 'generic_otp',
         userId: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
       },

@@ -6,8 +6,8 @@ export interface Permission {
   description: string | null;
   resourceTypeSlug: string;
   system: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface PermissionResponse {

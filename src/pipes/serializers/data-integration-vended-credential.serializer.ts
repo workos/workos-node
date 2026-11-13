@@ -14,9 +14,11 @@ export const deserializeDataIntegrationVendedCredential = (
         authMethod: 'oauth',
         object: response.object,
         value: response.value,
-        expiresAt: response.expires_at,
+        expiresAt:
+          response.expires_at != null ? new Date(response.expires_at) : null,
         scopes: response.scopes,
         missingScopes: response.missing_scopes,
+        metadata: response.metadata,
         config: response.config,
       };
     case 'api_key':
@@ -31,7 +33,8 @@ export const deserializeDataIntegrationVendedCredential = (
         authMethod: 'client_credentials',
         object: response.object,
         value: response.value,
-        expiresAt: response.expires_at,
+        expiresAt:
+          response.expires_at != null ? new Date(response.expires_at) : null,
         scopes: response.scopes,
         missingScopes: response.missing_scopes,
         metadata: response.metadata,

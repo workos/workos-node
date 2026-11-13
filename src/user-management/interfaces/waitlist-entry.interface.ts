@@ -10,15 +10,15 @@ export interface WaitlistEntry {
   /** The state of the waitlist entry. */
   state: WaitlistEntryState;
   /** The timestamp when the entry was approved, or null if not yet approved. */
-  approvedAt: string | null;
+  approvedAt: Date | null;
   /** Additional fields submitted when the user joined the waitlist. Values are user-provided — treat them as untrusted input when rendering or exporting. */
   additionalFields?: Record<string, string>;
   /** The unique ID of the waitlist the entry belongs to. */
   waitlistId: string | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface WaitlistEntryResponse {

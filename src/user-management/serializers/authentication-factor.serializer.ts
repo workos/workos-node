@@ -15,8 +15,8 @@ export const deserializeFactor = (
 ): AuthenticationFactor => ({
   object: factor.object,
   id: factor.id,
-  createdAt: factor.created_at,
-  updatedAt: factor.updated_at,
+  createdAt: new Date(factor.created_at),
+  updatedAt: new Date(factor.updated_at),
   type: factor.type,
   ...(factor.sms ? { sms: deserializeSms(factor.sms) } : {}),
   ...(factor.totp ? { totp: deserializeTotp(factor.totp) } : {}),
@@ -28,8 +28,8 @@ export const deserializeFactorWithSecrets = (
 ): AuthenticationFactorWithSecrets => ({
   object: factor.object,
   id: factor.id,
-  createdAt: factor.created_at,
-  updatedAt: factor.updated_at,
+  createdAt: new Date(factor.created_at),
+  updatedAt: new Date(factor.updated_at),
   type: factor.type,
   totp: deserializeTotpWithSecrets(factor.totp),
   userId: factor.user_id,

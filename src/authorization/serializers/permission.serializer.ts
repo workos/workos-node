@@ -13,6 +13,6 @@ export const deserializePermission = (
   description: permission.description,
   resourceTypeSlug: permission.resource_type_slug,
   system: permission.system,
-  createdAt: permission.created_at,
-  updatedAt: permission.updated_at,
+  createdAt: new Date(permission.created_at),
+  updatedAt: new Date(permission.updated_at),
 });

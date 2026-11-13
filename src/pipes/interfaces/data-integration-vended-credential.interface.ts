@@ -12,7 +12,7 @@ export type DataIntegrationVendedCredential =
       authMethod: 'oauth';
       value: string;
       config?: Record<string, string>;
-      expiresAt: string | null;
+      expiresAt: Date | null;
       scopes: string[];
       missingScopes: string[];
       metadata?: undefined;
@@ -32,7 +32,7 @@ export type DataIntegrationVendedCredential =
       authMethod: 'client_credentials';
       value: string;
       config?: Record<string, string>;
-      expiresAt: string | null;
+      expiresAt: Date | null;
       scopes: string[];
       missingScopes: string[];
       /** Non-sensitive provider token response fields, such as an instance URL. */

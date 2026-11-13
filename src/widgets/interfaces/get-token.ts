@@ -1,10 +1,7 @@
-export type WidgetScope =
-  | 'widgets:users-table:manage'
-  | 'widgets:sso:manage'
-  | 'widgets:domain-verification:manage'
-  | 'widgets:dsync:manage'
-  | 'widgets:api-keys:manage'
-  | 'widgets:audit-log-streaming:manage';
+import type { WidgetSessionTokenScopes } from './widget-session-token-scopes.interface';
+
+export type WidgetScope = WidgetSessionTokenScopes;
+
 export interface GetTokenOptions {
   organizationId: string;
   userId?: string;

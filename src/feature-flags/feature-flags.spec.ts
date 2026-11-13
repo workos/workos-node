@@ -41,8 +41,8 @@ describe('FeatureFlags', () => {
           tags: ['ui'],
           enabled: true,
           defaultValue: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         });
 
         expect(listMetadata).toEqual({
@@ -124,8 +124,8 @@ describe('FeatureFlags', () => {
         tags: ['ui'],
         enabled: true,
         defaultValue: false,
-        createdAt: '2024-01-01T00:00:00.000Z',
-        updatedAt: '2024-01-01T00:00:00.000Z',
+        createdAt: new Date('2024-01-01T00:00:00.000Z'),
+        updatedAt: new Date('2024-01-01T00:00:00.000Z'),
       });
     });
   });
@@ -242,8 +242,8 @@ describe('FeatureFlags', () => {
           tags: ['ui'],
           enabled: true,
           defaultValue: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
         {
           object: 'feature_flag',
@@ -254,8 +254,8 @@ describe('FeatureFlags', () => {
           tags: [],
           enabled: false,
           defaultValue: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
         {
           object: 'feature_flag',
@@ -266,8 +266,8 @@ describe('FeatureFlags', () => {
           tags: ['dev-support'],
           enabled: false,
           defaultValue: true,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
       ]);
     });
@@ -353,7 +353,6 @@ describe('FeatureFlags', () => {
           },
         };
         fetchOnce(fixtureWithAfter);
-        fetchOnce(fixtureWithAfter);
         fetchOnce(listOrganizationFeatureFlagsFixture);
 
         const result = await workos.featureFlags.listOrganizationFeatureFlags({
@@ -362,12 +361,12 @@ describe('FeatureFlags', () => {
 
         await result.autoPagination();
 
-        const thirdCallUrl = fetch.mock.calls[2][0];
-        const thirdCallParams = Object.fromEntries(
-          new URL(String(thirdCallUrl)).searchParams,
+        const secondCallUrl = fetch.mock.calls[1][0];
+        const secondCallParams = Object.fromEntries(
+          new URL(String(secondCallUrl)).searchParams,
         );
-        expect(thirdCallParams).not.toHaveProperty('organizationId');
-        expect(thirdCallParams).toHaveProperty('after', 'flag_next_page');
+        expect(secondCallParams).not.toHaveProperty('organizationId');
+        expect(secondCallParams).toHaveProperty('after', 'flag_next_page');
       });
     });
   });
@@ -398,8 +397,8 @@ describe('FeatureFlags', () => {
           tags: ['ui'],
           enabled: true,
           defaultValue: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
         {
           object: 'feature_flag',
@@ -410,8 +409,8 @@ describe('FeatureFlags', () => {
           tags: [],
           enabled: false,
           defaultValue: false,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
         {
           object: 'feature_flag',
@@ -422,8 +421,8 @@ describe('FeatureFlags', () => {
           tags: ['dev-support'],
           enabled: false,
           defaultValue: true,
-          createdAt: '2024-01-01T00:00:00.000Z',
-          updatedAt: '2024-01-01T00:00:00.000Z',
+          createdAt: new Date('2024-01-01T00:00:00.000Z'),
+          updatedAt: new Date('2024-01-01T00:00:00.000Z'),
         },
       ]);
     });

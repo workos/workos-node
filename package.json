@@ -1,6 +1,6 @@
 {
   "name": "@workos-inc/node",
-  "version": "11.0.0",
+  "version": "12.2.0",
   "description": "A Node wrapper for the WorkOS API",
   "keywords": [
     "workos"
@@ -74,7 +74,7 @@
     "eslint-plugin-jest": "^29.0.1",
     "eslint-plugin-n": "^18.0.0",
     "iron-webcrypto": "^2.0.0",
-    "jest": "30.5.1",
+    "jest": "30.5.2",
     "jest-fetch-mock": "^3.0.3",
     "jose": "^6.2.0",
     "miniflare": "^5.20260811.1-alpha",
@@ -90,7 +90,7 @@
   },
   "inlinedDependencies": {
     "iron-webcrypto": "2.0.0",
-    "jose": "6.2.2",
+    "jose": "6.2.12",
     "uint8array-extras": "1.5.0"
   }
 }

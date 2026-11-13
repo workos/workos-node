@@ -27,8 +27,8 @@ export function deserializeAgentBlueprint(
       refreshTokenTtlSeconds:
         blueprint.session_settings.refresh_token_ttl_seconds,
     },
-    createdAt: blueprint.created_at,
-    updatedAt: blueprint.updated_at,
+    createdAt: new Date(blueprint.created_at),
+    updatedAt: new Date(blueprint.updated_at),
   };
 }
 

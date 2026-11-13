@@ -335,6 +335,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -394,6 +395,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -448,6 +450,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -502,6 +505,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -543,6 +547,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -592,6 +597,7 @@ describe('SSO', () => {
           fetchOnce({
             access_token: '01DMEK0J53CVMC32CK5SE0KZ8Q',
             profile: {
+              object: 'profile',
               id: 'prof_123',
               idp_id: '123',
               organization_id: 'org_123',
@@ -663,6 +669,7 @@ describe('SSO', () => {
     describe('getProfile', () => {
       it('calls the `/sso/profile` endpoint with the provided access token', async () => {
         fetchOnce({
+          object: 'profile',
           id: 'prof_123',
           idp_id: '123',
           organization_id: 'org_123',
@@ -697,6 +704,43 @@ describe('SSO', () => {
         });
 
         expect(profile.id).toBe('prof_123');
+      });
+
+      it('surfaces nullable profile fields as null', async () => {
+        fetchOnce({
+          object: 'profile',
+          id: 'prof_123',
+          idp_id: '123',
+          organization_id: null,
+          connection_id: 'conn_123',
+          connection_type: 'GoogleOAuth',
+          email: 'foo@test.com',
+          name: null,
+          first_name: null,
+          last_name: null,
+          role: null,
+          raw_attributes: {},
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const profile = await workos.sso.getProfile({
+          accessToken: 'access_token',
+        });
+
+        expect(profile).toEqual({
+          object: 'profile',
+          id: 'prof_123',
+          idpId: '123',
+          organizationId: null,
+          connectionId: 'conn_123',
+          connectionType: 'GoogleOAuth',
+          email: 'foo@test.com',
+          name: null,
+          firstName: null,
+          lastName: null,
+          role: null,
+          rawAttributes: {},
+        });
       });
     });
 

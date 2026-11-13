@@ -14,6 +14,6 @@ export const deserializeEnvironmentRole = (
   permissions: role.permissions,
   resourceTypeSlug: role.resource_type_slug,
   type: role.type,
-  createdAt: role.created_at,
-  updatedAt: role.updated_at,
+  createdAt: new Date(role.created_at),
+  updatedAt: new Date(role.updated_at),
 });

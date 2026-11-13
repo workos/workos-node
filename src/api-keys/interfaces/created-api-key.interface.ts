@@ -8,10 +8,11 @@ export interface CreatedApiKey {
   name: string;
   obfuscatedValue: string;
   value: string;
-  lastUsedAt: string | null;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
   permissions: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SerializedCreatedApiKey {
@@ -25,6 +26,7 @@ export interface SerializedCreatedApiKey {
   obfuscated_value: string;
   value: string;
   last_used_at: string | null;
+  expires_at: string | null;
   permissions: string[];
   created_at: string;
   updated_at: string;

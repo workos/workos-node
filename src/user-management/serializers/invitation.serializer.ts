@@ -12,17 +12,19 @@ export const deserializeInvitation = (
   id: invitation.id,
   email: invitation.email,
   state: invitation.state,
-  acceptedAt: invitation.accepted_at,
-  revokedAt: invitation.revoked_at,
-  expiresAt: invitation.expires_at,
+  acceptedAt:
+    invitation.accepted_at != null ? new Date(invitation.accepted_at) : null,
+  revokedAt:
+    invitation.revoked_at != null ? new Date(invitation.revoked_at) : null,
+  expiresAt: new Date(invitation.expires_at),
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
   acceptedUserId: invitation.accepted_user_id,
   roleSlug: invitation.role_slug,
   token: invitation.token,
   acceptInvitationUrl: invitation.accept_invitation_url,
-  createdAt: invitation.created_at,
-  updatedAt: invitation.updated_at,
+  createdAt: new Date(invitation.created_at),
+  updatedAt: new Date(invitation.updated_at),
 });
 
 export const deserializeInvitationEvent = (
@@ -32,13 +34,15 @@ export const deserializeInvitationEvent = (
   id: invitation.id,
   email: invitation.email,
   state: invitation.state,
-  acceptedAt: invitation.accepted_at,
-  revokedAt: invitation.revoked_at,
-  expiresAt: invitation.expires_at,
+  acceptedAt:
+    invitation.accepted_at != null ? new Date(invitation.accepted_at) : null,
+  revokedAt:
+    invitation.revoked_at != null ? new Date(invitation.revoked_at) : null,
+  expiresAt: new Date(invitation.expires_at),
   organizationId: invitation.organization_id,
   inviterUserId: invitation.inviter_user_id,
   acceptedUserId: invitation.accepted_user_id,
   roleSlug: invitation.role_slug,
-  createdAt: invitation.created_at,
-  updatedAt: invitation.updated_at,
+  createdAt: new Date(invitation.created_at),
+  updatedAt: new Date(invitation.updated_at),
 });

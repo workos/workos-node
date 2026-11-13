@@ -96,7 +96,7 @@ export interface ValidAgentCredential {
    * An ISO 8601 timestamp of when the credential expires, or `null` when it
    * does not expire.
    */
-  expiresAt: string | null;
+  expiresAt: Date | null;
   /**
    * The decoded claims of the access token. Populated for `access_token`
    * credentials; `null` for API keys.

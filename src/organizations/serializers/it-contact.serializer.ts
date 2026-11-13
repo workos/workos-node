@@ -6,6 +6,6 @@ export const deserializeItContact = (
   object: itContact.object,
   id: itContact.id,
   email: itContact.email,
-  createdAt: itContact.created_at,
-  updatedAt: itContact.updated_at,
+  createdAt: new Date(itContact.created_at),
+  updatedAt: new Date(itContact.updated_at),
 });

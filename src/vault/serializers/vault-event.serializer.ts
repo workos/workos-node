@@ -21,6 +21,12 @@ import {
   VaultDekDecryptedEventResponseData,
   VaultByokKeyVerificationCompletedEventData,
   VaultByokKeyVerificationCompletedEventResponseData,
+  VaultByokKeyDeletedEventData,
+  VaultByokKeyDeletedEventResponseData,
+  VaultDekRekeyedEventData,
+  VaultDekRekeyedEventResponseData,
+  VaultKekDeletedEventData,
+  VaultKekDeletedEventResponseData,
 } from '../interfaces/vault-event.interface';
 
 const deserializeVaultActor = (actor: VaultActorResponse): VaultActor => ({
@@ -102,4 +108,27 @@ export const deserializeVaultByokKeyVerificationCompletedEvent = (
   organizationId: data.organization_id,
   keyProvider: data.key_provider,
   verified: data.verified,
+});
+
+export const deserializeVaultKekDeletedEvent = (
+  data: VaultKekDeletedEventResponseData,
+): VaultKekDeletedEventData => ({
+  ...deserializeVaultActor(data),
+  keyName: data.key_name,
+  keyId: data.key_id,
+});
+
+export const deserializeVaultDekRekeyedEvent = (
+  data: VaultDekRekeyedEventResponseData,
+): VaultDekRekeyedEventData => ({
+  ...deserializeVaultActor(data),
+  keyIds: data.key_ids,
+  keyContext: data.key_context,
+});
+
+export const deserializeVaultByokKeyDeletedEvent = (
+  data: VaultByokKeyDeletedEventResponseData,
+): VaultByokKeyDeletedEventData => ({
+  organizationId: data.organization_id,
+  keyProvider: data.key_provider,
 });

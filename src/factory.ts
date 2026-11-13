@@ -16,7 +16,8 @@ type PublicUserManagementMethods =
   | 'authenticateWithCodeAndVerifier'
   | 'authenticateWithRefreshToken'
   | 'getLogoutUrl'
-  | 'getJwksUrl';
+  | 'getJwksUrl'
+  | 'verifyAccessToken';
 
 /**
  * SSO method names available without API key.

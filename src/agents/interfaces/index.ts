@@ -1,4 +1,5 @@
 export * from './agent-blueprint.interface';
+export * from './agent-event.interface';
 export * from './agent-instance-session.interface';
 export * from './agent-instance.interface';
 export * from './agent-registration.interface';

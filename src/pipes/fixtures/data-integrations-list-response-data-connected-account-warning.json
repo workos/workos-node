@@ -1,0 +1,4 @@
+{
+  "code": "duplicate_account_display_name",
+  "message": "Another connection for this provider and owner has the same label."
+}

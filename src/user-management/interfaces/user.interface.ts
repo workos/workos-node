@@ -17,13 +17,13 @@ export interface User {
   /** The last name of the user. */
   lastName: string | null;
   /** The timestamp when the user last signed in. */
-  lastSignInAt: string | null;
+  lastSignInAt: Date | null;
   /** The user's preferred locale. */
   locale: string | null;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
   /** The external ID of the user. */
   externalId: string | null;
   /** Object containing metadata key/value pairs associated with the user. */

@@ -11,11 +11,14 @@ import {
   AuthenticationResponse,
   RefreshSessionFailureReason,
   RefreshSessionResponse,
-  SessionCookieData,
   TerminalRefreshSessionFailureReason,
 } from './interfaces';
 import { UserManagement } from './user-management';
 import { unsealData } from '../common/crypto/seal';
+import {
+  deserializeSessionCookieData,
+  SealedSessionCookieData,
+} from './serializers/session-cookie-data.serializer';
 import { getJose } from '../utils/jose';
 
 type RefreshOptions = {
@@ -61,9 +64,11 @@ export class CookieSession {
 
     // unsealData returns {} for known seal errors (expired, bad hmac, etc.)
     // Unknown errors propagate - don't catch them as "invalid session"
-    const session = await unsealData<SessionCookieData>(this.sessionData, {
-      password: this.cookiePassword,
-    });
+    const session = deserializeSessionCookieData(
+      await unsealData<SealedSessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      }),
+    );
 
     if (!session.accessToken) {
       return {
@@ -73,14 +78,16 @@ export class CookieSession {
       };
     }
 
-    if (!(await this.isValidJwt(session.accessToken))) {
+    const claims = await this.userManagement.verifyAccessToken(
+      session.accessToken,
+    );
+
+    if (!claims) {
       return {
         authenticated: false,
         reason: AuthenticateWithSessionCookieFailureReason.INVALID_JWT,
       };
     }
-
-    const { decodeJwt } = await getJose();
 
     const {
       sid: sessionId,
@@ -90,7 +97,7 @@ export class CookieSession {
       permissions,
       entitlements,
       feature_flags: featureFlags,
-    } = decodeJwt<UserManagementAccessToken>(session.accessToken);
+    } = claims;
 
     return {
       authenticated: true,
@@ -118,9 +125,11 @@ export class CookieSession {
    */
   async refresh(options: RefreshOptions = {}): Promise<RefreshSessionResponse> {
     const { decodeJwt } = await getJose();
-    const session = await unsealData<SessionCookieData>(this.sessionData, {
-      password: this.cookiePassword,
-    });
+    const session = deserializeSessionCookieData(
+      await unsealData<SealedSessionCookieData>(this.sessionData, {
+        password: this.cookiePassword,
+      }),
+    );
 
     if (!session.refreshToken || !session.user) {
       return {
@@ -234,34 +243,6 @@ export class CookieSession {
       sessionId: authenticationResponse.sessionId,
       returnTo,
     });
-  }
-
-  private async isValidJwt(accessToken: string): Promise<boolean> {
-    const { jwtVerify } = await getJose();
-    const jwks = await this.userManagement.getJWKS();
-    if (!jwks) {
-      throw new Error(
-        'Missing client ID. Did you provide it when initializing WorkOS?',
-      );
-    }
-
-    const { issuer } = this.userManagement;
-    try {
-      await jwtVerify(accessToken, jwks, issuer ? { issuer } : undefined);
-      return true;
-    } catch (e) {
-      // Only treat as invalid JWT if it's an actual JWT/JWS error from jose
-      // Network errors, crypto failures, etc. should propagate
-      if (
-        e instanceof Error &&
-        'code' in e &&
-        typeof e.code === 'string' &&
-        (e.code.startsWith('ERR_JWT_') || e.code.startsWith('ERR_JWS_'))
-      ) {
-        return false;
-      }
-      throw e;
-    }
   }
 }
 

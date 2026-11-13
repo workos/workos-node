@@ -12,9 +12,9 @@ export interface PasswordReset {
   /** The URL where the user can reset their password. */
   passwordResetUrl: string;
   /** The timestamp when the password reset token expires. */
-  expiresAt: string;
+  expiresAt: Date;
   /** The timestamp when the password reset token was created. */
-  createdAt: string;
+  createdAt: Date;
 }
 
 export interface PasswordResetEvent {
@@ -22,8 +22,8 @@ export interface PasswordResetEvent {
   id: string;
   userId: string;
   email: string;
-  expiresAt: string;
-  createdAt: string;
+  expiresAt: Date;
+  createdAt: Date;
 }
 
 export interface PasswordResetResponse {

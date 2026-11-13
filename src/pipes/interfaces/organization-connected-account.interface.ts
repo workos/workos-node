@@ -3,6 +3,10 @@
 import type { OrganizationConnectedAccountState } from './organization-connected-account-state.interface';
 
 export interface OrganizationConnectedAccount {
+  /** A mutable, non-unique connection label; null clears it. Not an account identifier. */
+  accountDisplayName?: string | null;
+  /** A developer-attested account identifier; null clears it. */
+  accountIdentifier?: string | null;
   /** The OAuth access token for the connected account. */
   accessToken?: string;
   /** The OAuth refresh token for the connected account. */
@@ -18,6 +22,8 @@ export interface OrganizationConnectedAccount {
 }
 
 export interface OrganizationConnectedAccountResponse {
+  account_display_name?: string | null;
+  account_identifier?: string | null;
   access_token?: string;
   refresh_token?: string;
   expires_at?: string;

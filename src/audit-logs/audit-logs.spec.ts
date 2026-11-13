@@ -476,8 +476,8 @@ describe('AuditLogs', () => {
           id: 'audit_log_export_1234',
           state: 'pending',
           url: undefined,
-          createdAt: timestamp,
-          updatedAt: timestamp,
+          createdAt: new Date(timestamp),
+          updatedAt: new Date(timestamp),
         };
 
         const auditLogExportResponse: AuditLogExportResponse = {
@@ -527,8 +527,8 @@ describe('AuditLogs', () => {
           id: 'audit_log_export_1234',
           state: 'pending',
           url: undefined,
-          createdAt: timestamp,
-          updatedAt: timestamp,
+          createdAt: new Date(timestamp),
+          updatedAt: new Date(timestamp),
         };
 
         const auditLogExportResponse: AuditLogExportResponse = {
@@ -592,8 +592,8 @@ describe('AuditLogs', () => {
           id: 'audit_log_export_1234',
           state: 'pending',
           url: undefined,
-          createdAt: timestamp,
-          updatedAt: timestamp,
+          createdAt: new Date(timestamp),
+          updatedAt: new Date(timestamp),
         };
 
         const auditLogExportResponse: AuditLogExportResponse = {
@@ -669,7 +669,7 @@ describe('AuditLogs', () => {
             foo: 'number',
             baz: 'boolean',
           },
-          createdAt: time,
+          createdAt: new Date(time),
         };
 
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
@@ -755,7 +755,7 @@ describe('AuditLogs', () => {
             },
           },
           metadata: undefined,
-          createdAt: time,
+          createdAt: new Date(time),
         };
 
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
@@ -831,7 +831,7 @@ describe('AuditLogs', () => {
             foo: 'number',
             baz: 'boolean',
           },
-          createdAt: time,
+          createdAt: new Date(time),
         };
 
         const createSchemaResponse: CreateAuditLogSchemaResponse = {
@@ -986,7 +986,7 @@ describe('AuditLogs', () => {
             metadata: { actor_id: 'string' },
           },
           metadata: { foo: 'number' },
-          createdAt: time,
+          createdAt: new Date(time),
         });
 
         expect(workosSpy).toHaveBeenCalledWith(
@@ -1086,7 +1086,7 @@ describe('AuditLogs', () => {
           ],
           actor: undefined,
           metadata: undefined,
-          createdAt: time,
+          createdAt: new Date(time),
         });
       });
     });

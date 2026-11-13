@@ -7,8 +7,8 @@ export interface EnvironmentRole {
   permissions: string[];
   resourceTypeSlug: string;
   type: 'EnvironmentRole';
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface EnvironmentRoleResponse {

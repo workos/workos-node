@@ -8,11 +8,11 @@ export interface UserApiKey {
   };
   name: string;
   obfuscatedValue: string;
-  lastUsedAt: string | null;
-  expiresAt: string | null;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
   permissions: string[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SerializedUserApiKey {

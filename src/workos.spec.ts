@@ -391,6 +391,56 @@ describe('WorkOS', () => {
       }, 20000);
     });
 
+    describe('when the api responds with a redirect', () => {
+      it('throws a GenericServerException that names the redirect', async () => {
+        const fetchFn = jest.fn(
+          async () =>
+            new Response(null, {
+              status: 301,
+              headers: { Location: 'https://api.workos.com/path' },
+            }),
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn,
+        });
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          name: 'GenericServerException',
+          status: 301,
+          message: expect.stringContaining(
+            'redirect (301 to https://api.workos.com/path)',
+          ),
+        });
+        expect(fetchFn).toHaveBeenCalledTimes(1);
+      });
+
+      it('throws a GenericServerException for an opaque redirect from a browser fetch', async () => {
+        // Browsers hide the status and Location of a manual redirect behind
+        // an opaque response. The Response constructor rejects status 0, so
+        // this is a bare fake.
+        const fetchFn = jest.fn(
+          async () =>
+            ({
+              type: 'opaqueredirect',
+              status: 0,
+              ok: false,
+              headers: new Headers(),
+              body: null,
+            }) as unknown as Response,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn,
+        });
+
+        await expect(workos.post('/path', {})).rejects.toMatchObject({
+          name: 'GenericServerException',
+          status: 0,
+          message: expect.stringContaining('an opaque redirect'),
+        });
+        expect(fetchFn).toHaveBeenCalledTimes(1);
+      });
+    });
+
     describe('when the api responds with a 500 and no error/error_description', () => {
       it('throws an GenericServerException', async () => {
         fetchOnce(
@@ -614,6 +664,54 @@ describe('WorkOS', () => {
         expect(error.requestID).toBe('a-request-id');
       });
     });
+
+    describe('when the signal aborts', () => {
+      it('aborts the request and rejects with the signal reason', async () => {
+        const pendingFetch = jest.fn(
+          (_url: any, init: any) =>
+            new Promise((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              });
+            }) as any,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn: pendingFetch as any,
+        });
+        const controller = new AbortController();
+        const reason = new Error('Stop');
+
+        const request = workos.get('/path', { signal: controller.signal });
+        controller.abort(reason);
+
+        await expect(request).rejects.toBe(reason);
+        expect(pendingFetch.mock.calls[0][1].signal.aborted).toBe(true);
+      });
+
+      it('rejects with a null signal reason', async () => {
+        const pendingFetch = jest.fn(
+          (_url: any, init: any) =>
+            new Promise((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              });
+            }) as any,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn: pendingFetch as any,
+        });
+        const controller = new AbortController();
+
+        const request = workos.get('/path', { signal: controller.signal });
+        controller.abort(null);
+
+        await expect(request).rejects.toBeNull();
+      });
+    });
   });
 
   describe('put', () => {
@@ -778,6 +876,43 @@ describe('WorkOS', () => {
         // tslint:disable-next-line
         workos.actions['signatureProvider']['cryptoProvider'],
       ).toBeInstanceOf(SubtleCryptoProvider);
+    });
+
+    it('uses the provided fetchFn', async () => {
+      const fetchFn = jest.fn(
+        async () =>
+          new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+      );
+      const workos = new WorkOSWorker('sk_test_key', { fetchFn });
+
+      await workos.get('/path');
+
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+    });
+
+    it('honors the timeout option', async () => {
+      const neverResolvingFetch = jest.fn(
+        (_url: any, init: any) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener('abort', () => {
+              const abortError = new Error('Aborted');
+              abortError.name = 'AbortError';
+              reject(abortError);
+            });
+          }) as any,
+      );
+      const workos = new WorkOSWorker('sk_test_key', {
+        timeout: 1,
+        maxRetries: 0,
+        fetchFn: neverResolvingFetch as any,
+      });
+
+      await expect(workos.post('/path', {})).rejects.toMatchObject({
+        status: 408,
+      });
     });
 
     it('uses console.warn to emit warnings', () => {

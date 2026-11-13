@@ -7,6 +7,6 @@ export const deserializeAuditLogExport = (
   id: auditLogExport.id,
   state: auditLogExport.state,
   url: auditLogExport.url,
-  createdAt: auditLogExport.created_at,
-  updatedAt: auditLogExport.updated_at,
+  createdAt: new Date(auditLogExport.created_at),
+  updatedAt: new Date(auditLogExport.updated_at),
 });

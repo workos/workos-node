@@ -31,3 +31,4 @@ export * from './user-api-key.serializer';
 export * from './user-api-key-with-value.serializer';
 export * from './waitlist.serializer';
 export * from './waitlist-entry.serializer';
+export * from './waitlist-user-event.serializer';

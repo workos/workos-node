@@ -12,10 +12,10 @@ export const deserializeMagicAuth = (
   id: magicAuth.id,
   userId: magicAuth.user_id,
   email: magicAuth.email,
-  expiresAt: magicAuth.expires_at,
+  expiresAt: new Date(magicAuth.expires_at),
   code: magicAuth.code,
-  createdAt: magicAuth.created_at,
-  updatedAt: magicAuth.updated_at,
+  createdAt: new Date(magicAuth.created_at),
+  updatedAt: new Date(magicAuth.updated_at),
 });
 
 export const deserializeMagicAuthEvent = (
@@ -25,7 +25,7 @@ export const deserializeMagicAuthEvent = (
   id: magicAuth.id,
   userId: magicAuth.user_id,
   email: magicAuth.email,
-  expiresAt: magicAuth.expires_at,
-  createdAt: magicAuth.created_at,
-  updatedAt: magicAuth.updated_at,
+  expiresAt: new Date(magicAuth.expires_at),
+  createdAt: new Date(magicAuth.created_at),
+  updatedAt: new Date(magicAuth.updated_at),
 });

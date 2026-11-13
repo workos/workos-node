@@ -60,9 +60,9 @@ export interface AgentBlueprint {
   /** Token and session lifetimes for sessions minted from the blueprint. */
   sessionSettings: AgentBlueprintSessionSettings;
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedAgentBlueprint {

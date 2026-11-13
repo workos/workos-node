@@ -1,4 +1,30 @@
 import {
+  AgentBlueprintDeletedEventData,
+  AgentBlueprintDeletedEventResponseData,
+  AgentBlueprintEventData,
+  AgentBlueprintEventResponseData,
+  AgentInstanceSessionCreatedEventData,
+  AgentInstanceSessionCreatedEventResponseData,
+  AgentInstanceSessionEventData,
+  AgentInstanceSessionEventResponseData,
+  AgentRegistrationClaimAttemptCreatedEventData,
+  AgentRegistrationClaimAttemptCreatedEventResponseData,
+  AgentRegistrationClaimCompletedEventData,
+  AgentRegistrationClaimCompletedEventResponseData,
+  AgentRegistrationCreatedEventData,
+  AgentRegistrationCreatedEventResponseData,
+  AgentRegistrationCredentialIssuedEventData,
+  AgentRegistrationCredentialIssuedEventResponseData,
+  AgentRegistrationLifecycleEventData,
+  AgentRegistrationLifecycleEventResponseData,
+  AgentRegistrationOrganizationSwitchedEventData,
+  AgentRegistrationOrganizationSwitchedEventResponseData,
+} from '../../agents/interfaces/agent-event.interface';
+import {
+  AgentInstance,
+  SerializedAgentInstance,
+} from '../../agents/interfaces/agent-instance.interface';
+import {
   DirectoryUser,
   DirectoryUserResponse,
   DirectoryGroup,
@@ -53,6 +79,38 @@ import {
 } from '../../user-management/interfaces/authentication-radar-risk-detected-event.interface';
 import { ApiKey, SerializedApiKey } from '../../api-keys/interfaces';
 import {
+  ApiKeyUpdatedEventData,
+  SerializedApiKeyUpdatedEventData,
+} from '../../api-keys/interfaces/api-key-event.interface';
+import {
+  ActionAuthenticationDeniedEventData,
+  ActionAuthenticationDeniedEventResponseData,
+  ActionUserRegistrationDeniedEventData,
+  ActionUserRegistrationDeniedEventResponseData,
+} from '../../actions/interfaces/action-event.interface';
+import {
+  ConnectionSamlCertificateRenewalRequiredEventData,
+  ConnectionSamlCertificateRenewalRequiredEventResponseData,
+  ConnectionSamlCertificateRenewedEventData,
+  ConnectionSamlCertificateRenewedEventResponseData,
+} from '../../sso/interfaces/connection-event.interface';
+import {
+  DirectoryToken,
+  DirectoryTokenResponse,
+} from '../../directory-sync/interfaces/directory-token.interface';
+import {
+  RadarChallengeCreatedEventData,
+  RadarChallengeCreatedEventResponseData,
+} from '../../radar/interfaces/radar-event.interface';
+import {
+  ResourceExportEventData,
+  ResourceExportEventResponseData,
+} from './resource-export-event.interface';
+import {
+  WaitlistUserEventData,
+  WaitlistUserEventResponseData,
+} from '../../user-management/interfaces/waitlist-user-event.interface';
+import {
   FeatureFlag,
   FeatureFlagResponse,
   FlagRule,
@@ -61,7 +119,11 @@ import {
   FlagTargetResourceResponse,
 } from '../../feature-flags/interfaces';
 import { Group, GroupResponse } from '../../groups/interfaces';
-import { ConnectedAccountState } from '../../pipes/interfaces';
+import {
+  ConnectedAccountAuthMethod,
+  ConnectedAccountConnectionRole,
+  ConnectedAccountState,
+} from '../../pipes/interfaces';
 import {
   VaultDataCreatedEventData,
   VaultDataCreatedEventResponseData,
@@ -83,11 +145,17 @@ import {
   VaultDekDecryptedEventResponseData,
   VaultByokKeyVerificationCompletedEventData,
   VaultByokKeyVerificationCompletedEventResponseData,
+  VaultByokKeyDeletedEventData,
+  VaultByokKeyDeletedEventResponseData,
+  VaultDekRekeyedEventData,
+  VaultDekRekeyedEventResponseData,
+  VaultKekDeletedEventData,
+  VaultKekDeletedEventResponseData,
 } from '../../vault/interfaces/vault-event.interface';
 
 export interface EventBase {
   id: string;
-  createdAt: string;
+  createdAt: Date;
   context: Record<string, unknown> | undefined;
 }
 
@@ -95,6 +163,166 @@ interface EventResponseBase {
   id: string;
   created_at: string;
   context?: Record<string, unknown>;
+}
+
+export interface AgentBlueprintCreatedEvent extends EventBase {
+  event: 'agent.blueprint.created';
+  data: AgentBlueprintEventData;
+}
+
+export interface AgentBlueprintCreatedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.created';
+  data: AgentBlueprintEventResponseData;
+}
+
+export interface AgentBlueprintDeletedEvent extends EventBase {
+  event: 'agent.blueprint.deleted';
+  data: AgentBlueprintDeletedEventData;
+}
+
+export interface AgentBlueprintDeletedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.deleted';
+  data: AgentBlueprintDeletedEventResponseData;
+}
+
+export interface AgentBlueprintUpdatedEvent extends EventBase {
+  event: 'agent.blueprint.updated';
+  data: AgentBlueprintEventData;
+}
+
+export interface AgentBlueprintUpdatedEventResponse extends EventResponseBase {
+  event: 'agent.blueprint.updated';
+  data: AgentBlueprintEventResponseData;
+}
+
+export interface AgentInstanceCreatedEvent extends EventBase {
+  event: 'agent.instance.created';
+  data: AgentInstance;
+}
+
+export interface AgentInstanceCreatedEventResponse extends EventResponseBase {
+  event: 'agent.instance.created';
+  data: SerializedAgentInstance;
+}
+
+export interface AgentInstanceDeletedEvent extends EventBase {
+  event: 'agent.instance.deleted';
+  data: AgentInstance;
+}
+
+export interface AgentInstanceDeletedEventResponse extends EventResponseBase {
+  event: 'agent.instance.deleted';
+  data: SerializedAgentInstance;
+}
+
+export interface AgentInstanceSessionCreatedEvent extends EventBase {
+  event: 'agent.instance.session.created';
+  data: AgentInstanceSessionCreatedEventData;
+}
+
+export interface AgentInstanceSessionCreatedEventResponse extends EventResponseBase {
+  event: 'agent.instance.session.created';
+  data: AgentInstanceSessionCreatedEventResponseData;
+}
+
+export interface AgentInstanceSessionRevokedEvent extends EventBase {
+  event: 'agent.instance.session.revoked';
+  data: AgentInstanceSessionEventData;
+}
+
+export interface AgentInstanceSessionRevokedEventResponse extends EventResponseBase {
+  event: 'agent.instance.session.revoked';
+  data: AgentInstanceSessionEventResponseData;
+}
+
+export interface AgentRegistrationCreatedEvent extends EventBase {
+  event: 'agent.registration.created';
+  data: AgentRegistrationCreatedEventData;
+}
+
+export interface AgentRegistrationCreatedEventResponse extends EventResponseBase {
+  event: 'agent.registration.created';
+  data: AgentRegistrationCreatedEventResponseData;
+}
+
+export interface AgentRegistrationClaimAttemptCreatedEvent extends EventBase {
+  event: 'agent.registration.claim.attempt.created';
+  data: AgentRegistrationClaimAttemptCreatedEventData;
+}
+
+export interface AgentRegistrationClaimAttemptCreatedEventResponse extends EventResponseBase {
+  event: 'agent.registration.claim.attempt.created';
+  data: AgentRegistrationClaimAttemptCreatedEventResponseData;
+}
+
+export interface AgentRegistrationClaimCompletedEvent extends EventBase {
+  event: 'agent.registration.claim.completed';
+  data: AgentRegistrationClaimCompletedEventData;
+}
+
+export interface AgentRegistrationClaimCompletedEventResponse extends EventResponseBase {
+  event: 'agent.registration.claim.completed';
+  data: AgentRegistrationClaimCompletedEventResponseData;
+}
+
+export interface AgentRegistrationCredentialIssuedEvent extends EventBase {
+  event: 'agent.registration.credential.issued';
+  data: AgentRegistrationCredentialIssuedEventData;
+}
+
+export interface AgentRegistrationCredentialIssuedEventResponse extends EventResponseBase {
+  event: 'agent.registration.credential.issued';
+  data: AgentRegistrationCredentialIssuedEventResponseData;
+}
+
+export interface AgentRegistrationOrganizationSwitchedEvent extends EventBase {
+  event: 'agent.registration.organization.switched';
+  data: AgentRegistrationOrganizationSwitchedEventData;
+}
+
+export interface AgentRegistrationOrganizationSwitchedEventResponse extends EventResponseBase {
+  event: 'agent.registration.organization.switched';
+  data: AgentRegistrationOrganizationSwitchedEventResponseData;
+}
+
+export interface AgentRegistrationRefreshedEvent extends EventBase {
+  event: 'agent.registration.refreshed';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationRefreshedEventResponse extends EventResponseBase {
+  event: 'agent.registration.refreshed';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationExpiredEvent extends EventBase {
+  event: 'agent.registration.expired';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationExpiredEventResponse extends EventResponseBase {
+  event: 'agent.registration.expired';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationRevokedEvent extends EventBase {
+  event: 'agent.registration.revoked';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationRevokedEventResponse extends EventResponseBase {
+  event: 'agent.registration.revoked';
+  data: AgentRegistrationLifecycleEventResponseData;
+}
+
+export interface AgentRegistrationDeletedEvent extends EventBase {
+  event: 'agent.registration.deleted';
+  data: AgentRegistrationLifecycleEventData;
+}
+
+export interface AgentRegistrationDeletedEventResponse extends EventResponseBase {
+  event: 'agent.registration.deleted';
+  data: AgentRegistrationLifecycleEventResponseData;
 }
 
 export interface AuthenticationEmailVerificationSucceededEvent extends EventBase {
@@ -993,25 +1221,39 @@ export type PipesConnectedAccountState = ConnectedAccountState | 'disconnected';
 export interface PipesConnectedAccount {
   object: 'connected_account';
   id: string;
+  connectionRole?: ConnectedAccountConnectionRole;
+  accountIdentifier?: string | null;
+  accountDisplayName?: string | null;
   dataIntegrationId: string;
   providerSlug: string;
   userId: string | null;
   organizationId: string | null;
   scopes: string[];
+  authMethod?: ConnectedAccountAuthMethod;
+  apiKeyLast4?: string | null;
   state: PipesConnectedAccountState;
-  createdAt: string;
-  updatedAt: string;
+  establishedByUserId?: string | null;
+  stateReason?: 'establishing_member_membership_ended' | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface PipesConnectedAccountResponse {
   object: 'connected_account';
   id: string;
+  connection_role?: ConnectedAccountConnectionRole;
+  account_identifier?: string | null;
+  account_display_name?: string | null;
   data_integration_id: string;
   provider_slug: string;
   user_id: string | null;
   organization_id: string | null;
   scopes: string[];
+  auth_method?: ConnectedAccountAuthMethod;
+  api_key_last_4?: string | null;
   state: PipesConnectedAccountState;
+  established_by_user_id?: string | null;
+  state_reason?: 'establishing_member_membership_ended' | null;
   created_at: string;
   updated_at: string;
 }
@@ -1022,11 +1264,12 @@ export interface PipesConnectionFailed {
   providerSlug: string;
   userId: string | null;
   organizationId: string | null;
+  accountIdentifier?: string | null;
   errorCode: string;
   errorReason: string | null;
   providerError: string | null;
   providerErrorDescription: string | null;
-  createdAt: string;
+  createdAt: Date;
 }
 
 export interface PipesConnectionFailedResponse {
@@ -1035,6 +1278,7 @@ export interface PipesConnectionFailedResponse {
   provider_slug: string;
   user_id: string | null;
   organization_id: string | null;
+  account_identifier?: string | null;
   error_code: string;
   error_reason: string | null;
   provider_error: string | null;
@@ -1182,12 +1426,330 @@ export interface VaultByokKeyVerificationCompletedEventResponse extends EventRes
   data: VaultByokKeyVerificationCompletedEventResponseData;
 }
 
-export interface UnknownEvent extends EventBase {
-  event: string;
-  data: Record<string, unknown>;
+export interface ActionAuthenticationDeniedEvent extends EventBase {
+  event: 'action.authentication.denied';
+  data: ActionAuthenticationDeniedEventData;
 }
 
-export type Event =
+export interface ActionAuthenticationDeniedEventResponse extends EventResponseBase {
+  event: 'action.authentication.denied';
+  data: ActionAuthenticationDeniedEventResponseData;
+}
+
+export interface ActionUserRegistrationDeniedEvent extends EventBase {
+  event: 'action.user_registration.denied';
+  data: ActionUserRegistrationDeniedEventData;
+}
+
+export interface ActionUserRegistrationDeniedEventResponse extends EventResponseBase {
+  event: 'action.user_registration.denied';
+  data: ActionUserRegistrationDeniedEventResponseData;
+}
+
+export interface ApiKeyUpdatedEvent extends EventBase {
+  event: 'api_key.updated';
+  data: ApiKeyUpdatedEventData;
+}
+
+export interface ApiKeyUpdatedEventResponse extends EventResponseBase {
+  event: 'api_key.updated';
+  data: SerializedApiKeyUpdatedEventData;
+}
+
+export interface AuthenticationEmailVerificationFailedEvent extends EventBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationEmailVerificationFailedEventResponse extends EventResponseBase {
+  event: 'authentication.email_verification_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationMfaFailedEvent extends EventBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationMfaFailedEventResponse extends EventResponseBase {
+  event: 'authentication.mfa_failed';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationReauthenticationSucceededEvent extends EventBase {
+  event: 'authentication.reauthentication_succeeded';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationReauthenticationSucceededEventResponse extends EventResponseBase {
+  event: 'authentication.reauthentication_succeeded';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationSSOStartedEvent extends EventBase {
+  event: 'authentication.sso_started';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOStartedEventResponse extends EventResponseBase {
+  event: 'authentication.sso_started';
+  data: AuthenticationEventResponse;
+}
+
+export interface AuthenticationSSOTimedOutEvent extends EventBase {
+  event: 'authentication.sso_timed_out';
+  data: AuthenticationEvent;
+}
+
+export interface AuthenticationSSOTimedOutEventResponse extends EventResponseBase {
+  event: 'authentication.sso_timed_out';
+  data: AuthenticationEventResponse;
+}
+
+export interface ConnectionSamlCertificateRenewalRequiredEvent extends EventBase {
+  event: 'connection.saml_certificate_renewal_required';
+  data: ConnectionSamlCertificateRenewalRequiredEventData;
+}
+
+export interface ConnectionSamlCertificateRenewalRequiredEventResponse extends EventResponseBase {
+  event: 'connection.saml_certificate_renewal_required';
+  data: ConnectionSamlCertificateRenewalRequiredEventResponseData;
+}
+
+export interface ConnectionSamlCertificateRenewedEvent extends EventBase {
+  event: 'connection.saml_certificate_renewed';
+  data: ConnectionSamlCertificateRenewedEventData;
+}
+
+export interface ConnectionSamlCertificateRenewedEventResponse extends EventResponseBase {
+  event: 'connection.saml_certificate_renewed';
+  data: ConnectionSamlCertificateRenewedEventResponseData;
+}
+
+export interface DsyncTokenCreatedEvent extends EventBase {
+  event: 'dsync.token.created';
+  data: DirectoryToken;
+}
+
+export interface DsyncTokenCreatedEventResponse extends EventResponseBase {
+  event: 'dsync.token.created';
+  data: DirectoryTokenResponse;
+}
+
+export interface DsyncTokenRevokedEvent extends EventBase {
+  event: 'dsync.token.revoked';
+  data: DirectoryToken;
+}
+
+export interface DsyncTokenRevokedEventResponse extends EventResponseBase {
+  event: 'dsync.token.revoked';
+  data: DirectoryTokenResponse;
+}
+
+export interface PipesAccountConnectionAddFailedEvent extends EventBase {
+  event: 'pipes.account_connection.add_failed';
+  data: PipesConnectionFailed;
+}
+
+export interface PipesAccountConnectionAddFailedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.add_failed';
+  data: PipesConnectionFailedResponse;
+}
+
+export interface PipesAccountConnectionConnectedEvent extends EventBase {
+  event: 'pipes.account_connection.connected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionConnectedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.connected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesAccountConnectionConnectionFailedEvent extends EventBase {
+  event: 'pipes.account_connection.connection_failed';
+  data: PipesConnectionFailed;
+}
+
+export interface PipesAccountConnectionConnectionFailedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.connection_failed';
+  data: PipesConnectionFailedResponse;
+}
+
+export interface PipesAccountConnectionDisconnectedEvent extends EventBase {
+  event: 'pipes.account_connection.disconnected';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionDisconnectedEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.disconnected';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface PipesAccountConnectionReauthorizationNeededEvent extends EventBase {
+  event: 'pipes.account_connection.reauthorization_needed';
+  data: PipesConnectedAccount;
+}
+
+export interface PipesAccountConnectionReauthorizationNeededEventResponse extends EventResponseBase {
+  event: 'pipes.account_connection.reauthorization_needed';
+  data: PipesConnectedAccountResponse;
+}
+
+export interface RadarChallengeCreatedEvent extends EventBase {
+  event: 'radar.challenge_created';
+  data: RadarChallengeCreatedEventData;
+}
+
+export interface RadarChallengeCreatedEventResponse extends EventResponseBase {
+  event: 'radar.challenge_created';
+  data: RadarChallengeCreatedEventResponseData;
+}
+
+export interface ResourceExportCompletedEvent extends EventBase {
+  event: 'resource_export.completed';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportCompletedEventResponse extends EventResponseBase {
+  event: 'resource_export.completed';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportCreatedEvent extends EventBase {
+  event: 'resource_export.created';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportCreatedEventResponse extends EventResponseBase {
+  event: 'resource_export.created';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportDownloadedEvent extends EventBase {
+  event: 'resource_export.downloaded';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportDownloadedEventResponse extends EventResponseBase {
+  event: 'resource_export.downloaded';
+  data: ResourceExportEventResponseData;
+}
+
+export interface ResourceExportFailedEvent extends EventBase {
+  event: 'resource_export.failed';
+  data: ResourceExportEventData;
+}
+
+export interface ResourceExportFailedEventResponse extends EventResponseBase {
+  event: 'resource_export.failed';
+  data: ResourceExportEventResponseData;
+}
+
+export interface VaultByokKeyDeletedEvent extends EventBase {
+  event: 'vault.byok_key.deleted';
+  data: VaultByokKeyDeletedEventData;
+}
+
+export interface VaultByokKeyDeletedEventResponse extends EventResponseBase {
+  event: 'vault.byok_key.deleted';
+  data: VaultByokKeyDeletedEventResponseData;
+}
+
+export interface VaultDekRekeyedEvent extends EventBase {
+  event: 'vault.dek.rekeyed';
+  data: VaultDekRekeyedEventData;
+}
+
+export interface VaultDekRekeyedEventResponse extends EventResponseBase {
+  event: 'vault.dek.rekeyed';
+  data: VaultDekRekeyedEventResponseData;
+}
+
+export interface VaultKekDeletedEvent extends EventBase {
+  event: 'vault.kek.deleted';
+  data: VaultKekDeletedEventData;
+}
+
+export interface VaultKekDeletedEventResponse extends EventResponseBase {
+  event: 'vault.kek.deleted';
+  data: VaultKekDeletedEventResponseData;
+}
+
+export interface WaitlistUserApprovedEvent extends EventBase {
+  event: 'waitlist_user.approved';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserApprovedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.approved';
+  data: WaitlistUserEventResponseData;
+}
+
+export interface WaitlistUserCreatedEvent extends EventBase {
+  event: 'waitlist_user.created';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserCreatedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.created';
+  data: WaitlistUserEventResponseData;
+}
+
+export interface WaitlistUserDeniedEvent extends EventBase {
+  event: 'waitlist_user.denied';
+  data: WaitlistUserEventData;
+}
+
+export interface WaitlistUserDeniedEventResponse extends EventResponseBase {
+  event: 'waitlist_user.denied';
+  data: WaitlistUserEventResponseData;
+}
+
+/**
+ * An event whose name this version of the SDK does not recognize.
+ *
+ * The API adds event types over time, so `Event` includes this member to make
+ * that possibility visible to the compiler: an exhaustive `switch` over
+ * `event.event` can no longer assume every case is covered.
+ *
+ * `data` is deliberately typed `never`. TypeScript keeps a union member whose
+ * discriminant is `string` in every narrowed branch, so any other type here
+ * would widen `event.data` in known branches (for example `User` would become
+ * `User | Record<string, unknown>`). `never` is absorbed by those unions and
+ * leaves the known payload types intact. At runtime the payload is passed
+ * through unchanged (snake_case keys, no deserialization); since `never` is
+ * assignable to every type, read it by annotating the shape you expect:
+ * `const payload: Record<string, unknown> = event.data;`.
+ */
+export interface UnknownEvent extends EventBase {
+  event: string;
+  data: never;
+}
+
+export interface UnknownEventResponse extends EventResponseBase {
+  event: string;
+  data: never;
+}
+
+/** Every event type this version of the SDK knows how to deserialize. */
+export type KnownEvent =
+  | AgentBlueprintCreatedEvent
+  | AgentBlueprintDeletedEvent
+  | AgentBlueprintUpdatedEvent
+  | AgentInstanceCreatedEvent
+  | AgentInstanceDeletedEvent
+  | AgentInstanceSessionCreatedEvent
+  | AgentInstanceSessionRevokedEvent
+  | AgentRegistrationCreatedEvent
+  | AgentRegistrationClaimAttemptCreatedEvent
+  | AgentRegistrationClaimCompletedEvent
+  | AgentRegistrationCredentialIssuedEvent
+  | AgentRegistrationOrganizationSwitchedEvent
+  | AgentRegistrationRefreshedEvent
+  | AgentRegistrationExpiredEvent
+  | AgentRegistrationRevokedEvent
+  | AgentRegistrationDeletedEvent
   | AuthenticationEmailVerificationSucceededEvent
   | AuthenticationMfaSucceededEvent
   | AuthenticationOAuthFailedEvent
@@ -1279,9 +1841,55 @@ export type Event =
   | VaultKekCreatedEvent
   | VaultDekReadEvent
   | VaultDekDecryptedEvent
-  | VaultByokKeyVerificationCompletedEvent;
+  | VaultByokKeyVerificationCompletedEvent
+  | ActionAuthenticationDeniedEvent
+  | ActionUserRegistrationDeniedEvent
+  | ApiKeyUpdatedEvent
+  | AuthenticationEmailVerificationFailedEvent
+  | AuthenticationMfaFailedEvent
+  | AuthenticationReauthenticationSucceededEvent
+  | AuthenticationSSOStartedEvent
+  | AuthenticationSSOTimedOutEvent
+  | ConnectionSamlCertificateRenewalRequiredEvent
+  | ConnectionSamlCertificateRenewedEvent
+  | DsyncTokenCreatedEvent
+  | DsyncTokenRevokedEvent
+  | PipesAccountConnectionAddFailedEvent
+  | PipesAccountConnectionConnectedEvent
+  | PipesAccountConnectionConnectionFailedEvent
+  | PipesAccountConnectionDisconnectedEvent
+  | PipesAccountConnectionReauthorizationNeededEvent
+  | RadarChallengeCreatedEvent
+  | ResourceExportCompletedEvent
+  | ResourceExportCreatedEvent
+  | ResourceExportDownloadedEvent
+  | ResourceExportFailedEvent
+  | VaultByokKeyDeletedEvent
+  | VaultDekRekeyedEvent
+  | VaultKekDeletedEvent
+  | WaitlistUserApprovedEvent
+  | WaitlistUserCreatedEvent
+  | WaitlistUserDeniedEvent;
 
-export type EventResponse =
+export type Event = KnownEvent | UnknownEvent;
+
+export type KnownEventResponse =
+  | AgentBlueprintCreatedEventResponse
+  | AgentBlueprintDeletedEventResponse
+  | AgentBlueprintUpdatedEventResponse
+  | AgentInstanceCreatedEventResponse
+  | AgentInstanceDeletedEventResponse
+  | AgentInstanceSessionCreatedEventResponse
+  | AgentInstanceSessionRevokedEventResponse
+  | AgentRegistrationCreatedEventResponse
+  | AgentRegistrationClaimAttemptCreatedEventResponse
+  | AgentRegistrationClaimCompletedEventResponse
+  | AgentRegistrationCredentialIssuedEventResponse
+  | AgentRegistrationOrganizationSwitchedEventResponse
+  | AgentRegistrationRefreshedEventResponse
+  | AgentRegistrationExpiredEventResponse
+  | AgentRegistrationRevokedEventResponse
+  | AgentRegistrationDeletedEventResponse
   | AuthenticationEmailVerificationSucceededEventResponse
   | AuthenticationMagicAuthFailedEventResponse
   | AuthenticationMagicAuthSucceededEventResponse
@@ -1373,6 +1981,37 @@ export type EventResponse =
   | VaultKekCreatedEventResponse
   | VaultDekReadEventResponse
   | VaultDekDecryptedEventResponse
-  | VaultByokKeyVerificationCompletedEventResponse;
+  | VaultByokKeyVerificationCompletedEventResponse
+  | ActionAuthenticationDeniedEventResponse
+  | ActionUserRegistrationDeniedEventResponse
+  | ApiKeyUpdatedEventResponse
+  | AuthenticationEmailVerificationFailedEventResponse
+  | AuthenticationMfaFailedEventResponse
+  | AuthenticationReauthenticationSucceededEventResponse
+  | AuthenticationSSOStartedEventResponse
+  | AuthenticationSSOTimedOutEventResponse
+  | ConnectionSamlCertificateRenewalRequiredEventResponse
+  | ConnectionSamlCertificateRenewedEventResponse
+  | DsyncTokenCreatedEventResponse
+  | DsyncTokenRevokedEventResponse
+  | PipesAccountConnectionAddFailedEventResponse
+  | PipesAccountConnectionConnectedEventResponse
+  | PipesAccountConnectionConnectionFailedEventResponse
+  | PipesAccountConnectionDisconnectedEventResponse
+  | PipesAccountConnectionReauthorizationNeededEventResponse
+  | RadarChallengeCreatedEventResponse
+  | ResourceExportCompletedEventResponse
+  | ResourceExportCreatedEventResponse
+  | ResourceExportDownloadedEventResponse
+  | ResourceExportFailedEventResponse
+  | VaultByokKeyDeletedEventResponse
+  | VaultDekRekeyedEventResponse
+  | VaultKekDeletedEventResponse
+  | WaitlistUserApprovedEventResponse
+  | WaitlistUserCreatedEventResponse
+  | WaitlistUserDeniedEventResponse;
 
-export type EventName = Event['event'];
+export type EventResponse = KnownEventResponse | UnknownEventResponse;
+
+/** The names of the events this version of the SDK knows; excludes `UnknownEvent`. */
+export type EventName = KnownEvent['event'];

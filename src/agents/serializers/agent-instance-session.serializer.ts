@@ -13,10 +13,10 @@ export function deserializeAgentInstanceSession(
     id: session.id,
     agentInstanceId: session.agent_instance_id,
     status: session.status,
-    expiresAt: session.expires_at,
-    revokedAt: session.revoked_at,
-    createdAt: session.created_at,
-    updatedAt: session.updated_at,
+    expiresAt: new Date(session.expires_at),
+    revokedAt: session.revoked_at != null ? new Date(session.revoked_at) : null,
+    createdAt: new Date(session.created_at),
+    updatedAt: new Date(session.updated_at),
   };
 }
 

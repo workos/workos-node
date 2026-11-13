@@ -20,13 +20,14 @@ export interface ApiKey {
   /** An obfuscated representation of the API Key value. */
   obfuscatedValue: string;
   /** Timestamp of when the API Key was last used. */
-  lastUsedAt: string | null;
+  lastUsedAt: Date | null;
+  expiresAt: Date | null;
   /** The permission slugs assigned to the API Key. */
   permissions: string[];
   /** An ISO 8601 timestamp. */
-  createdAt: string;
+  createdAt: Date;
   /** An ISO 8601 timestamp. */
-  updatedAt: string;
+  updatedAt: Date;
 }
 
 export interface SerializedApiKey {
@@ -45,6 +46,7 @@ export interface SerializedApiKey {
   name: string;
   obfuscated_value: string;
   last_used_at: string | null;
+  expires_at: string | null;
   permissions: string[];
   created_at: string;
   updated_at: string;

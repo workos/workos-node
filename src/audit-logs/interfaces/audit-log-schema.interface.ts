@@ -16,7 +16,7 @@ export interface AuditLogSchema {
   targets: AuditLogTargetSchema[];
   actor: AuditLogActorSchema | undefined;
   metadata: Record<string, string | boolean | number> | undefined;
-  createdAt: string;
+  createdAt: Date;
 }
 
 interface SerializedAuditLogTargetSchema {

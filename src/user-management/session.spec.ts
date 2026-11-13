@@ -2,6 +2,10 @@ import { WorkOS } from '../workos';
 import { CookieSession } from './session';
 import * as jose from 'jose';
 import { sealData, unsealData } from '../common/crypto/seal';
+import {
+  deserializeSessionCookieData,
+  SealedSessionCookieData,
+} from './serializers/session-cookie-data.serializer';
 import userFixture from './fixtures/user.json';
 import fetch from 'jest-fetch-mock';
 import { fetchOnce } from '../common/utils/test-utils';
@@ -15,6 +19,27 @@ jest.mock('jose', () => ({
   ...jest.requireActual('jose'),
   jwtVerify: jest.fn(),
 }));
+
+const verifiedUserAccessToken = {
+  payload: {
+    iss: 'https://api.workos.com/user_management/client_123',
+    sub: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+    sid: 'session_123',
+    exp: 1735684500,
+    iat: 1735683600,
+    auth_time: 1735683600,
+  },
+} as unknown as jose.JWTVerifyResult & jose.ResolvedKey;
+
+function verifiedAccessToken(accessToken: string) {
+  return {
+    ...verifiedUserAccessToken,
+    payload: {
+      ...verifiedUserAccessToken.payload,
+      ...jose.decodeJwt(accessToken),
+    },
+  };
+}
 
 describe('Session', () => {
   let workos: WorkOS;
@@ -94,6 +119,8 @@ describe('Session', () => {
             object: 'user',
             id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             email: 'test@example.com',
+            createdAt: '2023-07-18T02:07:19.911Z',
+            updatedAt: '2023-07-18T02:07:19.911Z',
           },
         },
         { password: cookiePassword },
@@ -111,15 +138,55 @@ describe('Session', () => {
       });
     });
 
-    it('returns a successful response if the sessionData is valid', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+    it.each([
+      [
+        'an agent access token',
+        { sub: 'agent_01H5JQDV7R7ATEYZDEG0W5PRYS', sub_profile: 'ai_agent' },
+      ],
+      ['a widget session token', { sub_type: 'authkit' }],
+    ])(
+      'returns a failed response if the accessToken is %s',
+      async (_family, familyClaims) => {
+        jest.mocked(jose.jwtVerify).mockResolvedValue({
+          ...verifiedUserAccessToken,
+          payload: { ...verifiedUserAccessToken.payload, ...familyClaims },
+        });
 
+        const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+        const sessionData = await sealData(
+          {
+            accessToken: 'abc123',
+            refreshToken: 'def456',
+            user: {
+              object: 'user',
+              id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+              email: 'test@example.com',
+            },
+          },
+          { password: cookiePassword },
+        );
+
+        const session = workos.userManagement.loadSealedSession({
+          sessionData,
+          cookiePassword,
+        });
+
+        await expect(session.authenticate()).resolves.toEqual({
+          authenticated: false,
+          reason: 'invalid_jwt',
+        });
+      },
+    );
+
+    it('returns a successful response if the sessionData is valid', async () => {
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
       const accessToken =
         'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJpbXBlcnNvbmF0b3IiOnsiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsInJlYXNvbiI6InRlc3QifSwic2lkIjoic2Vzc2lvbl8xMjMiLCJvcmdfaWQiOiJvcmdfMTIzIiwicm9sZSI6Im1lbWJlciIsInJvbGVzIjpbIm1lbWJlciIsImFkbWluIl0sInBlcm1pc3Npb25zIjpbInBvc3RzOmNyZWF0ZSIsInBvc3RzOmRlbGV0ZSJdLCJlbnRpdGxlbWVudHMiOlsiYXVkaXQtbG9ncyJdLCJmZWF0dXJlX2ZsYWdzIjpbImRhcmstbW9kZSIsImJldGEtZmVhdHVyZXMiXSwidXNlciI6eyJvYmplY3QiOiJ1c2VyIiwiaWQiOiJ1c2VyXzAxSDVKUURWN1I3QVRFWVpERUcwVzVQUllTIiwiZW1haWwiOiJ0ZXN0QGV4YW1wbGUuY29tIn19.TNUzJYn6lzLWFFsiWiKEgIshyUs-bKJQf1VxwNr1cGI';
+
+      jest
+        .mocked(jose.jwtVerify)
+        .mockResolvedValue(verifiedAccessToken(accessToken));
 
       const sessionData = await sealData(
         {
@@ -133,6 +200,8 @@ describe('Session', () => {
             object: 'user',
             id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
             email: 'test@example.com',
+            createdAt: '2023-07-18T02:07:19.911Z',
+            updatedAt: '2023-07-18T02:07:19.911Z',
           },
         },
         { password: cookiePassword },
@@ -160,6 +229,9 @@ describe('Session', () => {
           object: 'user',
           id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
           email: 'test@example.com',
+          createdAt: new Date('2023-07-18T02:07:19.911Z'),
+          updatedAt: new Date('2023-07-18T02:07:19.911Z'),
+          lastSignInAt: null,
         },
         accessToken,
       });
@@ -191,7 +263,7 @@ describe('Session', () => {
         jest
           .mocked(jose.jwtVerify)
           .mockReset()
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+          .mockResolvedValue(verifiedUserAccessToken);
       });
 
       it('does not validate the issuer claim by default', async () => {
@@ -586,10 +658,12 @@ describe('Session', () => {
         expect(response.user).toEqual(response.session?.user);
         expect(response.impersonator).toEqual(response.session?.impersonator);
 
-        const newCookie = await unsealData<{
-          user: { id: string; email: string };
-          impersonator?: { email: string; reason: string };
-        }>(response.sealedSession as string, { password: cookiePassword });
+        const newCookie = deserializeSessionCookieData(
+          await unsealData<SealedSessionCookieData>(
+            response.sealedSession as string,
+            { password: cookiePassword },
+          ),
+        );
 
         expect(newCookie.user).toEqual(response.user);
         expect(newCookie.impersonator).toEqual(refreshedImpersonator);
@@ -659,9 +733,7 @@ describe('Session', () => {
           refreshToken,
         });
 
-        jest
-          .mocked(jose.jwtVerify)
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+        jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
@@ -748,9 +820,7 @@ describe('Session', () => {
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
-      jest
-        .mocked(jose.jwtVerify)
-        .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
@@ -793,9 +863,7 @@ describe('Session', () => {
 
     describe('when a returnTo URL is provided', () => {
       it('returns a logout URL for the user', async () => {
-        jest
-          .mocked(jose.jwtVerify)
-          .mockResolvedValue({} as jose.JWTVerifyResult & jose.ResolvedKey);
+        jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
 
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 

@@ -20,8 +20,8 @@ export const deserializeDataIntegrationsListResponseData = (
   authMethods: response.auth_methods,
   connectionOwner: response.connection_owner,
   ownership: response.ownership,
-  createdAt: response.created_at,
-  updatedAt: response.updated_at,
+  createdAt: new Date(response.created_at),
+  updatedAt: new Date(response.updated_at),
   connectedAccount:
     response.connected_account != null
       ? deserializeDataIntegrationsListResponseDataConnectedAccount(

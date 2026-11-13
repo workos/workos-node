@@ -1,5 +1,73 @@
 # Changelog
 
+## [12.2.0](https://github.com/workos/workos-node/compare/v12.1.0...v12.2.0) (2026-11-04)
+
+
+### Features
+
+* **connect:** add exchangeToken for RFC 8693 token exchange ([#1741](https://github.com/workos/workos-node/issues/1741)) ([fbb9a06](https://github.com/workos/workos-node/commit/fbb9a06fb9632f1fa547f244b8175be32a0b02dc))
+* **pipes:** Return state from authorizeDataIntegration ([#1750](https://github.com/workos/workos-node/issues/1750)) ([fcc2777](https://github.com/workos/workos-node/commit/fcc2777e3e086182d3264373f1dd305da5c38c29))
+
+
+### Bug Fixes
+
+* **events:** Remove the unsupported order option from listEvents ([#1747](https://github.com/workos/workos-node/issues/1747)) ([0222f79](https://github.com/workos/workos-node/commit/0222f79c343f60706fb5c35059a089e65537d175))
+* Reuse the first page in autoPagination ([#1748](https://github.com/workos/workos-node/issues/1748)) ([51b6f0b](https://github.com/workos/workos-node/commit/51b6f0b736fde81faccfbcde757e6d2f341c7a52))
+* **user-management:** Reject non-user access tokens in session cookies ([#1753](https://github.com/workos/workos-node/issues/1753)) ([fab1ea5](https://github.com/workos/workos-node/commit/fab1ea594ba78bb8558eebc47a6c5da809da1082))
+
+## [12.1.0](https://github.com/workos/workos-node/compare/v12.0.0...v12.1.0) (2026-10-30)
+
+
+### Features
+
+* **pipes:** regenerate Pipes from the spec and add finishConnection ([#1745](https://github.com/workos/workos-node/issues/1745)) ([7e19feb](https://github.com/workos/workos-node/commit/7e19feb24273a10717c17799a75ece29a63d7669))
+
+
+### Bug Fixes
+
+* detect Bun and Deno before Node ([#1744](https://github.com/workos/workos-node/issues/1744)) ([432d507](https://github.com/workos/workos-node/commit/432d507d4e37066e958e9ae6b6e6dd0763c4d680))
+* **widgets:** Add missing widget token scopes ([#1742](https://github.com/workos/workos-node/issues/1742)) ([f8b771d](https://github.com/workos/workos-node/commit/f8b771d1a14d2ab4d8ae5175e622020d1caddf72))
+
+## [12.0.0](https://github.com/workos/workos-node/compare/v11.0.0...v12.0.0) (2026-10-23)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sso:** Make nullable Profile fields nullable instead of optional ([#1737](https://github.com/workos/workos-node/issues/1737))
+* **events:** Add the 28 event types the spec defines but the SDK lacked ([#1739](https://github.com/workos/workos-node/issues/1739))
+* Deserialize API timestamps as Date objects ([#1736](https://github.com/workos/workos-node/issues/1736))
+* **vault:** Remove stale duplicate object interfaces ([#1738](https://github.com/workos/workos-node/issues/1738))
+* Align enum and nullable types with the API spec ([#1735](https://github.com/workos/workos-node/issues/1735))
+* **events:** Add UnknownEvent to the Event union ([#1734](https://github.com/workos/workos-node/issues/1734))
+* **admin-portal:** Rename adminEmails to itContactEmails ([#1730](https://github.com/workos/workos-node/issues/1730))
+* Port DirectorySync to oagen ([#1626](https://github.com/workos/workos-node/issues/1626))
+* **feature-flags:** Evaluate ordered targeting rules ([#1717](https://github.com/workos/workos-node/issues/1717))
+
+### Features
+
+* Add widgets:pipes:manage to WidgetScope type ([#1609](https://github.com/workos/workos-node/issues/1609)) ([aa38974](https://github.com/workos/workos-node/commit/aa38974ef2a36e891470c0dbf18b05aafca9b3dd))
+* **admin-portal:** Rename adminEmails to itContactEmails ([#1730](https://github.com/workos/workos-node/issues/1730)) ([e988e79](https://github.com/workos/workos-node/commit/e988e79b6cfec8fff24111fa5f93456a6405f102))
+* Deserialize API timestamps as Date objects ([#1736](https://github.com/workos/workos-node/issues/1736)) ([5457d95](https://github.com/workos/workos-node/commit/5457d951e2c36920469036969efdece7e37c9a88))
+* **events:** Add the 28 event types the spec defines but the SDK lacked ([#1739](https://github.com/workos/workos-node/issues/1739)) ([b9ffc7e](https://github.com/workos/workos-node/commit/b9ffc7e06a4c6a1f7a04ccbb34b9cdafa8f3d097))
+* **events:** Add UnknownEvent to the Event union ([#1734](https://github.com/workos/workos-node/issues/1734)) ([a6b9c3d](https://github.com/workos/workos-node/commit/a6b9c3ddcb582559db477a1d93549f83f3ab296a))
+* **events:** Type agent blueprint, instance and registration events ([#1729](https://github.com/workos/workos-node/issues/1729)) ([77590af](https://github.com/workos/workos-node/commit/77590afc196d52a294626b7b95d0a4a4acd075e5))
+* **feature-flags:** Evaluate ordered targeting rules ([#1717](https://github.com/workos/workos-node/issues/1717)) ([1b305bd](https://github.com/workos/workos-node/commit/1b305bd80ea465e73bcf30d9bce7a2b2504bb18b))
+* Port DirectorySync to oagen ([#1626](https://github.com/workos/workos-node/issues/1626)) ([54ce2fa](https://github.com/workos/workos-node/commit/54ce2fa605445e07ad1abfed86ba2b74e4748352))
+* **user-management:** Add verifyAccessToken ([#1733](https://github.com/workos/workos-node/issues/1733)) ([893c926](https://github.com/workos/workos-node/commit/893c92635a52155fdf1e7dc879bb0e0d21a81da6))
+
+
+### Bug Fixes
+
+* Align enum and nullable types with the API spec ([#1735](https://github.com/workos/workos-node/issues/1735)) ([c7687a4](https://github.com/workos/workos-node/commit/c7687a4a2dd8899c05f3aa30bc0a50c14ebd1560))
+* **directory-sync:** Add name to DirectoryUser ([#1731](https://github.com/workos/workos-node/issues/1731)) ([5fc7c80](https://github.com/workos/workos-node/commit/5fc7c80e31e625efc8b0aff4dfc20afa748166df))
+* drop before cursor on follow-up autoPagination requests ([#1720](https://github.com/workos/workos-node/issues/1720)) ([14d5e40](https://github.com/workos/workos-node/commit/14d5e40bba62176547b4d458f2d420a1a10ea89e))
+* **feature-flags:** Keep polling when no error listener is attached ([#1728](https://github.com/workos/workos-node/issues/1728)) ([6b826e3](https://github.com/workos/workos-node/commit/6b826e3a8befe4a8e947d1c152731d09efe06c1c))
+* Prevent throwing an error when succesfully whitelisting someone ([#1716](https://github.com/workos/workos-node/issues/1716)) ([8e4c639](https://github.com/workos/workos-node/commit/8e4c639f1fafa5217a33ec6f3bf28c3be5a438ba))
+* reject malformed and future webhook timestamps ([#1723](https://github.com/workos/workos-node/issues/1723)) ([ad8bff2](https://github.com/workos/workos-node/commit/ad8bff226e9b37435f0c62390318d4819f76b3d1))
+* **sso:** Make nullable Profile fields nullable instead of optional ([#1737](https://github.com/workos/workos-node/issues/1737)) ([6d4bf79](https://github.com/workos/workos-node/commit/6d4bf79fecff868f796d835fc0a212817767d1ec))
+* **user-management:** Expose nested user on OrganizationMembership ([#1732](https://github.com/workos/workos-node/issues/1732)) ([b30f7ba](https://github.com/workos/workos-node/commit/b30f7bae62472ed67969d26df688c1077cd63025))
+* **vault:** Remove stale duplicate object interfaces ([#1738](https://github.com/workos/workos-node/issues/1738)) ([0d3c887](https://github.com/workos/workos-node/commit/0d3c8876a1f5d63968c523b368c2750e586b482b))
+
 ## [11.0.0](https://github.com/workos/workos-node/compare/v10.14.0...v11.0.0) (2026-09-28)
 
 
