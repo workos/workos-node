@@ -2562,15 +2562,42 @@ describe('Unknown events', () => {
       id: 'event_01HUNKNOWN',
       event: 'widget.frobnicated',
       createdAt: new Date('2026-10-20T12:00:00.000Z'),
-      context: undefined,
+      context: undefined as never,
       data: unknownEventResponse.data as never,
     };
 
     expect(describeEvent(unknownEvent)).toBe('unknown:widget.frobnicated');
 
-    // `never` is assignable to any type, so the raw payload can be read by
-    // annotating it rather than casting.
+    // `never` is assignable to any type, so the raw payload and context can be
+    // read by annotating them rather than casting.
     const payload: Record<string, unknown> = unknownEvent.data;
     expect(payload).toEqual(unknownEventResponse.data);
+    const context: Record<string, unknown> | undefined = unknownEvent.context;
+    expect(context).toBeUndefined();
+  });
+
+  it('keeps a typed context readable after narrowing by event name', () => {
+    const describeContext = (event: Event): string => {
+      switch (event.event) {
+        case 'feature_flags.flag.created':
+          // The typed context is intact: `clientId` is `string`, not `unknown`.
+          return event.context.clientId.toLowerCase();
+        case 'user.created':
+          // An event with no typed context keeps the untyped pass-through.
+          return String(event.context?.client_id);
+        default:
+          return 'unhandled';
+      }
+    };
+
+    expect(
+      describeContext({
+        id: 'event_01HUNKNOWN',
+        event: 'widget.frobnicated',
+        createdAt: new Date('2026-10-20T12:00:00.000Z'),
+        context: undefined as never,
+        data: unknownEventResponse.data as never,
+      }),
+    ).toBe('unhandled');
   });
 });

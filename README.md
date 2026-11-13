@@ -185,6 +185,136 @@ polling and also emits `failed`. Attach an `error` listener or a `logger` to see
 failures; with neither, the client warns once and keeps polling, and warns again
 if a 401 stops it.
 
+## Feature flag rule management
+
+Create an empty rule, then add memberships using the rule's ID:
+
+```ts
+const rule = await workos.featureFlags.createFlagRule({
+  flagSlug: 'new-checkout',
+  targetType: 'organization',
+  value: true,
+});
+
+const membership = await workos.featureFlags.createFlagTarget({
+  ruleId: rule.id,
+  targetId: 'org_...',
+});
+
+await workos.featureFlags.deleteFlagTarget(membership.id);
+```
+
+The `flagSlug` option is sent as `flag_slug` to the API for rule creation and
+listing. Membership creation sends only `rule_id` and `target_id`; the rule
+supplies the flag, target type, and served value.
+
+Use `getFlagTarget(membership.id)` to read a target or combine filters when listing:
+
+```ts
+const members = await workos.featureFlags.listFlagTargets({
+  ruleId: rule.id,
+  flagSlug: 'new-checkout',
+  targetType: 'organization',
+  order: 'asc',
+});
+const allMembers = await members.autoPagination();
+```
+
+Target lists also accept `targetId`, `limit`, `before`, and `after`. The SDK
+defaults target lists to descending creation order, so `after` advances through
+the results. Rule lists always follow evaluation order.
+
+Rules are appended in evaluation order. `targetType` can be `organization`,
+`user`, or a registered custom target type. A duplicate rule with the same
+target type and value returns a conflict; it does not reuse the existing rule.
+Use `listFlagRules({ flagSlug: 'new-checkout' })` to find existing rules,
+`getFlagRule(rule.id)` to inspect one, or `deleteFlagRule(rule.id)` to delete a
+rule and its memberships. Rule lists support `limit`, `before`, `after`, and
+`autoPagination()` and always follow the server's evaluation order.
+
+To create a rule and its initial members together:
+
+```ts
+import { CreateRuleWithTargetsError } from '@workos-inc/node';
+
+try {
+  const { rule, targets } = await workos.featureFlags.createRuleWithTargets({
+    flagSlug: 'new-checkout',
+    targetType: 'organization',
+    value: true,
+    targetIds: ['org_first', 'org_second'],
+  });
+} catch (error) {
+  if (error instanceof CreateRuleWithTargetsError) {
+    // Save these IDs to reconcile or resume membership creation.
+    console.error(
+      error.rule.id,
+      error.targets,
+      error.failedTargetId,
+      error.cause,
+    );
+  }
+  throw error;
+}
+```
+
+This helper performs separate requests in order and stops at the first failure.
+It does not roll back: the rule and confirmed memberships remain. A rule
+creation error is returned unchanged; a membership error includes the created
+rule, confirmed memberships, failed target ID, and original error as `cause`.
+After an ambiguous network failure, the failed membership may also exist on
+the server. Reconcile it before retrying; do not retry the whole helper, which
+would try to create the rule again. An empty `targetIds` list creates an empty
+rule.
+
+The legacy `addFlagTarget({ slug, targetId })` and
+`removeFlagTarget({ slug, targetId })` helpers remain supported on their alias
+routes. Their deprecation annotations guide new integrations toward explicit
+rules; existing integrations do not need to change.
+
+`getFlagTarget()` and `listFlagTargets()` return `FlagTargetResource`: a
+`FlagTarget` with `ruleId`, or a `LegacyFlagTarget` with `value` and
+`valueType` while the environment still uses the legacy target contract. Narrow
+using `'ruleId' in target` before accessing the contract-specific fields.
+
+## Feature flag events
+
+The Events API and `webhooks.constructEvent` support the namespaced feature flag
+lifecycle events:
+
+- `feature_flags.flag.created`, `feature_flags.flag.updated`, `feature_flags.flag.deleted`
+- `feature_flags.flag_rule.created`, `feature_flags.flag_rule.updated`, `feature_flags.flag_rule.deleted`
+- `feature_flags.flag_target.created`, `feature_flags.flag_target.deleted`
+
+Use these names in `events.listEvents({ events: [...] })`. The returned `Event`
+union narrows by `event`; event data and context use camelCase fields.
+
+```ts
+const { data: events } = await workos.events.listEvents({
+  events: [
+    'feature_flags.flag_target.created',
+    'feature_flags.flag_rule.updated',
+  ],
+});
+
+for (const event of events) {
+  if (event.event === 'feature_flags.flag_target.created') {
+    if ('ruleId' in event.data) {
+      console.log(event.data.ruleId, event.data.targetId);
+    } else {
+      console.log(event.data.valueType, event.data.value);
+    }
+  }
+}
+```
+
+Flag events include `environmentId`, nullable `description`, and a nullable
+`owner` with `email`, `firstName`, and `lastName`. Updated flag context includes
+optional `previousAttributes.data`, and updated rule context includes the rule's
+previous `value` there. Rule context can omit `actor` for system changes. Target
+event data is a `FlagTarget` with `ruleId`, or a `LegacyFlagTarget` with `value`
+and `valueType`. The `flag.*` events keep their existing data shape.
+
 ## SDK Versioning
 
 For our SDKs WorkOS follows a Semantic Versioning ([SemVer](https://semver.org/)) process where all releases will have a version X.Y.Z (like 1.0.0) pattern wherein Z would be a bug fix (e.g., 1.0.1), Y would be a minor release (1.1.0) and X would be a major release (2.0.0). We permit any breaking changes to only be released in major versions and strongly recommend reading changelogs before making any major version upgrades.
