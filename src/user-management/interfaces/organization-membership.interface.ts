@@ -16,8 +16,8 @@ export interface BaseOrganizationMembership {
 }
 
 export interface OrganizationMembership extends BaseOrganizationMembership {
-  /** The name of the organization which the user belongs to. */
-  organizationName: string;
+  /** The organization's name, absent from event and action payloads. */
+  organizationName?: string;
   /** The primary role assigned to the user within the organization. */
   role: RoleResponse;
   roles?: RoleResponse[];
@@ -34,7 +34,7 @@ export interface BaseOrganizationMembershipResponse {
   object: 'organization_membership';
   id: string;
   organization_id: string;
-  organization_name: string;
+  organization_name?: string;
   status: OrganizationMembershipStatus;
   user_id: string;
   directory_managed?: boolean;
