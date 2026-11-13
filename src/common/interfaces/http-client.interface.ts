@@ -7,6 +7,8 @@ export type RequestOptions = {
    * `maxRetries`. Set to `0` to disable retries for this request.
    */
   maxRetries?: number;
+  /** Aborts the request. An aborted request is not retried. */
+  signal?: AbortSignal;
 };
 export type ResponseHeaderValue = string | string[];
 export type ResponseHeaders = Record<string, ResponseHeaderValue>;

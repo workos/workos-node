@@ -288,8 +288,10 @@ export class WorkOS {
         params: options.query,
         headers: requestHeaders,
         maxRetries: options.maxRetries,
+        signal: options.signal,
       });
     } catch (error) {
+      options.signal?.throwIfAborted();
       this.handleHttpError({ path, error });
 
       throw error;

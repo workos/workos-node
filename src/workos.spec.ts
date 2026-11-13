@@ -664,6 +664,54 @@ describe('WorkOS', () => {
         expect(error.requestID).toBe('a-request-id');
       });
     });
+
+    describe('when the signal aborts', () => {
+      it('aborts the request and rejects with the signal reason', async () => {
+        const pendingFetch = jest.fn(
+          (_url: any, init: any) =>
+            new Promise((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              });
+            }) as any,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn: pendingFetch as any,
+        });
+        const controller = new AbortController();
+        const reason = new Error('Stop');
+
+        const request = workos.get('/path', { signal: controller.signal });
+        controller.abort(reason);
+
+        await expect(request).rejects.toBe(reason);
+        expect(pendingFetch.mock.calls[0][1].signal.aborted).toBe(true);
+      });
+
+      it('rejects with a null signal reason', async () => {
+        const pendingFetch = jest.fn(
+          (_url: any, init: any) =>
+            new Promise((_resolve, reject) => {
+              init?.signal?.addEventListener('abort', () => {
+                const abortError = new Error('Aborted');
+                abortError.name = 'AbortError';
+                reject(abortError);
+              });
+            }) as any,
+        );
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU', {
+          fetchFn: pendingFetch as any,
+        });
+        const controller = new AbortController();
+
+        const request = workos.get('/path', { signal: controller.signal });
+        controller.abort(null);
+
+        await expect(request).rejects.toBeNull();
+      });
+    });
   });
 
   describe('put', () => {
