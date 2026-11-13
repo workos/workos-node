@@ -37,6 +37,10 @@ import {
   Event,
   EventBase,
   EventResponse,
+  FeatureFlagContextResponse,
+  FeatureFlagRuleContextResponse,
+  FeatureFlagRuleUpdatedContextResponse,
+  FeatureFlagUpdatedContextResponse,
   KnownEvent,
   PipesConnectedAccount,
   PipesConnectedAccountResponse,
@@ -436,23 +440,27 @@ function deserializeKnownEvent(
         event: event.event,
         data: deserializeApiKey(event.data),
       };
+    // `UnknownEventResponse` stays in every narrowed branch. Its `data: never`
+    // is absorbed by the known payload type, but its untyped `context` is not,
+    // so each feature flag branch asserts the context its event name implies.
     case 'feature_flags.flag.created':
-    case 'feature_flags.flag.deleted':
+    case 'feature_flags.flag.deleted': {
+      const context = event.context as FeatureFlagContextResponse;
       return {
         ...eventBase,
         event: event.event,
         data: deserializeFeatureFlagEventData(event.data),
-        context: {
-          clientId: event.context.client_id,
-          actor: event.context.actor,
-        },
+        context: { clientId: context.client_id, actor: context.actor },
       };
+    }
     case 'feature_flags.flag.updated':
       return {
         ...eventBase,
         event: event.event,
         data: deserializeFeatureFlagEventData(event.data),
-        context: deserializeFeatureFlagUpdatedContext(event.context),
+        context: deserializeFeatureFlagUpdatedContext(
+          event.context as FeatureFlagUpdatedContextResponse,
+        ),
       };
     case 'feature_flags.flag_rule.created':
     case 'feature_flags.flag_rule.deleted':
@@ -460,26 +468,29 @@ function deserializeKnownEvent(
         ...eventBase,
         event: event.event,
         data: deserializeFlagRule(event.data),
-        context: deserializeFeatureFlagRuleContext(event.context),
+        context: deserializeFeatureFlagRuleContext(
+          event.context as FeatureFlagRuleContextResponse,
+        ),
       };
     case 'feature_flags.flag_rule.updated':
       return {
         ...eventBase,
         event: event.event,
         data: deserializeFlagRule(event.data),
-        context: deserializeFeatureFlagRuleUpdatedContext(event.context),
+        context: deserializeFeatureFlagRuleUpdatedContext(
+          event.context as FeatureFlagRuleUpdatedContextResponse,
+        ),
       };
     case 'feature_flags.flag_target.created':
-    case 'feature_flags.flag_target.deleted':
+    case 'feature_flags.flag_target.deleted': {
+      const context = event.context as FeatureFlagContextResponse;
       return {
         ...eventBase,
         event: event.event,
         data: deserializeFlagTargetResource(event.data),
-        context: {
-          clientId: event.context.client_id,
-          actor: event.context.actor,
-        },
+        context: { clientId: context.client_id, actor: context.actor },
       };
+    }
     case 'flag.created':
     case 'flag.updated':
     case 'flag.deleted':

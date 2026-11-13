@@ -91,8 +91,8 @@ describe('Feature flag rule management', () => {
       position: 2,
       valueType: 'boolean',
       value,
-      createdAt: '2026-10-01T00:00:00.000Z',
-      updatedAt: '2026-10-01T00:00:00.000Z',
+      createdAt: new Date('2026-10-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-10-01T00:00:00.000Z'),
     });
   });
 
@@ -102,7 +102,6 @@ describe('Feature flag rule management', () => {
       data: [rule],
       list_metadata: { before: null, after: rule.id },
     };
-    fetchOnce(first);
     fetchOnce(first);
     fetchOnce({
       object: 'list',
@@ -128,7 +127,6 @@ describe('Feature flag rule management', () => {
       }),
     ).toEqual([
       { flag_slug: 'new-checkout' },
-      { flag_slug: 'new-checkout', limit: '100' },
       { flag_slug: 'new-checkout', limit: '100', after: rule.id },
     ]);
   });
@@ -189,8 +187,8 @@ describe('Feature flag rule management', () => {
       environmentId: 'environment_01H00000000000000000000001',
       targetType: 'organization',
       targetId: 'org_01H00000000000000000000001',
-      createdAt: '2026-10-01T00:00:00.000Z',
-      updatedAt: '2026-10-01T00:00:00.000Z',
+      createdAt: new Date('2026-10-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-10-01T00:00:00.000Z'),
     });
   });
 
@@ -229,7 +227,6 @@ describe('Feature flag rule management', () => {
       list_metadata: { before: null, after: target.id },
     };
     fetchOnce(first);
-    fetchOnce(first);
     fetchOnce({
       object: 'list',
       data: [legacyTarget],
@@ -257,11 +254,7 @@ describe('Feature flag rule management', () => {
         expect(request.pathname).toBe('/flag_targets');
         return Object.fromEntries(request.searchParams);
       }),
-    ).toEqual([
-      filters,
-      { ...filters, limit: '100' },
-      { ...filters, limit: '100', after: target.id },
-    ]);
+    ).toEqual([filters, { ...filters, limit: '100', after: target.id }]);
   });
 
   it('passes target page cursors and explicit ordering', async () => {

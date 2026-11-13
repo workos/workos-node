@@ -33,8 +33,8 @@ export const deserializeFeatureFlagEventData = (
   tags: flag.tags,
   enabled: flag.enabled,
   defaultValue: flag.default_value,
-  createdAt: flag.created_at,
-  updatedAt: flag.updated_at,
+  createdAt: new Date(flag.created_at),
+  updatedAt: new Date(flag.updated_at),
 });
 
 export const deserializeFeatureFlagRuleContext = (

@@ -8,8 +8,8 @@ export interface FlagTarget {
   environmentId: string;
   targetType: string;
   targetId: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface FlagTargetResponse {

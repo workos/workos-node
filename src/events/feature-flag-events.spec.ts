@@ -2,10 +2,10 @@ import crypto from 'crypto';
 import fetch from 'jest-fetch-mock';
 import { WorkOS } from '../workos';
 import {
-  EventResponse,
   EventName,
   FeatureFlagActor,
   FeatureFlagEventResponseData,
+  KnownEventResponse,
 } from '../common/interfaces';
 import { FlagRuleResponse } from '../feature-flags/interfaces';
 import { fetchOnce, fetchSearchParams } from '../common/utils/test-utils';
@@ -32,6 +32,10 @@ const flag: FeatureFlagEventResponseData = {
   default_value: false,
   ...timestamps,
 };
+const expectedTimestamps = {
+  createdAt: new Date(timestamps.created_at),
+  updatedAt: new Date(timestamps.updated_at),
+};
 const expectedFlag = {
   object: 'feature_flag',
   id: 'flag_test',
@@ -43,8 +47,7 @@ const expectedFlag = {
   tags: ['beta'],
   enabled: true,
   defaultValue: false,
-  createdAt: '2026-10-07T12:00:00.000Z',
-  updatedAt: '2026-10-07T12:01:00.000Z',
+  ...expectedTimestamps,
 };
 const rule: FlagRuleResponse = {
   object: 'flag_rule',
@@ -68,8 +71,7 @@ const expectedRule = {
   position: 0,
   valueType: 'boolean',
   value: false,
-  createdAt: '2026-10-07T12:00:00.000Z',
-  updatedAt: '2026-10-07T12:01:00.000Z',
+  ...expectedTimestamps,
 };
 const target = {
   object: 'flag_target',
@@ -89,15 +91,17 @@ const expectedTarget = {
   environmentId: 'environment_test',
   targetType: 'organization',
   targetId: 'org_test',
-  createdAt: '2026-10-07T12:00:00.000Z',
-  updatedAt: '2026-10-07T12:01:00.000Z',
+  ...expectedTimestamps,
 };
 
 // API schema fixtures assert the public event boundary, including fields that
 // differ from REST flags and the historical value-bearing target contract.
+// Typed against `KnownEventResponse` rather than `EventResponse`: fixtures whose
+// `event` is a union of literals would otherwise also be matched against
+// `UnknownEventResponse`, whose `data: never` rejects every payload.
 interface EventCase {
   name: string;
-  response: EventResponse;
+  response: KnownEventResponse;
   expected: object;
 }
 const eventBase = { id: 'event_test', created_at: timestamps.created_at };
@@ -333,7 +337,7 @@ describe('Namespaced feature flag events', () => {
         {
           id: 'event_test',
           event: response.event,
-          createdAt: timestamps.created_at,
+          createdAt: expectedTimestamps.createdAt,
           ...expected,
         },
       ]);
@@ -358,7 +362,7 @@ describe('Namespaced feature flag events', () => {
       expect(event).toEqual({
         id: 'event_test',
         event: response.event,
-        createdAt: timestamps.created_at,
+        createdAt: expectedTimestamps.createdAt,
         ...expected,
       });
     },
@@ -399,7 +403,7 @@ describe('Namespaced feature flag events', () => {
         {
           id: 'event_test',
           event: name,
-          createdAt: timestamps.created_at,
+          createdAt: expectedTimestamps.createdAt,
           data: { ...historicalFlag, description: 'Historical flag' },
           context,
         },

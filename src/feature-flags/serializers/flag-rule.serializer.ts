@@ -10,6 +10,6 @@ export const deserializeFlagRule = (rule: FlagRuleResponse): FlagRule => ({
   position: rule.position,
   valueType: rule.value_type,
   value: rule.value,
-  createdAt: rule.created_at,
-  updatedAt: rule.updated_at,
+  createdAt: new Date(rule.created_at),
+  updatedAt: new Date(rule.updated_at),
 });

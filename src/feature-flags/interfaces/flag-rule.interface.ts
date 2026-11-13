@@ -10,8 +10,8 @@ export interface FlagRule {
   position: number;
   valueType: 'boolean';
   value: boolean;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface FlagRuleResponse {

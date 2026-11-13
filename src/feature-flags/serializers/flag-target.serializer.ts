@@ -13,8 +13,8 @@ const deserializeTargetFields = (target: FlagTargetResourceResponse) => ({
   environmentId: target.environment_id,
   targetType: target.target_type,
   targetId: target.target_id,
-  createdAt: target.created_at,
-  updatedAt: target.updated_at,
+  createdAt: new Date(target.created_at),
+  updatedAt: new Date(target.updated_at),
 });
 
 export const deserializeFlagTarget = (
