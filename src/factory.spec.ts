@@ -73,6 +73,21 @@ describe('createWorkOS', () => {
       expect(workos.baseURL).toBeDefined();
     });
 
+    it('uses the provided fetchFn', async () => {
+      const fetchFn = jest.fn(
+        async () =>
+          new Response('{}', {
+            status: 200,
+            headers: { 'content-type': 'application/json' },
+          }),
+      );
+      const workos = createWorkOS({ apiKey: 'sk_test_123', fetchFn });
+
+      await workos.get('/path');
+
+      expect(fetchFn).toHaveBeenCalledTimes(1);
+    });
+
     it('has access to all services', () => {
       const workos = createWorkOS({
         apiKey: 'sk_test_123',

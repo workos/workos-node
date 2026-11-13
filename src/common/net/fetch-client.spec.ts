@@ -1122,6 +1122,56 @@ describe('request timeout covers the response body (GH-1679)', () => {
       expect(requestCount).toBe(1);
     });
 
+    it('does not follow a redirect, so the request body is never re-sent', async () => {
+      handler = (req, res) => {
+        if (req.url === '/stolen') {
+          res.writeHead(200, { 'content-type': 'application/json' });
+          res.end('{}');
+          return;
+        }
+        res.writeHead(307, { location: `${baseURL}/stolen` });
+        res.end();
+      };
+      // Default timeout: the shared 100ms one can retry a slow first request.
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(
+        client.post(
+          '/user_management/authenticate',
+          { client_secret: 'sk_test' },
+          {},
+        ),
+      ).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining(`redirect (307 to ${baseURL}/stolen)`),
+        response: { status: 307 },
+      });
+      expect(requestCount).toBe(1);
+    });
+
+    it('releases the connection when a redirect body stalls instead of waiting on it', async () => {
+      let connectionClosed!: Promise<void>;
+      handler = (_req, res) => {
+        connectionClosed = new Promise((resolve) =>
+          res.on('close', () => resolve()),
+        );
+        res.writeHead(307, { location: `${baseURL}/elsewhere` });
+        res.write('<html>');
+        // Hold the body open; the client must not read it.
+      };
+      const client = new FetchHttpClient(baseURL, { maxRetries: 0 }, fetchImpl);
+
+      await expect(client.get('/users', {})).rejects.toMatchObject({
+        name: 'HttpClientError',
+        message: expect.stringContaining('redirect (307'),
+        response: { status: 307 },
+      });
+      // The request was aborted, so the server sees the connection drop
+      // rather than the SDK sitting on the deadline.
+      await connectionClosed;
+      expect(requestCount).toBe(1);
+    });
+
     it('does not retry a successful body that times out, even when retries are enabled', async () => {
       stallBody(200);
       const { client } = createClient(2);

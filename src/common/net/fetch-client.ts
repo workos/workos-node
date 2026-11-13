@@ -206,6 +206,8 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       });
     // Set once the headers arrive.
     let res: Response | undefined;
+    // Set when the response is a redirect, whose body is never read.
+    let redirected = false;
 
     try {
       res = await this._fetchFn(url, {
@@ -219,7 +221,35 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
         },
         body: requestBody,
         signal: abortController.signal,
+        // The API never redirects. Following one would re-send the body (which
+        // can carry client_secret) to the redirect target. 'manual' rather than
+        // 'error': Cloudflare workerd rejects 'error'.
+        redirect: 'manual',
       });
+
+      // Browsers report a manual redirect as an opaque response with status 0.
+      if (
+        (res.status >= 300 && res.status < 400) ||
+        res.type === 'opaqueredirect'
+      ) {
+        clearTimeout(timeoutId);
+        redirected = true;
+        const location = res.headers.get('Location');
+        // An opaque redirect hides both the status and the Location.
+        const what =
+          res.type === 'opaqueredirect'
+            ? 'an opaque redirect'
+            : `a redirect (${res.status}${location ? ` to ${location}` : ''})`;
+        const message = `WorkOS API responded with ${what}. Redirects are not followed; check the apiHostname, port and https options.`;
+        throw new HttpClientError({
+          message,
+          response: {
+            status: res.status,
+            headers: res.headers,
+            data: { message },
+          },
+        });
+      }
 
       if (!res.ok) {
         const requestID = res.headers.get('X-Request-ID') ?? '';
@@ -288,6 +318,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
       }
 
       throw error;
+    } finally {
+      // Release the unread redirect body and its connection. Reading it under
+      // the deadline would turn a stalled body into a retried 408 that hides
+      // the redirect, and `body.cancel()` only exists on web streams, whereas
+      // every fetch implementation honors the signal. This runs after the
+      // catch above has already checked the signal, so the abort is not
+      // reported as a timeout.
+      if (redirected) {
+        abortController.abort();
+      }
     }
   }
 
