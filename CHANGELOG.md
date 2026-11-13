@@ -1,5 +1,24 @@
 # Changelog
 
+## [12.3.0](https://github.com/workos/workos-node/compare/v12.2.0...v12.3.0) (2026-11-13)
+
+
+### Features
+
+* **admin-portal:** Add revokeLink and externalUserId on generateLink ([#1727](https://github.com/workos/workos-node/issues/1727)) ([0bb0f74](https://github.com/workos/workos-node/commit/0bb0f7442f79f4db43aa433a2b2e85b73da3cc91))
+* **directory-sync:** Add directory-scoped user and group reads ([#1759](https://github.com/workos/workos-node/issues/1759)) ([6e536f1](https://github.com/workos/workos-node/commit/6e536f1134e91eab6b8d354ae788e6400b525f9b))
+* **feature-flags:** Align rule and target management with API contracts ([#1719](https://github.com/workos/workos-node/issues/1719)) ([95dd36d](https://github.com/workos/workos-node/commit/95dd36dbfbc5b0f112e34c1465b5294800654c2a))
+* **user-management:** Add authorized application endpoints ([#1755](https://github.com/workos/workos-node/issues/1755)) ([9cf0d47](https://github.com/workos/workos-node/commit/9cf0d47e757c54c4410bde7577720cd8541e9022))
+
+
+### Bug Fixes
+
+* Add expiresAt support to createOrganizationApiKey ([#1761](https://github.com/workos/workos-node/issues/1761)) ([1e10145](https://github.com/workos/workos-node/commit/1e101454337a4118ba02d155c8d3b67c6e57dd79))
+* don't follow redirects on API requests ([#1752](https://github.com/workos/workos-node/issues/1752)) ([0721b48](https://github.com/workos/workos-node/commit/0721b485d414f00101cca5d003080c52debe2570))
+* **feature-flags:** Report poll timeouts and cancel abandoned requests ([#1754](https://github.com/workos/workos-node/issues/1754)) ([5934756](https://github.com/workos/workos-node/commit/593475687487797ad4a5b2c41181d79db7da2d7d))
+* **user-management:** Build logout URLs for expired sessions; `getLogoutUrl()` no longer throws `invalid_jwt` when the access token has expired ([#1756](https://github.com/workos/workos-node/issues/1756)) ([a54e4e0](https://github.com/workos/workos-node/commit/a54e4e0674101ef4749b03e33d1e8696068af596))
+* **user-management:** Make membership organization names optional; TypeScript code that reads `organizationName` as a `string` must now handle `undefined` ([#1757](https://github.com/workos/workos-node/issues/1757)) ([7792588](https://github.com/workos/workos-node/commit/7792588021cecd6cc182bbd3e244ff4a5077cc52))
+
 ## [12.2.0](https://github.com/workos/workos-node/compare/v12.1.0...v12.2.0) (2026-11-04)
 
 
