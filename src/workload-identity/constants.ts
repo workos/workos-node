@@ -1,6 +1,9 @@
 // @oagen-ignore-file
 
-/** Sent with the environment ID on every workload identity API request. */
+/**
+ * Sent with the environment ID on every workload identity API request, when
+ * an environment ID is set.
+ */
 export const ENVIRONMENT_ID_HEADER = 'x-url-environment-id';
 
 export const JWT_BEARER_GRANT_TYPE =

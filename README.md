@@ -121,7 +121,7 @@ const workos = new WorkOS({
   credentials: new WorkloadIdentityCredentials({
     clientId: 'client_...', // the M2M application that has the trust rule
     tokenUrl: 'https://<your token endpoint>/oauth2/token',
-    environmentId: 'environment_...',
+    environmentId: 'environment_...', // optional
     identityTokenProvider: githubActions('https://api.workos.com'),
   }),
 });
@@ -130,6 +130,8 @@ const organizations = await workos.organizations.listOrganizations();
 ```
 
 `clientId`, `tokenUrl`, `environmentId` and `scope` default to the `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL`, `WORKOS_ENVIRONMENT_ID` and `WORKOS_WIF_SCOPE` environment variables. Those variables only fill in fields you leave out: workload identity is used only when you pass `credentials`. A client built with `credentials` ignores `WORKOS_API_KEY`, and passing both `credentials` and an API key is an error.
+
+`environmentId` is optional. WorkOS binds a workload identity client to exactly one environment, so the value selects nothing. Setting it is a safety check: the SDK sends it as the `x-url-environment-id` header on every API request, and a value that names a different environment gets `403 environment_mismatch`. When it is not set, the header is not sent.
 
 ### Platform providers
 
@@ -180,6 +182,8 @@ import { tokenEnv, tokenFile } from '@workos-inc/node';
 tokenFile('/var/run/secrets/tokens/workos');
 tokenEnv('MY_PLATFORM_JWT');
 ```
+
+WorkOS accepts an identity token for one exchange. The SDK makes a new exchange about every four minutes. If the file or variable still holds the same token then, that exchange fails with `invalid_grant`. So use `tokenFile` and `tokenEnv` for a source that something rewrites before each exchange, or for a job shorter than five minutes. The platform providers (GitHub Actions, Google Cloud, AWS) fetch a new token every time.
 
 `tokenFile` needs a file system, so it is not exported from `@workos-inc/node/worker`.
 

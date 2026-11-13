@@ -41,8 +41,13 @@ export interface WorkloadIdentityCredentialsOptions {
    */
   tokenUrl?: string;
   /**
-   * The environment the workload acts on, sent with every API request.
-   * Defaults to `WORKOS_ENVIRONMENT_ID`.
+   * Optional. Defaults to `WORKOS_ENVIRONMENT_ID`, else not set.
+   *
+   * The server binds a workload identity client to exactly one environment,
+   * so this selects nothing. Setting it is a safety check: it is sent as the
+   * `x-url-environment-id` header on every API request, and a value that
+   * names a different environment gets `403 environment_mismatch`. When it is
+   * not set, the header is not sent. An empty string counts as not set.
    */
   environmentId?: string;
   /** The API the access token is for. Defaults to `https://api.workos.com`. */
@@ -115,7 +120,7 @@ type ExchangeAttempt =
 export class WorkloadIdentityCredentials implements Credentials {
   private readonly clientId: string;
   private readonly tokenUrl: URL;
-  private readonly environmentId: string;
+  private readonly environmentId: string | undefined;
   private readonly resource: string;
   private readonly scope: string | undefined;
   private readonly identityTokenProvider: IdentityTokenProvider;
@@ -141,17 +146,12 @@ export class WorkloadIdentityCredentials implements Credentials {
   ) {
     const clientId = options?.clientId || getEnv('WORKOS_CLIENT_ID');
     const tokenUrl = options?.tokenUrl || getEnv('WORKOS_WIF_TOKEN_URL');
-    const environmentId =
-      options?.environmentId || getEnv('WORKOS_ENVIRONMENT_ID');
 
     if (!clientId) {
       throw missingSetting('clientId', 'WORKOS_CLIENT_ID');
     }
     if (!tokenUrl) {
       throw missingSetting('tokenUrl', 'WORKOS_WIF_TOKEN_URL');
-    }
-    if (!environmentId) {
-      throw missingSetting('environmentId', 'WORKOS_ENVIRONMENT_ID');
     }
     if (typeof options?.identityTokenProvider !== 'function') {
       throw new WorkloadIdentityError(
@@ -180,7 +180,9 @@ export class WorkloadIdentityCredentials implements Credentials {
     }
 
     this.clientId = clientId;
-    this.environmentId = environmentId;
+    // Optional: an empty string counts as not set.
+    this.environmentId =
+      options.environmentId || getEnv('WORKOS_ENVIRONMENT_ID') || undefined;
     this.resource = options.resource || DEFAULT_RESOURCE;
     this.scope = options.scope || getEnv('WORKOS_WIF_SCOPE') || undefined;
     this.identityTokenProvider = options.identityTokenProvider;
@@ -204,11 +206,16 @@ export class WorkloadIdentityCredentials implements Credentials {
   async resolve(context: CredentialContext = {}): Promise<CredentialSnapshot> {
     const { token, generation } = await this.currentToken(context.signal);
 
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+    };
+
+    if (this.environmentId) {
+      headers[ENVIRONMENT_ID_HEADER] = this.environmentId;
+    }
+
     return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        [ENVIRONMENT_ID_HEADER]: this.environmentId,
-      },
+      headers,
       generation,
       recoverable: true,
     };

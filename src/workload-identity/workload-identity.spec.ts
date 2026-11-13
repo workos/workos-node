@@ -190,7 +190,7 @@ describe('workload identity', () => {
       });
       expect(exchanges[0].headers.has('authorization')).toBe(false);
 
-      const scoped = setup({ scope: 'organizations:write' });
+      const scoped = setup({ scope: 'orgs:write' });
 
       await scoped.workos.get('/organizations');
 
@@ -200,13 +200,13 @@ describe('workload identity', () => {
         assertion: 'assertion-1',
         client_id: CLIENT_ID,
         resource: 'https://api.workos.com',
-        scope: 'organizations:write',
+        scope: 'orgs:write',
       });
       expect(form(exchanges[1])).not.toHaveProperty('client_secret');
       expect(exchanges[1].headers.has('authorization')).toBe(false);
     });
 
-    it('WIF-02: the API request carries the access token and the environment header', async () => {
+    it('WIF-02: (a) with an environment ID the API request carries the access token and the environment header', async () => {
       const { workos } = setup();
 
       await expect(workos.get('/organizations')).resolves.toEqual({
@@ -220,6 +220,41 @@ describe('workload identity', () => {
         ENVIRONMENT_ID,
       );
     });
+
+    it('WIF-02: (b) with no environment ID the API request carries the access token and no environment header', async () => {
+      // `afterEach` restores the variable.
+      delete process.env.WORKOS_ENVIRONMENT_ID;
+
+      let built!: ReturnType<typeof setup>;
+      expect(() => {
+        built = setup({ environmentId: undefined });
+      }).not.toThrow();
+
+      await expect(built.workos.get('/organizations')).resolves.toEqual({
+        data: { ok: true },
+      });
+
+      expect(apiRequests).toHaveLength(1);
+      expect(bearer(apiRequests[0])).toBe('Bearer access-1');
+      expect(apiRequests[0].headers.has('x-url-environment-id')).toBe(false);
+    });
+
+    it.each([
+      ['an empty environmentId', { environmentId: '' }, undefined],
+      ['an empty WORKOS_ENVIRONMENT_ID', { environmentId: undefined }, ''],
+    ])(
+      'WIF: %s counts as not set and sends no environment header',
+      async (_name, overrides, variable) => {
+        if (variable !== undefined) {
+          process.env.WORKOS_ENVIRONMENT_ID = variable;
+        }
+
+        await setup(overrides).workos.get('/organizations');
+
+        expect(bearer(apiRequests[0])).toBe('Bearer access-1');
+        expect(apiRequests[0].headers.has('x-url-environment-id')).toBe(false);
+      },
+    );
 
     it('WIF-18: the exchange does not follow a redirect', async () => {
       // Real HTTP: a mocked fetch never follows a redirect, so it could not
@@ -980,7 +1015,7 @@ describe('workload identity', () => {
       await new WorkOS({
         credentials: new WorkloadIdentityCredentials({
           clientId: CLIENT_ID,
-          scope: 'organizations:write',
+          scope: 'orgs:write',
           environmentId: ENVIRONMENT_ID,
           identityTokenProvider: async () => 'assertion-1',
         }),
@@ -989,7 +1024,7 @@ describe('workload identity', () => {
       expect(exchanges[3].url).toBe(ENV_TOKEN_URL);
       expect(form(exchanges[3])).toMatchObject({
         client_id: CLIENT_ID,
-        scope: 'organizations:write',
+        scope: 'orgs:write',
       });
       expect(apiRequests[3].headers.get('x-url-environment-id')).toBe(
         ENVIRONMENT_ID,
@@ -1001,11 +1036,6 @@ describe('workload identity', () => {
         'clientId',
         { clientId: undefined },
         'clientId is required (or set WORKOS_CLIENT_ID)',
-      ],
-      [
-        'environmentId',
-        { environmentId: undefined },
-        'environmentId is required (or set WORKOS_ENVIRONMENT_ID)',
       ],
       [
         'identityTokenProvider',
