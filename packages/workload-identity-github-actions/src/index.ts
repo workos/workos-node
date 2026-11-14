@@ -12,6 +12,8 @@ const REQUEST_TIMEOUT_MS = 10_000;
  *
  * @example
  * new WorkloadIdentityCredentials({
+ *   clientId: 'client_123',
+ *   tokenUrl: 'https://auth.example.com/oauth2/token',
  *   identityTokenProvider: githubActions('https://api.workos.com'),
  * });
  */

@@ -129,7 +129,7 @@ const workos = new WorkOS({
 const organizations = await workos.organizations.listOrganizations();
 ```
 
-`clientId`, `tokenUrl` and `scope` default to the `WORKOS_CLIENT_ID`, `WORKOS_WIF_TOKEN_URL` and `WORKOS_WIF_SCOPE` environment variables. Those variables only fill in fields you leave out: workload identity is used only when you pass `credentials`. A client built with `credentials` ignores `WORKOS_API_KEY`, and passing both `credentials` and an API key is an error.
+`clientId` defaults to the `WORKOS_CLIENT_ID` environment variable, which is the only variable the credentials read. `tokenUrl` is required and `scope` is optional, and both are set only in code. The variable only fills in a `clientId` you leave out: workload identity is used only when you pass `credentials`. A client built with `credentials` ignores `WORKOS_API_KEY`, and passing both `credentials` and an API key is an error.
 
 `environmentId` is optional and is set only in code: no environment variable fills it. WorkOS binds a workload identity client to exactly one environment, so the value selects nothing. Setting it is a safety check: the SDK sends it as the `x-url-environment-id` header on every API request, and a value that names a different environment gets `403 environment_mismatch`. When it is not set, the header is not sent.
 
@@ -167,6 +167,8 @@ A provider is any function that returns the identity token. Use a callback for a
 
 ```ts
 const credentials = new WorkloadIdentityCredentials({
+  clientId: 'client_...',
+  tokenUrl: 'https://<your token endpoint>/oauth2/token',
   identityTokenProvider: async () => {
     const response = await fetch('https://identity.internal.example/token');
     return response.text();

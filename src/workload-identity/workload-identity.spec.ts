@@ -121,12 +121,7 @@ describe('workload identity', () => {
 
   beforeEach(() => {
     process.env = { ...OLD_ENV };
-    for (const name of [
-      'WORKOS_API_KEY',
-      'WORKOS_CLIENT_ID',
-      'WORKOS_WIF_TOKEN_URL',
-      'WORKOS_WIF_SCOPE',
-    ]) {
+    for (const name of ['WORKOS_API_KEY', 'WORKOS_CLIENT_ID']) {
       delete process.env[name];
     }
 
@@ -851,16 +846,16 @@ describe('workload identity', () => {
       expect(valid.workos.key).toBeUndefined();
       expect(bearer(apiRequests[0])).toBe('Bearer access-1');
 
-      // (b) No token URL, explicitly or in the environment.
+      // (b) No token URL.
       const construct = () =>
         new WorkloadIdentityCredentials({
           clientId: CLIENT_ID,
           environmentId: ENVIRONMENT_ID,
           identityTokenProvider: async () => 'assertion-1',
-        });
+        } as WorkloadIdentityCredentialsOptions);
       expect(construct).toThrow(WorkloadIdentityError);
       expect(construct).toThrow(
-        'invalid_configuration: Workload identity credentials are missing a required setting. tokenUrl is required (or set WORKOS_WIF_TOKEN_URL)',
+        /^invalid_configuration: Workload identity credentials are missing a required setting\. tokenUrl is required$/,
       );
 
       // (c) Valid credentials whose exchange fails.
@@ -969,7 +964,7 @@ describe('workload identity', () => {
       }
     });
 
-    it('WIF-22: tokenEnv and callback providers supply the assertion, and omitted fields default from the environment', async () => {
+    it('WIF-22: tokenEnv and callback providers supply the assertion, and only clientId defaults from the environment', async () => {
       // (a) tokenEnv reads the variable on every call.
       process.env.MY_JWT = 'assertion-env';
       await setup({
@@ -988,38 +983,50 @@ describe('workload identity', () => {
       }).workos.get('/organizations');
       expect(form(exchanges[1]).assertion).toBe('assertion-cb');
 
-      // (c) Only a provider: everything else comes from the environment.
-      const ENV_TOKEN_URL = 'https://env.workos.test/oauth2/token';
+      // (c) A provider and the token URL: the client ID comes from the
+      // environment. The SDK reads neither of the other two variables.
       process.env.WORKOS_CLIENT_ID = 'client_env';
-      process.env.WORKOS_WIF_TOKEN_URL = ENV_TOKEN_URL;
+      process.env.WORKOS_WIF_TOKEN_URL =
+        'https://ignored.example.test/oauth2/token';
       process.env.WORKOS_WIF_SCOPE = 'scope_env';
 
       await new WorkOS({
         credentials: new WorkloadIdentityCredentials({
+          tokenUrl: TOKEN_URL,
           identityTokenProvider: async () => 'assertion-1',
         }),
       }).get('/organizations');
 
-      expect(exchanges[2].url).toBe(ENV_TOKEN_URL);
-      expect(form(exchanges[2])).toMatchObject({
-        client_id: 'client_env',
-        scope: 'scope_env',
-      });
+      expect(exchanges[2].url).toBe(TOKEN_URL);
+      expect(form(exchanges[2]).client_id).toBe('client_env');
+      expect(form(exchanges[2])).not.toHaveProperty('scope');
 
-      // (d) Explicit values win over the environment.
+      // (d) An explicit client ID wins over the variable.
       await new WorkOS({
         credentials: new WorkloadIdentityCredentials({
           clientId: CLIENT_ID,
-          scope: 'orgs:write',
+          tokenUrl: TOKEN_URL,
           identityTokenProvider: async () => 'assertion-1',
         }),
       }).get('/organizations');
 
-      expect(exchanges[3].url).toBe(ENV_TOKEN_URL);
-      expect(form(exchanges[3])).toMatchObject({
-        client_id: CLIENT_ID,
-        scope: 'orgs:write',
-      });
+      expect(exchanges[3].url).toBe(TOKEN_URL);
+      expect(form(exchanges[3]).client_id).toBe(CLIENT_ID);
+
+      // (e) No token URL: the variable does not fill it.
+      let error: WorkloadIdentityError | undefined;
+      try {
+        new WorkloadIdentityCredentials({
+          identityTokenProvider: async () => 'assertion-1',
+        } as WorkloadIdentityCredentialsOptions);
+      } catch (e) {
+        error = e as WorkloadIdentityError;
+      }
+
+      expect(error).toBeInstanceOf(WorkloadIdentityError);
+      expect(error?.code).toBe('invalid_configuration');
+      expect(error?.description).toBe('tokenUrl is required');
+      expect(exchanges).toHaveLength(4);
     });
 
     it.each([
@@ -1028,6 +1035,7 @@ describe('workload identity', () => {
         { clientId: undefined },
         'clientId is required (or set WORKOS_CLIENT_ID)',
       ],
+      ['tokenUrl', { tokenUrl: '' }, 'tokenUrl is required'],
       [
         'identityTokenProvider',
         { identityTokenProvider: undefined },

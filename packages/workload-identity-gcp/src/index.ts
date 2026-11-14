@@ -33,6 +33,8 @@ const agent = new http.Agent();
  *
  * @example
  * new WorkloadIdentityCredentials({
+ *   clientId: 'client_123',
+ *   tokenUrl: 'https://auth.example.com/oauth2/token',
  *   identityTokenProvider: gcpMetadata('https://api.workos.com'),
  * });
  */

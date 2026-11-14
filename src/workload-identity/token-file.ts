@@ -36,6 +36,8 @@ function fileSystem(): FileSystem {
  *
  * @example
  * new WorkloadIdentityCredentials({
+ *   clientId: 'client_123',
+ *   tokenUrl: 'https://auth.example.com/oauth2/token',
  *   // A file that another process writes, such as a sidecar or an earlier CI
  *   // step that fetches a new token.
  *   identityTokenProvider: tokenFile('/run/workos/identity-token'),

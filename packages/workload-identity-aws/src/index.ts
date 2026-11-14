@@ -17,6 +17,8 @@ import { GetWebIdentityTokenCommand, STSClient } from '@aws-sdk/client-sts';
  *
  * @example
  * new WorkloadIdentityCredentials({
+ *   clientId: 'client_123',
+ *   tokenUrl: 'https://auth.example.com/oauth2/token',
  *   identityTokenProvider: awsSts('https://api.workos.com', 'us-east-1'),
  * });
  */

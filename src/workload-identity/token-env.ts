@@ -8,6 +8,8 @@ import type { IdentityTokenProvider } from './workload-identity-credentials';
  *
  * @example
  * new WorkloadIdentityCredentials({
+ *   clientId: 'client_123',
+ *   tokenUrl: 'https://auth.example.com/oauth2/token',
  *   identityTokenProvider: tokenEnv('MY_PLATFORM_JWT'),
  * });
  */

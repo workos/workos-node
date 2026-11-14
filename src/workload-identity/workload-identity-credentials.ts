@@ -36,10 +36,10 @@ export interface WorkloadIdentityCredentialsOptions {
   /** The M2M application's client ID. Defaults to `WORKOS_CLIENT_ID`. */
   clientId?: string;
   /**
-   * The token exchange endpoint. Defaults to `WORKOS_WIF_TOKEN_URL`. There is
-   * no built-in default.
+   * The token exchange endpoint. Required, and set only here: no environment
+   * variable fills it and there is no built-in default.
    */
-  tokenUrl?: string;
+  tokenUrl: string;
   /**
    * Optional, and set only here: no environment variable fills it.
    *
@@ -52,7 +52,10 @@ export interface WorkloadIdentityCredentialsOptions {
   environmentId?: string;
   /** The API the access token is for. Defaults to `https://api.workos.com`. */
   resource?: string;
-  /** The scope to request. Defaults to `WORKOS_WIF_SCOPE`, else no scope. */
+  /**
+   * The scope to request. Optional, and set only here: no environment
+   * variable fills it. Not set or empty means no scope is requested.
+   */
   scope?: string;
   /** Returns the workload's identity token. */
   identityTokenProvider: IdentityTokenProvider;
@@ -133,8 +136,8 @@ export class WorkloadIdentityCredentials implements Credentials {
   private inflight: Promise<IssuedToken> | undefined;
 
   /**
-   * @param options - An omitted `clientId`, `tokenUrl` or `scope` defaults
-   * from the environment; an explicit value always wins.
+   * @param options - An omitted `clientId` defaults from the environment; an
+   * explicit value always wins. No other field is read from the environment.
    * @param internals - Test seams. Not part of the public API.
    * @throws {WorkloadIdentityError} `invalid_configuration` when a required
    * setting is missing after the environment is consulted.
@@ -145,13 +148,16 @@ export class WorkloadIdentityCredentials implements Credentials {
     internals: WorkloadIdentityInternals = {},
   ) {
     const clientId = options?.clientId || getEnv('WORKOS_CLIENT_ID');
-    const tokenUrl = options?.tokenUrl || getEnv('WORKOS_WIF_TOKEN_URL');
+    const tokenUrl = options?.tokenUrl;
 
     if (!clientId) {
       throw missingSetting('clientId', 'WORKOS_CLIENT_ID');
     }
     if (!tokenUrl) {
-      throw missingSetting('tokenUrl', 'WORKOS_WIF_TOKEN_URL');
+      throw new WorkloadIdentityError(
+        'invalid_configuration',
+        'tokenUrl is required',
+      );
     }
     if (typeof options?.identityTokenProvider !== 'function') {
       throw new WorkloadIdentityError(
@@ -180,11 +186,11 @@ export class WorkloadIdentityCredentials implements Credentials {
     }
 
     this.clientId = clientId;
-    // Optional, and never read from the environment. An empty string counts
-    // as not set.
+    // `environmentId` and `scope` are optional and never read from the
+    // environment. An empty string counts as not set.
     this.environmentId = options.environmentId || undefined;
     this.resource = options.resource || DEFAULT_RESOURCE;
-    this.scope = options.scope || getEnv('WORKOS_WIF_SCOPE') || undefined;
+    this.scope = options.scope || undefined;
     this.identityTokenProvider = options.identityTokenProvider;
     this.now = internals.now ?? (() => Date.now());
     this.sleep =
