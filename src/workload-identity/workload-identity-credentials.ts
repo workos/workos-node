@@ -41,7 +41,7 @@ export interface WorkloadIdentityCredentialsOptions {
    */
   tokenUrl?: string;
   /**
-   * Optional. Defaults to `WORKOS_ENVIRONMENT_ID`, else not set.
+   * Optional, and set only here: no environment variable fills it.
    *
    * The server binds a workload identity client to exactly one environment,
    * so this selects nothing. Setting it is a safety check: it is sent as the
@@ -133,8 +133,8 @@ export class WorkloadIdentityCredentials implements Credentials {
   private inflight: Promise<IssuedToken> | undefined;
 
   /**
-   * @param options - Omitted fields default from the environment; an explicit
-   * value always wins.
+   * @param options - An omitted `clientId`, `tokenUrl` or `scope` defaults
+   * from the environment; an explicit value always wins.
    * @param internals - Test seams. Not part of the public API.
    * @throws {WorkloadIdentityError} `invalid_configuration` when a required
    * setting is missing after the environment is consulted.
@@ -180,9 +180,9 @@ export class WorkloadIdentityCredentials implements Credentials {
     }
 
     this.clientId = clientId;
-    // Optional: an empty string counts as not set.
-    this.environmentId =
-      options.environmentId || getEnv('WORKOS_ENVIRONMENT_ID') || undefined;
+    // Optional, and never read from the environment. An empty string counts
+    // as not set.
+    this.environmentId = options.environmentId || undefined;
     this.resource = options.resource || DEFAULT_RESOURCE;
     this.scope = options.scope || getEnv('WORKOS_WIF_SCOPE') || undefined;
     this.identityTokenProvider = options.identityTokenProvider;

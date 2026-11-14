@@ -36,7 +36,9 @@ function fileSystem(): FileSystem {
  *
  * @example
  * new WorkloadIdentityCredentials({
- *   identityTokenProvider: tokenFile('/var/run/secrets/tokens/workos'),
+ *   // A file that another process writes, such as a sidecar or an earlier CI
+ *   // step that fetches a new token.
+ *   identityTokenProvider: tokenFile('/run/workos/identity-token'),
  * });
  */
 export function tokenFile(path: string): IdentityTokenProvider {

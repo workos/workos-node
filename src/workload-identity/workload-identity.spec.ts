@@ -126,7 +126,6 @@ describe('workload identity', () => {
       'WORKOS_CLIENT_ID',
       'WORKOS_WIF_TOKEN_URL',
       'WORKOS_WIF_SCOPE',
-      'WORKOS_ENVIRONMENT_ID',
     ]) {
       delete process.env[name];
     }
@@ -222,8 +221,8 @@ describe('workload identity', () => {
     });
 
     it('WIF-02: (b) with no environment ID the API request carries the access token and no environment header', async () => {
-      // `afterEach` restores the variable.
-      delete process.env.WORKOS_ENVIRONMENT_ID;
+      // The SDK does not read this variable. `afterEach` restores it.
+      process.env.WORKOS_ENVIRONMENT_ID = 'environment_env';
 
       let built!: ReturnType<typeof setup>;
       expect(() => {
@@ -240,16 +239,16 @@ describe('workload identity', () => {
     });
 
     it.each([
-      ['an empty environmentId', { environmentId: '' }, undefined],
-      ['an empty WORKOS_ENVIRONMENT_ID', { environmentId: undefined }, ''],
+      ['an empty', ''],
+      ['a null', null],
     ])(
-      'WIF: %s counts as not set and sends no environment header',
-      async (_name, overrides, variable) => {
-        if (variable !== undefined) {
-          process.env.WORKOS_ENVIRONMENT_ID = variable;
-        }
-
-        await setup(overrides).workos.get('/organizations');
+      'WIF: %s environmentId counts as not set and sends no environment header',
+      async (_name, environmentId) => {
+        await setup({
+          environmentId,
+        } as Partial<WorkloadIdentityCredentialsOptions>).workos.get(
+          '/organizations',
+        );
 
         expect(bearer(apiRequests[0])).toBe('Bearer access-1');
         expect(apiRequests[0].headers.has('x-url-environment-id')).toBe(false);
@@ -994,7 +993,6 @@ describe('workload identity', () => {
       process.env.WORKOS_CLIENT_ID = 'client_env';
       process.env.WORKOS_WIF_TOKEN_URL = ENV_TOKEN_URL;
       process.env.WORKOS_WIF_SCOPE = 'scope_env';
-      process.env.WORKOS_ENVIRONMENT_ID = 'environment_env';
 
       await new WorkOS({
         credentials: new WorkloadIdentityCredentials({
@@ -1007,16 +1005,12 @@ describe('workload identity', () => {
         client_id: 'client_env',
         scope: 'scope_env',
       });
-      expect(apiRequests[2].headers.get('x-url-environment-id')).toBe(
-        'environment_env',
-      );
 
       // (d) Explicit values win over the environment.
       await new WorkOS({
         credentials: new WorkloadIdentityCredentials({
           clientId: CLIENT_ID,
           scope: 'orgs:write',
-          environmentId: ENVIRONMENT_ID,
           identityTokenProvider: async () => 'assertion-1',
         }),
       }).get('/organizations');
@@ -1026,9 +1020,6 @@ describe('workload identity', () => {
         client_id: CLIENT_ID,
         scope: 'orgs:write',
       });
-      expect(apiRequests[3].headers.get('x-url-environment-id')).toBe(
-        ENVIRONMENT_ID,
-      );
     });
 
     it.each([
