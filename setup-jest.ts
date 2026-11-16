@@ -14,3 +14,9 @@ enableFetchMocks();
 if (!global.crypto) {
   global.crypto = webcrypto as unknown as Crypto;
 }
+
+// The client reads its API host from these variables when no option is passed.
+// Clear them so a developer's shell can't point tests at another host.
+delete process.env.WORKOS_API_HOSTNAME;
+delete process.env.WORKOS_API_PORT;
+delete process.env.WORKOS_API_HTTPS;
