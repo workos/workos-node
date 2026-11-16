@@ -130,6 +130,43 @@ describe('WorkOS', () => {
       });
     });
 
+    describe('with API host environment variables', () => {
+      it('sets baseURL from WORKOS_API_HOSTNAME, WORKOS_API_PORT and WORKOS_API_HTTPS', () => {
+        process.env.WORKOS_API_HOSTNAME = 'localhost';
+        process.env.WORKOS_API_PORT = '4100';
+        process.env.WORKOS_API_HTTPS = 'false';
+        const workos = new WorkOS('foo');
+        expect(workos.baseURL).toEqual('http://localhost:4100');
+      });
+
+      it('uses https when WORKOS_API_HTTPS is "true"', () => {
+        process.env.WORKOS_API_HOSTNAME = 'localhost';
+        process.env.WORKOS_API_HTTPS = 'true';
+        const workos = new WorkOS('foo');
+        expect(workos.baseURL).toEqual('https://localhost');
+      });
+
+      it('prefers constructor options over environment variables', () => {
+        process.env.WORKOS_API_HOSTNAME = 'localhost';
+        process.env.WORKOS_API_PORT = '4100';
+        process.env.WORKOS_API_HTTPS = 'false';
+        const workos = new WorkOS('foo', {
+          apiHostname: 'api.example.com',
+          port: 8443,
+          https: true,
+        });
+        expect(workos.baseURL).toEqual('https://api.example.com:8443');
+      });
+
+      it('defaults to https://api.workos.com when unset', () => {
+        delete process.env.WORKOS_API_HOSTNAME;
+        delete process.env.WORKOS_API_PORT;
+        delete process.env.WORKOS_API_HTTPS;
+        const workos = new WorkOS('foo');
+        expect(workos.baseURL).toEqual('https://api.workos.com');
+      });
+    });
+
     describe('when the `config` option is provided', () => {
       it('applies the configuration to the fetch client', async () => {
         fetchOnce('{}', { headers: { 'X-Request-ID': 'a-request-id' } });
