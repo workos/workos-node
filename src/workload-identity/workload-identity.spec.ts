@@ -255,9 +255,6 @@ describe('workload identity', () => {
       // tell whether the exchange would.
       const nativeFetch = (globalThis as Record<string, unknown>)
         .__workosNativeFetch as typeof globalThis.fetch;
-      fetch.mockImplementation((input, init) =>
-        nativeFetch(input as string, init),
-      );
 
       const listen = async (handler: http.RequestListener) => {
         const server = http.createServer(handler);
@@ -280,10 +277,26 @@ describe('workload identity', () => {
         res.end();
       });
 
+      // The local servers speak plain HTTP and the credentials take only an
+      // https token URL, with no setting that relaxes it. So the test moves
+      // the token endpoint under them: the request the SDK builds is sent
+      // unchanged apart from the address, and a request for anything other
+      // than the token URL fails the test.
+      const requested: string[] = [];
+      fetch.mockImplementation(async (input, init) => {
+        requested.push(String(input));
+
+        if (input !== TOKEN_URL) {
+          throw new Error(`Unexpected request to ${String(input)}`);
+        }
+
+        return nativeFetch(token.url, init);
+      });
+
       try {
         const credentials = new WorkloadIdentityCredentials({
           clientId: CLIENT_ID,
-          tokenUrl: token.url,
+          tokenUrl: TOKEN_URL,
           environmentId: ENVIRONMENT_ID,
           identityTokenProvider: async () => 'assertion-1',
         });
@@ -292,6 +305,7 @@ describe('workload identity', () => {
 
         expect(error).toBeInstanceOf(WorkloadIdentityError);
         expect(error.code).toBe('exchange_failed');
+        expect(requested).toEqual([TOKEN_URL]);
         expect(tokenRequests).toEqual(['POST']);
         expect(targetRequests).toEqual([]);
       } finally {
@@ -1044,7 +1058,7 @@ describe('workload identity', () => {
       [
         'a valid tokenUrl',
         { tokenUrl: 'not a url' },
-        'tokenUrl is not a valid URL',
+        'tokenUrl must be an absolute https URL',
       ],
     ])(
       'WIF: credentials without %s fail at construction',
@@ -1069,10 +1083,51 @@ describe('workload identity', () => {
       expect(exchanges.map((exchange) => exchange.url)).toEqual([tokenUrl]);
     });
 
-    it('WIF: a token URL that is not http or https fails at construction', () => {
-      expect(() => setup({ tokenUrl: 'file:///oauth2/token' })).toThrow(
-        'tokenUrl must be an http or https URL',
-      );
+    it.each([
+      ['an http URL', 'http://example.com/oauth2/token'],
+      ['an http URL on localhost', 'http://localhost:8080/oauth2/token'],
+      ['an http URL on a loopback address', 'http://127.0.0.1/oauth2/token'],
+      ['an http URL in upper case', 'HTTP://example.com/oauth2/token'],
+      ['a URL with no scheme', 'auth.workos.test/oauth2/token'],
+      [
+        'a URL with no scheme and two slashes',
+        '//auth.workos.test/oauth2/token',
+      ],
+      ['a path', '/oauth2/token'],
+      ['an https URL with no host', 'https:///oauth2/token'],
+      ['an https URL with one slash and no host', 'https:/oauth2/token'],
+      ['an https URL with no slashes and no host', 'https:oauth2/token'],
+      ['an https URL with nothing after the scheme', 'https://'],
+      ['a URL with another scheme', 'file:///oauth2/token'],
+      ['a WebSocket URL', 'wss://auth.workos.test/oauth2/token'],
+      ['an https URL after a space', ' https://auth.workos.test/oauth2/token'],
+    ])(
+      'WIF: a token URL that is %s fails at construction',
+      (_name, tokenUrl) => {
+        let error: WorkloadIdentityError | undefined;
+        try {
+          setup({ tokenUrl });
+        } catch (e) {
+          error = e as WorkloadIdentityError;
+        }
+
+        expect(error).toBeInstanceOf(WorkloadIdentityError);
+        expect(error?.code).toBe('invalid_configuration');
+        expect(error?.description).toBe(
+          'tokenUrl must be an absolute https URL',
+        );
+        expect(fetch).not.toHaveBeenCalled();
+      },
+    );
+
+    it('WIF: a token URL with the https scheme in upper case is accepted', async () => {
+      const { workos } = setup({
+        tokenUrl: 'HTTPS://auth.workos.test/oauth2/token',
+      });
+
+      await workos.get('/organizations');
+
+      expect(exchanges.map((exchange) => exchange.url)).toEqual([TOKEN_URL]);
     });
 
     it('WIF: tokenFile fails as a provider error in a runtime with no file system', async () => {

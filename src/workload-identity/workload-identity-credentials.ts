@@ -38,6 +38,11 @@ export interface WorkloadIdentityCredentialsOptions {
   /**
    * The token exchange endpoint. Required, and set only here: no environment
    * variable fills it and there is no built-in default.
+   *
+   * It must be an absolute `https` URL. The request to it carries the
+   * workload's identity token and the response carries the access token, so
+   * any other URL is rejected when the credentials are constructed. That
+   * includes `http://localhost` and other loopback addresses.
    */
   tokenUrl: string;
   /**
@@ -140,7 +145,8 @@ export class WorkloadIdentityCredentials implements Credentials {
    * explicit value always wins. No other field is read from the environment.
    * @param internals - Test seams. Not part of the public API.
    * @throws {WorkloadIdentityError} `invalid_configuration` when a required
-   * setting is missing after the environment is consulted.
+   * setting is missing after the environment is consulted, or when `tokenUrl`
+   * is not an absolute `https` URL.
    */
   constructor(
     options: WorkloadIdentityCredentialsOptions,
@@ -166,25 +172,7 @@ export class WorkloadIdentityCredentials implements Credentials {
       );
     }
 
-    try {
-      this.tokenUrl = new URL(tokenUrl);
-    } catch {
-      throw new WorkloadIdentityError(
-        'invalid_configuration',
-        'tokenUrl is not a valid URL',
-      );
-    }
-
-    if (
-      this.tokenUrl.protocol !== 'https:' &&
-      this.tokenUrl.protocol !== 'http:'
-    ) {
-      throw new WorkloadIdentityError(
-        'invalid_configuration',
-        'tokenUrl must be an http or https URL',
-      );
-    }
-
+    this.tokenUrl = httpsUrl(tokenUrl);
     this.clientId = clientId;
     // `environmentId` and `scope` are optional and never read from the
     // environment. An empty string counts as not set.
@@ -533,6 +521,40 @@ function missingSetting(field: string, variable: string) {
     'invalid_configuration',
     `${field} is required (or set ${variable})`,
   );
+}
+
+/**
+ * Parses the token URL, which must be an absolute `https` URL with a host.
+ * The exchange POST carries the workload's identity token and the response
+ * carries the access token, so no other scheme is accepted, on any host.
+ */
+function httpsUrl(tokenUrl: string): URL {
+  const invalid = () =>
+    new WorkloadIdentityError(
+      'invalid_configuration',
+      'tokenUrl must be an absolute https URL',
+    );
+
+  // Checked in the text first: the URL parser repairs `https:/path` and
+  // `https:///path` into a URL whose host is the first path segment.
+  if (!/^https:\/\/[^\s/\\?#]/i.test(tokenUrl)) {
+    throw invalid();
+  }
+
+  let url: URL;
+
+  try {
+    url = new URL(tokenUrl);
+  } catch {
+    throw invalid();
+  }
+
+  // The parsed URL is the one the request is sent to.
+  if (url.protocol !== 'https:' || !url.hostname) {
+    throw invalid();
+  }
+
+  return url;
 }
 
 /**
