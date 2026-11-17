@@ -787,6 +787,19 @@ describe('SSO', () => {
 
         expect(subject.data).toHaveLength(1);
       });
+
+      it('filters Connections by state', async () => {
+        fetchOnce({
+          data: [connectionResponse],
+          list_metadata: {},
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.sso.listConnections({ state: 'active' });
+
+        expect(fetchSearchParams()).toMatchObject({ state: 'active' });
+      });
     });
   });
 
