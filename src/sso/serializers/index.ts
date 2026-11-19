@@ -1,3 +1,4 @@
+export * from './authorize-logout.serializer';
 export * from './connection.serializer';
 export * from './connection-event.serializer';
 export * from './list-connections-options.serializer';
