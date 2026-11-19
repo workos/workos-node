@@ -37,6 +37,18 @@ import { WorkOS } from '@workos-inc/node';
 const workos = new WorkOS('sk_1234');
 ```
 
+To send requests somewhere other than `api.workos.com`, such as
+[`@workos/emulate`](https://www.npmjs.com/package/@workos/emulate) or a mock
+server in tests, set `WORKOS_API_HOSTNAME`, `WORKOS_API_PORT` and
+`WORKOS_API_HTTPS` (the same variables `@workos-inc/authkit-nextjs` reads), or
+pass the `apiHostname`, `port` and `https` options, which take precedence:
+
+```sh
+WORKOS_API_HOSTNAME="localhost"
+WORKOS_API_PORT="4100"
+WORKOS_API_HTTPS="false"
+```
+
 ### Automatic retries
 
 The SDK automatically retries requests that fail with a transient error — a

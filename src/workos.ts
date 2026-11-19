@@ -128,8 +128,20 @@ export class WorkOS {
 
     this.hasApiKey = !!this.key;
 
+    // Same variables and parsing as @workos-inc/authkit-nextjs. Options passed
+    // to the constructor take precedence.
+    if (this.options.apiHostname === undefined) {
+      this.options.apiHostname = getEnv('WORKOS_API_HOSTNAME');
+    }
+
     if (this.options.https === undefined) {
-      this.options.https = true;
+      const https = getEnv('WORKOS_API_HTTPS');
+      this.options.https = https ? https === 'true' : true;
+    }
+
+    if (this.options.port === undefined) {
+      const port = getEnv('WORKOS_API_PORT');
+      this.options.port = port ? parseInt(port, 10) : undefined;
     }
 
     this.clientId = this.options.clientId;
