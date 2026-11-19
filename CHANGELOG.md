@@ -1,5 +1,13 @@
 # Changelog
 
+## [12.4.0](https://github.com/workos/workos-node/compare/v12.3.0...v12.4.0) (2026-11-19)
+
+
+### Features
+
+* **sso:** Add authorizeLogout for RP-initiated Single Logout ([#1769](https://github.com/workos/workos-node/issues/1769)) ([629b3f0](https://github.com/workos/workos-node/commit/629b3f08338d1f9d997aecfc93f79f8772fe53db))
+* **sso:** Add state filter to listConnections ([#1763](https://github.com/workos/workos-node/issues/1763)) ([f85e8be](https://github.com/workos/workos-node/commit/f85e8be8a6bd97bc875a596b19b5c3875f72ed9f))
+
 ## [12.3.0](https://github.com/workos/workos-node/compare/v12.2.0...v12.3.0) (2026-11-13)
 
 
