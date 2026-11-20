@@ -47,6 +47,11 @@ import type {
   TokenExchangeResponse,
   TokenExchangeResponseResponse,
 } from './interfaces/token-exchange.interface';
+import type {
+  ConnectAuthorizationURLOptions,
+  ConnectPKCEAuthorizationURLResult,
+} from './interfaces/connect-authorization-url-options.interface';
+import { toQueryString } from '../common/utils/query-string';
 import { deserializeTokenExchangeResponse } from './serializers/token-exchange-response.serializer';
 // @oagen-ignore-end
 import { deserializeConnectApplication } from './serializers/connect-application.serializer';
@@ -110,6 +115,77 @@ export class Connect {
   }
 
   // @oagen-ignore-start
+  /**
+   * Generate an authorization URL for a Connect Application.
+   *
+   * Points at the environment's `${issuer}/oauth2/authorize` endpoint (AuthKit domain), not the WorkOS API.
+   * Pass `organizationId` to scope the authorization to one organization: the organization picker is skipped,
+   * and a user who isn't an active member is redirected to `redirectUri` with `error=access_denied`.
+   *
+   * Public clients should use `getAuthorizationUrlWithPKCE()` instead.
+   * @param options - Object containing issuer, clientId, redirectUri and optional authorization parameters.
+   * @returns {string} The authorization URL.
+   */
+  getAuthorizationUrl(options: ConnectAuthorizationURLOptions): string {
+    const {
+      issuer,
+      clientId,
+      redirectUri,
+      scope,
+      state,
+      nonce,
+      organizationId,
+      loginHint,
+      prompt,
+      resource,
+      codeChallenge,
+      codeChallengeMethod,
+    } = options;
+
+    const query = toQueryString({
+      client_id: clientId,
+      code_challenge: codeChallenge,
+      code_challenge_method: codeChallengeMethod,
+      login_hint: loginHint,
+      nonce,
+      organization_id: organizationId,
+      prompt,
+      redirect_uri: redirectUri,
+      resource,
+      response_type: 'code',
+      scope,
+      state,
+    });
+
+    return `${issuer.replace(/\/+$/, '')}/oauth2/authorize?${query}`;
+  }
+
+  /**
+   * Generate an authorization URL for a Connect Application with PKCE.
+   *
+   * Generates the code verifier, S256 code challenge and `state`, and returns them with the URL. Store
+   * `codeVerifier` and `state` until the callback.
+   * @param options - Same as `getAuthorizationUrl()`, without the PKCE parameters and `state`.
+   * @returns {Promise<ConnectPKCEAuthorizationURLResult>} The URL, state and code verifier.
+   */
+  async getAuthorizationUrlWithPKCE(
+    options: Omit<
+      ConnectAuthorizationURLOptions,
+      'codeChallenge' | 'codeChallengeMethod' | 'state'
+    >,
+  ): Promise<ConnectPKCEAuthorizationURLResult> {
+    const pkce = await this.workos.pkce.generate();
+    const state = this.workos.pkce.generateCodeVerifier(43);
+    const url = this.getAuthorizationUrl({
+      ...options,
+      state,
+      codeChallenge: pkce.codeChallenge,
+      codeChallengeMethod: 'S256',
+    });
+
+    return { url, state, codeVerifier: pkce.codeVerifier };
+  }
+
   /**
    * Exchange an access token for one issued to another Resource Indicator
    *
