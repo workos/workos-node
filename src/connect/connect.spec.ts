@@ -33,6 +33,56 @@ function expectConnectApplication(result: any) {
 describe('Connect', () => {
   beforeEach(() => fetch.resetMocks());
 
+  describe('getAuthorizationUrl', () => {
+    it('builds the issuer authorize URL with organization_id', () => {
+      const url = workos.connect.getAuthorizationUrl({
+        issuer: 'https://auth.example.com/',
+        clientId: 'client_123',
+        redirectUri: 'https://app.example.com/callback',
+        organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        scope: 'openid profile',
+        resource: 'https://mcp.example.com',
+        state: 'abc',
+      });
+
+      const parsed = new URL(url);
+      expect(parsed.origin + parsed.pathname).toBe(
+        'https://auth.example.com/oauth2/authorize',
+      );
+      expect(Object.fromEntries(parsed.searchParams)).toEqual({
+        client_id: 'client_123',
+        organization_id: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        redirect_uri: 'https://app.example.com/callback',
+        resource: 'https://mcp.example.com',
+        response_type: 'code',
+        scope: 'openid profile',
+        state: 'abc',
+      });
+    });
+  });
+
+  describe('getAuthorizationUrlWithPKCE', () => {
+    it('adds an S256 challenge for the returned code verifier', async () => {
+      const { url, state, codeVerifier } =
+        await workos.connect.getAuthorizationUrlWithPKCE({
+          issuer: 'https://auth.example.com',
+          clientId: 'client_123',
+          redirectUri: 'myapp://callback',
+          organizationId: 'org_01EHZNVPK3SFK441A1RGBFSHRT',
+        });
+
+      const params = new URL(url).searchParams;
+      expect(params.get('state')).toBe(state);
+      expect(params.get('code_challenge_method')).toBe('S256');
+      expect(params.get('code_challenge')).toBe(
+        await workos.pkce.generateCodeChallenge(codeVerifier),
+      );
+      expect(params.get('organization_id')).toBe(
+        'org_01EHZNVPK3SFK441A1RGBFSHRT',
+      );
+    });
+  });
+
   describe('exchangeToken', () => {
     it('posts an RFC 8693 token exchange to the issuer and deserializes the response', async () => {
       fetchOnce({
