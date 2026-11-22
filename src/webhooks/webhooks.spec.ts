@@ -447,6 +447,29 @@ describe('Webhook signatures', () => {
 
       expect(webhook.id).toEqual('wh_123');
     });
+
+    it.each([
+      ['null', 'null'],
+      ['array', '[]'],
+      ['number', '42'],
+      ['missing id', JSON.stringify({ event: 'user.created', data: {} })],
+      ['missing event', JSON.stringify({ id: 'wh_1', data: {} })],
+      [
+        'non-object data',
+        JSON.stringify({ id: 'wh_1', event: 'user.created', data: null }),
+      ],
+    ])('rejects invalid verified JSON shape (%s)', async (_label, rawBody) => {
+      const hash = signRaw(rawBody, timestamp, secret);
+      const sigHeader = `t=${timestamp}, v1=${hash}`;
+
+      await expect(
+        workos.webhooks.constructEvent({
+          payload: rawBody,
+          sigHeader,
+          secret,
+        }),
+      ).rejects.toThrow(/Webhook payload must/);
+    });
   });
 });
 // @oagen-ignore-end
