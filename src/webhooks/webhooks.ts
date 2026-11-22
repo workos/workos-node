@@ -177,10 +177,30 @@ export class Webhooks {
   // Parse only after verification succeeds — a malformed body never reaches
   // JSON.parse on an unauthenticated request.
   private parseVerifiedPayload(payload: WebhookPayload): EventResponse {
-    if (typeof payload === 'object' && !isBinaryPayload(payload)) {
-      return payload as unknown as EventResponse;
+    const parsed: unknown =
+      typeof payload === 'object' && !isBinaryPayload(payload)
+        ? payload
+        : JSON.parse(decodePayloadToString(payload));
+    if (
+      typeof parsed !== 'object' ||
+      parsed === null ||
+      Array.isArray(parsed)
+    ) {
+      throw new Error('Webhook payload must be a JSON object');
     }
-    return JSON.parse(decodePayloadToString(payload)) as EventResponse;
+    const record = parsed as Record<string, unknown>;
+    if (
+      typeof record.id !== 'string' ||
+      typeof record.event !== 'string' ||
+      typeof record.data !== 'object' ||
+      record.data === null ||
+      Array.isArray(record.data)
+    ) {
+      throw new Error(
+        'Webhook payload must include string id, string event, and object data',
+      );
+    }
+    return parsed as unknown as EventResponse;
   }
   // @oagen-ignore-end
 }
