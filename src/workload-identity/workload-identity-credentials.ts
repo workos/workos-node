@@ -20,6 +20,7 @@ import {
   ENVIRONMENT_ID_HEADER,
   EXCHANGE_DEADLINE_MS,
   JWT_BEARER_GRANT_TYPE,
+  REDACTED_ASSERTION,
   REFRESH_THRESHOLD_LIFETIME_FRACTION,
   REFRESH_THRESHOLD_MAX_MS,
 } from './constants';
@@ -393,7 +394,9 @@ export class WorkloadIdentityCredentials implements Credentials {
       }
 
       const { status, body } = result;
-      const oauthError = readOAuthError(body);
+      // Read with the assertion this attempt sent, so that a server that
+      // repeats it back cannot put it in an error.
+      const oauthError = readOAuthError(body, assertion);
 
       // The status is checked before the body: a 429 or 5xx is retried even
       // when it carries an OAuth error.
@@ -621,18 +624,35 @@ async function readJson(
   }
 }
 
+/**
+ * The OAuth error in a token endpoint response, if it has one. The server's
+ * two strings are the only text of its own that the SDK keeps, so the
+ * assertion is taken out of both here, before either reaches an error.
+ */
 function readOAuthError(
   body: unknown,
+  assertion: string,
 ): { code: string; description: string } | undefined {
   if (!isRecord(body) || typeof body.error !== 'string' || !body.error) {
     return undefined;
   }
 
   return {
-    code: body.error,
+    code: withoutAssertion(body.error, assertion),
     description:
-      typeof body.error_description === 'string' ? body.error_description : '',
+      typeof body.error_description === 'string'
+        ? withoutAssertion(body.error_description, assertion)
+        : '',
   };
+}
+
+/**
+ * Replaces every occurrence of the assertion in text the token endpoint
+ * sent. A token endpoint may repeat the assertion it was given, and an error
+ * must never contain it.
+ */
+function withoutAssertion(text: string, assertion: string): string {
+  return assertion ? text.split(assertion).join(REDACTED_ASSERTION) : text;
 }
 
 function readTokenResponse(body: unknown): TokenResponse {

@@ -58,7 +58,9 @@ const UNKNOWN_CODE_HINT = 'The token endpoint rejected the exchange.';
  * failing identity token provider, or incomplete configuration.
  *
  * The message is `<code>: <hint>`, followed by the description when there is
- * one. It never contains the identity token or the access token.
+ * one. It never contains the identity token or the access token: where the
+ * token endpoint repeats the identity token in its error, the code and the
+ * description have `[redacted]` in its place.
  */
 export class WorkloadIdentityError extends Error {
   readonly name = 'WorkloadIdentityError';

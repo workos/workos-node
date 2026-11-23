@@ -26,3 +26,9 @@ export const EXCHANGE_DEADLINE_MS = 30_000;
 
 /** The server's `error_description` is cut to this many characters. */
 export const ERROR_DESCRIPTION_LIMIT = 500;
+
+/**
+ * Stands in for the assertion wherever the token endpoint repeats it in its
+ * `error` or `error_description`.
+ */
+export const REDACTED_ASSERTION = '[redacted]';

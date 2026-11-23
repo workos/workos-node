@@ -812,12 +812,42 @@ describe('workload identity', () => {
           .catch((e) => e),
       );
 
+      // A token endpoint that repeats the assertion in a terminal error.
+      tokenEndpoint = () =>
+        oauthError('invalid_grant', `JWT ${ASSERTION} failed validation`);
+      const repeated = await setup({ identityTokenProvider: secretProvider })
+        .workos.get('/organizations')
+        .catch((e) => e);
+      errors.push(repeated);
+
+      // And one that repeats it with a 503 until the retries run out.
+      tokenEndpoint = () => ({
+        ...oauthError('invalid_grant', `JWT ${ASSERTION} failed validation`),
+        status: 503,
+      });
+      const repeatedUntilRetriesRanOut = await setup({
+        identityTokenProvider: secretProvider,
+      })
+        .workos.get('/organizations')
+        .catch((e) => e);
+      errors.push(repeatedUntilRetriesRanOut);
+
       expect(errors.map((error) => (error as Error).name)).toEqual([
         'WorkloadIdentityError',
         'WorkloadIdentityError',
         'WorkloadIdentityError',
         'UnauthorizedException',
+        'WorkloadIdentityError',
+        'WorkloadIdentityError',
       ]);
+      // The server's text is kept, with the assertion replaced.
+      for (const error of [repeated, repeatedUntilRetriesRanOut]) {
+        expect(error.code).toBe('invalid_grant');
+        expect(error.description).toBe('JWT [redacted] failed validation');
+        expect(error.message).toBe(
+          `invalid_grant: ${error.hint} JWT [redacted] failed validation`,
+        );
+      }
       // Both secrets did reach the mocks, so their absence below means
       // something.
       expect(exchanges.some((e) => e.body.includes(ASSERTION))).toBe(true);
@@ -836,6 +866,62 @@ describe('workload identity', () => {
 
       expect(seen).not.toContain(ASSERTION);
       expect(seen).not.toContain(ACCESS_TOKEN);
+    });
+
+    it('WIF: the assertion each attempt sent is replaced in the error code and description, before the description is cut', async () => {
+      // A new assertion on every attempt, and a token endpoint that repeats
+      // whichever one it was sent.
+      let calls = 0;
+      const identityTokenProvider = async () => `SECRET-ASSERTION-${++calls}`;
+      const repeatsAssertion =
+        (status: number, text: (assertion: string) => string): Responder =>
+        (_count, request) => ({
+          status,
+          json: {
+            error: `rejected ${form(request).assertion}`,
+            error_description: text(form(request).assertion),
+          },
+        });
+      const everything = (error: unknown) =>
+        [
+          String(error),
+          (error as Error).stack,
+          inspect(error, { depth: null, showHidden: true }),
+          JSON.stringify(error, Object.getOwnPropertyNames(error as object)),
+        ].join('\n');
+
+      // Retried until the retries run out: the error kept is from the last
+      // attempt, whose assertion is not the first one.
+      tokenEndpoint = repeatsAssertion(
+        503,
+        (assertion) => `JWT ${assertion} failed, and so did ${assertion}`,
+      );
+      const retried = await setup({ identityTokenProvider })
+        .workos.get('/organizations')
+        .catch((e) => e);
+
+      expect(exchanges.length).toBeGreaterThan(1);
+      expect(form(exchanges[exchanges.length - 1]).assertion).toBe(
+        `SECRET-ASSERTION-${exchanges.length}`,
+      );
+      expect(retried.code).toBe('rejected [redacted]');
+      expect(retried.description).toBe(
+        'JWT [redacted] failed, and so did [redacted]',
+      );
+      expect(everything(retried)).not.toContain('SECRET-ASSERTION');
+
+      // Replaced first and cut second: an assertion that straddles the limit
+      // leaves no part of itself behind.
+      tokenEndpoint = repeatsAssertion(
+        400,
+        (assertion) => `${'x'.repeat(495)}${assertion}`,
+      );
+      const cut = await setup({ identityTokenProvider })
+        .workos.get('/organizations')
+        .catch((e) => e);
+
+      expect(cut.description).toBe(`${'x'.repeat(495)}[reda`);
+      expect(everything(cut)).not.toContain('SECRET');
     });
   });
 

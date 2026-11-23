@@ -197,7 +197,7 @@ WorkOS accepts an identity token for one exchange. The SDK makes a new exchange 
 
 ### Errors
 
-A failed exchange throws a `WorkloadIdentityError`. Its `code` is the OAuth error code from the token endpoint (for example `invalid_grant`) or an SDK code (`exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`), `description` is the server's explanation, and `hint` says what to check. The exchange is retried on network failures, 429 and 5xx responses. An API request that gets a 401 is retried once with a new token.
+A failed exchange throws a `WorkloadIdentityError`. Its `code` is the OAuth error code from the token endpoint (for example `invalid_grant`) or an SDK code (`exchange_failed`, `invalid_response`, `provider_failed`, `invalid_configuration`), `description` is the server's explanation, and `hint` says what to check. The error never contains the identity token: if the token endpoint repeats it, the SDK puts `[redacted]` in its place. The exchange is retried on network failures, 429 and 5xx responses. An API request that gets a 401 is retried once with a new token.
 
 ## Public Client Mode (Browser/Mobile/CLI)
 
