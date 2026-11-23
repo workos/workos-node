@@ -227,20 +227,38 @@ export class CookieSession {
   /**
    * Gets the URL to redirect the user to for logging out.
    *
+   * Works for sessions whose access token has expired. The sealed cookie is
+   * already authenticated by its encryption, so the session ID is read from
+   * the access token without verifying it.
+   *
    * @returns The URL to redirect the user to for logging out.
    */
   async getLogoutUrl({
     returnTo,
   }: { returnTo?: string } = {}): Promise<string> {
-    const authenticationResponse = await this.authenticate();
-
-    if (!authenticationResponse.authenticated) {
-      const { reason } = authenticationResponse;
-      throw new Error(`Failed to extract session ID for logout URL: ${reason}`);
+    if (!this.sessionData) {
+      throw new Error(
+        `Failed to extract session ID for logout URL: ${AuthenticateWithSessionCookieFailureReason.NO_SESSION_COOKIE_PROVIDED}`,
+      );
     }
 
+    const { accessToken } = await unsealData<SealedSessionCookieData>(
+      this.sessionData,
+      { password: this.cookiePassword },
+    );
+
+    if (!accessToken) {
+      throw new Error(
+        `Failed to extract session ID for logout URL: ${AuthenticateWithSessionCookieFailureReason.INVALID_SESSION_COOKIE}`,
+      );
+    }
+
+    const { decodeJwt } = await getJose();
+    const { sid: sessionId } =
+      decodeJwt<UserManagementAccessToken>(accessToken);
+
     return this.userManagement.getLogoutUrl({
-      sessionId: authenticationResponse.sessionId,
+      sessionId,
       returnTo,
     });
   }

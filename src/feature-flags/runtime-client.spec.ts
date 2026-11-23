@@ -148,6 +148,53 @@ describe('FeatureFlagsRuntimeClient', () => {
       // Only the initial poll should have happened
       expect(fetch.mock.calls.length).toBe(1);
     });
+
+    it('aborts the in-flight poll request', async () => {
+      fetch.mockResponseOnce(() => new Promise(() => {}));
+      const client = workos.featureFlags.createRuntimeClient();
+      await jest.advanceTimersByTimeAsync(0);
+      const signal = fetch.mock.calls[0][1]?.signal;
+      expect(signal?.aborted).toBe(false);
+
+      client.close();
+
+      expect(signal?.aborted).toBe(true);
+    });
+  });
+
+  describe('requestTimeoutMs', () => {
+    it('emits a timeout error when a poll takes too long', async () => {
+      fetch.mockResponseOnce(() => new Promise(() => {}));
+      const client = workos.featureFlags.createRuntimeClient({
+        requestTimeoutMs: 50,
+      });
+      const errors: Error[] = [];
+      client.on('error', (err) => errors.push(err));
+
+      await jest.advanceTimersByTimeAsync(50);
+
+      expect(errors).toHaveLength(1);
+      expect(errors[0].message).toBe('Request timed out');
+
+      client.close();
+    });
+
+    it('aborts the request of a poll that takes too long', async () => {
+      fetch.mockResponseOnce(() => new Promise(() => {}));
+      const client = workos.featureFlags.createRuntimeClient({
+        requestTimeoutMs: 50,
+      });
+      client.on('error', () => {});
+
+      await jest.advanceTimersByTimeAsync(49);
+      const signal = fetch.mock.calls[0][1]?.signal;
+      expect(signal?.aborted).toBe(false);
+
+      await jest.advanceTimersByTimeAsync(1);
+      expect(signal?.aborted).toBe(true);
+
+      client.close();
+    });
   });
 
   describe('isEnabled', () => {

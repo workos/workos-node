@@ -10,7 +10,9 @@ export class AdminPortal {
    * Generate a Portal Link
    *
    * Generate a Portal Link scoped to an Organization.
-   * @param payload - Object containing organization.
+   * @param payload - Object containing organization. Pass `externalUserId`
+   * for every admin you may later need to deprovision; only links generated
+   * with one can be revoked via `revokeLink`.
    * @returns {Promise<{ link: string; }>}
    * @throws {BadRequestException} 400
    * @throws 403 response from the API.
@@ -24,6 +26,7 @@ export class AdminPortal {
     successUrl,
     intentOptions,
     itContactEmails,
+    externalUserId,
   }: {
     intent?: GenerateLinkIntent;
     organization: string;
@@ -36,6 +39,7 @@ export class AdminPortal {
       };
     };
     itContactEmails?: string[];
+    externalUserId?: string;
   }): Promise<{ link: string }> {
     const { data } = await this.workos.post('/portal/generate_link', {
       intent,
@@ -51,8 +55,36 @@ export class AdminPortal {
           }
         : undefined,
       it_contact_emails: itContactEmails,
+      external_user_id: externalUserId,
     });
 
     return data;
+  }
+
+  /**
+   * Revoke Portal Links
+   *
+   * Revokes every Portal Link generated for the given organization with the
+   * given `externalUserId`, and immediately ends any Admin Portal sessions that
+   * were started from those links. Use this when an admin is deprovisioned from
+   * your application: unopened links stop working, and their already-open
+   * portal sessions are ended. Only links that were generated with an
+   * `externalUserId` can be revoked, so pass one to `generateLink` for every
+   * admin you may later need to deprovision.
+   * @param payload - Object containing organization and externalUserId.
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async revokeLink({
+    organization,
+    externalUserId,
+  }: {
+    organization: string;
+    externalUserId: string;
+  }): Promise<void> {
+    await this.workos.post('/portal/revoke_link', {
+      organization,
+      external_user_id: externalUserId,
+    });
   }
 }

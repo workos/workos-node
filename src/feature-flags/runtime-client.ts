@@ -233,38 +233,29 @@ export class FeatureFlagsRuntimeClient extends EventEmitter<RuntimeClientEvents>
     this.pollAbortController = new AbortController();
     const { signal } = this.pollAbortController;
 
-    let timeoutId: ReturnType<typeof setTimeout>;
+    const timeoutId = setTimeout(() => {
+      this.pollAbortController?.abort(new Error('Request timed out'));
+    }, this.requestTimeoutMs);
 
     const fetchPromise = this.workos
-      .get<unknown>('/sdk/feature-flags?payload_version=2')
+      .get<unknown>('/sdk/feature-flags?payload_version=2', { signal })
       .then(({ data }) => data);
 
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        this.pollAbortController?.abort();
-        reject(new Error('Request timed out'));
-      }, this.requestTimeoutMs);
-    });
-
+    // Settles the poll as soon as it is aborted, even while the HTTP client
+    // is between retries.
     const abortPromise = new Promise<never>((_, reject) => {
       if (signal.aborted) {
-        reject(new Error('Poll aborted'));
+        reject(signal.reason);
         return;
       }
-      signal.addEventListener(
-        'abort',
-        () => reject(new Error('Poll aborted')),
-        {
-          once: true,
-        },
-      );
+      signal.addEventListener('abort', () => reject(signal.reason), {
+        once: true,
+      });
     });
 
-    return Promise.race([fetchPromise, timeoutPromise, abortPromise]).finally(
-      () => {
-        clearTimeout(timeoutId);
-      },
-    );
+    return Promise.race([fetchPromise, abortPromise]).finally(() => {
+      clearTimeout(timeoutId);
+    });
   }
 
   private scheduleNextPoll(): void {

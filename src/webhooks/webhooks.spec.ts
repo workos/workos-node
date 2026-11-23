@@ -17,6 +17,11 @@ import mockWebhook from './fixtures/webhook.json';
 import { SignatureVerificationException } from '../common/exceptions';
 
 // @oagen-ignore-start
+import type {
+  OrganizationMembership,
+  OrganizationMembershipResponse,
+} from '../user-management/interfaces';
+
 describe('Webhook signatures', () => {
   let payload: any;
   let secret: string;
@@ -84,6 +89,65 @@ describe('Webhook signatures', () => {
   });
 
   describe('constructEvent', () => {
+    describe.each([
+      'organization_membership.created',
+      'organization_membership.updated',
+      'organization_membership.deleted',
+    ])('%s', (event) => {
+      it.each([undefined, 'Example Organization'])(
+        'accepts an organization name of %s',
+        async (organizationName) => {
+          const membership: OrganizationMembershipResponse = {
+            object: 'organization_membership',
+            id: 'om_123',
+            organization_id: 'org_123',
+            user_id: 'user_123',
+            status: 'active',
+            role: { slug: 'member' },
+            created_at: '2023-11-16T21:32:25.235Z',
+            updated_at: '2023-11-16T21:32:25.235Z',
+            ...(organizationName && { organization_name: organizationName }),
+          };
+          const expected: OrganizationMembership = {
+            object: 'organization_membership',
+            id: 'om_123',
+            organizationId: 'org_123',
+            userId: 'user_123',
+            status: 'active',
+            role: { slug: 'member' },
+            directoryManaged: false,
+            customAttributes: {},
+            createdAt: new Date(membership.created_at),
+            updatedAt: new Date(membership.updated_at),
+            ...(organizationName && { organizationName }),
+          };
+          const rawBody = JSON.stringify({
+            id: 'event_123',
+            event,
+            data: membership,
+            created_at: membership.created_at,
+          });
+          const hash = crypto
+            .createHmac('sha256', secret)
+            .update(`${timestamp}.${rawBody}`)
+            .digest('hex');
+
+          const webhook = await workos.webhooks.constructEvent({
+            payload: rawBody,
+            sigHeader: `t=${timestamp}, v1=${hash}`,
+            secret,
+          });
+
+          expect(webhook.event).toBe(event);
+          expect(webhook.data).toEqual(expected);
+          expect(webhook.data).toHaveProperty(
+            'organizationName',
+            organizationName,
+          );
+        },
+      );
+    });
+
     describe('with the correct payload, sig_header, and secret', () => {
       it('returns a webhook event', async () => {
         const sigHeader = `t=${timestamp}, v1=${signatureHash}`;

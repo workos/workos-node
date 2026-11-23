@@ -6,18 +6,22 @@ export * from './directory-metadata-user.interface';
 export * from './directory-metadata.interface';
 export * from './directory-state.interface';
 export * from './directory-sync-get-group-options.interface';
+export * from './directory-token.interface';
 export * from './directory-type.interface';
 export * from './directory-user-with-groups-email.interface';
 export * from './directory-user-with-groups-state.interface';
 export * from './directory-user.interface';
 export * from './directory.interface';
 export * from './event-directory.interface';
-export * from './directory-token.interface';
+export * from './get-directory-group-options.interface';
 export * from './get-directory-options.interface';
+export * from './get-directory-user-options.interface';
 export * from './get-user-options.interface';
 export * from './list-directories-options.interface';
 export * from './list-directory-users-options.interface';
+export * from './list-groups-in-directory-options.interface';
 export * from './list-groups-options.interface';
+export * from './list-users-in-directory-options.interface';
 export * from './slim-role.interface';
 export type {
   DefaultCustomAttributes,

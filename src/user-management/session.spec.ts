@@ -820,8 +820,6 @@ describe('Session', () => {
 
   describe('getLogoutUrl', () => {
     it('returns a logout URL for the user', async () => {
-      jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
-
       const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
       const sessionData = await sealData(
@@ -850,6 +848,43 @@ describe('Session', () => {
       );
     });
 
+    it('returns a logout URL when the access token has expired', async () => {
+      jest
+        .mocked(jose.jwtVerify)
+        .mockRejectedValue(
+          new jose.errors.JWTExpired('"exp" claim timestamp check failed', {}),
+        );
+
+      const cookiePassword = 'alongcookiesecretmadefortestingsessions';
+
+      const sessionData = await sealData(
+        {
+          accessToken:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.ewogICJzdWIiOiAiMTIzNDU2Nzg5MCIsCiAgIm5hbWUiOiAiSm9obiBEb2UiLAogICJpYXQiOiAxNTE2MjM5MDIyLAogICJzaWQiOiAic2Vzc2lvbl8xMjMiLAogICJvcmdfaWQiOiAib3JnXzEyMyIsCiAgInJvbGUiOiAibWVtYmVyIiwKICAicGVybWlzc2lvbnMiOiBbInBvc3RzOmNyZWF0ZSIsICJwb3N0czpkZWxldGUiXQp9.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+          refreshToken: 'def456',
+          user: {
+            object: 'user',
+            id: 'user_01H5JQDV7R7ATEYZDEG0W5PRYS',
+            email: 'test01@example.com',
+          },
+        },
+        { password: cookiePassword },
+      );
+
+      const session = workos.userManagement.loadSealedSession({
+        sessionData,
+        cookiePassword,
+      });
+
+      await expect(session.authenticate()).resolves.toEqual({
+        authenticated: false,
+        reason: 'invalid_jwt',
+      });
+      await expect(session.getLogoutUrl()).resolves.toEqual(
+        'https://api.workos.com/user_management/sessions/logout?session_id=session_123',
+      );
+    });
+
     it('returns an error if the session is invalid', async () => {
       const session = workos.userManagement.loadSealedSession({
         sessionData: '',
@@ -861,10 +896,24 @@ describe('Session', () => {
       );
     });
 
+    it('returns an error if the session cookie cannot be unsealed', async () => {
+      const sessionData = await sealData(
+        { accessToken: 'abc123', refreshToken: 'def456' },
+        { password: 'alongcookiesecretmadefortestingsessions' },
+      );
+
+      const session = workos.userManagement.loadSealedSession({
+        sessionData,
+        cookiePassword: 'adifferentcookiesecretmadefortestingsessions',
+      });
+
+      await expect(session.getLogoutUrl()).rejects.toThrow(
+        'Failed to extract session ID for logout URL: invalid_session_cookie',
+      );
+    });
+
     describe('when a returnTo URL is provided', () => {
       it('returns a logout URL for the user', async () => {
-        jest.mocked(jose.jwtVerify).mockResolvedValue(verifiedUserAccessToken);
-
         const cookiePassword = 'alongcookiesecretmadefortestingsessions';
 
         const sessionData = await sealData(

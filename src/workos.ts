@@ -235,7 +235,7 @@ export class WorkOS {
         maxRetries: options.maxRetries,
         headers,
       },
-      undefined,
+      options.fetchFn,
       { credentials: this.requestCredentials },
     ) as HttpClient;
   }
@@ -315,8 +315,10 @@ export class WorkOS {
         params: options.query,
         headers: requestHeaders,
         maxRetries: options.maxRetries,
+        signal: options.signal,
       });
     } catch (error) {
+      options.signal?.throwIfAborted();
       this.handleHttpError({ path, error });
 
       throw error;

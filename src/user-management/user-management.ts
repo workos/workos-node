@@ -3,7 +3,7 @@ import {
   deserializeSessionCookieData,
   SealedSessionCookieData,
 } from './serializers/session-cookie-data.serializer';
-import { List, ListResponse } from '../common/interfaces';
+import { List, ListResponse, PaginationOptions } from '../common/interfaces';
 import { deserializeList } from '../common/serializers';
 import { fetchAndDeserialize } from '../common/utils/fetch-and-deserialize';
 import { AutoPaginatable } from '../common/utils/pagination';
@@ -20,6 +20,8 @@ import {
   AuthenticateWithTotpOptions,
   AuthenticationResponse,
   AuthenticationResponseResponse,
+  AuthorizedConnectApplication,
+  AuthorizedConnectApplicationResponse,
   CreateMagicAuthOptions,
   CreateMagicAuthResponse,
   CreateMagicAuthResponseResponse,
@@ -152,6 +154,7 @@ import {
 } from './interfaces/update-organization-membership-options.interface';
 import {
   deserializeAuthenticationResponse,
+  deserializeAuthorizedConnectApplication,
   deserializeEmailVerification,
   deserializeMagicAuth,
   deserializePasswordReset,
@@ -1152,6 +1155,54 @@ export class UserManagement {
           params,
         ),
       options ? serializeListSessionsOptions(options) : undefined,
+    );
+  }
+
+  /**
+   * List authorized applications
+   *
+   * Get a list of Connect applications that the user has authorized.
+   * @param userId - The ID of the user.
+   * @param options - Pagination options.
+   * @returns {Promise<AutoPaginatable<AuthorizedConnectApplication>>}
+   * @throws {NotFoundException} 404
+   * @throws {UnprocessableEntityException} 422
+   */
+  async listAuthorizedApplications(
+    userId: string,
+    options?: PaginationOptions,
+  ): Promise<AutoPaginatable<AuthorizedConnectApplication>> {
+    const path = `/user_management/users/${encodePathParameter(userId)}/authorized_applications`;
+
+    return new AutoPaginatable(
+      await fetchAndDeserialize<
+        AuthorizedConnectApplicationResponse,
+        AuthorizedConnectApplication
+      >(this.workos, path, deserializeAuthorizedConnectApplication, options),
+      (params) =>
+        fetchAndDeserialize<
+          AuthorizedConnectApplicationResponse,
+          AuthorizedConnectApplication
+        >(this.workos, path, deserializeAuthorizedConnectApplication, params),
+      options,
+    );
+  }
+
+  /**
+   * Delete an authorized application
+   *
+   * Removes a user's authorization without deleting the Connect application.
+   * @param userId - The ID of the user.
+   * @param applicationId - The ID or client ID of the application.
+   * @returns {Promise<void>}
+   * @throws {NotFoundException} 404
+   */
+  async deleteAuthorizedApplication(
+    userId: string,
+    applicationId: string,
+  ): Promise<void> {
+    await this.workos.delete(
+      `/user_management/users/${encodePathParameter(userId)}/authorized_applications/${encodePathParameter(applicationId)}`,
     );
   }
 

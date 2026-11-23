@@ -503,16 +503,11 @@ export class WorkloadIdentityCredentials implements Credentials {
    * no API key and no `Authorization` header.
    */
   private createExchangeClient(timeout: number): FetchHttpClient {
-    return new FetchHttpClient(
-      this.tokenUrl.origin,
-      {
-        timeout,
-        maxRetries: 0,
-        headers: { 'User-Agent': `workos-node/${VERSION}` },
-      },
-      undefined,
-      { redirect: 'manual' },
-    );
+    return new FetchHttpClient(this.tokenUrl.origin, {
+      timeout,
+      maxRetries: 0,
+      headers: { 'User-Agent': `workos-node/${VERSION}` },
+    });
   }
 }
 

@@ -666,6 +666,33 @@ describe('SSO', () => {
       });
     });
 
+    describe('authorizeLogout', () => {
+      it('requests a logout token for the profile', async () => {
+        fetchOnce({
+          logout_token: 'logout_token_123',
+          logout_url:
+            'https://auth.workos.com/sso/logout?token=logout_token_123',
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+        const logout = await workos.sso.authorizeLogout({
+          profileId: 'prof_123',
+        });
+
+        expect(fetchURL()).toContain('/sso/logout/authorize');
+        expect(fetchMethod()).toBe('POST');
+        expect(fetchBody()).toEqual({ profile_id: 'prof_123' });
+        expect(fetchHeaders()).toMatchObject({
+          Authorization: 'Bearer sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU',
+        });
+        expect(logout).toEqual({
+          logoutToken: 'logout_token_123',
+          logoutUrl:
+            'https://auth.workos.com/sso/logout?token=logout_token_123',
+        });
+      });
+    });
+
     describe('getProfile', () => {
       it('calls the `/sso/profile` endpoint with the provided access token', async () => {
         fetchOnce({
@@ -786,6 +813,19 @@ describe('SSO', () => {
         expect(fetchURL()).toContain('/connections');
 
         expect(subject.data).toHaveLength(1);
+      });
+
+      it('filters Connections by state', async () => {
+        fetchOnce({
+          data: [connectionResponse],
+          list_metadata: {},
+        });
+
+        const workos = new WorkOS('sk_test_Sz3IQjepeSWaI4cMS4ms4sMuU');
+
+        await workos.sso.listConnections({ state: 'active' });
+
+        expect(fetchSearchParams()).toMatchObject({ state: 'active' });
       });
     });
   });

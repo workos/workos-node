@@ -262,6 +262,23 @@ describe('ApiKeys', () => {
       });
     });
 
+    describe('with an expiresAt option', () => {
+      it('sends the expiration as an ISO string', async () => {
+        fetchOnce(createOrganizationApiKeyFixture, { status: 201 });
+
+        await workos.apiKeys.createOrganizationApiKey({
+          organizationId: 'org_01EHT88Z8J8795GZNQ4ZP1J81T',
+          name: 'New API Key',
+          expiresAt: new Date('2024-07-20T02:07:19.911Z'),
+        });
+
+        expect(fetchBody()).toEqual({
+          name: 'New API Key',
+          expires_at: '2024-07-20T02:07:19.911Z',
+        });
+      });
+    });
+
     describe('with an idempotency key', () => {
       it('includes an idempotency key with request', async () => {
         fetchOnce(createOrganizationApiKeyFixture, { status: 201 });

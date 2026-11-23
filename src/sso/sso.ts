@@ -4,6 +4,9 @@ import { AutoPaginatable } from '../common/utils/pagination';
 import { toQueryString } from '../common/utils/query-string';
 import { WorkOS } from '../workos';
 import {
+  AuthorizeLogout,
+  AuthorizeLogoutOptions,
+  AuthorizeLogoutResponse,
   Connection,
   ConnectionResponse,
   GetProfileAndTokenOptions,
@@ -15,12 +18,15 @@ import {
   ProfileResponse,
   SSOAuthorizationURLOptions,
   SSOPKCEAuthorizationURLResult,
+  SerializedAuthorizeLogoutOptions,
   SerializedListConnectionsOptions,
 } from './interfaces';
 import {
+  deserializeAuthorizeLogout,
   deserializeConnection,
   deserializeProfile,
   deserializeProfileAndToken,
+  serializeAuthorizeLogoutOptions,
   serializeListConnectionsOptions,
 } from './serializers';
 import { encodePathParameter } from '../common/utils/encode-path-parameter';
@@ -293,5 +299,25 @@ export class SSO {
     });
 
     return deserializeProfile(data);
+  }
+
+  /**
+   * Logout Authorize
+   *
+   * Generate a logout token and URL for RP-initiated Single Logout. Redirect the user to `logoutUrl` to sign them out of the identity provider.
+   * @param options - The profile to log out.
+   * @returns {Promise<AuthorizeLogout>}
+   * @throws {BadRequestException} 400
+   * @throws {NotFoundException} 404
+   */
+  async authorizeLogout(
+    options: AuthorizeLogoutOptions,
+  ): Promise<AuthorizeLogout> {
+    const { data } = await this.workos.post<
+      AuthorizeLogoutResponse,
+      SerializedAuthorizeLogoutOptions
+    >('/sso/logout/authorize', serializeAuthorizeLogoutOptions(options));
+
+    return deserializeAuthorizeLogout(data);
   }
 }

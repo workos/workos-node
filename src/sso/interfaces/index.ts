@@ -1,3 +1,4 @@
+export * from './authorize-logout.interface';
 export * from './authorization-url-options.interface';
 export * from './connection-type.enum';
 export * from './connection.interface';

@@ -108,7 +108,7 @@ export class ApiKeys {
    * @example
    * "org_01EHZNVPK3SFK441A1RGBFSHRT"
    *
-   * @param options - Object containing name.
+   * @param options - Object containing name, permissions, and expiresAt.
    * @returns {Promise<ApiKeyWithValue>}
    * @throws {NotFoundException} 404
    * @throws {UnprocessableEntityException} 422

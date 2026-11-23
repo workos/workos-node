@@ -9,5 +9,6 @@
       "provider_type": "GoogleSAML"
     }
   },
-  "it_contact_emails": ["it-contact@example.com"]
+  "it_contact_emails": ["it-contact@example.com"],
+  "external_user_id": "user_12345"
 }

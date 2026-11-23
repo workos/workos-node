@@ -9,6 +9,7 @@ export const serializeListConnectionsOptions = (
   connection_type: options.connectionType,
   domain: options.domain,
   organization_id: options.organizationId,
+  state: options.state,
   limit: options.limit,
   before: options.before,
   after: options.after,
