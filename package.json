@@ -46,6 +46,9 @@
     "lib/",
     "package.json"
   ],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "build": "tsdown",
     "build:watch": "tsdown --watch",

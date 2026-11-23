@@ -1,7 +1,15 @@
+import type { Credentials } from '../net/credentials';
 import { AppInfo } from './app-info.interface';
 
 export interface WorkOSOptions {
   apiKey?: string;
+  /**
+   * Authorizes API requests in place of an API key, for example
+   * `WorkloadIdentityCredentials`. Passing both `apiKey` and `credentials`
+   * is an error. When set, the `WORKOS_API_KEY` environment variable is
+   * ignored.
+   */
+  credentials?: Credentials;
   apiHostname?: string;
   https?: boolean;
   port?: number;

@@ -22,6 +22,7 @@ export * from './admin-portal/interfaces';
 export * from './sso/interfaces';
 export * from './user-management/interfaces';
 export * from './roles/interfaces';
+export * from './workload-identity';
 export * from './pkce/pkce';
 export {
   createWorkOS,
@@ -30,6 +31,7 @@ export {
   type PublicSSO,
   type PublicClientOptions,
   type ConfidentialClientOptions,
+  type CredentialsClientOptions,
 } from './factory';
 
 class WorkOSWorker extends WorkOS {

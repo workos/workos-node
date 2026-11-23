@@ -11,7 +11,8 @@ const ignores = [
   'node_modules',
   'dist',
   'build',
-  'lib',
+  // Build output of the SDK and of every package under packages/.
+  '**/lib',
 ];
 
 const tests = ['**/*.spec.{js,ts}'];

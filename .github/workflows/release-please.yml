@@ -14,8 +14,13 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     outputs:
+      # With more than one package, these two refer to the root package (the SDK) only.
       release_created: ${{ steps.release.outputs.release_created }}
       tag_name: ${{ steps.release.outputs.tag_name }}
+      # One per provider package, keyed by its path in release-please-config.json.
+      github_actions_release_created: ${{ steps.release.outputs['packages/workload-identity-github-actions--release_created'] }}
+      gcp_release_created: ${{ steps.release.outputs['packages/workload-identity-gcp--release_created'] }}
+      aws_release_created: ${{ steps.release.outputs['packages/workload-identity-aws--release_created'] }}
     steps:
       - name: Generate token
         id: generate-token
@@ -25,7 +30,7 @@ jobs:
           private-key: ${{ secrets.SDK_BOT_PRIVATE_KEY }}
           permission-contents: write
           permission-pull-requests: write
-          
+
       - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7  # v5
         id: release
         with:
@@ -35,5 +40,34 @@ jobs:
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created == 'true' }}
     uses: ./.github/workflows/release.yml
+    secrets:
+      PUBLIC_SOCKET_FIREWALL_TOKEN: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
+
+  # The provider packages do not depend on the SDK, so their publish jobs need
+  # no ordering against `publish` or against each other.
+  publish-workload-identity-github-actions:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.github_actions_release_created == 'true' }}
+    uses: ./.github/workflows/release.yml
+    with:
+      package-path: packages/workload-identity-github-actions
+    secrets:
+      PUBLIC_SOCKET_FIREWALL_TOKEN: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
+
+  publish-workload-identity-gcp:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.gcp_release_created == 'true' }}
+    uses: ./.github/workflows/release.yml
+    with:
+      package-path: packages/workload-identity-gcp
+    secrets:
+      PUBLIC_SOCKET_FIREWALL_TOKEN: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
+
+  publish-workload-identity-aws:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.aws_release_created == 'true' }}
+    uses: ./.github/workflows/release.yml
+    with:
+      package-path: packages/workload-identity-aws
     secrets:
       PUBLIC_SOCKET_FIREWALL_TOKEN: ${{ secrets.PUBLIC_SOCKET_FIREWALL_TOKEN }}
