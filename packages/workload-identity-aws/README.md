@@ -28,6 +28,7 @@ const workos = new WorkOS({
 
 - AWS credentials come from the AWS SDK's default chain.
 - `region` is optional when the AWS SDK can resolve one, for example from `AWS_REGION`. The call uses that region's STS endpoint, never the global endpoint.
+- Each call makes one STS request, with a 10-second limit on connecting and on the request. The AWS SDK's own retries are turned off on this client, whatever `AWS_MAX_ATTEMPTS` says, because the WorkOS SDK calls the provider again when it retries the exchange.
 - The AWS account needs outbound identity federation enabled, and the role needs permission for `sts:GetWebIdentityToken`.
 
 The package depends on `@aws-sdk/client-sts` and does not depend on `@workos-inc/node`.

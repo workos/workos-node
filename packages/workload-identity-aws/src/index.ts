@@ -1,9 +1,15 @@
 // @oagen-ignore-file
 import { GetWebIdentityTokenCommand, STSClient } from '@aws-sdk/client-sts';
 
+const REQUEST_TIMEOUT_MS = 10_000;
+
 /**
  * An identity token provider for AWS. Each call asks STS for a signed token
  * (`sts:GetWebIdentityToken`, RS256) that represents the calling role.
+ *
+ * One call is one STS request, with a 10-second limit on connecting and on
+ * the request. The AWS SDK's own retries are off: the WorkOS SDK calls the
+ * provider again when it retries the exchange.
  *
  * AWS credentials come from the AWS SDK's default chain. The account needs
  * outbound identity federation enabled, and the role needs permission for
@@ -35,6 +41,20 @@ export function awsSts(
   const client = new STSClient({
     ...(region && { region }),
     useGlobalEndpoint: false,
+    // One attempt, whatever `AWS_MAX_ATTEMPTS` or the shared config file
+    // says. The AWS SDK would otherwise send up to three requests per call.
+    maxAttempts: 1,
+    // Limits for this client only. Without them the AWS SDK sets none that
+    // would end a request to an STS that stalls.
+    requestHandler: {
+      connectionTimeout: REQUEST_TIMEOUT_MS,
+      // From sending the request until the response headers arrive. It only
+      // logs a warning unless it is told to throw.
+      requestTimeout: REQUEST_TIMEOUT_MS,
+      throwOnRequestTimeout: true,
+      // A response that goes silent after its headers.
+      socketTimeout: REQUEST_TIMEOUT_MS,
+    },
   });
 
   return async () => {
