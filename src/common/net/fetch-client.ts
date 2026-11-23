@@ -13,6 +13,7 @@ import {
   HttpClientResponse,
 } from './http-client';
 import { ParseError } from '../exceptions/parse-error';
+import { StaticKeyCredentials } from './credentials';
 import type { Credentials, CredentialSnapshot } from './credentials';
 
 type FetchHttpClientOptions = HttpClientOptions;
@@ -255,11 +256,14 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
     try {
       // Resolved for every attempt, under the attempt's deadline, so a retry
       // never sends a token that expired while the request was backing off.
+      // Awaited only when there is something to wait for: with an API key, or
+      // with no credentials, the request is sent in the turn it was made.
       const resolving = this.resolveCredentials(
         headers,
         abortController.signal,
       );
-      const snapshot = resolving ? await resolving : undefined;
+      const snapshot =
+        resolving && 'then' in resolving ? await resolving : resolving;
       if (attempt) {
         attempt.snapshot = snapshot;
       }
@@ -532,12 +536,16 @@ export class FetchHttpClient extends HttpClient implements HttpClientInterface {
   private resolveCredentials(
     headers: RequestHeaders | undefined,
     signal: AbortSignal,
-  ): Promise<CredentialSnapshot> | undefined {
+  ): CredentialSnapshot | Promise<CredentialSnapshot> | undefined {
     if (
       !this.credentials ||
       FetchHttpClient.hasHeader(headers, 'Authorization')
     ) {
       return undefined;
+    }
+
+    if (this.credentials instanceof StaticKeyCredentials) {
+      return this.credentials.resolveNow();
     }
 
     return this.credentials.resolve({ signal });

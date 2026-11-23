@@ -54,6 +54,16 @@ export class StaticKeyCredentials implements Credentials {
     return Promise.resolve(this.snapshot);
   }
 
+  /**
+   * The same snapshot without a promise. The HTTP client uses it so that a
+   * request made with an API key is sent in the turn it was made, as it was
+   * before credentials existed: a caller that aborts right after making the
+   * request still finds it in flight.
+   */
+  resolveNow(): CredentialSnapshot {
+    return this.snapshot;
+  }
+
   invalidate(): void {
     // A static key has no newer credential to fetch.
   }
