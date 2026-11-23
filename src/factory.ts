@@ -4,6 +4,7 @@ import type { UserManagement } from './user-management/user-management';
 import type { SSO } from './sso/sso';
 import type { PKCE } from './pkce/pkce';
 import type { WorkOSOptions } from './common/interfaces';
+import type { Credentials } from './common/net/credentials';
 
 /**
  * Method names available without API key - single source of truth.
@@ -61,6 +62,8 @@ export interface PublicClientOptions extends Omit<WorkOSOptions, 'apiKey'> {
   clientId: string;
   /** Discriminant: ensures TypeScript selects PublicWorkOS overload when apiKey is absent */
   apiKey?: never;
+  /** Discriminant: a client with credentials is not a public client */
+  credentials?: never;
 }
 
 /**
@@ -68,6 +71,21 @@ export interface PublicClientOptions extends Omit<WorkOSOptions, 'apiKey'> {
  */
 export interface ConfidentialClientOptions extends WorkOSOptions {
   apiKey: string;
+  /** An API key and credentials together are an error */
+  credentials?: never;
+}
+
+/**
+ * Options for creating a client that authorizes with credentials, such as
+ * `WorkloadIdentityCredentials`, in place of an API key.
+ */
+export interface CredentialsClientOptions extends Omit<
+  WorkOSOptions,
+  'apiKey'
+> {
+  credentials: Credentials;
+  /** An API key and credentials together are an error */
+  apiKey?: never;
 }
 
 /**
@@ -75,10 +93,11 @@ export interface ConfidentialClientOptions extends WorkOSOptions {
  *
  * Returns a narrowed `PublicWorkOS` type when only `clientId` is provided,
  * ensuring compile-time safety for public client usage. Returns the full
- * `WorkOS` type when an API key is provided.
+ * `WorkOS` type when an API key or `credentials` is provided.
  *
  * Unlike the `WorkOS` constructor, this factory does NOT read from
- * environment variables. Pass credentials explicitly for predictable types.
+ * environment variables. Pass the API key or `credentials` explicitly for
+ * predictable types.
  *
  * @example
  * // Public client (browser, mobile, CLI) - returns PublicWorkOS
@@ -93,11 +112,20 @@ export interface ConfidentialClientOptions extends WorkOSOptions {
  *   clientId: 'client_123'
  * });
  * await workos.userManagement.listUsers(); // OK
+ *
+ * @example
+ * // Workload identity (server, no API key) - returns full WorkOS
+ * const workos = createWorkOS({
+ *   credentials: new WorkloadIdentityCredentials({ ... }),
+ * });
+ * await workos.organizations.listOrganizations(); // OK
  */
 export function createWorkOS(options: PublicClientOptions): PublicWorkOS;
 export function createWorkOS(options: ConfidentialClientOptions): WorkOS;
+export function createWorkOS(options: CredentialsClientOptions): WorkOS;
 export function createWorkOS(
-  options: PublicClientOptions | ConfidentialClientOptions,
+  options:
+    PublicClientOptions | ConfidentialClientOptions | CredentialsClientOptions,
 ): PublicWorkOS | WorkOS {
   return new WorkOS(options);
 }

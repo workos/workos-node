@@ -31,6 +31,7 @@ export {
   type PublicSSO,
   type PublicClientOptions,
   type ConfidentialClientOptions,
+  type CredentialsClientOptions,
 } from './factory';
 
 class WorkOSWorker extends WorkOS {

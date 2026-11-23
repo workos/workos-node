@@ -3,9 +3,18 @@ import {
   type PublicUserManagement,
   type PublicSSO,
 } from './factory';
+import { WorkloadIdentityCredentials } from './workload-identity';
+import { WorkOS } from './workos';
 
 describe('createWorkOS', () => {
   const OLD_ENV = process.env;
+
+  const workloadIdentityCredentials = () =>
+    new WorkloadIdentityCredentials({
+      clientId: 'client_wif',
+      tokenUrl: 'https://auth.workos.test/oauth2/token',
+      identityTokenProvider: async () => 'identity-token',
+    });
 
   beforeEach(() => {
     jest.resetModules();
@@ -102,6 +111,39 @@ describe('createWorkOS', () => {
     });
   });
 
+  describe('with credentials (workload identity client)', () => {
+    it('returns a WorkOS instance with credentials and no API key', () => {
+      const credentials = workloadIdentityCredentials();
+      const workos = createWorkOS({ credentials });
+
+      expect(workos.options.credentials).toBe(credentials);
+      expect(workos.key).toBeUndefined();
+      expect(workos.baseURL).toBeDefined();
+    });
+
+    it('keeps the clientId passed next to the credentials', () => {
+      const workos = createWorkOS({
+        clientId: 'client_123',
+        credentials: workloadIdentityCredentials(),
+      });
+
+      expect(workos.clientId).toBe('client_123');
+    });
+
+    it('has access to all services', () => {
+      const workos = createWorkOS({
+        clientId: 'client_123',
+        credentials: workloadIdentityCredentials(),
+      });
+
+      expect(workos.userManagement).toBeDefined();
+      expect(workos.sso).toBeDefined();
+      expect(workos.organizations).toBeDefined();
+      expect(workos.directorySync).toBeDefined();
+      expect(workos.auditLogs).toBeDefined();
+    });
+  });
+
   /**
    * Type-level tests - these verify compile-time behavior.
    * If these compile, the types are working correctly.
@@ -161,6 +203,36 @@ describe('createWorkOS', () => {
       // And full userManagement with all methods
       expect(typeof workos.userManagement.listUsers).toBe('function');
       expect(typeof workos.userManagement.createUser).toBe('function');
+    });
+
+    it('credentials client has full WorkOS type', () => {
+      // Each assignment compiles only when the factory returns the full
+      // WorkOS type, with or without a clientId next to the credentials.
+      const withCredentials: WorkOS = createWorkOS({
+        credentials: workloadIdentityCredentials(),
+      });
+      const withClientId: WorkOS = createWorkOS({
+        clientId: 'client_123',
+        credentials: workloadIdentityCredentials(),
+      });
+
+      for (const workos of [withCredentials, withClientId]) {
+        expect(workos.organizations).toBeDefined();
+        expect(workos.directorySync).toBeDefined();
+        expect(typeof workos.userManagement.listUsers).toBe('function');
+      }
+    });
+
+    it('does not accept an API key together with credentials', () => {
+      const options = {
+        apiKey: 'sk_test_123',
+        credentials: workloadIdentityCredentials(),
+      };
+
+      // @ts-expect-error - an API key with credentials matches no overload
+      expect(() => createWorkOS(options)).toThrow(
+        'WorkOS accepts an API key or credentials, not both',
+      );
     });
 
     it('PublicWorkOS does not expose confidential methods', () => {
