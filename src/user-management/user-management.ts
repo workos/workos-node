@@ -229,6 +229,19 @@ export class UserManagement {
     }
     return resolved;
   }
+
+  /**
+   * Called first by every method that sends the API key as the client secret.
+   * A client built with credentials has no API key to send, so the method
+   * throws before any request is made.
+   * @throws ApiKeyRequiredException when the client was built with credentials
+   */
+  private requireApiKeyAsClientSecret(methodName: string): void {
+    this.workos.requireApiKeyAsClientSecret(
+      methodName,
+      '/user_management/authenticate',
+    );
+  }
   // @oagen-ignore-end
 
   // @oagen-ignore-start
@@ -360,6 +373,8 @@ export class UserManagement {
   async authenticateWithMagicAuth(
     payload: AuthenticateWithMagicAuthOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithMagicAuth');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -385,6 +400,8 @@ export class UserManagement {
   async authenticateWithPassword(
     payload: AuthenticateWithPasswordOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithPassword');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -417,11 +434,17 @@ export class UserManagement {
    * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
    * in depth and provides additional CSRF protection on the authorization flow.
    *
+   * A client built with credentials has no API key and is not a public client,
+   * so this method throws on it whether or not a codeVerifier is given.
+   *
    * @throws Error if neither codeVerifier nor API key is available
+   * @throws ApiKeyRequiredException if the client was built with credentials
    */
   async authenticateWithCode(
     payload: AuthenticateWithCodeOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithCode');
+
     const { session, clientId, codeVerifier, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -502,10 +525,17 @@ export class UserManagement {
    * Refresh an access token using a refresh token.
    * Automatically detects public client mode - if no API key is configured,
    * omits client_secret from the request.
+   *
+   * A client built with credentials has no API key and is not a public client,
+   * so this method throws on it.
+   *
+   * @throws ApiKeyRequiredException if the client was built with credentials
    */
   async authenticateWithRefreshToken(
     payload: AuthenticateWithRefreshTokenOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithRefreshToken');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
     const isPublicClient = !this.workos.key;
@@ -539,6 +569,8 @@ export class UserManagement {
   async authenticateWithTotp(
     payload: AuthenticateWithTotpOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithTotp');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -564,6 +596,8 @@ export class UserManagement {
   async authenticateWithEmailVerification(
     payload: AuthenticateWithEmailVerificationOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithEmailVerification');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -589,6 +623,8 @@ export class UserManagement {
   async authenticateWithOrganizationSelection(
     payload: AuthenticateWithOrganizationSelectionOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithOrganizationSelection');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -633,6 +669,8 @@ export class UserManagement {
   async authenticateWithRadarSmsChallenge(
     payload: AuthenticateWithRadarSmsChallengeOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithRadarSmsChallenge');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 
@@ -658,6 +696,8 @@ export class UserManagement {
   async authenticateWithRadarEmailChallenge(
     payload: AuthenticateWithRadarEmailChallengeOptions,
   ): Promise<AuthenticationResponse> {
+    this.requireApiKeyAsClientSecret('authenticateWithRadarEmailChallenge');
+
     const { session, clientId, ...remainingPayload } = payload;
     const resolvedClientId = this.resolveClientId(clientId);
 

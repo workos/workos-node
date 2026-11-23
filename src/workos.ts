@@ -246,13 +246,39 @@ export class WorkOS {
 
   /**
    * Require API key for methods that need it. Credentials passed to the
-   * constructor authorize the same methods an API key does.
+   * constructor authorize the same methods an API key does, except the ones
+   * that send the API key as the client secret: see
+   * {@link requireApiKeyAsClientSecret}.
    * @param methodName - Name of the method requiring API key (for error message)
    * @throws ApiKeyRequiredException if neither an API key nor credentials were provided
    */
   requireApiKey(methodName: string): void {
     if (!this.hasApiKey && !this.options.credentials) {
       throw new ApiKeyRequiredException(methodName);
+    }
+  }
+
+  /**
+   * Refuse a method that sends the API key as the client secret when this
+   * client was built with credentials. Such a client has no API key, so the
+   * request would go out with no client secret and with the credentials'
+   * access token, which is not a client secret.
+   *
+   * A client with an API key is not affected. Neither is a public client,
+   * which has neither an API key nor credentials: its PKCE and refresh token
+   * flows leave the client secret out on purpose.
+   * @param methodName - Name of the calling method (for error message)
+   * @param path - The API path the method calls
+   * @throws ApiKeyRequiredException before any request is sent
+   */
+  requireApiKeyAsClientSecret(methodName: string, path: string): void {
+    if (this.options.credentials && !this.hasApiKey) {
+      throw new ApiKeyRequiredException(
+        path,
+        `${methodName} needs an API key: this request sends it as the client secret. ` +
+          'A client that authenticates with workload identity has no API key, ' +
+          'so use a client built with one for this call.',
+      );
     }
   }
 

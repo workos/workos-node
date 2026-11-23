@@ -7,7 +7,12 @@ import os from 'node:os';
 import path from 'node:path';
 import { inspect } from 'node:util';
 import { version } from '../../package.json';
-import { UnauthorizedException } from '../common/exceptions';
+import { sealData } from '../common/crypto/seal';
+import {
+  ApiKeyRequiredException,
+  UnauthorizedException,
+} from '../common/exceptions';
+import userFixture from '../user-management/fixtures/user.json';
 import {
   tokenEnv,
   tokenFile,
@@ -940,6 +945,346 @@ describe('workload identity', () => {
       await workos.get('/organizations');
 
       expect(bearer(apiRequests[0])).toBe('Bearer access-1');
+    });
+  });
+
+  describe('methods that send the API key as the client secret', () => {
+    // The application users sign in to. It is not the workload identity
+    // client.
+    const APP_CLIENT_ID = 'client_app';
+    const pending = {
+      clientId: APP_CLIENT_ID,
+      pendingAuthenticationToken: 'pending_token',
+    };
+
+    const needsApiKey = (method: string) =>
+      `${method} needs an API key: this request sends it as the client secret. ` +
+      'A client that authenticates with workload identity has no API key, ' +
+      'so use a client built with one for this call.';
+
+    // Every user management method that sends `client_secret`.
+    // `authenticateWithCode` is here with and without a code verifier.
+    const userManagementCalls: Array<
+      [string, string, (workos: WorkOS) => Promise<unknown>]
+    > = [
+      [
+        'authenticateWithPassword',
+        'authenticateWithPassword',
+        (workos) =>
+          workos.userManagement.authenticateWithPassword({
+            clientId: APP_CLIENT_ID,
+            email: 'user@example.com',
+            password: 'password',
+          }),
+      ],
+      [
+        'authenticateWithMagicAuth',
+        'authenticateWithMagicAuth',
+        (workos) =>
+          workos.userManagement.authenticateWithMagicAuth({
+            clientId: APP_CLIENT_ID,
+            email: 'user@example.com',
+            code: '123456',
+          }),
+      ],
+      [
+        'authenticateWithCode',
+        'authenticateWithCode',
+        (workos) =>
+          workos.userManagement.authenticateWithCode({
+            clientId: APP_CLIENT_ID,
+            code: 'authorization_code',
+          }),
+      ],
+      [
+        'authenticateWithCode with a code verifier',
+        'authenticateWithCode',
+        (workos) =>
+          workos.userManagement.authenticateWithCode({
+            clientId: APP_CLIENT_ID,
+            code: 'authorization_code',
+            codeVerifier: 'code_verifier',
+          }),
+      ],
+      [
+        'authenticateWithRefreshToken',
+        'authenticateWithRefreshToken',
+        (workos) =>
+          workos.userManagement.authenticateWithRefreshToken({
+            clientId: APP_CLIENT_ID,
+            refreshToken: 'refresh_token',
+          }),
+      ],
+      [
+        'authenticateWithTotp',
+        'authenticateWithTotp',
+        (workos) =>
+          workos.userManagement.authenticateWithTotp({
+            ...pending,
+            code: '123456',
+            authenticationChallengeId: 'auth_challenge_123',
+          }),
+      ],
+      [
+        'authenticateWithEmailVerification',
+        'authenticateWithEmailVerification',
+        (workos) =>
+          workos.userManagement.authenticateWithEmailVerification({
+            ...pending,
+            code: '123456',
+          }),
+      ],
+      [
+        'authenticateWithOrganizationSelection',
+        'authenticateWithOrganizationSelection',
+        (workos) =>
+          workos.userManagement.authenticateWithOrganizationSelection({
+            ...pending,
+            organizationId: 'org_123',
+          }),
+      ],
+      [
+        'authenticateWithRadarSmsChallenge',
+        'authenticateWithRadarSmsChallenge',
+        (workos) =>
+          workos.userManagement.authenticateWithRadarSmsChallenge({
+            ...pending,
+            code: '123456',
+            verificationId: 'verification_123',
+            phoneNumber: '+15555550123',
+          }),
+      ],
+      [
+        'authenticateWithRadarEmailChallenge',
+        'authenticateWithRadarEmailChallenge',
+        (workos) =>
+          workos.userManagement.authenticateWithRadarEmailChallenge({
+            ...pending,
+            code: '123456',
+            radarChallengeId: 'radar_challenge_123',
+          }),
+      ],
+    ];
+
+    const authenticationResponse = (): Reply => ({
+      json: {
+        user: userFixture,
+        access_token: 'user_access_token',
+        refresh_token: 'user_refresh_token',
+      },
+    });
+
+    const profileAndToken = (): Reply => ({
+      json: {
+        access_token: 'sso_access_token',
+        profile: {
+          object: 'profile',
+          id: 'prof_123',
+          idp_id: '123',
+          organization_id: 'org_123',
+          connection_id: 'conn_123',
+          connection_type: 'OktaSAML',
+          email: 'user@example.com',
+          raw_attributes: {},
+        },
+      },
+    });
+
+    it.each(userManagementCalls)(
+      'WIF: userManagement.%s throws before any request on a client built with credentials',
+      async (_name, method, call) => {
+        const { workos, provider } = setup();
+
+        const error = await call(workos).catch((thrown: unknown) => thrown);
+
+        expect(error).toBeInstanceOf(ApiKeyRequiredException);
+        expect(error).toMatchObject({
+          message: needsApiKey(method),
+          path: '/user_management/authenticate',
+        });
+        // No exchange and no API request.
+        expect(fetch).not.toHaveBeenCalled();
+        expect(provider).not.toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      ['with no code verifier', undefined],
+      ['with a code verifier', 'code_verifier'],
+    ])(
+      'WIF: sso.getProfileAndToken %s throws before any request on a client built with credentials',
+      async (_name, codeVerifier) => {
+        const { workos, provider } = setup();
+
+        const error = await workos.sso
+          .getProfileAndToken({
+            clientId: APP_CLIENT_ID,
+            code: 'authorization_code',
+            codeVerifier,
+          })
+          .catch((thrown: unknown) => thrown);
+
+        expect(error).toBeInstanceOf(ApiKeyRequiredException);
+        expect(error).toMatchObject({
+          message: needsApiKey('getProfileAndToken'),
+          path: '/sso/token',
+        });
+        expect(fetch).not.toHaveBeenCalled();
+        expect(provider).not.toHaveBeenCalled();
+      },
+    );
+
+    it('WIF: refreshing a sealed session throws before any request on a client built with credentials', async () => {
+      const { credentials, provider } = setup();
+      const workos = new WorkOS({ clientId: APP_CLIENT_ID, credentials });
+      const cookiePassword = 'a cookie password of at least 32 characters';
+      const encode = (value: object) =>
+        Buffer.from(JSON.stringify(value)).toString('base64url');
+      const session = workos.userManagement.loadSealedSession({
+        sessionData: await sealData(
+          {
+            // Decoded, never verified, before the refresh request.
+            accessToken: `${encode({ alg: 'none' })}.${encode({ sid: 'session_123' })}.`,
+            refreshToken: 'refresh_token',
+            user: userFixture,
+          },
+          { password: cookiePassword },
+        ),
+        cookiePassword,
+      });
+
+      // Thrown, not reported as a failed refresh: the session is not over.
+      const error = await session.refresh().catch((thrown: unknown) => thrown);
+
+      expect(error).toBeInstanceOf(ApiKeyRequiredException);
+      expect(error).toMatchObject({
+        message: needsApiKey('authenticateWithRefreshToken'),
+      });
+      expect(fetch).not.toHaveBeenCalled();
+      expect(provider).not.toHaveBeenCalled();
+    });
+
+    it('WIF: a public client still exchanges a code with a verifier and refreshes with no client secret', async () => {
+      // Neither an API key nor credentials.
+      const workos = new WorkOS({ clientId: APP_CLIENT_ID });
+
+      api = (_count, request) =>
+        request.url.endsWith('/sso/token')
+          ? profileAndToken()
+          : authenticationResponse();
+
+      await expect(
+        workos.userManagement.authenticateWithCode({
+          code: 'authorization_code',
+          codeVerifier: 'code_verifier',
+        }),
+      ).resolves.toMatchObject({ accessToken: 'user_access_token' });
+      await expect(
+        workos.userManagement.authenticateWithCodeAndVerifier({
+          clientId: APP_CLIENT_ID,
+          code: 'authorization_code',
+          codeVerifier: 'code_verifier',
+        }),
+      ).resolves.toMatchObject({ accessToken: 'user_access_token' });
+      await expect(
+        workos.userManagement.authenticateWithRefreshToken({
+          refreshToken: 'refresh_token',
+        }),
+      ).resolves.toMatchObject({ refreshToken: 'user_refresh_token' });
+      await expect(
+        workos.sso.getProfileAndToken({
+          clientId: APP_CLIENT_ID,
+          code: 'authorization_code',
+          codeVerifier: 'code_verifier',
+        }),
+      ).resolves.toMatchObject({ accessToken: 'sso_access_token' });
+
+      expect(
+        apiRequests.map((request) => new URL(request.url).pathname),
+      ).toEqual([
+        '/user_management/authenticate',
+        '/user_management/authenticate',
+        '/user_management/authenticate',
+        '/sso/token',
+      ]);
+      expect(JSON.parse(apiRequests[0].body)).toEqual({
+        grant_type: 'authorization_code',
+        client_id: APP_CLIENT_ID,
+        code: 'authorization_code',
+        code_verifier: 'code_verifier',
+      });
+      expect(JSON.parse(apiRequests[2].body)).toEqual({
+        grant_type: 'refresh_token',
+        client_id: APP_CLIENT_ID,
+        refresh_token: 'refresh_token',
+      });
+      expect(form(apiRequests[3])).toEqual({
+        grant_type: 'authorization_code',
+        client_id: APP_CLIENT_ID,
+        code: 'authorization_code',
+        code_verifier: 'code_verifier',
+      });
+      for (const request of apiRequests) {
+        expect(request.body).not.toContain('client_secret');
+        expect(request.headers.has('authorization')).toBe(false);
+      }
+      expect(exchanges).toHaveLength(0);
+    });
+
+    it('WIF: a public client gets the same error as before from a method that needs an API key', async () => {
+      const workos = new WorkOS({ clientId: APP_CLIENT_ID });
+
+      const error = await workos.userManagement
+        .authenticateWithPassword({
+          email: 'user@example.com',
+          password: 'password',
+        })
+        .catch((thrown: unknown) => thrown);
+
+      expect(error).toBeInstanceOf(ApiKeyRequiredException);
+      expect(error).toMatchObject({
+        message: expect.stringMatching(
+          /^API key required for "\/user_management\/authenticate"\. /,
+        ),
+        path: '/user_management/authenticate',
+      });
+      expect(fetch).not.toHaveBeenCalled();
+    });
+
+    it('WIF: a client with an API key still sends it as the client secret', async () => {
+      const workos = new WorkOS('sk_test_static', { clientId: APP_CLIENT_ID });
+
+      api = (_count, request) =>
+        request.url.endsWith('/sso/token')
+          ? profileAndToken()
+          : authenticationResponse();
+
+      await workos.userManagement.authenticateWithPassword({
+        email: 'user@example.com',
+        password: 'password',
+      });
+      await workos.userManagement.authenticateWithCode({
+        code: 'authorization_code',
+        codeVerifier: 'code_verifier',
+      });
+      await workos.userManagement.authenticateWithRefreshToken({
+        refreshToken: 'refresh_token',
+      });
+      await workos.sso.getProfileAndToken({
+        clientId: APP_CLIENT_ID,
+        code: 'authorization_code',
+      });
+
+      expect(
+        apiRequests
+          .slice(0, 3)
+          .map((request) => JSON.parse(request.body).client_secret),
+      ).toEqual(['sk_test_static', 'sk_test_static', 'sk_test_static']);
+      expect(form(apiRequests[3]).client_secret).toBe('sk_test_static');
+      expect(apiRequests.map(bearer)).toEqual(
+        Array(4).fill('Bearer sk_test_static'),
+      );
+      expect(exchanges).toHaveLength(0);
     });
   });
 

@@ -230,7 +230,11 @@ export class SSO {
    * Using PKCE with confidential clients is recommended by OAuth 2.1 for defense
    * in depth and provides additional CSRF protection on the authorization flow.
    *
+   * A client built with credentials has no API key and is not a public client,
+   * so this method throws on it whether or not a codeVerifier is given.
+   *
    * @throws Error if neither codeVerifier nor API key is available
+   * @throws ApiKeyRequiredException if the client was built with credentials
    */
   async getProfileAndToken<
     CustomAttributesType extends UnknownRecord = UnknownRecord,
@@ -241,6 +245,8 @@ export class SSO {
   }: GetProfileAndTokenOptions): Promise<
     ProfileAndToken<CustomAttributesType>
   > {
+    this.workos.requireApiKeyAsClientSecret('getProfileAndToken', '/sso/token');
+
     // Validate codeVerifier is not an empty string (common mistake)
     if (codeVerifier !== undefined && codeVerifier.trim() === '') {
       throw new TypeError(
